@@ -43,6 +43,14 @@ describe('applyMove', () => {
     const full = B([[2, 4, 8, 16], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]])
     expect(applyMove(full, 'left').moved).toBe(false)
   })
+  it('down은 각 열을 아래로 민다', () => {
+    const { board, gained } = applyMove(
+      B([[2, 0, 0, 0], [2, 0, 0, 0], [4, 0, 0, 0], [0, 0, 0, 0]]),
+      'down',
+    )
+    expect(board.map((r) => r[0])).toEqual([0, 0, 4, 4])
+    expect(gained).toBe(4)
+  })
 })
 
 describe('spawnTile', () => {
@@ -76,5 +84,30 @@ describe('canMove / move', () => {
   it('2048 도달 시 won=true', () => {
     const s = { board: B([[1024, 1024, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]), score: 0, over: false, won: false }
     expect(move(s, 'left', () => 0).won).toBe(true)
+  })
+  it('이동+스폰 후 더 이상 이동 불가하면 over=true', () => {
+    // 한 칸(0,1)만 비어 있는 체커보드 배치. 'left'로 row0의 빈칸이 끝으로 밀리고,
+    // 상수 rng(항상 0)가 그 칸에 2를 스폰해 인접 병합 없는 꽉 찬 보드가 된다.
+    const s = {
+      board: B([
+        [4, 0, 2, 4],
+        [2, 4, 2, 4],
+        [4, 2, 4, 2],
+        [2, 4, 2, 4],
+      ]),
+      score: 0,
+      over: false,
+      won: false,
+    }
+    const next = move(s, 'left', () => 0)
+    expect(next.board).toEqual(
+      B([
+        [4, 2, 4, 2],
+        [2, 4, 2, 4],
+        [4, 2, 4, 2],
+        [2, 4, 2, 4],
+      ]),
+    )
+    expect(next.over).toBe(true)
   })
 })

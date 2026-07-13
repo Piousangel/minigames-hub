@@ -5,6 +5,7 @@ test('홈에서 게임 카드로 이동할 수 있다', async ({ page }) => {
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Free Online Mini Games')
   await page.getByRole('link', { name: /2048 Animals/ }).click()
   await expect(page).toHaveURL(/\/2048-animals/)
+  await expect(page.getByTestId('board')).toBeVisible()
 })
 
 test('2048: 로드 → 조작 → 상태 변화', async ({ page }) => {

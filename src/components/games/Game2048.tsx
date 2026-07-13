@@ -30,9 +30,13 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   // SSR 불일치 방지: 초기 보드는 클라이언트에서만 생성
   const [state, setState] = useState<GameState | null>(null)
   const [best, setBest] = useState(0)
+  const [wonSeen, setWonSeen] = useState(false)
   const touchStart = useRef<{ x: number; y: number } | null>(null)
 
-  const restart = useCallback(() => setState(newGame(Math.random)), [])
+  const restart = useCallback(() => {
+    setState(newGame(Math.random))
+    setWonSeen(false)
+  }, [])
 
   useEffect(() => {
     restart()
@@ -75,7 +79,25 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   }
 
   if (!state) {
-    return <div className="mx-auto aspect-square w-full max-w-100 rounded-xl bg-surface" data-testid="board-loading" />
+    return (
+      <div className="mx-auto w-full max-w-100 select-none">
+        <div className="mb-3 flex items-center justify-between">
+          <div className="flex gap-2 text-sm">
+            <div className="rounded-lg bg-surface px-3 py-1.5">
+              Score <span className="font-bold">0</span>
+            </div>
+            <div className="rounded-lg bg-surface px-3 py-1.5">
+              Best <span className="font-bold">0</span>
+            </div>
+          </div>
+          <button disabled className="rounded-lg bg-accent px-3 py-1.5 text-sm font-semibold text-stone-900 opacity-50">
+            New Game
+          </button>
+        </div>
+        <div className="aspect-square w-full rounded-xl bg-surface p-2" data-testid="board-loading" />
+        <p className="mt-3 text-center text-sm text-fg-muted">Arrow keys or swipe to move the tiles.</p>
+      </div>
+    )
   }
 
   return (
@@ -114,6 +136,19 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
             <button onClick={restart} className="rounded-lg bg-accent px-4 py-2 font-semibold text-stone-900">
               Try again
             </button>
+          </div>
+        )}
+        {state.won && !wonSeen && !state.over && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-xl bg-bg/80" data-testid="you-win">
+            <p className="text-2xl font-bold">You win!</p>
+            <div className="flex gap-2">
+              <button onClick={() => setWonSeen(true)} className="rounded-lg bg-surface px-4 py-2 font-semibold">
+                Keep going
+              </button>
+              <button onClick={restart} className="rounded-lg bg-accent px-4 py-2 font-semibold text-stone-900">
+                New Game
+              </button>
+            </div>
           </div>
         )}
       </div>

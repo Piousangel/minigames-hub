@@ -1,6 +1,9 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { gamePages } from '@/lib/games/registry'
 import { siteConfig } from '@/lib/siteConfig'
+
+export const metadata: Metadata = { alternates: { canonical: '/' } }
 
 export default function Home() {
   return (
