@@ -1,7 +1,7 @@
-export interface GamePage {
+import { themes2048 } from './g2048/themes'
+
+interface GamePageBase {
   slug: string
-  game: '2048' // Plan 2에서 'snake' | 'minesweeper' | ... 로 확장
-  themeKey: string
   title: string // <title>
   h1: string
   metaDescription: string
@@ -10,6 +10,12 @@ export interface GamePage {
   strategy: string[]
   faq: Array<{ q: string; a: string }>
 }
+
+export type GamePage = GamePageBase &
+  (
+    | { game: '2048'; themeKey: keyof typeof themes2048 }
+    | { game: 'snake' } // Task 5에서 첫 엔트리 추가
+  )
 
 export const gamePages: GamePage[] = [
   {
