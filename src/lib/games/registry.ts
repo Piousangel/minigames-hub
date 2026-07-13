@@ -16,6 +16,7 @@ export type GamePage = GamePageBase &
     | { game: '2048'; themeKey: keyof typeof themes2048 }
     | { game: 'snake' } // Task 5에서 첫 엔트리 추가
     | { game: 'minesweeper' }
+    | { game: 'memory' }
   )
 
 export const gamePages: GamePage[] = [
@@ -152,6 +153,45 @@ export const gamePages: GamePage[] = [
       {
         q: 'How many mines are there?',
         a: 'This board is the classic beginner setup: a 9x9 grid with 10 mines. The mine counter shows how many are left unflagged.',
+      },
+    ],
+  },
+  {
+    slug: 'memory-game',
+    game: 'memory',
+    title: 'Play Memory Game Online — Free Matching Pairs Game',
+    h1: 'Memory Game',
+    metaDescription:
+      'Play the classic memory matching game online for free. Flip cards, remember what you saw, and find all 8 pairs in as few moves as you can. Great for kids and adults.',
+    shortDescription: 'Find all the matching pairs.',
+    howToPlay: [
+      'Tap or click any card to flip it over and see the picture.',
+      'Flip a second card. If the pictures match, the pair stays face up.',
+      'If they do not match, both cards flip back — remember where they were!',
+      'Match all 8 pairs to win. Fewer moves means a better score.',
+    ],
+    strategy: [
+      'Say what you see (silently): naming the picture and its position makes it far easier to recall than just looking.',
+      'Start with cards you have never flipped — new information beats re-checking cards you already know.',
+      'When you flip a new card, check your memory first: have you already seen its partner? Only then flip a second card.',
+      'Use the grid like a map — remember cards by row and corner ("banana, top-left") rather than as loose images.',
+    ],
+    faq: [
+      {
+        q: 'How many cards are there?',
+        a: 'The board is a 4x4 grid with 16 cards — 8 matching pairs of pictures, shuffled every game.',
+      },
+      {
+        q: 'What counts as a good score?',
+        a: 'Every two flips count as one move. A perfect game is 8 moves; under 14 moves is a strong score for a 4x4 board.',
+      },
+      {
+        q: 'Is this game good for kids?',
+        a: 'Yes — memory matching is one of the best simple games for concentration and short-term memory, and the pictures make it friendly for young kids.',
+      },
+      {
+        q: 'Do the cards shuffle every game?',
+        a: 'Yes. Every new game deals a fresh random layout, so you cannot memorize positions between rounds.',
       },
     ],
   },
