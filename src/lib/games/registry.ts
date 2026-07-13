@@ -15,6 +15,7 @@ export type GamePage = GamePageBase &
   (
     | { game: '2048'; themeKey: keyof typeof themes2048 }
     | { game: 'snake' } // Task 5에서 첫 엔트리 추가
+    | { game: 'minesweeper' }
   )
 
 export const gamePages: GamePage[] = [
@@ -111,6 +112,46 @@ export const gamePages: GamePage[] = [
       {
         q: 'What is a good score?',
         a: 'Anything above 20 is solid. Past 40 the board gets crowded and every turn matters — that is where the real game begins.',
+      },
+    ],
+  },
+  {
+    slug: 'minesweeper',
+    game: 'minesweeper',
+    title: 'Play Minesweeper Online — Free Classic Minesweeper',
+    h1: 'Minesweeper',
+    metaDescription:
+      'Play classic Minesweeper online for free. Reveal safe squares, read the numbers, and flag all 10 mines on a 9x9 board. No download, works on mobile.',
+    shortDescription: 'Read the numbers, dodge the mines.',
+    howToPlay: [
+      'Click any square to start — your first click is always safe.',
+      'A number tells you how many mines touch that square, including diagonals.',
+      'Right-click (or turn on the 🚩 Flag toggle on mobile) to mark squares you think hide a mine.',
+      'Reveal every safe square to win. Click a mine and the game is over.',
+    ],
+    strategy: [
+      'Start from the big open areas: a revealed zero automatically opens all of its neighbors, giving you free information.',
+      "If a number already touches exactly that many flags, every other neighbor is safe — this is the game's most-used deduction.",
+      'A "1" on a wall or corner is your best friend: it has fewer neighbors, so its mine is easier to pin down.',
+      'When two numbers overlap, subtract what they share — patterns like 1-2-1 and 1-2-2-1 have fixed, learnable solutions.',
+      'Never guess while a certain deduction exists somewhere on the board. Scan everything before you gamble.',
+    ],
+    faq: [
+      {
+        q: 'Can I lose on the first click?',
+        a: 'No. Mines are placed after your first click, so the first square you reveal is always safe.',
+      },
+      {
+        q: 'What do the numbers mean?',
+        a: 'Each number counts the mines in the up-to-eight squares touching it, including diagonals. A blank square means zero adjacent mines.',
+      },
+      {
+        q: 'How do I flag mines on a phone?',
+        a: 'Tap the 🚩 Flag toggle above the board, then tap squares to flag them. Tap the toggle again to go back to revealing.',
+      },
+      {
+        q: 'How many mines are there?',
+        a: 'This board is the classic beginner setup: a 9x9 grid with 10 mines. The mine counter shows how many are left unflagged.',
       },
     ],
   },
