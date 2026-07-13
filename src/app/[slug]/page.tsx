@@ -19,7 +19,13 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: { absolute: page.title },
     description: page.metaDescription,
     alternates: { canonical: `/${page.slug}` },
-    openGraph: { title: page.title, description: page.metaDescription, url: `/${page.slug}` },
+    openGraph: {
+      title: page.title,
+      description: page.metaDescription,
+      url: `/${page.slug}`,
+      siteName: siteConfig.name,
+      type: 'website',
+    },
   }
 }
 

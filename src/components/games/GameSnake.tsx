@@ -40,6 +40,14 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
   }, [running, over])
 
   useEffect(() => {
+    const onVisibility = () => {
+      if (document.hidden) setRunning(false)
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => document.removeEventListener('visibilitychange', onVisibility)
+  }, [])
+
+  useEffect(() => {
     if (state && state.score > best) {
       setBest(state.score)
       localStorage.setItem(storageKey, String(state.score))
