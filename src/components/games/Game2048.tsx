@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { move, newGame, type Direction, type GameState } from '@/lib/games/g2048/engine'
 import type { Theme2048 } from '@/lib/games/g2048/themes'
+import { isTypingTarget } from '@/lib/isTypingTarget'
 
 const KEY_DIRS: Record<string, Direction> = {
   ArrowLeft: 'left',
@@ -40,7 +41,8 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
 
   useEffect(() => {
     restart()
-    setBest(Number(localStorage.getItem(storageKey) ?? 0))
+    const stored = Number(localStorage.getItem(storageKey))
+    setBest(Number.isFinite(stored) ? stored : 0)
   }, [restart, storageKey])
 
   useEffect(() => {
@@ -50,12 +52,19 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
     }
   }, [state, best, storageKey])
 
-  const doMove = useCallback((dir: Direction) => {
-    setState((s) => (s && !s.over ? move(s, dir, Math.random) : s))
-  }, [])
+  const winOverlayVisible = state !== null && state.won && !wonSeen && !state.over
+
+  const doMove = useCallback(
+    (dir: Direction) => {
+      if (winOverlayVisible) return
+      setState((s) => (s && !s.over ? move(s, dir, Math.random) : s))
+    },
+    [winOverlayVisible],
+  )
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (isTypingTarget(e.target)) return
       const dir = KEY_DIRS[e.key]
       if (dir) {
         e.preventDefault()
@@ -138,7 +147,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
             </button>
           </div>
         )}
-        {state.won && !wonSeen && !state.over && (
+        {winOverlayVisible && (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-xl bg-bg/80" data-testid="you-win">
             <p className="text-2xl font-bold">You win!</p>
             <div className="flex gap-2">
