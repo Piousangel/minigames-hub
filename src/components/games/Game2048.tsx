@@ -39,20 +39,16 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
     setBest(Number(localStorage.getItem(storageKey) ?? 0))
   }, [restart, storageKey])
 
-  const doMove = useCallback(
-    (dir: Direction) => {
-      setState((s) => {
-        if (!s || s.over) return s
-        const next = move(s, dir, Math.random)
-        if (next.score > best) {
-          setBest(next.score)
-          localStorage.setItem(storageKey, String(next.score))
-        }
-        return next
-      })
-    },
-    [best, storageKey],
-  )
+  useEffect(() => {
+    if (state && state.score > best) {
+      setBest(state.score)
+      localStorage.setItem(storageKey, String(state.score))
+    }
+  }, [state, best, storageKey])
+
+  const doMove = useCallback((dir: Direction) => {
+    setState((s) => (s && !s.over ? move(s, dir, Math.random) : s))
+  }, [])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
