@@ -1,23 +1,10 @@
-import js from '@eslint/js'
-import nextPlugin from '@next/eslint-plugin-next'
-import reactPlugin from 'eslint-plugin-react'
-import tseslint from 'typescript-eslint'
+import { FlatCompat } from '@eslint/eslintrc'
 
-export default tseslint.config(
-  { ignores: ['.next/**', 'node_modules/**', 'playwright-report/**', 'test-results/**', 'next-env.d.ts'] },
-  js.configs.recommended,
-  ...tseslint.configs.recommended,
-  {
-    files: ['**/*.{ts,tsx}'],
-    plugins: {
-      react: reactPlugin,
-      '@next/next': nextPlugin,
-    },
-    rules: {
-      'react/react-in-jsx-scope': 'off',
-      'react/no-unescaped-entities': 'error',
-      '@next/next/no-html-link-for-pages': 'warn',
-    },
-  },
-)
+const compat = new FlatCompat({ baseDirectory: import.meta.dirname })
 
+const eslintConfig = [
+  { ignores: ['.next/**', 'node_modules/**', 'playwright-report/**', 'test-results/**', 'next-env.d.ts'] }, // next-env.d.ts: Next가 자동 생성/관리하는 파일
+  ...compat.extends('next/core-web-vitals', 'next/typescript'),
+]
+
+export default eslintConfig
