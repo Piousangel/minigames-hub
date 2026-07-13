@@ -1,0 +1,50 @@
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { GamePageLayout } from '@/components/GamePageLayout'
+import { GameRenderer } from '@/components/GameRenderer'
+import { gamePages } from '@/lib/games/registry'
+import { siteConfig } from '@/lib/siteConfig'
+
+export const dynamicParams = false
+
+export function generateStaticParams() {
+  return gamePages.map(({ slug }) => ({ slug }))
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const page = gamePages.find((g) => g.slug === slug)
+  if (!page) return {}
+  return {
+    title: { absolute: page.title },
+    description: page.metaDescription,
+    alternates: { canonical: `/${page.slug}` },
+  }
+}
+
+export default async function GamePage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params
+  const page = gamePages.find((g) => g.slug === slug)
+  if (!page) notFound()
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'VideoGame',
+    name: page.h1,
+    url: `${siteConfig.url}/${page.slug}`,
+    description: page.metaDescription,
+    playMode: 'SinglePlayer',
+    applicationCategory: 'Game',
+    gamePlatform: 'Web browser',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  }
+
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <GamePageLayout page={page}>
+        <GameRenderer page={page} />
+      </GamePageLayout>
+    </>
+  )
+}
