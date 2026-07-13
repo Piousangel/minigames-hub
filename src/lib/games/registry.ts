@@ -74,4 +74,44 @@ export const gamePages: GamePage[] = [
       { q: 'Is it harder than normal 2048?', a: 'The mechanics are identical, so it plays the same. Some players find animals easier to track than numbers; others prefer the classic tiles.' },
     ],
   },
+  {
+    slug: 'snake',
+    game: 'snake',
+    title: 'Play Snake Online — Free Classic Snake Game',
+    h1: 'Snake',
+    metaDescription:
+      'Play the classic Snake game online for free. Eat food, grow longer, and avoid the walls in this timeless arcade game. Works on desktop and mobile — no download needed.',
+    shortDescription: 'The timeless snake — eat, grow, survive.',
+    howToPlay: [
+      'Press any arrow key (or swipe on mobile) to start the game and steer the snake.',
+      'Eat the red food to grow longer — each bite is worth one point.',
+      'The snake keeps moving in its current direction; you can turn up, down, left, or right, but never straight backwards.',
+      'The game ends when the snake hits a wall or runs into its own body.',
+    ],
+    strategy: [
+      'Hug the edges early: sweeping along the walls keeps the middle of the board open for when your snake gets long.',
+      'Plan two turns ahead — most deaths come from turning into a corridor your own body just closed off.',
+      'Use the classic "lawnmower" pattern, sweeping back and forth in rows, once your snake takes up a big part of the board.',
+      'Do not chase food the moment it spawns; approach it from a direction that leaves you an exit.',
+      'A gap that looks closed will often open right as you arrive — the tail moves away every tick, so count cells before you panic-turn.',
+    ],
+    faq: [
+      {
+        q: 'Is this the classic snake game?',
+        a: 'Yes — this is the classic snake formula: eat food, grow longer, avoid the walls and your own body. No power-ups and no gimmicks, just the pure game.',
+      },
+      {
+        q: 'How do I control the snake on mobile?',
+        a: 'Swipe anywhere on the board in the direction you want to turn. The snake starts moving on your first swipe.',
+      },
+      {
+        q: "Why can't I reverse direction?",
+        a: 'A 180-degree turn would make the head collide with the neck instantly, so classic snake rules only allow 90-degree turns.',
+      },
+      {
+        q: 'What is a good score?',
+        a: 'Anything above 20 is solid. Past 40 the board gets crowded and every turn matters — that is where the real game begins.',
+      },
+    ],
+  },
 ]

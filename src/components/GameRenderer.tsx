@@ -1,4 +1,5 @@
 import { Game2048 } from '@/components/games/Game2048'
+import { GameSnake } from '@/components/games/GameSnake'
 import { themes2048 } from '@/lib/games/g2048/themes'
 import type { GamePage } from '@/lib/games/registry'
 
@@ -7,7 +8,7 @@ export function GameRenderer({ page }: { page: GamePage }) {
     case '2048':
       return <Game2048 theme={themes2048[page.themeKey]} storageKey={`best:${page.slug}`} />
     case 'snake':
-      return null // Task 5에서 GameSnake로 교체
+      return <GameSnake storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null
