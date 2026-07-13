@@ -12,6 +12,7 @@ Free online mini games. Next.js SSG + Vercel.
 |---|---|
 | 2048 (classic) | ✅ e2e/smoke.spec.ts |
 | 2048 Animals | ✅ 홈 내비 테스트로 커버 |
+| Snake | ✅ e2e/smoke.spec.ts (벽 충돌 게임오버) |
 
 ## 배포 (수동 — 사용자가 직접)
 1. 도메인 구매 후 `src/lib/siteConfig.ts`의 `url`·브랜드명, `src/app/contact/page.tsx`의 이메일 변경

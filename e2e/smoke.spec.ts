@@ -28,3 +28,12 @@ test('게임 페이지에 SEO 텍스트 섹션이 있다', async ({ page }) => {
   await expect(page.getByRole('heading', { name: /Strategy/ })).toBeVisible()
   await expect(page.getByRole('heading', { name: 'FAQ' })).toBeVisible()
 })
+
+test('snake: 시작 → 자동 전진 → 벽 충돌 게임오버', async ({ page }) => {
+  await page.goto('/snake')
+  await expect(page.getByTestId('snake-board')).toBeVisible()
+  await page.keyboard.press('ArrowRight') // 시작: 중앙(10,10)에서 오른쪽으로
+  // 10칸 × 130ms ≈ 1.3초 뒤 벽 충돌이 결정론적으로 발생
+  await expect(page.getByTestId('game-over')).toBeVisible({ timeout: 10_000 })
+  await expect(page.getByTestId('score')).toBeVisible()
+})
