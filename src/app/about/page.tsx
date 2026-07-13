@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { ProsePage } from '@/components/ProsePage'
 import { siteConfig } from '@/lib/siteConfig'
 
@@ -19,7 +20,7 @@ export default function AboutPage() {
       </p>
       <p>
         New games and game variants are added regularly. If you have a suggestion or found a bug,
-        we would love to hear from you on the <a href="/contact" className="text-accent">contact page</a>.
+        we would love to hear from you on the <Link href="/contact" className="text-accent">contact page</Link>.
       </p>
     </ProsePage>
   )

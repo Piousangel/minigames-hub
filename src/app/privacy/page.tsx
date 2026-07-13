@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { ProsePage } from '@/components/ProsePage'
 import { siteConfig } from '@/lib/siteConfig'
 
@@ -27,7 +28,7 @@ export default function PrivacyPage() {
         <a href="https://adssettings.google.com" className="text-accent">Google Ads Settings</a>.
       </p>
       <h2>Contact</h2>
-      <p>Questions about this policy? Reach us via the <a href="/contact" className="text-accent">contact page</a>.</p>
+      <p>Questions about this policy? Reach us via the <Link href="/contact" className="text-accent">contact page</Link>.</p>
     </ProsePage>
   )
 }

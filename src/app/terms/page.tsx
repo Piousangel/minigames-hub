@@ -10,7 +10,7 @@ export default function TermsPage() {
       <p>Last updated: July 13, 2026</p>
       <p>
         By using {siteConfig.name}, you agree to these terms. All games are provided free of charge,
-        "as is", for personal entertainment. We make no guarantees about availability or fitness for
+        &quot;as is&quot;, for personal entertainment. We make no guarantees about availability or fitness for
         any particular purpose.
       </p>
       <p>
