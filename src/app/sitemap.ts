@@ -2,6 +2,8 @@ import type { MetadataRoute } from 'next'
 import { gamePages } from '@/lib/games/registry'
 import { siteConfig } from '@/lib/siteConfig'
 
+export const dynamic = 'force-static'
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticPaths = ['', '/about', '/privacy', '/terms', '/contact']
   return [
