@@ -2,6 +2,7 @@ import { Game2048 } from '@/components/games/Game2048'
 import { GameMemory } from '@/components/games/GameMemory'
 import { GameMinesweeper } from '@/components/games/GameMinesweeper'
 import { GameSnake } from '@/components/games/GameSnake'
+import { GameTyping } from '@/components/games/GameTyping'
 import { themes2048 } from '@/lib/games/g2048/themes'
 import type { GamePage } from '@/lib/games/registry'
 
@@ -15,6 +16,8 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameMinesweeper />
     case 'memory':
       return <GameMemory storageKey={`best:${page.slug}`} />
+    case 'typing':
+      return <GameTyping storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

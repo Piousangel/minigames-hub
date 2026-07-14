@@ -17,6 +17,7 @@ export type GamePage = GamePageBase &
     | { game: 'snake' } // Task 5에서 첫 엔트리 추가
     | { game: 'minesweeper' }
     | { game: 'memory' }
+    | { game: 'typing' }
   )
 
 export const gamePages: GamePage[] = [
@@ -192,6 +193,46 @@ export const gamePages: GamePage[] = [
       {
         q: 'Do the cards shuffle every game?',
         a: 'Yes. Every new game deals a fresh random layout, so you cannot memorize positions between rounds.',
+      },
+    ],
+  },
+  {
+    slug: 'typing-test',
+    game: 'typing',
+    title: 'Typing Speed Test — Free Online WPM Test',
+    h1: 'Typing Speed Test',
+    metaDescription:
+      'Test your typing speed online for free. Type common English words for 60 seconds and get your WPM and accuracy instantly. No sign-up, works on any keyboard.',
+    shortDescription: 'How fast can you type? 60-second WPM test.',
+    howToPlay: [
+      'Click the input box and start typing the highlighted word — the 60-second timer starts on your first keystroke.',
+      'Press the space bar to submit each word and move to the next one.',
+      'Correct words count toward your WPM; misspelled words hurt your accuracy.',
+      'When the timer hits zero you get your words-per-minute score and accuracy.',
+    ],
+    strategy: [
+      'Accuracy first, speed second: a fixed typo costs more time than slow-but-clean typing ever will.',
+      'Read one word ahead while your fingers finish the current word — the pause between words is where most WPM is lost.',
+      'Keep your eyes on the words, never on the keyboard. If you have to look down, that is the skill to train first.',
+      'Use all ten fingers and return to the home row (ASDF–JKL;) after every word.',
+      'Take the test a few times in a row: your second and third runs are usually 5-10 WPM faster as you warm up.',
+    ],
+    faq: [
+      {
+        q: 'What is WPM and how is it calculated?',
+        a: 'WPM means words per minute. Following the standard convention, one "word" is 5 characters (including the space), so WPM = correct characters ÷ 5, scaled to one minute.',
+      },
+      {
+        q: 'What is a good typing speed?',
+        a: 'The average is around 40 WPM. 60-70 WPM is good, 80+ is fast, and professional typists reach 100 WPM and beyond.',
+      },
+      {
+        q: 'Do mistakes lower my score?',
+        a: 'Misspelled words do not add to your WPM, and they lower your accuracy percentage — so fixing your error rate is the fastest way to raise your score.',
+      },
+      {
+        q: 'Can I retake the test?',
+        a: 'Yes, as many times as you like. Hit Restart to get a fresh set of words; your best WPM is saved on this device.',
       },
     ],
   },
