@@ -64,3 +64,22 @@ test('typing: 입력 시작 → 타이머 동작 + WPM 표시', async ({ page })
   await expect.poll(async () => page.getByTestId('typing-timer').textContent(), { timeout: 5_000 }).not.toBe('60')
   await expect(page.getByTestId('wpm')).toBeVisible()
 })
+
+test('tetris: 로드 → 조작 → 점수판 표시', async ({ page }) => {
+  await page.goto('/tetris')
+  await expect(page.getByTestId('tetris-board')).toBeVisible()
+  await page.keyboard.press('Space') // 하드 드롭
+  await expect(page.getByTestId('score')).toBeVisible()
+})
+
+test('sliding: 로드 → 타일 15개', async ({ page }) => {
+  await page.goto('/sliding-puzzle')
+  await expect(page.getByTestId('sliding-board')).toBeVisible()
+  await expect(page.locator('[data-testid="sliding-board"] button')).toHaveCount(15)
+})
+
+test('breakout: 로드 → 캔버스 + 점수판', async ({ page }) => {
+  await page.goto('/breakout')
+  await expect(page.getByTestId('breakout-board')).toBeVisible()
+  await expect(page.getByTestId('score')).toBeVisible()
+})
