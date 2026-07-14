@@ -25,6 +25,7 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
   const [finished, setFinished] = useState(false)
   const [best, setBest] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
+  const endAtRef = useRef<number | null>(null)
 
   const restart = useCallback(() => {
     setWords(sampleWords(WORD_COUNT, Math.random))
@@ -33,7 +34,7 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
     setSecondsLeft(TEST_SECONDS)
     setRunning(false)
     setFinished(false)
-    inputRef.current?.focus()
+    endAtRef.current = null
   }, [])
 
   useEffect(() => {
@@ -44,7 +45,10 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
 
   useEffect(() => {
     if (!running || finished) return
-    const id = setInterval(() => setSecondsLeft((s) => s - 1), 1000)
+    const id = setInterval(() => {
+      const endAt = endAtRef.current
+      if (endAt !== null) setSecondsLeft(Math.max(0, Math.ceil((endAt - Date.now()) / 1000)))
+    }, 250)
     return () => clearInterval(id)
   }, [running, finished])
 
@@ -54,6 +58,10 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
       setFinished(true)
     }
   }, [secondsLeft, running])
+
+  useEffect(() => {
+    if (!finished) inputRef.current?.focus()
+  }, [finished])
 
   const elapsedMs = (TEST_SECONDS - secondsLeft) * 1000
   const wpm = computeWpm(progress.correctChars, finished ? TEST_SECONDS * 1000 : elapsedMs)
@@ -69,7 +77,10 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
 
   const handleChange = (value: string) => {
     if (finished || !words) return
-    if (!running && value.length > 0) setRunning(true)
+    if (!running && value.length > 0) {
+      setRunning(true)
+      endAtRef.current = Date.now() + TEST_SECONDS * 1000
+    }
     if (value.endsWith(' ')) {
       const typed = value.trim()
       if (typed.length === 0) {
@@ -85,6 +96,10 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
         results: [...p.results, correct],
       }))
       setInput('')
+      if (progress.wordIndex + 1 >= words.length) {
+        setRunning(false)
+        setFinished(true)
+      }
       return
     }
     setInput(value)
@@ -150,7 +165,7 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
         </div>
         {finished && (
           <div
-            className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-xl bg-bg/90"
+            className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-xl bg-bg/80"
             data-testid="typing-results"
           >
             <p className="text-3xl font-bold">{wpm} WPM</p>
@@ -165,8 +180,8 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
         ref={inputRef}
         value={input}
         onChange={(e) => handleChange(e.target.value)}
-        disabled={finished}
         placeholder="Start typing here…"
+        aria-label="Typing test input"
         autoComplete="off"
         autoCapitalize="off"
         autoCorrect="off"

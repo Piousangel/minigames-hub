@@ -14,7 +14,7 @@ interface GamePageBase {
 export type GamePage = GamePageBase &
   (
     | { game: '2048'; themeKey: keyof typeof themes2048 }
-    | { game: 'snake' } // Task 5에서 첫 엔트리 추가
+    | { game: 'snake' }
     | { game: 'minesweeper' }
     | { game: 'memory' }
     | { game: 'typing' }

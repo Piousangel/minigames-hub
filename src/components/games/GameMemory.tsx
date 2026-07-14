@@ -94,6 +94,7 @@ export function GameMemory({ storageKey }: { storageKey: string }) {
               key={card.id}
               data-testid="memory-card"
               data-shown={shown}
+              aria-label={shown ? card.emoji : 'face-down card'}
               onClick={() => handleFlip(i)}
               className={`flex items-center justify-center rounded-lg text-3xl transition ${
                 shown ? (card.matched ? 'bg-white/10 opacity-60' : 'bg-white/15') : 'bg-accent/20 hover:bg-accent/30'

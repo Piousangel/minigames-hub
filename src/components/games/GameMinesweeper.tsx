@@ -100,6 +100,7 @@ export function GameMinesweeper() {
               key={`${x},${y}`}
               data-testid="ms-cell"
               data-revealed={cell.revealed}
+              aria-label={`cell ${x + 1}, ${y + 1}`}
               onClick={() => handleCell(x, y, flagMode)}
               onContextMenu={(e) => {
                 e.preventDefault()
