@@ -6,6 +6,13 @@
   --fg: #e8eaed;
   --fg-muted: #9aa0a8;
   --accent: #f59e0b;
+
+  /* Motion tokens — shared across the game template */
+  --dur-fast: 120ms;
+  --dur-med: 180ms;
+  --dur-slow: 320ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 @theme inline {
@@ -19,4 +26,165 @@
 body {
   background: var(--bg);
   color: var(--fg);
+}
+
+/* ---------------------------------------------------------------------------
+   Game "juice" motion utilities
+   These are plain CSS classes (not purged) consumed by the game template.
+   All transforms are gated behind prefers-reduced-motion at the bottom.
+--------------------------------------------------------------------------- */
+
+/* Tile slide — position transition on the outer, transform-based for 60fps */
+.tile-slide {
+  transition: transform var(--dur-fast) var(--ease-out);
+  will-change: transform;
+}
+
+/* Spawn: a fresh tile pops in from nothing */
+@keyframes juice-spawn {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.anim-spawn {
+  animation: juice-spawn var(--dur-med) var(--ease-pop) both;
+}
+
+/* Merge: surviving tile bounces 1 → 1.2 → 1 */
+@keyframes juice-pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.anim-pop {
+  animation: juice-pop var(--dur-med) var(--ease-pop);
+}
+
+/* Score float: +N drifts up and fades */
+@keyframes juice-float {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-1.6rem);
+    opacity: 0;
+  }
+}
+.anim-float {
+  animation: juice-float 700ms var(--ease-out) forwards;
+}
+
+/* Stat pulse when a value changes */
+@keyframes juice-pulse {
+  0% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.22);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.anim-pulse {
+  animation: juice-pulse var(--dur-med) var(--ease-pop);
+}
+
+/* Overlay entrance: scale + fade in */
+@keyframes juice-overlay-in {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.anim-overlay-in {
+  animation: juice-overlay-in var(--dur-slow) var(--ease-pop) both;
+}
+
+/* Board entrance: rises + fades on mount */
+@keyframes juice-board-in {
+  0% {
+    transform: translateY(10px) scale(0.98);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+.anim-board-in {
+  animation: juice-board-in var(--dur-slow) var(--ease-out) both;
+}
+
+/* Backdrop fade for overlays */
+@keyframes juice-backdrop-in {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(6px);
+  }
+}
+.anim-backdrop-in {
+  animation: juice-backdrop-in var(--dur-slow) var(--ease-out) both;
+}
+
+/* Button micro-interaction */
+.btn-press {
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out),
+    filter var(--dur-fast) var(--ease-out);
+}
+.btn-press:hover {
+  filter: brightness(1.08);
+}
+.btn-press:active {
+  transform: scale(0.94);
+}
+
+/* ---------------------------------------------------------------------------
+   Reduced motion — kill transforms/animations but keep state changes visible.
+   Games stay fully playable; tiles snap instead of slide.
+--------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .tile-slide,
+  .anim-spawn,
+  .anim-pop,
+  .anim-float,
+  .anim-pulse,
+  .anim-overlay-in,
+  .anim-board-in,
+  .anim-backdrop-in,
+  .btn-press {
+    animation: none !important;
+    transition: none !important;
+  }
+  /* Keep the win overlay blur (a static state, not motion) */
+  .anim-backdrop-in {
+    backdrop-filter: blur(6px);
+    opacity: 1;
+  }
 }

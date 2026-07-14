@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { changeDir, GRID, newSnakeGame, tick, type Dir, type SnakeState } from '@/lib/games/snake/engine'
 import { isTypingTarget } from '@/lib/isTypingTarget'
+import { useGameSound } from '@/lib/sound/useGameSound'
+import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const KEY_DIRS: Record<string, Dir> = {
   ArrowLeft: 'left',
@@ -20,9 +22,15 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
   const [best, setBest] = useState(0)
   const touchStart = useRef<{ x: number; y: number } | null>(null)
 
+  const { play, muted, toggleMuted } = useGameSound()
+  const prevScore = useRef(0)
+  const prevOver = useRef(false)
+
   const restart = useCallback(() => {
     setState(newSnakeGame(Math.random))
     setRunning(false)
+    prevScore.current = 0
+    prevOver.current = false
   }, [])
 
   useEffect(() => {
@@ -54,6 +62,15 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
     }
   }, [state, best, storageKey])
 
+  // Sound cues driven off state transitions.
+  useEffect(() => {
+    if (!state) return
+    if (state.score > prevScore.current) play('eat')
+    prevScore.current = state.score
+    if (state.over && !prevOver.current) play('lose')
+    prevOver.current = state.over
+  }, [state, play])
+
   const steer = useCallback((dir: Dir) => {
     setRunning(true)
     setState((s) => (s && !s.over ? changeDir(s, dir) : s))
@@ -84,37 +101,23 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
     steer(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up')
   }
 
-  const header = (score: number) => (
-    <div className="mb-3 flex items-center justify-between">
-      <div className="flex gap-2 text-sm">
-        <div className="rounded-lg bg-surface px-3 py-1.5">
-          Score <span className="font-bold" data-testid="score">{score}</span>
-        </div>
-        <div className="rounded-lg bg-surface px-3 py-1.5">
-          Best <span className="font-bold">{best}</span>
-        </div>
-      </div>
-      <button
-        onClick={restart}
-        disabled={!state}
-        className="rounded-lg bg-accent px-3 py-1.5 text-sm font-semibold text-stone-900"
-      >
-        New Game
-      </button>
-    </div>
-  )
-
-  const hint = (
-    <p className="mt-3 text-center text-sm text-fg-muted">Press an arrow key (or swipe) to start.</p>
-  )
+  const hint = 'Press an arrow key (or swipe) to start.'
 
   if (!state) {
     return (
-      <div className="mx-auto w-full max-w-100 select-none">
-        {header(0)}
+      <GameShell
+        stats={[
+          { label: 'Score', value: 0, testId: 'score', float: true },
+          { label: 'Best', value: best },
+        ]}
+        onNewGame={restart}
+        newGameDisabled
+        muted={muted}
+        onToggleMute={toggleMuted}
+        hint={hint}
+      >
         <div className="aspect-square rounded-xl bg-surface" data-testid="snake-loading" />
-        {hint}
-      </div>
+      </GameShell>
     )
   }
 
@@ -122,10 +125,18 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
   state.snake.forEach((p, i) => occupied.set(`${p.x},${p.y}`, i === 0 ? 'head' : 'body'))
 
   return (
-    <div className="mx-auto w-full max-w-100 select-none">
-      {header(state.score)}
+    <GameShell
+      stats={[
+        { label: 'Score', value: state.score, testId: 'score', float: true },
+        { label: 'Best', value: best },
+      ]}
+      onNewGame={restart}
+      muted={muted}
+      onToggleMute={toggleMuted}
+      hint={hint}
+    >
       <div
-        className="relative grid aspect-square gap-px rounded-xl bg-surface p-2 touch-none"
+        className="anim-board-in relative grid aspect-square touch-none gap-px rounded-xl bg-surface p-2"
         style={{ gridTemplateColumns: `repeat(${GRID}, minmax(0, 1fr))` }}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
@@ -141,30 +152,23 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
               key={i}
               className={
                 kind === 'head'
-                  ? 'rounded-[2px] bg-accent'
+                  ? 'rounded-[3px] bg-accent shadow-[0_0_8px_rgba(245,158,11,0.6)]'
                   : kind === 'body'
                     ? 'rounded-[2px] bg-accent/70'
                     : isFood
-                      ? 'rounded-full bg-red-500'
-                      : 'rounded-[2px] bg-white/5'
+                      ? 'anim-pop rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]'
+                      : 'rounded-[2px] bg-white/[0.04]'
               }
             />
           )
         })}
-        {state.over && (
-          <div
-            className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-xl bg-bg/80"
-            data-testid="game-over"
-          >
-            <p className="text-2xl font-bold">Game over</p>
-            <p className="text-fg-muted">Score: {state.score}</p>
-            <button onClick={restart} className="rounded-lg bg-accent px-4 py-2 font-semibold text-stone-900">
-              Try again
-            </button>
-          </div>
-        )}
+        <GameOverlay show={state.over} variant="lose" title="Game over" testId="game-over">
+          <p className="text-fg-muted">Score: {state.score}</p>
+          <GameButton onClick={restart} className="px-4 py-2">
+            Try again
+          </GameButton>
+        </GameOverlay>
       </div>
-      {hint}
-    </div>
+    </GameShell>
   )
 }
