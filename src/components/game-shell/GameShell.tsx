@@ -88,6 +88,7 @@ export function GameShell({
   onToggleMute,
   hint,
   children,
+  maxWidthClassName = 'max-w-100',
 }: {
   stats: StatSpec[]
   headerExtra?: ReactNode
@@ -98,9 +99,11 @@ export function GameShell({
   onToggleMute: () => void
   hint?: ReactNode
   children: ReactNode
+  /** Override the container width (default matches the square boards). */
+  maxWidthClassName?: string
 }) {
   return (
-    <div className="mx-auto w-full max-w-100 select-none">
+    <div className={`mx-auto w-full ${maxWidthClassName} select-none`}>
       <div className="mb-3 flex items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-2 text-sm">
           {stats.map((s) => (
