@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { computeAccuracy, computeWpm, sampleWords } from '@/lib/games/typing/engine'
+import { useGameSound } from '@/lib/sound/useGameSound'
+import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const TEST_SECONDS = 60
 const WORD_COUNT = 200
@@ -24,8 +26,14 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
   const [running, setRunning] = useState(false)
   const [finished, setFinished] = useState(false)
   const [best, setBest] = useState(0)
+  const [resultBest, setResultBest] = useState(false)
+  const [inputErr, setInputErr] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const endAtRef = useRef<number | null>(null)
+  const errTimer = useRef<number | null>(null)
+  const finishedRef = useRef(false)
+
+  const { play, muted, toggleMuted } = useGameSound()
 
   const restart = useCallback(() => {
     setWords(sampleWords(WORD_COUNT, Math.random))
@@ -34,7 +42,11 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
     setSecondsLeft(TEST_SECONDS)
     setRunning(false)
     setFinished(false)
+    setResultBest(false)
+    setInputErr(false)
     endAtRef.current = null
+    finishedRef.current = false
+    if (errTimer.current) window.clearTimeout(errTimer.current)
   }, [])
 
   useEffect(() => {
@@ -42,6 +54,8 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
     const stored = Number(localStorage.getItem(storageKey))
     setBest(Number.isFinite(stored) && stored > 0 ? stored : 0)
   }, [restart, storageKey])
+
+  useEffect(() => () => void (errTimer.current && window.clearTimeout(errTimer.current)), [])
 
   useEffect(() => {
     if (!running || finished) return
@@ -67,13 +81,24 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
   const wpm = computeWpm(progress.correctChars, finished ? TEST_SECONDS * 1000 : elapsedMs)
   const accuracy = computeAccuracy(progress.correctChars, progress.typedChars)
 
-  // 종료 시 최고 WPM 기록 (업데이터 밖 persist)
+  // 종료 시 결과 처리: 리절트 차임 + 최고 WPM 기록/컨피티 판정 (한 번만)
   useEffect(() => {
-    if (finished && wpm > best) {
-      setBest(wpm)
-      localStorage.setItem(storageKey, String(wpm))
+    if (finished && !finishedRef.current) {
+      finishedRef.current = true
+      play('win')
+      if (wpm > best) {
+        setResultBest(true)
+        setBest(wpm)
+        localStorage.setItem(storageKey, String(wpm))
+      }
     }
-  }, [finished, wpm, best, storageKey])
+  }, [finished, wpm, best, play, storageKey])
+
+  const flashError = useCallback(() => {
+    setInputErr(true)
+    if (errTimer.current) window.clearTimeout(errTimer.current)
+    errTimer.current = window.setTimeout(() => setInputErr(false), 260)
+  }, [])
 
   const handleChange = (value: string) => {
     if (finished || !words) return
@@ -89,6 +114,11 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
       }
       const target = words[progress.wordIndex]
       const correct = typed === target
+      if (correct) play('flag')
+      else {
+        play('error')
+        flashError()
+      }
       setProgress((p) => ({
         wordIndex: p.wordIndex + 1,
         correctChars: p.correctChars + (correct ? target.length + 1 : 0),
@@ -105,51 +135,76 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
     setInput(value)
   }
 
-  const header = (
-    <div className="mb-3 flex items-center justify-between">
-      <div className="flex gap-2 text-sm">
-        <div className="rounded-lg bg-surface px-3 py-1.5">
-          Time <span className="font-bold" data-testid="typing-timer">{secondsLeft}</span>s
-        </div>
-        <div className="rounded-lg bg-surface px-3 py-1.5">
-          WPM <span className="font-bold" data-testid="wpm">{wpm}</span>
-        </div>
-        <div className="rounded-lg bg-surface px-3 py-1.5">
-          Best <span className="font-bold">{best > 0 ? best : '—'}</span>
-        </div>
-      </div>
-      <button
-        onClick={restart}
-        disabled={!words}
-        className="rounded-lg bg-accent px-3 py-1.5 text-sm font-semibold text-stone-900"
-      >
-        Restart
-      </button>
-    </div>
-  )
+  const stats = [
+    { label: 'Time', value: secondsLeft, testId: 'typing-timer' },
+    { label: 'WPM', value: wpm, testId: 'wpm' },
+    { label: 'Best', value: best },
+  ]
 
-  const hint = <p className="mt-3 text-center text-sm text-fg-muted">Type each word and press space. 60 seconds.</p>
+  const hint = 'Type each word and press space. 60 seconds.'
 
   if (!words) {
     return (
-      <div className="mx-auto w-full max-w-2xl select-none">
-        {header}
+      <GameShell
+        stats={stats}
+        onNewGame={restart}
+        newGameLabel="Restart"
+        newGameDisabled
+        muted={muted}
+        onToggleMute={toggleMuted}
+        hint={hint}
+        maxWidthClassName="max-w-2xl"
+      >
         <div className="h-28 rounded-xl bg-surface" data-testid="typing-loading" />
         <div className="mt-3 h-12 rounded-lg bg-surface" />
-        {hint}
-      </div>
+      </GameShell>
     )
   }
 
-  const visible = words.slice(progress.wordIndex, progress.wordIndex + 18)
+  const current = words[progress.wordIndex] ?? ''
+  const upcoming = words.slice(progress.wordIndex + 1, progress.wordIndex + 18)
   const recent = progress.results.slice(-6)
+  const caretPos = Math.min(input.length, current.length)
+
+  // Current word: per-character live feedback (green flash correct / red shake wrong).
+  const currentChars: React.ReactNode[] = []
+  current.split('').forEach((ch, i) => {
+    if (i === caretPos) currentChars.push(<span key="caret" aria-hidden="true" className="inline-block h-5 w-0.5 -translate-y-0.5 bg-accent align-middle" />)
+    const typed = i < input.length
+    const ok = typed && input[i] === ch
+    const bad = typed && input[i] !== ch
+    currentChars.push(
+      <span key={i} className={ok ? 'text-green-400 anim-char-ok' : bad ? 'rounded bg-red-500/25 text-red-400 anim-shake' : ''}>
+        {ch}
+      </span>,
+    )
+  })
+  if (caretPos === current.length) currentChars.push(<span key="caret-end" aria-hidden="true" className="inline-block h-5 w-0.5 -translate-y-0.5 bg-accent align-middle" />)
+  // Overflow: extra characters typed past the target word length.
+  if (input.length > current.length) {
+    input
+      .slice(current.length)
+      .split('')
+      .forEach((ch, i) => currentChars.push(
+        <span key={`o${i}`} className="rounded bg-red-500/25 text-red-400 anim-shake">
+          {ch}
+        </span>,
+      ))
+  }
 
   return (
-    <div className="mx-auto w-full max-w-2xl">
-      {header}
+    <GameShell
+      stats={stats}
+      onNewGame={restart}
+      newGameLabel="Restart"
+      muted={muted}
+      onToggleMute={toggleMuted}
+      hint={hint}
+      maxWidthClassName="max-w-2xl"
+    >
       <div className="relative">
         <div
-          className="flex min-h-28 flex-wrap content-start gap-x-2 gap-y-1 rounded-xl bg-surface p-4 text-lg leading-relaxed"
+          className="anim-board-in flex min-h-28 flex-wrap content-start items-baseline gap-x-2 gap-y-1 rounded-xl bg-surface p-4 text-lg leading-relaxed"
           data-testid="typing-words"
         >
           {recent.map((ok, i) => (
@@ -157,24 +212,27 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
               {ok ? '✓' : '✗'}
             </span>
           ))}
-          {visible.map((w, i) => (
-            <span key={progress.wordIndex + i} className={i === 0 ? 'rounded bg-accent/30 px-1 font-semibold' : 'text-fg-muted'}>
+          <span className="rounded bg-accent/25 px-1 font-semibold whitespace-pre">{currentChars}</span>
+          {upcoming.map((w, i) => (
+            <span key={progress.wordIndex + 1 + i} className="text-fg-muted">
               {w}
             </span>
           ))}
         </div>
-        {finished && (
-          <div
-            className="absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-xl bg-bg/80"
-            data-testid="typing-results"
-          >
-            <p className="text-3xl font-bold">{wpm} WPM</p>
-            <p className="text-fg-muted">Accuracy {accuracy}% · {progress.results.filter(Boolean).length} words</p>
-            <button onClick={restart} className="mt-2 rounded-lg bg-accent px-4 py-2 font-semibold text-stone-900">
-              Try again
-            </button>
-          </div>
-        )}
+        <GameOverlay
+          show={finished}
+          variant={resultBest ? 'win' : 'lose'}
+          title={`${wpm} WPM`}
+          testId="typing-results"
+        >
+          <p className="text-fg-muted">
+            Accuracy {accuracy}% · {progress.results.filter(Boolean).length} words
+            {resultBest && <span className="ml-1 font-semibold text-accent">· New best!</span>}
+          </p>
+          <GameButton onClick={restart} className="px-4 py-2">
+            Try again
+          </GameButton>
+        </GameOverlay>
       </div>
       <input
         ref={inputRef}
@@ -187,9 +245,10 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
         autoCorrect="off"
         spellCheck={false}
         data-testid="typing-input"
-        className="mt-3 w-full rounded-lg bg-surface px-4 py-3 text-lg outline-none ring-accent focus:ring-2"
+        className={`mt-3 w-full select-text rounded-lg bg-surface px-4 py-3 text-lg outline-none transition-shadow ${
+          inputErr ? 'anim-shake ring-2 ring-red-500' : 'ring-accent focus:ring-2'
+        }`}
       />
-      {hint}
-    </div>
+    </GameShell>
   )
 }

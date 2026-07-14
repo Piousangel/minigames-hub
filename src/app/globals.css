@@ -166,6 +166,95 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
+   Memory — 3D card flip + match/mismatch feedback
+--------------------------------------------------------------------------- */
+
+/* The button owns the perspective; the inner layer holds the two faces. */
+.memory-card {
+  perspective: 700px;
+}
+.memory-card-inner {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform var(--dur-med) var(--ease-pop);
+  will-change: transform;
+}
+.memory-card-inner[data-flipped='true'] {
+  transform: rotateY(180deg);
+}
+.memory-face {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.memory-face-back {
+  transform: rotateY(180deg);
+}
+
+/* Matched pair: a quick celebratory pop (glow is applied via utility classes). */
+@keyframes juice-match {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.14);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.anim-match {
+  animation: juice-match var(--dur-med) var(--ease-pop);
+}
+
+/* Mismatch: a gentle horizontal shake before the cards flip back. */
+@keyframes juice-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-4px);
+  }
+  40% {
+    transform: translateX(4px);
+  }
+  60% {
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(3px);
+  }
+}
+.anim-shake {
+  animation: juice-shake var(--dur-med) var(--ease-out);
+}
+
+/* ---------------------------------------------------------------------------
+   Typing — per-character correct flash
+--------------------------------------------------------------------------- */
+
+/* A correctly typed character flashes a soft green, then settles. */
+@keyframes juice-char-ok {
+  0% {
+    background-color: rgba(34, 197, 94, 0.4);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+.anim-char-ok {
+  animation: juice-char-ok var(--dur-med) var(--ease-out);
+  border-radius: 3px;
+}
+
+/* ---------------------------------------------------------------------------
    Reduced motion — kill transforms/animations but keep state changes visible.
    Games stay fully playable; tiles snap instead of slide.
 --------------------------------------------------------------------------- */
@@ -178,6 +267,10 @@ body {
   .anim-overlay-in,
   .anim-board-in,
   .anim-backdrop-in,
+  .memory-card-inner,
+  .anim-match,
+  .anim-shake,
+  .anim-char-ok,
   .btn-press {
     animation: none !important;
     transition: none !important;

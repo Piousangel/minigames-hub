@@ -2,8 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { clearMismatch, flip, newMemoryGame, type MemoryState } from '@/lib/games/memory/engine'
+import { useGameSound } from '@/lib/sound/useGameSound'
+import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const MISMATCH_MS = 900
+
+const countMatched = (s: MemoryState) => s.cards.reduce((n, c) => n + (c.matched ? 1 : 0), 0)
 
 export function GameMemory({ storageKey }: { storageKey: string }) {
   // SSR 불일치 방지: 초기 상태는 클라이언트에서만 생성
@@ -11,8 +15,19 @@ export function GameMemory({ storageKey }: { storageKey: string }) {
   const [best, setBest] = useState(0) // 최소 moves. 0 = 기록 없음
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  const { play, muted, toggleMuted } = useGameSound()
+  // Previous-state trackers used to derive sound cues from state transitions.
+  const prevMatched = useRef(0)
+  const prevMoves = useRef(0)
+  const prevFaceUp = useRef(0)
+  const prevWon = useRef(false)
+
   const restart = useCallback(() => {
     if (timer.current) clearTimeout(timer.current)
+    prevMatched.current = 0
+    prevMoves.current = 0
+    prevFaceUp.current = 0
+    prevWon.current = false
     setState(newMemoryGame(Math.random))
   }, [])
 
@@ -29,6 +44,21 @@ export function GameMemory({ storageKey }: { storageKey: string }) {
       localStorage.setItem(storageKey, String(state.moves))
     }
   }, [state, best, storageKey])
+
+  // Sound cues driven off state transitions (win > match > mismatch > flip).
+  useEffect(() => {
+    if (!state) return
+    const matched = countMatched(state)
+    const faceUp = state.faceUp.length
+    if (state.won && !prevWon.current) play('win')
+    else if (matched > prevMatched.current) play('match')
+    else if (state.moves > prevMoves.current) play('mismatch')
+    else if (faceUp === 1 && faceUp !== prevFaceUp.current) play('flip')
+    prevMatched.current = matched
+    prevMoves.current = state.moves
+    prevFaceUp.current = faceUp
+    prevWon.current = state.won
+  }, [state, play])
 
   const handleFlip = useCallback((index: number) => {
     if (timer.current) {
@@ -51,44 +81,48 @@ export function GameMemory({ storageKey }: { storageKey: string }) {
     }
   }, [state])
 
-  const header = (moves: number) => (
-    <div className="mb-3 flex items-center justify-between">
-      <div className="flex gap-2 text-sm">
-        <div className="rounded-lg bg-surface px-3 py-1.5">
-          Moves <span className="font-bold" data-testid="moves">{moves}</span>
-        </div>
-        <div className="rounded-lg bg-surface px-3 py-1.5">
-          Best <span className="font-bold">{best > 0 ? best : '—'}</span>
-        </div>
-      </div>
-      <button
-        onClick={restart}
-        disabled={!state}
-        className="rounded-lg bg-accent px-3 py-1.5 text-sm font-semibold text-stone-900"
-      >
-        New Game
-      </button>
+  const stats = [{ label: 'Moves', value: state?.moves ?? 0, testId: 'moves' }]
+  const bestChip = (
+    <div className="rounded-lg bg-surface px-3 py-1.5 text-sm">
+      Best <span className="font-bold">{best > 0 ? best : '—'}</span>
     </div>
   )
-
-  const hint = <p className="mt-3 text-center text-sm text-fg-muted">Flip two cards and find every matching pair.</p>
+  const hint = 'Flip two cards and find every matching pair.'
 
   if (!state) {
     return (
-      <div className="mx-auto w-full max-w-100 select-none">
-        {header(0)}
+      <GameShell
+        stats={stats}
+        headerExtra={bestChip}
+        onNewGame={restart}
+        newGameDisabled
+        muted={muted}
+        onToggleMute={toggleMuted}
+        hint={hint}
+      >
         <div className="aspect-square rounded-xl bg-surface" data-testid="memory-loading" />
-        {hint}
-      </div>
+      </GameShell>
     )
   }
 
+  const mismatched = state.faceUp.length === 2
+
   return (
-    <div className="mx-auto w-full max-w-100 select-none">
-      {header(state.moves)}
-      <div className="relative grid aspect-square grid-cols-4 gap-2 rounded-xl bg-surface p-2" data-testid="memory-board">
+    <GameShell
+      stats={stats}
+      headerExtra={bestChip}
+      onNewGame={restart}
+      muted={muted}
+      onToggleMute={toggleMuted}
+      hint={hint}
+    >
+      <div
+        className="anim-board-in relative grid aspect-square grid-cols-4 gap-2 rounded-xl bg-surface p-2"
+        data-testid="memory-board"
+      >
         {state.cards.map((card, i) => {
           const shown = card.matched || state.faceUp.includes(i)
+          const shaking = mismatched && state.faceUp.includes(i)
           return (
             <button
               key={card.id}
@@ -96,28 +130,34 @@ export function GameMemory({ storageKey }: { storageKey: string }) {
               data-shown={shown}
               aria-label={shown ? card.emoji : 'face-down card'}
               onClick={() => handleFlip(i)}
-              className={`flex items-center justify-center rounded-lg text-3xl transition ${
-                shown ? (card.matched ? 'bg-white/10 opacity-60' : 'bg-white/15') : 'bg-accent/20 hover:bg-accent/30'
+              className={`memory-card relative aspect-square rounded-lg ${shaking ? 'anim-shake' : ''} ${
+                card.matched ? 'anim-match' : ''
               }`}
             >
-              {shown ? card.emoji : '?'}
+              <span className="memory-card-inner" data-flipped={shown}>
+                <span className="memory-face memory-face-front bg-accent/20 text-2xl text-accent transition-colors hover:bg-accent/30">
+                  ?
+                </span>
+                <span
+                  className={`memory-face memory-face-back text-3xl ${
+                    card.matched
+                      ? 'bg-white/10 opacity-70 shadow-[0_0_14px_rgba(74,222,128,0.55)] ring-1 ring-green-400/40'
+                      : 'bg-white/15'
+                  }`}
+                >
+                  {card.emoji}
+                </span>
+              </span>
             </button>
           )
         })}
-        {state.won && (
-          <div
-            className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-xl bg-bg/80"
-            data-testid="game-over"
-          >
-            <p className="text-2xl font-bold">You win!</p>
-            <p className="text-fg-muted">{state.moves} moves</p>
-            <button onClick={restart} className="rounded-lg bg-accent px-4 py-2 font-semibold text-stone-900">
-              Play again
-            </button>
-          </div>
-        )}
+        <GameOverlay show={state.won} variant="win" title="You win!" testId="game-over">
+          <p className="text-fg-muted">{state.moves} moves</p>
+          <GameButton onClick={restart} className="px-4 py-2">
+            Play again
+          </GameButton>
+        </GameOverlay>
       </div>
-      {hint}
-    </div>
+    </GameShell>
   )
 }

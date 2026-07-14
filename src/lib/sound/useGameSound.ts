@@ -14,7 +14,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 const STORAGE_KEY = 'minigames:muted'
 const MASTER_GAIN = 0.14
 
-export type SoundName = 'move' | 'merge' | 'win' | 'lose' | 'eat' | 'flag'
+export type SoundName = 'move' | 'merge' | 'win' | 'lose' | 'eat' | 'flag' | 'error' | 'flip' | 'match' | 'mismatch'
 
 type AudioCtor = typeof AudioContext
 
@@ -75,6 +75,24 @@ function render(ctx: AudioContext, master: AudioNode, name: SoundName) {
       break
     case 'flag':
       tone(ctx, master, { freq: 440, type: 'square', duration: 0.05, gain: 0.4 })
+      break
+    case 'error':
+      // A short, low buzz for a mistyped word — restrained, not punishing.
+      tone(ctx, master, { freq: 196, glideTo: 138, type: 'sawtooth', duration: 0.14, gain: 0.45 })
+      break
+    case 'flip':
+      // A soft, short tick when a card turns over.
+      tone(ctx, master, { freq: 420, glideTo: 520, type: 'triangle', duration: 0.05, gain: 0.4 })
+      break
+    case 'match': {
+      // A pleasant two-note chime when a pair locks in.
+      tone(ctx, master, { freq: 587.33, type: 'triangle', duration: 0.16, gain: 0.6 })
+      tone(ctx, master, { freq: 880, type: 'sine', start: 0.06, duration: 0.2, gain: 0.5 })
+      break
+    }
+    case 'mismatch':
+      // A soft, gentle downward tone — not punishing.
+      tone(ctx, master, { freq: 300, glideTo: 200, type: 'sine', duration: 0.18, gain: 0.4 })
       break
     case 'win': {
       const notes = [523.25, 659.25, 783.99, 1046.5]
