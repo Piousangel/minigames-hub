@@ -37,3 +37,30 @@ test('snake: 시작 → 자동 전진 → 벽 충돌 게임오버', async ({ pag
   await expect(page.getByTestId('game-over')).toBeVisible({ timeout: 10_000 })
   await expect(page.getByTestId('score')).toBeVisible()
 })
+
+test('minesweeper: 첫 클릭 → 안전 공개', async ({ page }) => {
+  await page.goto('/minesweeper')
+  await expect(page.getByTestId('ms-board')).toBeVisible()
+  await page.getByTestId('ms-cell').first().click()
+  // 첫 클릭은 항상 안전 → 최소 1칸 공개, 게임오버 아님
+  await expect.poll(async () => page.locator('[data-revealed="true"]').count()).toBeGreaterThanOrEqual(1)
+  await expect(page.getByTestId('game-over')).not.toBeVisible()
+})
+
+test('memory: 두 장 뒤집기 → moves 1', async ({ page }) => {
+  await page.goto('/memory-game')
+  await expect(page.getByTestId('memory-board')).toBeVisible()
+  const cards = page.getByTestId('memory-card')
+  await cards.nth(0).click()
+  await cards.nth(1).click()
+  await expect(page.getByTestId('moves')).toHaveText('1')
+})
+
+test('typing: 입력 시작 → 타이머 동작 + WPM 표시', async ({ page }) => {
+  await page.goto('/typing-test')
+  const input = page.getByTestId('typing-input')
+  await expect(input).toBeVisible()
+  await input.fill('hello ')
+  await expect.poll(async () => page.getByTestId('typing-timer').textContent(), { timeout: 5_000 }).not.toBe('60')
+  await expect(page.getByTestId('wpm')).toBeVisible()
+})
