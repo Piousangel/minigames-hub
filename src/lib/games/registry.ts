@@ -25,6 +25,11 @@ export type GamePage = GamePageBase &
     | { game: 'tic-tac-toe' }
     | { game: 'reaction-time' }
     | { game: 'connect-four' }
+    | { game: 'hangman' }
+    | { game: 'simon' }
+    | { game: 'whack-a-mole' }
+    | { game: 'aim-trainer' }
+    | { game: 'sudoku' }
   )
 
 export const gamePages: GamePage[] = [
@@ -437,6 +442,146 @@ export const gamePages: GamePage[] = [
       { q: 'How do I win?', a: 'Be the first to line up four of your discs in a row, in any direction: horizontal, vertical, or diagonal.' },
       { q: 'How hard is the computer?', a: 'Easy makes casual moves; Hard always takes a winning move, blocks your threats, and favours the centre.' },
       { q: 'Does it keep my record?', a: 'Yes. Your wins are saved in your browser and persist between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'hangman',
+    game: 'hangman',
+    title: 'Play Hangman Online — Free Word Guessing Game',
+    h1: 'Hangman',
+    metaDescription:
+      'Play Hangman online for free. Guess the hidden word one letter at a time before the drawing is complete. Category hints, hundreds of words. No download, on mobile.',
+    shortDescription: 'Guess the word before it is too late.',
+    howToPlay: [
+      'A hidden word is shown as blanks, one for each letter, with a category hint.',
+      'Guess letters using the on-screen A-Z bank or your keyboard.',
+      'A correct letter fills in every place it appears; a wrong letter draws another part of the figure.',
+      'Guess the whole word before six wrong guesses complete the drawing.',
+    ],
+    strategy: [
+      'Start with common vowels (E, A, O, I) to open up the word.',
+      'Then try frequent consonants like R, S, T, N, and L.',
+      'Use the category hint and revealed letters to guess likely word shapes.',
+      'Look for common endings (-ING, -ED, -TION) once you have a few letters.',
+      'Save risky letters until you are confident — every wrong guess costs you.',
+    ],
+    faq: [
+      { q: 'How many wrong guesses do I get?', a: 'Six. Each wrong letter adds a part to the drawing, and the game ends when it is complete.' },
+      { q: 'Is Hangman free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Are there hints?', a: 'Yes. Every word comes with a category hint (like animals or food) to help you start.' },
+      { q: 'Does it save my streak?', a: 'Yes. Your wins and streak are stored in your browser between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'simon',
+    game: 'simon',
+    title: 'Play Simon Online — Free Memory Sequence Game',
+    h1: 'Simon',
+    metaDescription:
+      'Play Simon online for free — the classic light and sound memory game. Watch the sequence, repeat it, and see how long a pattern you can remember. No download, on mobile.',
+    shortDescription: 'Repeat the growing colour sequence.',
+    howToPlay: [
+      'Press Start and watch the four colour pads flash a sequence with sound.',
+      'Repeat the sequence by tapping the pads in the same order.',
+      'Each round the sequence grows by one and plays a little faster.',
+      'One wrong pad ends the game — how long a pattern can you remember?',
+    ],
+    strategy: [
+      'Say the colours to yourself as they flash — naming them locks them into memory.',
+      'Listen to the tones as well as watching; each pad has its own pitch to lean on.',
+      'Group the sequence into small chunks (like phone-number style) instead of one long list.',
+      'Keep your eyes on the whole board, not one pad, so you catch every flash.',
+      'Stay calm as it speeds up — rushing your taps causes more mistakes than the pace does.',
+    ],
+    faq: [
+      { q: 'Is Simon free to play?', a: 'Yes — it runs free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How does it get harder?', a: 'Every round adds one more step to the sequence and the playback speeds up, so it gets tougher the longer you last.' },
+      { q: 'Can I play on my phone?', a: 'Yes. Just tap the colour pads — the whole game works by touch.' },
+      { q: 'Does it save my best?', a: 'Yes. Your best round is saved in your browser between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'whack-a-mole',
+    game: 'whack-a-mole',
+    title: 'Play Whack-a-Mole Online — Free Reflex Game',
+    h1: 'Whack-a-Mole',
+    metaDescription:
+      'Play Whack-a-Mole online for free. Bonk the moles as they pop up before they duck back down and rack up points in 30 seconds. No download, works on mobile.',
+    shortDescription: 'Bonk the moles before they duck.',
+    howToPlay: [
+      'Press Start to begin a 30-second round.',
+      'Moles pop up from the holes at random — click or tap them to score.',
+      'Each mole only stays up for a moment, so be quick.',
+      'The game speeds up as time runs out. Score as many hits as you can.',
+    ],
+    strategy: [
+      'Keep your cursor or finger near the centre so you can reach any hole fast.',
+      'Watch the whole grid, not one hole — moles can pop up anywhere.',
+      'Tap the instant you see a mole; hesitation lets it duck back down.',
+      'Do not waste swings on empty holes — misses cost you time.',
+      'As the pace ramps up near the end, focus on clean hits over frantic tapping.',
+    ],
+    faq: [
+      { q: 'How long is a round?', a: 'Thirty seconds. Score as many mole hits as you can before the timer runs out.' },
+      { q: 'Is it free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How do I play on mobile?', a: 'Just tap the moles as they pop up. The whole game works by touch.' },
+      { q: 'Does it save my best score?', a: 'Yes. Your best score is stored in your browser between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'aim-trainer',
+    game: 'aim-trainer',
+    title: 'Aim Trainer — Free Online Click Accuracy Test',
+    h1: 'Aim Trainer',
+    metaDescription:
+      'Train your aim online for free. Click 30 targets as fast and accurately as you can, and track your time, accuracy, and targets per second. No download, works on mobile.',
+    shortDescription: 'Click the targets as fast as you can.',
+    howToPlay: [
+      'Press Start, then click or tap each target as it appears.',
+      'Hitting a target scores it and spawns the next one instantly.',
+      'Clicking empty space counts as a miss and lowers your accuracy.',
+      'Clear all 30 targets — your time, accuracy, and targets per second are shown at the end.',
+    ],
+    strategy: [
+      'Move and click in one motion instead of stopping over each target.',
+      'Keep your eyes slightly ahead, anticipating where the next target may appear.',
+      'Accuracy matters as much as speed — wild clicking tanks your score.',
+      'Use a comfortable, consistent grip or steady finger for repeatable aim.',
+      'Warm up with a few runs; your targets-per-second usually climbs as you settle in.',
+    ],
+    faq: [
+      { q: 'What does Aim Trainer measure?', a: 'Your click speed and accuracy: total time for 30 targets, your hit accuracy percentage, and targets cleared per second.' },
+      { q: 'Is it free?', a: 'Yes — it runs free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap the targets instead of clicking; the play area is fully touch-friendly.' },
+      { q: 'Does it save my best?', a: 'Yes. Your best run is stored in your browser and shown between attempts on the same device.' },
+    ],
+  },
+  {
+    slug: 'sudoku',
+    game: 'sudoku',
+    title: 'Play Sudoku Online — Free Easy, Medium & Hard',
+    h1: 'Sudoku',
+    metaDescription:
+      'Play Sudoku online for free with Easy, Medium, and Hard puzzles. Every board has a unique solution. Notes, conflict highlighting, and a timer. No download, on mobile.',
+    shortDescription: 'Fill the grid 1 to 9.',
+    howToPlay: [
+      'Fill the 9x9 grid so every row, column, and 3x3 box contains the digits 1 to 9.',
+      'Tap a cell, then type a number or use the on-screen number pad.',
+      'Use notes (pencil marks) to jot down candidate numbers for a cell.',
+      'The given numbers cannot change. Solve the whole grid to win.',
+    ],
+    strategy: [
+      'Scan for cells where only one number can possibly go, and fill those first.',
+      'Work box by box, and row by row, looking for a digit that fits only one spot.',
+      'Use pencil notes to track candidates, then eliminate them as you place numbers.',
+      'Look for "naked pairs" — two cells in a unit that can only be the same two numbers.',
+      'When stuck, switch to a different row, column, or box; a new angle often reveals a move.',
+    ],
+    faq: [
+      { q: 'Does every puzzle have one solution?', a: 'Yes. Every board is generated with a unique solution, so it can always be solved by logic without guessing.' },
+      { q: 'Is Sudoku free here?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'What are the difficulties?', a: 'Easy, Medium, and Hard, which differ by how many numbers are given at the start.' },
+      { q: 'Does it track my time?', a: 'Yes. A timer runs while you solve, and your best time per difficulty is saved in your browser.' },
     ],
   },
 ]

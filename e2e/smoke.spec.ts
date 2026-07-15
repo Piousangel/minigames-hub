@@ -108,3 +108,32 @@ test('connect-four: 로드 → 보드 표시', async ({ page }) => {
   await page.goto('/connect-four')
   await expect(page.getByTestId('c4-board')).toBeVisible()
 })
+
+test('hangman: 로드 → 보드 + 글자 추측', async ({ page }) => {
+  await page.goto('/hangman')
+  await expect(page.getByTestId('hangman-board')).toBeVisible()
+  await page.keyboard.press('e')
+  await expect(page.getByTestId('hangman-board')).toBeVisible()
+})
+
+test('simon: 로드 → 보드 + 4패드', async ({ page }) => {
+  await page.goto('/simon')
+  await expect(page.getByTestId('simon-board')).toBeVisible()
+  await expect(page.getByTestId('simon-pad')).toHaveCount(4)
+})
+
+test('whack-a-mole: 로드 → 보드 + 9홀', async ({ page }) => {
+  await page.goto('/whack-a-mole')
+  await expect(page.getByTestId('whack-board')).toBeVisible()
+  await expect(page.getByTestId('whack-hole')).toHaveCount(9)
+})
+
+test('aim-trainer: 로드 → 플레이 영역', async ({ page }) => {
+  await page.goto('/aim-trainer')
+  await expect(page.getByTestId('aim-area')).toBeVisible()
+})
+
+test('sudoku: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/sudoku')
+  await expect(page.getByTestId('sudoku-board')).toBeVisible({ timeout: 10_000 })
+})
