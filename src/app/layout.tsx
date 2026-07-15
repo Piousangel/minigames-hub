@@ -54,12 +54,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </span>
             </Link>
             <div className="flex items-center gap-4">
-              <span
-                aria-hidden="true"
-                className="font-pixel neon-text hidden text-[10px] tracking-[0.2em] text-neon-cyan sm:inline"
+              <Link
+                href="/leaderboards"
+                className="flex items-center gap-1 rounded-md text-sm text-fg-muted transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
               >
-                INSERT COIN
-              </span>
+                <span aria-hidden="true">🏆</span>
+                <span className="hidden sm:inline">Leaderboards</span>
+              </Link>
               <Link
                 href="/about"
                 className="rounded-md text-sm text-fg-muted transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
