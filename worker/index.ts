@@ -50,6 +50,23 @@ export default {
       return json({ week, top: await top(env, game, week) })
     }
 
+    // 전체 주간 랭킹 허브: 게임별 톱3를 한 번에.
+    if (url.pathname === '/api/leaderboards' && request.method === 'GET') {
+      const week = isoWeek(new Date())
+      const { results } = await env.DB.prepare(
+        'SELECT game, name, score FROM scores WHERE week=? ORDER BY game ASC, score DESC, created_at ASC',
+      )
+        .bind(week)
+        .all<{ game: string; name: string; score: number }>()
+      const boards: Record<string, ScoreRow[]> = {}
+      for (const r of results) {
+        if (!LEADERBOARD_GAMES[r.game]) continue
+        const list = (boards[r.game] ??= [])
+        if (list.length < 3) list.push({ name: r.name, score: r.score })
+      }
+      return json({ week, boards })
+    }
+
     if (url.pathname === '/api/score' && request.method === 'POST') {
       let body: Record<string, unknown>
       try {
