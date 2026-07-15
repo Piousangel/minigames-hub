@@ -85,6 +85,13 @@ body {
     0 0 18px color-mix(in srgb, currentColor 70%, transparent),
     0 0 34px color-mix(in srgb, currentColor 45%, transparent);
 }
+/* 네온 아이콘 글로우: SVG 스트로크는 text-shadow가 안 먹으므로 drop-shadow.
+   색 인자를 생략하면 drop-shadow는 currentColor를 사용 → 게임별 accent로 발광. */
+.neon-icon {
+  filter:
+    drop-shadow(0 0 3px color-mix(in srgb, currentColor 70%, transparent))
+    drop-shadow(0 0 8px color-mix(in srgb, currentColor 45%, transparent));
+}
 .neon-box {
   box-shadow:
     0 0 0 1px color-mix(in srgb, currentColor 55%, transparent),
@@ -347,6 +354,225 @@ body {
   border-radius: 3px;
 }
 
+/* ===========================================================================
+   Homepage motion & interactions (M8) — Awwwards-grade, retro-neon arcade.
+   Only transform / opacity / filter / background-position are animated
+   (GPU-friendly, zero layout shift → CLS safe). Every motion below is disabled
+   in the prefers-reduced-motion block at the very bottom of this file.
+=========================================================================== */
+
+/* 1 — Scroll reveal (staggered fade + slide-up).
+   The hidden state applies ONLY under `.has-js` (added before first paint by an
+   inline script in the layout). No-JS visitors and crawlers therefore always
+   receive fully visible content. Animates opacity + transform only → no CLS. */
+.has-js [data-reveal] {
+  transition:
+    opacity var(--dur-slow) var(--ease-out),
+    transform var(--dur-slow) var(--ease-out);
+}
+.has-js [data-reveal]:not([data-shown='true']) {
+  opacity: 0;
+  transform: translateY(16px);
+  will-change: opacity, transform;
+}
+
+/* 2 — Spotlight card: pointer-following radial glow in the card's neon accent.
+   Sits above the card surface but below its content (content is z-[1]). */
+.spotlight-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--dur-med) var(--ease-out);
+  background: radial-gradient(
+    circle 150px at var(--mx, 50%) var(--my, 50%),
+    color-mix(in srgb, currentColor 20%, transparent),
+    transparent 60%
+  );
+}
+@media (hover: hover) and (pointer: fine) {
+  .spotlight-card:hover::before {
+    opacity: 1;
+  }
+}
+
+/* 3 — Card micro-interaction: icon pop/rotate + title glow bloom on hover. */
+.card-icon {
+  transition: transform var(--dur-med) var(--ease-pop);
+}
+.spotlight-card:hover .card-icon {
+  transform: scale(1.12) rotate(-5deg);
+}
+.card-title {
+  transition: text-shadow var(--dur-med) var(--ease-out);
+}
+.spotlight-card:hover .card-title {
+  text-shadow:
+    0 0 5px currentColor,
+    0 0 14px color-mix(in srgb, currentColor 70%, transparent),
+    0 0 26px color-mix(in srgb, currentColor 45%, transparent);
+}
+
+/* 4 — Hero polish */
+/* one-time CRT power-on flicker when the hero first mounts (gentle, settles) */
+@keyframes hero-crt-on {
+  0% {
+    opacity: 0;
+    transform: scaleY(0.006);
+    filter: brightness(2.4);
+  }
+  9% {
+    opacity: 1;
+    transform: scaleY(0.02);
+  }
+  20% {
+    transform: scaleY(1) scaleX(1.015);
+    filter: brightness(1.5);
+  }
+  26% {
+    transform: scaleY(0.99);
+  }
+  34% {
+    opacity: 0.72;
+  }
+  46% {
+    opacity: 1;
+    filter: brightness(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: brightness(1);
+  }
+}
+.hero-crt-on {
+  animation: hero-crt-on 900ms var(--ease-out) both;
+  transform-origin: center;
+}
+/* slow "breathing" glow on the pixel logo — filter + opacity only */
+@keyframes hero-breathe {
+  0%,
+  100% {
+    opacity: 0.96;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 1;
+    filter: brightness(1.18);
+  }
+}
+.hero-breathe {
+  animation: hero-breathe 4.5s ease-in-out infinite;
+}
+/* periodic sheen sweep across the tagline */
+.hero-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.hero-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  background: linear-gradient(
+    100deg,
+    transparent 42%,
+    color-mix(in srgb, currentColor 60%, white) 50%,
+    transparent 58%
+  );
+  transform: translateX(-130%);
+  animation: hero-sheen 5s var(--ease-out) 1.4s infinite;
+}
+@keyframes hero-sheen {
+  0% {
+    transform: translateX(-130%);
+  }
+  24%,
+  100% {
+    transform: translateX(130%);
+  }
+}
+
+/* 5 — Synthwave background: drifting aurora + scrolling perspective grid.
+   Fixed, pointer-events:none, behind all content (z-index:-1), low intensity. */
+.synthwave-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.synthwave-bg::before {
+  content: '';
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(38% 48% at 22% 28%, color-mix(in srgb, var(--neon-purple) 16%, transparent), transparent 70%),
+    radial-gradient(40% 46% at 80% 22%, color-mix(in srgb, var(--neon-cyan) 12%, transparent), transparent 70%),
+    radial-gradient(46% 50% at 52% 92%, color-mix(in srgb, var(--neon-magenta) 11%, transparent), transparent 72%);
+  animation: aurora-drift 32s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@keyframes aurora-drift {
+  0% {
+    transform: translate3d(-3%, -2%, 0) scale(1.05);
+  }
+  100% {
+    transform: translate3d(3%, 2%, 0) scale(1.12);
+  }
+}
+.synthwave-bg::after {
+  content: '';
+  position: absolute;
+  left: -25%;
+  right: -25%;
+  bottom: -12%;
+  height: 55vh;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--neon-cyan) 20%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--neon-cyan) 20%, transparent) 1px, transparent 1px);
+  background-size: 46px 46px;
+  transform: perspective(340px) rotateX(62deg);
+  transform-origin: bottom center;
+  opacity: 0.42;
+  -webkit-mask-image: linear-gradient(to top, black, transparent 82%);
+  mask-image: linear-gradient(to top, black, transparent 82%);
+  animation: grid-scroll 7s linear infinite;
+}
+@keyframes grid-scroll {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 46px;
+  }
+}
+
+/* 6 — Arcade marquee ticker: seamless infinite scroll (content duplicated). */
+.marquee {
+  overflow: hidden;
+  white-space: nowrap;
+}
+.marquee-track {
+  display: inline-flex;
+  width: max-content;
+  animation: marquee-scroll 24s linear infinite;
+  will-change: transform;
+}
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
 /* ---------------------------------------------------------------------------
    Reduced motion — kill transforms/animations but keep state changes visible.
    Games stay fully playable; tiles snap instead of slide.
@@ -365,7 +591,12 @@ body {
   .anim-shake,
   .anim-char-ok,
   .btn-press,
-  .neon-box-hover {
+  .neon-box-hover,
+  .card-icon,
+  .card-title,
+  .hero-crt-on,
+  .hero-breathe,
+  .marquee-track {
     animation: none !important;
     transition: none !important;
   }
@@ -376,5 +607,23 @@ body {
   .anim-backdrop-in {
     backdrop-filter: blur(6px);
     opacity: 1;
+  }
+
+  /* Homepage (M8) motions off — content shown immediately, backgrounds static */
+  .has-js [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .spotlight-card:hover .card-icon {
+    transform: none;
+  }
+  .spotlight-card::before,
+  .hero-shimmer::after {
+    display: none;
+  }
+  .synthwave-bg::before,
+  .synthwave-bg::after {
+    animation: none !important;
   }
 }

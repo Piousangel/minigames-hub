@@ -13,8 +13,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={pixelFont.variable}>
+    <html lang="en" className={pixelFont.variable} suppressHydrationWarning>
       <body className="scanlines flex min-h-screen flex-col antialiased">
+        {/* Mark JS as available BEFORE first paint so the scroll-reveal hidden
+            state only applies for JS-capable browsers (no FOUC; no-JS/crawlers
+            always see visible content). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: "document.documentElement.classList.add('has-js')",
+          }}
+        />
+        {/* Synthwave background — decorative, fixed, behind all content. */}
+        <div aria-hidden="true" className="synthwave-bg" />
         <header className="sticky top-0 z-30 border-b border-border bg-bg/80 backdrop-blur-md">
           <nav className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
             <Link
