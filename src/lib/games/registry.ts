@@ -30,6 +30,10 @@ export type GamePage = GamePageBase &
     | { game: 'whack-a-mole' }
     | { game: 'aim-trainer' }
     | { game: 'sudoku' }
+    | { game: 'rps' }
+    | { game: 'pong' }
+    | { game: 'lights-out' }
+    | { game: 'mastermind' }
   )
 
 export const gamePages: GamePage[] = [
@@ -582,6 +586,117 @@ export const gamePages: GamePage[] = [
       { q: 'Is Sudoku free here?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
       { q: 'What are the difficulties?', a: 'Easy, Medium, and Hard, which differ by how many numbers are given at the start.' },
       { q: 'Does it track my time?', a: 'Yes. A timer runs while you solve, and your best time per difficulty is saved in your browser.' },
+    ],
+  },
+  {
+    slug: 'rock-paper-scissors',
+    game: 'rps',
+    title: 'Play Rock Paper Scissors Online — Free vs Computer',
+    h1: 'Rock Paper Scissors',
+    metaDescription:
+      'Play Rock Paper Scissors online for free against the computer. Pick rock, paper, or scissors and watch the reveal. Win streaks and a running tally. No download.',
+    shortDescription: 'Rock, paper, scissors vs the computer.',
+    howToPlay: [
+      'Pick rock, paper, or scissors.',
+      'The computer secretly picks too, then both choices are revealed.',
+      'Rock beats scissors, scissors beats paper, and paper beats rock. Same choice is a draw.',
+      'Your wins, losses, and draws are tallied as you play.',
+    ],
+    strategy: [
+      'People (and simple bots) rarely play truly randomly — look for patterns and exploit them.',
+      'After a loss, many players switch to what would have beaten your last move; anticipate it.',
+      'Do not fall into repeating the same throw; mix it up so you stay unpredictable.',
+      'Against a random computer the odds are even, so focus on long-run consistency and streaks.',
+    ],
+    faq: [
+      { q: 'Is it free?', a: 'Yes — Rock Paper Scissors plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Is the computer random?', a: 'The computer picks its move at random each round, so every game is a fair coin-flip of skill and luck.' },
+      { q: 'Does it keep score?', a: 'Yes. Your running win/loss/draw tally and best streak are saved in your browser between games.' },
+      { q: 'Can I play a match?', a: 'Yes. Play endlessly or set a first-to-3 or first-to-5 match to crown a winner.' },
+    ],
+  },
+  {
+    slug: 'pong',
+    game: 'pong',
+    title: 'Play Pong Online — Free Classic Paddle Game',
+    h1: 'Pong',
+    metaDescription:
+      'Play Pong online for free against the computer. Move your paddle, rally the ball, and be first to seven points. Easy and Hard AI. No download, works on mobile.',
+    shortDescription: 'Classic paddle tennis vs the computer.',
+    howToPlay: [
+      'Move your paddle with the mouse, your finger, or the up and down arrow keys.',
+      'Keep the ball in play by bouncing it back with your paddle.',
+      'You score when the computer misses; the computer scores when you miss.',
+      'First to seven points wins. Choose Easy or Hard for the computer.',
+    ],
+    strategy: [
+      'Hit the ball with the edge of your paddle to send it back at a sharper angle.',
+      'Return to the centre after each hit so you can cover either direction.',
+      'Watch the ball’s angle off the walls to predict where it will arrive.',
+      'On Hard, vary your return angles so the computer cannot settle into a rhythm.',
+      'Stay calm as rallies speed up — small adjustments beat big lunges.',
+    ],
+    faq: [
+      { q: 'Is Pong free to play?', a: 'Yes — it runs free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How do I control my paddle?', a: 'Move the mouse or your finger up and down over the play area, or use the up and down arrow keys.' },
+      { q: 'How do I win?', a: 'Be the first to reach seven points. You score whenever the computer fails to return the ball.' },
+      { q: 'Does it save my record?', a: 'Yes. Your win count is stored in your browser and persists between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'lights-out',
+    game: 'lights-out',
+    title: 'Play Lights Out Online — Free Classic Logic Puzzle',
+    h1: 'Lights Out',
+    metaDescription:
+      'Play Lights Out online for free. Turn off every light on the 5x5 grid — each tap flips a light and its neighbors. Always solvable. No download, works on mobile.',
+    shortDescription: 'Switch every light off.',
+    howToPlay: [
+      'The board is a 5x5 grid of lights, some on and some off.',
+      'Tapping a light toggles it and its four neighbors (up, down, left, right).',
+      'Your goal is to turn every light off.',
+      'Every board is always solvable — do it in as few moves as you can.',
+    ],
+    strategy: [
+      'Work top to bottom: clear the top row, then use the row below to fix what remains.',
+      'The "chase the lights" method — press the cell below any lit light, row by row — solves most boards.',
+      'Remember pressing a cell twice cancels out, so avoid undoing your own moves.',
+      'Plan a few presses ahead; a single tap changes up to five lights at once.',
+      'Fewer moves means a better score, so look for presses that clear the most lights.',
+    ],
+    faq: [
+      { q: 'Is every board solvable?', a: 'Yes. Each board is scrambled from a solved state with real presses, so it can always be turned off.' },
+      { q: 'Is Lights Out free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How does tapping work?', a: 'Tapping a light flips it and its four orthogonal neighbors. Corner and edge cells flip fewer lights.' },
+      { q: 'Does it track my best?', a: 'Yes. Your fewest-moves best is saved in your browser between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'mastermind',
+    game: 'mastermind',
+    title: 'Play Mastermind Online — Free Code Breaking Game',
+    h1: 'Mastermind',
+    metaDescription:
+      'Play Mastermind online for free. Crack the hidden 4-colour code in ten guesses using black and white peg clues. A classic logic puzzle. No download, on mobile.',
+    shortDescription: 'Crack the hidden colour code.',
+    howToPlay: [
+      'A secret code of four colours (from six, repeats allowed) is hidden.',
+      'Build a guess from the colour palette and submit it.',
+      'A black peg means a colour is right and in the right spot; a white peg means a colour is right but in the wrong spot.',
+      'Use the clues to crack the code within ten guesses.',
+    ],
+    strategy: [
+      'Start with a guess that uses two different colours to learn which are in the code.',
+      'Track black versus white pegs carefully — black is position-perfect, white is right-colour-wrong-place.',
+      'Change one thing at a time between guesses so each clue tells you something specific.',
+      'Remember colours can repeat, so a low peg count does not rule a colour out entirely.',
+      'Use elimination: rule colours in or out before worrying about their exact positions.',
+    ],
+    faq: [
+      { q: 'How does the feedback work?', a: 'Each guess returns black pegs (right colour, right spot) and white pegs (right colour, wrong spot), never double-counting a peg.' },
+      { q: 'Can colours repeat in the code?', a: 'Yes. The secret can contain the same colour more than once, which makes the puzzle trickier.' },
+      { q: 'Is Mastermind free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How many guesses do I get?', a: 'Ten. Crack the four-colour code before you run out to win.' },
     ],
   },
 ]
