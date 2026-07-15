@@ -3,6 +3,7 @@ import { hasLeaderboard } from '@/lib/leaderboard'
 import type { GamePage } from '@/lib/games/registry'
 import { AdSlot } from '@/components/ads/AdSlot'
 import { Leaderboard } from '@/components/Leaderboard'
+import { RecordPlay } from '@/components/RecordPlay'
 import { Reveal } from '@/components/Reveal'
 import { RelatedGames } from '@/components/RelatedGames'
 
@@ -29,6 +30,7 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
   const color = accentVar((gameMeta[page.slug] ?? DEFAULT_META).accent)
   return (
     <main className="mx-auto max-w-3xl px-4 py-6">
+      <RecordPlay slug={page.slug} />
       <h1 className="neon-text mb-4 text-center text-3xl font-bold" style={{ color }}>
         {page.h1}
       </h1>

@@ -6,6 +6,7 @@ import { GameCheckers } from '@/components/games/GameCheckers'
 import { GameConnectFour } from '@/components/games/GameConnectFour'
 import { GameDotsAndBoxes } from '@/components/games/GameDotsAndBoxes'
 import { GameFlappy } from '@/components/games/GameFlappy'
+import { GameFlywheel } from '@/components/games/GameFlywheel'
 import { GameGemMatch } from '@/components/games/GameGemMatch'
 import { GameHangman } from '@/components/games/GameHangman'
 import { GameMaze } from '@/components/games/GameMaze'
@@ -17,8 +18,10 @@ import { GameOverload } from '@/components/games/GameOverload'
 import { GameProspector } from '@/components/games/GameProspector'
 import { GameReaction } from '@/components/games/GameReaction'
 import { GameReversi } from '@/components/games/GameReversi'
+import { GameRicochet } from '@/components/games/GameRicochet'
 import { GameSokoban } from '@/components/games/GameSokoban'
 import { GameSpaceShooter } from '@/components/games/GameSpaceShooter'
+import { GameStackpot } from '@/components/games/GameStackpot'
 import { GameTowerStack } from '@/components/games/GameTowerStack'
 import { GameSimon } from '@/components/games/GameSimon'
 import { GameLightsOut } from '@/components/games/GameLightsOut'
@@ -114,6 +117,12 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameZeroHour storageKey={`best:${page.slug}`} />
     case 'overload':
       return <GameOverload storageKey={`best:${page.slug}`} />
+    case 'ricochet':
+      return <GameRicochet storageKey={`best:${page.slug}`} />
+    case 'stackpot':
+      return <GameStackpot storageKey={`best:${page.slug}`} />
+    case 'flywheel':
+      return <GameFlywheel storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null
