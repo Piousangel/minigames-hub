@@ -203,3 +203,23 @@ test('word-search: 로드 → 보드 표시', async ({ page }) => {
   await page.goto('/word-search')
   await expect(page.getByTestId('wordsearch-board')).toBeVisible({ timeout: 10_000 })
 })
+
+test('reversi: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/reversi')
+  await expect(page.getByTestId('reversi-board')).toBeVisible()
+})
+
+test('gem-match: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/gem-match')
+  await expect(page.getByTestId('gemmatch-board')).toBeVisible({ timeout: 10_000 })
+})
+
+test('space-shooter: 로드 → 캔버스 표시', async ({ page }) => {
+  await page.goto('/space-shooter')
+  await expect(page.getByTestId('space-board')).toBeVisible()
+})
+
+test('tower-stack: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/tower-stack')
+  await expect(page.getByTestId('stack-board')).toBeVisible()
+})

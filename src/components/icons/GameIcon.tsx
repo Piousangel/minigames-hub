@@ -348,6 +348,39 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // reversi — 오델로 원반(위/아래로 갈린 뒤집히는 디스크)
+  reversi: (
+    <>
+      <circle cx="12" cy="12" r="8" />
+      <path d="M4 12a8 8 0 0 1 16 0z" {...softer} />
+    </>
+  ),
+
+  // gem-match — 커팅된 보석/다이아몬드(크라운 + 파빌리온 패싯)
+  'gem-match': (
+    <>
+      <path d="M6 3h12l3 6-9 12L3 9z" {...soft} />
+      <path d="M3 9h18M9 3l3 6 3-6M9 9l3 12 3-12" />
+    </>
+  ),
+
+  // space-shooter — 삼각 우주선 + 위로 발사되는 볼트
+  'space-shooter': (
+    <>
+      <path d="M13 1.5l-3 5.5h2.4L10.8 9.5l3.2-5.5h-2.4z" {...soft} />
+      <path d="M12 10.5l5.5 11-5.5-3-5.5 3z" {...soft} />
+    </>
+  ),
+
+  // tower-stack — 어긋나게 쌓인 블록 3단 타워
+  'tower-stack': (
+    <>
+      <rect x="5.5" y="5" width="11" height="4.2" rx="1" {...soft} />
+      <rect x="4" y="10" width="14" height="4.2" rx="1" />
+      <rect x="6" y="15" width="13" height="4.2" rx="1" {...soft} />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>
