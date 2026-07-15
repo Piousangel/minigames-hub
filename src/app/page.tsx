@@ -8,6 +8,7 @@ import {
   type NeonAccent,
 } from '@/lib/games/gameMeta'
 import { siteConfig } from '@/lib/siteConfig'
+import { GameIcon } from '@/components/icons/GameIcon'
 
 export const metadata: Metadata = { alternates: { canonical: '/' } }
 
@@ -96,9 +97,12 @@ export default function Home() {
                     >
                       <span
                         aria-hidden="true"
-                        className="text-3xl leading-none transition-transform duration-200 group-hover:scale-110 sm:text-4xl"
+                        className="neon-icon inline-flex transition-transform duration-200 group-hover:scale-110"
                       >
-                        {meta.icon}
+                        <GameIcon
+                          slug={g.slug}
+                          className="h-8 w-8 sm:h-9 sm:w-9"
+                        />
                       </span>
                       <h3 className="neon-text text-base font-bold leading-tight sm:text-lg">
                         {g.h1}

@@ -85,6 +85,13 @@ body {
     0 0 18px color-mix(in srgb, currentColor 70%, transparent),
     0 0 34px color-mix(in srgb, currentColor 45%, transparent);
 }
+/* 네온 아이콘 글로우: SVG 스트로크는 text-shadow가 안 먹으므로 drop-shadow.
+   색 인자를 생략하면 drop-shadow는 currentColor를 사용 → 게임별 accent로 발광. */
+.neon-icon {
+  filter:
+    drop-shadow(0 0 3px color-mix(in srgb, currentColor 70%, transparent))
+    drop-shadow(0 0 8px color-mix(in srgb, currentColor 45%, transparent));
+}
 .neon-box {
   box-shadow:
     0 0 0 1px color-mix(in srgb, currentColor 55%, transparent),
