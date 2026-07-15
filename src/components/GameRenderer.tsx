@@ -1,11 +1,15 @@
 import { Game2048 } from '@/components/games/Game2048'
 import { GameAimTrainer } from '@/components/games/GameAimTrainer'
 import { GameBreakout } from '@/components/games/GameBreakout'
+import { GameBubbleShooter } from '@/components/games/GameBubbleShooter'
 import { GameConnectFour } from '@/components/games/GameConnectFour'
+import { GameDotsAndBoxes } from '@/components/games/GameDotsAndBoxes'
 import { GameHangman } from '@/components/games/GameHangman'
 import { GameMemory } from '@/components/games/GameMemory'
 import { GameMinesweeper } from '@/components/games/GameMinesweeper'
+import { GameNonogram } from '@/components/games/GameNonogram'
 import { GameReaction } from '@/components/games/GameReaction'
+import { GameSokoban } from '@/components/games/GameSokoban'
 import { GameSimon } from '@/components/games/GameSimon'
 import { GameLightsOut } from '@/components/games/GameLightsOut'
 import { GameMastermind } from '@/components/games/GameMastermind'
@@ -66,6 +70,14 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameLightsOut storageKey={`best:${page.slug}`} />
     case 'mastermind':
       return <GameMastermind storageKey={`best:${page.slug}`} />
+    case 'bubble-shooter':
+      return <GameBubbleShooter storageKey={`best:${page.slug}`} />
+    case 'nonogram':
+      return <GameNonogram storageKey={`best:${page.slug}`} />
+    case 'sokoban':
+      return <GameSokoban storageKey={`best:${page.slug}`} />
+    case 'dots-and-boxes':
+      return <GameDotsAndBoxes storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null
