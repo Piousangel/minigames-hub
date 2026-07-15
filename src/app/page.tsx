@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { gamePages } from '@/lib/games/registry'
 import { CATEGORIES, DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
 import { siteConfig } from '@/lib/siteConfig'
+import { AdSlot } from '@/components/ads/AdSlot'
 import { GameCard } from '@/components/GameCard'
 import { Reveal } from '@/components/Reveal'
 import { Marquee } from '@/components/Marquee'
@@ -83,6 +84,9 @@ export default function Home() {
           )
         })}
       </div>
+
+      {/* 하단 광고 자리(승인 전엔 렌더 안 됨) */}
+      <AdSlot slot="home-footer" className="mt-14" />
     </main>
   )
 }

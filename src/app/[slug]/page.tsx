@@ -26,6 +26,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
       siteName: siteConfig.name,
       type: 'website',
     },
+    twitter: {
+      card: 'summary_large_image',
+      title: page.title,
+      description: page.metaDescription,
+    },
   }
 }
 
@@ -56,6 +61,15 @@ export default async function GamePage({ params }: { params: Promise<{ slug: str
     })),
   }
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: siteConfig.url },
+      { '@type': 'ListItem', position: 2, name: page.h1, item: `${siteConfig.url}/${page.slug}` },
+    ],
+  }
+
   return (
     <>
       <script
@@ -65,6 +79,10 @@ export default async function GamePage({ params }: { params: Promise<{ slug: str
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd).replace(/</g, '\\u003c') }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, '\\u003c') }}
       />
       <GamePageLayout page={page}>
         <GameRenderer page={page} />

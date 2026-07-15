@@ -16,15 +16,18 @@ export default function OgImage() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#0f1115',
-          color: '#e8eaed',
+          backgroundColor: '#08080f',
+          backgroundImage: 'radial-gradient(1000px 500px at 50% 0%, #22d3ee22, transparent)',
+          color: '#e9e9f5',
+          border: '10px solid #22d3ee',
+          fontFamily: 'sans-serif',
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-          <div style={{ width: 72, height: 72, background: '#f59e0b', borderRadius: 16 }} />
-          <div style={{ fontSize: 72, fontWeight: 700 }}>{siteConfig.name}</div>
+          <div style={{ fontSize: 88 }}>🕹️</div>
+          <div style={{ fontSize: 84, fontWeight: 800, color: '#22d3ee' }}>{siteConfig.name}</div>
         </div>
-        <div style={{ fontSize: 32, color: '#9aa0a8', marginTop: 24 }}>
+        <div style={{ fontSize: 34, color: '#9494b8', marginTop: 24 }}>
           Free online mini games — play instantly, no download
         </div>
       </div>
