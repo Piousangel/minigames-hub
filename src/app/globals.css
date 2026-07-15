@@ -1,11 +1,28 @@
 @import 'tailwindcss';
 
+/* ===== 레트로 네온 디자인 시스템 =====
+   네온은 로고/제목/강조/보더/카드에만. 본문은 항상 읽기 쉬운 --fg 유지.
+   --accent는 네온 앰버로 유지(기존 인게임 버튼 호환). 카드/헤더는 --neon-* 사용. */
+
 :root {
-  --bg: #0f1115;
-  --surface: #1a1d24;
-  --fg: #e8eaed;
-  --fg-muted: #9aa0a8;
-  --accent: #f59e0b;
+  --bg: #08080f; /* near-black, slight blue-purple */
+  --bg-2: #0e0e1a; /* 패널 배경 */
+  --surface: #16162a; /* raised surface */
+  --surface-2: #1e1e38;
+  --fg: #e9e9f5; /* 본문(가독성 우선) */
+  --fg-muted: #9494b8;
+  --border: rgba(140, 140, 200, 0.16);
+  --accent: #fbbf24; /* 네온 앰버(기존 accent 자리) */
+
+  /* 네온 액센트 팔레트 */
+  --neon-cyan: #22d3ee;
+  --neon-magenta: #ff3d9a;
+  --neon-lime: #a3e635;
+  --neon-amber: #fbbf24;
+  --neon-purple: #b06bff;
+  --neon-blue: #4d7cff;
+  --neon-red: #ff4d6d;
+  --neon-green: #34e39b;
 
   /* Motion tokens — shared across the game template */
   --dur-fast: 120ms;
@@ -17,15 +34,91 @@
 
 @theme inline {
   --color-bg: var(--bg);
+  --color-bg-2: var(--bg-2);
   --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-fg: var(--fg);
   --color-fg-muted: var(--fg-muted);
+  --color-border: var(--border);
   --color-accent: var(--accent);
+
+  --color-neon-cyan: var(--neon-cyan);
+  --color-neon-magenta: var(--neon-magenta);
+  --color-neon-lime: var(--neon-lime);
+  --color-neon-amber: var(--neon-amber);
+  --color-neon-purple: var(--neon-purple);
+  --color-neon-blue: var(--neon-blue);
+  --color-neon-red: var(--neon-red);
+  --color-neon-green: var(--neon-green);
+
+  --font-pixel: var(--font-pixel);
+}
+
+html {
+  color-scheme: dark;
 }
 
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(1100px 560px at 50% -12%, rgba(96, 66, 180, 0.2), transparent 70%),
+    var(--bg);
   color: var(--fg);
+  min-height: 100vh;
+}
+
+/* 픽셀 폰트 유틸(짧은 텍스트 전용 — 본문 금지) */
+.font-pixel {
+  font-family: var(--font-pixel), 'Courier New', monospace;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+}
+
+/* 네온 글로우 유틸: 요소의 currentColor 기준 발광 */
+.neon-text {
+  text-shadow:
+    0 0 4px color-mix(in srgb, currentColor 70%, transparent),
+    0 0 12px color-mix(in srgb, currentColor 55%, transparent);
+}
+.neon-text-strong {
+  text-shadow:
+    0 0 6px currentColor,
+    0 0 18px color-mix(in srgb, currentColor 70%, transparent),
+    0 0 34px color-mix(in srgb, currentColor 45%, transparent);
+}
+.neon-box {
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, currentColor 55%, transparent),
+    0 0 14px color-mix(in srgb, currentColor 35%, transparent),
+    inset 0 0 12px color-mix(in srgb, currentColor 12%, transparent);
+}
+.neon-box-hover {
+  transition:
+    box-shadow var(--dur-fast) ease,
+    transform var(--dur-fast) ease;
+}
+.neon-box-hover:hover {
+  box-shadow:
+    0 0 0 1px currentColor,
+    0 0 22px color-mix(in srgb, currentColor 55%, transparent),
+    inset 0 0 16px color-mix(in srgb, currentColor 18%, transparent);
+  transform: translateY(-2px);
+}
+
+/* 아케이드 스캔라인 오버레이(정적, 매우 은은하게 — 가독성 방해 금지) */
+.scanlines::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0,
+    rgba(0, 0, 0, 0) 2px,
+    rgba(0, 0, 0, 0.06) 3px,
+    rgba(0, 0, 0, 0) 4px
+  );
+  mix-blend-mode: multiply;
 }
 
 /* ---------------------------------------------------------------------------
@@ -271,9 +364,13 @@ body {
   .anim-match,
   .anim-shake,
   .anim-char-ok,
-  .btn-press {
+  .btn-press,
+  .neon-box-hover {
     animation: none !important;
     transition: none !important;
+  }
+  .neon-box-hover:hover {
+    transform: none;
   }
   /* Keep the win overlay blur (a static state, not motion) */
   .anim-backdrop-in {
