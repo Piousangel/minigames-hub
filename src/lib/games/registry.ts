@@ -53,6 +53,9 @@ export type GamePage = GamePageBase &
     | { game: 'ricochet' }
     | { game: 'stackpot' }
     | { game: 'flywheel' }
+    | { game: 'ripple' }
+    | { game: 'ticker' }
+    | { game: 'overfold' }
   )
 
 export const gamePages: GamePage[] = [
@@ -1247,6 +1250,90 @@ export const gamePages: GamePage[] = [
       { q: 'What makes Flywheel different?', a: 'Your timing accuracy sets the tempo: the wheel’s speed is your score, so playing well makes it faster and harder — you author your own difficulty.' },
       { q: 'How does a run end?', a: 'When you miss the strike zone three times. Your score is how fast (and how long) you kept the wheel spinning.' },
       { q: 'Is it free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Does my best save?', a: 'Yes. Your best score is stored in your browser and persists between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'ripple',
+    game: 'ripple',
+    title: 'Play Ripple Online — Free One-Tap Timing Arcade Game',
+    h1: 'Ripple',
+    metaDescription:
+      'Play Ripple free online — a one-tap timing game. Tap the water to send an expanding ring that pops floating buoys as its crest sweeps through them. Aim in time, not space. No download.',
+    shortDescription: 'Tap the water, pop with the wave.',
+    howToPlay: [
+      'Tap empty water to drop a stone — it sends out a ring that expands outward.',
+      'A buoy pops the instant the ring’s edge sweeps across it, so aim where the wave will reach buoys in sequence.',
+      'Up to three rings can expand at once; two crests hitting one buoy together score an interference combo.',
+      'A rising swell drowns un-popped buoys over time — clear them before they sink.',
+    ],
+    strategy: [
+      'You aim in time, not at a target: pick the spot whose growing ring will roll through a line of buoys.',
+      'Drop near clusters so one ring sweeps several buoys for a big combo.',
+      'Overlap two rings on the same buoy for interference bonuses.',
+      'Keep a ring in reserve for buoys about to drown from the swell.',
+      'Read the drift — buoys move slowly, so lead your ripples slightly.',
+    ],
+    faq: [
+      { q: 'How do I pop a buoy?', a: 'Not by tapping it — you tap open water, and the expanding ring pops each buoy at the moment its edge sweeps across it.' },
+      { q: 'What is an interference combo?', a: 'When two ring crests reach the same buoy on the same beat, you score a multiplier for the overlap.' },
+      { q: 'Is Ripple free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best score is stored in your browser and persists between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'ticker',
+    game: 'ticker',
+    title: 'Play Ticker Online — Free All-In Momentum Market Game',
+    h1: 'Ticker',
+    metaDescription:
+      'Play Ticker free online — an all-in momentum game. Read three assets’ momentum, go all-in on one (or cash out), and compound your worth over 20 rounds. Time the exit. No download, on mobile.',
+    shortDescription: 'Ride the momentum, time your exit.',
+    howToPlay: [
+      'You start with a worth of 100. Three assets each show a momentum meter and a recent sparkline.',
+      'Each round, go all-in on one asset — or pick CASH to sit out safely.',
+      'Hot assets tend to pay off, but the longer one stays hot the higher its risk of a sharp snap down.',
+      'Your worth compounds each round over about 20 rounds. Finish as high as you can.',
+    ],
+    strategy: [
+      'The whole skill is timing the exit — ride a hot asset, then cash out before it snaps.',
+      'Watch the tension on overheated assets; greed is a legible dare, not a blind gamble.',
+      'Cold assets bottom out and rebound, so a beaten-down asset can be the next hot one.',
+      'Small correct early reads compound into a huge finish, so protect your worth when unsure with CASH.',
+      'Later rounds swing harder — take bigger, better-timed bets as the stakes rise.',
+    ],
+    faq: [
+      { q: 'What is the goal in Ticker?', a: 'Grow your worth as high as possible over the run by going all-in on the right asset at the right time and cashing out before it snaps.' },
+      { q: 'What does CASH do?', a: 'It sits the round out with a 0% return — a safe skip when no asset looks worth the risk.' },
+      { q: 'Is it free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Does my best save?', a: 'Yes. Your best final worth is stored in your browser and persists between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'overfold',
+    game: 'overfold',
+    title: 'Play Overfold Online — Free Paper-Folding Match Puzzle',
+    h1: 'Overfold',
+    metaDescription:
+      'Play Overfold free online — an original folding puzzle. Fold the paper grid across a crease to overlap cells; matching colored pips seal and clear. Fold space itself. No download, on mobile.',
+    shortDescription: 'Fold the paper, match the pips.',
+    howToPlay: [
+      'The paper grid holds colored pips, each colour in a matching pair.',
+      'Tap a crease between two rows or columns to fold the smaller flap over the rest.',
+      'Where a pip lands on a matching pip, both seal and score; several seals in one fold combo.',
+      'Different colours colliding jam a cell permanently. Seal every pip to solve the board.',
+    ],
+    strategy: [
+      'Every fold shrinks the paper permanently, so plan the order — the board only gets smaller.',
+      'Line up matching pips to land on each other, and try to seal several in a single fold.',
+      'Avoid folding different colours onto each other; a jam blocks that cell for good.',
+      'Use Unfold sparingly to recover from a bad fold — it is your only safety valve.',
+      'Every board is solvable within its par fold count; chase a cleaner solve each retry.',
+    ],
+    faq: [
+      { q: 'How does folding work?', a: 'Tapping a crease folds the smaller flap over the rest, reflecting its cells onto the ones beneath so pips can meet, seal, or jam.' },
+      { q: 'Is every board solvable?', a: 'Yes. Each board is generated by scrambling a solved layout with inverse folds, so there is always a way to seal every pip.' },
+      { q: 'Is Overfold free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
       { q: 'Does my best save?', a: 'Yes. Your best score is stored in your browser and persists between games on the same device.' },
     ],
   },

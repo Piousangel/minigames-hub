@@ -16,9 +16,11 @@ import { GameNonogram } from '@/components/games/GameNonogram'
 import { GameNumberMemory } from '@/components/games/GameNumberMemory'
 import { GameOverload } from '@/components/games/GameOverload'
 import { GameProspector } from '@/components/games/GameProspector'
+import { GameOverfold } from '@/components/games/GameOverfold'
 import { GameReaction } from '@/components/games/GameReaction'
 import { GameReversi } from '@/components/games/GameReversi'
 import { GameRicochet } from '@/components/games/GameRicochet'
+import { GameRipple } from '@/components/games/GameRipple'
 import { GameSokoban } from '@/components/games/GameSokoban'
 import { GameSpaceShooter } from '@/components/games/GameSpaceShooter'
 import { GameStackpot } from '@/components/games/GameStackpot'
@@ -32,6 +34,7 @@ import { GameSliding } from '@/components/games/GameSliding'
 import { GameSnake } from '@/components/games/GameSnake'
 import { GameSudoku } from '@/components/games/GameSudoku'
 import { GameTetris } from '@/components/games/GameTetris'
+import { GameTicker } from '@/components/games/GameTicker'
 import { GameTicTacToe } from '@/components/games/GameTicTacToe'
 import { GameTyping } from '@/components/games/GameTyping'
 import { GameWhackAMole } from '@/components/games/GameWhackAMole'
@@ -123,6 +126,12 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameStackpot storageKey={`best:${page.slug}`} />
     case 'flywheel':
       return <GameFlywheel storageKey={`best:${page.slug}`} />
+    case 'ripple':
+      return <GameRipple storageKey={`best:${page.slug}`} />
+    case 'ticker':
+      return <GameTicker storageKey={`best:${page.slug}`} />
+    case 'overfold':
+      return <GameOverfold storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

@@ -61,6 +61,9 @@ export const gameMeta: Record<string, GameMeta> = {
   ricochet: { icon: '↗️', accent: 'cyan', category: 'Puzzle' },
   stackpot: { icon: '🪙', accent: 'amber', category: 'Arcade' },
   flywheel: { icon: '🎡', accent: 'lime', category: 'Skill' },
+  ripple: { icon: '🌊', accent: 'cyan', category: 'Arcade' },
+  ticker: { icon: '📈', accent: 'green', category: 'Skill' },
+  overfold: { icon: '📄', accent: 'purple', category: 'Puzzle' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

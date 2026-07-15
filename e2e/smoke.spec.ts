@@ -253,3 +253,23 @@ test('flywheel: 로드 → 보드 표시', async ({ page }) => {
   await page.goto('/flywheel')
   await expect(page.getByTestId('flywheel-board')).toBeVisible()
 })
+
+test('ripple: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/ripple')
+  await expect(page.getByTestId('ripple-board')).toBeVisible()
+})
+
+test('ticker: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/ticker')
+  await expect(page.getByTestId('ticker-board')).toBeVisible()
+})
+
+test('overfold: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/overfold')
+  await expect(page.getByTestId('overfold-board')).toBeVisible({ timeout: 10_000 })
+})
+
+test('leaderboards: 허브 페이지 로드', async ({ page }) => {
+  await page.goto('/leaderboards')
+  await expect(page.getByRole('heading', { name: 'Leaderboards', level: 1 })).toBeVisible()
+})

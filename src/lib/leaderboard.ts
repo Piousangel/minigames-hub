@@ -21,6 +21,9 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   ricochet: { label: 'Score' },
   stackpot: { label: 'Score' },
   flywheel: { label: 'Score' },
+  ripple: { label: 'Score' },
+  ticker: { label: 'Worth' },
+  overfold: { label: 'Score' },
 }
 
 export function hasLeaderboard(slug: string): boolean {
