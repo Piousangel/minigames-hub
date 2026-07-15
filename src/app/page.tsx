@@ -1,31 +1,12 @@
 import type { Metadata } from 'next'
 import { gamePages } from '@/lib/games/registry'
-import {
-  CATEGORIES,
-  DEFAULT_META,
-  gameMeta,
-  type NeonAccent,
-} from '@/lib/games/gameMeta'
+import { CATEGORIES, DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
 import { siteConfig } from '@/lib/siteConfig'
-import { GameIcon } from '@/components/icons/GameIcon'
+import { GameCard } from '@/components/GameCard'
 import { Reveal } from '@/components/Reveal'
-import { SpotlightCard } from '@/components/SpotlightCard'
 import { Marquee } from '@/components/Marquee'
 
 export const metadata: Metadata = { alternates: { canonical: '/' } }
-
-// accent 키 → globals.css의 --neon-* CSS 변수. 인라인 color로 넣어
-// .neon-box / .neon-text 가 currentColor 로 발광하도록 한다.
-const ACCENT_VAR: Record<NeonAccent, string> = {
-  cyan: 'var(--neon-cyan)',
-  magenta: 'var(--neon-magenta)',
-  lime: 'var(--neon-lime)',
-  amber: 'var(--neon-amber)',
-  purple: 'var(--neon-purple)',
-  blue: 'var(--neon-blue)',
-  red: 'var(--neon-red)',
-  green: 'var(--neon-green)',
-}
 
 export default function Home() {
   return (
@@ -92,37 +73,11 @@ export default function Home() {
               </Reveal>
 
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                {games.map((g, i) => {
-                  const meta = gameMeta[g.slug] ?? DEFAULT_META
-                  const accent = ACCENT_VAR[meta.accent]
-                  return (
-                    <Reveal key={g.slug} delay={Math.min(i * 50, 300)}>
-                      <SpotlightCard href={`/${g.slug}`} accent={accent}>
-                        <span
-                          aria-hidden="true"
-                          className="card-icon neon-icon relative z-[1] inline-flex"
-                        >
-                          <GameIcon
-                            slug={g.slug}
-                            className="h-8 w-8 sm:h-9 sm:w-9"
-                          />
-                        </span>
-                        <h3 className="card-title neon-text relative z-[1] text-base font-bold leading-tight sm:text-lg">
-                          {g.h1}
-                        </h3>
-                        <p className="relative z-[1] text-xs leading-relaxed text-fg-muted sm:text-sm">
-                          {g.shortDescription}
-                        </p>
-                        <span
-                          aria-hidden="true"
-                          className="font-pixel relative z-[1] mt-1 text-[9px] tracking-[0.2em] text-fg-muted opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-                        >
-                          PLAY ►
-                        </span>
-                      </SpotlightCard>
-                    </Reveal>
-                  )
-                })}
+                {games.map((g, i) => (
+                  <Reveal key={g.slug} delay={Math.min(i * 50, 300)}>
+                    <GameCard page={g} />
+                  </Reveal>
+                ))}
               </div>
             </section>
           )
