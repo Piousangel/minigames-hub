@@ -158,3 +158,23 @@ test('mastermind: 로드 → 보드 표시', async ({ page }) => {
   await page.goto('/mastermind')
   await expect(page.getByTestId('mastermind-board')).toBeVisible()
 })
+
+test('bubble-shooter: 로드 → 캔버스 표시', async ({ page }) => {
+  await page.goto('/bubble-shooter')
+  await expect(page.getByTestId('bubble-board')).toBeVisible()
+})
+
+test('nonogram: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/nonogram')
+  await expect(page.getByTestId('nonogram-board')).toBeVisible({ timeout: 10_000 })
+})
+
+test('sokoban: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/sokoban')
+  await expect(page.getByTestId('sokoban-board')).toBeVisible()
+})
+
+test('dots-and-boxes: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/dots-and-boxes')
+  await expect(page.getByTestId('dab-board')).toBeVisible()
+})

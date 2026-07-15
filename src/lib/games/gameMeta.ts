@@ -42,6 +42,10 @@ export const gameMeta: Record<string, GameMeta> = {
   pong: { icon: '🏓', accent: 'cyan', category: 'Arcade' },
   'lights-out': { icon: '💡', accent: 'amber', category: 'Puzzle' },
   mastermind: { icon: '🎨', accent: 'purple', category: 'Puzzle' },
+  'bubble-shooter': { icon: '🫧', accent: 'cyan', category: 'Arcade' },
+  nonogram: { icon: '🖼️', accent: 'blue', category: 'Puzzle' },
+  sokoban: { icon: '📦', accent: 'amber', category: 'Puzzle' },
+  'dots-and-boxes': { icon: '⬜', accent: 'magenta', category: 'Classic' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

@@ -34,6 +34,10 @@ export type GamePage = GamePageBase &
     | { game: 'pong' }
     | { game: 'lights-out' }
     | { game: 'mastermind' }
+    | { game: 'bubble-shooter' }
+    | { game: 'nonogram' }
+    | { game: 'sokoban' }
+    | { game: 'dots-and-boxes' }
   )
 
 export const gamePages: GamePage[] = [
@@ -697,6 +701,118 @@ export const gamePages: GamePage[] = [
       { q: 'Can colours repeat in the code?', a: 'Yes. The secret can contain the same colour more than once, which makes the puzzle trickier.' },
       { q: 'Is Mastermind free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
       { q: 'How many guesses do I get?', a: 'Ten. Crack the four-colour code before you run out to win.' },
+    ],
+  },
+  {
+    slug: 'bubble-shooter',
+    game: 'bubble-shooter',
+    title: 'Play Bubble Shooter Online — Free Bubble Pop Game',
+    h1: 'Bubble Shooter',
+    metaDescription:
+      'Play Bubble Shooter online for free. Aim and fire bubbles, match three or more of the same colour to pop them, and clear the board. No download, works on mobile.',
+    shortDescription: 'Match 3+ bubbles to pop them.',
+    howToPlay: [
+      'Aim with your mouse or finger — a guide line shows where the bubble will go.',
+      'Click or tap to fire the bubble toward the cluster at the top.',
+      'Match three or more bubbles of the same colour to pop them.',
+      'Clear all the bubbles to win. If the bubbles reach the bottom line, the game is over.',
+    ],
+    strategy: [
+      'Bounce shots off the side walls to reach bubbles tucked into corners.',
+      'Aim for the bubbles holding up a big group — popping them drops everything below.',
+      'Plan around your next bubble (shown at the shooter), not just the current one.',
+      'Clear bubbles near the bottom first to keep away from the danger line.',
+      'Save a colour you have plenty of for setting up a big chain drop.',
+    ],
+    faq: [
+      { q: 'Is Bubble Shooter free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How do I pop bubbles?', a: 'Land a bubble next to two or more of the same colour so the connected group is three or more, and they pop.' },
+      { q: 'What are the dropping bubbles?', a: 'When you pop the bubbles holding up others, the now-disconnected bubbles fall and score bonus points.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best score is stored in your browser and persists between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'nonogram',
+    game: 'nonogram',
+    title: 'Play Nonogram Online — Free Picross Logic Puzzle',
+    h1: 'Nonogram',
+    metaDescription:
+      'Play Nonogram (Picross) online for free. Use the row and column number clues to fill the grid and reveal a hidden picture. Easy and hard sizes. No download, on mobile.',
+    shortDescription: 'Solve the picture from number clues.',
+    howToPlay: [
+      'Numbers along each row and column tell you the runs of filled cells in order.',
+      'Tap a cell to fill it, or switch to Mark mode to X-out cells you know are empty.',
+      'A clue like "3 1" means a run of three filled cells, a gap, then one filled cell.',
+      'Fill exactly the right cells to reveal the picture and win.',
+    ],
+    strategy: [
+      'Start with the biggest clues — in a 10-wide row, a clue of 8 leaves little room and forces cells.',
+      'Mark cells you know are empty with an X; ruling out is as useful as filling in.',
+      'Cross-reference rows and columns: a cell filled by a row clue can unlock a column, and vice versa.',
+      'Look for overlaps — where a large run must cover the same cells no matter where it sits.',
+      'Work from the clues you are certain about outward; never guess when a deduction exists.',
+    ],
+    faq: [
+      { q: 'What is a Nonogram?', a: 'A logic puzzle (also called Picross or Griddlers) where number clues on each row and column tell you which cells to fill to reveal a hidden picture.' },
+      { q: 'Is it free to play?', a: 'Yes — it runs free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How do I mark empty cells?', a: 'Switch to Mark mode and tap a cell to place an X, which flags it as empty without filling it.' },
+      { q: 'Does it track my time?', a: 'Yes. A timer runs while you solve, and your best time per size is saved in your browser.' },
+    ],
+  },
+  {
+    slug: 'sokoban',
+    game: 'sokoban',
+    title: 'Play Sokoban Online — Free Box Pushing Puzzle',
+    h1: 'Sokoban',
+    metaDescription:
+      'Play Sokoban online for free. Push every box onto its target square in this classic warehouse puzzle. Hand-crafted solvable levels, undo. No download, works on mobile.',
+    shortDescription: 'Push every box onto a target.',
+    howToPlay: [
+      'Move your character with the arrow keys or the on-screen D-pad.',
+      'Walk into a box to push it — but only if the space beyond it is clear.',
+      'You can only push one box at a time, and never pull. Push carefully.',
+      'Get every box onto a glowing target square to solve the level.',
+    ],
+    strategy: [
+      'Never push a box into a corner (unless the corner is a target) — it gets stuck there forever.',
+      'Avoid pushing a box flat against a wall along a side with no target; it can no longer come off that wall.',
+      'Solve the boxes that are hardest to reach first, while you still have room to maneuver.',
+      'Plan the final resting order — sometimes you must place the back boxes before the front ones.',
+      'Use Undo freely to test a push, and Restart if you deadlock a box.',
+    ],
+    faq: [
+      { q: 'Are the levels always solvable?', a: 'Yes. Every level is hand-crafted and verified solvable, so there is always a way to push all the boxes onto their targets.' },
+      { q: 'Is Sokoban free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Can I undo a mistake?', a: 'Yes. There is an Undo button (and a Restart) so you can recover if you push a box into a bad spot.' },
+      { q: 'How do I play on mobile?', a: 'Use the on-screen D-pad to move. Everything works by touch.' },
+    ],
+  },
+  {
+    slug: 'dots-and-boxes',
+    game: 'dots-and-boxes',
+    title: 'Play Dots and Boxes Online — Free vs Computer',
+    h1: 'Dots and Boxes',
+    metaDescription:
+      'Play Dots and Boxes online for free against the computer. Draw lines, complete boxes to claim them, and own the most to win. Easy and Hard AI. No download, on mobile.',
+    shortDescription: 'Complete boxes to claim them.',
+    howToPlay: [
+      'Take turns drawing a single line between two adjacent dots.',
+      'Complete the fourth side of a box to claim it in your colour — and take another turn.',
+      'You are the first player; the computer plays against you.',
+      'When every line is drawn, whoever owns the most boxes wins.',
+    ],
+    strategy: [
+      'Early on, avoid drawing the third side of any box — it hands your opponent a free box.',
+      'Chaining matters: completing one box lets you go again, so line up runs of boxes.',
+      'Learn the "double-cross" — leaving the last two boxes of a chain forces your opponent to open the next one.',
+      'Count safe moves left; when they run out, whoever must "open" a chain usually loses it.',
+      'On Hard, the computer never gives away a free box, so set traps rather than hoping for mistakes.',
+    ],
+    faq: [
+      { q: 'How do I win?', a: 'Own the most boxes when all the lines are drawn. Completing a box also earns you an extra turn.' },
+      { q: 'Is it free to play?', a: 'Yes — it runs free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Do I play a person or the computer?', a: 'You play against the computer. Choose Easy for a casual game or Hard for a sharp opponent.' },
+      { q: 'Does it keep score?', a: 'Yes. Your wins are saved in your browser and persist between games on the same device.' },
     ],
   },
 ]
