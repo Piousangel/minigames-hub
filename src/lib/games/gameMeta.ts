@@ -38,6 +38,10 @@ export const gameMeta: Record<string, GameMeta> = {
   'whack-a-mole': { icon: '🔨', accent: 'lime', category: 'Arcade' },
   'aim-trainer': { icon: '🎯', accent: 'red', category: 'Skill' },
   sudoku: { icon: '9️⃣', accent: 'blue', category: 'Puzzle' },
+  'rock-paper-scissors': { icon: '✊', accent: 'amber', category: 'Classic' },
+  pong: { icon: '🏓', accent: 'cyan', category: 'Arcade' },
+  'lights-out': { icon: '💡', accent: 'amber', category: 'Puzzle' },
+  mastermind: { icon: '🎨', accent: 'purple', category: 'Puzzle' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

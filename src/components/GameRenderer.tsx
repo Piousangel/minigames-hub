@@ -7,6 +7,10 @@ import { GameMemory } from '@/components/games/GameMemory'
 import { GameMinesweeper } from '@/components/games/GameMinesweeper'
 import { GameReaction } from '@/components/games/GameReaction'
 import { GameSimon } from '@/components/games/GameSimon'
+import { GameLightsOut } from '@/components/games/GameLightsOut'
+import { GameMastermind } from '@/components/games/GameMastermind'
+import { GamePong } from '@/components/games/GamePong'
+import { GameRps } from '@/components/games/GameRps'
 import { GameSliding } from '@/components/games/GameSliding'
 import { GameSnake } from '@/components/games/GameSnake'
 import { GameSudoku } from '@/components/games/GameSudoku'
@@ -54,6 +58,14 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameAimTrainer storageKey={`best:${page.slug}`} />
     case 'sudoku':
       return <GameSudoku storageKey={`best:${page.slug}`} />
+    case 'rps':
+      return <GameRps storageKey={`best:${page.slug}`} />
+    case 'pong':
+      return <GamePong storageKey={`best:${page.slug}`} />
+    case 'lights-out':
+      return <GameLightsOut storageKey={`best:${page.slug}`} />
+    case 'mastermind':
+      return <GameMastermind storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

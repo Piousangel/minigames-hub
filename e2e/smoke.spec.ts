@@ -137,3 +137,24 @@ test('sudoku: 로드 → 보드 표시', async ({ page }) => {
   await page.goto('/sudoku')
   await expect(page.getByTestId('sudoku-board')).toBeVisible({ timeout: 10_000 })
 })
+
+test('rock-paper-scissors: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/rock-paper-scissors')
+  await expect(page.getByTestId('rps-board')).toBeVisible()
+})
+
+test('pong: 로드 → 캔버스 표시', async ({ page }) => {
+  await page.goto('/pong')
+  await expect(page.getByTestId('pong-board')).toBeVisible()
+})
+
+test('lights-out: 로드 → 25칸', async ({ page }) => {
+  await page.goto('/lights-out')
+  await expect(page.getByTestId('lightsout-board')).toBeVisible()
+  await expect(page.getByTestId('lightsout-cell')).toHaveCount(25)
+})
+
+test('mastermind: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/mastermind')
+  await expect(page.getByTestId('mastermind-board')).toBeVisible()
+})
