@@ -83,3 +83,28 @@ test('breakout: 로드 → 캔버스 + 점수판', async ({ page }) => {
   await expect(page.getByTestId('breakout-board')).toBeVisible()
   await expect(page.getByTestId('score')).toBeVisible()
 })
+
+test('word-guess: 로드 → 보드 + 입력 반영', async ({ page }) => {
+  await page.goto('/word-guess')
+  await expect(page.getByTestId('wordguess-board')).toBeVisible()
+  await page.keyboard.type('crane')
+  // 첫 행에 입력한 글자가 나타난다
+  await expect(page.getByTestId('wordguess-board')).toContainText('C')
+})
+
+test('tic-tac-toe: 로드 → 칸 클릭 → 마크 배치', async ({ page }) => {
+  await page.goto('/tic-tac-toe')
+  await expect(page.getByTestId('ttt-board')).toBeVisible()
+  await page.getByTestId('ttt-cell').first().click()
+  await expect(page.getByTestId('ttt-board')).toContainText('X')
+})
+
+test('reaction-time: 로드 → 패드 표시', async ({ page }) => {
+  await page.goto('/reaction-time')
+  await expect(page.getByTestId('reaction-pad')).toBeVisible()
+})
+
+test('connect-four: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/connect-four')
+  await expect(page.getByTestId('c4-board')).toBeVisible()
+})

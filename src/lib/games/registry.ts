@@ -21,6 +21,10 @@ export type GamePage = GamePageBase &
     | { game: 'tetris' }
     | { game: 'sliding' }
     | { game: 'breakout' }
+    | { game: 'word-guess' }
+    | { game: 'tic-tac-toe' }
+    | { game: 'reaction-time' }
+    | { game: 'connect-four' }
   )
 
 export const gamePages: GamePage[] = [
@@ -321,6 +325,118 @@ export const gamePages: GamePage[] = [
       { q: 'How do I control the paddle on mobile?', a: 'Slide your finger across the play area and the paddle follows. Tap to launch the ball.' },
       { q: 'How many lives do I get?', a: 'Three. You lose a life whenever the ball falls past your paddle, and the game ends at zero.' },
       { q: 'Does my best score save?', a: 'Yes. Your best score is stored in your browser and persists between visits on the same device.' },
+    ],
+  },
+  {
+    slug: 'word-guess',
+    game: 'word-guess',
+    title: 'Word Guess — Free Online 5-Letter Word Game',
+    h1: 'Word Guess',
+    metaDescription:
+      'Play Word Guess free online — guess the hidden 5-letter word in six tries. Green, yellow, and gray clues guide you. No download, no sign-up, works on mobile.',
+    shortDescription: 'Guess the hidden 5-letter word.',
+    howToPlay: [
+      'Type any valid 5-letter word and press Enter to make a guess.',
+      'Green means a letter is correct and in the right spot; yellow means it is in the word but a different spot; gray means it is not in the word.',
+      'Use the colour clues — mirrored on the on-screen keyboard — to narrow down the answer.',
+      'You have six guesses to find the word. A new word is picked every game.',
+    ],
+    strategy: [
+      'Open with a word rich in common vowels and consonants (like "crane" or "slate") to light up as many clues as possible.',
+      'On your second guess, use a word with five brand-new letters to test more of the alphabet.',
+      'Keep known green letters in place and shuffle yellow letters to new positions.',
+      'Watch for double letters — a letter can appear twice, and the clues account for it.',
+      'Save risky guesses for when you have spare turns; play it safe when you are down to your last one.',
+    ],
+    faq: [
+      { q: 'Is Word Guess free?', a: 'Yes — it plays free in your browser with no download, install, or account, on desktop and mobile.' },
+      { q: 'How many guesses do I get?', a: 'Six. Each guess must be a valid five-letter word, and the colour clues tell you how close you are.' },
+      { q: 'How do I play on mobile?', a: 'Tap the on-screen keyboard to type your guess and press Enter. Everything works by touch.' },
+      { q: 'Is there a new word each time?', a: 'Yes. Every game picks a fresh hidden word, so you can play as many rounds as you like.' },
+    ],
+  },
+  {
+    slug: 'tic-tac-toe',
+    game: 'tic-tac-toe',
+    title: 'Play Tic-Tac-Toe Online — Free vs Computer',
+    h1: 'Tic-Tac-Toe',
+    metaDescription:
+      'Play Tic-Tac-Toe online for free against the computer. Choose Easy or an unbeatable Hard AI. No download, no sign-up — works on desktop and mobile.',
+    shortDescription: 'Three in a row versus the computer.',
+    howToPlay: [
+      'You play as X; the computer plays as O.',
+      'Tap any empty square to place your mark, then the computer takes its turn.',
+      'Get three of your marks in a row — across, down, or diagonally — to win.',
+      'Choose Easy for a beatable opponent or Hard for a perfect AI you can only draw against.',
+    ],
+    strategy: [
+      'Take the centre when you can — it is part of the most winning lines.',
+      'If you go second, grab a corner rather than an edge.',
+      'Create a "fork" — two ways to win at once — so your opponent cannot block both.',
+      'Always block the computer when it has two in a row, or it will win next turn.',
+      'Against the Hard AI, perfect play leads to a draw; look for a slip only the Easy AI will make.',
+    ],
+    faq: [
+      { q: 'Can I beat the Hard AI?', a: 'No — the Hard opponent uses a perfect strategy and never loses. The best you can force is a draw. Pick Easy for a winnable game.' },
+      { q: 'Is it free to play?', a: 'Yes, completely free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Does it keep score?', a: 'Yes. Your wins, losses, and draws are saved in your browser between games on the same device.' },
+      { q: 'Do I play against a person?', a: 'You play against the computer. It responds to each of your moves automatically.' },
+    ],
+  },
+  {
+    slug: 'reaction-time',
+    game: 'reaction-time',
+    title: 'Reaction Time Test — Free Online Reflex Test',
+    h1: 'Reaction Time Test',
+    metaDescription:
+      'Test your reaction time online for free. Wait for green, then click as fast as you can to measure your reflexes in milliseconds. No download, works on mobile.',
+    shortDescription: 'How fast are your reflexes?',
+    howToPlay: [
+      'Click Start, then wait for the red screen to turn green.',
+      'As soon as it turns green, click or tap (or press Space) as fast as you can.',
+      'Your reaction time is measured in milliseconds — lower is better.',
+      'If you click before it turns green, it counts as "Too soon" and you retry that attempt.',
+    ],
+    strategy: [
+      'Rest your finger lightly on the button so you can react the instant the colour changes.',
+      'Watch the whole screen, not one spot — the change fills your view and you will catch it faster.',
+      'Do not try to guess the timing; the delay is random, so anticipating just causes "Too soon" fails.',
+      'Take a few attempts to warm up — your average usually improves after the first couple.',
+      'Stay relaxed. Tension slows you down more than it speeds you up.',
+    ],
+    faq: [
+      { q: 'What is a good reaction time?', a: 'Around 250ms is average for a click. Under 200ms is fast, and top gamers reach 150ms or lower.' },
+      { q: 'How is it measured?', a: 'A high-resolution browser timer measures the gap between the screen turning green and your click, accurate to the millisecond.' },
+      { q: 'Why does it say "Too soon"?', a: 'You clicked before the screen turned green. The delay is random on purpose, so you have to react, not guess.' },
+      { q: 'Does it save my best?', a: 'Yes. Your fastest time is stored in your browser and shown between attempts on the same device.' },
+    ],
+  },
+  {
+    slug: 'connect-four',
+    game: 'connect-four',
+    title: 'Play Connect Four Online — Free vs Computer',
+    h1: 'Connect Four',
+    metaDescription:
+      'Play Connect Four online for free against the computer. Drop discs and line up four in a row. Easy and Hard AI. No download, works on desktop and mobile.',
+    shortDescription: 'Line up four discs to win.',
+    howToPlay: [
+      'You drop red discs; the computer drops yellow ones.',
+      'Tap a column to drop your disc — it falls to the lowest open slot.',
+      'Line up four of your discs in a row — horizontally, vertically, or diagonally — to win.',
+      'Choose Easy for a casual game or Hard for a sharper computer opponent.',
+    ],
+    strategy: [
+      'Play the centre column early — it is part of the most possible four-in-a-rows.',
+      'Watch for the computer getting three in a row and block it before it connects the fourth.',
+      'Set up a "double threat" — two ways to win at once — so a single block cannot stop you.',
+      'Think about diagonals; they are the easiest wins to miss on both sides.',
+      'Do not stack straight up unless it helps — you may be handing the square above to your opponent.',
+    ],
+    faq: [
+      { q: 'Is Connect Four free to play?', a: 'Yes — it runs free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How do I win?', a: 'Be the first to line up four of your discs in a row, in any direction: horizontal, vertical, or diagonal.' },
+      { q: 'How hard is the computer?', a: 'Easy makes casual moves; Hard always takes a winning move, blocks your threats, and favours the centre.' },
+      { q: 'Does it keep my record?', a: 'Yes. Your wins are saved in your browser and persist between games on the same device.' },
     ],
   },
 ]
