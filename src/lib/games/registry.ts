@@ -43,6 +43,10 @@ export type GamePage = GamePageBase &
     | { game: 'maze' }
     | { game: 'number-memory' }
     | { game: 'word-search' }
+    | { game: 'reversi' }
+    | { game: 'gem-match' }
+    | { game: 'space-shooter' }
+    | { game: 'tower-stack' }
   )
 
 export const gamePages: GamePage[] = [
@@ -958,6 +962,118 @@ export const gamePages: GamePage[] = [
       { q: 'Is Word Search free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
       { q: 'How do I select a word?', a: 'Drag from the first letter to the last letter of the word. It works with a mouse or by touch on mobile.' },
       { q: 'Are the boards different each time?', a: 'Yes. Every game generates a fresh grid and word placement, so no two puzzles are the same.' },
+    ],
+  },
+  {
+    slug: 'reversi',
+    game: 'reversi',
+    title: 'Play Reversi (Othello) Online — Free vs Computer',
+    h1: 'Reversi',
+    metaDescription:
+      'Play Reversi (Othello) online for free against the computer. Flank your opponent’s discs to flip them and own the most of the 8x8 board. Easy and Hard AI. No download.',
+    shortDescription: 'Flip discs, own the board.',
+    howToPlay: [
+      'Place a disc so it traps a line of the computer’s discs between your new disc and another of yours.',
+      'Every trapped disc in that line flips to your colour — in any direction, including diagonals.',
+      'You can only play a move that flips at least one disc. If you have no move, your turn passes.',
+      'When neither side can move, whoever owns more discs wins.',
+    ],
+    strategy: [
+      'Grab the corners — they can never be flipped, so they anchor your position.',
+      'Avoid the squares next to a corner early; they often hand the corner to your opponent.',
+      'Do not flip too many discs early; keeping fewer discs (mobility) mid-game is often stronger.',
+      'Aim to control edges, which are hard for the opponent to flip.',
+      'Late game, count carefully — a single move can flip a whole row and swing the majority.',
+    ],
+    faq: [
+      { q: 'Is Reversi the same as Othello?', a: 'Yes. Reversi and Othello are the same disc-flipping strategy game on an 8x8 board.' },
+      { q: 'Is it free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How do I win?', a: 'Own the most discs when neither player can make a legal move. Trapping and flipping lines is how you take the lead.' },
+      { q: 'Does it keep my record?', a: 'Yes. Your wins are saved in your browser and persist between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'gem-match',
+    game: 'gem-match',
+    title: 'Play Gem Match Online — Free Match 3 Puzzle',
+    h1: 'Gem Match',
+    metaDescription:
+      'Play Gem Match online for free — a match-3 swap puzzle. Swap gems to line up three or more, trigger cascading combos, and score big in 30 moves. No download, on mobile.',
+    shortDescription: 'Swap gems, match 3, chain combos.',
+    howToPlay: [
+      'Tap or drag to swap two adjacent gems.',
+      'Line up three or more of the same gem in a row or column to clear them.',
+      'Gems above fall to fill the gaps, and new gems drop in from the top.',
+      'A swap that makes no match is undone. Score as much as you can before your moves run out.',
+    ],
+    strategy: [
+      'Look for moves that set up a cascade — clears that trigger more clears score a combo multiplier.',
+      'Match four or five in a line when you can; bigger matches are worth more.',
+      'Work near the bottom of the board so the drop-in creates fresh chances above.',
+      'Scan the whole board before spending a move; do not waste a swap on a single three.',
+      'Keep an eye on your remaining moves and prioritise the highest-scoring swaps.',
+    ],
+    faq: [
+      { q: 'How do I make a match?', a: 'Swap two neighbouring gems so that three or more of the same kind line up horizontally or vertically.' },
+      { q: 'What is a cascade?', a: 'When cleared gems drop and form a new match automatically, you get a chain combo worth bonus points.' },
+      { q: 'Is Gem Match free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best score is stored in your browser and persists between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'space-shooter',
+    game: 'space-shooter',
+    title: 'Play Space Shooter Online — Free Arcade Shooter',
+    h1: 'Space Shooter',
+    metaDescription:
+      'Play Space Shooter online for free — a Space Invaders-style arcade game. Blast waves of descending aliens, dodge their fire, and chase a high score. No download, on mobile.',
+    shortDescription: 'Blast the alien waves.',
+    howToPlay: [
+      'Move your ship with the arrow keys or by dragging with the mouse or your finger.',
+      'Fire with Space or tap — hold to keep shooting.',
+      'Destroy every alien in the wave before they reach the bottom.',
+      'Dodge enemy fire. Lose all your lives and the game is over; clear a wave to face a faster one.',
+    ],
+    strategy: [
+      'Pick off the edges of the formation first to give yourself more room to dodge.',
+      'Keep moving — a stationary ship is an easy target for enemy fire.',
+      'Prioritise enemies that have dropped lowest; they threaten to end the game.',
+      'Fire in bursts aimed at columns rather than spraying randomly.',
+      'Learn the formation’s side-to-side rhythm so you can time your shots and retreats.',
+    ],
+    faq: [
+      { q: 'Is Space Shooter free?', a: 'Yes — it runs free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How do I control my ship?', a: 'Arrow keys or mouse/touch drag to move, and Space or tap to fire. Hold to keep shooting.' },
+      { q: 'How do I win a wave?', a: 'Destroy every alien in the formation. Clearing a wave brings a new, faster one.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best score is stored in your browser and persists between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'tower-stack',
+    game: 'tower-stack',
+    title: 'Play Tower Stack Online — Free Block Stacking Game',
+    h1: 'Tower Stack',
+    metaDescription:
+      'Play Tower Stack online for free. Time your tap to drop each sliding block onto the tower — the overhang is sliced off. Stack as high as you can. No download, on mobile.',
+    shortDescription: 'Drop blocks, stack them high.',
+    howToPlay: [
+      'A block slides back and forth above the tower.',
+      'Tap, click, or press Space to drop it.',
+      'Any part hanging over the block below is sliced off, so your blocks get narrower with each miss.',
+      'A near-perfect drop keeps full width. Miss the tower entirely and the game is over.',
+    ],
+    strategy: [
+      'Aim for perfect drops — lining up exactly keeps your block full width and builds a combo.',
+      'Watch the block’s speed; it moves faster the higher you climb, so start your tap early.',
+      'Find a rhythm and drop on the beat rather than reacting at the last instant.',
+      'If your block gets narrow, play it safe and centre each drop to survive.',
+      'Stay relaxed — tension makes you tap late and shave off width.',
+    ],
+    faq: [
+      { q: 'How do I score?', a: 'Every successful drop adds one to your height. The higher your tower, the better your score.' },
+      { q: 'What is a perfect drop?', a: 'Dropping a block almost exactly over the one below keeps its full width (and can even regain a little), plus a combo bonus.' },
+      { q: 'Is it free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Does my best save?', a: 'Yes. Your best height is stored in your browser and persists between games on the same device.' },
     ],
   },
 ]

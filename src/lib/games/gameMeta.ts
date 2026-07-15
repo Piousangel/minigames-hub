@@ -51,6 +51,10 @@ export const gameMeta: Record<string, GameMeta> = {
   maze: { icon: '🌀', accent: 'green', category: 'Puzzle' },
   'number-memory': { icon: '🔟', accent: 'purple', category: 'Skill' },
   'word-search': { icon: '🔍', accent: 'cyan', category: 'Puzzle' },
+  reversi: { icon: '🔵', accent: 'green', category: 'Classic' },
+  'gem-match': { icon: '💎', accent: 'magenta', category: 'Puzzle' },
+  'space-shooter': { icon: '🚀', accent: 'purple', category: 'Arcade' },
+  'tower-stack': { icon: '🗼', accent: 'amber', category: 'Arcade' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

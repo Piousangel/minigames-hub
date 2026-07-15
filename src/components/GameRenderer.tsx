@@ -6,6 +6,7 @@ import { GameCheckers } from '@/components/games/GameCheckers'
 import { GameConnectFour } from '@/components/games/GameConnectFour'
 import { GameDotsAndBoxes } from '@/components/games/GameDotsAndBoxes'
 import { GameFlappy } from '@/components/games/GameFlappy'
+import { GameGemMatch } from '@/components/games/GameGemMatch'
 import { GameHangman } from '@/components/games/GameHangman'
 import { GameMaze } from '@/components/games/GameMaze'
 import { GameMemory } from '@/components/games/GameMemory'
@@ -13,7 +14,10 @@ import { GameMinesweeper } from '@/components/games/GameMinesweeper'
 import { GameNonogram } from '@/components/games/GameNonogram'
 import { GameNumberMemory } from '@/components/games/GameNumberMemory'
 import { GameReaction } from '@/components/games/GameReaction'
+import { GameReversi } from '@/components/games/GameReversi'
 import { GameSokoban } from '@/components/games/GameSokoban'
+import { GameSpaceShooter } from '@/components/games/GameSpaceShooter'
+import { GameTowerStack } from '@/components/games/GameTowerStack'
 import { GameSimon } from '@/components/games/GameSimon'
 import { GameLightsOut } from '@/components/games/GameLightsOut'
 import { GameMastermind } from '@/components/games/GameMastermind'
@@ -93,6 +97,14 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameNumberMemory storageKey={`best:${page.slug}`} />
     case 'word-search':
       return <GameWordSearch storageKey={`best:${page.slug}`} />
+    case 'reversi':
+      return <GameReversi storageKey={`best:${page.slug}`} />
+    case 'gem-match':
+      return <GameGemMatch storageKey={`best:${page.slug}`} />
+    case 'space-shooter':
+      return <GameSpaceShooter storageKey={`best:${page.slug}`} />
+    case 'tower-stack':
+      return <GameTowerStack storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null
