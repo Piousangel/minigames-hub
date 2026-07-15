@@ -18,6 +18,9 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   prospector: { label: 'Best' },
   'zero-hour': { label: 'Score' },
   overload: { label: 'Score' },
+  ricochet: { label: 'Score' },
+  stackpot: { label: 'Score' },
+  flywheel: { label: 'Score' },
 }
 
 export function hasLeaderboard(slug: string): boolean {

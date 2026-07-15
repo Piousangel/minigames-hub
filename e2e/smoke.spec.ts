@@ -238,3 +238,18 @@ test('overload: 로드 → 보드 표시', async ({ page }) => {
   await page.goto('/overload')
   await expect(page.getByTestId('overload-board')).toBeVisible()
 })
+
+test('ricochet: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/ricochet')
+  await expect(page.getByTestId('ricochet-board')).toBeVisible()
+})
+
+test('stackpot: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/stackpot')
+  await expect(page.getByTestId('stackpot-board')).toBeVisible()
+})
+
+test('flywheel: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/flywheel')
+  await expect(page.getByTestId('flywheel-board')).toBeVisible()
+})

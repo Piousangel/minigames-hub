@@ -50,6 +50,9 @@ export type GamePage = GamePageBase &
     | { game: 'prospector' }
     | { game: 'zero-hour' }
     | { game: 'overload' }
+    | { game: 'ricochet' }
+    | { game: 'stackpot' }
+    | { game: 'flywheel' }
   )
 
 export const gamePages: GamePage[] = [
@@ -1161,6 +1164,90 @@ export const gamePages: GamePage[] = [
       { q: 'Is Overload free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
       { q: 'How do I score high?', a: 'Trigger long cascades — each overload in a single chain raises the combo multiplier, so one perfect tap can sweep the grid.' },
       { q: 'Does my best score save?', a: 'Yes. Your best score is stored in your browser and persists between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'ricochet',
+    game: 'ricochet',
+    title: 'Play Ricochet Online — Free One-Tap Chain Puzzle',
+    h1: 'Ricochet',
+    metaDescription:
+      'Play Ricochet free online — a one-tap chain puzzle. Every tile is a distance and a direction; fire a bolt that hops across the board obeying each tile it lands on. Chain long trails. No download.',
+    shortDescription: 'One tap, a bolt snakes the board.',
+    howToPlay: [
+      'Every tile shows a number (1–4) and an arrow direction.',
+      'Tap a tile to fire a bolt: it hops that many cells along its arrow.',
+      'Where it lands, the tile clears, scores, and the bolt then obeys that new tile’s number and arrow.',
+      'The chain continues until the bolt lands on an empty cell or flies off the board. Longer trails score much more.',
+    ],
+    strategy: [
+      'Read the board like a route — trace where a tile’s arrow and number would send the bolt next.',
+      'Scoring is convex: one long chain is worth far more than several short ones, so hunt the big ignition.',
+      'Watch for tiles whose arrows loop back into a dense area to keep the chain alive longer.',
+      'Corners and edges often cut chains short — start bolts that travel inward.',
+      'After gravity refills the board, new trails appear; rescan before every tap.',
+    ],
+    faq: [
+      { q: 'How does the bolt move?', a: 'It jumps a tile’s number of cells in that tile’s arrow direction, then repeats from wherever it lands, chaining across the board.' },
+      { q: 'Can it loop forever?', a: 'No. Each landed tile clears, so any revisit or an off-board hop ends the chain — it always terminates.' },
+      { q: 'Is Ricochet free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best score is stored in your browser and persists between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'stackpot',
+    game: 'stackpot',
+    title: 'Play Stackpot Online — Free Push-Your-Luck Number Game',
+    h1: 'Stackpot',
+    metaDescription:
+      'Play Stackpot free online — parallel forced-placement blackjack. Drop each dealt chip into one of four pots, hit the exact target to lock and bank, overshoot and you bust. No download, on mobile.',
+    shortDescription: 'Land the pot exactly, or bust.',
+    howToPlay: [
+      'Four pots each have a target (15, 20, 25, 30). Each turn you are dealt one chip worth 1–9.',
+      'You must place the chip into a pot, adding its value to that pot’s total.',
+      'Hit a pot’s target exactly to LOCK it — bank the reward times your combo multiplier, then the lane returns with a bigger target.',
+      'Overshoot a target and that pot busts, costing one of your three lives.',
+    ],
+    strategy: [
+      'You cannot choose your chip, so spread risk: keep every pot able to accept a range of values.',
+      'Consecutive locks build a multiplier, so avoid busts to keep greed compounding.',
+      'Watch each pot’s gap to target — a pot at 22 of 25 busts on any chip of 4 or more.',
+      'Use your one discard on a chip that would bust your safest lane.',
+      'Sometimes take a small safe add over chasing an exact lock that a bad chip would ruin.',
+    ],
+    faq: [
+      { q: 'Can I choose which number I get?', a: 'No — each chip is dealt at random and you must place it. The skill is triaging where a number you did not pick should go.' },
+      { q: 'What ends a run?', a: 'Losing all three lives to busts. Your score is the total you have banked.' },
+      { q: 'Is Stackpot free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best score is stored in your browser and persists between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'flywheel',
+    game: 'flywheel',
+    title: 'Play Flywheel Online — Free One-Tap Rhythm Skill Game',
+    h1: 'Flywheel',
+    metaDescription:
+      'Play Flywheel free online — a one-tap rhythm game where your own timing sets the tempo. Tap as the marker sweeps the strike zone; perfect taps speed the wheel up. How long can you keep control? No download.',
+    shortDescription: 'Your timing sets the tempo.',
+    howToPlay: [
+      'A wheel spins with a marker on its rim and a strike zone at the top.',
+      'Tap each time the marker sweeps through the zone.',
+      'A perfect, dead-centre tap adds momentum — the wheel speeds up and the next beat comes sooner.',
+      'Miss the zone entirely and you lose a life. Three misses end the run.',
+    ],
+    strategy: [
+      'Aim for the centre of the zone, not just anywhere inside it — perfect taps drive your score up.',
+      'The better you play, the faster it spins, so settle into the rhythm rather than rushing.',
+      'When the wheel accelerates, tap slightly earlier to account for the tighter window.',
+      'Do not panic after a good-but-not-perfect tap; hold your timing steady.',
+      'Watch the marker, not the clock — let the wheel’s motion cue your taps.',
+    ],
+    faq: [
+      { q: 'What makes Flywheel different?', a: 'Your timing accuracy sets the tempo: the wheel’s speed is your score, so playing well makes it faster and harder — you author your own difficulty.' },
+      { q: 'How does a run end?', a: 'When you miss the strike zone three times. Your score is how fast (and how long) you kept the wheel spinning.' },
+      { q: 'Is it free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Does my best save?', a: 'Yes. Your best score is stored in your browser and persists between games on the same device.' },
     ],
   },
 ]

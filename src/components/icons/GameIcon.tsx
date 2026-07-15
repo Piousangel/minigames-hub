@@ -412,6 +412,36 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // ricochet — 그리드를 가로지르는 지그재그 궤적 + 튕기는 볼트(끝단 도트 헤드)
+  ricochet: (
+    <>
+      <path d="M3.5 19l4.5-9 4 6 4.5-9" />
+      <circle cx="16.5" cy="7" r="1.4" {...solid} />
+    </>
+  ),
+
+  // stackpot — 목표선까지 쌓아올린 막대 + 위에서 떨어지는 칩(팟에 칩 넣기)
+  stackpot: (
+    <>
+      <circle cx="12" cy="3.7" r="1.5" {...solid} />
+      <path d="M3.5 7h17" />
+      <rect x="5" y="11" width="3.4" height="8.5" rx="0.9" {...soft} />
+      <rect x="10.3" y="7.5" width="3.4" height="12" rx="0.9" />
+      <rect x="15.6" y="11" width="3.4" height="8.5" rx="0.9" {...soft} />
+    </>
+  ),
+
+  // flywheel — 스포크 달린 회전 바퀴 + 림 마커 도트 + 상단 스트라이크존 틱(박자 탭)
+  flywheel: (
+    <>
+      <circle cx="12" cy="13" r="7" />
+      <circle cx="12" cy="13" r="1.9" {...soft} />
+      <path d="M13.35 11.65l2.8-2.8M10.65 11.65l-2.8-2.8M10.65 14.35l-2.8 2.8M13.35 14.35l2.8 2.8" />
+      <path d="M12 3.9v1.8" />
+      <circle cx="17" cy="8" r="1.15" {...solid} />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>

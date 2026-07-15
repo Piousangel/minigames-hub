@@ -58,6 +58,9 @@ export const gameMeta: Record<string, GameMeta> = {
   prospector: { icon: '⛏️', accent: 'amber', category: 'Skill' },
   'zero-hour': { icon: '⏳', accent: 'red', category: 'Puzzle' },
   overload: { icon: '⚡', accent: 'magenta', category: 'Puzzle' },
+  ricochet: { icon: '↗️', accent: 'cyan', category: 'Puzzle' },
+  stackpot: { icon: '🪙', accent: 'amber', category: 'Arcade' },
+  flywheel: { icon: '🎡', accent: 'lime', category: 'Skill' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']
