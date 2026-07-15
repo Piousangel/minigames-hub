@@ -47,6 +47,9 @@ export type GamePage = GamePageBase &
     | { game: 'gem-match' }
     | { game: 'space-shooter' }
     | { game: 'tower-stack' }
+    | { game: 'prospector' }
+    | { game: 'zero-hour' }
+    | { game: 'overload' }
   )
 
 export const gamePages: GamePage[] = [
@@ -1074,6 +1077,90 @@ export const gamePages: GamePage[] = [
       { q: 'What is a perfect drop?', a: 'Dropping a block almost exactly over the one below keeps its full width (and can even regain a little), plus a combo bonus.' },
       { q: 'Is it free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
       { q: 'Does my best save?', a: 'Yes. Your best height is stored in your browser and persists between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'prospector',
+    game: 'prospector',
+    title: 'Play Prospector Online — Free Push-Your-Luck Mining Game',
+    h1: 'Prospector',
+    metaDescription:
+      'Play Prospector free online — a push-your-luck mining game. Flip tiles to grow your loot or bank it before the gas collapses the shaft. Count the odds, press your luck. No download.',
+    shortDescription: 'Dig deeper or bank your loot?',
+    howToPlay: [
+      'Each descent uses a known, face-up deck of tiles: gems, dynamite, and gas.',
+      'Choose FLIP to reveal the next tile, or BANK to lock in your loot and end the descent safely.',
+      'Gems grow your pot by their value times a rising depth multiplier; dynamite doubles it.',
+      'Flip the third gas tile and the shaft collapses — you lose everything not yet banked.',
+    ],
+    strategy: [
+      'Every flipped tile stays visible, so count what is left: you can work out the exact chance the next flip is gas.',
+      'Bank when the odds of a fatal flip outweigh the extra loot on offer — that is the whole game.',
+      'Early flips are cheap risk; the deeper multiplier makes late gems worth chasing when the deck is safe.',
+      'Dynamite is worth pushing one more flip for when only one gas tile remains.',
+      'Chase your best single bank, not just survival — a fat banked run beats a timid one.',
+    ],
+    faq: [
+      { q: 'Is Prospector free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Is it luck or skill?', a: 'Both. Tiles are shuffled, but the deck is fully known and flipped tiles stay visible, so banking is a countable expected-value decision.' },
+      { q: 'What ends a descent?', a: 'Banking (safe, you keep your loot) or flipping the third gas tile (the shaft collapses and you lose the un-banked pot).' },
+      { q: 'Does my best save?', a: 'Yes. Your best banked run is stored in your browser and persists between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'zero-hour',
+    game: 'zero-hour',
+    title: 'Play Zero Hour Online — Free Number Puzzle Game',
+    h1: 'Zero Hour',
+    metaDescription:
+      'Play Zero Hour free online — a one-finger number puzzle where each tile’s number is both its value and its fuse. Harvest it before it hits zero. Chain combos. No download, on mobile.',
+    shortDescription: 'Each number is its own countdown.',
+    howToPlay: [
+      'Every tile shows a number that is both its point value AND its fuse.',
+      'Each tick, every tile’s number drops by one.',
+      'Tap a tile to harvest it for its current value before it reaches zero and cracks.',
+      'Three cracks end the run. A fresh tile drops in to replace each one you harvest.',
+    ],
+    strategy: [
+      'Triage constantly: a 9 is worth more but lives longer, while a 2 is about to detonate.',
+      'Harvest strictly-descending values in quick succession to build a combo multiplier up to x8.',
+      'Do not hoard high tiles too long — the whole board ticks down together.',
+      'Sweep up low, short-fuse tiles before they crack, even for a few points.',
+      'Balance greed (chasing combos) against survival (avoiding cracks) every second.',
+    ],
+    faq: [
+      { q: 'What is the twist in Zero Hour?', a: 'A tile’s number is both its score and its countdown — value and time are the same thing, so you constantly trade worth against survival.' },
+      { q: 'How does a run end?', a: 'When three tiles crack (reach zero before you harvest them), the game is over.' },
+      { q: 'Is it free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best score is stored in your browser and persists between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'overload',
+    game: 'overload',
+    title: 'Play Overload Online — Free Chain Reaction Puzzle',
+    h1: 'Overload',
+    metaDescription:
+      'Play Overload free online — a one-tap chain-reaction puzzle. Charge cells until they overload and cascade energy across the grid in combo waves. Find the perfect tap. No download.',
+    shortDescription: 'One tap, chain-reaction cascade.',
+    howToPlay: [
+      'Every cell’s capacity equals its number of neighbours (corner 2, edge 3, centre 4).',
+      'Tap a cell to add one charge.',
+      'The instant a cell reaches capacity it overloads: it resets and pushes energy into each neighbour.',
+      'Neighbours that fill up overload too, cascading in waves. You have a limited number of taps — score big chains.',
+    ],
+    strategy: [
+      'Look for cells already near capacity next to other near-full cells — one tap can start a rolling chain.',
+      'Centre cells reach more neighbours, so a well-placed centre overload spreads furthest.',
+      'Set up a cascade rather than spending taps one at a time; the combo multiplier rewards big chains.',
+      'Aim to clear the whole board in a run for the Perfect Storm bonus.',
+      'Spend your last taps to trigger the biggest possible single cascade.',
+    ],
+    faq: [
+      { q: 'What happens when a cell overloads?', a: 'It resets to zero and sends one charge to each orthogonal neighbour at once; any neighbour that reaches capacity then overloads too, chaining across the board.' },
+      { q: 'Is Overload free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How do I score high?', a: 'Trigger long cascades — each overload in a single chain raises the combo multiplier, so one perfect tap can sweep the grid.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best score is stored in your browser and persists between games on the same device.' },
     ],
   },
 ]

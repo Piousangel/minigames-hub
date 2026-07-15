@@ -15,6 +15,9 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   'number-memory': { label: 'Level' },
   simon: { label: 'Round' },
   'typing-test': { label: 'WPM' },
+  prospector: { label: 'Best' },
+  'zero-hour': { label: 'Score' },
+  overload: { label: 'Score' },
 }
 
 export function hasLeaderboard(slug: string): boolean {

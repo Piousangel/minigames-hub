@@ -13,6 +13,8 @@ import { GameMemory } from '@/components/games/GameMemory'
 import { GameMinesweeper } from '@/components/games/GameMinesweeper'
 import { GameNonogram } from '@/components/games/GameNonogram'
 import { GameNumberMemory } from '@/components/games/GameNumberMemory'
+import { GameOverload } from '@/components/games/GameOverload'
+import { GameProspector } from '@/components/games/GameProspector'
 import { GameReaction } from '@/components/games/GameReaction'
 import { GameReversi } from '@/components/games/GameReversi'
 import { GameSokoban } from '@/components/games/GameSokoban'
@@ -32,6 +34,7 @@ import { GameTyping } from '@/components/games/GameTyping'
 import { GameWhackAMole } from '@/components/games/GameWhackAMole'
 import { GameWordGuess } from '@/components/games/GameWordGuess'
 import { GameWordSearch } from '@/components/games/GameWordSearch'
+import { GameZeroHour } from '@/components/games/GameZeroHour'
 import { themes2048 } from '@/lib/games/g2048/themes'
 import type { GamePage } from '@/lib/games/registry'
 
@@ -105,6 +108,12 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameSpaceShooter storageKey={`best:${page.slug}`} />
     case 'tower-stack':
       return <GameTowerStack storageKey={`best:${page.slug}`} />
+    case 'prospector':
+      return <GameProspector storageKey={`best:${page.slug}`} />
+    case 'zero-hour':
+      return <GameZeroHour storageKey={`best:${page.slug}`} />
+    case 'overload':
+      return <GameOverload storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

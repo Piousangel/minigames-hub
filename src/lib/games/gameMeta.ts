@@ -55,6 +55,9 @@ export const gameMeta: Record<string, GameMeta> = {
   'gem-match': { icon: '💎', accent: 'magenta', category: 'Puzzle' },
   'space-shooter': { icon: '🚀', accent: 'purple', category: 'Arcade' },
   'tower-stack': { icon: '🗼', accent: 'amber', category: 'Arcade' },
+  prospector: { icon: '⛏️', accent: 'amber', category: 'Skill' },
+  'zero-hour': { icon: '⏳', accent: 'red', category: 'Puzzle' },
+  overload: { icon: '⚡', accent: 'magenta', category: 'Puzzle' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']
