@@ -381,6 +381,37 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // prospector — 곡괭이(곡선 양날 머리 + 자루)가 금괴 너깃을 내리찍음(푸시-유어-럭 채굴)
+  prospector: (
+    <>
+      <path d="M4.5 7.5Q12 3 19.5 7.5" />
+      <path d="M12 4v10" />
+      <path d="M12 14.3l3.6 2.1-1.3 3.6H9.7L8.4 16.4z" {...soft} />
+    </>
+  ),
+
+  // zero-hour — 모래시계(카운트다운): 상하 프레임판 + 양쪽 유리 + 떨어지는 모래알
+  'zero-hour': (
+    <>
+      <path d="M5.5 3.5h13M5.5 20.5h13" />
+      <path d="M7.5 4h9l-4.5 8z" {...soft} />
+      <path d="M12 12l4.5 8h-9z" {...soft} />
+      <circle cx="12" cy="15.4" r="0.7" {...solid} />
+    </>
+  ),
+
+  // overload — 과부하된 중앙 셀이 상하좌우 이웃으로 연쇄 폭발(체인 리액션)
+  overload: (
+    <>
+      <rect x="9" y="9" width="6" height="6" rx="1.5" {...soft} />
+      <circle cx="12" cy="12" r="0.9" {...solid} />
+      <path d="M12 8.5V3.5M10.4 5.1L12 3.5l1.6 1.6" />
+      <path d="M12 15.5v5M10.4 18.9L12 20.5l1.6-1.6" />
+      <path d="M8.5 12H3.5M5.1 10.4L3.5 12l1.6 1.6" />
+      <path d="M15.5 12h5M18.9 10.4L20.5 12l-1.6 1.6" />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>

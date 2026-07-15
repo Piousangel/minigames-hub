@@ -223,3 +223,18 @@ test('tower-stack: 로드 → 보드 표시', async ({ page }) => {
   await page.goto('/tower-stack')
   await expect(page.getByTestId('stack-board')).toBeVisible()
 })
+
+test('prospector: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/prospector')
+  await expect(page.getByTestId('prospector-board')).toBeVisible()
+})
+
+test('zero-hour: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/zero-hour')
+  await expect(page.getByTestId('zero-hour-board')).toBeVisible()
+})
+
+test('overload: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/overload')
+  await expect(page.getByTestId('overload-board')).toBeVisible()
+})
