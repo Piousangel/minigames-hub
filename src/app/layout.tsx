@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import Link from 'next/link'
 import { siteConfig } from '@/lib/siteConfig'
 import { pixelFont } from './fonts'
@@ -8,7 +8,14 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: { default: siteConfig.name, template: `%s | ${siteConfig.name}` },
   description: siteConfig.description,
+  applicationName: siteConfig.name,
+  appleWebApp: { capable: true, title: siteConfig.name, statusBarStyle: 'black-translucent' },
   openGraph: { type: 'website', siteName: siteConfig.name },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#08080f',
+  colorScheme: 'dark',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

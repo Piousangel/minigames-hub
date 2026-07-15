@@ -46,6 +46,11 @@ export const gameMeta: Record<string, GameMeta> = {
   nonogram: { icon: '🖼️', accent: 'blue', category: 'Puzzle' },
   sokoban: { icon: '📦', accent: 'amber', category: 'Puzzle' },
   'dots-and-boxes': { icon: '⬜', accent: 'magenta', category: 'Classic' },
+  flappy: { icon: '🐤', accent: 'lime', category: 'Arcade' },
+  checkers: { icon: '⚫', accent: 'red', category: 'Classic' },
+  maze: { icon: '🌀', accent: 'green', category: 'Puzzle' },
+  'number-memory': { icon: '🔟', accent: 'purple', category: 'Skill' },
+  'word-search': { icon: '🔍', accent: 'cyan', category: 'Puzzle' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

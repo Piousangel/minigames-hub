@@ -178,3 +178,28 @@ test('dots-and-boxes: 로드 → 보드 표시', async ({ page }) => {
   await page.goto('/dots-and-boxes')
   await expect(page.getByTestId('dab-board')).toBeVisible()
 })
+
+test('flappy: 로드 → 캔버스 표시', async ({ page }) => {
+  await page.goto('/flappy')
+  await expect(page.getByTestId('flappy-board')).toBeVisible()
+})
+
+test('checkers: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/checkers')
+  await expect(page.getByTestId('checkers-board')).toBeVisible()
+})
+
+test('maze: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/maze')
+  await expect(page.getByTestId('maze-board')).toBeVisible({ timeout: 10_000 })
+})
+
+test('number-memory: 로드 → 영역 표시', async ({ page }) => {
+  await page.goto('/number-memory')
+  await expect(page.getByTestId('numbermemory-board')).toBeVisible()
+})
+
+test('word-search: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/word-search')
+  await expect(page.getByTestId('wordsearch-board')).toBeVisible({ timeout: 10_000 })
+})

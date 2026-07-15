@@ -5,7 +5,14 @@
  * transform loop (translateX 0 → -50%) is seamless. Motion is disabled under
  * prefers-reduced-motion (see globals.css) — it then renders as a static band.
  */
-const ITEMS = ['22 GAMES', '100% FREE', 'NO SIGN-UP', 'PLAY INSTANTLY'] as const
+import { gamePages } from '@/lib/games/registry'
+
+const ITEMS = [
+  `${gamePages.length} GAMES`,
+  '100% FREE',
+  'NO SIGN-UP',
+  'PLAY INSTANTLY',
+] as const
 
 function Group() {
   return (

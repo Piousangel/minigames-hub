@@ -2,12 +2,16 @@ import { Game2048 } from '@/components/games/Game2048'
 import { GameAimTrainer } from '@/components/games/GameAimTrainer'
 import { GameBreakout } from '@/components/games/GameBreakout'
 import { GameBubbleShooter } from '@/components/games/GameBubbleShooter'
+import { GameCheckers } from '@/components/games/GameCheckers'
 import { GameConnectFour } from '@/components/games/GameConnectFour'
 import { GameDotsAndBoxes } from '@/components/games/GameDotsAndBoxes'
+import { GameFlappy } from '@/components/games/GameFlappy'
 import { GameHangman } from '@/components/games/GameHangman'
+import { GameMaze } from '@/components/games/GameMaze'
 import { GameMemory } from '@/components/games/GameMemory'
 import { GameMinesweeper } from '@/components/games/GameMinesweeper'
 import { GameNonogram } from '@/components/games/GameNonogram'
+import { GameNumberMemory } from '@/components/games/GameNumberMemory'
 import { GameReaction } from '@/components/games/GameReaction'
 import { GameSokoban } from '@/components/games/GameSokoban'
 import { GameSimon } from '@/components/games/GameSimon'
@@ -23,6 +27,7 @@ import { GameTicTacToe } from '@/components/games/GameTicTacToe'
 import { GameTyping } from '@/components/games/GameTyping'
 import { GameWhackAMole } from '@/components/games/GameWhackAMole'
 import { GameWordGuess } from '@/components/games/GameWordGuess'
+import { GameWordSearch } from '@/components/games/GameWordSearch'
 import { themes2048 } from '@/lib/games/g2048/themes'
 import type { GamePage } from '@/lib/games/registry'
 
@@ -78,6 +83,16 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameSokoban storageKey={`best:${page.slug}`} />
     case 'dots-and-boxes':
       return <GameDotsAndBoxes storageKey={`best:${page.slug}`} />
+    case 'flappy':
+      return <GameFlappy storageKey={`best:${page.slug}`} />
+    case 'checkers':
+      return <GameCheckers storageKey={`best:${page.slug}`} />
+    case 'maze':
+      return <GameMaze storageKey={`best:${page.slug}`} />
+    case 'number-memory':
+      return <GameNumberMemory storageKey={`best:${page.slug}`} />
+    case 'word-search':
+      return <GameWordSearch storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null
