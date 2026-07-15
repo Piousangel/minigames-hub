@@ -442,6 +442,33 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // ripple — 중심에서 바깥으로 퍼지는 동심원 물결 + 중앙 부표 도트
+  ripple: (
+    <>
+      <circle cx="12" cy="12" r="2.4" {...soft} />
+      <circle cx="12" cy="12" r="5.4" />
+      <circle cx="12" cy="12" r="8.4" />
+      <circle cx="12" cy="12" r="0.9" {...solid} />
+    </>
+  ),
+
+  // ticker — 우상향 지그재그 시세 라인(스파크라인) + 코너 상승 화살표
+  ticker: (
+    <>
+      <path d="M3.5 16.5l4.5-5 3 2.5L17 7" />
+      <path d="M13 7h4v4" />
+    </>
+  ),
+
+  // overfold — 우상단 모서리가 접힌 종이(도그이어 플랩) + 접힘 크리스 라인
+  overfold: (
+    <>
+      <path d="M5 4h10l4 4v12H5z" {...soft} />
+      <path d="M15 4v4h4" />
+      <path d="M15 8L7 16" />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>
