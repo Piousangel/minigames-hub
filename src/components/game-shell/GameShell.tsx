@@ -36,12 +36,12 @@ function Stat({ label, value, testId, float }: StatSpec) {
   }, [value, float])
 
   return (
-    <div className="relative rounded-lg bg-surface px-3 py-1.5">
-      {label}{' '}
+    <div className="relative rounded-lg border border-border bg-surface/80 px-3 py-1.5 shadow-[inset_0_0_10px_rgba(140,140,200,0.08)]">
+      <span className="text-fg-muted">{label}</span>{' '}
       <span
         key={pulseKey}
         data-testid={testId}
-        className={`inline-block font-bold ${pulseKey > 0 ? 'anim-pulse' : ''}`}
+        className={`neon-text inline-block font-bold text-accent ${pulseKey > 0 ? 'anim-pulse' : ''}`}
       >
         {value}
       </span>
@@ -66,7 +66,7 @@ function MuteButton({ muted, onToggle }: { muted: boolean; onToggle: () => void 
       aria-label={muted ? 'Unmute sound' : 'Mute sound'}
       aria-pressed={muted}
       title={muted ? 'Unmute' : 'Mute'}
-      className="btn-press rounded-lg bg-surface px-2.5 py-1.5 text-base hover:bg-white/10"
+      className="btn-press rounded-lg border border-border bg-surface/80 px-2.5 py-1.5 text-base hover:border-neon-cyan/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
     >
       <span aria-hidden="true">{muted ? '🔇' : '🔊'}</span>
     </button>
