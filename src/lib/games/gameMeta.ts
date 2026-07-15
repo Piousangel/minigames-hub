@@ -47,3 +47,20 @@ export const gameMeta: Record<string, GameMeta> = {
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']
 
 export const DEFAULT_META: GameMeta = { icon: '🎮', accent: 'cyan', category: 'Arcade' }
+
+// accent 키 → globals.css의 --neon-* CSS 변수. 인라인 color로 넣어
+// .neon-box / .neon-text 가 currentColor 로 발광하도록 한다.
+export const ACCENT_VAR: Record<NeonAccent, string> = {
+  cyan: 'var(--neon-cyan)',
+  magenta: 'var(--neon-magenta)',
+  lime: 'var(--neon-lime)',
+  amber: 'var(--neon-amber)',
+  purple: 'var(--neon-purple)',
+  blue: 'var(--neon-blue)',
+  red: 'var(--neon-red)',
+  green: 'var(--neon-green)',
+}
+
+export function accentVar(accent: NeonAccent): string {
+  return ACCENT_VAR[accent]
+}
