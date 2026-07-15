@@ -1,6 +1,8 @@
 import { accentVar, DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
+import { hasLeaderboard } from '@/lib/leaderboard'
 import type { GamePage } from '@/lib/games/registry'
 import { AdSlot } from '@/components/ads/AdSlot'
+import { Leaderboard } from '@/components/Leaderboard'
 import { Reveal } from '@/components/Reveal'
 import { RelatedGames } from '@/components/RelatedGames'
 
@@ -31,6 +33,8 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
         {page.h1}
       </h1>
       {children}
+
+      {hasLeaderboard(page.slug) && <Leaderboard slug={page.slug} />}
 
       <Reveal>
         <section className="mt-12">

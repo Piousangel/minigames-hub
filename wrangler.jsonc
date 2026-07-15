@@ -2,9 +2,18 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "minigames-hub",
   "compatibility_date": "2026-07-14",
+  "main": "worker/index.ts",
   "assets": {
     "directory": "./out",
+    "binding": "ASSETS",
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "404-page"
-  }
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "minigames-leaderboard",
+      "database_id": "c99eaae9-e197-4020-b718-a3d599949f70"
+    }
+  ]
 }
