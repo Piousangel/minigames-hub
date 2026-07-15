@@ -1,5 +1,6 @@
 import { accentVar, DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
 import type { GamePage } from '@/lib/games/registry'
+import { AdSlot } from '@/components/ads/AdSlot'
 import { Reveal } from '@/components/Reveal'
 import { RelatedGames } from '@/components/RelatedGames'
 
@@ -62,6 +63,9 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
           </div>
         </section>
       </Reveal>
+
+      {/* 인콘텐츠 광고 자리(승인 전엔 렌더 안 됨) */}
+      <AdSlot slot="game-incontent" className="mt-10" />
 
       <RelatedGames currentSlug={page.slug} />
     </main>

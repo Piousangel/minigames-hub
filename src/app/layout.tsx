@@ -23,6 +23,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: "document.documentElement.classList.add('has-js')",
           }}
         />
+        {/* AdSense 로더 — clientId가 설정된 경우에만 로드(승인 전엔 비활성). */}
+        {siteConfig.adsenseClientId && (
+          <script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${siteConfig.adsenseClientId}`}
+            crossOrigin="anonymous"
+          />
+        )}
         {/* Synthwave background — decorative, fixed, behind all content. */}
         <div aria-hidden="true" className="synthwave-bg" />
         <header className="sticky top-0 z-30 border-b border-border bg-bg/80 backdrop-blur-md">
