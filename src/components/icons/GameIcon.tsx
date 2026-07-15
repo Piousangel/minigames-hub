@@ -236,6 +236,118 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // bubble-shooter — 상단 버블 클러스터 + 조준선 위 발사 버블
+  'bubble-shooter': (
+    <>
+      <circle cx="8" cy="6.5" r="2.4" {...soft} />
+      <circle cx="13" cy="6.5" r="2.4" {...soft} />
+      <circle cx="10.5" cy="10.8" r="2.4" {...soft} />
+      <path d="M12 20v-4.2" />
+      <circle cx="12" cy="20" r="1.4" {...solid} />
+    </>
+  ),
+
+  // nonogram — 3x3 픽셀 그리드 + 대각선으로 채워진 칸(피크로스)
+  nonogram: (
+    <>
+      <rect x="4" y="4" width="16" height="16" rx="1.5" />
+      <path d="M9.33 4v16M14.67 4v16M4 9.33h16M4 14.67h16" />
+      <rect x="4" y="4" width="5.33" height="5.33" {...softer} />
+      <rect x="9.33" y="9.33" width="5.33" height="5.33" {...softer} />
+      <rect x="14.67" y="14.67" width="5.33" height="5.33" {...softer} />
+    </>
+  ),
+
+  // sokoban — X 표시된 상자 + 목표 마커
+  sokoban: (
+    <>
+      <circle cx="6" cy="6" r="2.2" />
+      <circle cx="6" cy="6" r="0.7" {...solid} />
+      <rect x="8.5" y="8.5" width="10" height="10" rx="1" {...soft} />
+      <path d="M8.5 8.5l10 10M18.5 8.5l-10 10" />
+    </>
+  ),
+
+  // dots-and-boxes — 점 격자 + 완성된 박스 한 칸 + 연결선
+  'dots-and-boxes': (
+    <>
+      <rect x="5" y="5" width="7" height="7" {...soft} />
+      <path d="M5 5h7M5 12h7M5 5v7M12 5v7M12 19h7" />
+      <circle cx="5" cy="5" r="1" {...solid} />
+      <circle cx="12" cy="5" r="1" {...solid} />
+      <circle cx="19" cy="5" r="1" {...solid} />
+      <circle cx="5" cy="12" r="1" {...solid} />
+      <circle cx="12" cy="12" r="1" {...solid} />
+      <circle cx="19" cy="12" r="1" {...solid} />
+      <circle cx="5" cy="19" r="1" {...solid} />
+      <circle cx="12" cy="19" r="1" {...solid} />
+      <circle cx="19" cy="19" r="1" {...solid} />
+    </>
+  ),
+
+  // flappy — 새(몸통 + 눈 + 부리 + 날개) + 오른쪽 파이프 간극
+  flappy: (
+    <>
+      <rect x="18.5" y="3" width="3.2" height="6" rx="0.6" {...soft} />
+      <rect x="18.5" y="15" width="3.2" height="6" rx="0.6" {...soft} />
+      <circle cx="10" cy="12" r="4" {...soft} />
+      <circle cx="11.3" cy="10.8" r="0.6" {...solid} />
+      <path d="M13.8 11.2L16.4 12l-2.6 0.8z" {...soft} />
+      <path d="M7 12.5c1.3 1.6 3 1.6 4.3 0.2" />
+    </>
+  ),
+
+  // checkers — 킹(2단으로 쌓인 원반 스택)
+  checkers: (
+    <>
+      <ellipse cx="12" cy="10" rx="6.5" ry="2.7" {...softer} />
+      <path d="M5.5 10v3a6.5 2.7 0 0 0 13 0v-3" />
+      <path d="M5.5 13v3a6.5 2.7 0 0 0 13 0v-3" />
+    </>
+  ),
+
+  // maze — 사각 나선 미로 경로(하단 출구)
+  maze: (
+    <>
+      <path d="M4 20V4h16v16H8V8h8v8" {...soft} />
+    </>
+  ),
+
+  // number-memory — 카드 위 숫자 + 왼쪽 모션 라인(깜빡이는 숫자)
+  'number-memory': (
+    <>
+      <path d="M2.5 8.5h2.4M2 12h3M2.5 15.5h2.4" />
+      <rect x="7" y="5" width="11" height="14" rx="1.5" {...soft} />
+      <path d="M10 9.6l1-0.8V15" />
+      <path d="M12.6 9.9c1.2-0.9 2.7 0.1 1.8 1.4L12.4 15h2.6" />
+    </>
+  ),
+
+  // word-search — 글자 격자 + 대각선 하이라이트(찾은 단어)
+  'word-search': (
+    <>
+      <rect x="3.5" y="3.5" width="17" height="17" rx="2" />
+      <rect
+        x="3"
+        y="10"
+        width="18"
+        height="4"
+        rx="2"
+        transform="rotate(-45 12 12)"
+        {...softer}
+      />
+      <circle cx="7" cy="7" r="0.85" {...solid} />
+      <circle cx="12" cy="7" r="0.85" {...solid} />
+      <circle cx="17" cy="7" r="0.85" {...solid} />
+      <circle cx="7" cy="12" r="0.85" {...solid} />
+      <circle cx="12" cy="12" r="0.85" {...solid} />
+      <circle cx="17" cy="12" r="0.85" {...solid} />
+      <circle cx="7" cy="17" r="0.85" {...solid} />
+      <circle cx="12" cy="17" r="0.85" {...solid} />
+      <circle cx="17" cy="17" r="0.85" {...solid} />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>

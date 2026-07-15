@@ -38,6 +38,11 @@ export type GamePage = GamePageBase &
     | { game: 'nonogram' }
     | { game: 'sokoban' }
     | { game: 'dots-and-boxes' }
+    | { game: 'flappy' }
+    | { game: 'checkers' }
+    | { game: 'maze' }
+    | { game: 'number-memory' }
+    | { game: 'word-search' }
   )
 
 export const gamePages: GamePage[] = [
@@ -813,6 +818,146 @@ export const gamePages: GamePage[] = [
       { q: 'Is it free to play?', a: 'Yes — it runs free in your browser with no download or sign-up, on desktop and mobile.' },
       { q: 'Do I play a person or the computer?', a: 'You play against the computer. Choose Easy for a casual game or Hard for a sharp opponent.' },
       { q: 'Does it keep score?', a: 'Yes. Your wins are saved in your browser and persist between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'flappy',
+    game: 'flappy',
+    title: 'Play Flappy Online — Free Tap to Fly Game',
+    h1: 'Flappy',
+    metaDescription:
+      'Play Flappy online for free. Tap to flap and fly through the gaps between pipes for as long as you can. One-tap arcade fun. No download, works on mobile.',
+    shortDescription: 'Tap to fly through the gaps.',
+    howToPlay: [
+      'Click, tap, or press Space to give a flap of lift.',
+      'Each flap pushes you up; gravity always pulls you down.',
+      'Fly through the gap between each pair of pipes to score a point.',
+      'Hit a pipe, the ground, or the ceiling and the run is over.',
+    ],
+    strategy: [
+      'Tap in a steady rhythm rather than mashing — small, regular flaps keep you level.',
+      'Aim for the middle of each gap so you have room for error above and below.',
+      'Look ahead to the next gap while you clear the current one.',
+      'Stay calm after a near miss; panic-tapping sends you into the top pipe.',
+      'Short taps for small adjustments, a firmer tap only when you need real height.',
+    ],
+    faq: [
+      { q: 'Is Flappy free to play?', a: 'Yes — it runs free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How do I control it?', a: 'One input: click, tap, or press Space to flap. That is the whole game.' },
+      { q: 'How do I score?', a: 'You earn a point each time you pass safely through the gap between a pair of pipes.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best run is stored in your browser and persists between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'checkers',
+    game: 'checkers',
+    title: 'Play Checkers Online — Free vs Computer',
+    h1: 'Checkers',
+    metaDescription:
+      'Play Checkers (draughts) online for free against the computer. Jump and capture, king your pieces, and clear the board. Easy and Hard AI. No download, on mobile.',
+    shortDescription: 'Jump, capture, and king vs the computer.',
+    howToPlay: [
+      'Move your pieces diagonally forward one square onto an empty dark square.',
+      'Capture by jumping diagonally over an opponent piece to the empty square beyond — and keep jumping if you can.',
+      'If a capture is available you must take it.',
+      'Reach the far row to be crowned a king, which can move and jump both directions. Clear all the computer’s pieces to win.',
+    ],
+    strategy: [
+      'Control the center — pieces in the middle have more moves and influence.',
+      'Keep your back row intact early to stop the computer from getting easy kings.',
+      'Look for multi-jumps: setting up a chain capture can swing the game.',
+      'Trade pieces when you are ahead; keep pieces when you are behind.',
+      'Since captures are forced, you can bait the computer into a jump that opens up a bigger capture for you.',
+    ],
+    faq: [
+      { q: 'Are captures mandatory?', a: 'Yes. If a jump is available you must take it, and chained multi-jumps continue in the same turn — standard checkers rules.' },
+      { q: 'Can I beat the Hard computer?', a: 'The Hard AI looks several moves ahead and punishes mistakes, but it is beatable with good strategy. Easy is more forgiving.' },
+      { q: 'Is it free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Does it keep my record?', a: 'Yes. Your wins are saved in your browser and persist between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'maze',
+    game: 'maze',
+    title: 'Play Maze Online — Free Labyrinth Puzzle Game',
+    h1: 'Maze',
+    metaDescription:
+      'Play Maze online for free. Navigate from the start to the exit of a randomly generated labyrinth. Easy, medium, and hard sizes. No download, works on mobile.',
+    shortDescription: 'Find your way to the exit.',
+    howToPlay: [
+      'Move with the arrow keys, WASD, swipe, or the on-screen D-pad.',
+      'Walls block your path — you can only move through openings.',
+      'Start at the top-left and reach the glowing exit at the bottom-right.',
+      'Every maze is randomly generated and always solvable. Pick a bigger size for a tougher challenge.',
+    ],
+    strategy: [
+      'Try the "wall follower" method — keep one hand on the same wall and you will eventually reach the exit.',
+      'At each junction, commit to a direction and remember where you have been.',
+      'Use the visited-cell trail to avoid looping back on yourself.',
+      'Scan ahead toward the exit corner rather than wandering randomly.',
+      'On big mazes, race the clock — your best time per size is saved.',
+    ],
+    faq: [
+      { q: 'Is every maze solvable?', a: 'Yes. Each maze is generated as a "perfect" maze with exactly one path between any two cells, so there is always a route to the exit.' },
+      { q: 'Is it free?', a: 'Yes — it runs free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How do I play on mobile?', a: 'Swipe in the direction you want to move, or use the on-screen D-pad. No keyboard needed.' },
+      { q: 'Does it track my best?', a: 'Yes. Your best time for each size is saved in your browser between games.' },
+    ],
+  },
+  {
+    slug: 'number-memory',
+    game: 'number-memory',
+    title: 'Number Memory Test — Free Online Memory Game',
+    h1: 'Number Memory',
+    metaDescription:
+      'Test your number memory online for free. A number flashes, then you type it from memory — and it grows one digit each level. How many digits can you recall? No download.',
+    shortDescription: 'How many digits can you remember?',
+    howToPlay: [
+      'Press Start — a number appears on screen for a few seconds.',
+      'Memorise it before it disappears.',
+      'Type the number from memory and submit.',
+      'Get it right to advance — each level adds one more digit. One wrong answer ends the game.',
+    ],
+    strategy: [
+      'Chunk the digits into small groups (like a phone number) instead of one long string.',
+      'Say the number to yourself as it shows — hearing it helps you hold it.',
+      'Find a rhythm or pattern in the digits to make them stick.',
+      'Do not second-guess; your first recall is usually the most accurate.',
+      'Stay relaxed — stress shrinks your working memory more than the extra digit does.',
+    ],
+    faq: [
+      { q: 'What is a good number memory span?', a: 'Most people can hold about 7 digits. Reaching 10 or more is a strong result.' },
+      { q: 'Is it free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How long is the number shown?', a: 'A few seconds, scaling slightly with length, then it hides and you type it from memory.' },
+      { q: 'Does it save my best?', a: 'Yes. Your highest level reached is saved in your browser between games.' },
+    ],
+  },
+  {
+    slug: 'word-search',
+    game: 'word-search',
+    title: 'Play Word Search Online — Free Word Find Puzzle',
+    h1: 'Word Search',
+    metaDescription:
+      'Play Word Search online for free. Find every hidden word in the letter grid — across, down, and diagonally, forwards or backwards. Fresh boards. No download, on mobile.',
+    shortDescription: 'Find the hidden words.',
+    howToPlay: [
+      'A list of hidden words sits beside a grid of letters.',
+      'Drag across the letters of a word to select it — horizontally, vertically, or diagonally.',
+      'Words can run forwards or backwards.',
+      'Find every word on the list to complete the puzzle.',
+    ],
+    strategy: [
+      'Scan for the first letter of each target word, then check the eight directions around it.',
+      'Look for uncommon letters (Q, Z, X) — they narrow down where a word can be.',
+      'Sweep the grid row by row so you do not miss a word.',
+      'Do not forget the diagonals and backwards words — they are the easiest to overlook.',
+      'Cross off words as you find them to focus on what is left, and race your best time.',
+    ],
+    faq: [
+      { q: 'Which directions can words go?', a: 'Any of the eight: horizontal, vertical, and both diagonals, running either forwards or backwards.' },
+      { q: 'Is Word Search free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How do I select a word?', a: 'Drag from the first letter to the last letter of the word. It works with a mouse or by touch on mobile.' },
+      { q: 'Are the boards different each time?', a: 'Yes. Every game generates a fresh grid and word placement, so no two puzzles are the same.' },
     ],
   },
 ]

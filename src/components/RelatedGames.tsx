@@ -41,7 +41,7 @@ export function RelatedGames({ currentSlug }: { currentSlug: string }) {
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         {related.map((g, i) => (
           <Reveal key={g.slug} delay={Math.min(i * 50, 250)}>
-            <GameCard page={g} />
+            <GameCard slug={g.slug} title={g.h1} description={g.shortDescription} />
           </Reveal>
         ))}
       </div>

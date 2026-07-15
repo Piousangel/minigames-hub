@@ -1,13 +1,19 @@
 import type { Metadata } from 'next'
 import { gamePages } from '@/lib/games/registry'
-import { CATEGORIES, DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
+import { DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
 import { siteConfig } from '@/lib/siteConfig'
 import { AdSlot } from '@/components/ads/AdSlot'
-import { GameCard } from '@/components/GameCard'
-import { Reveal } from '@/components/Reveal'
+import { GameBrowser, type BrowseItem } from '@/components/GameBrowser'
 import { Marquee } from '@/components/Marquee'
 
 export const metadata: Metadata = { alternates: { canonical: '/' } }
+
+const items: BrowseItem[] = gamePages.map((g) => ({
+  slug: g.slug,
+  title: g.h1,
+  description: g.shortDescription,
+  category: (gameMeta[g.slug] ?? DEFAULT_META).category,
+}))
 
 export default function Home() {
   return (
@@ -43,47 +49,8 @@ export default function Home() {
       {/* ===== 아케이드 마퀴 티커 ===== */}
       <Marquee />
 
-      {/* ===== 카테고리별 섹션 (정적/SSR — 인터랙티브 필터 없음) ===== */}
-      <div className="space-y-14">
-        {CATEGORIES.map((category) => {
-          const games = gamePages.filter(
-            (g) => (gameMeta[g.slug] ?? DEFAULT_META).category === category,
-          )
-          if (games.length === 0) return null
-          return (
-            <section key={category} aria-labelledby={`cat-${category}`}>
-              <Reveal>
-                <div className="mb-6 flex items-center gap-4">
-                  <h2
-                    id={`cat-${category}`}
-                    className="font-pixel neon-text text-sm text-neon-cyan sm:text-base"
-                  >
-                    {category}
-                  </h2>
-                  <span
-                    aria-hidden="true"
-                    className="h-px flex-1 bg-gradient-to-r from-neon-cyan/50 to-transparent"
-                  />
-                  <span
-                    aria-hidden="true"
-                    className="font-pixel text-[10px] text-fg-muted"
-                  >
-                    {String(games.length).padStart(2, '0')}
-                  </span>
-                </div>
-              </Reveal>
-
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                {games.map((g, i) => (
-                  <Reveal key={g.slug} delay={Math.min(i * 50, 300)}>
-                    <GameCard page={g} />
-                  </Reveal>
-                ))}
-              </div>
-            </section>
-          )
-        })}
-      </div>
+      {/* ===== 검색 + 필터 + 랜덤 + 게임 그리드 ===== */}
+      <GameBrowser items={items} />
 
       {/* 하단 광고 자리(승인 전엔 렌더 안 됨) */}
       <AdSlot slot="home-footer" className="mt-14" />
