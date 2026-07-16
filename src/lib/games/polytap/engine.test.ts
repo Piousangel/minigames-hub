@@ -300,22 +300,24 @@ describe('tap', () => {
   })
 
   it('rejects ±(TOLERANCE + 1) as a stray', () => {
+    // These are warm-up (stage 0) taps: strays/misses are classified and
+    // counted for feedback, but cost no life in the no-fail sandbox.
     // Early side: the window has not opened yet, so the stray stands alone.
     const early = tap(advance(newGame(1), 48 - TOLERANCE - 1, R()), 'j')
     expect(early.strays).toBe(1)
     expect(early.hits).toBe(0)
     expect(early.misses).toBe(0)
-    expect(early.lives).toBe(2)
+    expect(early.lives).toBe(3)
     expect(early.events[0]).toEqual({ type: 'stray', key: 'j' })
 
     // Late side: due + TOLERANCE + 1 IS the closing tick, so the miss has
-    // already fired. The stray then lands on top of it — both punishments,
-    // which is exactly the double jeopardy the design asks for.
+    // already fired. The stray then lands on top of it — both are counted,
+    // but in warm-up neither takes a life.
     const late = tap(advance(newGame(1), 48 + TOLERANCE + 1, R()), 'j')
     expect(late.strays).toBe(1)
     expect(late.hits).toBe(0)
     expect(late.misses).toBe(1)
-    expect(late.lives).toBe(1)
+    expect(late.lives).toBe(3)
   })
 
   it('turns a second tap in the same window into a stray', () => {
@@ -324,17 +326,16 @@ describe('tap', () => {
     s = tap(s, 'j')
     expect(s.hits).toBe(1)
     expect(s.strays).toBe(1)
-    expect(s.lives).toBe(2)
+    expect(s.lives).toBe(3) // warm-up: no life lost
   })
 
   it('does not consume a slot on a stray — the beat still comes back as a miss', () => {
     let s = advance(newGame(1), 40, R()) // far from due 48
     s = tap(s, 'j')
     expect(s.strays).toBe(1)
-    expect(s.lives).toBe(2)
     s = advance(s, 52, R()) // window for due 48 closes
-    expect(s.misses).toBe(1)
-    expect(s.lives).toBe(1)
+    expect(s.misses).toBe(1) // the stray did not consume the beat
+    expect(s.lives).toBe(3) // warm-up: neither the stray nor the miss costs a life
   })
 })
 
@@ -345,7 +346,7 @@ describe('misses', () => {
     expect(before.lives).toBe(3)
     const after = advance(before, 48 + TOLERANCE + 1, R())
     expect(after.misses).toBe(1)
-    expect(after.lives).toBe(2)
+    expect(after.lives).toBe(3) // warm-up: the miss is counted but costs no life
     expect(after.events).toContainEqual({ type: 'miss', key: 'j', dueTick: 48 })
   })
 })
@@ -353,22 +354,28 @@ describe('misses', () => {
 // -- 7. Game over ------------------------------------------------------------
 
 describe('game over', () => {
-  it('ends the run after three strays', () => {
+  it('does not end the run on strays during warm-up (no-fail sandbox)', () => {
     let s = advance(newGame(1), 20, R())
-    s = tap(s, 'j')
-    s = tap(s, 'j')
+    for (let i = 0; i < 5; i++) s = tap(s, 'j') // all strays, tick 20 far from due 48
+    expect(s.strays).toBe(5)
+    expect(s.lives).toBe(3)
     expect(s.over).toBe(false)
-    s = tap(s, 'j')
-    expect(s.over).toBe(true)
-    expect(s.overReason).toBe('lives')
-    expect(s.events).toContainEqual({ type: 'over', reason: 'lives' })
+  })
+
+  it('ends the run when lives run out AFTER warm-up (stage 1+)', () => {
+    // Hit every warm-up beat (dueTick <= 192) to reach stage 1, then miss
+    // everything. Regular stage-1 misses each dock a life until the run ends.
+    const { state } = autoplay(1, 400, { skip: (sl) => sl.dueTick > 192 })
+    expect(state.stage).toBeGreaterThanOrEqual(1)
+    expect(state.over).toBe(true)
+    expect(state.overReason).toBe('lives')
+    expect(state.events).toContainEqual({ type: 'over', reason: 'lives' })
   })
 
   it('freezes the state — later taps and advances change nothing but events', () => {
-    let s = advance(newGame(1), 20, R())
-    s = tap(s, 'j')
-    s = tap(s, 'j')
-    s = tap(s, 'j')
+    // Drive to a real game-over in stage 1, then confirm the state is frozen.
+    const { state: s } = autoplay(1, 400, { skip: (sl) => sl.dueTick > 192 })
+    expect(s.over).toBe(true)
     const frozen = { ...s, events: [] }
     expect({ ...tap(s, 'f'), events: [] }).toEqual(frozen)
     expect({ ...advance(s, 5000, R()), events: [] }).toEqual(frozen)
@@ -379,11 +386,11 @@ describe('game over', () => {
 // -- 8. Warm-up --------------------------------------------------------------
 
 describe('warm-up (stage 0)', () => {
-  it('forgives a dropped beat — no sudden death, only a life', () => {
+  it('forgives a dropped beat — no life lost, run continues', () => {
     const { state } = autoplay(1, 60, { skip: () => true })
     expect(state.over).toBe(false)
-    expect(state.lives).toBe(2)
-    expect(state.misses).toBe(1)
+    expect(state.lives).toBe(3) // no-fail warm-up: the miss costs nothing
+    expect(state.misses).toBe(1) // ...but it is still counted for feedback
   })
 
   it('does not credit warm-up cycles to cyclesCleared', () => {

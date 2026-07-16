@@ -350,7 +350,11 @@ export function advance(state: PolytapState, toTick: number, rng: Rng): PolytapS
       for (const sl of closing) {
         if (!sl.hit) {
           s.misses += 1
-          s.lives -= 1
+          // Warm-up (stage 0) is a no-fail sandbox: a missed beat still counts
+          // for feedback and stats but never costs a life. The gate to the
+          // polyrhythm is landing J hits, not surviving — so a beginner can
+          // never die before the game's actual mechanic (F joining) appears.
+          if (s.stage >= 1) s.lives -= 1
           s.events.push({ type: 'miss', key: sl.key, dueTick: sl.dueTick })
         }
       }
@@ -417,8 +421,9 @@ export function tap(state: PolytapState, key: ClockKey): PolytapState {
   if (cands.length === 0) {
     // A stray does NOT consume a future slot — that beat still comes back as a
     // miss later. The double punishment is the point: it lands exactly when the
-    // two hands start eating each other.
-    const lives = state.lives - 1
+    // two hands start eating each other. In warm-up (stage 0) it still counts
+    // as a stray for feedback, but costs no life — the sandbox is no-fail.
+    const lives = state.stage >= 1 ? state.lives - 1 : state.lives
     events.push({ type: 'stray', key })
     const over = lives <= 0
     if (over) events.push({ type: 'over', reason: 'lives' })
