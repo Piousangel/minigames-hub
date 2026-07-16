@@ -384,6 +384,32 @@ test('cleave: 로드 → 보드 표시', async ({ page }) => {
   await expect(page.getByTestId('cleave-board')).toBeVisible()
 })
 
+test('umbra: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/umbra')
+  await expect(page.getByTestId('umbra-board')).toBeVisible()
+})
+
+test('fuse: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/fuse')
+  await expect(page.getByTestId('fuse-board')).toBeVisible()
+})
+
+test('polytap: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/polytap')
+  await expect(page.getByTestId('polytap-board')).toBeVisible()
+})
+
+test('polytap: 키 입력 경로가 크래시 없이 돈다', async ({ page }) => {
+  // 빌드 에이전트가 브라우저 확인을 못 했다고 명시적으로 보고했다. 입력 경로
+  // (Space 시작 → F/J 탭)가 렌더 중에 죽지 않는지만이라도 e2e로 고정한다.
+  await page.goto('/polytap')
+  await expect(page.getByTestId('polytap-board')).toBeVisible()
+  await page.getByTestId('polytap-board').press('Space')
+  await page.keyboard.press('f')
+  await page.keyboard.press('j')
+  await expect(page.getByTestId('polytap-board')).toBeVisible()
+})
+
 test('pinwheel: 마우스 클릭으로 핀이 꽂힌다', async ({ page }) => {
   // 셀의 onFocus가 핀을 꽂고 onClick 토글이 곧바로 해제해 마우스로는 플레이가
   // 불가능했다. 실제 마우스 클릭은 포커스를 유발하므로 이 경로를 고정한다.

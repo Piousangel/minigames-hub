@@ -75,6 +75,9 @@ export const gameMeta: Record<string, GameMeta> = {
   overdub: { icon: '🥁', accent: 'lime', category: 'Skill' },
   pinwheel: { icon: '🌀', accent: 'purple', category: 'Puzzle' },
   cleave: { icon: '⚖️', accent: 'amber', category: 'Puzzle' },
+  umbra: { icon: '🌑', accent: 'purple', category: 'Skill' },
+  fuse: { icon: '🧨', accent: 'red', category: 'Puzzle' },
+  polytap: { icon: '🥁', accent: 'cyan', category: 'Skill' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

@@ -10,6 +10,7 @@ import { GameDecant } from '@/components/games/GameDecant'
 import { GameDotsAndBoxes } from '@/components/games/GameDotsAndBoxes'
 import { GameDuplex } from '@/components/games/GameDuplex'
 import { GameFlappy } from '@/components/games/GameFlappy'
+import { GameFuse } from '@/components/games/GameFuse'
 import { GameFlywheel } from '@/components/games/GameFlywheel'
 import { GameGemMatch } from '@/components/games/GameGemMatch'
 import { GameHangman } from '@/components/games/GameHangman'
@@ -22,6 +23,7 @@ import { GameNumberMemory } from '@/components/games/GameNumberMemory'
 import { GameOverdub } from '@/components/games/GameOverdub'
 import { GameOverload } from '@/components/games/GameOverload'
 import { GamePinwheel } from '@/components/games/GamePinwheel'
+import { GamePolytap } from '@/components/games/GamePolytap'
 import { GameProspector } from '@/components/games/GameProspector'
 import { GameOverfold } from '@/components/games/GameOverfold'
 import { GameQuarry } from '@/components/games/GameQuarry'
@@ -46,6 +48,7 @@ import { GameTetris } from '@/components/games/GameTetris'
 import { GameTicker } from '@/components/games/GameTicker'
 import { GameTicTacToe } from '@/components/games/GameTicTacToe'
 import { GameTyping } from '@/components/games/GameTyping'
+import { GameUmbra } from '@/components/games/GameUmbra'
 import { GameWhackAMole } from '@/components/games/GameWhackAMole'
 import { GameWordGuess } from '@/components/games/GameWordGuess'
 import { GameWordSearch } from '@/components/games/GameWordSearch'
@@ -159,6 +162,12 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GamePinwheel storageKey={`best:${page.slug}`} />
     case 'cleave':
       return <GameCleave storageKey={`best:${page.slug}`} />
+    case 'umbra':
+      return <GameUmbra storageKey={`best:${page.slug}`} />
+    case 'fuse':
+      return <GameFuse storageKey={`best:${page.slug}`} />
+    case 'polytap':
+      return <GamePolytap storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

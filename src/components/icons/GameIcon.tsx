@@ -560,6 +560,38 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // umbra — 밝은 입구를 지나 어둠으로 사라지는 구슬의 궤적
+  umbra: (
+    <>
+      <path d="M3 12h7" opacity="0.9" />
+      <path d="M14 12h7" strokeDasharray="1.5 3" opacity="0.4" />
+      <circle cx="8" cy="12" r="2.2" {...solid} />
+      <path d="M11.5 6.5v11" opacity="0.55" />
+    </>
+  ),
+
+  // fuse — 격자 한 칸에서 타들어가는 심지와 불꽃
+  fuse: (
+    <>
+      <rect x="4" y="4" width="16" height="16" rx="2" strokeDasharray="1.5 2.5" opacity="0.45" />
+      <path d="M8 16c2-1 3-3 3-5s1-3 2.5-3" />
+      <circle cx="14.5" cy="7.5" r="1.8" {...softer} />
+      <path d="M14.5 5.4v-1.4M16.6 7.5h1.4M13 6 12 5" opacity="0.7" />
+    </>
+  ),
+
+  // polytap — 어긋난 두 주기가 한 박에서 겹친다
+  polytap: (
+    <>
+      <path d="M4 9h16" opacity="0.85" />
+      <path d="M4 15h16" opacity="0.5" strokeDasharray="1.5 3" />
+      <circle cx="8" cy="9" r="1.5" {...solid} />
+      <circle cx="15" cy="15" r="1.5" {...solid} />
+      <path d="M12 6.5v11" opacity="0.6" />
+      <circle cx="12" cy="12" r="2.4" {...soft} />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>

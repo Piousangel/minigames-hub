@@ -53,8 +53,8 @@
 
 - **무엇**: 무료 브라우저 미니게임 사이트. 광고(AdSense)로 월 5~10만원 수익 목표.
 - **지금 상태**: **라이브** — https://quickminigames.site (커스텀 도메인 + SSL 정상, Cloudflare Workers 배포).
-- **게임 수**: 53종 (registry 기준). 상당수 오리지널 창작 게임 + 클래식.
-- **리더보드**: 31개 게임에 주간 Top10 온라인 리더보드 (Cloudflare D1).
+- **게임 수**: 56종 (registry 기준). 상당수 오리지널 창작 게임 + 클래식.
+- **리더보드**: 34개 게임에 주간 Top10 온라인 리더보드 (Cloudflare D1).
   나머지 22개는 **의도적으로 없다** — 리더보드는 "높을수록 좋음" 점수가 필요한데
   소도쿠·미로·행맨은 완주형, 틱택토·체커·리버시는 AI 대전, reaction-time·aim-trainer와
   duplex는 낮을수록 좋다. 신규 게임을 붙일 때 이 기준으로 판단할 것.
@@ -119,13 +119,16 @@
 - **컴포넌트**: GameShell/GameOverlay/GameButton, `useGameSound`, `useReducedMotion`, `isTypingTarget` 가드, SSR 안전(상태는 effect에서 init), 보드에 `data-testid`, `@keyframes`는 컴포넌트 스코프.
 - **사운드 이름은 이것만**: `move|merge|win|lose|eat|flag|error|flip|match|mismatch`.
 
-### 새 게임 와이어링에 손대는 공유 파일 (6곳)
+### 새 게임 와이어링에 손대는 공유 파일 (6곳) — 경로는 2026-07-16 실측
 1. `src/lib/games/registry.ts` — union variant + gamePages 엔트리(slug/title/h1/metaDescription/shortDescription/howToPlay≥3/strategy≥3/faq≥3)
-2. `src/lib/games/GameRenderer.tsx` — import + switch case (`storageKey=`best:${page.slug}``)
+2. `src/components/GameRenderer.tsx` — import(알파벳 순) + switch case (`storageKey={`best:${page.slug}`}`)
 3. `src/lib/games/gameMeta.ts` — icon/accent/category
-4. `src/components/GameIcon.tsx` — 커스텀 SVG glyph(없으면 joystick fallback)
+4. `src/components/icons/GameIcon.tsx` — 커스텀 SVG glyph(없으면 joystick fallback)
 5. `e2e/smoke.spec.ts` — load + board-visible 테스트
 6. `src/lib/leaderboard.ts` LEADERBOARD_GAMES — (점수형 게임이면) label 추가
+
+> ⚠️ 이전 핸드오프는 2·4번 경로를 `src/lib/games/GameRenderer.tsx`,
+> `src/components/GameIcon.tsx`로 적었으나 **둘 다 틀렸다**. 실제 위치는 위와 같다.
 
 ---
 
@@ -286,6 +289,27 @@ Decant / Backspace / Duplex 라이브(`/decant` `/backspace` `/duplex`). 게임 
 - 라벨 통일(You/CPU 등) — 5파일 고쳐도 수익 기여 0
 - GameShell `items-center` → `items-start` — 다중행 게임 3개는 나아지나 단일행 47개가 어긋난다
 - 필터 칩 히트 영역 44px 확장 — gap이 8px라 줄바꿈된 칩끼리 겹쳐 오탭이 난다(AA 24px는 이미 통과)
+
+### 7.7 ✅ 라운드7 게임 3종 — 2026-07-16 배선·검증 완료 (배포는 별도)
+Umbra / Fuse / Polytap. 게임 **56종**, 리더보드 **34종**. 셋 다 `best:<slug>`에
+숫자만 저장 확인(리더보드 안전). 배선 6곳 + e2e 5개 추가, 전체 e2e 69개 통과.
+
+> **이번에도 §7.6 교훈이 그대로 적중했다 — 단, 반대 방향으로.**
+> 브라우저 플레이테스트에서 Fuse·Polytap이 처음엔 "안 돈다"고 나왔으나 **둘 다 내
+> 테스트 오류였다**: Fuse는 손의 시작 위치(중앙 셀 12)를 클릭해 이동이 0이었고,
+> Polytap은 워밍업에 아직 안 붙은 pad-f(정상적으로 disabled)를 검사했다. 실제로는
+> 셋 다 정상 작동한다(구슬 비행·심지 연소·클럭 진행 전부 육안 확인).
+> 교훈의 확장: **빨간 결과를 봐도 게임을 의심하기 전에 내 테스트를 의심하라.**
+> 지난번(Pinwheel)은 게임이 틀렸고 이번엔 테스트가 틀렸다 — 매번 실제 화면을 봐야 갈린다.
+
+- **Umbra**(Skill, 타이밍): 구슬이 어둠에 사라진 뒤 도착 순간을 외삽해 1/2/3로 친다.
+- **Fuse**(Puzzle, 스케줄링): 5×5에서 심지 여러 개가 탄다. 손 하나, 이동에 틱이 든다.
+  idle로 부팅 → 첫 탭이 시작. 손 시작 위치는 중앙(12).
+- **Polytap**(Skill, 폴리리듬): F 3박 / J 4박. Space나 Start로 시작.
+  ⚠️ **관찰된 난이도 이슈(버그 아님, 사용자 판단 필요)**: 워밍업(stage 0, J만)에서도
+  J를 놓치면 라이프가 깎이고 **3번 놓치면 폴리리듬에 도달하기 전에 죽는다**. F 합류는
+  J 워밍업 사이클을 clean으로 통과해야만 일어난다(엔진 골든: 완벽 플레이 시 tick 192).
+  즉 온보딩이 다소 가혹하다 — 실제로 플레이해보고 완화할지 판단할 것.
 
 ### 7.6 ✅ 라운드6 게임 3종 — 2026-07-16 배포 완료
 Overdub / Pinwheel / Cleave 라이브. 게임 **53종**, 리더보드 **31종**.

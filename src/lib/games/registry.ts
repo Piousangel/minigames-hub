@@ -65,6 +65,9 @@ export type GamePage = GamePageBase &
     | { game: 'overdub' }
     | { game: 'pinwheel' }
     | { game: 'cleave' }
+    | { game: 'umbra' }
+    | { game: 'fuse' }
+    | { game: 'polytap' }
   )
 
 export const gamePages: GamePage[] = [
@@ -1595,6 +1598,90 @@ export const gamePages: GamePage[] = [
       { q: 'How does the rival choose?', a: 'By a rule shown to you: it takes the pile with more magenta, breaking ties on cyan and then on the second pile. It never sees the sealed value either.' },
       { q: 'Is this luck?', a: 'No. Every round has a floor you can guarantee using only the visible ranges, so a loss always traces back to your own split.' },
       { q: 'What is the sealed item?', a: 'One item per round shows only a range instead of its value. It shapes the risk without ever making the round unwinnable.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
+    ],
+  },
+  {
+    slug: 'umbra',
+    game: 'umbra',
+    title: 'Play Umbra Online — Free Timing Game in the Dark',
+    h1: 'Umbra',
+    metaDescription:
+      'Play Umbra free online — a marble vanishes into a tunnel and never reappears. Read its speed at the entrance, then tap the exact moment it reaches the far end. No download, no sign-up.',
+    shortDescription: 'Tap the moment it arrives — while blind.',
+    howToPlay: [
+      'A marble starts at the left edge and rolls at a constant speed toward a dark tunnel.',
+      'You can see it only before it enters the dark. After that it is gone until it exits.',
+      'Tap its lane the instant it reaches the marker on the far right. Keys 1, 2, 3 hit lanes 1 to 3.',
+      'Perfect taps score most, close ones score less, and a tap outside the window costs a life.',
+    ],
+    strategy: [
+      'Watch the marble in the lit stretch and read its speed there. Every marble holds that speed to the end, so the arrival time is fully determined the moment it enters the dark.',
+      'Count in your head rather than guessing. The marble never reappears, so a last-second glance is not coming to save you.',
+      'Faster marbles are worth more points, so they reward the read rather than punish it.',
+      'Perfect taps build a combo, and multiple marbles in flight multiply the whole thing. Chase both once you can hold a rhythm.',
+      'As you level up, the lit entrance shrinks from wide to a sliver. The read gets harder, not the timing window.',
+    ],
+    faq: [
+      { q: 'Does the marble ever reappear?', a: 'No. Once it enters the dark it stays hidden through the exit and beyond. That is the whole game — you are timing something you cannot see.' },
+      { q: 'Is this reaction speed?', a: 'No. It is extrapolation. You read the speed early and predict the arrival, so there is nothing to react to at the moment you tap.' },
+      { q: 'Can I just spam taps?', a: 'No. A tap outside the window on a lane holding a marble costs a life, so spamming is self-defeating.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
+    ],
+  },
+  {
+    slug: 'fuse',
+    game: 'fuse',
+    title: 'Play Fuse Online — Free Scheduling Puzzle Game',
+    h1: 'Fuse',
+    metaDescription:
+      'Play Fuse free online — several fuses burn at once but you have only one hand, and moving costs real time. The order you visit them is the whole puzzle. No download, no sign-up.',
+    shortDescription: 'One hand, many burning fuses.',
+    howToPlay: [
+      'Fuses light up across a 5x5 grid and burn down on their own clocks.',
+      'Tap a cell to send your hand there. Your hand moves at a fixed speed, so distance costs time.',
+      'Reaching a lit fuse in time defuses it. Let one burn out and it explodes, costing a life.',
+      'Every cell tells you whether your hand can still reach it in time, so the information is never hidden.',
+    ],
+    strategy: [
+      'This is a routing problem, not a reflex test. Ask which order lets you reach the most fuses, not which fuse is scariest.',
+      'The board marks fuses you can no longer save. Abandon them early and spend those ticks on ones you can still reach.',
+      'Move toward where the next fuse is likely to appear while you wait. An empty-cell move is often the strongest one.',
+      'Defusing without a loss builds a chain that raises the value of every save, so a clean streak is worth more than a frantic one.',
+      'Nothing rewards waiting next to a fuse — there is no last-second bonus. Arrive, defuse, leave.',
+    ],
+    faq: [
+      { q: 'Is this a reaction game?', a: 'No. Your hand moves at a set speed and every deadline is shown, so it rewards planning the route rather than fast fingers.' },
+      { q: 'Why can I not save every fuse?', a: 'Sometimes you genuinely cannot. The board tells you which ones are already lost so you can stop spending time on them.' },
+      { q: 'Can I farm the chain bonus?', a: 'No. The chain only grows when you save fuses, and stalling makes them explode, which resets it.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
+    ],
+  },
+  {
+    slug: 'polytap',
+    game: 'polytap',
+    title: 'Play Polytap Online — Free Polyrhythm Rhythm Game',
+    h1: 'Polytap',
+    metaDescription:
+      'Play Polytap free online — F every 3 beats, J every 4. Keep two clocks running at once and hit both together when they collide. No download, no sign-up.',
+    shortDescription: 'Two clocks, one pair of hands.',
+    howToPlay: [
+      'Press F on its own beat and J on its own beat. The two run on different cycles.',
+      'Because the cycles differ, they drift apart and then collide on a shared beat.',
+      'On a collision beat, press both keys together. Hit them close enough and you lock it.',
+      'You can also tap the two pads instead of the keys, so it plays on a phone.',
+    ],
+    strategy: [
+      'Do not count both clocks at once. Hold one as a steady pulse and let the other ride against it.',
+      'The timing window never shrinks. What grows is interference between the clocks, so the difficulty is mental, not mechanical.',
+      'The collision beat is the payoff and it pays more each time you clear one. Learn to feel it coming instead of reading it.',
+      'Locking both keys within a couple of ticks pays a bonus, so aim for together rather than merely both.',
+      'Missing a collision ends the run outright, no matter how many lives you hold. Everything else only costs a life.',
+    ],
+    faq: [
+      { q: 'What is a polyrhythm?', a: 'Two rhythms of different lengths running at the same time — here one key every 3 beats against another every 4. They line up only now and then, and those moments are the game.' },
+      { q: 'Do I need musical training?', a: 'No. The first cycle is a warm-up that does not count against you, and the window stays the same width for the whole run.' },
+      { q: 'Why did my run end at full lives?', a: 'Missing a collision beat is an instant loss. It is the one thing lives do not cover.' },
       { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
     ],
   },
