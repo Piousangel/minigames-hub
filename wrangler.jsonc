@@ -15,5 +15,6 @@
       "database_name": "minigames-leaderboard",
       "database_id": "c99eaae9-e197-4020-b718-a3d599949f70"
     }
-  ]
+  ],
+  "routes": [{ "pattern": "quickminigames.site", "custom_domain": true }]
 }
