@@ -14,13 +14,17 @@ export default function AboutPage() {
         work great on both desktop and mobile, and respect your time.
       </p>
       <p>
-        We focus on classic puzzle and arcade games that are easy to learn but hard to master: number
-        merge puzzles, snake, minesweeper, memory games, and more. Each game page also includes clear
-        rules, practical strategy tips, and answers to common questions.
+        We focus on puzzle and arcade games that are easy to learn but hard to master — from classics
+        like number-merge puzzles, snake, and minesweeper to original games you won&apos;t find
+        anywhere else. Many games have online leaderboards so you can compete for a weekly high score.
+        Each game page also includes clear rules, practical strategy tips, and answers to common
+        questions.
       </p>
       <p>
-        New games and game variants are added regularly. If you have a suggestion or found a bug,
-        we would love to hear from you on the <Link href="/contact" className="text-accent">contact page</Link>.
+        {siteConfig.name} is built and maintained by an indie developer who goes by{' '}
+        <strong>Pious Angel</strong>. New games are added regularly. If you have a suggestion or found
+        a bug, I would love to hear from you on the{' '}
+        <Link href="/contact" className="text-accent">contact page</Link>.
       </p>
     </ProsePage>
   )
