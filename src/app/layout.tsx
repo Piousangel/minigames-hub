@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import Link from 'next/link'
 import { siteConfig } from '@/lib/siteConfig'
+import { Logo } from '@/components/Logo'
 import { pixelFont } from './fonts'
 import './globals.css'
 
@@ -48,7 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               className="group flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-amber focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
               style={{ color: 'var(--neon-amber)' }}
             >
-              <span aria-hidden="true" className="text-lg leading-none">🕹️</span>
+              <Logo className="h-5 w-5" />
               <span className="font-pixel neon-text text-xs sm:text-sm">
                 {siteConfig.name}
               </span>

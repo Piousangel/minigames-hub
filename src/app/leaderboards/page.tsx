@@ -5,7 +5,7 @@ import { LeaderboardsHub } from '@/components/LeaderboardsHub'
 export const metadata: Metadata = {
   title: 'Leaderboards — Weekly Top Scores',
   description:
-    'This week’s top scores across all MiniGames Hub games. Beat the leaders and get your name on the board.',
+    'This week’s top scores across all Quick MiniGames games. Beat the leaders and get your name on the board.',
   alternates: { canonical: '/leaderboards' },
 }
 

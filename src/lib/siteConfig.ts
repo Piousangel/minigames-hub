@@ -1,5 +1,5 @@
 export const siteConfig = {
-  name: 'MiniGames Hub', // 브랜드 확정 시 변경
+  name: 'Quick MiniGames', // 브랜드명
   url: 'https://quickminigames.site', // 커스텀 도메인
   description:
     'Play free classic mini games online — 2048, snake, minesweeper and more. No download, no sign-up.',
