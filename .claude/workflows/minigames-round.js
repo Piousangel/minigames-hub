@@ -26,6 +26,10 @@ overdub(16스텝 루프에 노트를 영구히 박는다 — 내 과거가 장�
 pinwheel(핀을 꽂고 판 전체를 90° 회전 — 앵커에 앉은 점만 박힌다),
 cleave(전리품을 두 더미로 가르면 라이벌이 고른다)`
 
+// EXISTING에서 직접 센다. 괄호 안 설명에 쉼표가 있으므로(ricochet, duplex) 먼저 제거해야 한다.
+// 프롬프트에 숫자를 하드코딩하면 라운드마다 어긋나므로, 반드시 이 상수를 주입해 쓸 것.
+const GAME_COUNT = EXISTING.replace(/\([^)]*\)/g, '').split(',').filter((s) => s.trim()).length
+
 const RULES = `
 ## 절대 제약 (minigames-hub)
 - Next.js 15 **정적 내보내기**. 서버 런타임 없음. **외부 런타임 의존성/CDN 금지**(폰트·이미지·라이브러리 추가 금지).
@@ -70,10 +74,10 @@ const IDEA_SCHEMA = {
         required: ['name', 'key', 'verb', 'pitch', 'why_novel', 'why_addictive', 'feasibility_note'],
         properties: {
           name: { type: 'string' },
-          key: { type: 'string', description: 'kebab-case slug, 기존 50종과 겹치지 않을 것' },
+          key: { type: 'string', description: `kebab-case slug, 기존 ${GAME_COUNT}종과 겹치지 않을 것` },
           verb: { type: 'string', description: '핵심 동사 하나. 이 게임에서 플레이어가 반복하는 행동' },
           pitch: { type: 'string', description: '한 문장. 카드 설명으로 쓸 수 있게' },
-          why_novel: { type: 'string', description: '기존 50종 중 무엇과 가장 가깝고, 어떻게 다른가' },
+          why_novel: { type: 'string', description: `기존 ${GAME_COUNT}종 중 무엇과 가장 가깝고, 어떻게 다른가` },
           why_addictive: { type: 'string', description: '한 판 더 하게 만드는 루프' },
           feasibility_note: { type: 'string', description: '순수 결정론 엔진으로 구현 가능한 근거' },
         },
@@ -95,7 +99,7 @@ const JUDGE_SCHEMA = {
         required: ['key', 'originality', 'addictiveness', 'feasibility', 'appeal', 'note'],
         properties: {
           key: { type: 'string' },
-          originality: { type: 'number', description: '1-10. 기존 50종 대비 진짜 새로운가' },
+          originality: { type: 'number', description: `1-10. 기존 ${GAME_COUNT}종 대비 진짜 새로운가` },
           addictiveness: { type: 'number', description: '1-10. 한 판 더?' },
           feasibility: { type: 'number', description: '1-10. 순수 엔진 + 정적 사이트로 가능한가' },
           appeal: { type: 'number', description: '1-10. 검색으로 들어온 낯선 사람이 30초 안에 이해하고 즐기나' },
@@ -163,7 +167,7 @@ async function trackA() {
 
 담당 각도: ${a.brief}
 
-## 이미 있는 50종 (절대 재탕 금지 — 변형·리스킨도 금지)
+## 이미 있는 ${GAME_COUNT}종 (절대 재탕 금지 — 변형·리스킨도 금지)
 ${EXISTING}
 
 ## 좋은 아이디어의 기준
@@ -179,7 +183,7 @@ ${EXISTING}
 
 ${RULES}
 
-각 아이디어마다 기존 50종 중 **가장 가까운 것을 스스로 지목**하고 어떻게 다른지 밝혀라. 못 대면 그건 재탕이다.`,
+각 아이디어마다 기존 ${GAME_COUNT}종 중 **가장 가까운 것을 스스로 지목**하고 어떻게 다른지 밝혀라. 못 대면 그건 재탕이다.`,
         { label: `ideate:${a.key}`, phase: 'Ideate', schema: IDEA_SCHEMA },
       ),
     ),
@@ -195,7 +199,7 @@ ${RULES}
 
   phase('Judge')
   const LENSES = [
-    { key: 'originality', brief: '너는 **독창성 심사관**이다. 기존 50종의 재탕·리스킨을 잔인하게 골라내라. 조금이라도 기존 게임의 변형이면 originality를 4 이하로 줘라.' },
+    { key: 'originality', brief: `너는 **독창성 심사관**이다. 기존 ${GAME_COUNT}종의 재탕·리스킨을 잔인하게 골라내라. 조금이라도 기존 게임의 변형이면 originality를 4 이하로 줘라.` },
     { key: 'player', brief: '너는 **플레이어 대변인**이다. 검색으로 처음 들어온 사람이 30초 안에 이해하고 한 판 더 하고 싶은지만 본다. 설명이 필요하면 appeal을 낮게 줘라.' },
     { key: 'engineer', brief: '너는 **구현 심사관**이다. 순수 결정론 엔진(주입 Rng, Date.now 금지) + 정적 사이트 + 외부 의존성 0으로 만들 수 있는지만 본다. 물리·경로탐색·대규모 상태는 feasibility를 낮게 줘라.' },
   ]
@@ -206,7 +210,7 @@ ${RULES}
 
 아래 후보 전부를 1~10으로 채점하라. 후하게 주지 마라 — 평균 5, 8 이상은 정말 뛰어난 것에만.
 
-## 기존 50종
+## 기존 ${GAME_COUNT}종
 ${EXISTING}
 
 ## 후보
@@ -325,10 +329,10 @@ tests_pass / typecheck_pass 는 **실제 실행 결과**만 보고하라. 안 �
 
 // ---------------- 트랙 B: UI/UX 읽기전용 감사 ----------------
 const DIMENSIONS = [
-  { key: 'game-feel', brief: '**게임 손맛(juice)**: 50개 게임 컴포넌트를 훑어 GameShell 템플릿의 juice(점수 플로트, 변화 펄스, 오버레이, 컨피티, 합성 사운드)를 **채택하지 않았거나 얕게 쓴 게임**을 찾아라. 어떤 게임이 밋밋한가? 무엇이 빠졌나?' },
+  { key: 'game-feel', brief: '**게임 손맛(juice)**: `src/components/games/Game*.tsx`를 **직접 나열해 전부** 훑어 GameShell 템플릿의 juice(점수 플로트, 변화 펄스, 오버레이, 컨피티, 합성 사운드)를 **채택하지 않았거나 얕게 쓴 게임**을 찾아라. 어떤 게임이 밋밋한가? 무엇이 빠졌나?' },
   { key: 'mobile', brief: '**모바일 경험**: 터치 조작, 보드 크기, 세로 화면에서의 스크롤, 엄지 도달 범위. 데스크톱 전용 조작(호버 의존, 키보드 전용)만 있는 게임이 있는지 찾아라.' },
   { key: 'first-30s', brief: '**첫 30초**: 검색으로 들어온 낯선 사람이 게임 페이지에서 뭘 해야 할지 아는가? hint 문구, 시작 상태, 빈 상태를 점검하라. 설명 없이 못 시작하는 게임을 찾아라.' },
-  { key: 'consistency', brief: '**일관성**: 50개 게임 사이의 편차. 어떤 게임은 Reset, 어떤 게임은 New Game인가? stat 라벨, 오버레이 문구, 난이도 UI가 제각각인가? 구체적으로 어떤 게임이 어떻게 튀는가.' },
+  { key: 'consistency', brief: '**일관성**: 게임 전체에 걸친 편차. 어떤 게임은 Reset, 어떤 게임은 New Game인가? stat 라벨, 오버레이 문구, 난이도 UI가 제각각인가? 구체적으로 어떤 게임이 어떻게 튀는가.' },
   { key: 'retention', brief: '**재방문 동기**: Daily 모드, 연속 기록(streak), 리더보드, 개인 기록이 어떤 게임에 있고 없나. 붙일 만한데 안 붙은 곳은? (리더보드는 "높을수록 좋은 정수 점수"가 있어야만 가능하다)' },
 ]
 
@@ -342,13 +346,13 @@ async function trackB() {
 담당 차원: ${d.brief}
 
 ## 맥락
-무료 브라우저 미니게임 허브 50종. 광고(AdSense) 수익 목표. 수익 논리는 트래픽 × 체류 × 재방문.
+무료 브라우저 미니게임 허브 ${GAME_COUNT}종. 광고(AdSense) 수익 목표. 수익 논리는 트래픽 × 체류 × 재방문.
 레트로 네온 아케이드 디자인 시스템. 라이브: https://quickminigames.site
 최근 디자인 감사에서 Design A− / AI Slop A를 받았다 — 기본기는 이미 탄탄하다. **사소한 트집이 아니라 실제로 값어치 있는 것**만 찾아라.
 
 ## 읽어야 할 곳
 - \`src/components/game-shell/\` — 공통 셸(GameShell, GameOverlay, GameButton, Confetti)
-- \`src/components/games/Game*.tsx\` — 50개 게임 컴포넌트
+- \`src/components/games/Game*.tsx\` — 게임 컴포넌트 전체(몇 개인지는 직접 나열해서 세라)
 - \`src/components/GamePageLayout.tsx\`, \`src/components/GameBrowser.tsx\`, \`src/app/layout.tsx\`
 - \`src/app/globals.css\` — 네온 토큰, 모션 토큰
 - \`src/lib/leaderboard.ts\`, \`src/lib/games/gameMeta.ts\`, \`src/lib/games/registry.ts\`
@@ -360,7 +364,7 @@ async function trackB() {
 ## 보고 기준
 - **증거 필수**: 추측 금지. 어떤 파일 몇 줄에 무엇이 있어서 그렇게 판단했는지 대라. 세지 않았으면 "여러 게임"이라 쓰지 말고 실제로 세라.
 - **구체적 제안**: "개선하라"가 아니라 "GameSudoku.tsx:140의 X를 Y로"
-- **위험 명시**: 이 변경이 무엇을 깨뜨릴 수 있는가. 50개 게임에 걸친 변경이면 그렇게 말하라.
+- **위험 명시**: 이 변경이 무엇을 깨뜨릴 수 있는가. 게임 전체에 걸친 변경이면 그렇게 말하라.
 - 이미 잘 돼 있으면 findings를 비워도 된다. 없는 문제를 만들지 마라.
 
 impact는 실제 사용자 영향 기준으로: high=이탈/오해를 부른다, medium=체류·재방문을 갉는다, polish=좋으면 좋은 것.`,
@@ -378,7 +382,7 @@ impact는 실제 사용자 영향 기준으로: high=이탈/오해를 부른다,
     `너는 이 제품의 기술 리드다. 5명의 감사관이 각자 다른 차원에서 올린 발견을 종합하라.
 
 ## 맥락
-minigames-hub — 무료 미니게임 50종, AdSense 수익 목표(월 5~10만원). 수익 = 트래픽 × 체류 × 재방문.
+minigames-hub — 무료 미니게임 ${GAME_COUNT}종, AdSense 수익 목표(월 5~10만원). 수익 = 트래픽 × 체류 × 재방문.
 Design A− / AI Slop A. 기본기는 탄탄하다. 남은 작업 시간은 유한하다.
 
 ## 원본 발견 (${all.length}건)
@@ -387,9 +391,9 @@ ${all.map((f, i) => `### [${i + 1}] ${f.title} (${f.impact})\n파일: ${f.file}\
 ## 할 일
 1. **중복 제거** — 여러 감사관이 같은 것을 다르게 말한 것을 묶어라.
 2. **증거가 약한 것 탈락** — "여러 게임이 밋밋하다" 같은 셈하지 않은 주장, 파일:줄 없는 주장은 버려라. 왜 버렸는지 밝혀라.
-3. **위험 대비 가치로 정렬** — 50개 게임에 걸친 변경은 가치가 아주 크지 않으면 뒤로.
+3. **위험 대비 가치로 정렬** — 게임 전체에 걸친 변경은 가치가 아주 크지 않으면 뒤로.
 4. **상위 5건**을 골라, 각각에 대해 정확한 구현 계획(어떤 파일의 무엇을 어떻게)과 검증 방법을 써라.
-5. **하지 말 것 목록** — 제안됐지만 하면 안 되는 것과 그 이유. (예: 47개 단일행 게임을 망치면서 3개를 고치는 변경)
+5. **하지 말 것 목록** — 제안됐지만 하면 안 되는 것과 그 이유. (예: 대다수 게임을 망치면서 3개를 고치는 변경)
 
 마크다운으로. 오케스트레이터가 이걸 읽고 바로 구현에 들어간다. 두루뭉술한 말은 쓰지 마라.`,
     { label: 'synthesize', phase: 'Synthesize' },
