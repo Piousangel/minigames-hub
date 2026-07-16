@@ -8,10 +8,11 @@
 
 - **무엇**: 무료 브라우저 미니게임 사이트. 광고(AdSense)로 월 5~10만원 수익 목표.
 - **지금 상태**: **라이브** — https://quickminigames.site (커스텀 도메인 + SSL 정상, Cloudflare Workers 배포).
-- **게임 수**: 48종 (registry 기준). 상당수 오리지널 창작 게임 + 클래식.
+- **게임 수**: 50종 (registry 기준). 상당수 오리지널 창작 게임 + 클래식.
 - **리더보드**: 37개 게임에 주간 Top10 온라인 리더보드 (Cloudflare D1).
-- **광고**: 아직 **OFF**. `siteConfig.adsenseClientId`가 비어 있어 광고 슬롯/로더 전부 비활성. → **AdSense 승인받는 것이 다음 최우선 수익 과제.**
-- **바로 다음 할 일**: (1) 라운드5 게임 3종(backspace/decant/duplex) 완성·와이어링, (2) AdSense 신청, (3) 게임 계속 찍어내기 + UI/UX 고도화.
+- **광고**: 아직 **OFF** — 단 이유가 바뀌었다. pub-id는 발급받아 채웠고(`ca-pub-9363381710674627`),
+  **AdSense 심사 대기 중**. 게재는 `siteConfig.adsenseEnabled: false`로 잠가 둔 상태. 자세한 절차는 7.2.
+- **바로 다음 할 일**: (1) AdSense 승인 확인 → 광고 켜기(7.2), (2) 게임 계속 찍어내기 + UI/UX 고도화.
 
 ---
 
@@ -52,7 +53,7 @@
 - **D1(SQLite)**: 리더보드 저장. worker는 `../src/lib/leaderboard`를 **상대경로**로 import(@/ 별칭 안 씀).
 - **폰트**: Press Start 2P 셀프호스팅 — `src/app/fonts.ts` + `src/app/fonts/PressStart2P.woff2` (next/font/local).
 - **디자인 시스템**: `src/app/globals.css`에 `--neon-cyan/magenta/lime/amber/purple/blue/red/green`, 유틸 `.neon-text/.neon-box/.font-pixel/.scanlines`.
-- **브랜드**: `src/lib/siteConfig.ts` (name/url/description/adsenseClientId). name 바꾸면 헤더/푸터/타이틀/OG/manifest 전파.
+- **브랜드**: `src/lib/siteConfig.ts` (name/url/description/adsenseClientId/adsenseEnabled). name 바꾸면 헤더/푸터/타이틀/OG/manifest 전파.
 - **로고**: `src/components/Logo.tsx` (네온 아케이드 캐비닛 + 플레이 삼각형 SVG, currentColor). 파비콘 `src/app/icon.svg`와 통일.
 
 ### 게임 공통 규칙 (GameShell 템플릿)
@@ -114,20 +115,24 @@ npx playwright test               # e2e (webServer: pnpm build && npx serve out 
 
 ## 7. 다음 세션 할 일 (우선순위 순)
 
-### 7.1 🔴 라운드5 게임 3종 완성 & 와이어링 (가장 먼저)
-`src/lib/games/{backspace,decant,duplex}/engine.ts`가 **엔진만 있고 미완성**:
-- **backspace** (447줄): 5레인 엔들리스 닷저 + 월드 되감기(rewind) 메커닉. 링버퍼 스냅샷으로 비트정확 되감기.
-- **decant** (401줄): 밀도 정렬 시험관 퍼즐. 색=밀도 랭크, 정렬 불변식.
-- **duplex** (629줄): 입력 하나로 미러 결합된 두 토큰 조종. 벽으로 대칭 깨서 푸는 퍼즐.
+### 7.1 ✅ 라운드5 게임 3종 — 2026-07-16 배포 완료
+Decant / Backspace / Duplex 라이브(`/decant` `/backspace` `/duplex`). 게임 **50종**.
 
-**각각 남은 작업**: (a) `engine.test.ts` 유닛테스트, (b) React 컴포넌트(GameShell 규칙 준수), (c) 6곳 공유파일 와이어링, (d) 시각 QA, (e) 배포.
-→ 엔진 품질이 높으니 컴포넌트+와이어링만 하면 됨. 엔진 API를 먼저 읽고 컴포넌트 작성.
+> 이전 핸드오프가 "엔진만 있고 컴포넌트·테스트 없음"이라고 적었으나 **사실과 달랐다**.
+> 컴포넌트(460/567/772줄)와 엔진 테스트(92개)가 이미 있었고 배선 5곳만 빠져 있었다.
+> 교훈: 핸드오프의 미완성 주장은 그대로 믿지 말고 `ls`/테스트 실행으로 먼저 확인할 것.
 
-### 7.2 🔴 AdSense 신청 (수익의 핵심 관문)
-- 이제 커스텀 도메인 라이브 → AdSense 신청 요건 충족.
-- 절차: https://adsense.google.com 에서 `quickminigames.site` 등록 → 사이트 확인용 스니펫(또는 ads.txt) → 심사(보통 며칠~2주).
-- **승인 후**: `siteConfig.adsenseClientId`에 `ca-pub-XXXX...` 넣으면 광고 자동 ON. `public/ads.txt`를 실제 pub-id 라인으로 교체. EU 트래픽엔 인증 CMP(동의 관리) 필요.
-- 심사 통과 팁: 콘텐츠 충분(게임 48종 OK), 개인정보처리방침/약관/연락처 있음(OK), 오리지널 콘텐츠(OK).
+### 7.2 🟡 AdSense — 심사 대기 중 (2026-07-16 검토 요청 완료)
+- pub-id: `ca-pub-9363381710674627`. 소유권 확인은 **메타 태그** 방식으로 통과.
+- **현재 상태**: `siteConfig.adsenseClientId`는 채워져 있고(메타 태그·ads.txt가 사용),
+  게재는 `siteConfig.adsenseEnabled: false`로 **잠가 둠**. 승인돼도 자동으로 켜지지 않는다.
+- **승인되면 할 일** (이 순서를 지킬 것):
+  1. AdSense에서 광고 단위 2개 생성 → **숫자 슬롯 ID** 발급받기.
+  2. `AdSlot`을 쓰는 두 곳의 플레이스홀더 slot 문자열을 실제 숫자 ID로 교체:
+     `src/app/page.tsx`(`"home-footer"`), `src/components/GamePageLayout.tsx`(`"game-incontent"`).
+  3. `siteConfig.adsenseEnabled: true` → 배포.
+  - ⚠️ 2번을 건너뛰고 3번만 하면 잘못된 슬롯으로 요청이 나가 콘솔 에러만 남는다.
+- EU 동의(CMP)는 AdSense 대시보드에서 Google CMP **3버튼**(동의/동의하지 않음/옵션 관리) 선택 — 사이트 코드 수정 불필요. 2버튼은 GDPR상 "거부가 동의만큼 쉬워야" 요건에 걸린다.
 
 ### 7.3 🟡 게임 계속 찍어내기 (Workflow 파이프라인)
 멀티 에이전트 심의 워크플로우로 오리지널 게임 라운드 계속:
@@ -190,8 +195,8 @@ git log --oneline -5
 git status --short
 curl -s -o /dev/null -w "%{http_code}" https://quickminigames.site/   # 200 확인
 
-# 2) 라운드5 엔진 파악 → 컴포넌트 작성 시작
-cat src/lib/games/decant/engine.ts        # decant가 가장 단순, 여기부터 추천
+# 2) AdSense 승인 났는지 사용자에게 확인 → 났으면 7.2 절차대로 광고 켜기
+grep -n "adsense" src/lib/siteConfig.ts
 ```
 
-라운드5 게임 3종 완성(7.1)부터 시작하는 것을 권장. decant(퍼즐, 상태 단순) → duplex → backspace(되감기 UI 복잡) 순서가 무난.
+AdSense 승인 여부부터 사용자에게 묻는 것을 권장(7.2). 아직이면 게임 생산(7.3)·UI/UX(7.4)를 이어간다.
