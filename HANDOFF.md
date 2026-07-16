@@ -163,7 +163,7 @@ npx playwright test               # e2e (webServer: pnpm build && npx serve out 
 - **엔진에 Math.random 금지** — 순수성 깨지면 골든테스트/되감기 붕괴.
 - **worker는 @/ 별칭 못 씀** → `../src/lib/leaderboard` 상대경로.
 - **per-game OG 이미지**(ImageResponse): `background` 축약 금지(→ backgroundColor/backgroundImage 분리), div에 자식 2+면 `display:flex` 필요, 텍스트는 단일 노드.
-- **leaderboard.ts 제어문자 정규식**은 `/[ -]/g` (리터럴 제어문자 붙여넣기 금지).
+- **leaderboard.ts 제어문자 정규식**은 `/[\u0000-\u001f\u007f]/g` (리터럴 제어문자 붙여넣기 금지 — 유니코드 이스케이프로 작성).
 - **엣지 캐시**: 새 경로 배포 직후 잠깐 stale 404 가능(수초 해소). 배포 검증은 여유 두고.
 - **Browse/스크린샷**: 클라이언트 하이드레이션 전 스냅샷이라 흰 화면 나올 수 있음 → settle 후 별도 호출로 재확인.
 - **워크플로우 opt-in**: Workflow 툴은 사용자가 명시적으로 원할 때만. 이 프로젝트는 사용자가 "너네끼리 회의해서 디벨롭" 하라고 반복 요청함 = 게임 발명에 Workflow 사용 승인됨.
