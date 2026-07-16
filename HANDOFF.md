@@ -21,7 +21,7 @@
   — **그 12개 중 하나를 리더보드에 올리려면 반드시 먼저 저장 형식을 고칠 것.**
 - **광고**: 아직 **OFF** — 단 이유가 바뀌었다. pub-id는 발급받아 채웠고(`ca-pub-9363381710674627`),
   **AdSense 심사 대기 중**. 게재는 `siteConfig.adsenseEnabled: false`로 잠가 둔 상태. 자세한 절차는 7.2.
-- **바로 다음 할 일**: (1) AdSense 승인 확인 → 광고 켜기(7.2), (2) UI/UX 감사 잔여 항목(7.5), (3) 게임 계속 찍어내기.
+- **바로 다음 할 일**: (1) AdSense 승인 확인 → 광고 켜기(7.2), (2) Daily streak(7.5 다음 사이클), (3) 게임 계속 찍어내기.
 - **SEO 인프라**: Search Console 도메인 속성 등록 + sitemap.xml 제출 완료(2026-07-16, DNS 인증).
   `www.quickminigames.site` → apex 301 리다이렉트도 Cloudflare Page Rule로 걸었다(경로 보존).
 
@@ -161,25 +161,30 @@ Decant / Backspace / Duplex 라이브(`/decant` `/backspace` `/duplex`). 게임 
 - 트렌디한 애니메이션/인터랙션, 최신 사이트 참고. 스스로 판단해서 계속 개선.
 - **Lighthouse 기준선 갱신(회귀 금지)**: home **100**, game **100**, a11y/bp/seo 100, CLS 0, TBT 0ms.
   (2026-07-16 측정 — 기존 97/99에서 올랐다.)
+- ⚠️ **로컬에서 Lighthouse를 돌리면 게임 페이지 best-practices가 96으로 나온다** — 정적 서버엔
+  Worker API가 없어 `/api/leaderboard` 404가 콘솔 에러로 잡히기 때문이다. **회귀가 아니다.**
+  기준선은 라이브 URL로 잴 것(라이브 /snake는 100 확인).
 - 2026-07-16 디자인 감사 결과: **Design A− / AI Slop A**. 슬롭 블랙리스트 11개 패턴 전부 해당 없음.
   리포트: `~/.gstack/projects/Piousangel-minigames-hub/designs/design-audit-20260716/`
 
-### 7.5 🟡 UI/UX 감사 잔여 항목 (라운드6 워크플로우 산출물)
-5명 감사관이 25건을 올렸고 종합해 상위 5건을 뽑았다. **1건만 처리했고 4건이 남았다.**
-전체 종합 결과는 워크플로우 출력에 있다(아래 "라운드6" 참고).
+### 7.5 ✅ UI/UX 감사 상위 5건 — 2026-07-16 처리 완료
+5명 감사관이 25건 → 종합 상위 5건. **4건 처리, 1건은 검증 후 기각.**
 
-- ✅ **DO-1 죽은 리더보드**(ticker/zero-hour) — 처리 완료, 배포됨
-- ⬜ **DO-2 엔드리스 게임의 축하 부재** — snake/tetris 등 7개 게임이 신기록에도 lose 오버레이만
-  띄운다. 엔드리스 게임의 유일한 보상 순간을 버리고 있다. `GameSnake.tsx:165-166`,
-  `GameTetris.tsx:277-278` 등. 파일별 개별 작업
-- ⬜ **DO-3 Daily 발견성** — Daily 모드가 있는 게임을 홈에서 찾을 방법이 없다(필터 없음).
-  Wordle 훅이라 재방문 기여가 크다. 4파일 + 타입. ⚠️ 인용된 줄번호가 틀렸으니 직접 열어볼 것
-- ⬜ **DO-4 목표 없는 hint** — duplex/decant 등에서 hint가 조작만 말하고 "무엇을 하면 이기는지"를
-  안 말한다. registry.ts에 정답 문장이 이미 있는데 안 쓴다. 3파일 3줄
-- ⬜ **DO-5 idle 캔버스 단서** — 4개 게임이 시작 전 빈 캔버스라 '고장'으로 읽힌다
-- **다음 사이클**: Daily streak(#22 UTC/로컬 통일 → #23 streak). 반드시 DO-3 뒤에.
-- **하지 말 것**: 라벨 통일(You/CPU 등) — 5파일 고쳐도 수익 기여 0. GameShell `items-center` →
-  `items-start` — 다중행 게임 3개는 나아지나 단일행 47개가 어긋난다.
+- ✅ **DO-1 죽은 리더보드**(ticker/zero-hour) — 배포됨
+- ✅ **DO-2 엔드리스 7종 신기록 축하** — 배포됨. 사운드 스팸 2건(backspace 60fps, flappy)도 같이 잡음
+- ✅ **DO-3 Daily 필터** — 배포됨. 홈에서 Daily 7종을 찾을 수 있다
+- ✅ **DO-4 목표 없는 hint**(duplex/decant/quarry) — 배포됨
+- ❌ **DO-5 idle 캔버스 단서 — 기각**. 감사관이 `fillText` 0건만 보고 "빈 캔버스=고장"이라
+  했으나 **실제 화면을 찍어보니 사실이 아니었다**: flappy는 새, latch는 펙·글린트,
+  ripple은 부표 3개가 발광하고, 안내 문구도 데스크톱·모바일(375×812, top 526~564 < 812)
+  모두 화면 안에 있다. 없는 문제였다.
+
+**다음 사이클 후보**: Daily streak(감사 #22 UTC/로컬 통일 → #23 streak). 반드시 #22 먼저.
+
+**하지 말 것** (감사에서 제안됐으나 손해):
+- 라벨 통일(You/CPU 등) — 5파일 고쳐도 수익 기여 0
+- GameShell `items-center` → `items-start` — 다중행 게임 3개는 나아지나 단일행 47개가 어긋난다
+- 필터 칩 히트 영역 44px 확장 — gap이 8px라 줄바꿈된 칩끼리 겹쳐 오탭이 난다(AA 24px는 이미 통과)
 
 ### 7.6 ✅ 라운드6 게임 3종 — 2026-07-16 배포 완료
 Overdub / Pinwheel / Cleave 라이브. 게임 **53종**, 리더보드 **31종**.
