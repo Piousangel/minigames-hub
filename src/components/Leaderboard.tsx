@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { LEADERBOARD_GAMES, MAX_NAME_LEN, type ScoreRow } from '@/lib/leaderboard'
 import { gamePages } from '@/lib/games/registry'
 import { siteConfig } from '@/lib/siteConfig'
@@ -21,6 +21,7 @@ export function Leaderboard({ slug }: { slug: string }) {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
   const [shared, setShared] = useState(false)
+  const submittedRef = useRef(0) // 마지막으로 제출한 점수 — 이보다 높아졌을 때만 재제출 허용
 
   const load = useCallback(async () => {
     try {
@@ -36,11 +37,22 @@ export function Leaderboard({ slug }: { slug: string }) {
     }
   }, [slug])
 
+  // best:<slug>는 게임 쪽에서 갱신되므로, 마운트 때 한 번만 읽으면 이번 세션에 낸
+  // 신기록을 놓친다(첫 방문자는 best=0 → 제출 폼이 아예 안 뜬다). 1초 폴링으로
+  // 따라잡되, 동등성 가드로 값이 바뀔 때만 리렌더한다.
   useEffect(() => {
     load()
-    const raw = Number(localStorage.getItem(`best:${slug}`))
-    setBest(Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : 0)
     setName(localStorage.getItem('lb:name') ?? '')
+    submittedRef.current = 0 // 새 게임(slug) 진입 시 제출 허용 초기화
+    const readBest = () => {
+      const raw = Number(localStorage.getItem(`best:${slug}`))
+      const v = Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : 0
+      setBest((prev) => (prev === v ? prev : v))
+      if (v > submittedRef.current) setSubmitted(false) // 기록을 갱신했을 때만 다시 제출 가능
+    }
+    readBest()
+    const id = setInterval(readBest, 1000)
+    return () => clearInterval(id)
   }, [load, slug])
 
   async function submit() {
@@ -57,6 +69,7 @@ export function Leaderboard({ slug }: { slug: string }) {
       setRows(data.top)
       setWeek(data.week)
       setSubmitted(true)
+      submittedRef.current = best // 이 점수는 제출됨 — 더 높은 기록이 나와야 재제출 허용
       localStorage.setItem('lb:name', name.trim().slice(0, MAX_NAME_LEN))
     } catch {
       /* 무시 */
