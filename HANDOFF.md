@@ -9,7 +9,10 @@
 - **무엇**: 무료 브라우저 미니게임 사이트. 광고(AdSense)로 월 5~10만원 수익 목표.
 - **지금 상태**: **라이브** — https://quickminigames.site (커스텀 도메인 + SSL 정상, Cloudflare Workers 배포).
 - **게임 수**: 50종 (registry 기준). 상당수 오리지널 창작 게임 + 클래식.
-- **리더보드**: 37개 게임에 주간 Top10 온라인 리더보드 (Cloudflare D1).
+- **리더보드**: 28개 게임에 주간 Top10 온라인 리더보드 (Cloudflare D1).
+  나머지 22개는 **의도적으로 없다** — 리더보드는 "높을수록 좋음" 점수가 필요한데
+  소도쿠·미로·행맨은 완주형, 틱택토·체커·리버시는 AI 대전, reaction-time·aim-trainer와
+  duplex는 낮을수록 좋다. 신규 게임을 붙일 때 이 기준으로 판단할 것.
 - **광고**: 아직 **OFF** — 단 이유가 바뀌었다. pub-id는 발급받아 채웠고(`ca-pub-9363381710674627`),
   **AdSense 심사 대기 중**. 게재는 `siteConfig.adsenseEnabled: false`로 잠가 둔 상태. 자세한 절차는 7.2.
 - **바로 다음 할 일**: (1) AdSense 승인 확인 → 광고 켜기(7.2), (2) 게임 계속 찍어내기 + UI/UX 고도화.
@@ -34,7 +37,7 @@
 | Worker 이름 | `minigames-hub` |
 | DB | Cloudflare D1 `minigames-leaderboard` (id `c99eaae9-e197-4020-b718-a3d599949f70`) |
 | 게임 수 | 48 (`registry.ts`) |
-| 리더보드 게임 | 37 (`leaderboard.ts` LEADERBOARD_GAMES) |
+| 리더보드 게임 | 28 (`leaderboard.ts` LEADERBOARD_GAMES) |
 | 광고 | OFF (승인 전) |
 | Node / pnpm | v22.22.3 / 9.15.0 |
 
