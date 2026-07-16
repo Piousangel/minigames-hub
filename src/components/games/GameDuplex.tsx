@@ -347,7 +347,10 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
     doMove(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up')
   }
 
-  const hint = 'Arrow keys / WASD / swipe move BOTH tokens (Echo mirrors). Use walls to split them. Z undo · R restart.'
+  // 목표를 먼저 말한다. 자체 창작 게임이라 방문자의 사전 지식이 0이고,
+  // registry의 howToPlay는 첫 화면 밖(보드 아래 mt-12 섹션)에 있어 안 읽힌다.
+  const hint =
+    'Land both tokens on their goals to clear the level. Arrows / WASD / swipe move BOTH at once — amber Echo mirrors you. Use walls to split them. ↩ Undo · R restart.'
 
   if (!state) {
     return (

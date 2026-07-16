@@ -313,7 +313,7 @@ export function GameDecant({ storageKey }: { storageKey: string }) {
     : deadlocked
       ? 'Stuck — press Undo or New Board.'
       : state.selection === null
-        ? 'Tap a tube, then tap where to pour. The lightest band sinks to its density layer.'
+        ? 'Sort every color into its own tube. Tap a tube, then tap where to pour — the top band sinks to its density layer.'
         : 'Now tap a destination (any color). Tap the same tube to cancel.'
 
   const headerExtra = (

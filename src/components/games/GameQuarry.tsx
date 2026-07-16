@@ -228,8 +228,10 @@ export function GameQuarry({ storageKey }: { storageKey: string }) {
     })
   }, [persistBest, startRun])
 
+  // 'king-move'는 엔진 내부 용어다(engine.ts는 그대로 둔다). 방문자는 모르므로
+  // registry가 이미 쓰는 hot-and-cold 비유로 바꾼다.
   const hint =
-    'Drop a probe to read the king-move distance to the quarry — it flees one step away each time. Corner it and land a 0 before your probes run out.'
+    'Tap a cell to probe — the number is how many steps away the hidden quarry is, like hot-and-cold. Each probe also spooks it one step away, so corner it and land a 0 before your probes run out.'
 
   if (!state) {
     return (
