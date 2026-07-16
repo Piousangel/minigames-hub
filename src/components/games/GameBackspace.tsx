@@ -58,6 +58,8 @@ export function GameBackspace({ storageKey }: { storageKey: string }) {
   const [best, setBest] = useState(0)
   const [score, setScore] = useState(0)
   const [clutchMult, setClutchMult] = useState(1)
+  const newBestRef = useRef(false)
+  const [newBest, setNewBest] = useState(false)
   const [phase, setPhase] = useState<Phase>('idle')
   const [ready, setReady] = useState(false)
 
@@ -299,7 +301,9 @@ export function GameBackspace({ storageKey }: { storageKey: string }) {
             } catch {
               /* storage unavailable — non-fatal */
             }
-            play('win')
+            // 여기는 60fps 틱 루프다. 점수가 매 틱 오르므로 여기서 축하음을 내면
+            // 첫 판 내내 초당 60번 울린다. 플래그만 세우고 축하는 게임오버에서 한 번.
+            newBestRef.current = true
           }
           setClutchMult(next.clutchMult)
 
@@ -320,6 +324,12 @@ export function GameBackspace({ storageKey }: { storageKey: string }) {
           if (next.over) {
             phaseRef.current = 'over'
             setPhase('over')
+            // 축하는 여기서 한 번만. ev.crashed의 'lose'는 충돌 자체에 대한 피드백이라
+            // 치명타가 아닐 때도 울리므로 그대로 둔다.
+            if (newBestRef.current) {
+              setNewBest(true)
+              play('win')
+            }
             break
           }
         }
@@ -381,6 +391,8 @@ export function GameBackspace({ storageKey }: { storageKey: string }) {
     markerXRef.current = laneCenterX(2)
     prevMeterEmptyRef.current = false
     milestoneRef.current = 0
+    newBestRef.current = false
+    setNewBest(false)
     lastTsRef.current = 0
     accRef.current = 0
     phaseRef.current = 'idle'
@@ -529,7 +541,12 @@ export function GameBackspace({ storageKey }: { storageKey: string }) {
         >
           ⌫ BACKSPACE
         </button>
-        <GameOverlay show={phase === 'over'} variant="lose" title="Game over" testId="game-over">
+        <GameOverlay
+          show={phase === 'over'}
+          variant={newBest ? 'win' : 'lose'}
+          title={newBest ? 'New best!' : 'Game over'}
+          testId="game-over"
+        >
           <p className="text-fg-muted">
             Distance: {score} · Best: {best}
           </p>

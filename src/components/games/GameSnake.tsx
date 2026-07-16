@@ -25,12 +25,18 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
   const { play, muted, toggleMuted } = useGameSound()
   const prevScore = useRef(0)
   const prevOver = useRef(false)
+  // 죽는 순간에 score와 best를 비교하면 안 된다 — best는 그전에 이미 갱신돼 같아진다.
+  // 경신이 실제로 일어나는 지점에서 플래그를 세운다(GameTowerStack과 같은 방식).
+  const newBestRef = useRef(false)
+  const [newBest, setNewBest] = useState(false)
 
   const restart = useCallback(() => {
     setState(newSnakeGame(Math.random))
     setRunning(false)
     prevScore.current = 0
     prevOver.current = false
+    newBestRef.current = false
+    setNewBest(false)
   }, [])
 
   useEffect(() => {
@@ -59,6 +65,7 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
     if (state && state.score > best) {
       setBest(state.score)
       localStorage.setItem(storageKey, String(state.score))
+      newBestRef.current = true
     }
   }, [state, best, storageKey])
 
@@ -67,7 +74,11 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
     if (!state) return
     if (state.score > prevScore.current) play('eat')
     prevScore.current = state.score
-    if (state.over && !prevOver.current) play('lose')
+    if (state.over && !prevOver.current) {
+      // 이 effect는 위의 best 갱신 effect보다 뒤에 선언돼 있어 플래그가 이미 서 있다.
+      setNewBest(newBestRef.current)
+      play(newBestRef.current ? 'win' : 'lose')
+    }
     prevOver.current = state.over
   }, [state, play])
 
@@ -162,8 +173,15 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
             />
           )
         })}
-        <GameOverlay show={state.over} variant="lose" title="Game over" testId="game-over">
-          <p className="text-fg-muted">Score: {state.score}</p>
+        <GameOverlay
+          show={state.over}
+          variant={newBest ? 'win' : 'lose'}
+          title={newBest ? 'New best!' : 'Game over'}
+          testId="game-over"
+        >
+          <p className="text-fg-muted">
+            Score: {state.score} · Best: {best}
+          </p>
           <GameButton onClick={restart} className="px-4 py-2">
             Try again
           </GameButton>

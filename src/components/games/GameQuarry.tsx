@@ -423,7 +423,7 @@ export function GameQuarry({ storageKey }: { storageKey: string }) {
           </p>
           <p className="text-sm text-fg-muted">
             Final score <span className="font-bold text-accent">{score}</span>
-            {newBest && <span className="ml-1 font-bold text-neon-green">— New Best!</span>}
+            {newBest && <span className="ml-1 font-bold text-neon-green">— New best!</span>}
           </p>
           <GameButton onClick={restart} className="px-4 py-2">
             Play again

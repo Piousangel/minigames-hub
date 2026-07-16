@@ -52,6 +52,8 @@ function seedFromUrl(): number | null {
 
 export function GameRipple({ storageKey, seed }: { storageKey: string; seed?: number }) {
   const [best, setBest] = useState(0)
+  const newBestRef = useRef(false)
+  const [newBest, setNewBest] = useState(false)
   const [score, setScore] = useState(0)
   const [lives, setLives] = useState(MAX_DROWN)
   const [phase, setPhase] = useState<Phase>('idle')
@@ -351,11 +353,13 @@ export function GameRipple({ storageKey, seed }: { storageKey: string; seed?: nu
           bestRef.current = s.score
           setBest(s.score)
           localStorage.setItem(storageKey, String(s.score))
+          newBestRef.current = true
         }
 
         if (s.events.over) {
           if (!reducedRef.current) shakeRef.current = 12
-          play('lose')
+          setNewBest(newBestRef.current)
+          play(newBestRef.current ? 'win' : 'lose')
           phaseRef.current = 'over'
           setPhase('over')
         }
@@ -420,6 +424,8 @@ export function GameRipple({ storageKey, seed }: { storageKey: string; seed?: nu
     lastTsRef.current = 0
     cursorRef.current = { x: FIELD_W / 2, y: FIELD_H / 2 }
     phaseRef.current = 'idle'
+    newBestRef.current = false
+    setNewBest(false)
     setScore(0)
     setLives(MAX_DROWN)
     setPhase('idle')
@@ -564,7 +570,12 @@ export function GameRipple({ storageKey, seed }: { storageKey: string; seed?: nu
           style={{ touchAction: 'none' }}
           aria-label="Ripple pond — arrow keys to aim, Space to drop a ripple"
         />
-        <GameOverlay show={phase === 'over'} variant="lose" title="Drowned out" testId="game-over">
+        <GameOverlay
+          show={phase === 'over'}
+          variant={newBest ? 'win' : 'lose'}
+          title={newBest ? 'New best!' : 'Drowned out'}
+          testId="game-over"
+        >
           <p className="text-fg-muted">
             Score: {score} · Best: {best}
           </p>

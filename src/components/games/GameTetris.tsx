@@ -94,6 +94,8 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
   const [state, setState] = useState<TetrisState | null>(null)
   const [running, setRunning] = useState(false)
   const [best, setBest] = useState(0)
+  const newBestRef = useRef(false)
+  const [newBest, setNewBest] = useState(false)
   const [flashKey, setFlashKey] = useState(0) // 라인 클리어 화면 연출 트리거
 
   const { play, muted, toggleMuted } = useGameSound()
@@ -114,6 +116,8 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
     stateRef.current = s
     setState(s)
     setRunning(true)
+    newBestRef.current = false
+    setNewBest(false)
   }, [])
 
   useEffect(() => {
@@ -141,11 +145,13 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
     return () => document.removeEventListener('visibilitychange', onVisibility)
   }, [])
 
-  // Best 저장.
+  // Best 저장. 죽는 순간에 score와 best를 비교하면 안 된다 — 그땐 이미 같아져 있다.
+  // 경신이 실제로 일어나는 이 지점에서 플래그를 세운다(GameTowerStack과 같은 방식).
   useEffect(() => {
     if (state && state.score > best) {
       setBest(state.score)
       localStorage.setItem(storageKey, String(state.score))
+      newBestRef.current = true
     }
   }, [state, best, storageKey])
 
@@ -159,7 +165,11 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
     } else if (state.lastLockedCells.length > 0) {
       play('move')
     }
-    if (state.over && !prevOver.current) play('lose')
+    if (state.over && !prevOver.current) {
+      // 이 effect는 위의 best 갱신 effect보다 뒤에 선언돼 있어 플래그가 이미 서 있다.
+      setNewBest(newBestRef.current)
+      play(newBestRef.current ? 'win' : 'lose')
+    }
     prevOver.current = state.over
   }, [state, play])
 
@@ -274,8 +284,15 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
             })}
           </div>
 
-          <GameOverlay show={state.over} variant="lose" title="Game over" testId="game-over">
-            <p className="text-fg-muted">Score: {state.score}</p>
+          <GameOverlay
+            show={state.over}
+            variant={newBest ? 'win' : 'lose'}
+            title={newBest ? 'New best!' : 'Game over'}
+            testId="game-over"
+          >
+            <p className="text-fg-muted">
+              Score: {state.score} · Best: {best}
+            </p>
             <GameButton onClick={restart} className="px-4 py-2">
               Play again
             </GameButton>

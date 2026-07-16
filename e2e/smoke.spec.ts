@@ -411,6 +411,43 @@ test('pinwheel: 키보드만으로 격자에 진입할 수 있다', async ({ pag
   await expect(page.getByRole('button', { name: /Spin CW/ })).toBeEnabled()
 })
 
+// 엔드리스 게임은 신기록이 유일한 보상 순간인데 7종이 패배 오버레이만 띄우고 있었다.
+// 함정: 죽는 시점엔 best가 이미 갱신돼 score와 같으므로 비교로는 판정할 수 없다 —
+// 경신 지점에서 세운 ref 플래그로 판정한다. 아래 두 테스트가 양성/오탐을 함께 고정한다.
+test('backspace: 신기록으로 끝나면 New best 축하', async ({ page }) => {
+  await page.goto('/backspace')
+  await expect(page.getByTestId('backspace-board')).toBeVisible()
+  await page.getByTestId('backspace-board').click()
+  await page.keyboard.down('Space') // 되감기 미터를 비워 다음 충돌이 치명타가 되게
+  await page.waitForTimeout(4000)
+  await page.keyboard.up('Space')
+  await expect(page.getByTestId('game-over')).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByTestId('game-over')).toContainText('New best!')
+})
+
+test('backspace: 기록을 못 넘으면 Game over (ref 플래그 오탐 방지)', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('best:backspace', '999999'))
+  await page.goto('/backspace')
+  await expect(page.getByTestId('backspace-board')).toBeVisible()
+  await page.getByTestId('backspace-board').click()
+  await page.keyboard.down('Space')
+  await page.waitForTimeout(4000)
+  await page.keyboard.up('Space')
+  await expect(page.getByTestId('game-over')).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByTestId('game-over')).toContainText('Game over')
+  await expect(page.getByTestId('game-over')).not.toContainText('New best')
+})
+
+test('snake: 기록을 못 넘으면 Game over + Best 표시', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('best:snake', '999'))
+  await page.goto('/snake')
+  await expect(page.getByTestId('snake-board')).toBeVisible()
+  await page.keyboard.press('ArrowRight')
+  await expect(page.getByTestId('game-over')).toBeVisible({ timeout: 10_000 })
+  await expect(page.getByTestId('game-over')).toContainText('Game over')
+  await expect(page.getByTestId('game-over')).toContainText('Best: 999')
+})
+
 test('leaderboards: 허브 페이지 로드', async ({ page }) => {
   await page.goto('/leaderboards')
   await expect(page.getByRole('heading', { name: 'Leaderboards', level: 1 })).toBeVisible()

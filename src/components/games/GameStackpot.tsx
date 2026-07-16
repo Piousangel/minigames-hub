@@ -354,7 +354,7 @@ export function GameStackpot({ storageKey }: { storageKey: string }) {
           <GameOverlay
             show={state.over}
             variant={newBest ? 'win' : 'lose'}
-            title={newBest ? 'New Best!' : 'Game Over'}
+            title={newBest ? 'New best!' : 'Game over'}
             testId="game-over"
           >
             <div className="flex flex-col items-center gap-1 text-sm">

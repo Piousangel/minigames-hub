@@ -45,6 +45,8 @@ function newSeed(): number {
 
 export function GameLatch({ storageKey }: { storageKey: string }) {
   const [best, setBest] = useState(0)
+  const newBestRef = useRef(false)
+  const [newBest, setNewBest] = useState(false)
   const [score, setScore] = useState(0)
   const [pegs, setPegs] = useState(0)
   const [mult, setMult] = useState(1)
@@ -318,6 +320,7 @@ export function GameLatch({ storageKey }: { storageKey: string }) {
             bestRef.current = s.score
             setBest(s.score)
             localStorage.setItem(storageKey, String(s.score))
+            newBestRef.current = true
             // Milestone chime every +50 to avoid spam.
             const milestone = Math.floor(s.score / 50)
             if (milestone > lastMilestoneRef.current) {
@@ -336,7 +339,8 @@ export function GameLatch({ storageKey }: { storageKey: string }) {
         }
 
         if (ev.over) {
-          play('lose')
+          setNewBest(newBestRef.current)
+          play(newBestRef.current ? 'win' : 'lose')
           flashRef.current = 1
           shakeRef.current = 10
           phaseRef.current = 'over'
@@ -409,6 +413,8 @@ export function GameLatch({ storageKey }: { storageKey: string }) {
     lastPegsRef.current = 0
     lastMultRef.current = 1
     phaseRef.current = 'idle'
+    newBestRef.current = false
+    setNewBest(false)
     setScore(0)
     setPegs(0)
     setMult(1)
@@ -516,7 +522,12 @@ export function GameLatch({ storageKey }: { storageKey: string }) {
         <div data-testid="latch-status" className="sr-only" aria-hidden="true">
           {probe}
         </div>
-        <GameOverlay show={phase === 'over'} variant="lose" title="Dropped" testId="game-over">
+        <GameOverlay
+          show={phase === 'over'}
+          variant={newBest ? 'win' : 'lose'}
+          title={newBest ? 'New best!' : 'Dropped'}
+          testId="game-over"
+        >
           <p className="text-fg-muted">
             Score: {score} · Pegs: {pegs} · Best: {best}
           </p>

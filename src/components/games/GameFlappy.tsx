@@ -22,6 +22,8 @@ type Phase = 'idle' | 'playing' | 'over'
 export function GameFlappy({ storageKey }: { storageKey: string }) {
   const [best, setBest] = useState(0)
   const [score, setScore] = useState(0)
+  const newBestRef = useRef(false)
+  const [newBest, setNewBest] = useState(false)
   const [phase, setPhase] = useState<Phase>('idle')
   const [ready, setReady] = useState(false)
 
@@ -194,11 +196,14 @@ export function GameFlappy({ storageKey }: { storageKey: string }) {
             bestRef.current = s.score
             setBest(s.score)
             localStorage.setItem(storageKey, String(s.score))
-            play('win')
+            // 파이프를 지날 때마다 축하음을 내면 첫 판 내내 울린다. 플래그만 세우고
+            // 축하는 게임오버에서 한 번.
+            newBestRef.current = true
           }
         }
         if (s.events.crashed) {
-          play('lose')
+          play(newBestRef.current ? 'win' : 'lose')
+          setNewBest(newBestRef.current)
           flashRef.current = 1
           shakeRef.current = 10
           phaseRef.current = 'over'
@@ -252,6 +257,8 @@ export function GameFlappy({ storageKey }: { storageKey: string }) {
     shakeRef.current = 0
     lastTsRef.current = 0
     phaseRef.current = 'idle'
+    newBestRef.current = false
+    setNewBest(false)
     setScore(0)
     setPhase('idle')
     draw()
@@ -329,7 +336,12 @@ export function GameFlappy({ storageKey }: { storageKey: string }) {
           style={{ touchAction: 'none' }}
           aria-label="Flappy game board — tap or press Space to flap"
         />
-        <GameOverlay show={phase === 'over'} variant="lose" title="Game over" testId="game-over">
+        <GameOverlay
+          show={phase === 'over'}
+          variant={newBest ? 'win' : 'lose'}
+          title={newBest ? 'New best!' : 'Game over'}
+          testId="game-over"
+        >
           <p className="text-fg-muted">
             Score: {score} · Best: {best}
           </p>

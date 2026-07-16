@@ -27,6 +27,8 @@ const TAU = Math.PI * 2
 
 export function GameFlywheel({ storageKey }: { storageKey: string }) {
   const [best, setBest] = useState(0)
+  const newBestRef = useRef(false)
+  const [newBest, setNewBest] = useState(false)
   const [score, setScore] = useState(Math.round(newGame().rpm))
   const [lives, setLives] = useState(newGame().lives)
   const [phase, setPhase] = useState<Phase>('idle')
@@ -259,6 +261,9 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
         if (Math.round(s.peakRpm) > bestRef.current) {
           bestRef.current = Math.round(s.peakRpm)
           setBest(bestRef.current)
+          // over 시점엔 bestRef가 이미 peak와 같아져 비교가 무의미하다. 경신이 실제로
+          // 일어나는 여기서 플래그를 세운다.
+          newBestRef.current = true
         }
 
         // Advance the decorative ghost at best-rpm pace.
@@ -269,7 +274,8 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
         if (s.over) {
           phaseRef.current = 'over'
           setPhase('over')
-          play('lose')
+          setNewBest(newBestRef.current)
+          play(newBestRef.current ? 'win' : 'lose')
           flashRef.current = 1
           shakeRef.current = 10
           persistBest(s)
@@ -328,6 +334,8 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
     lastTsRef.current = 0
     rngRef.current = mulberry32(1)
     phaseRef.current = 'idle'
+    newBestRef.current = false
+    setNewBest(false)
     setScore(Math.round(gameRef.current.rpm))
     setLives(gameRef.current.lives)
     setPhase('idle')
@@ -428,7 +436,12 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
           style={{ touchAction: 'none' }}
           aria-label="Flywheel game board — tap or press Space on the beat"
         />
-        <GameOverlay show={phase === 'over'} variant="lose" title="Wheel stalled" testId="game-over">
+        <GameOverlay
+          show={phase === 'over'}
+          variant={newBest ? 'win' : 'lose'}
+          title={newBest ? 'New best!' : 'Wheel stalled'}
+          testId="game-over"
+        >
           <p className="text-fg-muted">Peak RPM: {best}</p>
           <GameButton onClick={restart} className="px-4 py-2">
             Try again
