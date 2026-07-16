@@ -4,6 +4,7 @@ import { GameBackspace } from '@/components/games/GameBackspace'
 import { GameBreakout } from '@/components/games/GameBreakout'
 import { GameBubbleShooter } from '@/components/games/GameBubbleShooter'
 import { GameCheckers } from '@/components/games/GameCheckers'
+import { GameCleave } from '@/components/games/GameCleave'
 import { GameConnectFour } from '@/components/games/GameConnectFour'
 import { GameDecant } from '@/components/games/GameDecant'
 import { GameDotsAndBoxes } from '@/components/games/GameDotsAndBoxes'
@@ -18,7 +19,9 @@ import { GameMemory } from '@/components/games/GameMemory'
 import { GameMinesweeper } from '@/components/games/GameMinesweeper'
 import { GameNonogram } from '@/components/games/GameNonogram'
 import { GameNumberMemory } from '@/components/games/GameNumberMemory'
+import { GameOverdub } from '@/components/games/GameOverdub'
 import { GameOverload } from '@/components/games/GameOverload'
+import { GamePinwheel } from '@/components/games/GamePinwheel'
 import { GameProspector } from '@/components/games/GameProspector'
 import { GameOverfold } from '@/components/games/GameOverfold'
 import { GameQuarry } from '@/components/games/GameQuarry'
@@ -150,6 +153,12 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameBackspace storageKey={`best:${page.slug}`} />
     case 'duplex':
       return <GameDuplex storageKey={`best:${page.slug}`} />
+    case 'overdub':
+      return <GameOverdub storageKey={`best:${page.slug}`} />
+    case 'pinwheel':
+      return <GamePinwheel storageKey={`best:${page.slug}`} />
+    case 'cleave':
+      return <GameCleave storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

@@ -70,6 +70,9 @@ export const gameMeta: Record<string, GameMeta> = {
   decant: { icon: '🧪', accent: 'magenta', category: 'Puzzle' },
   backspace: { icon: '⏪', accent: 'red', category: 'Arcade' },
   duplex: { icon: '🪞', accent: 'blue', category: 'Puzzle' },
+  overdub: { icon: '🥁', accent: 'lime', category: 'Skill' },
+  pinwheel: { icon: '🌀', accent: 'purple', category: 'Puzzle' },
+  cleave: { icon: '⚖️', accent: 'amber', category: 'Puzzle' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

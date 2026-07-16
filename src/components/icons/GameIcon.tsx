@@ -528,6 +528,38 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // overdub — 루프(원형 스텝)와 그 위를 도는 재생 헤드
+  overdub: (
+    <>
+      <circle cx="12" cy="12" r="8" strokeDasharray="1.5 3" />
+      <circle cx="12" cy="12" r="2.4" {...soft} />
+      <circle cx="12" cy="4" r="1.5" {...solid} />
+      <path d="M12 9.6V6" opacity="0.6" />
+    </>
+  ),
+
+  // pinwheel — 핀 하나와 그 둘레를 도는 90° 회전 화살
+  pinwheel: (
+    <>
+      <circle cx="12" cy="12" r="1.6" {...solid} />
+      <path d="M12 12 5 5" opacity="0.35" />
+      <path d="M18.5 12a6.5 6.5 0 0 1-6.5 6.5" />
+      <path d="M12 5.5A6.5 6.5 0 0 1 18.5 12" {...soft} />
+      <path d="M16.6 9.9 18.5 12l2.1-1.9" />
+    </>
+  ),
+
+  // cleave — 양팔 저울(내가 나누고 상대가 고른다)
+  cleave: (
+    <>
+      <path d="M12 4.5v15" />
+      <path d="M8 19.5h8" />
+      <path d="M4.5 8h15" />
+      <path d="M4.5 8 2.5 13h4z" {...soft} />
+      <path d="M19.5 8 17.5 13h4z" {...softer} />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>

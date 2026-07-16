@@ -62,6 +62,9 @@ export type GamePage = GamePageBase &
     | { game: 'decant' }
     | { game: 'backspace' }
     | { game: 'duplex' }
+    | { game: 'overdub' }
+    | { game: 'pinwheel' }
+    | { game: 'cleave' }
   )
 
 export const gamePages: GamePage[] = [
@@ -1509,6 +1512,90 @@ export const gamePages: GamePage[] = [
       { q: 'How many levels are there?', a: '17 hand-built levels across five mirror axes, each introducing a new way the reflection behaves — plus a fresh daily puzzle.' },
       { q: 'How do I get three stars?', a: 'Clear the level in par moves or fewer. Par is the shortest possible solution, so three stars means you found the optimal path.' },
       { q: 'Is Duplex free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+    ],
+  },
+  {
+    slug: 'overdub',
+    game: 'overdub',
+    title: 'Play Overdub Online — Free Rhythm Loop Game',
+    h1: 'Overdub',
+    metaDescription:
+      'Play Overdub free online — tap to stamp notes onto a 16-step loop as the playhead circles. Notes are permanent, so your own past becomes the obstacle. Land beside them to double your score. No download.',
+    shortDescription: 'Stamp the loop; dodge your own past.',
+    howToPlay: [
+      'A playhead circles a 16-step loop. Tap anywhere (or press Space) to stamp a note wherever the head is right now.',
+      'Notes are permanent. Tap a step that already holds one and the run ends.',
+      'Stamping next to an existing note doubles your points — beside two of them, quadruples.',
+      'Fill all 16 steps to clear the loop for a big bonus. The loop then comes back faster, forever.',
+    ],
+    strategy: [
+      'The board fills with your own decisions, so early notes decide how hard the late game is.',
+      'Chase adjacency — a note stamped beside another is worth far more than an isolated one, and consecutive multiplied stamps build a chain bonus.',
+      'Leave yourself an escape lane. Ringing the loop with notes early means nowhere safe to land later.',
+      'You are never forced to tap. Idling never kills you and never scores, so wait for the head to reach the step you actually want.',
+      'Every clear speeds the loop up permanently, so bank the chain bonuses while the head is still slow.',
+    ],
+    faq: [
+      { q: 'How do I aim a note at a specific step?', a: 'You do not — you time it. The whole board is one button and the note lands wherever the playhead is, which is what makes it a rhythm game rather than a targeting game.' },
+      { q: 'How does a run end?', a: 'Only by stamping a step that already has a note. Waiting never kills you, so every loss comes from your own last tap.' },
+      { q: 'What happens when the loop fills up?', a: 'It clears for a bonus, a fresh set of blocked steps appears, and the playhead gets permanently faster.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
+    ],
+  },
+  {
+    slug: 'pinwheel',
+    game: 'pinwheel',
+    title: 'Play Pinwheel Online — Free Rotation Puzzle Game',
+    h1: 'Pinwheel',
+    metaDescription:
+      'Play Pinwheel free online — pin any square and spin the whole board 90° around it. Dots that land on their anchors lock forever. You never move a piece directly. No download, no sign-up.',
+    shortDescription: 'Pin a square, spin the whole board.',
+    howToPlay: [
+      'Tap any square to plant your pin, then spin the entire constellation of dots 90° around it.',
+      'You never move a dot on its own — every dot turns together, as one rigid piece.',
+      'A dot that lands on an empty anchor pins there permanently and stops rotating with the rest.',
+      'Pin every dot to win. If any dot would land off the board or on a pinned one, the board shatters.',
+    ],
+    strategy: [
+      'The pin is the only thing you choose. Move it, and the same board turns a completely different way.',
+      'Locking a dot is the only way to break the constellation apart — that is your one lever, so plan which dot to shed next.',
+      'Preview both directions before committing. The counter-clockwise and clockwise results are rarely mirror images once anchors are involved.',
+      'Beating par pays a bonus with no ceiling, so once you can win, hunt for a shorter route.',
+      'Pinned dots become walls. Shed them in an order that keeps the rest of the constellation clear of them.',
+    ],
+    faq: [
+      { q: 'Can I move a single dot?', a: 'No. Every dot rotates together around your pin. Landing dots on anchors is the only way to separate them.' },
+      { q: 'Why did my board shatter?', a: 'A spin sent at least one dot off the grid or onto an already-pinned dot. Preview the spin before committing, or undo.' },
+      { q: 'What is par?', a: 'The shortest possible solution for that board. It is proven by construction, not guessed, and beating it pays an uncapped bonus.' },
+      { q: 'Is Pinwheel free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+    ],
+  },
+  {
+    slug: 'cleave',
+    game: 'cleave',
+    title: 'Play Cleave Online — Free I-Cut-You-Choose Strategy Game',
+    h1: 'Cleave',
+    metaDescription:
+      'Play Cleave free online — split the loot into two piles and your rival takes the one it wants. Whatever is left is your score. One item is always sealed. No download, no sign-up.',
+    shortDescription: 'You cut, your rival chooses.',
+    howToPlay: [
+      'Each round you split the loot into two piles by tapping items to move them across.',
+      'Your rival then takes one pile by a rule you can see, and the pile it leaves behind is your score.',
+      'The rival wants magenta; you score cyan. So the split, not the grab, is the whole game.',
+      'One item each round is sealed — you only see the range its value falls in, never the number.',
+    ],
+    strategy: [
+      'You are not trying to build the best pile. You are trying to make the pile your rival wants be the one you want least.',
+      'The rival rule is published, so every round has a guaranteed floor you can reach without luck. Losing is always a misread, never a bad roll.',
+      'Treat the sealed item as its worst case when it matters. Plan around the range, not the number you hope it is.',
+      'Balance the magenta so the rival is nearly indifferent, then load your cyan into the pile it will not take.',
+      'Miss the quota and you burn a life, so take the safe split when your lives are low.',
+    ],
+    faq: [
+      { q: 'How does the rival choose?', a: 'By a rule shown to you: it takes the pile with more magenta, breaking ties on cyan and then on the second pile. It never sees the sealed value either.' },
+      { q: 'Is this luck?', a: 'No. Every round has a floor you can guarantee using only the visible ranges, so a loss always traces back to your own split.' },
+      { q: 'What is the sealed item?', a: 'One item per round shows only a range instead of its value. It shapes the risk without ever making the round unwinnable.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
     ],
   },
 ]

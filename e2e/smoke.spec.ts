@@ -374,6 +374,43 @@ test('2048-animals: 리더보드 제출 UI가 붙어 있다', async ({ page }) =
   await expect(page.getByRole('button', { name: /Submit Score 890/ })).toBeVisible()
 })
 
+test('overdub: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/overdub')
+  await expect(page.getByTestId('overdub-board')).toBeVisible()
+})
+
+test('cleave: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/cleave')
+  await expect(page.getByTestId('cleave-board')).toBeVisible()
+})
+
+test('pinwheel: 마우스 클릭으로 핀이 꽂힌다', async ({ page }) => {
+  // 셀의 onFocus가 핀을 꽂고 onClick 토글이 곧바로 해제해 마우스로는 플레이가
+  // 불가능했다. 실제 마우스 클릭은 포커스를 유발하므로 이 경로를 고정한다.
+  await page.goto('/pinwheel')
+  await expect(page.getByTestId('pinwheel-board')).toBeVisible()
+  const before = await page.getByTestId('pinwheel-board').innerHTML()
+  await page.getByTestId('cell').nth(24).click()
+  const spin = page.getByRole('button', { name: /Spin CW/ })
+  await expect(spin).toBeEnabled()
+  await spin.click()
+  await expect(page.getByTestId('moves')).toHaveText('1')
+  expect(before).not.toBe(await page.getByTestId('pinwheel-board').innerHTML())
+})
+
+test('pinwheel: 키보드만으로 격자에 진입할 수 있다', async ({ page }) => {
+  // 핀이 없으면 모든 셀이 tabIndex -1이라 키보드 사용자는 진입조차 못 했다.
+  await page.goto('/pinwheel')
+  await expect(page.getByTestId('pinwheel-board')).toBeVisible()
+  for (let i = 0; i < 20; i++) {
+    await page.keyboard.press('Tab')
+    if (await page.evaluate(() => document.activeElement?.getAttribute('data-testid') === 'cell')) break
+  }
+  expect(await page.evaluate(() => document.activeElement?.getAttribute('data-testid'))).toBe('cell')
+  await page.keyboard.press('ArrowRight')
+  await expect(page.getByRole('button', { name: /Spin CW/ })).toBeEnabled()
+})
+
 test('leaderboards: 허브 페이지 로드', async ({ page }) => {
   await page.goto('/leaderboards')
   await expect(page.getByRole('heading', { name: 'Leaderboards', level: 1 })).toBeVisible()
