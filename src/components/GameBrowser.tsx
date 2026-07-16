@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CATEGORIES, type GameCategory } from '@/lib/games/gameMeta'
 import { GameCard } from '@/components/GameCard'
+import { DiceIcon } from '@/components/icons/DiceIcon'
 import { Reveal } from '@/components/Reveal'
 
 export interface BrowseItem {
@@ -81,10 +82,11 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
         </div>
         <button
           onClick={playRandom}
-          className="btn-press font-pixel rounded-lg border border-neon-magenta/60 bg-surface/80 px-4 py-2.5 text-[10px] tracking-[0.15em] text-neon-magenta hover:bg-neon-magenta/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-magenta/50"
+          className="btn-press font-pixel flex min-h-11 items-center justify-center gap-2 rounded-lg border border-neon-magenta/60 bg-surface/80 px-4 text-[10px] tracking-[0.15em] text-neon-magenta hover:bg-neon-magenta/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-magenta/50"
           style={{ color: 'var(--neon-magenta)' }}
         >
-          🎲 RANDOM
+          <DiceIcon className="h-4 w-4" />
+          RANDOM
         </button>
       </div>
 
@@ -159,7 +161,7 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
         </div>
       ) : (
         <p className="py-12 text-center text-fg-muted">
-          No games match “{query}”. Try another search or hit 🎲 RANDOM.
+          No games match “{query}”. Try another search or hit RANDOM.
         </p>
       )}
     </div>
