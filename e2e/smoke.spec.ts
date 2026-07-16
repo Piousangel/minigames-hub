@@ -299,6 +299,50 @@ test('duplex: 로드 → 보드 표시', async ({ page }) => {
   await expect(page.getByTestId('duplex-board')).toBeVisible()
 })
 
+// 로컬 정적 서버(serve out)에는 Worker의 /api/leaderboard가 없다. 응답이 없으면
+// 컴포넌트가 스스로를 숨기므로(available=false), 보드를 렌더시키려면 API를 목킹한다.
+async function mockLeaderboardApi(page: import('@playwright/test').Page) {
+  await page.route('**/api/leaderboard**', (route) =>
+    route.fulfill({ json: { week: '2026-W29', top: [] } }),
+  )
+}
+
+test('decant: 리더보드가 best 점수를 읽는다 (레거시 JSON 저장분 포함)', async ({ page }) => {
+  // decant는 한때 best:decant에 {score, daily} JSON을 넣었다. 리더보드는 그 키를
+  // Number()로 읽으므로 마이그레이션이 없으면 점수가 0이 되어 제출이 막힌다.
+  await mockLeaderboardApi(page)
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      'best:decant',
+      JSON.stringify({ score: 1234, daily: { lastDate: '2026-07-15', streak: 3 } }),
+    )
+  })
+  await page.goto('/decant')
+  await expect(page.getByTestId('decant-board')).toBeVisible()
+  await expect(page.getByRole('button', { name: /Submit Score 1,234/ })).toBeVisible()
+  // 연속 기록은 전용 키로 옮겨가고 best는 숫자로 정규화된다.
+  await expect
+    .poll(async () => page.evaluate(() => localStorage.getItem('best:decant')))
+    .toBe('1234')
+  await expect
+    .poll(async () => page.evaluate(() => localStorage.getItem('decant:daily')))
+    .toContain('"streak":3')
+})
+
+test('backspace: 리더보드 제출 UI가 붙어 있다', async ({ page }) => {
+  await mockLeaderboardApi(page)
+  await page.addInitScript(() => localStorage.setItem('best:backspace', '567'))
+  await page.goto('/backspace')
+  await expect(page.getByRole('button', { name: /Submit Score 567/ })).toBeVisible()
+})
+
+test('2048-animals: 리더보드 제출 UI가 붙어 있다', async ({ page }) => {
+  await mockLeaderboardApi(page)
+  await page.addInitScript(() => localStorage.setItem('best:2048-animals', '890'))
+  await page.goto('/2048-animals')
+  await expect(page.getByRole('button', { name: /Submit Score 890/ })).toBeVisible()
+})
+
 test('leaderboards: 허브 페이지 로드', async ({ page }) => {
   await page.goto('/leaderboards')
   await expect(page.getByRole('heading', { name: 'Leaderboards', level: 1 })).toBeVisible()

@@ -3,6 +3,9 @@
 // 리더보드가 있는 게임(전부 "높을수록 좋음" 점수). label = 표시 단위.
 export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   '2048': { label: 'Score' },
+  '2048-animals': { label: 'Score' },
+  decant: { label: 'Score' },
+  backspace: { label: 'Score' },
   snake: { label: 'Score' },
   tetris: { label: 'Score' },
   breakout: { label: 'Score' },

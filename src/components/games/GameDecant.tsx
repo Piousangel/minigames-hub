@@ -26,6 +26,26 @@ interface DecantSave {
   daily?: { lastDate: string; streak: number }
 }
 
+/**
+ * 일일 연속 기록 전용 키. best:<slug>에는 숫자만 넣는다 — 주간 리더보드가
+ * 그 키를 Number()로 읽으므로(모든 게임 공통 규약) JSON을 넣으면 점수를 못 읽는다.
+ */
+const DAILY_KEY = 'decant:daily'
+
+function loadDaily(): DecantSave['daily'] {
+  try {
+    const raw = localStorage.getItem(DAILY_KEY)
+    if (!raw) return undefined
+    const o = JSON.parse(raw) as Record<string, unknown>
+    if (typeof o?.lastDate === 'string' && typeof o?.streak === 'number') {
+      return { lastDate: o.lastDate, streak: o.streak }
+    }
+  } catch {
+    // corrupt -> no streak
+  }
+  return undefined
+}
+
 const SOUND: Record<DecantEvent, Parameters<ReturnType<typeof useGameSound>['play']>[0] | null> = {
   none: null,
   select: 'flip',
@@ -54,23 +74,34 @@ function loadSave(storageKey: string): DecantSave {
   try {
     const raw = localStorage.getItem(storageKey)
     if (!raw) return { score: 0 }
-    const parsed = JSON.parse(raw) as unknown
-    if (parsed && typeof parsed === 'object') {
-      const o = parsed as Record<string, unknown>
-      const score = typeof o.score === 'number' && Number.isFinite(o.score) ? o.score : 0
-      let daily: DecantSave['daily']
-      if (o.daily && typeof o.daily === 'object') {
-        const dd = o.daily as Record<string, unknown>
-        if (typeof dd.lastDate === 'string' && typeof dd.streak === 'number') {
-          daily = { lastDate: dd.lastDate, streak: dd.streak }
-        }
-      }
-      return { score, daily }
+
+    const n = Number(raw)
+    if (Number.isFinite(n)) return { score: Math.max(0, Math.floor(n)), daily: loadDaily() }
+
+    // 레거시: best 키에 {score, daily} JSON을 넣던 시절의 데이터를 옮겨 온다.
+    const o = JSON.parse(raw) as Record<string, unknown>
+    const score =
+      typeof o?.score === 'number' && Number.isFinite(o.score) ? Math.max(0, Math.floor(o.score)) : 0
+    let daily: DecantSave['daily']
+    const dd = o?.daily as Record<string, unknown> | undefined
+    if (typeof dd?.lastDate === 'string' && typeof dd?.streak === 'number') {
+      daily = { lastDate: dd.lastDate, streak: dd.streak }
     }
+    saveAll(storageKey, { score, daily })
+    return { score, daily }
   } catch {
     // corrupt / legacy -> reset
   }
   return { score: 0 }
+}
+
+function saveAll(storageKey: string, save: DecantSave): void {
+  try {
+    localStorage.setItem(storageKey, String(save.score))
+    if (save.daily) localStorage.setItem(DAILY_KEY, JSON.stringify(save.daily))
+  } catch {
+    // ignore storage failures
+  }
 }
 
 /** Fixed HSL hue per density rank so sink order is legible in light + dark. */
@@ -160,11 +191,7 @@ export function GameDecant({ storageKey }: { storageKey: string }) {
         }
       }
       setBest(nextSave.score)
-      try {
-        localStorage.setItem(storageKey, JSON.stringify(nextSave))
-      } catch {
-        // ignore storage failures
-      }
+      saveAll(storageKey, nextSave)
     },
     [storageKey],
   )
