@@ -103,16 +103,22 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
   const onTouchStart = (e: React.TouchEvent) => {
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   }
-  const onTouchEnd = (e: React.TouchEvent) => {
+  // touchmove로 손을 떼기 전에 반응한다(실시간 게임이라 지연이 치명적). null 리셋은
+  // 반드시 임계 통과 분기 안에서 — 앞에 두면 임계 미달 첫 이벤트가 시작점을 지워
+  // 이후 touchmove가 전부 죽는다(1스와이프=1턴은 이 리셋 위치로 보장).
+  const onTouchMove = (e: React.TouchEvent) => {
     if (!touchStart.current) return
-    const dx = e.changedTouches[0].clientX - touchStart.current.x
-    const dy = e.changedTouches[0].clientY - touchStart.current.y
-    touchStart.current = null
+    const dx = e.touches[0].clientX - touchStart.current.x
+    const dy = e.touches[0].clientY - touchStart.current.y
     if (Math.max(Math.abs(dx), Math.abs(dy)) < 24) return
+    touchStart.current = null
     steer(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up')
   }
 
-  const hint = 'Press an arrow key (or swipe) to start.'
+  const hint =
+    running && !over
+      ? 'Eat the food to grow — avoid the walls and your own tail.'
+      : 'Swipe, use the D-pad, or press an arrow key to start.'
 
   if (!state) {
     return (
@@ -150,7 +156,7 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
         className="anim-board-in relative grid aspect-square touch-none gap-px rounded-xl bg-surface p-2"
         style={{ gridTemplateColumns: `repeat(${GRID}, minmax(0, 1fr))` }}
         onTouchStart={onTouchStart}
-        onTouchEnd={onTouchEnd}
+        onTouchMove={onTouchMove}
         data-testid="snake-board"
       >
         {Array.from({ length: GRID * GRID }, (_, i) => {
@@ -186,6 +192,26 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
             Try again
           </GameButton>
         </GameOverlay>
+      </div>
+
+      {/* 모바일 D-pad — 스와이프의 대체 조작(엄지 도달 범위) */}
+      <div className="mt-4 flex justify-center sm:hidden">
+        <div className="grid grid-cols-3 gap-1.5" role="group" aria-label="Direction pad">
+          <span />
+          <GameButton variant="ghost" aria-label="Steer up" onClick={() => steer('up')} className="px-4 py-3 text-lg">
+            ↑
+          </GameButton>
+          <span />
+          <GameButton variant="ghost" aria-label="Steer left" onClick={() => steer('left')} className="px-4 py-3 text-lg">
+            ←
+          </GameButton>
+          <GameButton variant="ghost" aria-label="Steer down" onClick={() => steer('down')} className="px-4 py-3 text-lg">
+            ↓
+          </GameButton>
+          <GameButton variant="ghost" aria-label="Steer right" onClick={() => steer('right')} className="px-4 py-3 text-lg">
+            →
+          </GameButton>
+        </div>
       </div>
     </GameShell>
   )
