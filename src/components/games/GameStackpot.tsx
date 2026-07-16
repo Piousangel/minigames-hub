@@ -89,6 +89,11 @@ export function GameStackpot({ storageKey }: { storageKey: string }) {
     setBest(Number.isFinite(storedBest) ? storedBest : 0)
     const storedCombo = Number(localStorage.getItem(storageKey + COMBO_KEY_SUFFIX))
     setBestCombo(Number.isFinite(storedCombo) && storedCombo >= 1 ? storedCombo : 1)
+    // 모드를 기억한다. 홈의 Daily 필터가 이 게임을 가리키므로 기본값은 daily.
+    // restart()가 dailyRef를 읽어 시드를 정하므로 반드시 그 전에 세팅한다.
+    const isDaily = localStorage.getItem(`${storageKey}:mode`) !== 'random'
+    dailyRef.current = isDaily
+    setDaily(isDaily)
     restart()
     return () => clearTimers()
   }, [restart, storageKey, clearTimers])
@@ -169,6 +174,7 @@ export function GameStackpot({ storageKey }: { storageKey: string }) {
     const next = !dailyRef.current
     dailyRef.current = next
     setDaily(next)
+    localStorage.setItem(`${storageKey}:mode`, next ? 'daily' : 'random')
     // 모드 전환 = 새 시퀀스로 새 게임.
     restart()
   }

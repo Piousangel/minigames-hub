@@ -119,7 +119,13 @@ export function GameQuarry({ storageKey }: { storageKey: string }) {
   }, [mode])
 
   useEffect(() => {
-    startRun('free')
+    // 모드를 기억한다. 홈의 Daily 필터가 이 게임을 가리키므로 기본값은 daily.
+    // startRun이 modeRef가 아니라 인자를 쓰지만, mode 상태·modeRef를 함께 맞춰
+    // 첫 토글이 뒤집히지 않게 한다.
+    const initialMode: Mode = localStorage.getItem(`${storageKey}:mode`) === 'free' ? 'free' : 'daily'
+    modeRef.current = initialMode
+    setMode(initialMode)
+    startRun(initialMode)
     const stored = Number(localStorage.getItem(storageKey))
     const value = Number.isFinite(stored) && stored > 0 ? stored : 0
     bestRef.current = value
@@ -222,11 +228,12 @@ export function GameQuarry({ storageKey }: { storageKey: string }) {
     setMode((prev) => {
       const nextMode = prev === 'free' ? 'daily' : 'free'
       modeRef.current = nextMode
+      localStorage.setItem(`${storageKey}:mode`, nextMode)
       persistBest(scoreRef.current)
       startRun(nextMode)
       return nextMode
     })
-  }, [persistBest, startRun])
+  }, [persistBest, startRun, storageKey])
 
   // 'king-move'는 엔진 내부 용어다(engine.ts는 그대로 둔다). 방문자는 모르므로
   // registry가 이미 쓰는 hot-and-cold 비유로 바꾼다.

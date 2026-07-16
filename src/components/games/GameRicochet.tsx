@@ -195,7 +195,9 @@ export function GameRicochet({ storageKey }: { storageKey: string }) {
     bestChainRef.current = cv
     setBestChain(cv)
 
-    let startMode: R.Mode = 'endless'
+    // 우선순위: ?seed=(공유 링크) > 저장 모드 > daily(기본). 홈의 Daily 필터가
+    // 이 게임을 가리키므로 저장값이 없으면 daily로 연다.
+    let startMode: R.Mode = localStorage.getItem(`${storageKey}:mode`) === 'endless' ? 'endless' : 'daily'
     let seedOverride: number | undefined
     try {
       const params = new URLSearchParams(window.location.search)
@@ -203,7 +205,7 @@ export function GameRicochet({ storageKey }: { storageKey: string }) {
       if (raw) {
         const n = Number(raw)
         if (Number.isFinite(n) && n >= 0) {
-          startMode = 'daily'
+          startMode = 'daily' // 공유 시드는 저장 모드를 덮어쓴다(공유 링크가 최우선)
           seedOverride = n >>> 0
         }
       }
@@ -344,9 +346,10 @@ export function GameRicochet({ storageKey }: { storageKey: string }) {
   const switchMode = useCallback(
     (m: R.Mode) => {
       if (m === modeRef.current) return
+      localStorage.setItem(`${storageKey}:mode`, m)
       startGame(m)
     },
-    [startGame],
+    [startGame, storageKey],
   )
 
   // Keyboard controls.

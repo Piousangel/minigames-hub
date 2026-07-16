@@ -129,7 +129,8 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
     }
 
     const storedMode = localStorage.getItem(`${storageKey}:mode`)
-    const initialMode: Mode = storedMode === 'daily' ? 'daily' : 'random'
+    // 홈의 Daily 필터가 이 게임을 가리키므로 저장값이 없으면 daily로 연다.
+    const initialMode: Mode = storedMode === 'random' ? 'random' : 'daily'
     setMode(initialMode)
     const seed = initialMode === 'daily' ? dailySeed(todayISO()) : randomSeed()
     startRun(initialMode, seed, 1)
