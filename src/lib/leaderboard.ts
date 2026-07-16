@@ -24,6 +24,9 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   ripple: { label: 'Score' },
   ticker: { label: 'Worth' },
   overfold: { label: 'Score' },
+  splice: { label: 'Score' },
+  quarry: { label: 'Best' },
+  latch: { label: 'Score' },
 }
 
 export function hasLeaderboard(slug: string): boolean {

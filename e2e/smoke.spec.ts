@@ -269,6 +269,21 @@ test('overfold: 로드 → 보드 표시', async ({ page }) => {
   await expect(page.getByTestId('overfold-board')).toBeVisible({ timeout: 10_000 })
 })
 
+test('splice: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/splice')
+  await expect(page.getByTestId('splice-board')).toBeVisible({ timeout: 10_000 })
+})
+
+test('quarry: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/quarry')
+  await expect(page.getByTestId('quarry-board')).toBeVisible()
+})
+
+test('latch: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/latch')
+  await expect(page.getByTestId('latch-board')).toBeVisible()
+})
+
 test('leaderboards: 허브 페이지 로드', async ({ page }) => {
   await page.goto('/leaderboards')
   await expect(page.getByRole('heading', { name: 'Leaderboards', level: 1 })).toBeVisible()
