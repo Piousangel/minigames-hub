@@ -277,6 +277,34 @@ Decant / Backspace / Duplex 라이브(`/decant` `/backspace` `/duplex`). 게임 
 - 라운드6 실적: 아이디어 20개 → 심의 통과 10개 → 승선 3개. 매력 점수는 5.3~6.3으로 낮았다
   (심사관에게 후하게 주지 말라고 지시함). Cleave는 셋 중 가장 약해 관찰 대상 — 아무도 안 하면 뺄 것
 
+### 7.8 🟡 라운드7 UI/UX 감사 처리 (19건 → 실행 5건, 진행 중)
+
+라운드7 워크플로우의 UI/UX 감사가 19건 → 상위 5건으로 종합했다(원문: 워크플로우
+결과 `result.uiux.synthesis`). 값/위험 순 정렬. **#1·#3 완료·배포, #2·#4·#5 남음.**
+
+- ✅ **#1 리더보드 stale best** — 배포됨. 첫 방문자가 리로드 없이 신기록 제출 가능
+  (`Leaderboard.tsx` 1초 폴링 + 동등성 가드 + submittedRef 재제출 방지). **31게임 전부.**
+  ⚠️ 정적 serve는 API 404라 리더보드가 숨겨져 검증 불가 → **wrangler dev로 검증**했다.
+- ✅ **#3 신기록 축하 없음**(2048/Cleave/Overdub) — 배포됨. 감사 계획이 Cleave 사운드
+  경로를 틀리게 봤던 것(맵 우회 X)을 코드 확인으로 바로잡음. 2048은 이펙트 순서 함정이
+  있어 이동 핸들러에서 동기 latch. ⚠️ 2048은 무작위 자동플레이로 자연 게임오버가 잘
+  안 나 컨피티를 직접 관찰 못 함 — 로직은 코드검증 + backspace e2e(동일 패턴)로 확인.
+- ⬜ **#2 Snake 모바일** — D-pad 없음 + touchend 커밋 지연 + hint 미추종(`GameSnake.tsx` 1파일).
+  touchmove 전환 시 null 리셋을 임계 통과 분기 안으로 옮길 것. Maze:327-345 D-pad 복제.
+- ⬜ **#4 Daily 모드 미기억**(Overfold/Quarry/Ricochet/Stackpot 4파일) — `${storageKey}:mode`
+  규약 확장. ⚠️ Ricochet은 `?seed=`가 저장모드를 덮어써야 함(공유 링크 회귀 주의).
+- ⬜ **#5 Reversi/DaB hint 목표 없음**(2파일, 4줄) — registry 문장을 hint로 당겨오기.
+- **하지 말 것 8건**(감사가 명시): tabular-nums 52게임 전역변경, GameShell prop 확장,
+  Pong tint, 무승부 문구 통일, 필터칩 44px 데스크톱 확대, Minesweeper best JSON,
+  streak을 #4 전에, Tetris 38vh 무조건. 근거는 synthesis 원문 §5 참고.
+
+### 7.9 ✅ 파비콘 — Google 검색 지구본 → 브랜드 아이콘 (2026-07-16 배포)
+검색 결과에 사이트 아이콘 대신 기본 지구본이 떴다. 원인: 루트 **`/favicon.ico`가 404**.
+Google 파비콘 페처는 정규 경로로 루트 ico를 먼저 찾는다. 브랜드 SVG를 16/32/48 멀티
+사이즈 ICO로 렌더해 `src/app/favicon.ico` 추가 → Next가 `/favicon.ico`로 서빙. 라이브 200 확인.
+⚠️ **즉시 안 바뀐다**: Google이 홈을 재크롤해야 반영(며칠~몇 주). Search Console에서
+홈 URL 검사 → 색인 요청으로 앞당길 수 있다(사용자 액션).
+
 ### 7.4 🟡 UI/UX 고도화 (지속)
 - 트렌디한 애니메이션/인터랙션, 최신 사이트 참고. 스스로 판단해서 계속 개선.
 - **Lighthouse 기준선 갱신(회귀 금지)**: home **100**, game **100**, a11y/bp/seo 100, CLS 0, TBT 0ms.
