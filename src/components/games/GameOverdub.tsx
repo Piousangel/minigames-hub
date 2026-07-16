@@ -74,6 +74,7 @@ export function GameOverdub({ storageKey }: { storageKey: string }) {
   // SSR safety: the loop is built on the client only (Date/Math.random).
   const [state, setState] = useState<OverdubState | null>(null)
   const [best, setBest] = useState(0)
+  const [newBest, setNewBest] = useState(false)
   const [gains, setGains] = useState<Gain[]>([])
   /**
    * Per-cell placement multiplier — render metadata only. Deliberately NOT in
@@ -102,10 +103,11 @@ export function GameOverdub({ storageKey }: { storageKey: string }) {
 
   const persistBest = useCallback(
     (score: number) => {
-      if (score <= bestRef.current) return
+      if (score <= bestRef.current) return false
       bestRef.current = score
       setBest(score)
       saveBest(storageKey, score)
+      return true
     },
     [storageKey],
   )
@@ -116,6 +118,7 @@ export function GameOverdub({ storageKey }: { storageKey: string }) {
     lastTsRef.current = 0
     setGains([])
     setMults(Array<number>(STEPS).fill(0))
+    setNewBest(false)
     commit(g)
   }, [commit])
 
@@ -193,8 +196,11 @@ export function GameOverdub({ storageKey }: { storageKey: string }) {
     commit(next)
 
     if (next.event === 'out') {
-      play('lose')
-      persistBest(next.score)
+      // persistBest가 갱신 여부를 알려주므로 그것으로 사운드를 결정한다(순서 중요:
+      // 예전엔 play('lose')가 persistBest보다 먼저라 신기록에도 lose가 났다).
+      const isNew = persistBest(next.score)
+      setNewBest(isNew)
+      play(isNew ? 'win' : 'lose')
       return
     }
 
@@ -392,7 +398,7 @@ export function GameOverdub({ storageKey }: { storageKey: string }) {
           ))}
         </div>
 
-        <GameOverlay show={state.over} variant="lose" title="Overdubbed" testId="game-over">
+        <GameOverlay show={state.over} variant={newBest ? 'win' : 'lose'} title={newBest ? 'New best!' : 'Overdubbed'} testId="game-over">
           <div className="flex flex-col items-center gap-1 text-sm">
             <p>
               Score <span className="font-bold text-accent">{state.score}</span>

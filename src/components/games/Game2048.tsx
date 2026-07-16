@@ -49,6 +49,9 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   // SSR 불일치 방지: 초기 보드는 클라이언트에서만 생성
   const [state, setState] = useState<GameState | null>(null)
   const [best, setBest] = useState(0)
+  const [newBest, setNewBest] = useState(false)
+  const bestRef = useRef(0) // 지속 best를 미러 — 이동 핸들러에서 동기 비교(이펙트 순서 회피)
+  const newBestRef = useRef(false) // 이 게임에서 기록을 깼는지 latch. game-over 시점 비교는 best가 이미 올라 항상 틀리다
   const [wonSeen, setWonSeen] = useState(false)
   const [tiles, setTiles] = useState<Tile[]>([])
   const [cell, setCell] = useState(0)
@@ -81,6 +84,8 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
     queuedRef.current = null
     wonSeenRef.current = false
     setWonSeen(false)
+    newBestRef.current = false
+    setNewBest(false)
     const s = newGame(Math.random)
     commitState(s)
     commitTiles(tilesFromBoard(s.board, nextId, true))
@@ -89,12 +94,15 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   useEffect(() => {
     restart()
     const stored = Number(localStorage.getItem(storageKey))
-    setBest(Number.isFinite(stored) ? stored : 0)
+    const b = Number.isFinite(stored) ? stored : 0
+    setBest(b)
+    bestRef.current = b
   }, [restart, storageKey])
 
   useEffect(() => {
     if (state && state.score > best) {
       setBest(state.score)
+      bestRef.current = state.score
       localStorage.setItem(storageKey, String(state.score))
     }
   }, [state, best, storageKey])
@@ -139,9 +147,15 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
         commitTiles(survivors)
         commitState(newEngine)
 
+        // 기록 갱신을 동기적으로 latch — 아래 사운드가 이 값을 바로 읽는다.
+        if (newEngine.score > bestRef.current) newBestRef.current = true
+
         if (plan.merges.length) play('merge')
         if (newEngine.won && !s.won) play('win')
-        else if (newEngine.over) play('lose')
+        else if (newEngine.over) {
+          setNewBest(newBestRef.current)
+          play(newBestRef.current ? 'win' : 'lose')
+        }
 
         animatingRef.current = false
         const queued = queuedRef.current
@@ -292,7 +306,15 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
           })}
         </div>
 
-        <GameOverlay show={state.over} variant="lose" title="Game over" testId="game-over">
+        <GameOverlay
+          show={state.over}
+          variant={newBest ? 'win' : 'lose'}
+          title={newBest ? 'New best!' : 'Game over'}
+          testId="game-over"
+        >
+          <p className="text-fg-muted">
+            Score: {state.score} · Best: {best}
+          </p>
           <GameButton onClick={restart} className="px-4 py-2">
             Try again
           </GameButton>

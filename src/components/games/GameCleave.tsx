@@ -108,6 +108,7 @@ export function GameCleave({ storageKey }: { storageKey: string }) {
   // SSR safety: the board is built on the client only.
   const [state, setState] = useState<CleaveState | null>(null)
   const [best, setBest] = useState(0)
+  const [newBest, setNewBest] = useState(false)
   const [focus, setFocus] = useState(0)
 
   const { play, muted, toggleMuted } = useGameSound()
@@ -136,19 +137,30 @@ export function GameCleave({ storageKey }: { storageKey: string }) {
       const next = reduce(prev, action)
       commitState(next)
 
+      const isOverNow = next.phase === 'over' && !prevOver.current
+
+      // 종료 틱의 사운드는 신기록 여부로 아래에서 결정한다. SOUND.over/quotaFail이
+      // 'lose'라, 여기서 그냥 울리면 신기록에도 'lose'가 나 win과 겹친다.
       const sound = SOUND[next.lastEvent]
-      if (sound) play(sound)
+      if (sound && !isOverNow) play(sound)
 
       if (action.type === 'commit' && next.phase !== 'split') {
         setBest((b) => Math.max(b, next.score))
       }
-      if (next.phase === 'over' && !prevOver.current) {
-        const top = Math.max(loadBest(storageKey), next.score)
+      if (isOverNow) {
+        const prevBest = loadBest(storageKey)
+        const isNew = next.score > prevBest
+        const top = Math.max(prevBest, next.score)
         setBest(top)
         saveBest(storageKey, top)
+        setNewBest(isNew)
+        play(isNew ? 'win' : 'lose')
       }
       prevOver.current = next.phase === 'over'
-      if (action.type === 'new' || action.type === 'reset') setFocus(0)
+      if (action.type === 'new' || action.type === 'reset') {
+        setNewBest(false)
+        setFocus(0)
+      }
     },
     [commitState, play, storageKey],
   )
@@ -455,7 +467,7 @@ export function GameCleave({ storageKey }: { storageKey: string }) {
           </div>
         )}
 
-        <GameOverlay show={phase === 'over'} variant="lose" title="Cleaved Out" testId="game-over">
+        <GameOverlay show={phase === 'over'} variant={newBest ? 'win' : 'lose'} title={newBest ? 'New best!' : 'Cleaved Out'} testId="game-over">
           <div className="flex flex-col items-center gap-1 text-sm">
             <p>
               Score <span className="font-bold text-accent">{state.score}</span>
