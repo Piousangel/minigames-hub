@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { LEADERBOARD_GAMES, MAX_NAME_LEN, type ScoreRow } from '@/lib/leaderboard'
+import { gamePages } from '@/lib/games/registry'
+import { siteConfig } from '@/lib/siteConfig'
 
 /**
  * 주간 글로벌 리더보드(게임 페이지). Cloudflare Worker + D1 API 사용.
@@ -18,6 +20,7 @@ export function Leaderboard({ slug }: { slug: string }) {
   const [name, setName] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [shared, setShared] = useState(false)
 
   const load = useCallback(async () => {
     try {
@@ -59,6 +62,23 @@ export function Leaderboard({ slug }: { slug: string }) {
       /* 무시 */
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  async function share() {
+    if (best <= 0) return
+    const title = gamePages.find((g) => g.slug === slug)?.h1 ?? slug
+    const url = `${location.origin}/${slug}`
+    const text = `I scored ${best.toLocaleString()} ${meta!.label} in ${title} on ${siteConfig.name}! Can you beat it? 🎮`
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: `${title} — ${siteConfig.name}`, text, url })
+      } else {
+        await navigator.clipboard.writeText(`${text} ${url}`)
+        setShared(true)
+      }
+    } catch {
+      /* 취소/불가 무시 */
     }
   }
 
@@ -127,6 +147,17 @@ export function Leaderboard({ slug }: { slug: string }) {
         <p className="mt-3 text-center text-xs text-fg-muted">
           Play to set a {meta.label.toLowerCase()}, then submit it to the board.
         </p>
+      )}
+
+      {best > 0 && (
+        <div className="mt-2 text-center">
+          <button
+            onClick={share}
+            className="btn-press rounded-lg border border-neon-magenta/50 px-3 py-1.5 text-xs font-semibold text-neon-magenta hover:bg-neon-magenta/10"
+          >
+            {shared ? 'Link copied!' : `📣 Share your ${meta.label.toLowerCase()}`}
+          </button>
+        </div>
       )}
     </section>
   )
