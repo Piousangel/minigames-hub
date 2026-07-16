@@ -33,15 +33,50 @@ interface BestBlob {
 
 const EMPTY_BEST: BestBlob = { bestW: 0, bestStreak: 0, streak: 0 }
 
+/**
+ * 통계 blob 전용 키. best:<slug>에는 숫자(bestW)만 넣는다 — 주간 리더보드가 그 키를
+ * Number()로 읽으므로(모든 게임 공통 규약) JSON을 넣으면 NaN이 되어 제출이 영구히 막힌다.
+ */
+function statsKey(storageKey: string): string {
+  return `${storageKey}:stats`
+}
+
+function toBlob(raw: string): BestBlob | null {
+  const parsed = JSON.parse(raw) as unknown
+  if (!parsed || typeof parsed !== 'object') return null
+  const o = parsed as Record<string, unknown>
+  const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : 0)
+  return { bestW: num(o.bestW), bestStreak: num(o.bestStreak), streak: num(o.streak) }
+}
+
+function saveBest(storageKey: string, blob: BestBlob): void {
+  try {
+    localStorage.setItem(storageKey, String(blob.bestW))
+    localStorage.setItem(statsKey(storageKey), JSON.stringify(blob))
+  } catch {
+    // ignore storage failures
+  }
+}
+
 function loadBest(storageKey: string): BestBlob {
   try {
-    const raw = localStorage.getItem(storageKey)
-    if (!raw) return { ...EMPTY_BEST }
-    const parsed = JSON.parse(raw) as unknown
-    if (parsed && typeof parsed === 'object') {
-      const o = parsed as Record<string, unknown>
-      const num = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) ? v : 0)
-      return { bestW: num(o.bestW), bestStreak: num(o.bestStreak), streak: num(o.streak) }
+    const raw = localStorage.getItem(statsKey(storageKey))
+    if (raw) {
+      const blob = toBlob(raw)
+      if (blob) return blob
+    }
+    // 레거시: best:<slug>에 blob을 통째로 넣던 시절의 데이터를 옮겨 온다.
+    // 평문 숫자로 이미 정규화된 값은 JSON.parse가 number를 뱉으므로 toBlob이 null을 준다 —
+    // 그 경우 통계는 잃되 기록 자체는 아래 bestW 복구로 살린다.
+    const legacy = localStorage.getItem(storageKey)
+    if (legacy) {
+      const blob = toBlob(legacy)
+      if (blob) {
+        saveBest(storageKey, blob)
+        return blob
+      }
+      const n = Number(legacy)
+      if (Number.isFinite(n) && n > 0) return { ...EMPTY_BEST, bestW: Math.floor(n) }
     }
   } catch {
     // legacy / corrupt value -> reset
@@ -236,11 +271,7 @@ export function GameTicker({ storageKey }: { storageKey: string }) {
         streak,
       }
       setBest(nextBest)
-      try {
-        localStorage.setItem(storageKey, JSON.stringify(nextBest))
-      } catch {
-        // ignore storage failures
-      }
+      saveBest(storageKey, nextBest)
       const win = isNewHigh || (!hadRecord && green)
       setNewBest(win)
       play(win ? 'win' : 'lose')

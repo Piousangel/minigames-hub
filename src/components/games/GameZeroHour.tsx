@@ -34,17 +34,50 @@ interface BestBlob {
   chain: number
 }
 
+/**
+ * 통계 blob 전용 키. best:<slug>에는 숫자(score)만 넣는다 — 주간 리더보드가 그 키를
+ * Number()로 읽으므로(모든 게임 공통 규약) JSON을 넣으면 NaN이 되어 제출이 영구히 막힌다.
+ */
+function statsKey(storageKey: string): string {
+  return `${storageKey}:stats`
+}
+
+function toBlob(raw: string): BestBlob | null {
+  const parsed = JSON.parse(raw) as unknown
+  if (typeof parsed === 'number') {
+    return { score: Number.isFinite(parsed) ? parsed : 0, chain: 0 }
+  }
+  if (!parsed || typeof parsed !== 'object') return null
+  const o = parsed as Record<string, unknown>
+  const score = typeof o.score === 'number' && Number.isFinite(o.score) ? o.score : 0
+  const chain = typeof o.chain === 'number' && Number.isFinite(o.chain) ? o.chain : 0
+  return { score, chain }
+}
+
+function saveBest(storageKey: string, blob: BestBlob): void {
+  try {
+    localStorage.setItem(storageKey, String(blob.score))
+    localStorage.setItem(statsKey(storageKey), JSON.stringify(blob))
+  } catch {
+    // ignore storage failures
+  }
+}
+
 function loadBest(storageKey: string): BestBlob {
   try {
-    const raw = localStorage.getItem(storageKey)
-    if (!raw) return { score: 0, chain: 0 }
-    const parsed = JSON.parse(raw) as unknown
-    if (typeof parsed === 'number') return { score: Number.isFinite(parsed) ? parsed : 0, chain: 0 }
-    if (parsed && typeof parsed === 'object') {
-      const o = parsed as Record<string, unknown>
-      const score = typeof o.score === 'number' && Number.isFinite(o.score) ? o.score : 0
-      const chain = typeof o.chain === 'number' && Number.isFinite(o.chain) ? o.chain : 0
-      return { score, chain }
+    const stats = localStorage.getItem(statsKey(storageKey))
+    if (stats) {
+      const blob = toBlob(stats)
+      if (blob) return blob
+    }
+    // 레거시: best:<slug>에 blob을 통째로 넣던 시절의 데이터를 옮겨 온다.
+    const legacy = localStorage.getItem(storageKey)
+    if (legacy) {
+      const blob = toBlob(legacy)
+      if (blob) {
+        saveBest(storageKey, blob)
+        return blob
+      }
     }
   } catch {
     // legacy / corrupt value -> reset
@@ -192,11 +225,7 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
       }
       if (beatScore || beatChain) {
         setBest(nextBest)
-        try {
-          localStorage.setItem(storageKey, JSON.stringify(nextBest))
-        } catch {
-          // ignore storage failures
-        }
+        saveBest(storageKey, nextBest)
       }
       setNewBest(beatScore)
       play(beatScore ? 'win' : 'lose')

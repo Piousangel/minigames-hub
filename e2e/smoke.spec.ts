@@ -329,6 +329,37 @@ test('decant: 리더보드가 best 점수를 읽는다 (레거시 JSON 저장분
     .toContain('"streak":3')
 })
 
+test('ticker: 리더보드가 살아 있다 (레거시 blob 저장분 포함)', async ({ page }) => {
+  // ticker/zero-hour는 best:<slug>에 통계 blob을 통째로 넣어 리더보드가 Number()→NaN이
+  // 되면서 제출 버튼이 영구히 뜨지 않았다. 28개 보드 중 2개가 영원히 빈 보드였다.
+  await mockLeaderboardApi(page)
+  await page.addInitScript(() => {
+    localStorage.setItem('best:ticker', JSON.stringify({ bestW: 4200, bestStreak: 5, streak: 2 }))
+  })
+  await page.goto('/ticker')
+  await expect(page.getByRole('button', { name: /Submit Worth 4,200/ })).toBeVisible()
+  // 기록은 숫자로 정규화되고 통계는 전용 키로 옮겨간다.
+  await expect.poll(async () => page.evaluate(() => localStorage.getItem('best:ticker'))).toBe('4200')
+  await expect
+    .poll(async () => page.evaluate(() => localStorage.getItem('best:ticker:stats')))
+    .toContain('"bestStreak":5')
+})
+
+test('zero-hour: 리더보드가 살아 있다 (레거시 blob 저장분 포함)', async ({ page }) => {
+  await mockLeaderboardApi(page)
+  await page.addInitScript(() => {
+    localStorage.setItem('best:zero-hour', JSON.stringify({ score: 3300, chain: 7 }))
+  })
+  await page.goto('/zero-hour')
+  await expect(page.getByRole('button', { name: /Submit Score 3,300/ })).toBeVisible()
+  await expect
+    .poll(async () => page.evaluate(() => localStorage.getItem('best:zero-hour')))
+    .toBe('3300')
+  await expect
+    .poll(async () => page.evaluate(() => localStorage.getItem('best:zero-hour:stats')))
+    .toContain('"chain":7')
+})
+
 test('backspace: 리더보드 제출 UI가 붙어 있다', async ({ page }) => {
   await mockLeaderboardApi(page)
   await page.addInitScript(() => localStorage.setItem('best:backspace', '567'))
