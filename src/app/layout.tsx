@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import Link from 'next/link'
 import { siteConfig } from '@/lib/siteConfig'
 import { Logo } from '@/components/Logo'
+import { TrophyIcon } from '@/components/icons/TrophyIcon'
 import { pixelFont } from './fonts'
 import './globals.css'
 
@@ -57,16 +58,20 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </span>
             </Link>
             <div className="flex items-center gap-4">
+              {/* aria-label은 상시 필요: 좁은 화면에서 텍스트 라벨이 display:none이 되므로
+                  이게 없으면 링크에 접근 가능한 이름이 남지 않는다.
+                  탭 영역은 ::after로 44px까지 넓힌다 — 링크 자체를 키우면 스티키 헤더가 두꺼워진다. */}
               <Link
                 href="/leaderboards"
-                className="flex items-center gap-1 rounded-md text-sm text-fg-muted transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                aria-label="Leaderboards"
+                className="relative flex items-center gap-1.5 rounded-md text-sm text-fg-muted transition-colors after:absolute after:left-1/2 after:top-1/2 after:h-11 after:w-full after:min-w-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-[''] hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
               >
-                <span aria-hidden="true">🏆</span>
+                <TrophyIcon className="h-[1.15em] w-[1.15em]" />
                 <span className="hidden sm:inline">Leaderboards</span>
               </Link>
               <Link
                 href="/about"
-                className="rounded-md text-sm text-fg-muted transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                className="relative rounded-md text-sm text-fg-muted transition-colors after:absolute after:left-1/2 after:top-1/2 after:h-11 after:w-full after:min-w-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-[''] hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
               >
                 About
               </Link>
