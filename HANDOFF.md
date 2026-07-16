@@ -8,14 +8,22 @@
 
 - **무엇**: 무료 브라우저 미니게임 사이트. 광고(AdSense)로 월 5~10만원 수익 목표.
 - **지금 상태**: **라이브** — https://quickminigames.site (커스텀 도메인 + SSL 정상, Cloudflare Workers 배포).
-- **게임 수**: 50종 (registry 기준). 상당수 오리지널 창작 게임 + 클래식.
-- **리더보드**: 28개 게임에 주간 Top10 온라인 리더보드 (Cloudflare D1).
+- **게임 수**: 53종 (registry 기준). 상당수 오리지널 창작 게임 + 클래식.
+- **리더보드**: 31개 게임에 주간 Top10 온라인 리더보드 (Cloudflare D1).
   나머지 22개는 **의도적으로 없다** — 리더보드는 "높을수록 좋음" 점수가 필요한데
   소도쿠·미로·행맨은 완주형, 틱택토·체커·리버시는 AI 대전, reaction-time·aim-trainer와
   duplex는 낮을수록 좋다. 신규 게임을 붙일 때 이 기준으로 판단할 것.
+- **⚠️ 반복되는 함정 — `best:<slug>`에는 숫자만 넣을 것**: 리더보드(`Leaderboard.tsx:41`)는
+  그 키를 `Number()`로 읽는다. JSON을 넣으면 NaN → 제출 버튼이 영구히 안 뜬다.
+  이 버그를 이번 세션에만 **3번**(decant, ticker, zero-hour) 만났다. 통계 blob이 필요하면
+  `<storageKey>:stats`로 분리하고 레거시는 로드 시 마이그레이션할 것.
+  현재 `best:<slug>`에 JSON을 넣는 게임이 12개 더 있으나 전부 리더보드 미등록이라 무해하다
+  — **그 12개 중 하나를 리더보드에 올리려면 반드시 먼저 저장 형식을 고칠 것.**
 - **광고**: 아직 **OFF** — 단 이유가 바뀌었다. pub-id는 발급받아 채웠고(`ca-pub-9363381710674627`),
   **AdSense 심사 대기 중**. 게재는 `siteConfig.adsenseEnabled: false`로 잠가 둔 상태. 자세한 절차는 7.2.
-- **바로 다음 할 일**: (1) AdSense 승인 확인 → 광고 켜기(7.2), (2) 게임 계속 찍어내기 + UI/UX 고도화.
+- **바로 다음 할 일**: (1) AdSense 승인 확인 → 광고 켜기(7.2), (2) UI/UX 감사 잔여 항목(7.5), (3) 게임 계속 찍어내기.
+- **SEO 인프라**: Search Console 도메인 속성 등록 + sitemap.xml 제출 완료(2026-07-16, DNS 인증).
+  `www.quickminigames.site` → apex 301 리다이렉트도 Cloudflare Page Rule로 걸었다(경로 보존).
 
 ---
 
@@ -36,8 +44,8 @@
 | 호스팅 | Cloudflare Workers + Static Assets |
 | Worker 이름 | `minigames-hub` |
 | DB | Cloudflare D1 `minigames-leaderboard` (id `c99eaae9-e197-4020-b718-a3d599949f70`) |
-| 게임 수 | 48 (`registry.ts`) |
-| 리더보드 게임 | 28 (`leaderboard.ts` LEADERBOARD_GAMES) |
+| 게임 수 | 53 (`registry.ts`) |
+| 리더보드 게임 | 31 (`leaderboard.ts` LEADERBOARD_GAMES) |
 | 광고 | OFF (승인 전) |
 | Node / pnpm | v22.22.3 / 9.15.0 |
 
@@ -151,7 +159,38 @@ Decant / Backspace / Duplex 라이브(`/decant` `/backspace` `/duplex`). 게임 
 
 ### 7.4 🟡 UI/UX 고도화 (지속)
 - 트렌디한 애니메이션/인터랙션, 최신 사이트 참고. 스스로 판단해서 계속 개선.
-- Lighthouse 기준선(회귀 금지): home 97, game 99, a11y/bp/seo 100, CLS 0.
+- **Lighthouse 기준선 갱신(회귀 금지)**: home **100**, game **100**, a11y/bp/seo 100, CLS 0, TBT 0ms.
+  (2026-07-16 측정 — 기존 97/99에서 올랐다.)
+- 2026-07-16 디자인 감사 결과: **Design A− / AI Slop A**. 슬롭 블랙리스트 11개 패턴 전부 해당 없음.
+  리포트: `~/.gstack/projects/Piousangel-minigames-hub/designs/design-audit-20260716/`
+
+### 7.5 🟡 UI/UX 감사 잔여 항목 (라운드6 워크플로우 산출물)
+5명 감사관이 25건을 올렸고 종합해 상위 5건을 뽑았다. **1건만 처리했고 4건이 남았다.**
+전체 종합 결과는 워크플로우 출력에 있다(아래 "라운드6" 참고).
+
+- ✅ **DO-1 죽은 리더보드**(ticker/zero-hour) — 처리 완료, 배포됨
+- ⬜ **DO-2 엔드리스 게임의 축하 부재** — snake/tetris 등 7개 게임이 신기록에도 lose 오버레이만
+  띄운다. 엔드리스 게임의 유일한 보상 순간을 버리고 있다. `GameSnake.tsx:165-166`,
+  `GameTetris.tsx:277-278` 등. 파일별 개별 작업
+- ⬜ **DO-3 Daily 발견성** — Daily 모드가 있는 게임을 홈에서 찾을 방법이 없다(필터 없음).
+  Wordle 훅이라 재방문 기여가 크다. 4파일 + 타입. ⚠️ 인용된 줄번호가 틀렸으니 직접 열어볼 것
+- ⬜ **DO-4 목표 없는 hint** — duplex/decant 등에서 hint가 조작만 말하고 "무엇을 하면 이기는지"를
+  안 말한다. registry.ts에 정답 문장이 이미 있는데 안 쓴다. 3파일 3줄
+- ⬜ **DO-5 idle 캔버스 단서** — 4개 게임이 시작 전 빈 캔버스라 '고장'으로 읽힌다
+- **다음 사이클**: Daily streak(#22 UTC/로컬 통일 → #23 streak). 반드시 DO-3 뒤에.
+- **하지 말 것**: 라벨 통일(You/CPU 등) — 5파일 고쳐도 수익 기여 0. GameShell `items-center` →
+  `items-start` — 다중행 게임 3개는 나아지나 단일행 47개가 어긋난다.
+
+### 7.6 ✅ 라운드6 게임 3종 — 2026-07-16 배포 완료
+Overdub / Pinwheel / Cleave 라이브. 게임 **53종**, 리더보드 **31종**.
+20 에이전트(발상5 → 심의3 → 명세·구현6 + 감사5 + 종합1), 1.1M 토큰, 24분.
+
+> **교훈: 에이전트의 "테스트 통과" 보고는 참이어도 게임이 돌아간다는 뜻이 아니다.**
+> Pinwheel은 유닛 31개·typecheck 전부 GREEN이었으나 **마우스로 플레이가 불가능**했다
+> (셀 onFocus가 핀을 꽂고 onClick 토글이 즉시 해제 — 실제 클릭은 포커스를 유발하므로).
+> 키보드로는 격자 진입조차 안 됐다(핀 없으면 전 셀 tabIndex -1). 엔진 유닛 테스트는
+> 이런 걸 못 잡는다. **신규 게임은 반드시 실제 마우스/키보드로 몰아볼 것.**
+> 이때 `page.click()`이 실패하면 셀렉터를 의심하기 전에 게임을 의심할 것 — 이번엔 게임이 틀렸다.
 
 ---
 
