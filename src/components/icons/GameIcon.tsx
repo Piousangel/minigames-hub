@@ -469,6 +469,36 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // splice — 3노드 그래프 + 상단 엣지가 잘린 자국(간극 + 가위 스니프 X)(엣지 커팅)
+  splice: (
+    <>
+      <path d="M5 8L12 18M19 8L12 18" />
+      <path d="M6.6 8H9.6M14.4 8H17.4" />
+      <path d="M10.6 6.6l2.8 2.8M13.4 6.6l-2.8 2.8" />
+      <circle cx="5" cy="8" r="1.4" {...solid} />
+      <circle cx="19" cy="8" r="1.4" {...solid} />
+      <circle cx="12" cy="18" r="1.4" {...solid} />
+    </>
+  ),
+
+  // quarry — 조준경 리클(틱 마크 달린 원) + 중심을 벗어나 달아나는 도트(숨은 표적 추적)
+  quarry: (
+    <>
+      <circle cx="11" cy="11" r="7.5" {...soft} />
+      <path d="M11 2v3.5M11 16.5v3.5M2 11h3.5M16.5 11h3.5" />
+      <circle cx="14.2" cy="13.8" r="1.1" {...solid} />
+    </>
+  ),
+
+  // latch — 페그(고정 도트)에 매달려 스윙하는 갈고리(줄 끝 훅)
+  latch: (
+    <g transform="rotate(-16 12 4.5)">
+      <circle cx="12" cy="4.5" r="1.3" {...solid} />
+      <path d="M12 5.8v7.5" />
+      <path d="M12 13.3a3 3 0 1 1-3-3" />
+    </g>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>

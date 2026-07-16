@@ -1,0 +1,225 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateBoard — structural snapshot for fixed seeds > is stable (integers only; layout floats excluded) 1`] = `
+{
+  "colors": [
+    0,
+    1,
+    1,
+    0,
+    0,
+    0,
+    0,
+  ],
+  "edges": [
+    {
+      "a": 4,
+      "b": 5,
+    },
+    {
+      "a": 5,
+      "b": 6,
+    },
+    {
+      "a": 0,
+      "b": 1,
+    },
+    {
+      "a": 0,
+      "b": 2,
+    },
+    {
+      "a": 1,
+      "b": 3,
+    },
+    {
+      "a": 1,
+      "b": 4,
+    },
+  ],
+  "n": 7,
+  "numColors": 5,
+  "par": 4,
+  "solution": [
+    2,
+    3,
+    4,
+    5,
+  ],
+}
+`;
+
+exports[`generateBoard — structural snapshot for fixed seeds > is stable (integers only; layout floats excluded) 2`] = `
+{
+  "colors": [
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+  ],
+  "edges": [
+    {
+      "a": 0,
+      "b": 1,
+    },
+    {
+      "a": 1,
+      "b": 2,
+    },
+    {
+      "a": 3,
+      "b": 4,
+    },
+    {
+      "a": 3,
+      "b": 5,
+    },
+    {
+      "a": 4,
+      "b": 6,
+    },
+    {
+      "a": 7,
+      "b": 8,
+    },
+    {
+      "a": 8,
+      "b": 9,
+    },
+    {
+      "a": 2,
+      "b": 6,
+    },
+    {
+      "a": 2,
+      "b": 7,
+    },
+  ],
+  "n": 10,
+  "numColors": 5,
+  "par": 2,
+  "solution": [
+    7,
+    8,
+  ],
+}
+`;
+
+exports[`generateBoard — structural snapshot for fixed seeds > is stable (integers only; layout floats excluded) 3`] = `
+{
+  "colors": [
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+  ],
+  "edges": [
+    {
+      "a": 0,
+      "b": 1,
+    },
+    {
+      "a": 0,
+      "b": 2,
+    },
+    {
+      "a": 2,
+      "b": 3,
+    },
+    {
+      "a": 4,
+      "b": 5,
+    },
+    {
+      "a": 4,
+      "b": 6,
+    },
+    {
+      "a": 7,
+      "b": 8,
+    },
+    {
+      "a": 8,
+      "b": 9,
+    },
+    {
+      "a": 9,
+      "b": 10,
+    },
+    {
+      "a": 8,
+      "b": 11,
+    },
+    {
+      "a": 11,
+      "b": 12,
+    },
+    {
+      "a": 1,
+      "b": 6,
+    },
+    {
+      "a": 0,
+      "b": 12,
+    },
+  ],
+  "n": 13,
+  "numColors": 4,
+  "par": 2,
+  "solution": [
+    10,
+    11,
+  ],
+}
+`;
+
+exports[`previewCut — resolution, scoring, cascades > snapshots the full CutResult for a fixed hand-authored board 1`] = `
+{
+  "aliveAfter": [
+    false,
+    false,
+    true,
+    true,
+    true,
+  ],
+  "cascadeDepth": 1,
+  "collapsed": [
+    {
+      "color": 0,
+      "nodes": [
+        0,
+        1,
+      ],
+      "points": 4,
+      "size": 2,
+      "wave": 0,
+    },
+  ],
+  "disconnected": true,
+  "scoreDelta": 4,
+  "sideA": [
+    0,
+    1,
+  ],
+  "sideB": [
+    2,
+    3,
+    4,
+  ],
+}
+`;

@@ -9,6 +9,7 @@ import { GameFlappy } from '@/components/games/GameFlappy'
 import { GameFlywheel } from '@/components/games/GameFlywheel'
 import { GameGemMatch } from '@/components/games/GameGemMatch'
 import { GameHangman } from '@/components/games/GameHangman'
+import { GameLatch } from '@/components/games/GameLatch'
 import { GameMaze } from '@/components/games/GameMaze'
 import { GameMemory } from '@/components/games/GameMemory'
 import { GameMinesweeper } from '@/components/games/GameMinesweeper'
@@ -17,12 +18,14 @@ import { GameNumberMemory } from '@/components/games/GameNumberMemory'
 import { GameOverload } from '@/components/games/GameOverload'
 import { GameProspector } from '@/components/games/GameProspector'
 import { GameOverfold } from '@/components/games/GameOverfold'
+import { GameQuarry } from '@/components/games/GameQuarry'
 import { GameReaction } from '@/components/games/GameReaction'
 import { GameReversi } from '@/components/games/GameReversi'
 import { GameRicochet } from '@/components/games/GameRicochet'
 import { GameRipple } from '@/components/games/GameRipple'
 import { GameSokoban } from '@/components/games/GameSokoban'
 import { GameSpaceShooter } from '@/components/games/GameSpaceShooter'
+import { GameSplice } from '@/components/games/GameSplice'
 import { GameStackpot } from '@/components/games/GameStackpot'
 import { GameTowerStack } from '@/components/games/GameTowerStack'
 import { GameSimon } from '@/components/games/GameSimon'
@@ -132,6 +135,12 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameTicker storageKey={`best:${page.slug}`} />
     case 'overfold':
       return <GameOverfold storageKey={`best:${page.slug}`} />
+    case 'splice':
+      return <GameSplice storageKey={`best:${page.slug}`} />
+    case 'quarry':
+      return <GameQuarry storageKey={`best:${page.slug}`} />
+    case 'latch':
+      return <GameLatch storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null
