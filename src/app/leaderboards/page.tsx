@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   description:
     'This week’s top scores across all Quick MiniGames games. Beat the leaders and get your name on the board.',
   alternates: { canonical: '/leaderboards' },
+  openGraph: { url: '/leaderboards' },
 }
 
 export default function LeaderboardsPage() {

@@ -1,7 +1,11 @@
 import type { Metadata } from 'next'
 import { ProsePage } from '@/components/ProsePage'
 
-export const metadata: Metadata = { title: 'Contact', alternates: { canonical: '/contact' } }
+export const metadata: Metadata = {
+  title: 'Contact',
+  alternates: { canonical: '/contact' },
+  openGraph: { url: '/contact' },
+}
 
 export default function ContactPage() {
   return (

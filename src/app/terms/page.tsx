@@ -2,7 +2,11 @@ import type { Metadata } from 'next'
 import { ProsePage } from '@/components/ProsePage'
 import { siteConfig } from '@/lib/siteConfig'
 
-export const metadata: Metadata = { title: 'Terms of Use', alternates: { canonical: '/terms' } }
+export const metadata: Metadata = {
+  title: 'Terms of Use',
+  alternates: { canonical: '/terms' },
+  openGraph: { url: '/terms' },
+}
 
 export default function TermsPage() {
   return (

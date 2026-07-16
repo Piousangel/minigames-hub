@@ -7,7 +7,10 @@ import { GameBrowser, type BrowseItem } from '@/components/GameBrowser'
 import { Marquee } from '@/components/Marquee'
 import { RecentlyPlayed } from '@/components/RecentlyPlayed'
 
-export const metadata: Metadata = { alternates: { canonical: '/' } }
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+  openGraph: { url: '/' },
+}
 
 const items: BrowseItem[] = gamePages.map((g) => ({
   slug: g.slug,

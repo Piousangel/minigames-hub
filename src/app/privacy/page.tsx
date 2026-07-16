@@ -3,7 +3,11 @@ import Link from 'next/link'
 import { ProsePage } from '@/components/ProsePage'
 import { siteConfig } from '@/lib/siteConfig'
 
-export const metadata: Metadata = { title: 'Privacy Policy', alternates: { canonical: '/privacy' } }
+export const metadata: Metadata = {
+  title: 'Privacy Policy',
+  alternates: { canonical: '/privacy' },
+  openGraph: { url: '/privacy' },
+}
 
 export default function PrivacyPage() {
   return (

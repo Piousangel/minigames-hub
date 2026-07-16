@@ -8,6 +8,11 @@ export const dynamic = 'force-static'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
+// Next가 이 값을 og:image:alt / twitter:image:alt로 내보낸다.
+// 게임별 문구를 넣으려면 generateImageMetadata를 써야 하는데, 그건 [__metadata_id__]
+// 동적 세그먼트를 만들어 output:'export'와 충돌한다(빌드 실패로 확인). 정적 문구로 간다.
+export const alt = `Play this free mini game online at ${siteConfig.name} — no download, no sign-up`
+
 export function generateStaticParams() {
   return gamePages.map(({ slug }) => ({ slug }))
 }

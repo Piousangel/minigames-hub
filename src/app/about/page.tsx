@@ -3,7 +3,11 @@ import Link from 'next/link'
 import { ProsePage } from '@/components/ProsePage'
 import { siteConfig } from '@/lib/siteConfig'
 
-export const metadata: Metadata = { title: 'About', alternates: { canonical: '/about' } }
+export const metadata: Metadata = {
+  title: 'About',
+  alternates: { canonical: '/about' },
+  openGraph: { url: '/about' },
+}
 
 export default function AboutPage() {
   return (
