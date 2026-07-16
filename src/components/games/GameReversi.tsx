@@ -298,7 +298,7 @@ export function GameReversi({ storageKey }: { storageKey: string }) {
       : passNote
         ? passNote
         : state && state.turn === PLAYER
-          ? 'Your turn — tap a highlighted square.'
+          ? "Your turn — tap a highlighted square to trap and flip the computer's discs. Most discs at the end wins."
           : 'Waiting…'
 
   const difficultyToggle = (
@@ -333,7 +333,7 @@ export function GameReversi({ storageKey }: { storageKey: string }) {
         newGameDisabled
         muted={muted}
         onToggleMute={toggleMuted}
-        hint="Tap a highlighted square to place a disc."
+        hint="Tap a highlighted square to trap and flip the computer's discs. Most discs at the end wins."
         maxWidthClassName="max-w-md"
       >
         <div className="aspect-square w-full rounded-xl bg-surface" data-testid="reversi-loading" />

@@ -232,7 +232,7 @@ export function GameDotsAndBoxes({ storageKey }: { storageKey: string }) {
     : thinking
       ? 'Computer is thinking…'
       : state?.current === YOU
-        ? 'Your turn — tap a gap between two dots to draw a line.'
+        ? 'Your turn — tap a gap to draw a line. Close the 4th side of a box to claim it and go again. Most boxes wins.'
         : ' '
 
   const difficultyToggle = (
@@ -261,7 +261,7 @@ export function GameDotsAndBoxes({ storageKey }: { storageKey: string }) {
         newGameDisabled
         muted={muted}
         onToggleMute={toggleMuted}
-        hint="Tap a gap between two dots to draw a line."
+        hint="Tap a gap to draw a line. Close the 4th side of a box to claim it and go again. Most boxes wins."
       >
         <div className="aspect-square w-full rounded-xl bg-surface" data-testid="dab-loading" />
       </GameShell>
