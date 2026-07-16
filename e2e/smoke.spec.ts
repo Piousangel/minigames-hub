@@ -448,6 +448,17 @@ test('snake: 기록을 못 넘으면 Game over + Best 표시', async ({ page }) 
   await expect(page.getByTestId('game-over')).toContainText('Best: 999')
 })
 
+test('홈: Daily 필터가 Daily 모드 게임만 보여준다', async ({ page }) => {
+  // Daily는 재방문 훅인데 그전엔 홈에서 찾을 경로가 0개였다.
+  // gameMeta의 daily 표시와 실제 게임의 Daily 모드 구현이 어긋나면 여기서 깨진다.
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Daily', exact: true }).click()
+  const titles = await page.locator('a:has(h3) h3').allInnerTexts()
+  expect(titles.sort()).toEqual(
+    ['Decant', 'Duplex', 'Overfold', 'Quarry', 'Ricochet', 'Splice', 'Stackpot'].sort(),
+  )
+})
+
 test('leaderboards: 허브 페이지 로드', async ({ page }) => {
   await page.goto('/leaderboards')
   await expect(page.getByRole('heading', { name: 'Leaderboards', level: 1 })).toBeVisible()

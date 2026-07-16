@@ -17,6 +17,7 @@ const items: BrowseItem[] = gamePages.map((g) => ({
   title: g.h1,
   description: g.shortDescription,
   category: (gameMeta[g.slug] ?? DEFAULT_META).category,
+  daily: (gameMeta[g.slug] ?? DEFAULT_META).daily,
 }))
 
 export default function Home() {

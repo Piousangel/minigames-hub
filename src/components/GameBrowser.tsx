@@ -12,11 +12,14 @@ export interface BrowseItem {
   title: string
   description: string
   category: GameCategory
+  daily?: boolean
 }
 
-type Filter = 'All' | GameCategory
+// Daily는 카테고리가 아니라 가로지르는 축이다 — 매일 같은 판이 주어지는 게임을 모은다.
+// 재방문 훅이라 찾을 수 있어야 하는데 그전엔 노출 경로가 0개였다.
+type Filter = 'All' | 'Daily' | GameCategory
 
-const FILTERS: Filter[] = ['All', ...CATEGORIES]
+const FILTERS: Filter[] = ['All', 'Daily', ...CATEGORIES]
 
 /**
  * 홈 게임 브라우저: 인스턴트 검색 + 카테고리 필터 + 랜덤 게임.
@@ -33,7 +36,11 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
 
   const matches = useMemo(() => {
     return items.filter((it) => {
-      if (filter !== 'All' && it.category !== filter) return false
+      if (filter === 'Daily') {
+        if (!it.daily) return false
+      } else if (filter !== 'All' && it.category !== filter) {
+        return false
+      }
       if (!q) return true
       return (
         it.title.toLowerCase().includes(q) || it.description.toLowerCase().includes(q)

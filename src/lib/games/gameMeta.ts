@@ -17,6 +17,8 @@ export interface GameMeta {
   icon: string // 이모지
   accent: NeonAccent
   category: GameCategory
+  /** 매일 같은 판이 주어지는 Daily 모드가 있는 게임. 홈의 Daily 필터가 이걸 읽는다. */
+  daily?: true
 }
 
 export const gameMeta: Record<string, GameMeta> = {
@@ -58,18 +60,18 @@ export const gameMeta: Record<string, GameMeta> = {
   prospector: { icon: '⛏️', accent: 'amber', category: 'Skill' },
   'zero-hour': { icon: '⏳', accent: 'red', category: 'Puzzle' },
   overload: { icon: '⚡', accent: 'magenta', category: 'Puzzle' },
-  ricochet: { icon: '↗️', accent: 'cyan', category: 'Puzzle' },
-  stackpot: { icon: '🪙', accent: 'amber', category: 'Arcade' },
+  ricochet: { icon: '↗️', accent: 'cyan', category: 'Puzzle', daily: true },
+  stackpot: { icon: '🪙', accent: 'amber', category: 'Arcade', daily: true },
   flywheel: { icon: '🎡', accent: 'lime', category: 'Skill' },
   ripple: { icon: '🌊', accent: 'cyan', category: 'Arcade' },
   ticker: { icon: '📈', accent: 'green', category: 'Skill' },
-  overfold: { icon: '📄', accent: 'purple', category: 'Puzzle' },
-  splice: { icon: '✂️', accent: 'cyan', category: 'Puzzle' },
-  quarry: { icon: '🔦', accent: 'blue', category: 'Puzzle' },
+  overfold: { icon: '📄', accent: 'purple', category: 'Puzzle', daily: true },
+  splice: { icon: '✂️', accent: 'cyan', category: 'Puzzle', daily: true },
+  quarry: { icon: '🔦', accent: 'blue', category: 'Puzzle', daily: true },
   latch: { icon: '🪝', accent: 'cyan', category: 'Skill' },
-  decant: { icon: '🧪', accent: 'magenta', category: 'Puzzle' },
+  decant: { icon: '🧪', accent: 'magenta', category: 'Puzzle', daily: true },
   backspace: { icon: '⏪', accent: 'red', category: 'Arcade' },
-  duplex: { icon: '🪞', accent: 'blue', category: 'Puzzle' },
+  duplex: { icon: '🪞', accent: 'blue', category: 'Puzzle', daily: true },
   overdub: { icon: '🥁', accent: 'lime', category: 'Skill' },
   pinwheel: { icon: '🌀', accent: 'purple', category: 'Puzzle' },
   cleave: { icon: '⚖️', accent: 'amber', category: 'Puzzle' },
