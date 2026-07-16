@@ -2,6 +2,11 @@
 
 무료 미니게임 허브. Next.js 15 정적 사이트(`output: 'export'`)를 Cloudflare Workers 정적 에셋으로 배포. 수익 모델은 AdSense.
 
+## 세션 시작 시 먼저 읽을 것
+
+**[HANDOFF.md](./HANDOFF.md)** — 다음 할 일, 멈춘 지점, 함정, 검증 상태. 작업 전에 읽는다.
+세션을 끝낼 때는 같은 파일을 갱신한다(브랜치당 1개, 덮어쓰기 — 히스토리는 git이 관리).
+
 ## Deploy Configuration (configured by /setup-deploy)
 - Platform: Cloudflare Workers (static assets)
 - Production URL: https://minigames-hub.piousangel.workers.dev

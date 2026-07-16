@@ -1,6 +1,47 @@
-# Quick MiniGames — 세션 핸드오프 문서
+# 인계: AdSense 승인받아 광고를 켜고, 게임 라운드를 계속 돌린다
 
-> 최종 업데이트: 2026-07-16 · 작성: Claude(Fable 5) · 다음 세션이 이 문서만 읽고 바로 이어서 작업할 수 있도록 작성됨
+> 갱신: 2026-07-16 · 브랜치: `main` · 커밋 상태: **committed (트리 clean)** · 전부 배포됨
+
+## 멈춘 지점
+
+**막힌 코드 없음.** 이번 세션 작업은 전부 커밋·배포·라이브 검증까지 끝났다.
+유일한 대기 항목은 **우리 손 밖**이다 — AdSense 심사(2026-07-16 검토 요청 완료, 통상 며칠~2주).
+
+## 다음 단계 (순서대로)
+
+1. **AdSense 승인 났는지 사용자에게 묻는다.** 코드로는 알 수 없다.
+   - **났으면** → §7.2의 3단계를 그 순서대로. ⚠️ 슬롯 ID 교체를 건너뛰고 `adsenseEnabled`만
+     켜면 잘못된 슬롯으로 요청이 나가 콘솔 에러만 남는다.
+   - **아직이면** → 3번으로.
+2. **Search Console 색인 진행 확인** (사용자에게 요청): 페이지 메뉴에서 59개 중 몇 개가
+   색인됐는지. 이게 올라야 트래픽이 온다. 실적 메뉴에 검색어가 잡히기 시작하면
+   그게 다음 게임의 힌트다.
+3. **게임 라운드7** — 라운드6에서 실제로 게임 3종을 만들어낸 워크플로우가 레포에 저장돼 있다.
+   **사용자가 명시적으로 요청했을 때만** 돌린다(20 에이전트 / ~1.1M 토큰 / ~24분):
+   ```
+   Workflow({ name: "minigames-round" })
+   ```
+   - 스크립트: `.claude/workflows/minigames-round.js` (커밋됨)
+   - **돌리기 전 `EXISTING` 상수를 현재 게임 목록으로 갱신할 것.** 지금은 53종 기준으로
+     맞춰 뒀다. 안 갱신하면 이미 있는 게임을 다시 제안한다
+   - 에이전트는 자기 파일 3개(engine/engine.test/Game*.tsx)만 쓴다. **배선 6곳은 내가 직접**
+   - ⚠️ **에이전트의 "테스트 통과"는 게임이 돌아간다는 뜻이 아니다** — §7.6 교훈.
+     반드시 실제 마우스·키보드로 몰아볼 것
+4. **(선택) Daily streak** — §7.5 "다음 사이클". UTC/로컬 날짜 통일이 선행.
+
+## 검증 상태 (2026-07-16 기준, 전부 실행함)
+
+- typecheck: **통과** / unit: **통과 (54 files, 1059 tests)** / e2e: **통과 (65)** / build: **통과**
+- Lighthouse: home **100** / game **100** / a11y·bp·seo **100** / CLS **0** / TBT **0ms**
+- 재현 명령:
+  ```bash
+  pnpm typecheck && pnpm test && pnpm exec playwright test && pnpm build
+  ```
+- ⚠️ **로컬 Lighthouse로 게임 페이지를 재면 best-practices가 96으로 나온다** — 정적 서버엔
+  Worker API가 없어 `/api/leaderboard` 404가 콘솔 에러로 잡히는 **측정 아티팩트다. 회귀가 아니다.**
+  기준선은 라이브 URL로 잴 것.
+- e2e 플레이키 1건: `2048: 로드 → 조작 → 상태 변화`가 ~25회 중 1회 실패(빌드 직후 콜드스타트로 추정,
+  이후 20회 재현 안 됨). 내가 만든 회귀 아님. 다시 보이면 키 입력 사이에 대기를 넣을 것.
 
 ---
 
@@ -32,7 +73,7 @@
 - 사용자(Pious Angel, yyh7654@gmail.com)의 목표: 광고로 **월 5~10만원(~$35-70)** 벌기.
 - 전략: (a) 게임을 대량 생산해 페이지 수·색인 늘리기, (b) UI/UX를 계속 고도화, (c) 리더보드로 재방문·체류시간↑(경쟁심리), (d) AdSense 광고 게재.
 - **디자인 방향**: RETRO NEON(신스웨이브) 미학. Press Start 2P 픽셀 폰트, 네온 컬러 팔레트, 스캔라인. 이모지 기본값 대신 커스텀 SVG 아이콘 사용.
-- **게임 철학**: 단순 클론이 아니라 **창의적이고 중독성 있는 오리지널 게임**을 멀티 에이전트 심의(Workflow)로 계속 발명. 라운드1~5 진행됨.
+- **게임 철학**: 단순 클론이 아니라 **창의적이고 중독성 있는 오리지널 게임**을 멀티 에이전트 심의(Workflow)로 계속 발명. 라운드1~6 진행됨(§7.3).
 
 ---
 
@@ -90,14 +131,15 @@ pnpm run deploy      # = next build && wrangler deploy
 
 **배포 전 항상 검증**:
 ```bash
-npx tsc --noEmit                 # 타입체크
-pnpm build                        # 정적 빌드(out/ 생성)
-npx playwright test               # e2e (webServer: pnpm build && npx serve out -l 3100)
+pnpm typecheck && pnpm test && pnpm exec playwright test && pnpm build
 ```
+CLAUDE.md의 pre-merge 훅은 `pnpm test && pnpm typecheck`뿐이라 **e2e는 자동으로 안 돈다** — 직접 돌릴 것.
 
 **검증 팁**:
 - 빌드 출력은 `out/contact.html` 형태(트레일링 슬래시 auto). 라이브에서 `/contact` = 200, `/contact/` = 307 리다이렉트(정상).
-- 배포 후 `curl`로 확인. **엣지 캐시가 새 경로에 잠깐 stale 404를 줄 수 있음** — 수초 내 해소.
+- 배포 후 `curl`로 확인. **엣지 캐시가 새 경로에 잠깐 stale 404를 줄 수 있음** — 보통 15초 내 해소.
+  이번 세션에도 신규 3종이 배포 직후 404였다가 15초 뒤 200이 됐다. 성급히 디버깅하지 말고 폴링할 것.
+- **포트 3100에 이전 세션 서버가 남아 e2e가 240초 타임아웃**나는 일이 잦다: `lsof -ti:3100 | xargs -r kill -9`
 - wrangler는 **OAuth 토큰**(`wrangler login`)으로 인증됨 — Workers 권한 있음.
 
 ---
@@ -110,17 +152,44 @@ npx playwright test               # e2e (webServer: pnpm build && npx serve out 
 
 ---
 
-## 6. 이번 세션(m22)에 한 일
+## 6. 이번 세션(2026-07-16)에 한 일 — 커밋 17개, 전부 배포됨
 
-브랜치 `feature/m22-branding-legal` → main 머지 → 배포 완료:
-- 브랜드명 `MiniGames Hub` → **`Quick MiniGames`** (siteConfig + leaderboards 메타)
-- **커스텀 네온 SVG 로고마크** `Logo.tsx` 제작 → 헤더 🕹️ 이모지 교체, 파비콘 `icon.svg` 통일(네온 프레임 + 앰버 플레이 삼각형)
-- **법적 페이지 정비**:
-  - Contact: 실제 이메일 **yyh7654@gmail.com**
-  - Privacy: 리더보드(공개 닉네임·점수) 고지, localStorage, AdSense 쿠키/EU 동의, 아동(13세 미만) 조항, 날짜 갱신
-  - Terms: 사용자 제출 닉네임 조항(부적절 시 삭제)
-  - About: 제작자 **Pious Angel** 명시, 리더보드 언급
-- **라이브 검증 완료**: 전 페이지 200, 브랜드/이메일/닉네임 조항 반영 확인.
+게임 **48 → 53종**, 리더보드 **25 → 31종**, Lighthouse **97/99 → 100/100**.
+
+**수익 인프라**
+- AdSense pub-id 등록 + 메타 태그 소유권 확인 + ads.txt → **검토 요청 완료**(3449bcb)
+- Search Console 도메인 속성 등록(Cloudflare DNS 자동 인증) + sitemap 59 URL 제출
+- `www` → apex **301** 리다이렉트(Cloudflare Page Rule, 경로 보존). 그전엔 www가 DNS부터 없었다
+- Google CMP 3버튼 + IAB 목적 설정
+
+**게임**
+- 라운드5 배선: Decant / Backspace / Duplex(51d87f8) — 엔진·컴포넌트·테스트가 **이미 있었고** 배선만 없었다
+- 라운드6 생성: Overdub / Pinwheel / Cleave(75f2e95) — 20 에이전트, 1.1M 토큰, 24분
+
+**버그 (전부 실제로 재현·수정·회귀 테스트 고정)**
+- **헤더 리더보드 링크에 접근 가능한 이름이 없었다**(f247496) — 640px 미만에서 라벨은
+  `display:none`, 이모지는 `aria-hidden` → 스크린리더가 "링크"로만 읽음. WCAG 2.4.4/4.1.2 위반
+- **죽은 리더보드 2개**(42b930e) — ticker/zero-hour가 `best:<slug>`에 JSON을 넣어 제출이 영구 불가
+- **Pinwheel이 마우스로 플레이 불가**(75f2e95) — 셀 `onFocus`가 핀을 꽂고 `onClick` 토글이 즉시 해제.
+  키보드로는 격자 진입조차 안 됐다(핀 없으면 전 셀 `tabIndex: -1`)
+- **엔드리스 7종이 신기록을 축하 안 함**(dca02d2) + 사운드 스팸 2건(backspace 60fps, flappy)
+
+**UI/UX**
+- 이모지 → 커스텀 네온 SVG(TrophyIcon, DiceIcon). AdSense 미리보기가 🏆를 `??`로 렌더한 게 증거
+- og:url 6곳 + og:image:alt 전체(e1bca0f)
+- 홈 Daily 필터(77ffb15), 자체 창작 3종 hint에 목표 추가(0c99372)
+
+## 6.1 함정 · 결정사항 (모르면 사고 나는 것만)
+
+- **`best:<slug>`엔 숫자만** — 이번 세션에만 3번 밟았다. §0 요약 참고
+- **에이전트의 "GREEN 보고"는 플레이 가능을 뜻하지 않는다** — §7.6 참고
+- **`git checkout .`을 stash 복원과 같이 쓰지 말 것** — 이번 세션에 스테이징 안 된 파일 2개를
+  날려 다시 작성했다. 파일 단위로 지정하거나 `/tmp`에 사본을 떠 둘 것
+- **Next.js `generateImageMetadata`는 `output: 'export'`와 충돌** — `[__metadata_id__]` 동적
+  세그먼트를 만들어 빌드가 깨진다. 그래서 게임별 og:image:alt를 포기하고 정적 문구로 갔다
+  (`src/app/[slug]/opengraph-image.tsx` 주석에 사유 있음)
+- **워크플로우 진행 중 배포 금지** — 미완성 파일이 빌드에 섞인다
+- **임시 우회책 없음** — 이번 세션에 남긴 TODO나 하드코딩된 임시 코드는 없다
 
 ---
 
@@ -152,10 +221,19 @@ Decant / Backspace / Duplex 라이브(`/decant` `/backspace` `/duplex`). 게임 
   - ⚠️ 사용자 보고 기준이며 대시보드 재확인은 안 했다. 광고 켤 때 배너가 실제로 뜨는지 확인할 것.
 
 ### 7.3 🟡 게임 계속 찍어내기 (Workflow 파이프라인)
-멀티 에이전트 심의 워크플로우로 오리지널 게임 라운드 계속:
-- 패턴: **Ideate**(5개 다양한 각도) → **Judge**(독창성/중독성/실현성/매력 점수 → 다양성 있는 Top3) → **Build**(spec→build 파이프라인, self-contained 파일). 약 12에이전트/~500k토큰/라운드.
-- 산출물(self-contained 파일) 나오면 내가 검증(test/typecheck/build/e2e) → 6곳 와이어링 → 시각 QA → 배포.
-- **함정**: 워크플로우 진행 중 배포하면 미완성 파일이 빌드 lint 깨뜨림. **워크플로우 완료 후 배포**하거나 해당 lint만 수정.
+
+**스크립트가 레포에 있다: `.claude/workflows/minigames-round.js`** → `Workflow({ name: "minigames-round" })`
+라운드6에서 이걸로 Overdub/Pinwheel/Cleave를 만들었다. 실측: **20 에이전트 / 1.1M 토큰 / 24분**.
+
+- 구조: **Ideate**(5개 각도, 각도별 "겹치지 말 것" 목록 명시) → **Judge**(독창성/중독성/실현성/매력
+  3인 심사, 실현성<5.5 또는 독창성<5.5 하드컷) → **Spec→Build** 파이프라인 + 병렬 **Audit**(5차원 읽기전용) → **Synthesize**
+- **돌리기 전 `EXISTING` 상수 갱신 필수** — 현재 53종 기준. 안 하면 재탕이 나온다
+- 에이전트는 자기 파일 3개만 쓴다(engine.ts / engine.test.ts / Game*.tsx).
+  **공유 파일 6곳 배선은 오케스트레이터가 직접** — 병렬 에이전트에게 맡기면 충돌한다
+- UI/UX 트랙은 **읽기 전용**으로 설계했다(제안만 하고 구현은 오케스트레이터가). 같은 이유
+- **함정**: 워크플로우 진행 중 배포하면 미완성 파일이 빌드에 섞인다. **완료 후 배포**
+- 라운드6 실적: 아이디어 20개 → 심의 통과 10개 → 승선 3개. 매력 점수는 5.3~6.3으로 낮았다
+  (심사관에게 후하게 주지 말라고 지시함). Cleave는 셋 중 가장 약해 관찰 대상 — 아무도 안 하면 뺄 것
 
 ### 7.4 🟡 UI/UX 고도화 (지속)
 - 트렌디한 애니메이션/인터랙션, 최신 사이트 참고. 스스로 판단해서 계속 개선.
