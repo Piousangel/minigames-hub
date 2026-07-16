@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   applicationName: siteConfig.name,
   appleWebApp: { capable: true, title: siteConfig.name, statusBarStyle: 'black-translucent' },
   openGraph: { type: 'website', siteName: siteConfig.name },
+  // AdSense 사이트 소유권 확인. 심사 중에도 살아 있어야 하므로 adsenseEnabled와 무관하게 렌더.
+  other: { 'google-adsense-account': siteConfig.adsenseClientId },
 }
 
 export const viewport: Viewport = {
@@ -31,8 +33,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             __html: "document.documentElement.classList.add('has-js')",
           }}
         />
-        {/* AdSense 로더 — clientId가 설정된 경우에만 로드(승인 전엔 비활성). */}
-        {siteConfig.adsenseClientId && (
+        {/* AdSense 로더 — 게재가 켜진 경우에만 로드(승인 전엔 비활성). */}
+        {siteConfig.adsenseEnabled && siteConfig.adsenseClientId && (
           <script
             async
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${siteConfig.adsenseClientId}`}
