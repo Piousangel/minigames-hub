@@ -499,6 +499,35 @@ const glyphs: Record<string, ReactNode> = {
     </g>
   ),
 
+  // decant — 시험관 + 바닥에 가라앉은 무거운 층(밀도 분리)
+  decant: (
+    <>
+      <path d="M9.5 3v8.2L5.9 17a3.6 3.6 0 0 0 3 5.5h6.2a3.6 3.6 0 0 0 3-5.5l-3.6-5.8V3" />
+      <path d="M8.2 3h7.6" />
+      <path d="M7.2 15.5h9.6a3.6 3.6 0 0 1-1.7 7H8.9a3.6 3.6 0 0 1-1.7-7Z" {...softer} />
+      <path d="M8.5 19h7" {...soft} />
+    </>
+  ),
+
+  // backspace — 되감기 화살표 두 개(시간 역주행)
+  backspace: (
+    <>
+      <path d="M12.5 7.5 6 12l6.5 4.5V7.5Z" {...softer} />
+      <path d="M20 7.5 13.5 12l6.5 4.5V7.5Z" {...soft} />
+      <path d="M3.5 6.5v11" />
+    </>
+  ),
+
+  // duplex — 거울축을 사이에 둔 쌍둥이 토큰(하나는 채움, 하나는 반전)
+  duplex: (
+    <>
+      <path d="M12 2.5v19" strokeDasharray="2.5 2.5" />
+      <circle cx="6.75" cy="12" r="3.25" {...solid} />
+      <circle cx="17.25" cy="12" r="3.25" {...soft} />
+      <path d="M4 6.5h5.5M4 17.5h5.5" {...soft} />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>

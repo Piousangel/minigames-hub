@@ -1,10 +1,13 @@
 import { Game2048 } from '@/components/games/Game2048'
 import { GameAimTrainer } from '@/components/games/GameAimTrainer'
+import { GameBackspace } from '@/components/games/GameBackspace'
 import { GameBreakout } from '@/components/games/GameBreakout'
 import { GameBubbleShooter } from '@/components/games/GameBubbleShooter'
 import { GameCheckers } from '@/components/games/GameCheckers'
 import { GameConnectFour } from '@/components/games/GameConnectFour'
+import { GameDecant } from '@/components/games/GameDecant'
 import { GameDotsAndBoxes } from '@/components/games/GameDotsAndBoxes'
+import { GameDuplex } from '@/components/games/GameDuplex'
 import { GameFlappy } from '@/components/games/GameFlappy'
 import { GameFlywheel } from '@/components/games/GameFlywheel'
 import { GameGemMatch } from '@/components/games/GameGemMatch'
@@ -141,6 +144,12 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameQuarry storageKey={`best:${page.slug}`} />
     case 'latch':
       return <GameLatch storageKey={`best:${page.slug}`} />
+    case 'decant':
+      return <GameDecant storageKey={`best:${page.slug}`} />
+    case 'backspace':
+      return <GameBackspace storageKey={`best:${page.slug}`} />
+    case 'duplex':
+      return <GameDuplex storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

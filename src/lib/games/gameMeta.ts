@@ -67,6 +67,9 @@ export const gameMeta: Record<string, GameMeta> = {
   splice: { icon: '✂️', accent: 'cyan', category: 'Puzzle' },
   quarry: { icon: '🔦', accent: 'blue', category: 'Puzzle' },
   latch: { icon: '🪝', accent: 'cyan', category: 'Skill' },
+  decant: { icon: '🧪', accent: 'magenta', category: 'Puzzle' },
+  backspace: { icon: '⏪', accent: 'red', category: 'Arcade' },
+  duplex: { icon: '🪞', accent: 'blue', category: 'Puzzle' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

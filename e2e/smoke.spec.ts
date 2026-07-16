@@ -284,6 +284,21 @@ test('latch: 로드 → 보드 표시', async ({ page }) => {
   await expect(page.getByTestId('latch-board')).toBeVisible()
 })
 
+test('decant: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/decant')
+  await expect(page.getByTestId('decant-board')).toBeVisible()
+})
+
+test('backspace: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/backspace')
+  await expect(page.getByTestId('backspace-board')).toBeVisible()
+})
+
+test('duplex: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/duplex')
+  await expect(page.getByTestId('duplex-board')).toBeVisible()
+})
+
 test('leaderboards: 허브 페이지 로드', async ({ page }) => {
   await page.goto('/leaderboards')
   await expect(page.getByRole('heading', { name: 'Leaderboards', level: 1 })).toBeVisible()

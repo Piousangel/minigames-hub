@@ -59,6 +59,9 @@ export type GamePage = GamePageBase &
     | { game: 'splice' }
     | { game: 'quarry' }
     | { game: 'latch' }
+    | { game: 'decant' }
+    | { game: 'backspace' }
+    | { game: 'duplex' }
   )
 
 export const gamePages: GamePage[] = [
@@ -1422,6 +1425,90 @@ export const gamePages: GamePage[] = [
       { q: 'How does a run end?', a: 'When you miss a peg and fall. Your score is how many pegs (and how far) you chained.' },
       { q: 'Is Latch free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
       { q: 'Does my best save?', a: 'Yes. Your best distance is stored in your browser and persists between games on the same device.' },
+    ],
+  },
+  {
+    slug: 'decant',
+    game: 'decant',
+    title: 'Play Decant Online — Free Test Tube Color Sorting Puzzle',
+    h1: 'Decant',
+    metaDescription:
+      'Play Decant free online — a test tube sorting puzzle where color is density. Pour the top band and watch it sink to its layer, merging and cascading. Daily puzzle plus easy, normal and hard. No download.',
+    shortDescription: 'Pour colors; heavier ones sink.',
+    howToPlay: [
+      'Click a tube to pick it up, then click another to pour — click the same tube again to cancel.',
+      'A pour lifts the whole top band (the lightest exposed color) and sinks it to its density layer in the target tube.',
+      'Every tube stays sorted heaviest-at-the-bottom, so a poured band can slide under lighter ones and push them up.',
+      'Sort every color into its own tube to win. You get five undos per board.',
+    ],
+    strategy: [
+      'Colors are ranked by weight, not just hue — a heavy band sinks past lighter ones, which is how you dig colors out of the middle.',
+      'Use the empty tubes as scratch space, but do not fill both or you lose your room to manoeuvre.',
+      'Look for pours that merge two bands of the same color: fewer bands means fewer moves.',
+      'Set up cascades — one pour that displaces a band into its own merge chains bonus points.',
+      'Beat par to earn the completion bonus, and undo early rather than pouring your way deeper into a deadlock.',
+    ],
+    faq: [
+      { q: 'How is Decant different from other water sorting games?', a: 'Color is density. A poured band does not just stack on top — it sinks to its own layer and pushes lighter bands up, so tubes reorder themselves as you play.' },
+      { q: 'What is the daily puzzle?', a: 'Everyone gets the same board each day. Solve it on consecutive days to build a streak, which is saved in your browser.' },
+      { q: 'What happens if I get stuck?', a: 'If no legal pour remains, the game tells you — use Undo to step back, or start a new board.' },
+      { q: 'Is Decant free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+    ],
+  },
+  {
+    slug: 'backspace',
+    game: 'backspace',
+    title: 'Play Backspace Online — Free Endless Dodger With Time Rewind',
+    h1: 'Backspace',
+    metaDescription:
+      'Play Backspace free online — a five-lane endless dodger where you hold Space to rewind the whole world and re-pick your lane. Crashing is survivable while the meter holds. No download, no sign-up.',
+    shortDescription: 'Dodge, or rewind time and retry.',
+    howToPlay: [
+      'Use the arrow keys or A and D — or tap either side of the board — to switch between five lanes.',
+      'Blocks scroll toward your marker; thread the gaps to survive and score.',
+      'Hold Space (or the BACKSPACE button) to scrub the world backward — obstacles retreat and you rewind to an earlier instant.',
+      'Release to resume from that moment and pick a different lane. The rewind meter drains as you scrub, and a crash only ends the run when it is empty.',
+    ],
+    strategy: [
+      'Rewind is a resource, not a free undo — spent meter is never refunded, so save it for gaps you genuinely cannot read.',
+      'Scrub back just far enough to reach the fork you needed, then release. Over-rewinding burns meter and distance.',
+      'Surviving without rewinding builds your clutch multiplier, so clean stretches are worth far more than scrappy ones.',
+      'Commit to a lane early. Late lane changes at high speed are what fill the block wall in front of you.',
+      'The world speeds up with distance — start planning two rows ahead before you need to.',
+    ],
+    faq: [
+      { q: 'How does rewinding work?', a: 'Hold Space and the entire world runs backward — obstacles retreat and your distance unwinds. Release and play resumes forward from that earlier instant, so you can take a different lane.' },
+      { q: 'Does a crash end my run?', a: 'Only when the rewind meter is empty. Otherwise a safety net rewinds you automatically so you can fork to a different lane.' },
+      { q: 'What is the clutch multiplier?', a: 'It grows while you survive without rewinding and boosts your score. It resets when you scrub back.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser and persists between runs on the same device.' },
+    ],
+  },
+  {
+    slug: 'duplex',
+    game: 'duplex',
+    title: 'Play Duplex Online — Free Mirror Puzzle With Two Linked Tokens',
+    h1: 'Duplex',
+    metaDescription:
+      'Play Duplex free online — one input moves two mirrored tokens at once. Use walls to break the symmetry and land both on their goals. 17 levels across five mirror axes, plus a daily puzzle. No download.',
+    shortDescription: 'One move, two mirrored tokens.',
+    howToPlay: [
+      'Press an arrow key (or WASD, or swipe) and both tokens move at once — You in blue, Echo in amber.',
+      'Echo moves along the level’s mirror axis, so it may travel the opposite way, or at right angles.',
+      'A token blocked by a wall or edge stands still while its twin keeps going — that is how you break the symmetry lock.',
+      'Collect the pellets and land both tokens on their goals to clear the level.',
+    ],
+    strategy: [
+      'Walls are the tool, not the obstacle. Park one token against a wall so a shared press moves only the other.',
+      'Work backwards from the goals — figure out the final press, then what has to be true before it.',
+      'Watch the move counter: match par to earn three stars, so hunt the shortest path rather than any path.',
+      'On diagonal axes, think in terms of which press separates the tokens rather than which press advances one.',
+      'If you are stuck, reset and replan. The levels are built around one clean idea, not long grinds.',
+    ],
+    faq: [
+      { q: 'How do the two tokens move?', a: 'One press drives both. You steps the direction you pressed; Echo steps the direction the level’s mirror axis dictates — horizontal, vertical, point, diagonal or anti-diagonal.' },
+      { q: 'How many levels are there?', a: '17 hand-built levels across five mirror axes, each introducing a new way the reflection behaves — plus a fresh daily puzzle.' },
+      { q: 'How do I get three stars?', a: 'Clear the level in par moves or fewer. Par is the shortest possible solution, so three stars means you found the optimal path.' },
+      { q: 'Is Duplex free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
     ],
   },
 ]
