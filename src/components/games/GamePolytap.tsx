@@ -23,6 +23,7 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 import { DailyShareButton } from '@/components/DailyShareButton'
 import { todayUTC } from '@/lib/dailyDate'
+import { gradeRatio, barGlyph, resultSnippet } from '@/lib/dailyShare'
 
 type Phase = 'idle' | 'running' | 'over'
 
@@ -470,18 +471,22 @@ export function GamePolytap({ storageKey }: { storageKey: string }) {
           </div>
           <div className="flex flex-wrap justify-center gap-2">
             <DailyShareButton
-              payload={() => ({
-                gameName: 'Polytap',
-                dateISO: todayUTC(),
-                subtitle: todayUTC(),
-                accent: '#22d3ee',
-                lines: [
-                  { label: 'Score', value: String(run.score) },
-                  { label: 'Cycles', value: String(run.cyclesCleared) },
-                ],
-                url: `${window.location.origin}/polytap`,
-                textSnippet: `Polytap — scored ${run.score} (${run.cyclesCleared} cycles, stage ${run.stage})`,
-              })}
+              payload={() => {
+                const grade = gradeRatio(run.score, best, newBest)
+                const glyph = run.cyclesCleared >= 1 ? barGlyph(run.cyclesCleared, undefined, `${run.cyclesCleared} CYCLES · STAGE ${run.stage}`) : undefined
+                return {
+                  gameName: 'Polytap',
+                  dateISO: todayUTC(),
+                  subtitle: todayUTC(),
+                  accent: '#22d3ee',
+                  lines: [],
+                  url: `${window.location.origin}/polytap`,
+                  grade,
+                  scoreLine: `${run.score} PTS`,
+                  glyph,
+                  textSnippet: resultSnippet('Polytap', todayUTC(), false, grade, glyph?.cells ?? [], undefined, `scored ${run.score} (${run.cyclesCleared} cycles, stage ${run.stage})`),
+                }
+              }}
             />
             <GameButton onClick={start}>Play again</GameButton>
           </div>

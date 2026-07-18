@@ -7,7 +7,7 @@ import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import * as R from '@/lib/games/ricochet/engine'
 import { todayUTC as todayISO } from '@/lib/dailyDate'
-import { shareDaily } from '@/lib/dailyShare'
+import { shareDaily, gradeMore, barGlyph, resultSnippet } from '@/lib/dailyShare'
 
 // Component-scoped keyframes — globals.css stays untouched.
 const RICOCHET_STYLE = `
@@ -402,17 +402,21 @@ export function GameRicochet({ storageKey }: { storageKey: string }) {
         ? `${window.location.origin}${window.location.pathname}?seed=${s.seed}`
         : `?seed=${s.seed}`
     const par = R.dailyPar(s.seed)
-    const textSnippet = `Ricochet Daily ${todayISO()} — ${s.longestChain}-chain (par ${par}) · ${s.score} pts`
+    const chain = s.longestChain
+    const grade = gradeMore(chain, par)
+    const glyph = barGlyph(chain, par, `${chain}-CHAIN · PAR ${par}`)
+    const textSnippet = resultSnippet('Ricochet', todayISO(), true, grade, glyph.cells, par, `${chain}-chain (par ${par})`)
     setShareMsg(`${textSnippet}\n${url}`) // 폴백: 이미지 안 되는 환경에서 수동 복사용
     void shareDaily({
       gameName: 'Ricochet',
       dateISO: todayISO(),
       accent: '#22d3ee', // neon-cyan (Ricochet accent)
-      lines: [
-        { label: 'Longest chain', value: String(s.longestChain) },
-        { label: 'Score', value: String(s.score) },
-      ],
+      lines: [],
       url,
+      isDaily: true,
+      grade,
+      scoreLine: `${s.score} PTS`,
+      glyph,
       textSnippet,
     }).then(
       (r) => play(r.method === 'text-only' ? 'error' : 'match'),

@@ -17,6 +17,7 @@ import { isTypingTarget } from '@/lib/isTypingTarget'
 import { bumpStreak, currentStreak } from '@/lib/dailyStreak'
 import { DailyShareButton } from '@/components/DailyShareButton'
 import { todayUTC } from '@/lib/dailyDate'
+import { gradeFewer, barGlyph, resultSnippet } from '@/lib/dailyShare'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
@@ -463,18 +464,25 @@ export function GameDecant({ storageKey }: { storageKey: string }) {
           <div className="flex flex-wrap justify-center gap-2">
             {mode === 'daily' && (
               <DailyShareButton
-                payload={() => ({
-                  gameName: 'Decant',
-                  dateISO: todayUTC(),
-                  accent: '#ff3d9a',
-                  lines: [
-                    { label: 'Moves', value: `${state.pours} / ${state.par}` },
-                    { label: 'Score', value: String(state.score) },
-                  ],
-                  streak,
-                  url: `${window.location.origin}/decant`,
-                  textSnippet: `Decant Daily ${todayUTC()} — solved in ${state.pours} moves (par ${state.par}) · ${state.score} pts`,
-                })}
+                payload={() => {
+                  const used = state.pours
+                  const par = state.par
+                  const grade = gradeFewer(used, par)
+                  const glyph = barGlyph(used, par, `${used} POURS · PAR ${par}`)
+                  return {
+                    gameName: 'Decant',
+                    dateISO: todayUTC(),
+                    accent: '#ff3d9a',
+                    lines: [],
+                    streak,
+                    url: `${window.location.origin}/decant`,
+                    isDaily: true,
+                    grade,
+                    scoreLine: `${state.score} PTS`,
+                    glyph,
+                    textSnippet: resultSnippet('Decant', todayUTC(), true, grade, glyph.cells, par, `solved in ${used} pours (par ${par})`),
+                  }
+                }}
               />
             )}
             <GameButton onClick={onNewGame}>Play again</GameButton>

@@ -21,6 +21,7 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 import { DailyShareButton } from '@/components/DailyShareButton'
 import { todayUTC } from '@/lib/dailyDate'
+import { gradeRatio, barGlyph, resultSnippet } from '@/lib/dailyShare'
 
 /** Reach drives the whole affordance — it is information, never decoration. */
 const REACH_COLOR: Record<Reach, string> = {
@@ -434,18 +435,22 @@ export function GameFuse({ storageKey }: { storageKey: string }) {
           </div>
           <div className="flex flex-wrap justify-center gap-2">
             <DailyShareButton
-              payload={() => ({
-                gameName: 'Fuse',
-                dateISO: todayUTC(),
-                subtitle: todayUTC(),
-                accent: '#ff4d6d',
-                lines: [
-                  { label: 'Score', value: String(state.score) },
-                  { label: 'Best chain', value: String(state.bestChain) },
-                ],
-                url: `${window.location.origin}/fuse`,
-                textSnippet: `Fuse — scored ${state.score} (best chain ${state.bestChain})`,
-              })}
+              payload={() => {
+                const grade = gradeRatio(state.score, best, newBest)
+                const glyph = state.bestChain >= 1 ? barGlyph(state.bestChain, undefined, `BEST CHAIN ${state.bestChain}`) : undefined
+                return {
+                  gameName: 'Fuse',
+                  dateISO: todayUTC(),
+                  subtitle: todayUTC(),
+                  accent: '#ff4d6d',
+                  lines: [],
+                  url: `${window.location.origin}/fuse`,
+                  grade,
+                  scoreLine: `${state.score} PTS`,
+                  glyph,
+                  textSnippet: resultSnippet('Fuse', todayUTC(), false, grade, glyph?.cells ?? [], undefined, `scored ${state.score}, best chain ${state.bestChain}`),
+                }
+              }}
             />
             <GameButton onClick={restart}>Play again</GameButton>
           </div>

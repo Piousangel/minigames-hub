@@ -26,6 +26,7 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { todayUTC as localISODate } from '@/lib/dailyDate'
 import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
 import { DailyShareButton } from '@/components/DailyShareButton'
+import { gradeFewer, barGlyph, resultSnippet } from '@/lib/dailyShare'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const KEY_DIRS: Record<string, Direction> = {
@@ -573,18 +574,25 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
             )}
             {isDaily && (
               <DailyShareButton
-                payload={() => ({
-                  gameName: 'Duplex',
-                  dateISO: localISODate(),
-                  accent: '#4d7cff',
-                  lines: [
-                    { label: 'Solved in', value: `${s.moves} moves` },
-                    { label: 'Par', value: String(s.par) },
-                  ],
-                  streak,
-                  url: `${window.location.origin}/duplex`,
-                  textSnippet: `Duplex Daily ${localISODate()} — solved in ${s.moves} moves (par ${s.par})`,
-                })}
+                payload={() => {
+                  const used = s.moves
+                  const par = s.par
+                  const grade = gradeFewer(used, par)
+                  const glyph = barGlyph(used, par, `${used} MOVES · PAR ${par}`)
+                  return {
+                    gameName: 'Duplex',
+                    dateISO: localISODate(),
+                    accent: '#4d7cff',
+                    lines: [],
+                    streak,
+                    url: `${window.location.origin}/duplex`,
+                    isDaily: true,
+                    grade,
+                    scoreLine: `${used} / ${par} MOVES`,
+                    glyph,
+                    textSnippet: resultSnippet('Duplex', localISODate(), true, grade, glyph.cells, par, `solved in ${used} moves (par ${par})`),
+                  }
+                }}
               />
             )}
             <GameButton variant="ghost" onClick={restart} className="px-4 py-2">

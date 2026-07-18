@@ -23,6 +23,7 @@ import { isTypingTarget } from '@/lib/isTypingTarget'
 import { todayUTC as todayISO } from '@/lib/dailyDate'
 import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
 import { DailyShareButton } from '@/components/DailyShareButton'
+import { gradeFewer, barGlyph, resultSnippet } from '@/lib/dailyShare'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // A fixed, asset-free pip palette (CSS discs only).
@@ -690,18 +691,25 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
               <div className="flex flex-wrap justify-center gap-2">
                 {mode === 'daily' && (
                   <DailyShareButton
-                    payload={() => ({
-                      gameName: 'Overfold',
-                      dateISO: todayISO(),
-                      accent: '#b06bff',
-                      lines: [
-                        { label: 'Folded in', value: `${state.foldsUsed} folds` },
-                        { label: 'Score', value: String(state.score) },
-                      ],
-                      streak,
-                      url: `${window.location.origin}/overfold`,
-                      textSnippet: `Overfold Daily ${todayISO()} — folded in ${state.foldsUsed} (par ${state.par}) · ${state.score} pts`,
-                    })}
+                    payload={() => {
+                      const used = state.foldsUsed
+                      const par = state.par
+                      const grade = gradeFewer(used, par)
+                      const glyph = barGlyph(used, par, `${used} FOLDS · PAR ${par}`)
+                      return {
+                        gameName: 'Overfold',
+                        dateISO: todayISO(),
+                        accent: '#b06bff',
+                        lines: [],
+                        streak,
+                        url: `${window.location.origin}/overfold`,
+                        isDaily: true,
+                        grade,
+                        scoreLine: `${state.score} PTS`,
+                        glyph,
+                        textSnippet: resultSnippet('Overfold', todayISO(), true, grade, glyph.cells, par, `folded in ${used} (par ${par})`),
+                      }
+                    }}
                   />
                 )}
                 <GameButton onClick={advance} className="px-4 py-2">
