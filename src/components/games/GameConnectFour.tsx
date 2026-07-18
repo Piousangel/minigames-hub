@@ -228,7 +228,7 @@ export function GameConnectFour({ storageKey }: { storageKey: string }) {
   if (!state) {
     return (
       <GameShell
-        stats={[{ label: 'You', value: 0 }]}
+        stats={[{ label: 'Wins', value: 0 }]}
         headerExtra={difficultyToggle}
         onNewGame={restart}
         newGameDisabled
@@ -244,9 +244,9 @@ export function GameConnectFour({ storageKey }: { storageKey: string }) {
   return (
     <GameShell
       stats={[
-        { label: 'You', value: record.w, testId: 'c4-wins', float: true },
-        { label: 'CPU', value: record.l },
-        { label: 'Draw', value: record.d },
+        { label: 'Wins', value: record.w, testId: 'c4-wins', float: true },
+        { label: 'Losses', value: record.l },
+        { label: 'Draws', value: record.d },
       ]}
       headerExtra={difficultyToggle}
       onNewGame={restart}

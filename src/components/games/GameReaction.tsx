@@ -195,7 +195,7 @@ export function GameReaction({ storageKey }: { storageKey: string }) {
         { label: 'Best', value: best },
       ]}
       onNewGame={restart}
-      newGameLabel="Reset"
+      newGameLabel="Restart"
       newGameDisabled={!state}
       muted={muted}
       onToggleMute={toggleMuted}

@@ -210,7 +210,7 @@ export function GameAimTrainer({ storageKey }: { storageKey: string }) {
         </div>
       }
       onNewGame={status === 'idle' ? start : reset}
-      newGameLabel={status === 'idle' ? 'Start' : 'Reset'}
+      newGameLabel={status === 'idle' ? 'Start' : 'Restart'}
       newGameDisabled={!state}
       muted={muted}
       onToggleMute={toggleMuted}

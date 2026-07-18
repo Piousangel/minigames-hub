@@ -360,8 +360,8 @@ export function GameCheckers({ storageKey }: { storageKey: string }) {
   )
 
   const stats = [
-    { label: 'You', value: record.w, testId: 'checkers-wins', float: true },
-    { label: 'CPU', value: record.l },
+    { label: 'Wins', value: record.w, testId: 'checkers-wins', float: true },
+    { label: 'Losses', value: record.l },
     { label: 'Red', value: pieceCounts.r },
     { label: 'Black', value: pieceCounts.b },
   ]
@@ -369,7 +369,7 @@ export function GameCheckers({ storageKey }: { storageKey: string }) {
   if (!state) {
     return (
       <GameShell
-        stats={[{ label: 'You', value: 0 }]}
+        stats={[{ label: 'Wins', value: 0 }]}
         headerExtra={difficultyToggle}
         onNewGame={restart}
         newGameDisabled
