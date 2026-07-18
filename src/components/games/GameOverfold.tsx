@@ -22,6 +22,7 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { todayUTC as todayISO } from '@/lib/dailyDate'
 import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
+import { DailyShareButton } from '@/components/DailyShareButton'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // A fixed, asset-free pip palette (CSS discs only).
@@ -686,9 +687,27 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
               <p className="text-sm text-fg-muted">
                 Score <span className="font-bold text-accent">{state.score}</span>
               </p>
-              <GameButton onClick={advance} className="px-4 py-2">
-                Next paper
-              </GameButton>
+              <div className="flex flex-wrap justify-center gap-2">
+                {mode === 'daily' && (
+                  <DailyShareButton
+                    payload={() => ({
+                      gameName: 'Overfold',
+                      dateISO: todayISO(),
+                      accent: '#b06bff',
+                      lines: [
+                        { label: 'Folded in', value: `${state.foldsUsed} folds` },
+                        { label: 'Score', value: String(state.score) },
+                      ],
+                      streak,
+                      url: `${window.location.origin}/overfold`,
+                      textSnippet: `Overfold Daily ${todayISO()} — folded in ${state.foldsUsed} (par ${state.par}) · ${state.score} pts`,
+                    })}
+                  />
+                )}
+                <GameButton onClick={advance} className="px-4 py-2">
+                  Next paper
+                </GameButton>
+              </div>
             </>
           ) : (
             <>

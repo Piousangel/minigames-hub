@@ -20,6 +20,7 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { todayUTC as todayISO } from '@/lib/dailyDate'
 import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
+import { DailyShareButton } from '@/components/DailyShareButton'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // A fixed, asset-free node palette (CSS discs only). Color id -> HSL.
@@ -774,9 +775,25 @@ export function GameSplice({ storageKey }: { storageKey: string }) {
                   Next network
                 </GameButton>
               ) : (
-                <GameButton onClick={newRun} className="px-4 py-2">
-                  Replay daily
-                </GameButton>
+                <div className="flex flex-wrap justify-center gap-2">
+                  <DailyShareButton
+                    payload={() => ({
+                      gameName: 'Splice',
+                      dateISO: todayISO(),
+                      accent: '#22d3ee',
+                      lines: [
+                        { label: 'Cleared in', value: `${state.cutsUsed} cuts` },
+                        { label: 'Score', value: String(state.score) },
+                      ],
+                      streak,
+                      url: `${window.location.origin}/splice`,
+                      textSnippet: `Splice Daily ${todayISO()} — cleared in ${state.cutsUsed} cuts (par ${state.par}) · ${state.score} pts`,
+                    })}
+                  />
+                  <GameButton onClick={newRun} className="px-4 py-2">
+                    Replay daily
+                  </GameButton>
+                </div>
               )}
             </>
           ) : (

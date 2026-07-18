@@ -25,6 +25,7 @@ import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { todayUTC as localISODate } from '@/lib/dailyDate'
 import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
+import { DailyShareButton } from '@/components/DailyShareButton'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const KEY_DIRS: Record<string, Direction> = {
@@ -564,11 +565,27 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
             {'★★★'.slice(0, stars)}
             <span className="text-fg-muted/40">{'★★★'.slice(stars)}</span>
           </p>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap justify-center gap-2">
             {!isLastLevel && !isDaily && (
               <GameButton onClick={nextLevel} className="px-4 py-2">
                 Next Level
               </GameButton>
+            )}
+            {isDaily && (
+              <DailyShareButton
+                payload={() => ({
+                  gameName: 'Duplex',
+                  dateISO: localISODate(),
+                  accent: '#4d7cff',
+                  lines: [
+                    { label: 'Solved in', value: `${s.moves} moves` },
+                    { label: 'Par', value: String(s.par) },
+                  ],
+                  streak,
+                  url: `${window.location.origin}/duplex`,
+                  textSnippet: `Duplex Daily ${localISODate()} — solved in ${s.moves} moves (par ${s.par})`,
+                })}
+              />
             )}
             <GameButton variant="ghost" onClick={restart} className="px-4 py-2">
               Replay
