@@ -24,6 +24,7 @@ import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { todayUTC as localISODate } from '@/lib/dailyDate'
+import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const KEY_DIRS: Record<string, Direction> = {
@@ -98,6 +99,7 @@ function isPackUnlocked(packIdx: number, solved: Set<number>): boolean {
 export function GameDuplex({ storageKey }: { storageKey: string }) {
   const [state, setState] = useState<GameState | null>(null)
   const [isDaily, setIsDaily] = useState(false)
+  const [streak, setStreak] = useState(0)
   const [dailyDate, setDailyDate] = useState('')
   const [best, setBest] = useState<number | null>(null)
   const [newBest, setNewBest] = useState(false)
@@ -176,6 +178,7 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
     dailyDateRef.current = date
     setIsDaily(true)
     setDailyDate(date)
+    setStreak(currentStreak(loadStreak(`${storageKey}:streak`)))
     setSolved(false)
     setSolvedSeen(false)
     setNewBest(false)
@@ -185,7 +188,7 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
     commit(s)
     refreshBest(s, true, date)
     forceHistory((n) => n + 1)
-  }, [commit, refreshBest])
+  }, [commit, refreshBest, storageKey])
 
   // Initial mount (client only) — level 0.
   useEffect(() => {
@@ -247,7 +250,15 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
           setBest(prev)
         }
         setNewBest(improved)
-        if (!daily) persistSolved(next.levelIndex)
+        if (daily) {
+          // 오늘의 데일리를 풀면 day-streak을 올린다(멱등 — 같은 날 재풀이는 안 셈).
+          const streakKey = `${storageKey}:streak`
+          const bumped = bumpStreak(loadStreak(streakKey))
+          saveStreak(streakKey, bumped)
+          setStreak(bumped.streak)
+        } else {
+          persistSolved(next.levelIndex)
+        }
       } else if (next.youPellets.size < s.youPellets.size || next.echoPellets.size < s.echoPellets.size) {
         play('eat')
       } else if ((after.you && !before.you) || (after.echo && !before.echo)) {
@@ -375,6 +386,8 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
         { label: 'Moves', value: s.moves, testId: 'moves' },
         { label: 'Par', value: s.par },
         { label: 'Best', value: best ?? 0 },
+        // day-streak은 데일리 모드에서만.
+        ...(isDaily ? [{ label: 'Streak', value: streak, testId: 'streak' }] : []),
       ]}
       headerExtra={
         <div className="flex flex-wrap items-center gap-1.5">

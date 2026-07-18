@@ -14,6 +14,7 @@ import {
   type Tube,
 } from '@/lib/games/decant/engine'
 import { isTypingTarget } from '@/lib/isTypingTarget'
+import { bumpStreak, currentStreak } from '@/lib/dailyStreak'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
@@ -56,11 +57,6 @@ const SOUND: Record<DecantEvent, Parameters<ReturnType<typeof useGameSound>['pla
   illegal: 'error',
   undo: 'flip',
   win: 'win',
-}
-
-// UTC 기준(todayUTC와 동일 정의) — daily 경계를 전 게임에서 통일하기 위함.
-function isoDate(d: Date): string {
-  return d.toISOString().slice(0, 10)
 }
 
 function dailySeed(d: Date): number {
@@ -154,7 +150,7 @@ export function GameDecant({ storageKey }: { storageKey: string }) {
   useEffect(() => {
     const save = loadSave(storageKey)
     setBest(save.score)
-    setStreak(save.daily?.streak ?? 0)
+    setStreak(currentStreak(save.daily)) // 끊긴 streak은 0으로 (죽은 기록을 살아있는 척 안 함)
     const g = createGame(DAILY_CONFIG, dailySeed(new Date()))
     prevWon.current = false
     commit(g)
@@ -181,15 +177,9 @@ export function GameDecant({ storageKey }: { storageKey: string }) {
       const save = loadSave(storageKey)
       let nextSave: DecantSave = { ...save, score: Math.max(save.score, next.score) }
       if (modeRef.current === 'daily') {
-        const today = isoDate(new Date())
-        const y = new Date()
-        y.setUTCDate(y.getUTCDate() - 1) // UTC로 하루 전 — isoDate가 UTC라 반드시 UTC 산술
-        const yesterday = isoDate(y)
-        if (save.daily?.lastDate !== today) {
-          const nextStreak = save.daily?.lastDate === yesterday ? (save.daily?.streak ?? 0) + 1 : 1
-          nextSave = { ...nextSave, daily: { lastDate: today, streak: nextStreak } }
-          setStreak(nextStreak)
-        }
+        const bumped = bumpStreak(save.daily) // 어제 완료면 +1, 아니면 1, 오늘 중복은 멱등
+        nextSave = { ...nextSave, daily: bumped }
+        setStreak(bumped.streak)
       }
       setBest(nextSave.score)
       saveAll(storageKey, nextSave)

@@ -21,6 +21,7 @@ import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { todayUTC as todayISO } from '@/lib/dailyDate'
+import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // A fixed, asset-free pip palette (CSS discs only).
@@ -53,6 +54,7 @@ function randomSeed(): number {
 export function GameOverfold({ storageKey }: { storageKey: string }) {
   const [state, setState] = useState<GameState | null>(null)
   const [best, setBest] = useState(0)
+  const [streak, setStreak] = useState(0)
   const [mode, setMode] = useState<Mode>('random')
   const [preview, setPreview] = useState<FoldPreview | null>(null)
   const [creaseCursor, setCreaseCursor] = useState(0)
@@ -126,6 +128,8 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
       dailyRef.current = {}
     }
 
+    setStreak(currentStreak(loadStreak(`${storageKey}:streak`)))
+
     const storedMode = localStorage.getItem(`${storageKey}:mode`)
     // 홈의 Daily 필터가 이 게임을 가리키므로 저장값이 없으면 daily로 연다.
     const initialMode: Mode = storedMode === 'random' ? 'random' : 'daily'
@@ -170,6 +174,14 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
         localStorage.setItem(`${storageKey}:daily`, JSON.stringify(dailyRef.current))
       } catch {
         /* storage unavailable */
+      }
+
+      // 오늘의 데일리를 처음 클리어하면 day-streak을 올린다(승리 시에만).
+      if (s.won) {
+        const streakKey = `${storageKey}:streak`
+        const bumped = bumpStreak(loadStreak(streakKey))
+        saveStreak(streakKey, bumped)
+        setStreak(bumped.streak)
       }
     },
     [storageKey],
@@ -386,6 +398,8 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
   const stats = [
     { label: 'Score', value: state?.score ?? 0, testId: 'score', float: true },
     { label: 'Best', value: best, testId: 'best' },
+    // day-streak은 데일리 모드에서만 의미 있다.
+    ...(mode === 'daily' ? [{ label: 'Streak', value: streak, testId: 'streak' }] : []),
   ]
 
   const modeToggle = (
