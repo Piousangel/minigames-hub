@@ -325,6 +325,31 @@ daily 7종 전부 통일. 예전엔 UTC/로컬 혼재라 게임마다 데일리�
   호출 지점 코드검증으로 커버. 표시(로드→currentStreak→스탯)는 브라우저 검증됨.
 - **다음 후보**: streak이 특정 일수(7·30) 도달 시 축하/뱃지, 홈 카드에 streak 표시.
 
+### 7.11 ✅ 바이럴 후크 + 배포 전략 — 데일리 공유 카드 5종 배포 (2026-07-18)
+**오피스아워 결론**(사용자와 상의): 유저를 데려온 유일 검증 채널은 **커뮤니티 배포**
+(r/WebGames 100뷰/일). SEO는 아직, 광고는 트래픽 대기. 그래서 **배포 × 품질(리텐션)**이
+곱셈 관계 — 둘 다. 게임·SEO·바이럴은 에이전트가 자율로, **커뮤니티 게시는 사용자만 가능**
+(봇 게시는 밴 → 채널 죽음). 에이전트는 사용자 몫을 5분짜리로 깔아준다.
+
+✅ **데일리 결과 공유 카드**(`src/lib/dailyShare.ts` + `DailyShareButton.tsx`):
+- 클라이언트 캔버스로 네온 브랜드 PNG(게임명·날짜·결과·streak·사이트 URL) 1080² 생성.
+  픽셀 폰트는 `public/fonts/PressStart2P.woff2`를 FontFace로 로드(정적 export 안전).
+- `navigator.share(files)`로 이미지 공유(미지원 시 다운로드) + Wordle식 텍스트 스니펫
+  클립보드 복사(텍스트가 링크 없이 퍼짐). 둘 다 URL 박아 유입 회수.
+- **적용 5종**: Ricochet(cyan) / Splice(cyan) / Overfold(purple) / Decant(magenta) /
+  Duplex(blue). 데일리 완료 오버레이에만 "📣 Share result" 버튼. accent만 바꿔 재사용.
+- ⚠️ 카드 렌더는 브라우저 시각 검증(5 accent), Share 버튼 노출은 코드검증(퍼즐 풀이가
+  필요해 오버레이 자동 도달 불가).
+
+🟡 **커뮤니티 게시글 초안**(사용자 액션 대기): `scratch-community-posts.md`(gitignore).
+서브에이전트가 규칙 리서치 + 게임별 맞춤 초안 작성. 게시 가능 4곳(r/WebGames·r/playmygame·
+r/IndieDev·r/IndieGaming) + itch.io(저신뢰). **금지: r/Games·r/coolgithubprojects(레포 필요)·
+r/incremental_games(장르 불일치)·r/gamedev**. 
+- **순서**: Day0 r/WebGames 재등판(Ricochet 단일 게임 각도, "56종" 재탕 금지) → +4~5일
+  r/playmygame(Umbra) → +3~4일 r/IndieDev(Fuse 메이킹) → +5~7일 r/IndieGaming(Splice+GIF).
+- **핵심 규칙**: 같은 날 여러 서브에 같은 링크 금지, 게시 전 며칠 댓글로 활동(레딧은
+  "누가 올리나"를 봄), 링크만 던지지 말 것. **게시는 사용자만 — 에이전트가 대신 못 함.**
+
 ### 7.4 🟡 UI/UX 고도화 (지속)
 - 트렌디한 애니메이션/인터랙션, 최신 사이트 참고. 스스로 판단해서 계속 개선.
 - **Lighthouse 기준선 갱신(회귀 금지)**: home **100**, game **100**, a11y/bp/seo 100, CLS 0, TBT 0ms.
