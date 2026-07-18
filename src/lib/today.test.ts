@@ -1,0 +1,34 @@
+import { describe, it, expect } from 'vitest'
+import { questKey, pickDailyPicks, QUEST_TARGET } from './today'
+import { gamePages } from './games/registry'
+
+describe('questKey', () => {
+  it('embeds the date so it auto-resets at UTC midnight', () => {
+    expect(questKey('2026-07-18')).toBe('quest:2026-07-18')
+  })
+})
+
+describe('pickDailyPicks', () => {
+  const slugs = new Set(gamePages.map((g) => g.slug))
+
+  it('returns QUEST_TARGET distinct real slugs', () => {
+    const picks = pickDailyPicks('2026-07-18')
+    expect(picks).toHaveLength(QUEST_TARGET)
+    expect(new Set(picks).size).toBe(QUEST_TARGET) // distinct
+    picks.forEach((s) => expect(slugs.has(s)).toBe(true)) // real games
+  })
+
+  it('is deterministic — same date, same picks (every browser agrees)', () => {
+    expect(pickDailyPicks('2026-07-18')).toEqual(pickDailyPicks('2026-07-18'))
+  })
+
+  it('rotates — different dates generally give different picks', () => {
+    const a = pickDailyPicks('2026-07-18')
+    const b = pickDailyPicks('2026-07-19')
+    expect(a).not.toEqual(b)
+  })
+
+  it('respects a custom count', () => {
+    expect(pickDailyPicks('2026-07-18', 5)).toHaveLength(5)
+  })
+})

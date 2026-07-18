@@ -6,6 +6,7 @@ import { AdSlot } from '@/components/ads/AdSlot'
 import { GameBrowser, type BrowseItem } from '@/components/GameBrowser'
 import { Marquee } from '@/components/Marquee'
 import { RecentlyPlayed } from '@/components/RecentlyPlayed'
+import { TodayBoard } from '@/components/TodayBoard'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
@@ -53,6 +54,9 @@ export default function Home() {
 
       {/* ===== 아케이드 마퀴 티커 ===== */}
       <Marquee />
+
+      {/* ===== TODAY 보드(사이트 streak + 오늘 3게임 퀘스트 + 오늘의 픽) ===== */}
+      <TodayBoard items={items} />
 
       {/* ===== 최근 플레이(리텐션, 비었으면 안 보임) ===== */}
       <RecentlyPlayed items={items} />
