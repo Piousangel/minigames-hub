@@ -6,6 +6,7 @@ import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import * as R from '@/lib/games/ricochet/engine'
+import { todayUTC as todayISO } from '@/lib/dailyDate'
 
 // Component-scoped keyframes — globals.css stays untouched.
 const RICOCHET_STYLE = `
@@ -58,9 +59,6 @@ function valueTint(value: number): string {
   }
 }
 
-function todayISO(): string {
-  return new Date().toISOString().slice(0, 10)
-}
 
 /** Per-hop cumulative delay: base 70ms accelerating toward 45ms for punch. */
 function hopDelay(k: number): number {

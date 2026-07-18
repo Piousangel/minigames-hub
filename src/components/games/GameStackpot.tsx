@@ -18,16 +18,9 @@ import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { todayUTC as todayString } from '@/lib/dailyDate'
 
 const COMBO_KEY_SUFFIX = ':combo'
-
-function todayString(): string {
-  const d = new Date()
-  const y = d.getFullYear()
-  const m = String(d.getMonth() + 1).padStart(2, '0')
-  const day = String(d.getDate()).padStart(2, '0')
-  return `${y}-${m}-${day}`
-}
 
 const RISK_STYLES: Record<'safe' | 'warn' | 'danger', string> = {
   safe: 'border-neon-green/40',

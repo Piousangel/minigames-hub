@@ -20,6 +20,7 @@ import {
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { isTypingTarget } from '@/lib/isTypingTarget'
+import { todayUTC as todayISO } from '@/lib/dailyDate'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // A fixed, asset-free pip palette (CSS discs only).
@@ -48,9 +49,6 @@ function randomSeed(): number {
   return Math.floor(Math.random() * 2 ** 32)
 }
 
-function todayISO(): string {
-  return new Date().toISOString().slice(0, 10)
-}
 
 export function GameOverfold({ storageKey }: { storageKey: string }) {
   const [state, setState] = useState<GameState | null>(null)

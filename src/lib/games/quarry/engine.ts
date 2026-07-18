@@ -302,14 +302,6 @@ export function dailySeed(dateStr: string): number {
   return h >>> 0
 }
 
-/** Today's date as 'YYYY-MM-DD' in local time — impure, used only to seed. */
-export function todayStr(now: Date = new Date()): string {
-  const y = now.getFullYear()
-  const m = String(now.getMonth() + 1).padStart(2, '0')
-  const d = String(now.getDate()).padStart(2, '0')
-  return `${y}-${m}-${d}`
-}
-
 /** Convenience: build an rng from an integer seed. */
 export function makeRng(seed: number): Rng {
   return mulberry32(seed >>> 0)

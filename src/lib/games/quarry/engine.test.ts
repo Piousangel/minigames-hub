@@ -18,7 +18,6 @@ import {
   scoreLevel,
   sizeForLevel,
   streakBonus,
-  todayStr,
   type Pos,
   type QuarryState,
   type Rng,
@@ -295,10 +294,6 @@ describe('determinism / seed', () => {
   it('dailySeed is stable per date and differs across dates', () => {
     expect(dailySeed('2026-07-15')).toBe(dailySeed('2026-07-15'))
     expect(dailySeed('2026-07-15')).not.toBe(dailySeed('2026-07-16'))
-  })
-
-  it('todayStr formats a fixed date as YYYY-MM-DD', () => {
-    expect(todayStr(new Date(2026, 6, 4))).toBe('2026-07-04')
   })
 })
 

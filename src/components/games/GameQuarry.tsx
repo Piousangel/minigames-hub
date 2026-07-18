@@ -10,12 +10,12 @@ import {
   nextStreak,
   probe,
   scoreLevel,
-  todayStr,
   type LevelScore,
   type Pos,
   type QuarryState,
   type Rng,
 } from '@/lib/games/quarry/engine'
+import { todayUTC as todayStr } from '@/lib/dailyDate'
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'

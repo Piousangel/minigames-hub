@@ -58,12 +58,13 @@ const SOUND: Record<DecantEvent, Parameters<ReturnType<typeof useGameSound>['pla
   win: 'win',
 }
 
+// UTC 기준(todayUTC와 동일 정의) — daily 경계를 전 게임에서 통일하기 위함.
 function isoDate(d: Date): string {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  return d.toISOString().slice(0, 10)
 }
 
 function dailySeed(d: Date): number {
-  return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate()
+  return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate()
 }
 
 function freshSeed(): number {
@@ -182,7 +183,7 @@ export function GameDecant({ storageKey }: { storageKey: string }) {
       if (modeRef.current === 'daily') {
         const today = isoDate(new Date())
         const y = new Date()
-        y.setDate(y.getDate() - 1)
+        y.setUTCDate(y.getUTCDate() - 1) // UTC로 하루 전 — isoDate가 UTC라 반드시 UTC 산술
         const yesterday = isoDate(y)
         if (save.daily?.lastDate !== today) {
           const nextStreak = save.daily?.lastDate === yesterday ? (save.daily?.streak ?? 0) + 1 : 1
