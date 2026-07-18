@@ -308,20 +308,22 @@ Google 파비콘 페처는 정규 경로로 루트 ico를 먼저 찾는다. 브�
 ⚠️ **즉시 안 바뀐다**: Google이 홈을 재크롤해야 반영(며칠~몇 주). Search Console에서
 홈 URL 검사 → 색인 요청으로 앞당길 수 있다(사용자 액션).
 
-### 7.10 🟡 Day streak — 선행 배관 완료, 기능 확장은 미착수 (2026-07-18)
-✅ **선행: "오늘" 판정 UTC 통일 완료·배포**(#22). `src/lib/dailyDate.ts`의 `todayUTC()`가
-단일 소스. daily 7종(splice/ricochet/overfold/stackpot/duplex/quarry/decant)이 전부 여기에
-통일됐다. 예전엔 UTC/로컬 혼재라 게임마다 데일리가 다른 시각에 갱신됐다.
+### 7.10 ✅ Day streak — UTC 통일 + 4종 확장 완료·배포 (2026-07-18)
+✅ **선행: "오늘" 판정 UTC 통일**(#22). `src/lib/dailyDate.ts`의 `todayUTC()`가 단일 소스.
+daily 7종 전부 통일. 예전엔 UTC/로컬 혼재라 게임마다 데일리가 다른 시각에 갱신됐다.
 
-⬜ **기능(#23): streak을 daily 게임에 확장** — 미착수.
-- **레퍼런스 구현이 이미 있다**: `GameDecant.tsx`(save에 `daily:{lastDate,streak}`,
-  persistWin에서 어제 플레이했으면 +1·아니면 1·같은 날 중복 없음, 스탯에 "Streak N" 표시).
-  Quarry 엔진에도 `nextStreak`/`streakBonus`가 있다(부분 구현).
-- ⚠️ **게임마다 "오늘 데일리 완료"의 정의가 다르다**: Decant/Splice/Overfold/Duplex/Quarry는
-  명확한 승리·완료가 있으나, Stackpot(엔들리스, bust로 끝남)·Ricochet(탭 한도 소진)은 애매.
-  게임별로 완료 트리거를 정해야 한다 — 기계적 복붙 아님.
-- streak 저장은 **새 키**(Decant는 save blob의 `daily` 필드). `best:<slug>`에 JSON 절대 금지.
-- 어떤 게임에 넣을지·완료 정의는 사용자와 스코프 합의 필요(2026-07-18 시점 미정).
+✅ **기능(#23): day-streak 확장.** 재사용 헬퍼 `src/lib/dailyStreak.ts`
+(bumpStreak/currentStreak, UTC, 유닛 12개). 저장은 전용 키 `<storageKey>:streak`(JSON).
+**적용 4종**: Decant(인라인→헬퍼로 정리, 죽은-streak 표시 버그 수정) / Splice / Overfold / Duplex.
+각 게임 데일리 완료(승리·solve) 시 bump, 데일리 모드에서만 "Streak N" 스탯.
+
+- **Quarry 제외(의도적)**: 이미 `nextStreak`(런 내 연속 언더파, "🔥 N")가 있어 cross-day
+  streak을 넣으면 "streak" 개념이 둘이 돼 혼란. 넣으려면 기존 것 리네이밍 선행.
+- **Stackpot/Ricochet 제외**: 완료 정의가 애매(Stackpot 엔들리스 bust, Ricochet 탭 한도).
+  넣으려면 "오늘 데일리 완료"를 게임별로 먼저 정의할 것.
+- ⚠️ **승리→bump는 퍼즐 풀이가 필요해 자동 관찰 못 함** — bumpStreak 유닛 + win 핸들러
+  호출 지점 코드검증으로 커버. 표시(로드→currentStreak→스탯)는 브라우저 검증됨.
+- **다음 후보**: streak이 특정 일수(7·30) 도달 시 축하/뱃지, 홈 카드에 streak 표시.
 
 ### 7.4 🟡 UI/UX 고도화 (지속)
 - 트렌디한 애니메이션/인터랙션, 최신 사이트 참고. 스스로 판단해서 계속 개선.
