@@ -592,6 +592,36 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // deepdive — 수직 갱도로 내려가는 하강 화살 + 바닥의 보물
+  deepdive: (
+    <>
+      <path d="M12 3v13" />
+      <path d="M7 11l5 5 5-5" />
+      <rect x="8.5" y="18.5" width="7" height="3" rx="1" {...soft} />
+    </>
+  ),
+
+  // sonar — 핑 발신점 + 확장 링 두 겹
+  sonar: (
+    <>
+      <circle cx="12" cy="12" r="1.6" {...solid} />
+      <path d="M12 5.5a6.5 6.5 0 0 1 6.5 6.5" opacity="0.85" />
+      <path d="M12 8.5a3.5 3.5 0 0 1 3.5 3.5" {...soft} />
+      <path d="M5.5 12A6.5 6.5 0 0 1 12 5.5" opacity="0.4" />
+    </>
+  ),
+
+  // handful — 바구니 + 그 안의 알 세 개
+  handful: (
+    <>
+      <path d="M4.5 9h15l-1.5 10.5a1.5 1.5 0 0 1-1.5 1.3H7.5a1.5 1.5 0 0 1-1.5-1.3z" {...soft} />
+      <path d="M4.5 9h15" />
+      <circle cx="9" cy="13.5" r="1.4" {...solid} />
+      <circle cx="12.5" cy="14.5" r="1.4" {...soft} />
+      <circle cx="15.5" cy="13" r="1.4" {...solid} />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>

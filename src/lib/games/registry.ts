@@ -68,6 +68,9 @@ export type GamePage = GamePageBase &
     | { game: 'umbra' }
     | { game: 'fuse' }
     | { game: 'polytap' }
+    | { game: 'deepdive' }
+    | { game: 'sonar' }
+    | { game: 'handful' }
   )
 
 export const gamePages: GamePage[] = [
@@ -1682,6 +1685,90 @@ export const gamePages: GamePage[] = [
       { q: 'What is a polyrhythm?', a: 'Two rhythms of different lengths running at the same time — here one key every 3 beats against another every 4. They line up only now and then, and those moments are the game.' },
       { q: 'Do I need musical training?', a: 'No. The first cycle is a warm-up that does not count against you, and the window stays the same width for the whole run.' },
       { q: 'Why did my run end at full lives?', a: 'Missing a collision beat is an instant loss. It is the one thing lives do not cover.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
+    ],
+  },
+  {
+    slug: 'deepdive',
+    game: 'deepdive',
+    title: 'Play Deepdive Online — Free Push-Your-Luck Diving Game',
+    h1: 'Deepdive',
+    metaDescription:
+      'Play Deepdive free online — dive a vertical shaft grabbing richer treasure the deeper you go, but every step down is a breath you need to climb back. Run out of air before the surface and you lose it all. No download, no sign-up.',
+    shortDescription: 'Dive deep, but save the breath to climb back.',
+    howToPlay: [
+      'Move down and around the shaft with the arrow keys or WASD. Each step costs air.',
+      'The deeper you go, the more valuable the treasure — but you spend air getting there.',
+      'You only bank treasure when you climb back to the surface. Reach it before your air runs out.',
+      'Run out of air below the surface and you drown, losing everything you were carrying.',
+    ],
+    strategy: [
+      'Air is a single tank that only ever goes down. Every step deeper is a step you must pay for again on the way up.',
+      'Bank early and often. Unbanked treasure is worth nothing until it touches the surface.',
+      'Before you take a tempting step down, count whether you can still afford the climb home.',
+      'A greedy run that drowns scores zero for that dive. A modest run you actually surface scores real points.',
+      'Grab 60 or more in one dive for a jackpot, but only if you can make it back.',
+    ],
+    faq: [
+      { q: 'What happens if I run out of air?', a: 'If you cannot move to any affordable cell below the surface, you drown and lose all the treasure you were carrying. Your banked score stays.' },
+      { q: 'When do I actually score?', a: 'Only when you reach the surface. Treasure you are carrying banks the moment you touch the top row.' },
+      { q: 'Does air refill?', a: 'No. Air is one tank for the whole dive and only decreases. Plan the whole round-trip around it.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
+    ],
+  },
+  {
+    slug: 'sonar',
+    game: 'sonar',
+    title: 'Play Sonar Online — Free Deduction Puzzle Game',
+    h1: 'Sonar',
+    metaDescription:
+      'Play Sonar free online — hidden targets lurk in a dark sea. Ping any cell and it returns just one number: the distance to the nearest target. Triangulate their positions in as few pings as you can. No download, no sign-up.',
+    shortDescription: 'One ping, one number. Triangulate the hidden targets.',
+    howToPlay: [
+      'Ping any cell (Enter or click) and it returns a single number: the distance to the nearest hidden target.',
+      'That ping also clears every cell within that distance as proven empty.',
+      'Where the distance rings from different pings intersect, a target must sit.',
+      'Mark a cell you are sure of to capture it with no ping — deduction is worth more than brute pinging.',
+    ],
+    strategy: [
+      'A ping tells you the nearest target, not all of them. Read what its cleared area rules out, not just the number.',
+      'Two or three pings from spread-out cells pin a target down faster than pinging next to it.',
+      'Marking a correct cell pays more than a lucky direct hit — the game rewards knowing over guessing.',
+      'You get three wrong marks before it is over, so only mark when the rings leave one answer.',
+      'Fewer pings means a bigger par bonus at the finish. Solve it clean, not just solve it.',
+    ],
+    faq: [
+      { q: 'Does the ping tell me every target?', a: 'No. It returns only the distance to the nearest still-hidden target, and clears that radius as empty. The rest you deduce.' },
+      { q: 'Why mark instead of ping?', a: 'A correct mark scores more than a direct-hit ping, because deduction is the point. But a wrong mark costs a life.' },
+      { q: 'How do I lose?', a: 'Three wrong marks ends the run. Only mark a cell when the distance rings leave no other option.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
+    ],
+  },
+  {
+    slug: 'handful',
+    game: 'handful',
+    title: 'Play Handful Online — Free Push-Your-Luck Grab Game',
+    h1: 'Handful',
+    metaDescription:
+      'Play Handful free online — you can see everything left in the basket, but not the order. Choose how big a handful to grab, then grab blind. Bigger handfuls score more, but one rotten item spoils the whole grab. No download, no sign-up.',
+    shortDescription: 'Decide how big to grab, then grab blind.',
+    howToPlay: [
+      'The basket shows exactly how many good and rotten items are left — only the order is hidden.',
+      'Each turn, choose how big a handful to grab (bigger with the up/right keys, smaller with down/left).',
+      'Grab a clean handful and you score more the bigger it was, and clean streaks build a combo.',
+      'Grab even one rotten item and the whole handful scores nothing and your combo resets.',
+    ],
+    strategy: [
+      'Everything is visible, so the odds are exact, not a guess. Weigh the rotten-to-good ratio before each grab.',
+      'Bigger handfuls score more but are more likely to catch a rotten one. Size the grab to the current odds.',
+      'A clean streak multiplies your score, so protect a good combo with a smaller safe grab when rotten items are dense.',
+      'Late in the basket the ratio swings hard — sometimes one careful small grab beats a greedy big one.',
+      'There is no losing, only the score you leave with, so every grab is a pure risk-reward call.',
+    ],
+    faq: [
+      { q: 'Can I see what I am grabbing?', a: 'You see the whole basket contents — how many good and rotten remain — but not the order, so each grab is a calculated risk, not blind luck.' },
+      { q: 'What does one rotten item do?', a: 'It spoils the entire handful: that grab scores nothing and your clean-streak combo resets to zero.' },
+      { q: 'Can I lose?', a: 'No. There is no fail state — the basket empties and you keep your score. It is all about how much you dare to grab.' },
       { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
     ],
   },

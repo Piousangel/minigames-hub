@@ -23,7 +23,10 @@ import { GameNumberMemory } from '@/components/games/GameNumberMemory'
 import { GameOverdub } from '@/components/games/GameOverdub'
 import { GameOverload } from '@/components/games/GameOverload'
 import { GamePinwheel } from '@/components/games/GamePinwheel'
+import { GameDeepdive } from '@/components/games/GameDeepdive'
+import { GameHandful } from '@/components/games/GameHandful'
 import { GamePolytap } from '@/components/games/GamePolytap'
+import { GameSonar } from '@/components/games/GameSonar'
 import { GameProspector } from '@/components/games/GameProspector'
 import { GameOverfold } from '@/components/games/GameOverfold'
 import { GameQuarry } from '@/components/games/GameQuarry'
@@ -168,6 +171,12 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameFuse storageKey={`best:${page.slug}`} />
     case 'polytap':
       return <GamePolytap storageKey={`best:${page.slug}`} />
+    case 'deepdive':
+      return <GameDeepdive storageKey={`best:${page.slug}`} />
+    case 'sonar':
+      return <GameSonar storageKey={`best:${page.slug}`} />
+    case 'handful':
+      return <GameHandful storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

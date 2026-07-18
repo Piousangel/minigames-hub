@@ -78,6 +78,9 @@ export const gameMeta: Record<string, GameMeta> = {
   umbra: { icon: '🌑', accent: 'purple', category: 'Skill' },
   fuse: { icon: '🧨', accent: 'red', category: 'Puzzle' },
   polytap: { icon: '🥁', accent: 'cyan', category: 'Skill' },
+  deepdive: { icon: '🤿', accent: 'cyan', category: 'Skill', daily: true },
+  sonar: { icon: '📡', accent: 'blue', category: 'Puzzle', daily: true },
+  handful: { icon: '🧺', accent: 'lime', category: 'Arcade', daily: true },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

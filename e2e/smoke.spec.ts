@@ -410,6 +410,21 @@ test('polytap: 키 입력 경로가 크래시 없이 돈다', async ({ page }) =
   await expect(page.getByTestId('polytap-board')).toBeVisible()
 })
 
+test('deepdive: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/deepdive')
+  await expect(page.getByTestId('deepdive-board')).toBeVisible()
+})
+
+test('sonar: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/sonar')
+  await expect(page.getByTestId('sonar-board')).toBeVisible()
+})
+
+test('handful: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/handful')
+  await expect(page.getByTestId('handful-board')).toBeVisible()
+})
+
 test('pinwheel: 마우스 클릭으로 핀이 꽂힌다', async ({ page }) => {
   // 셀의 onFocus가 핀을 꽂고 onClick 토글이 곧바로 해제해 마우스로는 플레이가
   // 불가능했다. 실제 마우스 클릭은 포커스를 유발하므로 이 경로를 고정한다.
@@ -481,7 +496,7 @@ test('홈: Daily 필터가 Daily 모드 게임만 보여준다', async ({ page }
   await page.getByRole('button', { name: 'Daily', exact: true }).click()
   const titles = await page.locator('a:has(h3) h3').allInnerTexts()
   expect(titles.sort()).toEqual(
-    ['Decant', 'Duplex', 'Overfold', 'Quarry', 'Ricochet', 'Splice', 'Stackpot'].sort(),
+    ['Decant', 'Deepdive', 'Duplex', 'Handful', 'Overfold', 'Quarry', 'Ricochet', 'Sonar', 'Splice', 'Stackpot'].sort(),
   )
 })
 
