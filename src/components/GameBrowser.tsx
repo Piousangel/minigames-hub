@@ -160,7 +160,10 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
           <p className="mb-4 text-xs text-fg-muted">
             {matches.length} game{matches.length === 1 ? '' : 's'}
           </p>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <div
+            className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+            data-testid="browse-results"
+          >
             {matches.map((g) => (
               <GameCard key={g.slug} slug={g.slug} title={g.title} description={g.description} />
             ))}

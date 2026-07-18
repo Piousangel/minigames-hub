@@ -24,7 +24,9 @@ import { GameOverdub } from '@/components/games/GameOverdub'
 import { GameOverload } from '@/components/games/GameOverload'
 import { GamePinwheel } from '@/components/games/GamePinwheel'
 import { GameDeepdive } from '@/components/games/GameDeepdive'
+import { GameFlapjack } from '@/components/games/GameFlapjack'
 import { GameHandful } from '@/components/games/GameHandful'
+import { GameInterlock } from '@/components/games/GameInterlock'
 import { GamePolytap } from '@/components/games/GamePolytap'
 import { GameSonar } from '@/components/games/GameSonar'
 import { GameProspector } from '@/components/games/GameProspector'
@@ -177,6 +179,10 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameSonar storageKey={`best:${page.slug}`} />
     case 'handful':
       return <GameHandful storageKey={`best:${page.slug}`} />
+    case 'flapjack':
+      return <GameFlapjack storageKey={`best:${page.slug}`} />
+    case 'interlock':
+      return <GameInterlock storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

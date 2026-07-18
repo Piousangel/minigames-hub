@@ -622,6 +622,26 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // flapjack — 크기 다른 팬케이크 스택 + 스패출러
+  flapjack: (
+    <>
+      <ellipse cx="12" cy="17.5" rx="7.5" ry="1.8" {...soft} />
+      <ellipse cx="12" cy="13.5" rx="5.5" ry="1.6" {...soft} />
+      <ellipse cx="12" cy="9.8" rx="3.5" ry="1.4" {...softer} />
+      <path d="M3 6.5h6" opacity="0.7" />
+    </>
+  ),
+
+  // interlock — 맞물린 두 고리 + 교차점
+  interlock: (
+    <>
+      <circle cx="9" cy="12" r="5.5" />
+      <circle cx="15" cy="12" r="5.5" {...soft} />
+      <circle cx="12" cy="8.6" r="1" {...solid} />
+      <circle cx="12" cy="15.4" r="1" {...solid} />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>

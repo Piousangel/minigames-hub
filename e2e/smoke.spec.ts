@@ -425,6 +425,16 @@ test('handful: 로드 → 보드 표시', async ({ page }) => {
   await expect(page.getByTestId('handful-board')).toBeVisible()
 })
 
+test('flapjack: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/flapjack')
+  await expect(page.getByTestId('flapjack-board')).toBeVisible()
+})
+
+test('interlock: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/interlock')
+  await expect(page.getByTestId('interlock-board')).toBeVisible()
+})
+
 test('pinwheel: 마우스 클릭으로 핀이 꽂힌다', async ({ page }) => {
   // 셀의 onFocus가 핀을 꽂고 onClick 토글이 곧바로 해제해 마우스로는 플레이가
   // 불가능했다. 실제 마우스 클릭은 포커스를 유발하므로 이 경로를 고정한다.
@@ -494,9 +504,10 @@ test('홈: Daily 필터가 Daily 모드 게임만 보여준다', async ({ page }
   // gameMeta의 daily 표시와 실제 게임의 Daily 모드 구현이 어긋나면 여기서 깨진다.
   await page.goto('/')
   await page.getByRole('button', { name: 'Daily', exact: true }).click()
-  const titles = await page.locator('a:has(h3) h3').allInnerTexts()
+  // TodayBoard/RecentlyPlayed도 게임 카드를 그리므로 브라우저 결과 그리드로 좁힌다.
+  const titles = await page.getByTestId('browse-results').locator('a:has(h3) h3').allInnerTexts()
   expect(titles.sort()).toEqual(
-    ['Decant', 'Deepdive', 'Duplex', 'Handful', 'Overfold', 'Quarry', 'Ricochet', 'Sonar', 'Splice', 'Stackpot'].sort(),
+    ['Decant', 'Deepdive', 'Duplex', 'Flapjack', 'Handful', 'Interlock', 'Overfold', 'Quarry', 'Ricochet', 'Sonar', 'Splice', 'Stackpot'].sort(),
   )
 })
 

@@ -71,6 +71,8 @@ export type GamePage = GamePageBase &
     | { game: 'deepdive' }
     | { game: 'sonar' }
     | { game: 'handful' }
+    | { game: 'flapjack' }
+    | { game: 'interlock' }
   )
 
 export const gamePages: GamePage[] = [
@@ -1769,6 +1771,62 @@ export const gamePages: GamePage[] = [
       { q: 'Can I see what I am grabbing?', a: 'You see the whole basket contents — how many good and rotten remain — but not the order, so each grab is a calculated risk, not blind luck.' },
       { q: 'What does one rotten item do?', a: 'It spoils the entire handful: that grab scores nothing and your clean-streak combo resets to zero.' },
       { q: 'Can I lose?', a: 'No. There is no fail state — the basket empties and you keep your score. It is all about how much you dare to grab.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
+    ],
+  },
+  {
+    slug: 'flapjack',
+    game: 'flapjack',
+    title: 'Play Flapjack Online — Free Pancake Sorting Puzzle',
+    h1: 'Flapjack',
+    metaDescription:
+      'Play Flapjack free online — a messy stack of different-sized pancakes. Slide the spatula in anywhere and flip everything above it. Sort them big-to-small in as few flips as you can. No download, no sign-up.',
+    shortDescription: 'Flip the top of the stack to sort the pancakes.',
+    howToPlay: [
+      'The pancakes are stacked in a jumbled order of sizes.',
+      'Tap a pancake to slide the spatula under it and flip the whole stack above it upside down.',
+      'Keep flipping until the stack is sorted, largest on the bottom to smallest on top.',
+      'Every flip counts — the fewer you use, the better your score.',
+    ],
+    strategy: [
+      'Work from the bottom up: get the biggest pancake to the bottom first, then the next, and so on.',
+      'To place the biggest pancake, flip it to the top, then flip the whole stack so it drops to the bottom.',
+      'Each pancake usually takes at most two flips to lock in place, so plan the pair before you touch anything.',
+      'The par is a greedy benchmark. Beating it means you found a shorter route, not just a lucky one.',
+      'Undo is there for planning, so try a flip in your head before you commit.',
+    ],
+    faq: [
+      { q: 'What exactly does a flip do?', a: 'It reverses the order of every pancake above where you insert the spatula, like flipping that whole chunk of the stack over at once.' },
+      { q: 'Can I lose?', a: 'No. There is no fail state — you just keep flipping until it is sorted. The challenge is doing it in few flips.' },
+      { q: 'Is this the pancake sorting problem?', a: 'Yes. It is the classic prefix-reversal puzzle: sort the stack using only flips of the top portion.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
+    ],
+  },
+  {
+    slug: 'interlock',
+    game: 'interlock',
+    title: 'Play Interlock Online — Free Ring Rotation Puzzle',
+    h1: 'Interlock',
+    metaDescription:
+      'Play Interlock free online — two bead rings mesh at two shared points. Rotate the left or right ring one step at a time to sort the scrambled colored beads back to their home arcs. No download, no sign-up.',
+    shortDescription: 'Rotate two meshed rings to sort the beads home.',
+    howToPlay: [
+      'Two rings of colored beads overlap and share two crossing beads.',
+      'Rotate the left ring or the right ring one step at a time.',
+      'Turning a ring carries the shared beads into the other ring, so every move mixes both.',
+      'Return every bead to its own colored home arc to solve it.',
+    ],
+    strategy: [
+      'The two shared crossing points are the only way beads move between rings — everything routes through them.',
+      'Line up a bead at a crossing point, then rotate the other ring to carry it where it belongs.',
+      'Solving one ring can disturb the other, so work the two together rather than finishing one alone.',
+      'Fewer moves scores higher, so undo and re-plan when a sequence turns out longer than expected.',
+      'Think a few rotations ahead — like a round version of a sliding puzzle.',
+    ],
+    faq: [
+      { q: 'How do beads move between the rings?', a: 'Only through the two shared crossing beads. Rotating one ring shifts those shared beads into the other ring, which is what lets you sort them.' },
+      { q: 'Is this like a Rubik style puzzle?', a: 'It shares DNA with Hungarian Rings — two interlocked loops you rotate to sort. It is pure logic, no luck.' },
+      { q: 'Can I undo a rotation?', a: 'Yes. Undo lets you back out of a line that is not working, though a solved-in-fewer-moves run scores best.' },
       { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
     ],
   },

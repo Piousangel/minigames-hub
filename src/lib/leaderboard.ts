@@ -15,6 +15,8 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   deepdive: { label: 'Score' },
   sonar: { label: 'Score' },
   handful: { label: 'Score' },
+  flapjack: { label: 'Score' },
+  interlock: { label: 'Score' },
   snake: { label: 'Score' },
   tetris: { label: 'Score' },
   breakout: { label: 'Score' },

@@ -81,6 +81,8 @@ export const gameMeta: Record<string, GameMeta> = {
   deepdive: { icon: '🤿', accent: 'cyan', category: 'Skill', daily: true },
   sonar: { icon: '📡', accent: 'blue', category: 'Puzzle', daily: true },
   handful: { icon: '🧺', accent: 'lime', category: 'Arcade', daily: true },
+  flapjack: { icon: '🥞', accent: 'cyan', category: 'Puzzle', daily: true },
+  interlock: { icon: '⛓️', accent: 'magenta', category: 'Puzzle', daily: true },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']
