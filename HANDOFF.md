@@ -341,6 +341,15 @@ daily 7종 전부 통일. 예전엔 UTC/로컬 혼재라 게임마다 데일리�
 - ⚠️ 카드 렌더는 브라우저 시각 검증(5 accent), Share 버튼 노출은 코드검증(퍼즐 풀이가
   필요해 오버레이 자동 도달 불가).
 
+✅ **공유 카드 개편 "Proof-of-flex"**(디자인 팀 9에이전트 스펙, 2026-07-18 배포):
+밋밋하던 카드를 **RANK 등급 씰(S/A/B/C/D)** 히어로 + **글리프 지문 스트립**(채운/빈 셀 +
+par 틱) + 스캔라인 + ▶PLAY FREE 칩으로 개편. 애니메이션은 심사에서 배제(비용>가치).
+- `dailyShare.ts` 헬퍼(순수, 유닛 22개): gradeFewer/gradeMore/gradeRatio/barGlyph/
+  resultSnippet/dailySerial. payload에 isDaily/grade/scoreLine/glyph 옵셔널 필드.
+- 등급 산출: par 데일리 delta(적을수록), Ricochet chain−par(많을수록), 엔들리스 PB 비율.
+- grade 없으면 기존 lines 스택 폴백(하위호환). 검증은 8종 샘플 브라우저 그리드 렌더.
+- ⚠️ 실제 게임오버→카드는 자동 도달 불가라 샘플 렌더+grade 유닛+typecheck로 검증(직접 관찰 X).
+
 🟡 **커뮤니티 게시글 초안**(사용자 액션 대기): `scratch-community-posts.md`(gitignore).
 서브에이전트가 규칙 리서치 + 게임별 맞춤 초안 작성. 게시 가능 4곳(r/WebGames·r/playmygame·
 r/IndieDev·r/IndieGaming) + itch.io(저신뢰). **금지: r/Games·r/coolgithubprojects(레포 필요)·
