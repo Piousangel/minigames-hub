@@ -1,6 +1,29 @@
 # 인계: AdSense 승인받아 광고를 켜고, 게임 라운드를 계속 돌린다
 
-> 갱신: 2026-07-16 · 브랜치: `main` · 커밋 상태: **committed (트리 clean)** · 전부 배포됨
+> 갱신: 2026-07-18 · 브랜치: `main` · 커밋 상태: **committed (scratch 외 트리 clean)** · 전부 배포됨
+
+## 2026-07-18 자율 세션 요약 (사용자 부재 중, "묻지 말고 계속 디벨롭" 지시)
+전부 커밋·배포·검증됨. 게임 **59종**.
+1. **라운드8 게임 3종** — Deepdive(수직 잠수)/Sonar(거리 추론)/Handful(한 줌 도박). 배선 6곳
+   + 공유 카드/streak. ⚠️ 에이전트 "typecheck 통과"가 lint는 못 잡음(deepdive prefer-const
+   에러가 정적 빌드 막음) — **라운드 배선 후 반드시 클린 빌드로 라우트 생성 확인할 것**.
+2. **공유 카드 개편 "Proof-of-flex"**(디자인 팀 9에이전트) — RANK 등급 씰 + 글리프 지문 +
+   스캔라인 + PLAY FREE 칩. 8종 적용. 실제 게임오버→카드까지 실측. §7.11.
+3. **라운드8 UI/UX 감사 배치**(★1/★4/★5 + 폴리시) — Minesweeper 타이머+베스트,
+   Sudoku/Hangman 탭타깃(9→5/7열), Nonogram/Ticker 온보딩 카피, New best 통일, Wins/Losses.
+4. **Tetris 모바일 DAS**(★3) — ◀▶▼ 홀드 반복.
+
+### ⬜ 남은 감사 항목 (다음 세션 — 근거는 라운드8 감사 synthesis)
+- **★2 Ricochet/Stackpot/Quarry에 day-streak**(3파일, 중위험). ⚠️ 이건 2026-07-18의 내
+  "제외" 결정(§7.10)을 뒤집는다 — 감사가 반론 제시: Ricochet/Stackpot은 "이겼다"가 아니라
+  "오늘 데일리를 플레이했다"로 bump(Wordle식). Quarry는 데일리 게임오버에서 bump + **기존
+  in-run `streak`/'🔥'를 'Chain'으로 개명**(52,149,270-275행 — 같은 단어 충돌 제거). 표준
+  패턴은 GameSplice(22/138/187행). 키는 `:streak` 전용(best:<slug>에 JSON 금지).
+  → Quarry 개명은 라이브 기능 UX 변경이라 사용자 눈으로 한 번 보는 게 안전.
+- **폴리시 잔여**: #6 Connect4/Checkers 통산전적 라벨 `You`/`CPU`→`Wins`/`Losses`(의미 충돌 해소),
+  Reaction/AimTrainer `Reset`→`Restart`. 무위험.
+- **하지 말 것**(감사 명시): StatSpec 전면 확장, CTA 동사 일괄 통일, Minesweeper 리더보드 등록,
+  Tetris 회전/하드드롭 홀드반복.
 
 ## 멈춘 지점
 
