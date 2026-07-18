@@ -5,6 +5,7 @@ import { AdSlot } from '@/components/ads/AdSlot'
 import { Leaderboard } from '@/components/Leaderboard'
 import { RecordPlay } from '@/components/RecordPlay'
 import { Reveal } from '@/components/Reveal'
+import { NextUp } from '@/components/NextUp'
 import { RelatedGames } from '@/components/RelatedGames'
 
 /** 게임 액센트 네온 컬러의 섹션 헤딩(가독성 위해 픽셀폰트 대신 산세리프). */
@@ -35,6 +36,9 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
         {page.h1}
       </h1>
       {children}
+
+      {/* 게임 직후: 다음 게임으로 잇는 체류 후크(게임오버 catch point) */}
+      <NextUp currentSlug={page.slug} />
 
       {hasLeaderboard(page.slug) && <Leaderboard slug={page.slug} />}
 
