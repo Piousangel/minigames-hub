@@ -317,10 +317,10 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
 
       {/* 모바일 터치 컨트롤 */}
       <div className="mx-auto mt-3 grid max-w-72 grid-cols-3 gap-2">
-        <TouchButton label="◀" aria="Move left" onPress={doMoveLeft} />
+        <TouchButton label="◀" aria="Move left" onPress={doMoveLeft} repeat />
         <TouchButton label="⟳" aria="Rotate" onPress={doRotate} />
-        <TouchButton label="▶" aria="Move right" onPress={doMoveRight} />
-        <TouchButton label="▼" aria="Soft drop" onPress={doSoftDrop} />
+        <TouchButton label="▶" aria="Move right" onPress={doMoveRight} repeat />
+        <TouchButton label="▼" aria="Soft drop" onPress={doSoftDrop} repeat />
         <TouchButton label="⤓" aria="Hard drop" onPress={doHardDrop} className="col-span-2" />
       </div>
     </GameShell>
@@ -332,17 +332,58 @@ function TouchButton({
   aria,
   onPress,
   className = '',
+  repeat = false,
 }: {
   label: string
   aria: string
   onPress: () => void
   className?: string
+  repeat?: boolean
 }) {
+  const timeoutRef = useRef<number | null>(null)
+  const intervalRef = useRef<number | null>(null)
+  const cls = `btn-press touch-none rounded-lg bg-surface py-3 text-xl font-bold text-fg hover:bg-white/10 ${className}`
+
+  const clear = useCallback(() => {
+    if (timeoutRef.current !== null) {
+      clearTimeout(timeoutRef.current)
+      timeoutRef.current = null
+    }
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current)
+      intervalRef.current = null
+    }
+  }, [])
+
+  // 언마운트 시 인터벌 누수 방지(세션 넘어 잔존 금지).
+  useEffect(() => clear, [clear])
+
+  if (!repeat) {
+    return (
+      <button aria-label={aria} onClick={onPress} className={cls}>
+        <span aria-hidden="true">{label}</span>
+      </button>
+    )
+  }
+
+  // 홀드 반복(DAS): 즉시 1회 → 200ms 후 110ms 간격. click 대신 pointerdown만
+  // 쓰고 preventDefault로 합성 click 이중 발화를 막는다.
+  const startRepeat = (e: React.PointerEvent) => {
+    e.preventDefault()
+    onPress()
+    timeoutRef.current = window.setTimeout(() => {
+      intervalRef.current = window.setInterval(onPress, 110)
+    }, 200)
+  }
+
   return (
     <button
       aria-label={aria}
-      onClick={onPress}
-      className={`btn-press touch-none rounded-lg bg-surface py-3 text-xl font-bold text-fg hover:bg-white/10 ${className}`}
+      onPointerDown={startRepeat}
+      onPointerUp={clear}
+      onPointerCancel={clear}
+      onPointerLeave={clear}
+      className={cls}
     >
       <span aria-hidden="true">{label}</span>
     </button>
