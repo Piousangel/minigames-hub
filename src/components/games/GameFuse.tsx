@@ -19,6 +19,8 @@ import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { DailyShareButton } from '@/components/DailyShareButton'
+import { todayUTC } from '@/lib/dailyDate'
 
 /** Reach drives the whole affordance — it is information, never decoration. */
 const REACH_COLOR: Record<Reach, string> = {
@@ -430,7 +432,23 @@ export function GameFuse({ storageKey }: { storageKey: string }) {
               Best <span className="font-bold text-accent">{best}</span>
             </p>
           </div>
-          <GameButton onClick={restart}>Play again</GameButton>
+          <div className="flex flex-wrap justify-center gap-2">
+            <DailyShareButton
+              payload={() => ({
+                gameName: 'Fuse',
+                dateISO: todayUTC(),
+                subtitle: todayUTC(),
+                accent: '#ff4d6d',
+                lines: [
+                  { label: 'Score', value: String(state.score) },
+                  { label: 'Best chain', value: String(state.bestChain) },
+                ],
+                url: `${window.location.origin}/fuse`,
+                textSnippet: `Fuse — scored ${state.score} (best chain ${state.bestChain})`,
+              })}
+            />
+            <GameButton onClick={restart}>Play again</GameButton>
+          </div>
         </GameOverlay>
 
         <style>{`

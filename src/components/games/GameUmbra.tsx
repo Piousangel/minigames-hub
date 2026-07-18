@@ -20,6 +20,8 @@ import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { DailyShareButton } from '@/components/DailyShareButton'
+import { todayUTC } from '@/lib/dailyDate'
 
 const TICK_MS = 1000 / 60
 /** Render-only: how many ticks of travel the streak trails behind the marble. */
@@ -504,7 +506,23 @@ export function GameUmbra({ storageKey }: { storageKey: string }) {
               Level <span className="font-bold text-accent">{level}</span>
             </p>
           </div>
-          <GameButton onClick={newRun}>Play again</GameButton>
+          <div className="flex flex-wrap justify-center gap-2">
+            <DailyShareButton
+              payload={() => ({
+                gameName: 'Umbra',
+                dateISO: todayUTC(),
+                subtitle: todayUTC(),
+                accent: '#b06bff',
+                lines: [
+                  { label: 'Score', value: String(score) },
+                  { label: 'Level', value: String(level) },
+                ],
+                url: `${window.location.origin}/umbra`,
+                textSnippet: `Umbra — scored ${score} (level ${level})`,
+              })}
+            />
+            <GameButton onClick={newRun}>Play again</GameButton>
+          </div>
         </GameOverlay>
 
         <style>{`

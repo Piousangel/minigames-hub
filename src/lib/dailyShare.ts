@@ -41,6 +41,8 @@ export interface DailySharePayload {
   url: string // 공유에 박을 사이트 링크(가능하면 ?seed= 포함)
   /** 링크 없이도 퍼지는 한 줄 텍스트 (예: "Ricochet Daily 2026-07-18 — 9-chain (par 7)") */
   textSnippet: string
+  /** 게임명 아래 부제. 생략하면 `DAILY · {dateISO}`. 엔들리스 게임은 `HIGH SCORE` 등으로 넘긴다. */
+  subtitle?: string
 }
 
 /** 폭에 맞을 때까지 폰트 크기를 줄인다(긴 게임명 대비). */
@@ -95,10 +97,10 @@ async function renderCard(p: DailySharePayload): Promise<Blob | null> {
   ctx.font = px(nameSize)
   ctx.fillText(p.gameName.toUpperCase(), S / 2, 290)
 
-  // 날짜
+  // 부제(데일리는 'DAILY · 날짜', 엔들리스는 커스텀)
   ctx.fillStyle = '#8b93a7'
   ctx.font = px(20)
-  ctx.fillText(`DAILY · ${p.dateISO}`, S / 2, 350)
+  ctx.fillText(p.subtitle ?? `DAILY · ${p.dateISO}`, S / 2, 350)
 
   // 결과 통계
   let y = 480

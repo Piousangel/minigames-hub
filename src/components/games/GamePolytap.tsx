@@ -21,6 +21,8 @@ import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { DailyShareButton } from '@/components/DailyShareButton'
+import { todayUTC } from '@/lib/dailyDate'
 
 type Phase = 'idle' | 'running' | 'over'
 
@@ -466,7 +468,23 @@ export function GamePolytap({ storageKey }: { storageKey: string }) {
               {run.bestSpread !== null && ` · Best sync ${run.bestSpread} ticks`}
             </p>
           </div>
-          <GameButton onClick={start}>Play again</GameButton>
+          <div className="flex flex-wrap justify-center gap-2">
+            <DailyShareButton
+              payload={() => ({
+                gameName: 'Polytap',
+                dateISO: todayUTC(),
+                subtitle: todayUTC(),
+                accent: '#22d3ee',
+                lines: [
+                  { label: 'Score', value: String(run.score) },
+                  { label: 'Cycles', value: String(run.cyclesCleared) },
+                ],
+                url: `${window.location.origin}/polytap`,
+                textSnippet: `Polytap — scored ${run.score} (${run.cyclesCleared} cycles, stage ${run.stage})`,
+              })}
+            />
+            <GameButton onClick={start}>Play again</GameButton>
+          </div>
         </GameOverlay>
 
         {phase === 'idle' && (
