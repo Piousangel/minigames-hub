@@ -487,7 +487,7 @@ export function GameUmbra({ storageKey }: { storageKey: string }) {
         <GameOverlay
           show={phase === 'over'}
           variant={newBest ? 'win' : 'lose'}
-          title={newBest ? 'New record!' : 'Blackout'}
+          title={newBest ? 'New best!' : 'Blackout'}
           testId="game-over"
         >
           <div className="flex flex-col items-center gap-1 text-sm">

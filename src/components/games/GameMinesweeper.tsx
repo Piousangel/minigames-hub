@@ -30,10 +30,25 @@ const NUMBER_COLORS: Record<number, string> = {
 const RIPPLE_STEP = 16 // ms per Manhattan step
 const RIPPLE_CAP = 200 // ms
 
+// 개인 베스트(클리어 시간, 낮을수록 좋음) 전용 키. 리더보드엔 넣지 않는다 —
+// 리더보드는 "높을수록 좋은 정수" 규약이라 시간(낮을수록 좋음)과 맞지 않는다.
+const MS_BEST_KEY = 'best:minesweeper:time'
+
+function fmtTime(totalSeconds: number): string {
+  const m = Math.floor(totalSeconds / 60)
+  const s = totalSeconds % 60
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+}
+
 export function GameMinesweeper() {
   // SSR 불일치 방지: 초기 상태는 클라이언트에서만 생성
   const [state, setState] = useState<MsState | null>(null)
   const [flagMode, setFlagMode] = useState(false)
+  const [elapsed, setElapsed] = useState(0)
+  const [best, setBest] = useState<number | null>(null)
+  const elapsedRef = useRef(0)
+  const timerRef = useRef<number | null>(null)
+  const runningRef = useRef(false)
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reducedRef } = useReducedMotion()
@@ -49,15 +64,39 @@ export function GameMinesweeper() {
     setState(s)
   }, [])
 
+  const stopTimer = useCallback(() => {
+    if (timerRef.current !== null) {
+      clearInterval(timerRef.current)
+      timerRef.current = null
+    }
+    runningRef.current = false
+  }, [])
+
+  const startTimer = useCallback(() => {
+    if (runningRef.current) return
+    runningRef.current = true
+    timerRef.current = window.setInterval(() => {
+      elapsedRef.current += 1
+      setElapsed(elapsedRef.current)
+    }, 1000)
+  }, [])
+
   const restart = useCallback(() => {
     originRef.current = null
+    stopTimer()
+    elapsedRef.current = 0
+    setElapsed(0)
     commit(newMinesweeper())
     setFlagMode(false)
-  }, [commit])
+  }, [commit, stopTimer])
 
   useEffect(() => {
     restart()
-  }, [restart])
+    const raw = Number(localStorage.getItem(MS_BEST_KEY))
+    setBest(Number.isFinite(raw) && raw > 0 ? raw : null)
+    return () => stopTimer()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleCell = useCallback(
     (x: number, y: number, flag: boolean) => {
@@ -72,13 +111,34 @@ export function GameMinesweeper() {
       }
       const next = reveal(s, x, y, Math.random)
       if (next === s) return
+      const wasFirstReveal = originRef.current === null
       originRef.current = { x, y }
-      if (next.over && !next.won) play('lose')
-      else if (next.won) play('win')
-      else play('move')
+      if (next.over) {
+        stopTimer()
+        if (next.won) {
+          const t = elapsedRef.current
+          setBest((prev) => {
+            if (prev === null || t < prev) {
+              try {
+                localStorage.setItem(MS_BEST_KEY, String(t))
+              } catch {
+                /* ignore */
+              }
+              return t
+            }
+            return prev
+          })
+          play('win')
+        } else {
+          play('lose')
+        }
+      } else {
+        if (wasFirstReveal) startTimer() // 첫 오픈에서 시계 시작
+        play('move')
+      }
       commit(next)
     },
-    [commit, play],
+    [commit, play, startTimer, stopTimer],
   )
 
   const flagToggle = (
@@ -93,13 +153,31 @@ export function GameMinesweeper() {
     </button>
   )
 
+  const headerChips = (
+    <div className="flex items-center gap-2">
+      <div className="rounded-lg bg-surface px-3 py-1.5 text-sm">
+        Time{' '}
+        <span className="font-bold tabular-nums" data-testid="ms-time">
+          {fmtTime(elapsed)}
+        </span>
+      </div>
+      <div className="rounded-lg bg-surface px-3 py-1.5 text-sm">
+        Best{' '}
+        <span className="font-bold tabular-nums" data-testid="ms-best">
+          {best !== null ? fmtTime(best) : '—'}
+        </span>
+      </div>
+      {flagToggle}
+    </div>
+  )
+
   const hint = 'Click to reveal. Right-click (or toggle 🚩 Flag) to mark a mine.'
 
   if (!state) {
     return (
       <GameShell
         stats={[{ label: 'Mines', value: MS_MINES, testId: 'mines-left' }]}
-        headerExtra={flagToggle}
+        headerExtra={headerChips}
         onNewGame={restart}
         newGameDisabled
         muted={muted}
@@ -116,7 +194,7 @@ export function GameMinesweeper() {
   return (
     <GameShell
       stats={[{ label: 'Mines', value: MS_MINES - flagCount(state), testId: 'mines-left' }]}
-      headerExtra={flagToggle}
+      headerExtra={headerChips}
       onNewGame={restart}
       muted={muted}
       onToggleMute={toggleMuted}

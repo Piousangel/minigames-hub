@@ -494,7 +494,7 @@ export function GameSudoku({ storageKey }: { storageKey: string }) {
 
       {/* Number pad — essential for touch, mirrors the keyboard. */}
       <div className="mx-auto mt-3 flex max-w-100 flex-col gap-2">
-        <div className="grid grid-cols-9 gap-1" role="group" aria-label="Number pad">
+        <div className="grid grid-cols-5 gap-1" role="group" aria-label="Number pad">
           {Array.from({ length: 9 }, (_, n) => {
             const d = n + 1
             const done = digitCounts[d] >= 9

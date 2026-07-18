@@ -186,8 +186,8 @@ export function GameTicTacToe({ storageKey }: { storageKey: string }) {
   )
 
   const stats = [
-    { label: 'Win', value: record.wins, testId: 'wins' as const },
-    { label: 'Loss', value: record.losses },
+    { label: 'Wins', value: record.wins, testId: 'wins' as const },
+    { label: 'Losses', value: record.losses },
     { label: 'Draw', value: record.draws },
   ]
 

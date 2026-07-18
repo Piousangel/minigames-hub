@@ -198,8 +198,8 @@ export function GameRps({ storageKey }: { storageKey: string }) {
     : null
 
   const stats = [
-    { label: 'Win', value: state?.tallies.wins ?? 0, testId: 'wins' as const },
-    { label: 'Loss', value: state?.tallies.losses ?? 0 },
+    { label: 'Wins', value: state?.tallies.wins ?? 0, testId: 'wins' as const },
+    { label: 'Losses', value: state?.tallies.losses ?? 0 },
     { label: 'Draw', value: state?.tallies.draws ?? 0 },
   ]
 

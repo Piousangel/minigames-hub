@@ -230,7 +230,7 @@ export function GameHangman({ storageKey }: { storageKey: string }) {
 
       {/* A–Z letter bank */}
       <div
-        className="mx-auto mt-4 grid w-full max-w-[26rem] grid-cols-9 gap-1.5"
+        className="mx-auto mt-4 grid w-full max-w-[26rem] grid-cols-7 gap-1.5"
         data-testid="hangman-keyboard"
       >
         {ALPHABET.map((letter) => {

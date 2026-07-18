@@ -302,7 +302,7 @@ export function GameTicker({ storageKey }: { storageKey: string }) {
   const newGameLabel = over ? 'New Run' : 'Restart'
   const hint = over
     ? 'Run over — New Run for a fresh market, or Replay seed to beat this one.'
-    : 'Read momentum + the tension ring, then go all-in. Bail to cash before a hot asset snaps.'
+    : 'Each tick, tap one asset (A/B/C) to go all-in — or CASH to sit out. Read momentum + the tension ring, and bail to cash before a hot asset snaps.'
 
   const streakBadge =
     best.streak > 0 ? (
@@ -463,7 +463,7 @@ export function GameTicker({ storageKey }: { storageKey: string }) {
       <GameOverlay
         show={over}
         variant={newBest ? 'win' : 'lose'}
-        title={state?.busted ? 'Busted!' : newBest ? 'New high!' : 'Run over'}
+        title={state?.busted ? 'Busted!' : newBest ? 'New best!' : 'Run over'}
         testId="game-over"
       >
         <div className="flex flex-col items-center gap-1 text-sm">

@@ -283,7 +283,7 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
 
   const hint =
     mode === 'fill'
-      ? 'Fill mode: tap or drag to paint the picture. Switch to Mark to X out blanks.'
+      ? 'The numbers on each row and column are the lengths of filled runs — read them, then tap or drag to paint. Switch to Mark to X out blanks.'
       : 'Mark mode: tap or drag to X out cells you know are blank.'
 
   const stats = [{ label: 'Mistakes', value: mistakeCount, testId: 'mistakes' }]
