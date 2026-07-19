@@ -86,6 +86,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           >
             ★ GAME OVER · INSERT COIN ★
           </p>
+          <nav className="mb-3 space-x-4" aria-label="Browse by category">
+            <Link href="/category/puzzle" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Puzzle games</Link>
+            <Link href="/category/arcade" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Arcade games</Link>
+            <Link href="/category/classic" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Classic games</Link>
+            <Link href="/category/skill" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Skill games</Link>
+          </nav>
           <nav className="mb-4 space-x-4">
             <Link href="/about" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">About</Link>
             <Link href="/privacy" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Privacy</Link>

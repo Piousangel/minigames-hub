@@ -8,6 +8,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: siteConfig.url, changeFrequency: 'daily', priority: 1 },
     { url: `${siteConfig.url}/leaderboards`, changeFrequency: 'daily', priority: 0.7 },
+    ...['puzzle', 'arcade', 'classic', 'skill'].map((c) => ({
+      url: `${siteConfig.url}/category/${c}`,
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    })),
     ...gamePages.map((g) => ({
       url: `${siteConfig.url}/${g.slug}`,
       changeFrequency: 'weekly' as const,
