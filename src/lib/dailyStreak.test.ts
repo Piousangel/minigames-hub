@@ -1,5 +1,32 @@
-import { describe, it, expect } from 'vitest'
-import { prevDayUTC, bumpStreak, currentStreak, type DailyStreak } from './dailyStreak'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import {
+  prevDayUTC,
+  bumpStreak,
+  currentStreak,
+  loadStreak,
+  saveStreak,
+  type DailyStreak,
+} from './dailyStreak'
+
+describe('loadStreak/saveStreak roundtrip', () => {
+  beforeEach(() => {
+    const store: Record<string, string> = {}
+    vi.stubGlobal('localStorage', {
+      getItem: (k: string) => store[k] ?? null,
+      setItem: (k: string, v: string) => {
+        store[k] = v
+      },
+    })
+  })
+  it('preserves freezes across save/load (regression: loadStreak dropped freezes)', () => {
+    saveStreak('k', { lastDate: '2026-07-18', streak: 5, freezes: 2 })
+    expect(loadStreak('k')).toEqual({ lastDate: '2026-07-18', streak: 5, freezes: 2 })
+  })
+  it('loads without freezes when none stored', () => {
+    saveStreak('k', { lastDate: '2026-07-18', streak: 3 })
+    expect(loadStreak('k')).toEqual({ lastDate: '2026-07-18', streak: 3 })
+  })
+})
 
 describe('prevDayUTC', () => {
   it('goes back one UTC day', () => {
@@ -18,20 +45,32 @@ describe('prevDayUTC', () => {
 
 describe('bumpStreak', () => {
   it('starts a streak at 1 when there is no history', () => {
-    expect(bumpStreak(undefined, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 1 })
+    expect(bumpStreak(undefined, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 1, freezes: 0 })
   })
-  it('increments when yesterday was completed', () => {
+  it('increments when yesterday was completed (5th day grants a freeze)', () => {
     const prev: DailyStreak = { lastDate: '2026-07-17', streak: 4 }
-    expect(bumpStreak(prev, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 5 })
+    expect(bumpStreak(prev, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 5, freezes: 1 })
   })
-  it('resets to 1 when a day was missed', () => {
-    const prev: DailyStreak = { lastDate: '2026-07-15', streak: 9 }
-    expect(bumpStreak(prev, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 1 })
+  it('increments without a freeze when not a multiple of 5', () => {
+    expect(bumpStreak({ lastDate: '2026-07-17', streak: 2 }, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 3, freezes: 0 })
   })
-  it('is idempotent — completing again the same day does not double-count', () => {
+  it('resets to 1 and clears freezes when 2+ days were missed', () => {
+    const prev: DailyStreak = { lastDate: '2026-07-15', streak: 9, freezes: 2 }
+    expect(bumpStreak(prev, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 1, freezes: 0 })
+  })
+  it('is idempotent - same day does not double-count', () => {
     const first = bumpStreak({ lastDate: '2026-07-17', streak: 2 }, '2026-07-18')
-    expect(first).toEqual({ lastDate: '2026-07-18', streak: 3 })
-    expect(bumpStreak(first, '2026-07-18')).toBe(first) // same reference, no change
+    expect(bumpStreak(first, '2026-07-18')).toBe(first)
+  })
+  it('spends a freeze to bridge exactly one missed day', () => {
+    const prev: DailyStreak = { lastDate: '2026-07-16', streak: 7, freezes: 1 }
+    expect(bumpStreak(prev, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 8, freezes: 0 })
+  })
+  it('does not bridge two missed days even with freezes', () => {
+    expect(bumpStreak({ lastDate: '2026-07-15', streak: 5, freezes: 2 }, '2026-07-18').streak).toBe(1)
+  })
+  it('caps freezes at 2', () => {
+    expect(bumpStreak({ lastDate: '2026-07-17', streak: 9, freezes: 2 }, '2026-07-18').freezes).toBe(2)
   })
 })
 
@@ -45,7 +84,13 @@ describe('currentStreak', () => {
   it('shows the streak when last completion was yesterday (still alive)', () => {
     expect(currentStreak({ lastDate: '2026-07-17', streak: 7 }, '2026-07-18')).toBe(7)
   })
-  it('is 0 when the streak is broken (missed a day) — never shows a dead streak as alive', () => {
+  it('is 0 when a day was missed and there is no freeze', () => {
     expect(currentStreak({ lastDate: '2026-07-16', streak: 7 }, '2026-07-18')).toBe(0)
+  })
+  it('stays alive when a day was missed but a freeze is available', () => {
+    expect(currentStreak({ lastDate: '2026-07-16', streak: 7, freezes: 1 }, '2026-07-18')).toBe(7)
+  })
+  it('is 0 when 2+ days were missed even with a freeze', () => {
+    expect(currentStreak({ lastDate: '2026-07-15', streak: 7, freezes: 2 }, '2026-07-18')).toBe(0)
   })
 })

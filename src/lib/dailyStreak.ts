@@ -11,7 +11,13 @@ import { todayUTC } from './dailyDate'
 export interface DailyStreak {
   lastDate: string // 마지막으로 완료한 UTC 날짜 'YYYY-MM-DD'
   streak: number // 그날까지 연속 완료 일수 (>= 1)
+  freezes?: number // 남은 프리즈(자비). undefined = 0. 하루 놓쳐도 리셋 대신 이어감.
 }
+
+/** 프리즈: 하루 놓쳐도 스트릭을 지키는 자비 인프라. 프리즈 없는 스트릭은 이탈 장치다
+ *  (DOMAIN.md §3 — Duolingo가 프리즈를 늘리자 리텐션 상승). */
+const FREEZE_MAX = 2
+const FREEZE_EVERY = 5 // 스트릭이 5의 배수에 닿을 때마다 +1
 
 /** 'YYYY-MM-DD'(UTC)의 하루 전. 문자열 산술이 아니라 UTC Date로 정확히. */
 export function prevDayUTC(isoDate: string): string {
@@ -20,20 +26,54 @@ export function prevDayUTC(isoDate: string): string {
   return d.toISOString().slice(0, 10)
 }
 
-/** 오늘 데일리를 완료했을 때 호출. 같은 날 두 번 불러도 안전(멱등). */
-export function bumpStreak(prev: DailyStreak | undefined, today: string = todayUTC()): DailyStreak {
-  if (prev?.lastDate === today) return prev // 오늘 이미 셈함
-  const streak = prev?.lastDate === prevDayUTC(today) ? prev.streak + 1 : 1
-  return { lastDate: today, streak }
+/** from→to 사이 UTC 일수(to가 나중). 파싱 실패 시 Infinity. */
+export function daysBetweenUTC(from: string, to: string): number {
+  const a = Date.parse(from + 'T00:00:00Z')
+  const b = Date.parse(to + 'T00:00:00Z')
+  if (Number.isNaN(a) || Number.isNaN(b)) return Infinity
+  return Math.round((b - a) / 86_400_000)
 }
 
 /**
- * 지금 화면에 보일 streak. 마지막 완료가 오늘이거나 어제면 살아있고, 그보다 오래면
- * 끊긴 것이라 0. (저장된 streak 숫자를 그대로 보이면 죽은 기록을 살아있는 척 표시한다.)
+ * 오늘 데일리를 완료했을 때 호출. 같은 날 두 번 불러도 안전(멱등).
+ * - 어제 완료(gap 1) → +1
+ * - 하루 놓침(gap 2) + 프리즈 잔량 → 프리즈 1 소모하고 +1 (스트릭 유지)
+ * - 그 외 → 1로 리셋(프리즈도 0)
+ * - 새 스트릭이 5의 배수면 프리즈 +1(최대 2)
+ */
+export function bumpStreak(prev: DailyStreak | undefined, today: string = todayUTC()): DailyStreak {
+  if (prev?.lastDate === today) return prev // 오늘 이미 셈함
+  let streak: number
+  let freezes = Math.min(prev?.freezes ?? 0, FREEZE_MAX)
+  if (!prev) {
+    streak = 1
+  } else {
+    const gap = daysBetweenUTC(prev.lastDate, today)
+    if (gap === 1) {
+      streak = prev.streak + 1
+    } else if (gap === 2 && freezes > 0) {
+      streak = prev.streak + 1
+      freezes -= 1 // 자비 소모: 어제 놓친 것을 프리즈가 메운다
+    } else {
+      streak = 1
+      freezes = 0
+    }
+  }
+  if (streak % FREEZE_EVERY === 0) freezes = Math.min(freezes + 1, FREEZE_MAX)
+  return { lastDate: today, streak, freezes }
+}
+
+/**
+ * 지금 화면에 보일 streak. 오늘/어제 완료면 살아있고, 하루 놓쳤어도 프리즈가 있으면
+ * 아직 살아있다(오늘 하면 프리즈가 메움). 그보다 오래면 0(죽은 기록을 살아있는 척 안 함).
  */
 export function currentStreak(prev: DailyStreak | undefined, today: string = todayUTC()): number {
   if (!prev) return 0
-  return prev.lastDate === today || prev.lastDate === prevDayUTC(today) ? prev.streak : 0
+  if (prev.lastDate === today) return prev.streak
+  const gap = daysBetweenUTC(prev.lastDate, today)
+  if (gap === 1) return prev.streak
+  if (gap === 2 && (prev.freezes ?? 0) > 0) return prev.streak // 프리즈로 아직 살아있음
+  return 0
 }
 
 /** 전용 키에서 로드. 손상/부재 시 undefined. */
@@ -47,7 +87,13 @@ export function loadStreak(key: string): DailyStreak | undefined {
       typeof (o as DailyStreak).lastDate === 'string' &&
       typeof (o as DailyStreak).streak === 'number'
     ) {
-      return { lastDate: (o as DailyStreak).lastDate, streak: (o as DailyStreak).streak }
+      const d = o as DailyStreak
+      // freezes를 반드시 보존한다 — 안 그러면 프리즈가 매 로드에서 사라져 무의미해진다.
+      return {
+        lastDate: d.lastDate,
+        streak: d.streak,
+        ...(typeof d.freezes === 'number' ? { freezes: d.freezes } : {}),
+      }
     }
   } catch {
     // 손상 → streak 없음

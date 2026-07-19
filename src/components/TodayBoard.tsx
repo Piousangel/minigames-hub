@@ -18,6 +18,7 @@ import { loadPlayedToday, pickDailyPicks, QUEST_TARGET } from '@/lib/today'
 export function TodayBoard({ items }: { items: BrowseItem[] }) {
   const [ready, setReady] = useState(false)
   const [streak, setStreak] = useState(0)
+  const [freezes, setFreezes] = useState(0)
   const [doneToday, setDoneToday] = useState(false)
   const [playedCount, setPlayedCount] = useState(0)
   const [picks, setPicks] = useState<string[]>([])
@@ -26,6 +27,7 @@ export function TodayBoard({ items }: { items: BrowseItem[] }) {
     const today = todayUTC()
     const s = loadStreak('site:streak')
     setStreak(currentStreak(s, today))
+    setFreezes(s?.freezes ?? 0)
     setDoneToday(s?.lastDate === today)
     setPlayedCount(loadPlayedToday(today).length)
     setPicks(pickDailyPicks(today))
@@ -55,15 +57,25 @@ export function TodayBoard({ items }: { items: BrowseItem[] }) {
       <div className="mb-6 grid gap-3 sm:grid-cols-2">
         {/* 사이트 day-streak */}
         <div className="rounded-xl border border-border bg-surface/60 p-4">
-          <div className="flex items-baseline gap-2">
+          <div className="flex flex-wrap items-baseline gap-2">
             <span className="text-2xl font-bold text-neon-amber">🔥 {streak}</span>
             <span className="text-sm text-fg-muted">day{streak === 1 ? '' : 's'} in a row</span>
+            {freezes > 0 && (
+              <span
+                className="ml-auto rounded-full border border-neon-cyan/40 bg-surface px-2 py-0.5 text-xs font-semibold text-neon-cyan"
+                title="A freeze protects your streak if you miss a day"
+              >
+                ❄️ {freezes}
+              </span>
+            )}
           </div>
           <p className="mt-1 text-xs text-fg-muted">
             {streak === 0
               ? 'Play any game today to start your streak.'
               : streakAtRisk
-                ? "Play today or your streak resets — don't break it."
+                ? freezes > 0
+                  ? "Play today, or a freeze will save your streak."
+                  : "Play today or your streak resets — don't break it."
                 : 'Streak safe for today. Come back tomorrow to keep it going.'}
           </p>
         </div>
