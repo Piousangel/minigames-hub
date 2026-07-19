@@ -99,10 +99,12 @@
   비콘(RecordPlay에서 game/event/dwell). PII 없는 코스 신호만.
 - **P7 홈 신선함 + 인기 레일** ⬜ — 인기는 Worker read 엔드포인트(임계값 게이팅, 초기 에디토리얼 폴백),
   gameMeta `addedDate` → NEW 뱃지 + 'New games' 행.
-- **P8 즐겨찾기 'My Games'** ⬜ — 하트 토글 → localStorage `favorites`, 홈 레일(무계정 차별점).
+- **P8 즐겨찾기 'My Games'** ✅ 완료 — 카드 코너 하트 → localStorage `favorites`, 홈 레일(무계정 차별점),
+  커스텀 이벤트로 하트/레일 동기화.
 
 ### 신규 게임 파이프라인 (병행)
-- ① **Connections식 4×4 그룹핑 데일리**(high, 최고 ROI 신규 — 데일리+공유+streak 인프라 이미 보유).
+- ① **Connections식 4×4 그룹핑 데일리** ✅ 완료 — 'Clusters'(62종째). 16타일→숨은 4그룹, 4목숨,
+  데일리+연습, 노스포일러 이모지 그리드 공유, 승리 시 streak.
 - ② **네온 idle/클리커**(high — 무계정·무서버 궁합, 오프라인 수익 팝업 = 재방문 보상).
 - ③ **Quordle식 멀티보드**(medium — word-guess 상태 배열화 리믹스 + SEO 랜딩 2개).
 
