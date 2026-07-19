@@ -5,6 +5,7 @@ import { siteConfig } from '@/lib/siteConfig'
 import { AdSlot } from '@/components/ads/AdSlot'
 import { GameBrowser, type BrowseItem } from '@/components/GameBrowser'
 import { Marquee } from '@/components/Marquee'
+import { MyGames } from '@/components/MyGames'
 import { RecentlyPlayed } from '@/components/RecentlyPlayed'
 import { TodayBoard } from '@/components/TodayBoard'
 
@@ -57,6 +58,9 @@ export default function Home() {
 
       {/* ===== TODAY 보드(사이트 streak + 오늘 3게임 퀘스트 + 오늘의 픽) ===== */}
       <TodayBoard items={items} />
+
+      {/* ===== My Games(즐겨찾기, 비었으면 안 보임) ===== */}
+      <MyGames items={items} />
 
       {/* ===== 최근 플레이(리텐션, 비었으면 안 보임) ===== */}
       <RecentlyPlayed items={items} />

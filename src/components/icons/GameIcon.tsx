@@ -642,6 +642,16 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // clusters — 4개 그룹으로 묶이는 타일 격자(2×2 셀, 한 셀 강조)
+  clusters: (
+    <>
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1.4" {...solid} />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="1.4" {...soft} />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1.4" {...soft} />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="1.4" />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>

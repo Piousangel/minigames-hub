@@ -73,6 +73,7 @@ export type GamePage = GamePageBase &
     | { game: 'handful' }
     | { game: 'flapjack' }
     | { game: 'interlock' }
+    | { game: 'clusters' }
   )
 
 export const gamePages: GamePage[] = [
@@ -1827,6 +1828,35 @@ export const gamePages: GamePage[] = [
       { q: 'How do beads move between the rings?', a: 'Only through the two shared crossing beads. Rotating one ring shifts those shared beads into the other ring, which is what lets you sort them.' },
       { q: 'Is this like a Rubik style puzzle?', a: 'It shares DNA with Hungarian Rings — two interlocked loops you rotate to sort. It is pure logic, no luck.' },
       { q: 'Can I undo a rotation?', a: 'Yes. Undo lets you back out of a line that is not working, though a solved-in-fewer-moves run scores best.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
+    ],
+  },
+  {
+    slug: 'clusters',
+    game: 'clusters',
+    title: 'Play Clusters Online — Free Daily Word Grouping Puzzle',
+    h1: 'Clusters',
+    metaDescription:
+      'Play Clusters free online — a daily word grouping puzzle. Sixteen tiles hide four secret groups of four. Find every group in four mistakes or fewer, then share your spoiler-free grid. New puzzle every day, no download, no sign-up.',
+    shortDescription: 'Sort 16 tiles into their four hidden groups.',
+    howToPlay: [
+      'Sixteen tiles hide four secret groups of four — by category, theme, or connection.',
+      'Tap four tiles you think share a group, then press Submit.',
+      'A correct guess locks that group in as a colored row; a wrong guess costs one of your four lives.',
+      'Find all four groups before you run out of lives to win the day.',
+    ],
+    strategy: [
+      'Start with the group you are surest of — locking it in removes four tiles and clears the clutter.',
+      'Watch for traps: tiles are chosen so some look like they fit two groups. The trickiest tier is purple.',
+      'If a guess is "one away", three of your four belong together — swap the odd one out instead of starting over.',
+      'Do not spend a life on a hunch. Shuffle to see the tiles fresh and hold off until a group clicks.',
+      'The fewer mistakes you make, the higher your grade — a flawless solve is worth the patience.',
+    ],
+    faq: [
+      { q: 'Is there a new puzzle every day?', a: 'Yes. Clusters is a daily puzzle — the same 16 tiles for everyone that day, generated from the date so no server is needed. Practice mode gives you endless fresh boards any time.' },
+      { q: 'How many mistakes can I make?', a: 'Four. Each wrong group of four costs one life; run out and the puzzle ends. Solve all four groups first to win.' },
+      { q: 'What does "one away" mean?', a: 'Your guess had three tiles from a single group and one that belongs elsewhere. Keep the three, swap the fourth.' },
+      { q: 'Can I share my result without spoilers?', a: 'Yes. The share card is a colored emoji grid of your guesses — it shows how you did without revealing the answers, just like the daily word games.' },
       { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
     ],
   },

@@ -17,6 +17,7 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   handful: { label: 'Score' },
   flapjack: { label: 'Score' },
   interlock: { label: 'Score' },
+  clusters: { label: 'Score' },
   snake: { label: 'Score' },
   tetris: { label: 'Score' },
   breakout: { label: 'Score' },
