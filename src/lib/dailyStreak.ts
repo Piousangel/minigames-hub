@@ -12,6 +12,7 @@ export interface DailyStreak {
   lastDate: string // 마지막으로 완료한 UTC 날짜 'YYYY-MM-DD'
   streak: number // 그날까지 연속 완료 일수 (>= 1)
   freezes?: number // 남은 프리즈(자비). undefined = 0. 하루 놓쳐도 리셋 대신 이어감.
+  maxStreak?: number // 역대 최고 스트릭(트로피 케이스용). 리셋돼도 보존.
 }
 
 /** 프리즈: 하루 놓쳐도 스트릭을 지키는 자비 인프라. 프리즈 없는 스트릭은 이탈 장치다
@@ -60,7 +61,10 @@ export function bumpStreak(prev: DailyStreak | undefined, today: string = todayU
     }
   }
   if (streak % FREEZE_EVERY === 0) freezes = Math.min(freezes + 1, FREEZE_MAX)
-  return { lastDate: today, streak, freezes }
+  // 최고 기록은 리셋돼도 보존한다(트로피 케이스). 방금 끊긴 prev.streak도 과거 최고로 반영하여
+  // maxStreak를 안 쓰던 기존 기록도 첫 리셋에서 올바른 최고값을 얻게 한다.
+  const maxStreak = Math.max(prev?.maxStreak ?? 0, prev?.streak ?? 0, streak)
+  return { lastDate: today, streak, freezes, maxStreak }
 }
 
 /**
@@ -88,11 +92,12 @@ export function loadStreak(key: string): DailyStreak | undefined {
       typeof (o as DailyStreak).streak === 'number'
     ) {
       const d = o as DailyStreak
-      // freezes를 반드시 보존한다 — 안 그러면 프리즈가 매 로드에서 사라져 무의미해진다.
+      // freezes/maxStreak를 반드시 보존한다 — 안 그러면 매 로드에서 사라져 무의미해진다.
       return {
         lastDate: d.lastDate,
         streak: d.streak,
         ...(typeof d.freezes === 'number' ? { freezes: d.freezes } : {}),
+        ...(typeof d.maxStreak === 'number' ? { maxStreak: d.maxStreak } : {}),
       }
     }
   } catch {

@@ -16,6 +16,7 @@ import {
 } from '@/lib/games/clusters/engine'
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
+import { recordResult } from '@/lib/gameStats'
 import { DailyShareButton } from '@/components/DailyShareButton'
 import { todayUTC } from '@/lib/dailyDate'
 import { type Grade } from '@/lib/dailyShare'
@@ -127,6 +128,11 @@ export function GameClusters({ storageKey }: { storageKey: string }) {
         saveStreak(streakKey, bumped)
         setStreak(bumped.streak)
       }
+      // 개인 기록: 완료 판수/승수 + 실수 분포(0~4)를 누적 → 게임 페이지 스탯 패널이 읽는다.
+      recordResult(bestKey.replace(/^best:/, ''), {
+        won: next.status === 'won',
+        bucket: mistakeCount(next),
+      })
     },
     [bestKey, streakKey],
   )

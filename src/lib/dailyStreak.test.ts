@@ -36,6 +36,14 @@ describe('daily countdown + milestones', () => {
     expect(nextMilestone(7)).toBe(30)
     expect(nextMilestone(400)).toBeNull()
   })
+  it('bumpStreak: maxStreak는 리셋돼도 최고 기록을 보존', () => {
+    // 3일 연속 후 최고 3
+    const a = bumpStreak({ lastDate: '2026-07-16', streak: 2, maxStreak: 2 }, '2026-07-17')
+    expect(a).toMatchObject({ streak: 3, maxStreak: 3 })
+    // 오래 놓쳐 1로 리셋돼도 maxStreak 3 유지
+    const b = bumpStreak(a, '2026-07-25')
+    expect(b).toMatchObject({ streak: 1, maxStreak: 3 })
+  })
 })
 
 describe('loadStreak/saveStreak roundtrip', () => {
@@ -51,6 +59,10 @@ describe('loadStreak/saveStreak roundtrip', () => {
   it('preserves freezes across save/load (regression: loadStreak dropped freezes)', () => {
     saveStreak('k', { lastDate: '2026-07-18', streak: 5, freezes: 2 })
     expect(loadStreak('k')).toEqual({ lastDate: '2026-07-18', streak: 5, freezes: 2 })
+  })
+  it('preserves maxStreak across save/load', () => {
+    saveStreak('k', { lastDate: '2026-07-18', streak: 3, maxStreak: 12 })
+    expect(loadStreak('k')).toEqual({ lastDate: '2026-07-18', streak: 3, maxStreak: 12 })
   })
   it('loads without freezes when none stored', () => {
     saveStreak('k', { lastDate: '2026-07-18', streak: 3 })
@@ -75,18 +87,18 @@ describe('prevDayUTC', () => {
 
 describe('bumpStreak', () => {
   it('starts a streak at 1 when there is no history', () => {
-    expect(bumpStreak(undefined, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 1, freezes: 0 })
+    expect(bumpStreak(undefined, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 1, freezes: 0, maxStreak: 1 })
   })
   it('increments when yesterday was completed (5th day grants a freeze)', () => {
     const prev: DailyStreak = { lastDate: '2026-07-17', streak: 4 }
-    expect(bumpStreak(prev, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 5, freezes: 1 })
+    expect(bumpStreak(prev, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 5, freezes: 1, maxStreak: 5 })
   })
   it('increments without a freeze when not a multiple of 5', () => {
-    expect(bumpStreak({ lastDate: '2026-07-17', streak: 2 }, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 3, freezes: 0 })
+    expect(bumpStreak({ lastDate: '2026-07-17', streak: 2 }, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 3, freezes: 0, maxStreak: 3 })
   })
   it('resets to 1 and clears freezes when 2+ days were missed', () => {
     const prev: DailyStreak = { lastDate: '2026-07-15', streak: 9, freezes: 2 }
-    expect(bumpStreak(prev, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 1, freezes: 0 })
+    expect(bumpStreak(prev, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 1, freezes: 0, maxStreak: 9 })
   })
   it('is idempotent - same day does not double-count', () => {
     const first = bumpStreak({ lastDate: '2026-07-17', streak: 2 }, '2026-07-18')
@@ -94,7 +106,7 @@ describe('bumpStreak', () => {
   })
   it('spends a freeze to bridge exactly one missed day', () => {
     const prev: DailyStreak = { lastDate: '2026-07-16', streak: 7, freezes: 1 }
-    expect(bumpStreak(prev, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 8, freezes: 0 })
+    expect(bumpStreak(prev, '2026-07-18')).toEqual({ lastDate: '2026-07-18', streak: 8, freezes: 0, maxStreak: 8 })
   })
   it('does not bridge two missed days even with freezes', () => {
     expect(bumpStreak({ lastDate: '2026-07-15', streak: 5, freezes: 2 }, '2026-07-18').streak).toBe(1)

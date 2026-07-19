@@ -6,6 +6,7 @@ import { Leaderboard } from '@/components/Leaderboard'
 import { RecordPlay } from '@/components/RecordPlay'
 import { Reveal } from '@/components/Reveal'
 import { NextUp } from '@/components/NextUp'
+import { GameStats } from '@/components/GameStats'
 import { RelatedGames } from '@/components/RelatedGames'
 
 /** 게임 액센트 네온 컬러의 섹션 헤딩(가독성 위해 픽셀폰트 대신 산세리프). */
@@ -30,14 +31,18 @@ function SectionHeading({ children, color }: { children: React.ReactNode; color:
 export function GamePageLayout({ page, children }: { page: GamePage; children: React.ReactNode }) {
   const color = accentVar((gameMeta[page.slug] ?? DEFAULT_META).accent)
   return (
-    <main className="mx-auto max-w-3xl px-4 py-6">
+    // --accent를 페이지 스코프로 깔아 게임 컴포넌트 밖(스탯 패널 등)에서도 text-accent가 먹게 한다.
+    <main className="mx-auto max-w-3xl px-4 py-6" style={{ ['--accent' as string]: color }}>
       <RecordPlay slug={page.slug} />
       <h1 className="neon-text mb-4 text-center text-3xl font-bold" style={{ color }}>
         {page.h1}
       </h1>
       {children}
 
-      {/* 게임 직후: 다음 게임으로 잇는 체류 후크(게임오버 catch point) */}
+      {/* 게임 직후 개인 기록(트로피 케이스) — 데이터 없으면 안 뜸 */}
+      <GameStats slug={page.slug} />
+
+      {/* 다음 게임으로 잇는 체류 후크(게임오버 catch point, 크로스셀은 스택 마지막) */}
       <NextUp currentSlug={page.slug} />
 
       {hasLeaderboard(page.slug) && <Leaderboard slug={page.slug} />}
