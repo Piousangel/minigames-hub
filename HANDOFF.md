@@ -2,28 +2,41 @@
 
 > 갱신: 2026-07-18 · 브랜치: `main` · 커밋 상태: **committed (scratch 외 트리 clean)** · 전부 배포됨
 
-## 2026-07-18 자율 세션 요약 (사용자 부재 중, "묻지 말고 계속 디벨롭" 지시)
-전부 커밋·배포·검증됨. 게임 **59종**.
-1. **라운드8 게임 3종** — Deepdive(수직 잠수)/Sonar(거리 추론)/Handful(한 줌 도박). 배선 6곳
-   + 공유 카드/streak. ⚠️ 에이전트 "typecheck 통과"가 lint는 못 잡음(deepdive prefer-const
-   에러가 정적 빌드 막음) — **라운드 배선 후 반드시 클린 빌드로 라우트 생성 확인할 것**.
-2. **공유 카드 개편 "Proof-of-flex"**(디자인 팀 9에이전트) — RANK 등급 씰 + 글리프 지문 +
-   스캔라인 + PLAY FREE 칩. 8종 적용. 실제 게임오버→카드까지 실측. §7.11.
-3. **라운드8 UI/UX 감사 배치**(★1/★4/★5 + 폴리시) — Minesweeper 타이머+베스트,
-   Sudoku/Hangman 탭타깃(9→5/7열), Nonogram/Ticker 온보딩 카피, New best 통일, Wins/Losses.
-4. **Tetris 모바일 DAS**(★3) — ◀▶▼ 홀드 반복.
+## 2026-07-18~19 자율 마라톤 세션 요약 ("묻지 말고 계속 디벨롭" + "팀으로 도메인 최고 사이트")
+전부 커밋·배포·검증됨. 게임 **61종**. **먼저 [DOMAIN.md](./DOMAIN.md) 읽을 것** — 도메인
+지식 + P1~P8 로드맵(경쟁사 벤치마크). 다음 세션은 이 로드맵을 이어간다.
 
-### ⬜ 남은 감사 항목 (다음 세션 — 근거는 라운드8 감사 synthesis)
-- **★2 Ricochet/Stackpot/Quarry에 day-streak**(3파일, 중위험). ⚠️ 이건 2026-07-18의 내
-  "제외" 결정(§7.10)을 뒤집는다 — 감사가 반론 제시: Ricochet/Stackpot은 "이겼다"가 아니라
-  "오늘 데일리를 플레이했다"로 bump(Wordle식). Quarry는 데일리 게임오버에서 bump + **기존
-  in-run `streak`/'🔥'를 'Chain'으로 개명**(52,149,270-275행 — 같은 단어 충돌 제거). 표준
-  패턴은 GameSplice(22/138/187행). 키는 `:streak` 전용(best:<slug>에 JSON 금지).
-  → Quarry 개명은 라이브 기능 UX 변경이라 사용자 눈으로 한 번 보는 게 안전.
-- **폴리시 잔여**: #6 Connect4/Checkers 통산전적 라벨 `You`/`CPU`→`Wins`/`Losses`(의미 충돌 해소),
-  Reaction/AimTrainer `Reset`→`Restart`. 무위험.
-- **하지 말 것**(감사 명시): StatSpec 전면 확장, CTA 동사 일괄 통일, Minesweeper 리더보드 등록,
-  Tetris 회전/하드드롭 홀드반복.
+**게임 (56→61):** 라운드8 3종(Deepdive/Sonar/Handful), 라운드9 2종(Flapjack/Interlock).
+Tumble은 라운드9에서 spec API 에러로 미빌드(재생성 가능). ⚠️ **에이전트 "typecheck 통과"가
+lint는 못 잡는다** — prefer-const 에러가 정적 빌드를 막아 라우트 미생성(2회 겪음).
+**라운드 배선 후 반드시 `rm -rf .next out && pnpm build`로 라우트 생성 확인.**
+
+**공유 카드 "Proof-of-flex" 개편** — RANK 등급 씰(S/A/B/C/D) + 글리프 지문 + 스캔라인 +
+PLAY FREE 칩. 8종 적용. dailyShare.ts 헬퍼(gradeFewer/gradeMore/gradeRatio/barGlyph). §7.11.
+
+**체류·재방문 구조(리텐션 팀 로드맵):**
+- **Phase 1 TODAY 보드**(홈): 사이트 전역 day-streak(`site:streak`) + 오늘 3게임 퀘스트
+  (`quest:<date>`) + 오늘의 픽. `today.ts`/`TodayBoard.tsx`, RecordPlay 3줄이 전 게임 파급.
+- **Phase 2 NEXT UP 레일**(게임 직후): 다음 게임 원탭 유도 + 세션 RUN×N 카운터. `NextUp.tsx`.
+
+**SEO/트래픽(도메인 P2):** 장르 허브 4종 `/category/[puzzle|arcade|classic|skill]` — SSG,
+JSON-LD(CollectionPage/ItemList/FAQPage), sitemap + 푸터 내부링크. 롱테일 검색 잡기.
+
+**라운드8 감사 배치:** Minesweeper 타이머+베스트, Sudoku/Hangman 탭타깃, 온보딩 카피,
+Tetris 모바일 DAS, 통산전적 라벨 의미 명확화(#6), Reset→Restart. (라운드9 감사는 API 에러로 실패.)
+
+### ⬜ 다음 (DOMAIN.md 로드맵 — impact×실현성 순)
+- **P1 게임오버 오버레이 나머지**: `stats:<slug>` 개인기록 미니패널(승률·시도분포), 마일스톤
+  (7/30/100일) 축하, 데일리 카운트다운. (다음게임=NextUp ✅ 부분 완료)
+- **P4 스트릭 프리즈**(⚠️ 도메인 리서치가 CRITICAL로 지목 — "프리즈 없는 스트릭은 이탈 장치"):
+  dailyStreak.ts에 freeze 필드(gap 1일+잔량>0이면 리셋 대신 프리즈 소모). + 데일리 아카이브.
+- **P3 온보딩 Start 카드**(objective + 언어독립 조작 글리프), **P5 게임별 OG 이미지**,
+  **P6 분석 계측**(Cloudflare Web Analytics 자체호스팅 + Analytics Engine), **P8 즐겨찾기**.
+- **신규 게임 최고 ROI**: Connections식 4×4 그룹핑 데일리(데일리+공유+streak 인프라 재사용).
+
+### ⬜ 홀드한 감사 ★2 (per-game streak) — DOMAIN 재검토 필요
+Ricochet/Stackpot/Quarry per-game streak은 **사이트 전역 site:streak(TodayBoard)이 상위 개념**이라
+이제 우선순위 낮음. 하려면 Quarry의 in-run 'streak'을 'Chain'으로 개명(단어 충돌).
 
 ## 멈춘 지점
 
