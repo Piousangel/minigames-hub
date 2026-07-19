@@ -83,10 +83,10 @@
 착수 상태: ✅ 완료 · 🟡 부분 · ⬜ 미착수
 
 - **P1 게임오버 오버레이 개편** 🟡 — 다음게임(✅ NextUp)·streak(✅ TodayBoard/공유카드)·
-  마일스톤 축하(✅ TodayBoard 7/30/100/365)·데일리 카운트다운(✅ TodayBoard HH:MM:SS)·
-  **내 기록 미니패널(`stats:<slug>` 신설: plays/wins/maxStreak/시도분포) 남음**·AdSense 자리표시자 남음.
-  스탯 패널은 승/패 신호가 게임별이라 제네릭이 아님 — GamePageLayout에 삽입 + 게임이 결과를 기록하는
-  API 필요(RecordPlay는 방문만 앎). Clusters부터 결과 기록 붙이고 확산.
+  마일스톤 축하(✅ 7/30/100/365)·데일리 카운트다운(✅ HH:MM:SS)·개인 스탯 패널(✅ GameStats
+  `stats:<slug>` Played/Win%/Streak/MaxStreak/Best, GamePageLayout 삽입)·maxStreak(✅ dailyStreak).
+  **남은 것: AdSense 자리표시자(승인 후)만.** 스탯은 게임이 recordResult를 호출해야 채워짐 —
+  Clusters 채택 완료, **나머지 승/패 게임들도 recordResult 붙이면 패널이 그 게임에도 뜬다(확산 작업).**
 - **P2 장르/의도 허브 랜딩** ✅ 완료 — `/category/[puzzle|arcade|classic|skill]` SSG + JSON-LD
   (CollectionPage/ItemList/FAQPage) + sitemap + 푸터 내부링크. `/popular`·`/new`·`/unblocked`는 남음.
 - **P3 온보딩 Start 카드** ⬜ — gameMeta에 `objective`/`controls` 추가, 최초 플레이 시 board 위 Start
