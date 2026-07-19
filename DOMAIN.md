@@ -82,16 +82,16 @@
 
 착수 상태: ✅ 완료 · 🟡 부분 · ⬜ 미착수
 
-- **P1 게임오버 오버레이 개편** 🟡 — 다음게임(✅ NextUp)·streak 배지·마일스톤·**내 기록 미니패널
-  (`stats:<slug>` 신설: plays/wins/maxStreak/시도분포)**·데일리 카운트다운·공유 1차 CTA·첫클리어 훅·
-  AdSense 자리표시자. 한 번의 GameShell/GameOverlay 작업으로 61종 파급. 최고 ROI.
-- **P2 장르/의도 허브 랜딩** ⬜ — `/category/[cat]`(기존 gameMeta.category 재사용)·`/popular`·`/new`·
-  `/unblocked`. 고유 title/H1/meta + 인트로 + 그리드 + FAQPage/ItemList JSON-LD + sitemap. 순수 SSG.
-  **트래픽(첫 곱셈 항)이 지금 비어 있어 임팩트 큼.**
+- **P1 게임오버 오버레이 개편** 🟡 — 다음게임(✅ NextUp)·streak(✅ TodayBoard/공유카드)·마일스톤·
+  **내 기록 미니패널(`stats:<slug>` 신설: plays/wins/maxStreak/시도분포)**·데일리 카운트다운·
+  AdSense 자리표시자 남음. 한 번의 GameShell/GameOverlay 작업으로 61종 파급.
+- **P2 장르/의도 허브 랜딩** ✅ 완료 — `/category/[puzzle|arcade|classic|skill]` SSG + JSON-LD
+  (CollectionPage/ItemList/FAQPage) + sitemap + 푸터 내부링크. `/popular`·`/new`·`/unblocked`는 남음.
 - **P3 온보딩 Start 카드** ⬜ — gameMeta에 `objective`/`controls` 추가, 최초 플레이 시 board 위 Start
   카드(objective + 언어독립 조작 글리프), `seen:<slug>` 게이팅.
-- **P4 스트릭 프리즈 + 데일리 아카이브** ⬜ — dailyStreak.ts에 freeze 필드(gap 1일+잔량>0이면 프리즈
-  소모), '스트릭 위험' 배너, `/daily` 아카이브 그리드(지난 날짜 결정론 재생).
+- **P4 스트릭 프리즈** ✅ 완료 — dailyStreak.ts freeze(gap 2+잔량>0이면 프리즈 소모, 5일마다 +1, 최대 2),
+  TodayBoard ❄️ 표시. ⚠️ loadStreak가 freezes 떨구던 버그 브라우저 검증으로 잡음. **데일리 아카이브(`/daily`
+  지난 날짜 결정론 재생)는 남음.**
 - **P5 게임별 브랜드 OG 이미지** ⬜ — `[slug]/opengraph-image.tsx`(force-static)로 61종 네온 OG PNG
   빌드타임 생성. dailyShare renderCard 미학 재사용. ⚠️ generateImageMetadata는 output:export와 충돌
   이력 있음(HANDOFF 6.1) — 단일 정적 OG로.
