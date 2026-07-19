@@ -108,3 +108,37 @@ export function saveStreak(key: string, s: DailyStreak): void {
     // 저장 실패 무시
   }
 }
+
+/**
+ * 다음 UTC 자정까지 남은 ms. '다음 데일리까지 HH:MM:SS' 카운트다운(어포인트먼트 메커닉,
+ * DOMAIN §3 — Wordle의 '아침 의식')용. nowMs를 주입받아 순수·테스트 가능.
+ */
+export function msUntilNextUTCDay(nowMs: number): number {
+  const DAY = 86_400_000
+  const rem = nowMs % DAY
+  return rem === 0 ? 0 : DAY - rem
+}
+
+/** ms → 'HH:MM:SS'(음수/NaN은 00:00:00). 카운트다운 표시용. */
+export function formatCountdown(ms: number): string {
+  if (!Number.isFinite(ms) || ms <= 0) return '00:00:00'
+  const total = Math.floor(ms / 1000)
+  const h = Math.floor(total / 3600)
+  const m = Math.floor((total % 3600) / 60)
+  const s = total % 60
+  const pad = (n: number) => String(n).padStart(2, '0')
+  return `${pad(h)}:${pad(m)}:${pad(s)}`
+}
+
+/** 스트릭 마일스톤(손실회피 루프 유지, DOMAIN §3). */
+export const STREAK_MILESTONES = [7, 30, 100, 365] as const
+
+/** streak가 정확히 마일스톤이면 그 값, 아니면 null(도달 축하 표시용). */
+export function milestoneReached(streak: number): number | null {
+  return STREAK_MILESTONES.includes(streak as (typeof STREAK_MILESTONES)[number]) ? streak : null
+}
+
+/** 다음 마일스톤(이미 최대 초과면 null). 진척 넛지용. */
+export function nextMilestone(streak: number): number | null {
+  return STREAK_MILESTONES.find((m) => m > streak) ?? null
+}

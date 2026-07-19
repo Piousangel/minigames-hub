@@ -3,7 +3,14 @@
 import { useEffect, useState } from 'react'
 import { GameCard } from '@/components/GameCard'
 import type { BrowseItem } from '@/components/GameBrowser'
-import { currentStreak, loadStreak } from '@/lib/dailyStreak'
+import {
+  currentStreak,
+  formatCountdown,
+  loadStreak,
+  milestoneReached,
+  msUntilNextUTCDay,
+  nextMilestone,
+} from '@/lib/dailyStreak'
 import { todayUTC } from '@/lib/dailyDate'
 import { loadPlayedToday, pickDailyPicks, QUEST_TARGET } from '@/lib/today'
 
@@ -22,6 +29,7 @@ export function TodayBoard({ items }: { items: BrowseItem[] }) {
   const [doneToday, setDoneToday] = useState(false)
   const [playedCount, setPlayedCount] = useState(0)
   const [picks, setPicks] = useState<string[]>([])
+  const [countdown, setCountdown] = useState('')
 
   useEffect(() => {
     const today = todayUTC()
@@ -34,6 +42,14 @@ export function TodayBoard({ items }: { items: BrowseItem[] }) {
     setReady(true)
   }, [])
 
+  // '다음 데일리까지 HH:MM:SS' — 클라이언트 전용 초 단위 틱(하이드레이션 후에만).
+  useEffect(() => {
+    const tick = () => setCountdown(formatCountdown(msUntilNextUTCDay(Date.now())))
+    tick()
+    const id = setInterval(tick, 1000)
+    return () => clearInterval(id)
+  }, [])
+
   if (!ready) return null
 
   const bySlug = new Map(items.map((it) => [it.slug, it]))
@@ -41,6 +57,8 @@ export function TodayBoard({ items }: { items: BrowseItem[] }) {
   const done = Math.min(playedCount, QUEST_TARGET)
   const questComplete = done >= QUEST_TARGET
   const streakAtRisk = streak > 0 && !doneToday
+  const milestone = milestoneReached(streak)
+  const next = nextMilestone(streak)
 
   return (
     <section aria-labelledby="today" className="mb-12">
@@ -78,6 +96,27 @@ export function TodayBoard({ items }: { items: BrowseItem[] }) {
                   : "Play today or your streak resets — don't break it."
                 : 'Streak safe for today. Come back tomorrow to keep it going.'}
           </p>
+          {milestone ? (
+            <p className="mt-1 text-xs font-semibold text-neon-lime" data-testid="streak-milestone">
+              🎉 {milestone}-day milestone! You&apos;re on fire.
+            </p>
+          ) : (
+            next != null &&
+            streak > 0 && (
+              <p className="mt-1 text-xs text-fg-muted">
+                {next - streak} day{next - streak === 1 ? '' : 's'} to your {next}-day badge.
+              </p>
+            )
+          )}
+          {doneToday && countdown && (
+            <p className="mt-1 text-xs text-fg-muted">
+              Next daily in{' '}
+              <span className="tabular-nums text-neon-cyan" data-testid="daily-countdown">
+                {countdown}
+              </span>
+              .
+            </p>
+          )}
         </div>
 
         {/* 오늘 3게임 퀘스트 */}

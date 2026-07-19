@@ -5,8 +5,38 @@ import {
   currentStreak,
   loadStreak,
   saveStreak,
+  msUntilNextUTCDay,
+  formatCountdown,
+  milestoneReached,
+  nextMilestone,
   type DailyStreak,
 } from './dailyStreak'
+
+describe('daily countdown + milestones', () => {
+  it('msUntilNextUTCDay: 자정 정각이면 0', () => {
+    expect(msUntilNextUTCDay(Date.parse('2026-07-19T00:00:00Z'))).toBe(0)
+  })
+  it('msUntilNextUTCDay: 자정 1시간 전이면 1시간', () => {
+    expect(msUntilNextUTCDay(Date.parse('2026-07-19T23:00:00Z'))).toBe(3_600_000)
+  })
+  it('formatCountdown: HH:MM:SS 패딩', () => {
+    expect(formatCountdown(3_661_000)).toBe('01:01:01')
+    expect(formatCountdown(0)).toBe('00:00:00')
+    expect(formatCountdown(-5)).toBe('00:00:00')
+    expect(formatCountdown(NaN)).toBe('00:00:00')
+  })
+  it('milestoneReached: 정확히 마일스톤일 때만', () => {
+    expect(milestoneReached(7)).toBe(7)
+    expect(milestoneReached(30)).toBe(30)
+    expect(milestoneReached(8)).toBeNull()
+    expect(milestoneReached(0)).toBeNull()
+  })
+  it('nextMilestone: 다음 목표, 최대 초과면 null', () => {
+    expect(nextMilestone(0)).toBe(7)
+    expect(nextMilestone(7)).toBe(30)
+    expect(nextMilestone(400)).toBeNull()
+  })
+})
 
 describe('loadStreak/saveStreak roundtrip', () => {
   beforeEach(() => {
