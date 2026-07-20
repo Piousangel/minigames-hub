@@ -19,6 +19,7 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   interlock: { label: 'Score' },
   clusters: { label: 'Score' },
   quadle: { label: 'Score' },
+  equate: { label: 'Score' },
   snake: { label: 'Score' },
   tetris: { label: 'Score' },
   breakout: { label: 'Score' },

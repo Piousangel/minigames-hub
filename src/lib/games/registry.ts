@@ -75,6 +75,7 @@ export type GamePage = GamePageBase &
     | { game: 'interlock' }
     | { game: 'clusters' }
     | { game: 'quadle' }
+    | { game: 'equate' }
   )
 
 export const gamePages: GamePage[] = [
@@ -1888,6 +1889,35 @@ export const gamePages: GamePage[] = [
       { q: 'How many guesses do I get?', a: 'Nine. That is six as in a single word game plus one for each extra board. Solve all four boards within nine guesses to win.' },
       { q: 'Do invalid words cost a guess?', a: 'No. A word that is not in the dictionary is rejected and does not use up one of your nine guesses.' },
       { q: 'Can I share my result without spoilers?', a: 'Yes. The share card shows which guess solved each board in a small grid — no letters revealed, just like the daily word games.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
+    ],
+  },
+  {
+    slug: 'equate',
+    game: 'equate',
+    title: 'Play Equate Online — Free Daily Math Equation Puzzle',
+    h1: 'Equate',
+    metaDescription:
+      'Play Equate free online — a daily math puzzle. Guess the hidden eight-character equation in six tries, with color clues after every guess. New puzzle every day, no download, no sign-up.',
+    shortDescription: 'Guess the hidden equation in six tries.',
+    howToPlay: [
+      'A hidden eight-character equation uses digits and the signs + - * / =.',
+      'Type any valid equation — the left side must truly equal the right — and submit it.',
+      'Green means right symbol, right spot; purple means right symbol, wrong spot; grey means not in the equation.',
+      'Crack the equation within six guesses to win the day.',
+    ],
+    strategy: [
+      'Open with a guess that uses several different digits and two operators to test a lot at once.',
+      'The equals sign is always there — once you find its column, the rest falls into place faster.',
+      'Remember standard math order: multiply and divide happen before add and subtract.',
+      'A purple digit is in the equation but somewhere else — slide it to a new column next guess.',
+      'Fewer guesses score higher, so use your color clues before spending another try.',
+    ],
+    faq: [
+      { q: 'What counts as a valid guess?', a: 'Any eight-character equation where the left side genuinely equals the right, using digits and + - * / and exactly one =. Invalid math is rejected and does not cost a guess.' },
+      { q: 'Does order of operations matter?', a: 'Yes. Multiplication and division are applied before addition and subtraction, and division must come out to a whole number.' },
+      { q: 'Is there a new puzzle every day?', a: 'Yes. Equate is a daily puzzle — the same equation for everyone that day, generated from the date so no server is needed. Practice mode gives endless puzzles any time.' },
+      { q: 'Can I share my result without spoilers?', a: 'Yes. The share card is a grid of colored squares showing how you did, with no numbers revealed — just like the daily word games.' },
       { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
     ],
   },

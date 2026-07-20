@@ -642,6 +642,16 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // equate — 수식 타일 행(= 기호 + 연산 점들)
+  equate: (
+    <>
+      <rect x="3" y="8.5" width="18" height="7" rx="1.4" {...soft} />
+      <path d="M8 11.2h2M8 12.8h2" {...solid} />
+      <path d="M14 11.2h2M14 12.8h2" {...solid} />
+      <circle cx="12" cy="12" r="0.9" {...solid} />
+    </>
+  ),
+
   // quadle — 4개 단어 보드(2×2 격자, 각 칸에 글자 슬롯 점)
   quadle: (
     <>
