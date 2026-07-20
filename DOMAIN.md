@@ -138,7 +138,10 @@ CMP(대시보드 '유럽 규정 GDPR 메시지' 활성)**가 담당, adsbygoogle
 - ⑩ **Mahjong Solitaire** ✅ 완료 — 'mahjong'(71종째). 타일 매칭 장르 갭. 144타일 4레이어, 풀 수 있는
   딜 보장(역-peel). ⚠️ 타일 면은 마작 유니코드 블록(🀇) 대신 라벨+색으로. **교훈: 여러 vitest 동시
   실행(에이전트+로컬)은 경합으로 행처럼 보임 — 에이전트 완료 후 단독 실행으로 성능 확인할 것.**
-  다음 장르 갭 후보: Crossword mini·Sudoku 변형·Solitaire 추가변형(Golf/Yukon)·2P 보드 확장·Bubble/match-3.
+- ⑪ **Chess** ✅ 완료 — 'chess'(72종째). **최대 단일 검색어 갭.** 전체 규칙 perft 검증(startpos
+  20/400/8902/197281, Kiwipete 48/2039/97862 정확 일치) + negamax 알파베타 AI(depth1/2/3). two-player-games
+  컬렉션에 추가. **교훈: 복잡 규칙 게임은 perft/골든 같은 결정적 정확성 게이트를 스펙에 필수화하면
+  에이전트 빌드도 안전.** 다음 장르 갭: Crossword mini·Golf/Yukon 솔리테어·match-3·Anagram/word-scramble.
 - ④ **Nerdle식 수식 데일리** ✅ 완료 — 'Equate'(64종째). 8칸 수식 6추측, 안전 평가기, 수학 검색
   표면 신규(단어 게임과 다른 키워드). 데일리+연습+streak+스탯+공유.
 - ① **Connections식 4×4 그룹핑 데일리** ✅ 완료 — 'Clusters'(62종째). 16타일→숨은 4그룹, 4목숨,
