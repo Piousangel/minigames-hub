@@ -111,6 +111,60 @@ export const COLLECTIONS: Record<string, Collection> = {
     accent: 'red',
   },
 
+  'games-like-snake': {
+    slug: 'games-like-snake',
+    h1: 'Games Like Snake',
+    title: 'Games Like Snake — Free Retro Arcade High-Score Games',
+    metaDescription:
+      'Loved Snake? Play free games like it — fast retro arcade games where one more run always beats your high score. Tetris, breakout, space shooter and more, in your browser, no download.',
+    intro:
+      'Snake is the phone-era classic that taught a generation the one-more-go reflex: a simple rule, a rising high score, and a run that ends the instant you get greedy. If that twitchy, keep-going arcade feeling is what you are chasing, this shelf is built for it. These are fast, free browser games where a single mistake ends the run and the only goal is to beat the number you got last time — dodge, stack, blast and pop your way up the board. Stack falling blocks into clean rows, break every brick, shoot down waves in space, or thread a bird through gaps that keep coming. None of them need a download or an account, they load in a second, and your best score is saved right in the browser so there is always a target on your back. Several also feed a weekly online leaderboard if you want to see how your reflexes stack up against everyone else. Pick a cabinet below and start a run.',
+    games: ['snake', 'tetris', 'breakout', 'space-shooter', 'flappy', 'bubble-shooter'],
+    faq: [
+      { q: 'What makes a game "like Snake"?', a: 'The arcade high-score loop: a simple rule, a run that ends on one mistake, and the pull to immediately try again and beat your last score.' },
+      { q: 'Are they free with no download?', a: 'Yes. Every game runs instantly in your browser with no install and no account.' },
+      { q: 'Do they keep a high score?', a: 'Yes, in your browser, and several also have a weekly online leaderboard you can submit to.' },
+      { q: 'Do they work with touch controls?', a: 'Yes. They support touch and swipe input, so they play well on phones and tablets.' },
+    ],
+    accent: 'green',
+  },
+
+  'quick-games': {
+    slug: 'quick-games',
+    h1: 'Quick Games — Fun in Five Minutes',
+    title: 'Quick Games — Free 5-Minute Games to Play on a Break',
+    metaDescription:
+      'Only have five minutes? Play free quick games — reaction time, aim trainer, whack-a-mole, typing test and more. Instant fun on a break, in your browser, no download.',
+    intro:
+      'Sometimes you just want a quick hit of fun on a coffee break, in a queue, or between tasks — no tutorial, no long game to commit to, just pick up and play. These are the fastest games on the site, the kind you can start and finish in a couple of minutes and still walk away with a score to beat next time. Test how fast you can react to a flash of colour, snap your aim onto targets before they vanish, whack moles as they pop, race the clock to type as many words as you can, or repeat a growing pattern until your memory cracks. Each one is instant to start, needs no download or account, and saves your best result locally so a spare moment always has a tiny challenge waiting. They are perfect for a short break and just as good for a quick warm-up before something longer. Grab any of them below — you will be playing within a second or two.',
+    games: ['reaction-time', 'aim-trainer', 'whack-a-mole', 'typing-test', 'simon', 'number-memory'],
+    faq: [
+      { q: 'How long do these take?', a: 'A minute or two each. They are designed for a quick break — start, play a round, beat your score, done.' },
+      { q: 'Are they free?', a: 'Yes. Free in your browser with no download and no account.' },
+      { q: 'What do they measure?', a: 'Reflexes, aim, memory and typing speed — quick skills you can improve with a few tries.' },
+      { q: 'Do my best results save?', a: 'Yes, in your browser, and some have a weekly online leaderboard as well.' },
+    ],
+    accent: 'amber',
+  },
+
+  'games-like-nerdle': {
+    slug: 'games-like-nerdle',
+    h1: 'Games Like Nerdle',
+    title: 'Games Like Nerdle — Free Daily Math & Number Puzzles',
+    metaDescription:
+      'Enjoy Nerdle? Play free games like it — daily math and number puzzles that reward logic, not luck. Equate, Sudoku, 2048 and more, in your browser, no download, no sign-up.',
+    intro:
+      'Nerdle proved that the daily-puzzle habit works just as well with numbers as with words: a hidden equation, a handful of guesses, and colour clues that turn arithmetic into deduction. If you like puzzles where the answer is a matter of logic rather than luck, this collection is your kind of maths. The centrepiece is a daily equation-guessing game — crack the hidden sum in six tries using standard order of operations — surrounded by other number and logic puzzles that reward the same careful thinking. Fill a Sudoku grid without a contradiction, slide tiles to build ever-bigger numbers, crack a secret code, or push your recall in a number-memory test. Every one is free, runs instantly with no download or account, and the daily puzzle keeps a streak in your browser to bring you back tomorrow. Whether you want a strict logic grind or a quick numbers warm-up, there is a puzzle here that adds up. Start with the daily equation below and branch out from there.',
+    games: ['equate', 'sudoku', '2048', 'number-memory', 'mastermind', 'minesweeper'],
+    faq: [
+      { q: 'Which game is most like Nerdle?', a: 'Equate — a daily puzzle where you guess a hidden eight-character equation in six tries, with green/purple/grey colour clues after each guess.' },
+      { q: 'Do these need maths skills?', a: 'Basic arithmetic and logic, not advanced maths. They reward careful reasoning and pattern-spotting more than calculation speed.' },
+      { q: 'Is there a daily puzzle?', a: 'Yes. The equation game has a daily board that is the same for everyone that day, with a streak, plus a practice mode for endless puzzles.' },
+      { q: 'Are they free and account-free?', a: 'Yes. Free in your browser, no download and no sign-up. Progress saves locally.' },
+    ],
+    accent: 'purple',
+  },
+
   'logic-games': {
     slug: 'logic-games',
     h1: 'Free Logic Puzzle Games',
