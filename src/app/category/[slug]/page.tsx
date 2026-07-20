@@ -51,14 +51,14 @@ const HUBS: Record<string, Hub> = {
   classic: {
     category: 'Classic',
     h1: 'Free Classic Games',
-    title: 'Free Classic Games — Play Online Unblocked, No Download',
+    title: 'Free Classic Games — Cards, Board Games & More Online',
     metaDescription:
-      'Play free classic games online — tic-tac-toe, connect four, checkers, reversi, dots and boxes. Beat the computer in your browser. No download, no sign-up.',
+      'Play free classic games online — solitaire, tic-tac-toe, connect four, checkers, reversi and dots and boxes. Cards and board classics in your browser. No download, no sign-up.',
     intro:
-      'The timeless classics, free and instant in your browser — tic-tac-toe, connect four, checkers, reversi, dots and boxes and more, all against a computer opponent. No download, no sign-up, unblocked anywhere, and playable on any device. Perfect for a quick game whenever you have a minute.',
+      'The timeless classics, free and instant in your browser — from the card game everyone knows, Klondike solitaire, to the board games you grew up with: tic-tac-toe, connect four, checkers, reversi and dots and boxes. Play a hand of solitaire on your own or take on a computer opponent at the board classics, all with no download, no sign-up, unblocked anywhere and playable on any device. These are the games that never get old — perfect for a quick round whenever you have a minute.',
     faq: [
-      { q: 'Are these board and classic games free?', a: 'Yes. Every classic game plays free in your browser with no download and no account.' },
-      { q: 'Do I play against a computer?', a: 'Yes. These are single-player versions where you play against a built-in computer opponent at your chosen difficulty.' },
+      { q: 'Are these classic and card games free?', a: 'Yes. Every classic game, solitaire included, plays free in your browser with no download and no account.' },
+      { q: 'Do I play against a computer?', a: 'For the board games, yes — you play against a built-in computer opponent at your chosen difficulty. Solitaire is a single-player card game you play on your own.' },
       { q: 'Can I play unblocked anywhere?', a: 'They run in any modern browser with nothing to install, so they work wherever the browser does.' },
     ],
   },
