@@ -470,6 +470,16 @@ test('spider: 로드 → 보드 표시', async ({ page }) => {
   await expect(page.getByTestId('spider-board')).toBeVisible()
 })
 
+test('pyramid: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/pyramid')
+  await expect(page.getByTestId('pyramid-board')).toBeVisible()
+})
+
+test('tripeaks: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/tripeaks')
+  await expect(page.getByTestId('tripeaks-board')).toBeVisible()
+})
+
 test('게임 페이지: 목표 한 줄이 보드 위에 노출된다', async ({ page }) => {
   await page.goto('/clusters')
   await expect(page.getByTestId('objective')).toBeVisible()

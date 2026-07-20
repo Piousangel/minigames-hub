@@ -68,4 +68,6 @@ export const OBJECTIVES: Record<string, string> = {
   solitaire: 'Move all cards to the four foundations to win.',
   freecell: 'Use the free cells to build all four foundations.',
   spider: 'Clear eight King-to-Ace suit runs to win.',
+  pyramid: 'Pair cards that add up to 13 to clear the pyramid.',
+  tripeaks: 'Clear the three peaks one rank up or down.',
 }

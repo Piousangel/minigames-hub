@@ -34,6 +34,8 @@ import { GameReactor } from '@/components/games/GameReactor'
 import { GameSolitaire } from '@/components/games/GameSolitaire'
 import { GameFreecell } from '@/components/games/GameFreecell'
 import { GameSpider } from '@/components/games/GameSpider'
+import { GamePyramid } from '@/components/games/GamePyramid'
+import { GameTripeaks } from '@/components/games/GameTripeaks'
 import { GamePolytap } from '@/components/games/GamePolytap'
 import { GameSonar } from '@/components/games/GameSonar'
 import { GameProspector } from '@/components/games/GameProspector'
@@ -204,6 +206,10 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameFreecell storageKey={`best:${page.slug}`} />
     case 'spider':
       return <GameSpider storageKey={`best:${page.slug}`} />
+    case 'pyramid':
+      return <GamePyramid storageKey={`best:${page.slug}`} />
+    case 'tripeaks':
+      return <GameTripeaks storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

@@ -80,6 +80,8 @@ export type GamePage = GamePageBase &
     | { game: 'solitaire' }
     | { game: 'freecell' }
     | { game: 'spider' }
+    | { game: 'pyramid' }
+    | { game: 'tripeaks' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2038,6 +2040,64 @@ export const gamePages: GamePage[] = [
       { q: 'Is it free and account-free?', a: 'Yes. Spider Solitaire plays free in your browser with no download and no sign-up. Your best score saves locally.' },
       { q: 'Why can I not move a stack of cards?', a: 'A run of cards only moves together when they are the same suit in descending order. A mixed-suit stack has to be moved one card at a time.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap a card to pick up its run and tap a column to drop it. It works on phones and tablets as well as desktop.' },
+    ],
+  },
+  {
+    slug: 'pyramid',
+    game: 'pyramid',
+    title: 'Play Pyramid Solitaire Online — Free Card Game, No Download',
+    h1: 'Pyramid Solitaire',
+    metaDescription:
+      'Play Pyramid Solitaire free online — pair cards that add up to 13 to clear the pyramid. Kings go on their own. No download, no sign-up, in your browser.',
+    shortDescription: 'Pair cards that add up to 13 to clear the pyramid.',
+    howToPlay: [
+      'Remove cards in pairs that add up to 13 — a 6 with a 7, a 9 with a 4, and so on.',
+      'A Jack is 11, a Queen is 12, and a King is 13, so Kings are removed on their own.',
+      'You can only take a card when nothing overlaps it from below.',
+      'Turn cards from the stock to the waste to find more matches, up to three passes.',
+    ],
+    strategy: [
+      'Look for pairs that free up the most cards behind them, not just the easiest match.',
+      'Keep an eye on which cards you still need — do not bury a card you must pair later.',
+      'Use the stock deliberately; you only get three passes through it.',
+      'Clear Kings as soon as they are free — they take no partner and open the pyramid up.',
+      'Plan a few moves ahead so a needed card is not left stranded under others.',
+    ],
+    faq: [
+      { q: 'How do I win Pyramid Solitaire?', a: 'Clear every card from the pyramid by removing pairs that total 13 (and Kings on their own). Empty the pyramid and you win.' },
+      { q: 'What are the card values?', a: 'Ace is 1, number cards are their face value, Jack is 11, Queen is 12, and King is 13. Pairs must add up to exactly 13.' },
+      { q: 'How many times can I go through the stock?', a: 'Three passes. When the stock runs out you can recycle the waste back into it, up to the pass limit.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Pyramid Solitaire plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap two free cards that add up to 13 to remove them, or tap a King to clear it. It works on phones and tablets as well as desktop.' },
+    ],
+  },
+  {
+    slug: 'tripeaks',
+    game: 'tripeaks',
+    title: 'Play TriPeaks Solitaire Online — Free Card Game, No Download',
+    h1: 'TriPeaks Solitaire',
+    metaDescription:
+      'Play TriPeaks Solitaire free online — clear three peaks by picking cards one rank above or below the waste. Build long chains for a big score. No download, no sign-up.',
+    shortDescription: 'Clear three peaks one card up or down at a time.',
+    howToPlay: [
+      'Clear a card when it is one rank above or below the card on the waste pile.',
+      'Ranks wrap around, so an Ace plays on a King or a two, and a King plays on an Ace or a Queen.',
+      'Only cards with nothing overlapping them are free to play.',
+      'Draw from the stock when you are stuck, but each draw breaks your chain.',
+    ],
+    strategy: [
+      'Chain as many cards in a row as you can before drawing — longer chains score much higher.',
+      'Look ahead: pick the card that opens up the most new cards behind it.',
+      'Save a card you can reach later as a bridge back to a stuck peak.',
+      'Do not draw from the stock too early — squeeze every move out of the board first.',
+      'Clearing a whole peak frees a big cluster, so work toward finishing one.',
+    ],
+    faq: [
+      { q: 'How do I play a card in TriPeaks?', a: 'Tap a free card whose rank is exactly one above or one below the top of the waste pile. Ranks wrap, so Ace connects to both King and two.' },
+      { q: 'What is a chain?', a: 'Each card you clear without drawing from the stock extends your chain. Longer chains earn more, so string together as many as you can.' },
+      { q: 'How do I win?', a: 'Clear all the cards from the three peaks. When every peak is empty, you win the deal.' },
+      { q: 'Is it free and account-free?', a: 'Yes. TriPeaks plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap a free, rank-adjacent card to send it to the waste, or tap the stock to draw. It works on phones and tablets as well as desktop.' },
     ],
   },
 ]

@@ -92,6 +92,8 @@ export const gameMeta: Record<string, GameMeta> = {
   solitaire: { icon: '🃏', accent: 'green', category: 'Classic', addedDate: '2026-07-20' },
   freecell: { icon: '🎴', accent: 'cyan', category: 'Classic', addedDate: '2026-07-20' },
   spider: { icon: '🕷️', accent: 'purple', category: 'Classic', addedDate: '2026-07-20' },
+  pyramid: { icon: '🔺', accent: 'amber', category: 'Classic', addedDate: '2026-07-20' },
+  tripeaks: { icon: '⛰️', accent: 'green', category: 'Classic', addedDate: '2026-07-20' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']
