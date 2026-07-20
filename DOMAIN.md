@@ -87,8 +87,9 @@
   `stats:<slug>` Played/Win%/Streak/MaxStreak/Best, GamePageLayout 삽입)·maxStreak(✅ dailyStreak).
   **남은 것: AdSense 자리표시자(승인 후)만.** 스탯은 게임이 recordResult를 호출해야 채워짐 —
   Clusters 채택 완료, **나머지 승/패 게임들도 recordResult 붙이면 패널이 그 게임에도 뜬다(확산 작업).**
-- **P2 장르/의도 허브 랜딩** ✅ 완료 — `/category/[puzzle|arcade|classic|skill]` SSG + JSON-LD
-  (CollectionPage/ItemList/FAQPage) + sitemap + 푸터 내부링크. `/popular`·`/new`·`/unblocked`는 남음.
+- **P2 장르/의도 허브 랜딩** ✅ 완료 — `/category/[puzzle|arcade|classic|skill]` + `/daily` + `/collections`
+  (10종) + `/unblocked`(대형 검색 의도) 전부 SSG + JSON-LD + sitemap + 내부링크. `/popular`는 트래픽/데이터
+  필요(저트래픽 노출=역소셜프루프)라 보류. `/new`는 NewGames 홈 레일로 대체(전용 랜딩은 저ROI, 선택).
 - **P3 온보딩** 🟡 — 목표 한 줄 above-the-fold(✅ objectives.ts 62종 + ObjectiveBanner, 보드 위 상시).
   **남은 것: 언어독립 조작 글리프(방향키·스와이프·탭)** — 게임별 `controls` 메타 + 최초 플레이 시
   `seen:<slug>` 게이팅 Start 카드. 목표(가장 큰 갭)는 상시 노출로 해결했으니 글리프는 후속.
