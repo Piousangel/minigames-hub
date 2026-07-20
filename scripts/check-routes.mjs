@@ -20,8 +20,20 @@ const has = (p) => existsSync(`out/${p}.html`) || existsSync(`out/${p}/index.htm
 const missing = []
 for (const s of uniq) if (!has(s)) missing.push(s)
 
+// 컬렉션 라우트도 대조(collections.ts의 키에서 추출).
+const col = readFileSync('src/lib/games/collections.ts', 'utf8')
+const colSlugs = [...col.matchAll(/^\s*'([a-z0-9-]+)':\s*\{$/gm)].map((m) => m[1])
+
 // 허브/랜딩 라우트(SSG)도 함께 지킨다.
-const hubs = ['category/puzzle', 'category/arcade', 'category/classic', 'category/skill', 'daily']
+const hubs = [
+  'category/puzzle',
+  'category/arcade',
+  'category/classic',
+  'category/skill',
+  'daily',
+  'collections',
+  ...colSlugs.map((s) => `collection/${s}`),
+]
 for (const h of hubs) if (!has(h)) missing.push(h)
 
 if (missing.length) {

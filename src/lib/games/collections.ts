@@ -1,0 +1,138 @@
+import type { NeonAccent } from './gameMeta'
+
+/**
+ * 롱테일 컬렉션 — 무권위 신생 사이트가 실제로 이길 수 있는 "대안 탐색(games like X)"·"태그형
+ * 의도(word/number/2-player/logic games)"를 각각의 URL로 잡는다(팀 결정 ⑤: 팀이 100% 통제 가능한
+ * 유일 트래픽 채널). /category 4종(장르)보다 "좁은 의도"로 한정해 카니벌라이제이션·doorway를 피한다.
+ *
+ * 규약(collections.test.ts가 강제): 멤버 slug ≥5, 모든 slug은 registry에 존재, intro/FAQ는
+ * 컬렉션마다 고유(near-duplicate 금지). 각 페이지는 canonical 자기지정.
+ */
+export interface Collection {
+  slug: string
+  h1: string
+  title: string
+  metaDescription: string
+  /** 150~300단어 고유 프로즈. 얇은/중복 콘텐츠는 색인·랭킹을 죽인다. */
+  intro: string
+  games: string[] // 큐레이션된 순서, ≥5, 전부 registry에 존재
+  faq: { q: string; a: string }[]
+  accent: NeonAccent
+}
+
+export const COLLECTIONS: Record<string, Collection> = {
+  'games-like-wordle': {
+    slug: 'games-like-wordle',
+    h1: 'Games Like Wordle',
+    title: 'Games Like Wordle — Free Daily Word Puzzles, No App',
+    metaDescription:
+      'Love Wordle? Play free games like it — daily word-guessing puzzles you solve in a few tries, with color clues and a shareable grid. Quadle, word guess, Clusters and more, in your browser, no account.',
+    intro:
+      'If you finish Wordle every morning and want more of the same itch, this is the shelf for you. These are free browser games built on the same loop that made Wordle a habit: a small, fair puzzle with one right answer, color clues after every guess, and a spoiler-free grid you can share to compare with friends. Some stick close to the original one-word format, while others stretch it — solve four words at once, group sixteen tiles into hidden sets, or crack a hidden equation. Every one has a fresh daily board that is the same for everyone that day, so there is a new reason to come back tomorrow, and a streak to protect once you get going. No app, no account, no paywall — they load instantly and remember your streak right in your browser. Start with the closest cousins below and work outward as you get hooked.',
+    games: ['quadle', 'word-guess', 'clusters', 'hangman', 'equate', 'word-search'],
+    faq: [
+      { q: 'Are these really free like Wordle?', a: 'Yes. Every game here is free in your browser with no account and no download. Your daily streak and stats save locally.' },
+      { q: 'Which one is closest to Wordle?', a: 'The one-word guessing games are closest. Quadle takes it further — four hidden words solved with a shared set of guesses.' },
+      { q: 'Is there a new puzzle every day?', a: 'Yes. Each of these has a daily board generated from the date, so everyone gets the same puzzle that day, plus a practice mode for unlimited plays.' },
+      { q: 'Can I share my result without spoilers?', a: 'Yes. Each daily game makes a colored-square grid that shows how you did without revealing the answer.' },
+    ],
+    accent: 'lime',
+  },
+
+  'games-like-connections': {
+    slug: 'games-like-connections',
+    h1: 'Games Like Connections',
+    title: 'Games Like Connections — Free Daily Grouping Puzzles',
+    metaDescription:
+      'Enjoy NYT Connections? Play free games like it — daily grouping and word puzzles where you sort tiles into hidden sets. Clusters and more, in your browser, no account, no app.',
+    intro:
+      'Connections turned a simple idea — sort sixteen words into four secret groups — into a daily ritual, and the satisfying part is spotting the trap tiles that look like they belong in two places at once. If that is the puzzle you crave, these free browser games scratch it. The headliner is a daily grouping puzzle with four hidden sets, four mistakes to spend, and a trickiest group that is deliberately misleading. Around it sit word games that reward the same kind of lateral thinking: guessing games, word searches, and grid puzzles where the answer hides in plain sight. All of them are free, run instantly with no download, and keep a streak in your browser so a missed day stings a little — which is the whole point. Everyone plays the same daily board, so you can compare how you did with a spoiler-free share grid. Begin with the grouping puzzle below, then branch into the wider word-puzzle set.',
+    games: ['clusters', 'quadle', 'word-guess', 'word-search', 'hangman', 'equate'],
+    faq: [
+      { q: 'Which game is most like Connections?', a: 'The grouping puzzle, Clusters — sixteen tiles, four hidden groups of four, four mistakes allowed, with a deliberately tricky purple group.' },
+      { q: 'Do I get a new puzzle daily?', a: 'Yes. The daily games generate the same board for everyone each day from the date, and practice mode gives endless fresh boards.' },
+      { q: 'Are they free and account-free?', a: 'Yes. Free in the browser, no sign-up, no download. Streaks and stats save locally.' },
+      { q: 'Can I share without spoiling the answer?', a: 'Yes. The share card is a grid of colored squares — it shows your path, not the solution.' },
+    ],
+    accent: 'lime',
+  },
+
+  'games-like-2048': {
+    slug: 'games-like-2048',
+    h1: 'Games Like 2048',
+    title: 'Games Like 2048 — Free Merge & Number Tile Games',
+    metaDescription:
+      'Hooked on 2048? Play free games like it — slide and merge number tiles, match gems, and stack blocks to chase a high score. In your browser, no download, no sign-up.',
+    intro:
+      'The magic of 2048 is the one-more-slide compulsion: every swipe merges tiles, doubles a number, and inches you toward a bigger goal while the board quietly fills up. If that pull is what you are after, this set delivers the same tile-sliding, number-climbing, just-one-more-run feeling for free in your browser. You will find the original doubling game and a themed twist on it, plus games that share its DNA in different shapes — matching gems into clears, stacking falling blocks into tidy rows, and building tall towers a tap at a time. They all reward planning a couple of moves ahead and punish greedy ones, and each keeps your best score locally so there is always a number to beat. Nothing to install and no account to make — pick a board and start climbing. Your high score saves in the browser, and many of these have a weekly online leaderboard if you want to push past your personal best.',
+    games: ['2048', '2048-animals', 'gem-match', 'tetris', 'tower-stack', 'bubble-shooter'],
+    faq: [
+      { q: 'Is the original 2048 here?', a: 'Yes — the classic slide-and-merge game plus an animal-themed variant with the same doubling mechanic.' },
+      { q: 'What makes a game "like 2048"?', a: 'The merge-and-climb loop: combine matching pieces into bigger ones and chase a high score. Tile-matching, stacking and tower games share that pull.' },
+      { q: 'Do my scores save?', a: 'Yes, in your browser, and several of these have a weekly online leaderboard you can submit to.' },
+      { q: 'Do they work on mobile?', a: 'Yes. They support touch and swipe controls and run on phones and tablets as well as desktop.' },
+    ],
+    accent: 'amber',
+  },
+
+  'word-games': {
+    slug: 'word-games',
+    h1: 'Free Word Games',
+    title: 'Free Word Games — Play Word Puzzles Online, No Download',
+    metaDescription:
+      'Play free word games online — word guessing, hangman, word search, grouping and multi-word puzzles. Daily boards and a streak, in your browser, no sign-up.',
+    intro:
+      'A good word game is the perfect small break: quick to start, hard to put down, and just the right amount of clever. This collection gathers the browser word puzzles on the site in one place, from the daily guessing games that have become a morning habit to the classics you already know how to play. Guess a hidden five-letter word from color clues, race the clock in hangman, hunt terms in a letter grid, or sort a jumble of tiles into their hidden groups. Several have a daily board that is identical for every player that day, plus a practice mode when one puzzle is not enough. They are all free, need no account, and load instantly with nothing to install, and the daily ones keep a streak in your browser to pull you back tomorrow. Whether you want a five-minute warm-up or a genuine head-scratcher, there is a word puzzle here for it — start with a daily below or dive into a classic.',
+    games: ['word-guess', 'quadle', 'clusters', 'word-search', 'hangman', 'equate'],
+    faq: [
+      { q: 'Are these word games free?', a: 'Yes. Every word game plays free in your browser with no account and no download.' },
+      { q: 'Which have a daily puzzle?', a: 'The guessing and grouping games have a daily board that is the same for everyone that day, with a streak that saves locally.' },
+      { q: 'Do they work on phones?', a: 'Yes. They use an on-screen keyboard and touch controls, so they work on mobile as well as desktop.' },
+      { q: 'Do my streaks save?', a: 'Yes, in your browser — no account needed. Miss a day and a streak freeze can bridge it.' },
+    ],
+    accent: 'cyan',
+  },
+
+  'two-player-games': {
+    slug: 'two-player-games',
+    h1: 'Free 2 Player Games',
+    title: 'Free 2 Player Games — Play Classics vs a Friend or the Computer',
+    metaDescription:
+      'Play free 2 player games online — tic-tac-toe, connect four, checkers, reversi and dots and boxes. Take turns against a friend or the computer, in your browser, no download.',
+    intro:
+      'Some games are best with an opponent, and these are the timeless ones — quick to learn, endlessly replayable, and just as fun across a table as against a clever computer. This collection rounds up the turn-based classics on the site: line up three in tic-tac-toe, drop discs to connect four, jump pieces in checkers, flip the board in reversi, and close the most squares in dots and boxes. Each plays instantly in the browser with no download and no sign-up, and you can pass-and-play with a friend on the same device or test yourself against a built-in opponent. They are the kind of games that fill a spare few minutes without any setup — no board to dig out, no pieces to lose. Pick one below, choose your difficulty, and take the first move. Every one works on phone, tablet and desktop, so the next match is always a tap away.',
+    games: ['tic-tac-toe', 'connect-four', 'checkers', 'reversi', 'dots-and-boxes'],
+    faq: [
+      { q: 'Can I play these against a friend?', a: 'Yes. These turn-based classics work as pass-and-play on one device, and several also offer a computer opponent.' },
+      { q: 'Are they free?', a: 'Yes. Every game is free in your browser with no account and no download.' },
+      { q: 'Do I need to install anything?', a: 'No. They run in any modern browser on phone, tablet or desktop — nothing to install.' },
+      { q: 'Can I choose a difficulty?', a: 'For the games with a computer opponent, yes — you can pick how hard the AI plays.' },
+    ],
+    accent: 'red',
+  },
+
+  'logic-games': {
+    slug: 'logic-games',
+    h1: 'Free Logic Puzzle Games',
+    title: 'Free Logic Puzzle Games — Deduction Puzzles Online, No App',
+    metaDescription:
+      'Play free logic puzzle games online — Sudoku, minesweeper, nonogram, sokoban, lights out and mastermind. Pure deduction, no luck, in your browser with no download.',
+    intro:
+      'Logic puzzles are the quiet, satisfying kind: no timer pressure unless you want it, no luck involved, just you and a solvable board that always has one right answer if you reason carefully enough. This collection gathers the deduction puzzles on the site for anyone who likes to think a few steps ahead. Fill a Sudoku grid without a contradiction, clear a minefield from the numbers alone, paint a hidden picture in a nonogram, push crates onto their targets in sokoban, switch off every light, or crack a secret code in mastermind. Each one rewards patience and pattern-spotting rather than fast fingers, and every board is fair — the answer is always deducible, never a guess. They are free, run instantly in the browser with nothing to install, and save your progress locally so you can put a hard one down and come back to it. If you like the feeling of a puzzle clicking into place, start with any board below.',
+    games: ['sudoku', 'minesweeper', 'nonogram', 'sokoban', 'lights-out', 'mastermind'],
+    faq: [
+      { q: 'Are these puzzles solvable by logic alone?', a: 'Yes. Every board has a unique solution reachable by deduction — no guessing or luck required.' },
+      { q: 'Are they free and account-free?', a: 'Yes. Free in your browser, no download and no sign-up. Progress saves locally.' },
+      { q: 'Do they work on mobile?', a: 'Yes. They support touch input and work on phones and tablets as well as desktop.' },
+      { q: 'Is there a timer?', a: 'Some track your time so you can beat your best, but you can take as long as you like to solve the board.' },
+    ],
+    accent: 'blue',
+  },
+}
+
+export const COLLECTION_SLUGS = Object.keys(COLLECTIONS)
+
+/** 특정 게임이 속한 컬렉션들(게임 페이지 역링크용). */
+export function collectionsForGame(gameSlug: string): Collection[] {
+  return COLLECTION_SLUGS.map((s) => COLLECTIONS[s]).filter((c) => c.games.includes(gameSlug))
+}
