@@ -73,4 +73,5 @@ export const OBJECTIVES: Record<string, string> = {
   mahjong: 'Match free tile pairs to clear all 144.',
   chess: 'Checkmate the enemy king to win.',
   'golf-solitaire': 'Clear every column one rank up or down.',
+  dominoes: 'Match the ends and empty your hand first.',
 }

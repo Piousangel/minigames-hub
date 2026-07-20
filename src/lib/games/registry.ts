@@ -85,6 +85,7 @@ export type GamePage = GamePageBase &
     | { game: 'mahjong' }
     | { game: 'chess' }
     | { game: 'golf-solitaire' }
+    | { game: 'dominoes' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2188,6 +2189,35 @@ export const gamePages: GamePage[] = [
       { q: 'How do I win?', a: 'Clear every card from all seven columns before the stock runs out and you get stuck.' },
       { q: 'Is it free and account-free?', a: 'Yes. Golf Solitaire plays free in your browser with no download and no sign-up. Your best score saves locally.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap a column card to play it onto the waste, or tap the stock to deal. It works on phones and tablets as well as desktop.' },
+    ],
+  },
+  {
+    slug: 'dominoes',
+    game: 'dominoes',
+    title: 'Play Dominoes Online — Free vs Computer or 2 Player, No Download',
+    h1: 'Dominoes',
+    metaDescription:
+      'Play dominoes free online — the classic double-six tile game against the computer or a friend. Match the ends, empty your hand, and win. No download, no sign-up.',
+    shortDescription: 'Match the ends and empty your hand first.',
+    howToPlay: [
+      'Each player starts with seven tiles from the double-six set.',
+      'Play a tile so one of its numbers matches an open end of the line.',
+      'If you cannot play, draw from the boneyard until you can, or pass when it is empty.',
+      'Be the first to play all your tiles to win, or hold the fewest pips if the game blocks up.',
+    ],
+    strategy: [
+      'Play your heavy tiles early — being caught with them when the game blocks costs you.',
+      'Watch which numbers your opponent keeps passing on and try to force those ends.',
+      'Hold a double or two as flexible tiles you can drop when the ends line up.',
+      'Count what has been played to guess what your opponent is still holding.',
+      'When ahead, keep the line simple; when behind, open both ends to make more plays.',
+    ],
+    faq: [
+      { q: 'Can I play dominoes against the computer?', a: 'Yes. Play a full game against a built-in opponent, or switch to two-player pass-and-play on one device.' },
+      { q: 'How do you win at dominoes?', a: 'Be the first to play all your tiles. If nobody can move and the boneyard is empty, the player with the fewest pips left in hand wins.' },
+      { q: 'What is the boneyard?', a: 'The pile of leftover tiles after the deal. If you cannot match an open end, you draw from it until you can, or pass when it is empty.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Dominoes plays free in your browser with no download and no sign-up. Your win record saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap a tile in your hand and tap an open end to play it. It works on phones and tablets as well as desktop.' },
     ],
   },
 ]

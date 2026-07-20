@@ -39,6 +39,7 @@ import { GameTripeaks } from '@/components/games/GameTripeaks'
 import { GameMahjong } from '@/components/games/GameMahjong'
 import { GameChess } from '@/components/games/GameChess'
 import { GameGolf } from '@/components/games/GameGolf'
+import { GameDominoes } from '@/components/games/GameDominoes'
 import { GamePolytap } from '@/components/games/GamePolytap'
 import { GameSonar } from '@/components/games/GameSonar'
 import { GameProspector } from '@/components/games/GameProspector'
@@ -219,6 +220,8 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameChess storageKey={`best:${page.slug}`} />
     case 'golf-solitaire':
       return <GameGolf storageKey={`best:${page.slug}`} />
+    case 'dominoes':
+      return <GameDominoes storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

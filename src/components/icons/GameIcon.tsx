@@ -652,6 +652,17 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // dominoes — 도미노 타일(가운데 선 + 양쪽 핍)
+  dominoes: (
+    <>
+      <rect x="4" y="7" width="16" height="10" rx="1.6" {...soft} />
+      <path d="M12 7.6v8.8" />
+      <circle cx="8" cy="12" r="1" {...solid} />
+      <circle cx="16" cy="9.8" r="1" {...solid} />
+      <circle cx="16" cy="14.2" r="1" {...solid} />
+    </>
+  ),
+
   // chess — 폰 실루엣
   chess: (
     <>
