@@ -99,8 +99,10 @@
   OG PNG(아이콘+이름+액센트) 빌드타임 생성 + og:image 메타 출력. ⚠️ **핵심 함정 발견/수정:** 확장자
   없는 `opengraph-image` 파일을 CF assets가 Content-Type 없이 서빙 → 크롤러가 미리보기 안 띄움.
   `public/_headers`로 `/opengraph-image`·`/*/opengraph-image`에 `Content-Type: image/png` 강제(라이브 검증).
-- **P6 분석 계측** ⬜ — Cloudflare Web Analytics(beacon 자체호스팅) + Analytics Engine `/api/hit`
-  비콘(RecordPlay에서 game/event/dwell). PII 없는 코스 신호만.
+- **P6 분석 계측** 🟡 — Analytics Engine `/api/hit` 비콘(RecordPlay에서 view+dwell, 1st-party, PII
+  없음) ✅ 코드·엔드포인트 라이브(204). **⚠️ 사람 단계: 대시보드에서 Analytics Engine Enable**
+  (에러 10089) → wrangler.jsonc의 analytics_engine_datasets 주석 해제 + 재배포하면 기록 시작.
+  현재 바인딩 없어 no-op(무해). 조회 데이터는 Analytics Engine SQL API(CF 토큰)로 후속 조회.
 - **P7 홈 신선함 + 인기 레일** 🟡 — 신선함(✅ gameMeta addedDate + NewBadge + 'New games' 행,
   클라이언트 now로 21일 자동 만료). **인기 레일은 보류** — Worker read 엔드포인트 + 임계값(100회+)
   게이팅 필요한데 트래픽 전이라 시기상조(저트래픽 플레이수 노출 = 역소셜프루프). P6 분석 데이터 후.
