@@ -100,8 +100,9 @@
   이력 있음(HANDOFF 6.1) — 단일 정적 OG로.
 - **P6 분석 계측** ⬜ — Cloudflare Web Analytics(beacon 자체호스팅) + Analytics Engine `/api/hit`
   비콘(RecordPlay에서 game/event/dwell). PII 없는 코스 신호만.
-- **P7 홈 신선함 + 인기 레일** ⬜ — 인기는 Worker read 엔드포인트(임계값 게이팅, 초기 에디토리얼 폴백),
-  gameMeta `addedDate` → NEW 뱃지 + 'New games' 행.
+- **P7 홈 신선함 + 인기 레일** 🟡 — 신선함(✅ gameMeta addedDate + NewBadge + 'New games' 행,
+  클라이언트 now로 21일 자동 만료). **인기 레일은 보류** — Worker read 엔드포인트 + 임계값(100회+)
+  게이팅 필요한데 트래픽 전이라 시기상조(저트래픽 플레이수 노출 = 역소셜프루프). P6 분석 데이터 후.
 - **P8 즐겨찾기 'My Games'** ✅ 완료 — 카드 코너 하트 → localStorage `favorites`, 홈 레일(무계정 차별점),
   커스텀 이벤트로 하트/레일 동기화.
 
