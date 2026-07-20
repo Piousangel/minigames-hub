@@ -131,10 +131,11 @@ CMP(대시보드 '유럽 규정 GDPR 메시지' 활성)**가 담당, adsbygoogle
 - ⑤ **Klondike Solitaire** ✅ 완료 — 'solitaire'(66종째). **카드 게임 0→1**. "solitaire/klondike"는
   브라우저 최대 에버그린 검색어 + 체류 긴 장르라 데일리 변형보다 큰 실질 SEO 갭. draw-3, 순수 엔진.
   **통찰: 검색량 큰 '장르 갭'(카드/보드 변형)이 데일리 추측 변형보다 트래픽 ROI 높음** — 다음 라운드 우선.
-- ⑥⑦⑧ **FreeCell·Spider·(Pyramid·TriPeaks 진행)** — 카드 게임 확장. freecell(67, 오픈 솔리테어),
-  spider(68, 2덱 1/2/4 suit). **카드 클러스터:** solitaire+freecell+spider+pyramid+tripeaks = 5종되면
-  'solitaire-games' 컬렉션 + 'free solitaire' 검색 클러스터 완성. (⚠️ 카드 이모지는 표준 이모지만 —
-  플레잉카드 유니코드 🂡류는 OG ImageResponse 폰트 미지원 400.)
+- ⑥⑦⑧⑨ **카드 게임 클러스터 ✅ 완성** — solitaire(66,Klondike)·freecell(67)·spider(68)·pyramid(69)·
+  tripeaks(70), 5종 전부 순수 엔진·recordResult·모바일 탭이동. + `/collection/solitaire-games`(5종 묶음)
+  으로 "free solitaire / solitaire games" 검색 클러스터 확보. 카드=브라우저 최대 에버그린 트래픽 장르.
+  (⚠️ 카드 이모지는 표준 이모지만 — 플레잉카드 유니코드 🂡류는 OG ImageResponse 폰트 미지원 400.)
+  다음 장르 갭 후보: Mahjong(타일매칭)·Crossword mini·Sudoku 변형·2P 보드 확장.
 - ④ **Nerdle식 수식 데일리** ✅ 완료 — 'Equate'(64종째). 8칸 수식 6추측, 안전 평가기, 수학 검색
   표면 신규(단어 게임과 다른 키워드). 데일리+연습+streak+스탯+공유.
 - ① **Connections식 4×4 그룹핑 데일리** ✅ 완료 — 'Clusters'(62종째). 16타일→숨은 4그룹, 4목숨,
