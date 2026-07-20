@@ -13,6 +13,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // Reveal timing (skipped entirely under prefers-reduced-motion).
@@ -162,6 +163,14 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
         play('lose')
         recordEnd(false)
       }
+      if (next.status !== 'playing') {
+        // 개인 기록: 완료 판수/승수 + 사용한 추측 수 분포 누적 → 스탯 패널이 읽는다.
+        // (storageKey에는 {wins,streak} JSON이 들어가지만 recordResult는 별도 stats: 키에 쓴다.)
+        recordResult(storageKey.replace(/^best:/, ''), {
+          won: next.status === 'won',
+          bucket: next.guesses.length,
+        })
+      }
     }
 
     if (reducedRef.current) {
@@ -183,7 +192,7 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
         finishEnd()
       }, total),
     )
-  }, [commitGuess, commitState, play, recordEnd, reducedRef])
+  }, [commitGuess, commitState, play, recordEnd, reducedRef, storageKey])
 
   const typeLetter = useCallback(
     (letter: string) => {

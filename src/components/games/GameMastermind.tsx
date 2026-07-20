@@ -14,6 +14,7 @@ import {
 } from '@/lib/games/mastermind/engine'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // Six neon pegs. `name` is spoken by screen readers so color is never the only
@@ -163,7 +164,15 @@ export function GameMastermind({ storageKey }: { storageKey: string }) {
     } else {
       play('move')
     }
-  }, [draft, play, commit, recordWin])
+    if (next.status !== 'playing') {
+      // 개인 기록: 완료 판수/승수 + 사용한 추측 수 분포 누적 → 스탯 패널이 읽는다.
+      // (storageKey에는 {wins} JSON이 들어가지만 recordResult는 별도 stats: 키에 쓴다.)
+      recordResult(storageKey.replace(/^best:/, ''), {
+        won: next.status === 'won',
+        bucket: next.guesses.length,
+      })
+    }
+  }, [draft, play, commit, recordWin, storageKey])
 
   const hint = 'Pick 4 pegs, then Guess. ● right color & spot, ○ right color, wrong spot.'
 

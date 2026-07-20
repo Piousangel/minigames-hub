@@ -12,6 +12,7 @@ import {
 } from '@/lib/games/minesweeper/engine'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // Vivid, high-contrast number colors with a soft drop-shadow for depth.
@@ -132,6 +133,8 @@ export function GameMinesweeper() {
         } else {
           play('lose')
         }
+        // 개인 기록: 완료 판수/승수 누적 → 게임 페이지 스탯 패널이 읽는다.
+        recordResult('minesweeper', { won: next.won })
       } else {
         if (wasFirstReveal) startTimer() // 첫 오픈에서 시계 시작
         play('move')

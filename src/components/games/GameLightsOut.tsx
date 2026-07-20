@@ -10,6 +10,7 @@ import {
 } from '@/lib/games/lightsout/engine'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const RIPPLE_STEP = 45 // ms of extra delay per Manhattan step from the pressed cell
@@ -66,6 +67,8 @@ export function GameLightsOut({ storageKey }: { storageKey: string }) {
           setBest(next.moves)
           localStorage.setItem(storageKey, String(next.moves))
         }
+        // 개인 기록: 완료 판수 누적(라이츠아웃은 패배 없음 → 항상 승) + 사용 이동 수 분포.
+        recordResult(storageKey.replace(/^best:/, ''), { won: true, bucket: next.moves })
       } else {
         // 'flip' is a soft, short tick — fits a light toggling on/off.
         play('flip')

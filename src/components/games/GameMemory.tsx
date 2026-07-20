@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { clearMismatch, flip, newMemoryGame, type MemoryState } from '@/lib/games/memory/engine'
 import { useGameSound } from '@/lib/sound/useGameSound'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const MISMATCH_MS = 900
@@ -50,15 +51,18 @@ export function GameMemory({ storageKey }: { storageKey: string }) {
     if (!state) return
     const matched = countMatched(state)
     const faceUp = state.faceUp.length
-    if (state.won && !prevWon.current) play('win')
-    else if (matched > prevMatched.current) play('match')
+    if (state.won && !prevWon.current) {
+      play('win')
+      // 개인 기록: 완료 판수 누적(메모리는 패배 없음 → 항상 승) → 스탯 패널이 읽는다.
+      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+    } else if (matched > prevMatched.current) play('match')
     else if (state.moves > prevMoves.current) play('mismatch')
     else if (faceUp === 1 && faceUp !== prevFaceUp.current) play('flip')
     prevMatched.current = matched
     prevMoves.current = state.moves
     prevFaceUp.current = faceUp
     prevWon.current = state.won
-  }, [state, play])
+  }, [state, play, storageKey])
 
   const handleFlip = useCallback((index: number) => {
     if (timer.current) {

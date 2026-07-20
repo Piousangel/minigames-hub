@@ -15,6 +15,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const KEY_DIRS: Record<string, Direction> = {
@@ -131,6 +132,8 @@ export function GameSokoban({ storageKey }: { storageKey: string }) {
         solvedRef.current = true
         setSolved(true)
         play('win')
+        // 개인 기록: 클리어한 레벨 수 누적(소코반은 패배 없음 → 항상 승) → 스탯 패널이 읽는다.
+        recordResult(storageKey.replace(/^best:/, ''), { won: true })
         const prevBest = loadBest(storageKey, next.levelIndex)
         if (prevBest === null || next.moves < prevBest) {
           localStorage.setItem(bestKey(storageKey, next.levelIndex), String(next.moves))

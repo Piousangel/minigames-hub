@@ -14,6 +14,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const DIFFICULTIES: Difficulty[] = ['easy', 'medium', 'hard']
@@ -235,6 +236,8 @@ export function GameSudoku({ storageKey }: { storageKey: string }) {
         setSolved(true)
         setElapsed(Math.floor((Date.now() - startRef.current) / 1000))
         play('win')
+        // 개인 기록: 완료 판수 누적(스도쿠는 패배 없음 → 항상 승) → 스탯 패널이 읽는다.
+        recordResult(storageKey.replace(/^best:/, ''), { won: true })
       }
     },
     [commitGrid, commitNotes, play, setAnimFor],

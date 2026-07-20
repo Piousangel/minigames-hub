@@ -19,6 +19,7 @@ import {
 } from '@/lib/games/reversi/engine'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // Player is dark ('D') and moves first; the computer is light ('L').
@@ -138,11 +139,13 @@ export function GameReversi({ storageKey }: { storageKey: string }) {
         play('flip')
         bumpRecord('d')
       }
+      // 개인 기록: 완료 판수/승수 누적(무승부는 패로 집계) → 스탯 패널이 읽는다.
+      recordResult(storageKey.replace(/^best:/, ''), { won: win === PLAYER })
       busyRef.current = false
       setThinking(false)
       return true
     },
-    [bumpRecord, play],
+    [bumpRecord, play, storageKey],
   )
 
   // Register the flip animation for a move's flipped discs + the placed disc.

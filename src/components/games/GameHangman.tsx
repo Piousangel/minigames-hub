@@ -12,6 +12,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 interface Stats {
@@ -69,6 +70,9 @@ export function GameHangman({ storageKey }: { storageKey: string }) {
     (won: boolean) => {
       if (recordedRef.current) return
       recordedRef.current = true
+      // 개인 기록: 완료 판수/승수 + 오답 분포(misses) 누적 → 스탯 패널이 읽는다.
+      // (storageKey에는 {wins,streak} JSON이 들어가지만 recordResult는 별도 stats: 키에 쓴다.)
+      recordResult(storageKey.replace(/^best:/, ''), { won, bucket: stateRef.current?.misses })
       setStats((prev) => {
         const next: Stats = won
           ? { wins: prev.wins + 1, streak: prev.streak + 1 }

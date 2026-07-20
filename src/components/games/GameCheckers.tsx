@@ -18,6 +18,7 @@ import {
 } from '@/lib/games/checkers/engine'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // Player is red (bottom), computer is black (top).
@@ -137,9 +138,11 @@ export function GameCheckers({ storageKey }: { storageKey: string }) {
         play('lose')
         bumpRecord('l')
       }
+      // 개인 기록: 완료 판수/승수 누적 → 스탯 패널이 읽는다.
+      recordResult(storageKey.replace(/^best:/, ''), { won: win === PLAYER })
       return true
     },
-    [bumpRecord, play],
+    [bumpRecord, play, storageKey],
   )
 
   const setLand = useCallback((from: Coord, to: Coord, promoted: boolean) => {

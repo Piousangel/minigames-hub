@@ -15,6 +15,7 @@ import {
 } from '@/lib/games/connectfour/engine'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const DROP_MS = 440
@@ -104,16 +105,17 @@ export function GameConnectFour({ storageKey }: { storageKey: string }) {
           play('lose')
           bumpRecord('l')
         }
-        return true
-      }
-      if (isDraw(s)) {
+      } else if (isDraw(s)) {
         play('match')
         bumpRecord('d')
-        return true
+      } else {
+        return false
       }
-      return false
+      // 개인 기록: 완료 판수/승수 누적(무승부는 패로 집계) → 스탯 패널이 읽는다.
+      recordResult(storageKey.replace(/^best:/, ''), { won: !!win && win.player === 'R' })
+      return true
     },
-    [bumpRecord, play],
+    [bumpRecord, play, storageKey],
   )
 
   // Perform a single disc drop; returns whether it moved and whether it ended the game.
