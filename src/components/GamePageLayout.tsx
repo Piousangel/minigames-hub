@@ -9,6 +9,7 @@ import { NextUp } from '@/components/NextUp'
 import { GameStats } from '@/components/GameStats'
 import { DailyDock } from '@/components/DailyDock'
 import { ObjectiveBanner } from '@/components/ObjectiveBanner'
+import { CollectionLinks } from '@/components/CollectionLinks'
 import { RelatedGames } from '@/components/RelatedGames'
 
 /** 게임 액센트 네온 컬러의 섹션 헤딩(가독성 위해 픽셀폰트 대신 산세리프). */
@@ -85,6 +86,9 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
           </div>
         </section>
       </Reveal>
+
+      {/* 게임 페이지 → 컬렉션 역링크(내부링크 권위 + 유사 게임 발견) */}
+      <CollectionLinks slug={page.slug} />
 
       {/* 인콘텐츠 광고 자리(승인 전엔 렌더 안 됨) */}
       <AdSlot slot="game-incontent" className="mt-10" />
