@@ -109,6 +109,22 @@
 - **P8 즐겨찾기 'My Games'** ✅ 완료 — 카드 코너 하트 → localStorage `favorites`, 홈 레일(무계정 차별점),
   커스텀 이벤트로 하트/레일 동기화.
 
+### 팀 회의 실행 로그 (2026-07-20) — "게임 착지 페이지 = 성장 엔진"
+방향: 유입(SEO·커뮤니티)은 홈이 아니라 개별 게임 페이지에 착지하는데 그 페이지엔 리턴 훅이 없어
+'새는 양동이'였다 → 같은 표면에 트래픽(SEO 롱테일 컬렉션)+리턴(DailyDock·스탯 확산)을 심음.
+- ✅ ① DailyDock — 66종 게임 페이지에 site streak+오늘 퀘스트+카운트다운 리턴 훅(보드 아래).
+- ✅ ② 배포 라우트 회귀 게이트(scripts/check-routes.mjs) — 린트가 라우트 떨구면 배포 하드 실패.
+- 🟡 ③ best: NaN 가드 — 배선 게임 중 리더보드+JSON저장 충돌 없음 확인 → 마이그레이션 불필요(GameStats는
+  이미 Number 가드). Leaderboard.tsx Number() 미가드는 잠재적, 해당 게임 리더보드 없어 비활성.
+- ✅ ④ recordResult ×11(minesweeper/sudoku/hangman/mastermind/lights-out/nonogram/sokoban/memory/
+  word-guess/connect-four/checkers/reversi) → 스탯 패널 점등. simon/tic-tac-toe는 승률 오해로 스킵.
+- ✅ ⑤ 롱테일 컬렉션 6종(games-like-wordle/connections/2048 + word/two-player/logic) + /collections
+  인덱스 + doorway 가드 test. 신작을 경쟁사 대안 검색으로 직격.
+- ✅ ⑥ CollectionLinks — 66 게임 페이지→컬렉션 역링크(내부링크 권위).
+보류(팀): Daily Mix(L급 위험), D1 계측(커뮤니티게시 직전 승격), 수익화(AdSense 후), 인기레일.
+⚠️ 미해결 실결함(팀 지적): privacy/page.tsx가 EEA 동의 선택을 약속하나 ConsentBanner 미구현 —
+수익화 켜기 직전 처리 필수.
+
 ### 신규 게임 파이프라인 (병행)
 - ④ **Nerdle식 수식 데일리** ✅ 완료 — 'Equate'(64종째). 8칸 수식 6추측, 안전 평가기, 수학 검색
   표면 신규(단어 게임과 다른 키워드). 데일리+연습+streak+스탯+공유.
