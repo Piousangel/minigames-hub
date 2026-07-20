@@ -103,10 +103,12 @@ export default {
         const dwell = Number.isFinite(dwellRaw) && dwellRaw >= 0 ? Math.min(dwellRaw, 86_400) : 0
         const country = (request as unknown as { cf?: { country?: string } }).cf?.country ?? 'XX'
         const ref = (b.ref != null ? String(b.ref) : request.headers.get('referer') ?? '').slice(0, 200)
+        const vid = String(b.vid ?? '').slice(0, 64)
         if (slug) {
+          // blobs: event, country, referrer, 익명 방문자 id(vid). vid로 재방문·방문당 플레이 계산.
           env.ANALYTICS?.writeDataPoint({
             indexes: [slug],
-            blobs: [event, country, ref],
+            blobs: [event, country, ref, vid],
             doubles: [dwell],
           })
         }
