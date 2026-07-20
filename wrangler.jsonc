@@ -16,5 +16,10 @@
       "database_id": "c99eaae9-e197-4020-b718-a3d599949f70"
     }
   ],
+  // 1st-party 분석: 게임별 조회·체류를 Analytics Engine에 기록(외부 요청·CSP·토큰 불필요).
+  // ⚠️ 대시보드에서 Analytics Engine을 켜야 배포됨(에러 10089, 사람 원클릭 단계):
+  //    dash.cloudflare.com → Workers & Pages → Analytics Engine → Enable.
+  //    켠 뒤 아래 줄 주석을 해제하고 재배포하면 /api/hit이 실제로 기록 시작(엔드포인트는 이미 라이브).
+  // "analytics_engine_datasets": [{ "binding": "ANALYTICS", "dataset": "mg_events" }],
   "routes": [{ "pattern": "quickminigames.site", "custom_domain": true }]
 }

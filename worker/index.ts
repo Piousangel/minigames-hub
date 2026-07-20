@@ -18,9 +18,13 @@ interface D1Stmt {
 interface D1Database {
   prepare(query: string): D1Stmt
 }
+interface AnalyticsEngine {
+  writeDataPoint(event: { indexes?: string[]; blobs?: (string | null)[]; doubles?: number[] }): void
+}
 interface Env {
   ASSETS: { fetch(req: Request): Promise<Response> }
   DB: D1Database
+  ANALYTICS?: AnalyticsEngine
 }
 
 function json(data: unknown, status = 200): Response {
@@ -86,6 +90,30 @@ export default {
         .bind(game, week, name, score, Date.now())
         .run()
       return json({ week, top: await top(env, game, week), submitted: { name, score } })
+    }
+
+    // 1st-party 분석 비콘: 게임별 조회('view')·체류('dwell', 초)를 Analytics Engine에 기록.
+    // sendBeacon(POST, same-origin)로 논블로킹. 실패해도 UX에 영향 없게 항상 204.
+    if (url.pathname === '/api/hit' && request.method === 'POST') {
+      try {
+        const b = JSON.parse(await request.text()) as Record<string, unknown>
+        const slug = String(b.slug ?? '').slice(0, 40)
+        const event = String(b.event ?? 'view').slice(0, 20)
+        const dwellRaw = Number(b.dwell)
+        const dwell = Number.isFinite(dwellRaw) && dwellRaw >= 0 ? Math.min(dwellRaw, 86_400) : 0
+        const country = (request as unknown as { cf?: { country?: string } }).cf?.country ?? 'XX'
+        const ref = (b.ref != null ? String(b.ref) : request.headers.get('referer') ?? '').slice(0, 200)
+        if (slug) {
+          env.ANALYTICS?.writeDataPoint({
+            indexes: [slug],
+            blobs: [event, country, ref],
+            doubles: [dwell],
+          })
+        }
+      } catch {
+        // 잘못된 비콘은 조용히 무시
+      }
+      return new Response(null, { status: 204 })
     }
 
     // 그 외: 정적 에셋(존재하면 assets가 직접 처리, 없으면 404 페이지)

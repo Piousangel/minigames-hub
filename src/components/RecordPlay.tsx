@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { todayUTC } from '@/lib/dailyDate'
 import { bumpStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
 import { markPlayed } from '@/lib/today'
+import { sendHit } from '@/lib/hit'
 
 export const RECENT_KEY = 'recent:games'
 export const RECENT_MAX = 8
@@ -27,6 +28,26 @@ export function RecordPlay({ slug }: { slug: string }) {
       saveStreak('site:streak', bumpStreak(loadStreak('site:streak'), today))
     } catch {
       /* localStorage 불가 환경 무시 */
+    }
+
+    // 1st-party 분석: 조회 1건 + 이 페이지를 떠날 때 체류(초). 북극성(체류) 측정의 시작.
+    sendHit(slug, 'view')
+    const start = Date.now()
+    let sent = false
+    const flush = () => {
+      if (sent) return
+      sent = true
+      sendHit(slug, 'dwell', (Date.now() - start) / 1000)
+    }
+    const onHidden = () => {
+      if (document.visibilityState === 'hidden') flush()
+    }
+    document.addEventListener('visibilitychange', onHidden)
+    window.addEventListener('pagehide', flush)
+    return () => {
+      document.removeEventListener('visibilitychange', onHidden)
+      window.removeEventListener('pagehide', flush)
+      flush() // 라우트 전환(언마운트)에서도 체류 기록
     }
   }, [slug])
   return null
