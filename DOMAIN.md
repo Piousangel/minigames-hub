@@ -95,9 +95,10 @@
 - **P4 스트릭 프리즈** ✅ 완료 — dailyStreak.ts freeze(gap 2+잔량>0이면 프리즈 소모, 5일마다 +1, 최대 2),
   TodayBoard ❄️ 표시. ⚠️ loadStreak가 freezes 떨구던 버그 브라우저 검증으로 잡음. **데일리 아카이브(`/daily`
   지난 날짜 결정론 재생)는 남음.**
-- **P5 게임별 브랜드 OG 이미지** ⬜ — `[slug]/opengraph-image.tsx`(force-static)로 61종 네온 OG PNG
-  빌드타임 생성. dailyShare renderCard 미학 재사용. ⚠️ generateImageMetadata는 output:export와 충돌
-  이력 있음(HANDOFF 6.1) — 단일 정적 OG로.
+- **P5 게임별 브랜드 OG 이미지** ✅ 완료 — `[slug]/opengraph-image.tsx`(force-static)가 전 게임 네온
+  OG PNG(아이콘+이름+액센트) 빌드타임 생성 + og:image 메타 출력. ⚠️ **핵심 함정 발견/수정:** 확장자
+  없는 `opengraph-image` 파일을 CF assets가 Content-Type 없이 서빙 → 크롤러가 미리보기 안 띄움.
+  `public/_headers`로 `/opengraph-image`·`/*/opengraph-image`에 `Content-Type: image/png` 강제(라이브 검증).
 - **P6 분석 계측** ⬜ — Cloudflare Web Analytics(beacon 자체호스팅) + Analytics Engine `/api/hit`
   비콘(RecordPlay에서 game/event/dwell). PII 없는 코스 신호만.
 - **P7 홈 신선함 + 인기 레일** 🟡 — 신선함(✅ gameMeta addedDate + NewBadge + 'New games' 행,

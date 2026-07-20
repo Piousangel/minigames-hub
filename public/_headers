@@ -1,0 +1,7 @@
+# Next 정적 export가 OG 이미지를 확장자 없는 파일(`opengraph-image`)로 뽑아, Cloudflare
+# assets 레이어가 Content-Type을 못 붙인다 → SNS/검색 크롤러가 미리보기를 안 띄운다.
+# 게임별/루트 OG 이미지에 image/png를 명시해 브랜드 미리보기가 렌더되게 한다(DOMAIN §1 CTR).
+/opengraph-image
+  Content-Type: image/png
+/*/opengraph-image
+  Content-Type: image/png
