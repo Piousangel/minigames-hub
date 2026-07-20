@@ -74,6 +74,7 @@ export type GamePage = GamePageBase &
     | { game: 'flapjack' }
     | { game: 'interlock' }
     | { game: 'clusters' }
+    | { game: 'quadle' }
   )
 
 export const gamePages: GamePage[] = [
@@ -1857,6 +1858,36 @@ export const gamePages: GamePage[] = [
       { q: 'How many mistakes can I make?', a: 'Four. Each wrong group of four costs one life; run out and the puzzle ends. Solve all four groups first to win.' },
       { q: 'What does "one away" mean?', a: 'Your guess had three tiles from a single group and one that belongs elsewhere. Keep the three, swap the fourth.' },
       { q: 'Can I share my result without spoilers?', a: 'Yes. The share card is a colored emoji grid of your guesses — it shows how you did without revealing the answers, just like the daily word games.' },
+      { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
+    ],
+  },
+  {
+    slug: 'quadle',
+    game: 'quadle',
+    title: 'Play Quadle Online — Free Daily 4-Word Puzzle',
+    h1: 'Quadle',
+    metaDescription:
+      'Play Quadle free online — solve four hidden 5-letter words at once. Every guess is scored against all four boards. You get nine guesses; crack all four to win, then share your spoiler-free grid. New puzzle daily, no download, no sign-up.',
+    shortDescription: 'Guess four hidden words at once in nine tries.',
+    howToPlay: [
+      'Four hidden five-letter words fill four boards shown at the same time.',
+      'Type any real five-letter word and it is guessed on all four boards at once.',
+      'Green means right letter, right spot; yellow means right letter, wrong spot; grey means not in that word.',
+      'You have nine guesses total — solve all four boards before they run out to win.',
+    ],
+    strategy: [
+      'Open with words full of common letters to light up all four boards fast.',
+      'A letter can be green on one board and grey on another — read each board on its own.',
+      'Once a board is nearly solved, finish it quickly to stop it eating your limited guesses.',
+      'Save a guess for a board that is still wide open rather than confirming one you already know.',
+      'Nine guesses for four words is tight — every guess should gather clues on more than one board.',
+    ],
+    faq: [
+      { q: 'How is Quadle different from a normal word game?', a: 'You solve four words at once, not one. Each guess is scored against all four boards, so you juggle four puzzles with a shared, limited pool of nine guesses.' },
+      { q: 'Is there a new puzzle every day?', a: 'Yes. Quadle is a daily puzzle — the same four words for everyone that day, generated from the date so no server is needed. Practice mode gives endless fresh puzzles any time.' },
+      { q: 'How many guesses do I get?', a: 'Nine. That is six as in a single word game plus one for each extra board. Solve all four boards within nine guesses to win.' },
+      { q: 'Do invalid words cost a guess?', a: 'No. A word that is not in the dictionary is rejected and does not use up one of your nine guesses.' },
+      { q: 'Can I share my result without spoilers?', a: 'Yes. The share card shows which guess solved each board in a small grid — no letters revealed, just like the daily word games.' },
       { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
     ],
   },

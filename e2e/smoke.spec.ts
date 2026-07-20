@@ -440,6 +440,11 @@ test('clusters: 로드 → 보드 표시', async ({ page }) => {
   await expect(page.getByTestId('clusters-board')).toBeVisible()
 })
 
+test('quadle: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/quadle')
+  await expect(page.getByTestId('quadle-board')).toBeVisible()
+})
+
 test('게임 페이지: 목표 한 줄이 보드 위에 노출된다', async ({ page }) => {
   await page.goto('/clusters')
   await expect(page.getByTestId('objective')).toBeVisible()
@@ -517,7 +522,7 @@ test('홈: Daily 필터가 Daily 모드 게임만 보여준다', async ({ page }
   // TodayBoard/RecentlyPlayed도 게임 카드를 그리므로 브라우저 결과 그리드로 좁힌다.
   const titles = await page.getByTestId('browse-results').locator('a:has(h3) h3').allInnerTexts()
   expect(titles.sort()).toEqual(
-    ['Clusters', 'Decant', 'Deepdive', 'Duplex', 'Flapjack', 'Handful', 'Interlock', 'Overfold', 'Quarry', 'Ricochet', 'Sonar', 'Splice', 'Stackpot'].sort(),
+    ['Clusters', 'Decant', 'Deepdive', 'Duplex', 'Flapjack', 'Handful', 'Interlock', 'Overfold', 'Quadle', 'Quarry', 'Ricochet', 'Sonar', 'Splice', 'Stackpot'].sort(),
   )
 })
 

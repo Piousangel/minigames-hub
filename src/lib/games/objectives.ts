@@ -62,4 +62,5 @@ export const OBJECTIVES: Record<string, string> = {
   flapjack: 'Sort the pancakes big-to-small in few flips.',
   interlock: 'Rotate the rings to sort every bead to its home arc.',
   clusters: 'Sort the sixteen tiles into their four hidden groups.',
+  quadle: 'Guess all four hidden words within nine tries.',
 }

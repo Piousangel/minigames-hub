@@ -28,6 +28,7 @@ import { GameFlapjack } from '@/components/games/GameFlapjack'
 import { GameHandful } from '@/components/games/GameHandful'
 import { GameInterlock } from '@/components/games/GameInterlock'
 import { GameClusters } from '@/components/games/GameClusters'
+import { GameQuadle } from '@/components/games/GameQuadle'
 import { GamePolytap } from '@/components/games/GamePolytap'
 import { GameSonar } from '@/components/games/GameSonar'
 import { GameProspector } from '@/components/games/GameProspector'
@@ -186,6 +187,8 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameInterlock storageKey={`best:${page.slug}`} />
     case 'clusters':
       return <GameClusters storageKey={`best:${page.slug}`} />
+    case 'quadle':
+      return <GameQuadle storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

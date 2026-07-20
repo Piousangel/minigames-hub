@@ -86,6 +86,7 @@ export const gameMeta: Record<string, GameMeta> = {
   flapjack: { icon: '🥞', accent: 'cyan', category: 'Puzzle', daily: true , addedDate: '2026-07-18' },
   interlock: { icon: '⛓️', accent: 'magenta', category: 'Puzzle', daily: true , addedDate: '2026-07-18' },
   clusters: { icon: '🔠', accent: 'lime', category: 'Puzzle', daily: true , addedDate: '2026-07-19' },
+  quadle: { icon: '🔡', accent: 'cyan', category: 'Puzzle', daily: true, addedDate: '2026-07-20' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

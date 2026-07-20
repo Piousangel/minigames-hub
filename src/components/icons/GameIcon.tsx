@@ -642,6 +642,18 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // quadle — 4개 단어 보드(2×2 격자, 각 칸에 글자 슬롯 점)
+  quadle: (
+    <>
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1" {...soft} />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="1" {...solid} />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1" {...solid} />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="1" {...soft} />
+      <circle cx="7" cy="7" r="0.9" {...solid} />
+      <circle cx="17" cy="17" r="0.9" {...soft} />
+    </>
+  ),
+
   // clusters — 4개 그룹으로 묶이는 타일 격자(2×2 셀, 한 셀 강조)
   clusters: (
     <>
