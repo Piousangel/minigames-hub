@@ -530,3 +530,10 @@ test('leaderboards: 허브 페이지 로드', async ({ page }) => {
   await page.goto('/leaderboards')
   await expect(page.getByRole('heading', { name: 'Leaderboards', level: 1 })).toBeVisible()
 })
+
+test('daily 허브: 로드 + 데일리 게임 그리드', async ({ page }) => {
+  await page.goto('/daily')
+  await expect(page.getByRole('heading', { name: 'Free Daily Puzzle Games', level: 1 })).toBeVisible()
+  // 데일리 게임 카드가 여러 개(Clusters/Quadle 등)
+  await expect(page.locator('main a[href^="/"]:has(h3)').first()).toBeVisible()
+})
