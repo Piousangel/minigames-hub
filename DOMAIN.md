@@ -89,8 +89,9 @@
   Clusters 채택 완료, **나머지 승/패 게임들도 recordResult 붙이면 패널이 그 게임에도 뜬다(확산 작업).**
 - **P2 장르/의도 허브 랜딩** ✅ 완료 — `/category/[puzzle|arcade|classic|skill]` SSG + JSON-LD
   (CollectionPage/ItemList/FAQPage) + sitemap + 푸터 내부링크. `/popular`·`/new`·`/unblocked`는 남음.
-- **P3 온보딩 Start 카드** ⬜ — gameMeta에 `objective`/`controls` 추가, 최초 플레이 시 board 위 Start
-  카드(objective + 언어독립 조작 글리프), `seen:<slug>` 게이팅.
+- **P3 온보딩** 🟡 — 목표 한 줄 above-the-fold(✅ objectives.ts 62종 + ObjectiveBanner, 보드 위 상시).
+  **남은 것: 언어독립 조작 글리프(방향키·스와이프·탭)** — 게임별 `controls` 메타 + 최초 플레이 시
+  `seen:<slug>` 게이팅 Start 카드. 목표(가장 큰 갭)는 상시 노출로 해결했으니 글리프는 후속.
 - **P4 스트릭 프리즈** ✅ 완료 — dailyStreak.ts freeze(gap 2+잔량>0이면 프리즈 소모, 5일마다 +1, 최대 2),
   TodayBoard ❄️ 표시. ⚠️ loadStreak가 freezes 떨구던 버그 브라우저 검증으로 잡음. **데일리 아카이브(`/daily`
   지난 날짜 결정론 재생)는 남음.**
