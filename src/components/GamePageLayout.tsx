@@ -7,6 +7,7 @@ import { RecordPlay } from '@/components/RecordPlay'
 import { Reveal } from '@/components/Reveal'
 import { NextUp } from '@/components/NextUp'
 import { GameStats } from '@/components/GameStats'
+import { DailyDock } from '@/components/DailyDock'
 import { ObjectiveBanner } from '@/components/ObjectiveBanner'
 import { RelatedGames } from '@/components/RelatedGames'
 
@@ -44,6 +45,9 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
 
       {/* 게임 직후 개인 기록(트로피 케이스) — 데이터 없으면 안 뜸 */}
       <GameStats slug={page.slug} />
+
+      {/* 착지 페이지 리턴 훅: 사이트 streak + 오늘 퀘스트 + 다음 데일리 카운트다운 */}
+      <DailyDock />
 
       {/* 다음 게임으로 잇는 체류 후크(게임오버 catch point, 크로스셀은 스택 마지막) */}
       <NextUp currentSlug={page.slug} />

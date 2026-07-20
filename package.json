@@ -10,7 +10,7 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "e2e": "playwright test",
-    "deploy": "next build && wrangler deploy"
+    "deploy": "next build && node scripts/check-routes.mjs && wrangler deploy"
   },
   "dependencies": {
     "next": "^15.3.0",

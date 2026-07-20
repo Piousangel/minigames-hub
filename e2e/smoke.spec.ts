@@ -460,6 +460,12 @@ test('게임 페이지: 목표 한 줄이 보드 위에 노출된다', async ({ 
   await expect(page.getByTestId('objective')).toBeVisible()
 })
 
+test('게임 페이지: DailyDock 리턴 훅(streak+퀘스트+카운트다운)', async ({ page }) => {
+  await page.goto('/clusters')
+  await expect(page.getByTestId('daily-dock')).toBeVisible()
+  await expect(page.getByTestId('dock-countdown')).toBeVisible()
+})
+
 test('pinwheel: 마우스 클릭으로 핀이 꽂힌다', async ({ page }) => {
   // 셀의 onFocus가 핀을 꽂고 onClick 토글이 곧바로 해제해 마우스로는 플레이가
   // 불가능했다. 실제 마우스 클릭은 포커스를 유발하므로 이 경로를 고정한다.
