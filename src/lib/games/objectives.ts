@@ -66,4 +66,5 @@ export const OBJECTIVES: Record<string, string> = {
   equate: 'Guess the hidden equation within six tries.',
   reactor: 'Tap and automate to grow your energy per second.',
   solitaire: 'Move all cards to the four foundations to win.',
+  freecell: 'Use the free cells to build all four foundations.',
 }

@@ -78,6 +78,7 @@ export type GamePage = GamePageBase &
     | { game: 'equate' }
     | { game: 'reactor' }
     | { game: 'solitaire' }
+    | { game: 'freecell' }
   )
 
 export const gamePages: GamePage[] = [
@@ -1978,6 +1979,35 @@ export const gamePages: GamePage[] = [
       { q: 'Does it work on mobile?', a: 'Yes. Tap a card to pick up its run and tap where to drop it, or double-tap to send a card to a foundation. It works on phones and tablets as well as desktop.' },
       { q: 'Can I undo a move?', a: 'Yes. Undo steps back through your moves, so you can back out of a line that is not working.' },
       { q: 'Is every deal winnable?', a: 'Not every Klondike deal is solvable — that is part of the classic game. Start a new deal any time, and use auto-finish once the board is all face-up.' },
+    ],
+  },
+  {
+    slug: 'freecell',
+    game: 'freecell',
+    title: 'Play FreeCell Online — Free Solitaire Card Game, No Download',
+    h1: 'FreeCell',
+    metaDescription:
+      'Play FreeCell free online — the classic open solitaire where every card is face-up and almost every deal can be won with skill. Four free cells, no download, no sign-up.',
+    shortDescription: 'Open solitaire — nearly every deal is winnable.',
+    howToPlay: [
+      'Every card is dealt face-up across eight columns — no hidden cards, so it is all skill.',
+      'Build the four foundations up by suit from Ace to King to win.',
+      'Columns build down in alternating colours; use the four free cells to park a card you need to move.',
+      'Move a run of cards at once when you have enough free cells and empty columns to do it.',
+    ],
+    strategy: [
+      'Because nothing is hidden, plan several moves ahead before you commit — almost every deal is winnable.',
+      'Keep free cells empty when you can; each free card doubles how big a run you can move.',
+      'Emptying a whole column is powerful — it lets you move even longer sequences.',
+      'Get the low cards to the foundations early, but keep a few mid cards back to shuffle runs around.',
+      'Use undo freely to test a line; a solve in fewer moves scores higher.',
+    ],
+    faq: [
+      { q: 'How is FreeCell different from Klondike solitaire?', a: 'Every card is face-up from the start and there is no stock pile — you win through planning, not luck. Four free cells let you temporarily hold cards while you rearrange the columns.' },
+      { q: 'Can every FreeCell game be won?', a: 'Almost all deals are solvable with the right moves — that is the appeal. A tiny fraction are not, but the vast majority come down to skill.' },
+      { q: 'Is it free and account-free?', a: 'Yes. FreeCell plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap a card to pick up its run and tap where to drop it, or double-tap to send a card home. It works on phones and tablets as well as desktop.' },
+      { q: 'What is a free cell?', a: 'One of four single-card slots where you can park a card to get it out of the way. The more free cells and empty columns you have, the more cards you can move in one go.' },
     ],
   },
 ]

@@ -642,6 +642,18 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // freecell — 4개 프리셀 슬롯(위) + 캐스케이드 열(아래)
+  freecell: (
+    <>
+      <rect x="3.5" y="4" width="4" height="3" rx="0.7" {...soft} />
+      <rect x="8.5" y="4" width="4" height="3" rx="0.7" {...soft} />
+      <rect x="13.5" y="4" width="4" height="3" rx="0.7" {...soft} />
+      <rect x="18.5" y="4" width="2" height="3" rx="0.7" {...soft} />
+      <rect x="5" y="10" width="4.5" height="6" rx="0.8" {...solid} />
+      <rect x="11" y="10" width="4.5" height="8" rx="0.8" {...solid} />
+    </>
+  ),
+
   // solitaire — 겹친 카드 두 장 + 스페이드 핍
   solitaire: (
     <>
