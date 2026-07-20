@@ -82,6 +82,7 @@ export type GamePage = GamePageBase &
     | { game: 'spider' }
     | { game: 'pyramid' }
     | { game: 'tripeaks' }
+    | { game: 'mahjong' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2098,6 +2099,35 @@ export const gamePages: GamePage[] = [
       { q: 'How do I win?', a: 'Clear all the cards from the three peaks. When every peak is empty, you win the deal.' },
       { q: 'Is it free and account-free?', a: 'Yes. TriPeaks plays free in your browser with no download and no sign-up. Your best score saves locally.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap a free, rank-adjacent card to send it to the waste, or tap the stock to draw. It works on phones and tablets as well as desktop.' },
+    ],
+  },
+  {
+    slug: 'mahjong',
+    game: 'mahjong',
+    title: 'Play Mahjong Solitaire Online — Free Tile Match Game, No Download',
+    h1: 'Mahjong Solitaire',
+    metaDescription:
+      'Play Mahjong Solitaire free online — match pairs of free tiles to clear all 144 from the layout. Every deal is solvable. No download, no sign-up, in your browser.',
+    shortDescription: 'Match free tile pairs to clear all 144.',
+    howToPlay: [
+      'Clear the board by removing matching pairs of tiles until none are left.',
+      'A tile is free to take only when nothing sits on top of it and one of its long sides is open.',
+      'Tap a free tile, then its match — identical tiles pair, and any flower matches any flower, any season any season.',
+      'Every deal can be solved, so use hint or shuffle if you get stuck.',
+    ],
+    strategy: [
+      'Take tiles that unblock the most other tiles, not just the first pair you spot.',
+      'Free the tiles trapped under the upper layers early — they are the hardest to reach.',
+      'When several copies of a tile are exposed, think about which pair opens up more of the board.',
+      'Keep a matching pair in reserve rather than clearing every match the moment you see it.',
+      'If no moves remain, a shuffle reshuffles the rest — but you only get a few, so plan ahead.',
+    ],
+    faq: [
+      { q: 'How do you play Mahjong Solitaire?', a: 'Match and remove pairs of free tiles until all 144 are gone. A tile is free when no tile covers it and at least one of its left or right sides is open.' },
+      { q: 'Which tiles match?', a: 'Two tiles match if they are identical. The exception is the bonus tiles: any flower matches any other flower, and any season matches any other season.' },
+      { q: 'Is every Mahjong board winnable?', a: 'Yes. Every deal here is built to be solvable, so with the right order of moves you can always clear it. Hint and a limited shuffle help when you are stuck.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Mahjong Solitaire plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap a free tile and then its match to clear the pair. It works on phones and tablets as well as desktop.' },
     ],
   },
 ]

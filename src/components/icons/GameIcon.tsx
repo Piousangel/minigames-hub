@@ -642,6 +642,16 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // mahjong — 겹친 타일 3장(레이어)
+  mahjong: (
+    <>
+      <rect x="5" y="7" width="8" height="10" rx="1.2" {...soft} />
+      <rect x="8" y="5.5" width="8" height="10" rx="1.2" {...soft} />
+      <rect x="11" y="4" width="8" height="10" rx="1.2" {...solid} />
+      <path d="M14 6.5v5M12.5 9h5" {...soft} />
+    </>
+  ),
+
   // spider — 카드 열 + 거미(스파이더 솔리테어)
   spider: (
     <>

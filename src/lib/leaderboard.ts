@@ -26,6 +26,7 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   spider: { label: 'Score' },
   pyramid: { label: 'Score' },
   tripeaks: { label: 'Score' },
+  mahjong: { label: 'Score' },
   snake: { label: 'Score' },
   tetris: { label: 'Score' },
   breakout: { label: 'Score' },

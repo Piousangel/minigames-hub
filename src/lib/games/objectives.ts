@@ -70,4 +70,5 @@ export const OBJECTIVES: Record<string, string> = {
   spider: 'Clear eight King-to-Ace suit runs to win.',
   pyramid: 'Pair cards that add up to 13 to clear the pyramid.',
   tripeaks: 'Clear the three peaks one rank up or down.',
+  mahjong: 'Match free tile pairs to clear all 144.',
 }
