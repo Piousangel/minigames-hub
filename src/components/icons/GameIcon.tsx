@@ -642,6 +642,16 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // chess — 폰 실루엣
+  chess: (
+    <>
+      <circle cx="12" cy="6" r="2.3" {...solid} />
+      <path d="M10 8.2c-.6.8-.4 1.8.5 2.4-.5 1.6-1.2 2.6-1.9 4.4h6.8c-.7-1.8-1.4-2.8-1.9-4.4.9-.6 1.1-1.6.5-2.4z" {...soft} />
+      <path d="M7.5 20a4.5 4.5 0 0 1 9 0z" {...soft} />
+      <path d="M8 17.2h8" />
+    </>
+  ),
+
   // mahjong — 겹친 타일 3장(레이어)
   mahjong: (
     <>

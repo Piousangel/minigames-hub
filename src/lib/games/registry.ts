@@ -83,6 +83,7 @@ export type GamePage = GamePageBase &
     | { game: 'pyramid' }
     | { game: 'tripeaks' }
     | { game: 'mahjong' }
+    | { game: 'chess' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2128,6 +2129,35 @@ export const gamePages: GamePage[] = [
       { q: 'Is every Mahjong board winnable?', a: 'Yes. Every deal here is built to be solvable, so with the right order of moves you can always clear it. Hint and a limited shuffle help when you are stuck.' },
       { q: 'Is it free and account-free?', a: 'Yes. Mahjong Solitaire plays free in your browser with no download and no sign-up. Your best score saves locally.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap a free tile and then its match to clear the pair. It works on phones and tablets as well as desktop.' },
+    ],
+  },
+  {
+    slug: 'chess',
+    game: 'chess',
+    title: 'Play Chess Online — Free vs Computer or 2 Player, No Download',
+    h1: 'Chess',
+    metaDescription:
+      'Play chess free online — against the computer at three difficulty levels or two-player on one device. Full rules, legal moves only, checkmate detection. No download, no sign-up.',
+    shortDescription: 'Play chess vs the computer or a friend.',
+    howToPlay: [
+      'Tap one of your pieces to see every legal move highlighted, then tap a square to move.',
+      'Play against the computer — pick your colour and Easy, Medium or Hard — or pass and play with a friend.',
+      'Only legal moves are allowed, including castling, en passant and pawn promotion.',
+      'Put the enemy king in checkmate to win; a king with no legal move and no check is stalemate, a draw.',
+    ],
+    strategy: [
+      'Control the centre early and develop your knights and bishops before moving the same piece twice.',
+      'Castle early to tuck your king safe and connect your rooks.',
+      'Do not bring your queen out too soon — it becomes a target you waste moves saving.',
+      'Look for undefended pieces and forks before every move, on both sides of the board.',
+      'In the endgame, push your king forward — it becomes a strong attacking piece.',
+    ],
+    faq: [
+      { q: 'Can I play chess against the computer?', a: 'Yes. Choose to play the computer as White or Black at Easy, Medium or Hard. The engine only makes legal moves and plays a real game.' },
+      { q: 'Can two people play on one device?', a: 'Yes. Two-player mode is pass-and-play — take turns on the same screen, no account needed.' },
+      { q: 'Does it enforce all the rules?', a: 'Yes. Castling, en passant, promotion, check, checkmate and stalemate are all handled, and only legal moves are permitted — verified move-for-move against standard chess.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Chess plays free in your browser with no download and no sign-up. Your win record saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap a piece to see its legal moves and tap a square to play. It works on phones and tablets as well as desktop.' },
     ],
   },
 ]

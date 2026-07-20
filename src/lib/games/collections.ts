@@ -96,12 +96,12 @@ export const COLLECTIONS: Record<string, Collection> = {
   'two-player-games': {
     slug: 'two-player-games',
     h1: 'Free 2 Player Games',
-    title: 'Free 2 Player Games — Play Classics vs a Friend or the Computer',
+    title: 'Free 2 Player Games — Chess, Checkers & Classics vs a Friend',
     metaDescription:
-      'Play free 2 player games online — tic-tac-toe, connect four, checkers, reversi and dots and boxes. Take turns against a friend or the computer, in your browser, no download.',
+      'Play free 2 player games online — chess, checkers, connect four, reversi, tic-tac-toe and dots and boxes. Take turns against a friend or the computer, in your browser, no download.',
     intro:
-      'Some games are best with an opponent, and these are the timeless ones — quick to learn, endlessly replayable, and just as fun across a table as against a clever computer. This collection rounds up the turn-based classics on the site: line up three in tic-tac-toe, drop discs to connect four, jump pieces in checkers, flip the board in reversi, and close the most squares in dots and boxes. Each plays instantly in the browser with no download and no sign-up, and you can pass-and-play with a friend on the same device or test yourself against a built-in opponent. They are the kind of games that fill a spare few minutes without any setup — no board to dig out, no pieces to lose. Pick one below, choose your difficulty, and take the first move. Every one works on phone, tablet and desktop, so the next match is always a tap away.',
-    games: ['tic-tac-toe', 'connect-four', 'checkers', 'reversi', 'dots-and-boxes'],
+      'Some games are best with an opponent, and these are the timeless ones — quick to learn, endlessly replayable, and just as fun across a table as against a clever computer. This collection rounds up the turn-based classics on the site: outsmart your rival in chess, jump pieces in checkers, drop discs to connect four, flip the board in reversi, line up three in tic-tac-toe, and close the most squares in dots and boxes. Each plays instantly in the browser with no download and no sign-up, and you can pass-and-play with a friend on the same device or test yourself against a built-in opponent at the difficulty you choose. They are the kind of games that fill a spare few minutes without any setup — no board to dig out, no pieces to lose. Pick one below, choose your side, and take the first move. Every one works on phone, tablet and desktop, so the next match is always a tap away.',
+    games: ['chess', 'checkers', 'connect-four', 'reversi', 'tic-tac-toe', 'dots-and-boxes'],
     faq: [
       { q: 'Can I play these against a friend?', a: 'Yes. These turn-based classics work as pass-and-play on one device, and several also offer a computer opponent.' },
       { q: 'Are they free?', a: 'Yes. Every game is free in your browser with no account and no download.' },

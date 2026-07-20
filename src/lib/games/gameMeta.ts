@@ -95,6 +95,7 @@ export const gameMeta: Record<string, GameMeta> = {
   pyramid: { icon: '🔺', accent: 'amber', category: 'Classic', addedDate: '2026-07-20' },
   tripeaks: { icon: '⛰️', accent: 'green', category: 'Classic', addedDate: '2026-07-20' },
   mahjong: { icon: '🐉', accent: 'red', category: 'Puzzle', addedDate: '2026-07-20' },
+  chess: { icon: '♟️', accent: 'cyan', category: 'Classic', addedDate: '2026-07-20' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

@@ -37,6 +37,7 @@ import { GameSpider } from '@/components/games/GameSpider'
 import { GamePyramid } from '@/components/games/GamePyramid'
 import { GameTripeaks } from '@/components/games/GameTripeaks'
 import { GameMahjong } from '@/components/games/GameMahjong'
+import { GameChess } from '@/components/games/GameChess'
 import { GamePolytap } from '@/components/games/GamePolytap'
 import { GameSonar } from '@/components/games/GameSonar'
 import { GameProspector } from '@/components/games/GameProspector'
@@ -213,6 +214,8 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameTripeaks storageKey={`best:${page.slug}`} />
     case 'mahjong':
       return <GameMahjong storageKey={`best:${page.slug}`} />
+    case 'chess':
+      return <GameChess storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null
