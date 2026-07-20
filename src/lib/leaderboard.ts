@@ -21,6 +21,7 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   quadle: { label: 'Score' },
   equate: { label: 'Score' },
   reactor: { label: 'Charge' },
+  solitaire: { label: 'Score' },
   snake: { label: 'Score' },
   tetris: { label: 'Score' },
   breakout: { label: 'Score' },

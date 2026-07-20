@@ -642,6 +642,15 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // solitaire — 겹친 카드 두 장 + 스페이드 핍
+  solitaire: (
+    <>
+      <rect x="7" y="5" width="9" height="13" rx="1.4" transform="rotate(-10 11.5 11.5)" {...soft} />
+      <rect x="9" y="6" width="9" height="13" rx="1.4" {...solid} />
+      <path d="M13.5 9.5c-1.4 1.2-2.4 2-2.4 3.1a1.2 1.2 0 0 0 2.4.3 1.2 1.2 0 0 0 2.4-.3c0-1.1-1-1.9-2.4-3.1z" {...soft} />
+    </>
+  ),
+
   // reactor — 네온 원자로 코어(원 + 궤도 + 번개)
   reactor: (
     <>

@@ -77,6 +77,7 @@ export type GamePage = GamePageBase &
     | { game: 'quadle' }
     | { game: 'equate' }
     | { game: 'reactor' }
+    | { game: 'solitaire' }
   )
 
 export const gamePages: GamePage[] = [
@@ -1948,6 +1949,35 @@ export const gamePages: GamePage[] = [
       { q: 'Does it really earn while I am away?', a: 'Yes. Offline progress is capped at eight hours, and you get a welcome-back summary of what your reactor made while you were gone.' },
       { q: 'What does Reboot (prestige) do?', a: 'It resets your charge and modules but grants a permanent production multiplier that stacks with every reboot — the long game.' },
       { q: 'Is my progress saved?', a: 'Yes, in your browser. Your reactor, modules and reboots are stored locally, and your best lifetime energy can go on the weekly leaderboard.' },
+    ],
+  },
+  {
+    slug: 'solitaire',
+    game: 'solitaire',
+    title: 'Play Solitaire Online — Free Klondike Card Game, No Download',
+    h1: 'Solitaire',
+    metaDescription:
+      'Play Solitaire free online — the classic Klondike card game, draw three. Move cards to the foundations and clear the board. No download, no sign-up, works on desktop and mobile.',
+    shortDescription: 'The classic Klondike solitaire card game.',
+    howToPlay: [
+      'Build the four foundations up by suit, from Ace to King, to win.',
+      'On the tableau, stack cards down in alternating colours — a red six goes on a black seven.',
+      'Move a face-up run of cards together; an empty column can only start with a King.',
+      'Tap the stock to deal three cards to the waste, and recycle it when the stock runs out.',
+    ],
+    strategy: [
+      'Turn over face-down tableau cards as early as you can — hidden cards are your biggest obstacle.',
+      'Do not rush every Ace and low card to the foundation; you may still need them to move cards around.',
+      'Try to empty a column so you have a free spot for a King and the run beneath it.',
+      'Play cards from the stock deliberately — you can cycle it, but each pass changes which cards line up.',
+      'Use undo to explore a line, and finish quickly once the board is all face-up for a higher score.',
+    ],
+    faq: [
+      { q: 'Is this draw one or draw three?', a: 'Draw three — the stock deals three cards to the waste at a time, the classic desktop solitaire default. You can recycle the stock as many times as you like.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Solitaire plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap a card to pick up its run and tap where to drop it, or double-tap to send a card to a foundation. It works on phones and tablets as well as desktop.' },
+      { q: 'Can I undo a move?', a: 'Yes. Undo steps back through your moves, so you can back out of a line that is not working.' },
+      { q: 'Is every deal winnable?', a: 'Not every Klondike deal is solvable — that is part of the classic game. Start a new deal any time, and use auto-finish once the board is all face-up.' },
     ],
   },
 ]

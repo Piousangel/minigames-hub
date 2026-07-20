@@ -31,6 +31,7 @@ import { GameClusters } from '@/components/games/GameClusters'
 import { GameQuadle } from '@/components/games/GameQuadle'
 import { GameEquate } from '@/components/games/GameEquate'
 import { GameReactor } from '@/components/games/GameReactor'
+import { GameSolitaire } from '@/components/games/GameSolitaire'
 import { GamePolytap } from '@/components/games/GamePolytap'
 import { GameSonar } from '@/components/games/GameSonar'
 import { GameProspector } from '@/components/games/GameProspector'
@@ -195,6 +196,8 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameEquate storageKey={`best:${page.slug}`} />
     case 'reactor':
       return <GameReactor storageKey={`best:${page.slug}`} />
+    case 'solitaire':
+      return <GameSolitaire storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null
