@@ -141,7 +141,11 @@ CMP(대시보드 '유럽 규정 GDPR 메시지' 활성)**가 담당, adsbygoogle
 - ⑪ **Chess** ✅ 완료 — 'chess'(72종째). **최대 단일 검색어 갭.** 전체 규칙 perft 검증(startpos
   20/400/8902/197281, Kiwipete 48/2039/97862 정확 일치) + negamax 알파베타 AI(depth1/2/3). two-player-games
   컬렉션에 추가. **교훈: 복잡 규칙 게임은 perft/골든 같은 결정적 정확성 게이트를 스펙에 필수화하면
-  에이전트 빌드도 안전.** 다음 장르 갭: Crossword mini·Golf/Yukon 솔리테어·match-3·Anagram/word-scramble.
+  에이전트 빌드도 안전.**
+- ⑫ **Golf Solitaire** ✅ 완료 — 'golf-solitaire'(73종). 솔리테어 클러스터 6종(solitaire-games 컬렉션).
+  **판단: 대형 장르 갭(솔리테어·마작·체스) 소진 → 신규 게임 breadth 한계효용 급감. 다음은 데이터/트래픽
+  유입 후 결정하거나, 좁은 변형(Yukon/Anagram)·폴리시로.** 남은 후보: Crossword(콘텐츠 무거움)·match-3(gem-match 有).
+- **수익화 보조:** Ko-fi 후원 링크(siteConfig.kofiUrl) 푸터에 단순 링크로. AdSense 승인 전에도 소액 후원 경로.
 - ④ **Nerdle식 수식 데일리** ✅ 완료 — 'Equate'(64종째). 8칸 수식 6추측, 안전 평가기, 수학 검색
   표면 신규(단어 게임과 다른 키워드). 데일리+연습+streak+스탯+공유.
 - ① **Connections식 4×4 그룹핑 데일리** ✅ 완료 — 'Clusters'(62종째). 16타일→숨은 4그룹, 4목숨,
