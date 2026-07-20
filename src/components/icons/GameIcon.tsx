@@ -642,6 +642,16 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // spider — 카드 열 + 거미(스파이더 솔리테어)
+  spider: (
+    <>
+      <rect x="4" y="4" width="5" height="7" rx="0.8" {...soft} />
+      <rect x="10" y="4" width="5" height="9" rx="0.8" {...solid} />
+      <circle cx="17" cy="16" r="2.2" {...solid} />
+      <path d="M14.8 14.2l-1.6-1M14.4 16h-2M14.8 17.8l-1.6 1M19.2 14.2l1.6-1M19.6 16h2M19.2 17.8l1.6 1" {...soft} />
+    </>
+  ),
+
   // freecell — 4개 프리셀 슬롯(위) + 캐스케이드 열(아래)
   freecell: (
     <>

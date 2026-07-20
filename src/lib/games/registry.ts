@@ -79,6 +79,7 @@ export type GamePage = GamePageBase &
     | { game: 'reactor' }
     | { game: 'solitaire' }
     | { game: 'freecell' }
+    | { game: 'spider' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2008,6 +2009,35 @@ export const gamePages: GamePage[] = [
       { q: 'Is it free and account-free?', a: 'Yes. FreeCell plays free in your browser with no download and no sign-up. Your best score saves locally.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap a card to pick up its run and tap where to drop it, or double-tap to send a card home. It works on phones and tablets as well as desktop.' },
       { q: 'What is a free cell?', a: 'One of four single-card slots where you can park a card to get it out of the way. The more free cells and empty columns you have, the more cards you can move in one go.' },
+    ],
+  },
+  {
+    slug: 'spider',
+    game: 'spider',
+    title: 'Play Spider Solitaire Online — Free, 1 2 & 4 Suit',
+    h1: 'Spider Solitaire',
+    metaDescription:
+      'Play Spider Solitaire free online — one, two or four suits. Build runs down and clear eight suit sequences from King to Ace. No download, no sign-up, in your browser.',
+    shortDescription: 'Build eight King-to-Ace runs to clear the board.',
+    howToPlay: [
+      'Build cards down in order on the ten columns — any suit can sit on the next rank up.',
+      'A group of cards only moves together if they are the same suit in order.',
+      'Complete a full King-to-Ace run of one suit and it is cleared from the board.',
+      'When you are stuck, deal a new row from the stock — but only when no column is empty.',
+    ],
+    strategy: [
+      'Start on 1-suit to learn the flow, then step up to 2 and 4 suits for a real challenge.',
+      'Uncover face-down cards early and try to keep one column empty as a workspace.',
+      'Build same-suit runs whenever you can — mixed-suit stacks cannot move as a group.',
+      'Do not deal from the stock too soon; clear what you can first, since a deal fills every column.',
+      'Clearing a full suit run opens up huge room to manoeuvre, so aim for the first one fast.',
+    ],
+    faq: [
+      { q: 'What is the difference between 1, 2 and 4 suit?', a: 'The number of suits sets the difficulty. One suit is the easiest and most forgiving; two suits is a solid challenge; four suits is the hardest, classic Spider. You can switch any time — it starts a fresh deal.' },
+      { q: 'How do I win Spider Solitaire?', a: 'Clear all eight complete King-to-Ace runs of a single suit. Each completed run is removed from the board; clear all eight and you win.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Spider Solitaire plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+      { q: 'Why can I not move a stack of cards?', a: 'A run of cards only moves together when they are the same suit in descending order. A mixed-suit stack has to be moved one card at a time.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap a card to pick up its run and tap a column to drop it. It works on phones and tablets as well as desktop.' },
     ],
   },
 ]
