@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { gamePages } from '@/lib/games/registry'
 import { DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
 import { GameCard } from '@/components/GameCard'
+import { DailyCountdown } from '@/components/DailyCountdown'
 import { siteConfig } from '@/lib/siteConfig'
 
 // 데일리 허브 — "daily puzzle games / daily word game" 같은 고의도·습관성 검색을 잡는 SEO
@@ -82,7 +83,8 @@ export default function DailyHub() {
       </nav>
 
       <h1 className="neon-text mb-4 text-3xl font-bold text-neon-amber sm:text-4xl">{H1}</h1>
-      <p className="mb-8 max-w-3xl text-fg-muted">{INTRO}</p>
+      <p className="mb-4 max-w-3xl text-fg-muted">{INTRO}</p>
+      <DailyCountdown />
 
       <section aria-label="Daily games" className="mb-12">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
