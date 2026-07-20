@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { gamePages } from '@/lib/games/registry'
 import { DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
 import { siteConfig } from '@/lib/siteConfig'
@@ -56,6 +57,26 @@ export default function Home() {
 
       {/* ===== 아케이드 마퀴 티커 ===== */}
       <Marquee />
+
+      {/* ===== Explore — 최고 권위 페이지(홈)에서 SEO 랜딩으로 가는 내부링크 스트립 ===== */}
+      <nav aria-label="Explore games" className="mb-10 flex flex-wrap justify-center gap-2 text-sm">
+        {[
+          { href: '/daily', label: '🔥 Daily games' },
+          { href: '/collections', label: '★ Collections' },
+          { href: '/category/puzzle', label: 'Puzzle' },
+          { href: '/category/arcade', label: 'Arcade' },
+          { href: '/category/classic', label: 'Classic' },
+          { href: '/category/skill', label: 'Skill' },
+        ].map((l) => (
+          <Link
+            key={l.href}
+            href={l.href}
+            className="rounded-lg border border-border bg-surface/80 px-3 py-1.5 text-fg-muted transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+          >
+            {l.label}
+          </Link>
+        ))}
+      </nav>
 
       {/* ===== TODAY 보드(사이트 streak + 오늘 3게임 퀘스트 + 오늘의 픽) ===== */}
       <TodayBoard items={items} />
