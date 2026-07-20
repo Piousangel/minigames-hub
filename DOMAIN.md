@@ -99,10 +99,11 @@
   OG PNG(아이콘+이름+액센트) 빌드타임 생성 + og:image 메타 출력. ⚠️ **핵심 함정 발견/수정:** 확장자
   없는 `opengraph-image` 파일을 CF assets가 Content-Type 없이 서빙 → 크롤러가 미리보기 안 띄움.
   `public/_headers`로 `/opengraph-image`·`/*/opengraph-image`에 `Content-Type: image/png` 강제(라이브 검증).
-- **P6 분석 계측** 🟡 — Analytics Engine `/api/hit` 비콘(RecordPlay에서 view+dwell, 1st-party, PII
-  없음) ✅ 코드·엔드포인트 라이브(204). **⚠️ 사람 단계: 대시보드에서 Analytics Engine Enable**
-  (에러 10089) → wrangler.jsonc의 analytics_engine_datasets 주석 해제 + 재배포하면 기록 시작.
-  현재 바인딩 없어 no-op(무해). 조회 데이터는 Analytics Engine SQL API(CF 토큰)로 후속 조회.
+- **P6 분석 계측** ✅ 활성 — Analytics Engine mg_events 데이터셋 대시보드 활성화 완료(2026-07-20) +
+  바인딩 배포 → `/api/hit` 비콘이 실기록 중(view+dwell+country+ref+**vid**, 1st-party·PII 없음).
+  vid(익명 방문자 id)로 북극성 3요소 계산 가능: view=트래픽, dwell=체류, same-vid distinct-day=재방문,
+  세션당 view=방문당 플레이. 조회는 AE SQL API(CF 토큰) 후속. **다음: play/finish 이벤트(승/패 퍼널)는
+  게임별 배선 필요 — 커뮤니티 게시 직전 승격.**
 - **P7 홈 신선함 + 인기 레일** 🟡 — 신선함(✅ gameMeta addedDate + NewBadge + 'New games' 행,
   클라이언트 now로 21일 자동 만료). **인기 레일은 보류** — Worker read 엔드포인트 + 임계값(100회+)
   게이팅 필요한데 트래픽 전이라 시기상조(저트래픽 플레이수 노출 = 역소셜프루프). P6 분석 데이터 후.
@@ -118,8 +119,8 @@
   이미 Number 가드). Leaderboard.tsx Number() 미가드는 잠재적, 해당 게임 리더보드 없어 비활성.
 - ✅ ④ recordResult ×11(minesweeper/sudoku/hangman/mastermind/lights-out/nonogram/sokoban/memory/
   word-guess/connect-four/checkers/reversi) → 스탯 패널 점등. simon/tic-tac-toe는 승률 오해로 스킵.
-- ✅ ⑤ 롱테일 컬렉션 6종(games-like-wordle/connections/2048 + word/two-player/logic) + /collections
-  인덱스 + doorway 가드 test. 신작을 경쟁사 대안 검색으로 직격.
+- ✅ ⑤ 롱테일 컬렉션 9종(games-like-wordle/connections/2048/snake/nerdle + word/two-player/logic/
+  quick-games) + /collections 인덱스 + doorway 가드 test. 신작을 경쟁사 대안 검색으로 직격.
 - ✅ ⑥ CollectionLinks — 66 게임 페이지→컬렉션 역링크(내부링크 권위).
 보류(팀): Daily Mix(L급 위험), D1 계측(커뮤니티게시 직전 승격), 수익화(AdSense 후), 인기레일.
 ⚠️ 미해결 실결함(팀 지적): privacy/page.tsx가 EEA 동의 선택을 약속하나 ConsentBanner 미구현 —
