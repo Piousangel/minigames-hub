@@ -146,7 +146,13 @@ CMP(대시보드 '유럽 규정 GDPR 메시지' 활성)**가 담당, adsbygoogle
 - ⑫ **Golf Solitaire** ✅ 완료 — 'golf-solitaire'(73종). 솔리테어 클러스터 6종(solitaire-games 컬렉션).
   **판단: 대형 장르 갭(솔리테어·마작·체스) 소진 → 신규 게임 breadth 한계효용 급감. 다음은 데이터/트래픽
   유입 후 결정하거나, 좁은 변형(Yukon/Anagram)·폴리시로.** 남은 후보: Crossword(콘텐츠 무거움)·match-3(gem-match 有).
-- **수익화 보조:** Ko-fi 후원 링크(siteConfig.kofiUrl) 푸터에 단순 링크로. AdSense 승인 전에도 소액 후원 경로.
+- ⑬ **Dominoes** ✅ 완료 — 'dominoes'(74종). 더블식스, vs컴퓨터/2P. two-player-games 컬렉션 7종.
+  best=WinRecord(JSON) → 리더보드 미등록(체스와 동일 패턴).
+- **수익화 보조:** Ko-fi 후원 링크(siteConfig.kofiUrl) 푸터 단순 링크. AdSense 승인 전에도 소액 후원 경로.
+- ⚠️ **갬블링 금지(AdSense 승인 리스크):** 블랙잭/포커/룰렛 등 카지노류는 승인 전 절대 추가 금지.
+- **판단(재확인):** 게임 74종·SEO 랜딩 다수·리텐션·분석 완비 = 공급 충실. 병목은 수요(트래픽) =
+  커뮤니티 게시(사람)·색인 시간·AdSense 승인. 팀은 supply-side 롱테일 게임/SEO를 계속하되, 실데이터
+  유입 후 폴리시·인기레일·전환으로 전환. 다음 게임 후보(non-gambling): Yukon·Anagram·Jigsaw(자체생성)·Dominoes변형.
 - ④ **Nerdle식 수식 데일리** ✅ 완료 — 'Equate'(64종째). 8칸 수식 6추측, 안전 평가기, 수학 검색
   표면 신규(단어 게임과 다른 키워드). 데일리+연습+streak+스탯+공유.
 - ① **Connections식 4×4 그룹핑 데일리** ✅ 완료 — 'Clusters'(62종째). 16타일→숨은 4그룹, 4목숨,
