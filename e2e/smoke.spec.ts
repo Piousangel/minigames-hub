@@ -587,6 +587,12 @@ test('leaderboards: 허브 페이지 로드', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Leaderboards', level: 1 })).toBeVisible()
 })
 
+test('unblocked 랜딩: 로드 + 게임 그리드', async ({ page }) => {
+  await page.goto('/unblocked')
+  await expect(page.getByRole('heading', { name: 'Unblocked Games', level: 1 })).toBeVisible()
+  await expect(page.locator('main a[href^="/"]:has(h3)').first()).toBeVisible()
+})
+
 test('daily 허브: 로드 + 데일리 게임 그리드', async ({ page }) => {
   await page.goto('/daily')
   await expect(page.getByRole('heading', { name: 'Free Daily Puzzle Games', level: 1 })).toBeVisible()

@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: siteConfig.url, changeFrequency: 'daily', priority: 1 },
     { url: `${siteConfig.url}/daily`, changeFrequency: 'daily', priority: 0.8 },
     { url: `${siteConfig.url}/collections`, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${siteConfig.url}/unblocked`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${siteConfig.url}/leaderboards`, changeFrequency: 'daily', priority: 0.7 },
     ...['puzzle', 'arcade', 'classic', 'skill'].map((c) => ({
       url: `${siteConfig.url}/category/${c}`,

@@ -32,6 +32,7 @@ const hubs = [
   'category/skill',
   'daily',
   'collections',
+  'unblocked',
   ...colSlugs.map((s) => `collection/${s}`),
 ]
 for (const h of hubs) if (!has(h)) missing.push(h)
