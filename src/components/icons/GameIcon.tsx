@@ -642,6 +642,16 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // golf-solitaire — 카드 열 + 위/아래 화살표(랭크 ±1)
+  'golf-solitaire': (
+    <>
+      <rect x="4" y="5" width="6" height="8.5" rx="1" {...soft} />
+      <rect x="13.5" y="7" width="6.5" height="9" rx="1" {...solid} />
+      <path d="M7 16.5v4M5.5 19l1.5 1.6 1.5-1.6" {...soft} />
+      <path d="M7 15.5v-.5" />
+    </>
+  ),
+
   // chess — 폰 실루엣
   chess: (
     <>

@@ -72,4 +72,5 @@ export const OBJECTIVES: Record<string, string> = {
   tripeaks: 'Clear the three peaks one rank up or down.',
   mahjong: 'Match free tile pairs to clear all 144.',
   chess: 'Checkmate the enemy king to win.',
+  'golf-solitaire': 'Clear every column one rank up or down.',
 }

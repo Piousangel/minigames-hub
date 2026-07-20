@@ -84,6 +84,7 @@ export type GamePage = GamePageBase &
     | { game: 'tripeaks' }
     | { game: 'mahjong' }
     | { game: 'chess' }
+    | { game: 'golf-solitaire' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2158,6 +2159,35 @@ export const gamePages: GamePage[] = [
       { q: 'Does it enforce all the rules?', a: 'Yes. Castling, en passant, promotion, check, checkmate and stalemate are all handled, and only legal moves are permitted — verified move-for-move against standard chess.' },
       { q: 'Is it free and account-free?', a: 'Yes. Chess plays free in your browser with no download and no sign-up. Your win record saves locally.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap a piece to see its legal moves and tap a square to play. It works on phones and tablets as well as desktop.' },
+    ],
+  },
+  {
+    slug: 'golf-solitaire',
+    game: 'golf-solitaire',
+    title: 'Play Golf Solitaire Online — Free Card Game, No Download',
+    h1: 'Golf Solitaire',
+    metaDescription:
+      'Play Golf Solitaire free online — clear the columns by playing cards one rank up or down from the waste. Fast, simple and addictive. No download, no sign-up, in your browser.',
+    shortDescription: 'Clear the columns one rank up or down.',
+    howToPlay: [
+      'Play the bottom card of any column onto the waste if it is one rank higher or lower.',
+      'Keep chaining cards up and down to clear whole columns in a run.',
+      'When you are stuck, deal the next card from the stock to the waste.',
+      'Clear every card from all seven columns to win the deal.',
+    ],
+    strategy: [
+      'Look for long up-and-down chains before you deal a new card from the stock.',
+      'Clear the taller columns first so you do not get stuck with buried cards.',
+      'The stock is limited, so spend each deal only when no column card will play.',
+      'Turn on the around-the-corner option to let Aces and Kings connect for easier runs.',
+      'Plan a couple of moves ahead — the order you clear cards in decides how far you get.',
+    ],
+    faq: [
+      { q: 'How do you play Golf Solitaire?', a: 'Move the exposed bottom card of any column onto the waste pile when it is exactly one rank above or below the card there. Deal from the stock when no column card will play.' },
+      { q: 'Do Aces and Kings connect?', a: 'In the classic game, no — Ace is low and does not wrap to King. There is an around-the-corner toggle that lets them connect if you prefer an easier game.' },
+      { q: 'How do I win?', a: 'Clear every card from all seven columns before the stock runs out and you get stuck.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Golf Solitaire plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap a column card to play it onto the waste, or tap the stock to deal. It works on phones and tablets as well as desktop.' },
     ],
   },
 ]
