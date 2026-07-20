@@ -7,6 +7,8 @@
  *
  * best:<slug>(점수)·<streakKey>(데일리 스트릭)는 별도 키라 여기서 안 건드린다.
  */
+import { sendHit } from './hit'
+
 export interface GameStats {
   plays: number // 완료한 판 수
   wins: number // 그중 승리 수
@@ -58,6 +60,9 @@ export function recordResult(slug: string, r: { won: boolean; bucket?: number | 
   } catch {
     // 저장 실패 무시
   }
+  // 승/패 퍼널 비콘(1st-party) — 게임별 완주율 신호. recordResult를 부르는 모든 게임에
+  // per-game 추가 배선 없이 자동 적용. sendHit은 실패를 삼키므로 여기 부작용은 무해.
+  sendHit(slug, r.won ? 'win' : 'lose')
   return next
 }
 

@@ -123,8 +123,9 @@
   quick-games) + /collections 인덱스 + doorway 가드 test. 신작을 경쟁사 대안 검색으로 직격.
 - ✅ ⑥ CollectionLinks — 66 게임 페이지→컬렉션 역링크(내부링크 권위).
 보류(팀): Daily Mix(L급 위험), D1 계측(커뮤니티게시 직전 승격), 수익화(AdSense 후), 인기레일.
-⚠️ 미해결 실결함(팀 지적): privacy/page.tsx가 EEA 동의 선택을 약속하나 ConsentBanner 미구현 —
-수익화 켜기 직전 처리 필수.
+✅ 정정(팀 오판): privacy/page.tsx의 "EEA 동의 선택" 약속은 실결함 아님 — 동의는 **Google AdSense
+CMP(대시보드 '유럽 규정 GDPR 메시지' 활성)**가 담당, adsbygoogle.js가 광고 켜질 때 자동 표시.
+커스텀 ConsentBanner 만들면 Google CMP와 충돌하므로 만들지 말 것. 수익화 켤 때 실제 표시만 확인.
 
 ### 신규 게임 파이프라인 (병행)
 - ④ **Nerdle식 수식 데일리** ✅ 완료 — 'Equate'(64종째). 8칸 수식 6추측, 안전 평가기, 수학 검색
