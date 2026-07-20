@@ -19,6 +19,8 @@ export interface GameMeta {
   category: GameCategory
   /** 매일 같은 판이 주어지는 Daily 모드가 있는 게임. 홈의 Daily 필터가 이걸 읽는다. */
   daily?: true
+  /** 추가된 날짜 'YYYY-MM-DD'(UTC). 최근이면 홈 'New games' 행 + NEW 뱃지(자동 만료). */
+  addedDate?: string
 }
 
 export const gameMeta: Record<string, GameMeta> = {
@@ -75,15 +77,15 @@ export const gameMeta: Record<string, GameMeta> = {
   overdub: { icon: '🥁', accent: 'lime', category: 'Skill' },
   pinwheel: { icon: '🌀', accent: 'purple', category: 'Puzzle' },
   cleave: { icon: '⚖️', accent: 'amber', category: 'Puzzle' },
-  umbra: { icon: '🌑', accent: 'purple', category: 'Skill' },
-  fuse: { icon: '🧨', accent: 'red', category: 'Puzzle' },
-  polytap: { icon: '🥁', accent: 'cyan', category: 'Skill' },
-  deepdive: { icon: '🤿', accent: 'cyan', category: 'Skill', daily: true },
-  sonar: { icon: '📡', accent: 'blue', category: 'Puzzle', daily: true },
-  handful: { icon: '🧺', accent: 'lime', category: 'Arcade', daily: true },
-  flapjack: { icon: '🥞', accent: 'cyan', category: 'Puzzle', daily: true },
-  interlock: { icon: '⛓️', accent: 'magenta', category: 'Puzzle', daily: true },
-  clusters: { icon: '🔠', accent: 'lime', category: 'Puzzle', daily: true },
+  umbra: { icon: '🌑', accent: 'purple', category: 'Skill' , addedDate: '2026-07-16' },
+  fuse: { icon: '🧨', accent: 'red', category: 'Puzzle' , addedDate: '2026-07-16' },
+  polytap: { icon: '🥁', accent: 'cyan', category: 'Skill' , addedDate: '2026-07-16' },
+  deepdive: { icon: '🤿', accent: 'cyan', category: 'Skill', daily: true , addedDate: '2026-07-17' },
+  sonar: { icon: '📡', accent: 'blue', category: 'Puzzle', daily: true , addedDate: '2026-07-17' },
+  handful: { icon: '🧺', accent: 'lime', category: 'Arcade', daily: true , addedDate: '2026-07-17' },
+  flapjack: { icon: '🥞', accent: 'cyan', category: 'Puzzle', daily: true , addedDate: '2026-07-18' },
+  interlock: { icon: '⛓️', accent: 'magenta', category: 'Puzzle', daily: true , addedDate: '2026-07-18' },
+  clusters: { icon: '🔠', accent: 'lime', category: 'Puzzle', daily: true , addedDate: '2026-07-19' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

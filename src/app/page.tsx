@@ -6,6 +6,7 @@ import { AdSlot } from '@/components/ads/AdSlot'
 import { GameBrowser, type BrowseItem } from '@/components/GameBrowser'
 import { Marquee } from '@/components/Marquee'
 import { MyGames } from '@/components/MyGames'
+import { NewGames } from '@/components/NewGames'
 import { RecentlyPlayed } from '@/components/RecentlyPlayed'
 import { TodayBoard } from '@/components/TodayBoard'
 
@@ -61,6 +62,9 @@ export default function Home() {
 
       {/* ===== My Games(즐겨찾기, 비었으면 안 보임) ===== */}
       <MyGames items={items} />
+
+      {/* ===== New games(최근 추가, 없으면 안 보임 — 홈 신선함) ===== */}
+      <NewGames items={items} />
 
       {/* ===== 최근 플레이(리텐션, 비었으면 안 보임) ===== */}
       <RecentlyPlayed items={items} />

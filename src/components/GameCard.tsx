@@ -2,6 +2,7 @@ import { accentVar, DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
 import { GameIcon } from '@/components/icons/GameIcon'
 import { SpotlightCard } from '@/components/SpotlightCard'
 import { FavoriteHeart } from '@/components/FavoriteHeart'
+import { NewBadge } from '@/components/NewBadge'
 
 /**
  * 홈·검색·인게임 "관련 게임"에서 공유하는 네온 게임 카드.
@@ -41,6 +42,7 @@ export function GameCard({
           PLAY ►
         </span>
       </SpotlightCard>
+      <NewBadge slug={slug} />
       {favoritable && <FavoriteHeart slug={slug} title={title} />}
     </div>
   )
