@@ -110,7 +110,8 @@
 - ① **Connections식 4×4 그룹핑 데일리** ✅ 완료 — 'Clusters'(62종째). 16타일→숨은 4그룹, 4목숨,
   데일리+연습, 노스포일러 이모지 그리드 공유, 승리 시 streak.
 - ② **네온 idle/클리커**(high — 무계정·무서버 궁합, 오프라인 수익 팝업 = 재방문 보상).
-- ③ **Quordle식 멀티보드**(medium — word-guess 상태 배열화 리믹스 + SEO 랜딩 2개).
+- ③ **Quordle식 멀티보드** ✅ 완료 — 'Quadle'(63종째). 4보드 동시, 9추측, wordguess 엔진
+  (ANSWERS/scoreGuess) 재사용, 데일리+연습+streak+스탯+노스포일러 공유.
 
 ### 서버/승인 게이트 (지금 X, 조건 충족 시)
 - H5 Games Ads 인터스티셜/리워드 → **AdSense 승인 후**(P1에서 자리표시자만).
