@@ -10,5 +10,8 @@ export const siteConfig = {
   // 승인 후 AdSense에서 광고 단위를 만들어 실제 숫자 슬롯 ID로 교체한 뒤에 true로 바꿀 것.
   // EU 트래픽엔 인증 CMP도 필요.
   adsenseEnabled: false,
+  // 후원(선택) — Ko-fi 페이지. 위젯 스크립트가 아니라 단순 외부 링크로만 연결(외부 JS·추적기
+  // 금지 원칙 유지). 비우면 후원 링크가 안 뜬다.
+  kofiUrl: 'https://ko-fi.com/piousangel',
 }
 

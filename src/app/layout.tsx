@@ -100,6 +100,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/terms" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Terms</Link>
             <Link href="/contact" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Contact</Link>
           </nav>
+          {siteConfig.kofiUrl && (
+            <p className="mb-4">
+              <a
+                href={siteConfig.kofiUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-neon-magenta/40 bg-surface px-3 py-1.5 text-neon-magenta transition-colors hover:bg-neon-magenta/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-magenta focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+              >
+                <span aria-hidden="true">☕</span>
+                <span>Enjoying the games? Support the site</span>
+              </a>
+            </p>
+          )}
           <p>© 2026 {siteConfig.name}. All games are free to play.</p>
         </footer>
       </body>
