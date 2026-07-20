@@ -88,6 +88,7 @@ export const gameMeta: Record<string, GameMeta> = {
   clusters: { icon: '🔠', accent: 'lime', category: 'Puzzle', daily: true , addedDate: '2026-07-19' },
   quadle: { icon: '🔡', accent: 'cyan', category: 'Puzzle', daily: true, addedDate: '2026-07-20' },
   equate: { icon: '🔢', accent: 'purple', category: 'Puzzle', daily: true, addedDate: '2026-07-20' },
+  reactor: { icon: '⚡', accent: 'green', category: 'Arcade', addedDate: '2026-07-20' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

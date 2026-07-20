@@ -76,6 +76,7 @@ export type GamePage = GamePageBase &
     | { game: 'clusters' }
     | { game: 'quadle' }
     | { game: 'equate' }
+    | { game: 'reactor' }
   )
 
 export const gamePages: GamePage[] = [
@@ -1919,6 +1920,34 @@ export const gamePages: GamePage[] = [
       { q: 'Is there a new puzzle every day?', a: 'Yes. Equate is a daily puzzle — the same equation for everyone that day, generated from the date so no server is needed. Practice mode gives endless puzzles any time.' },
       { q: 'Can I share my result without spoilers?', a: 'Yes. The share card is a grid of colored squares showing how you did, with no numbers revealed — just like the daily word games.' },
       { q: 'Does my best score save?', a: 'Yes. Your best is stored in your browser, and you can submit it to the weekly leaderboard.' },
+    ],
+  },
+  {
+    slug: 'reactor',
+    game: 'reactor',
+    title: 'Play Reactor Online — Free Neon Idle Clicker Game',
+    h1: 'Reactor',
+    metaDescription:
+      'Play Reactor free online — a neon idle clicker. Tap to charge, buy generators that produce energy automatically, and keep earning while you are away. Prestige to reboot for a permanent multiplier. No download, no sign-up.',
+    shortDescription: 'Tap and automate a neon reactor that never stops.',
+    howToPlay: [
+      'Tap the reactor core to add charge by hand.',
+      'Spend charge on modules — each one produces energy automatically, every second.',
+      'Your reactor keeps earning while the tab is closed; come back for a welcome-back payout.',
+      'When your lifetime energy is high enough, Reboot to reset for a permanent production boost.',
+    ],
+    strategy: [
+      'Early on, tap to afford your first Capacitor, then let auto-production snowball.',
+      'Always buy the cheapest module you can — steady growth beats saving for one big tier.',
+      'Check back after a break: offline earnings often buy the next tier outright.',
+      'Reboot resets your modules but multiplies all future output, so time it when growth stalls.',
+      'Each reboot compounds, so the earlier you can afford the next one, the faster you climb.',
+    ],
+    faq: [
+      { q: 'Do I have to keep tapping?', a: 'No. Tapping only bootstraps your first modules. After that the reactor produces energy automatically, even while the tab is closed.' },
+      { q: 'Does it really earn while I am away?', a: 'Yes. Offline progress is capped at eight hours, and you get a welcome-back summary of what your reactor made while you were gone.' },
+      { q: 'What does Reboot (prestige) do?', a: 'It resets your charge and modules but grants a permanent production multiplier that stacks with every reboot — the long game.' },
+      { q: 'Is my progress saved?', a: 'Yes, in your browser. Your reactor, modules and reboots are stored locally, and your best lifetime energy can go on the weekly leaderboard.' },
     ],
   },
 ]

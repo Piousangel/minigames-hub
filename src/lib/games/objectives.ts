@@ -64,4 +64,5 @@ export const OBJECTIVES: Record<string, string> = {
   clusters: 'Sort the sixteen tiles into their four hidden groups.',
   quadle: 'Guess all four hidden words within nine tries.',
   equate: 'Guess the hidden equation within six tries.',
+  reactor: 'Tap and automate to grow your energy per second.',
 }

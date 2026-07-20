@@ -20,6 +20,7 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   clusters: { label: 'Score' },
   quadle: { label: 'Score' },
   equate: { label: 'Score' },
+  reactor: { label: 'Charge' },
   snake: { label: 'Score' },
   tetris: { label: 'Score' },
   breakout: { label: 'Score' },

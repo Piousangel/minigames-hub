@@ -642,6 +642,16 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // reactor — 네온 원자로 코어(원 + 궤도 + 번개)
+  reactor: (
+    <>
+      <circle cx="12" cy="12" r="3" {...solid} />
+      <ellipse cx="12" cy="12" rx="8.5" ry="3.5" {...soft} />
+      <ellipse cx="12" cy="12" rx="8.5" ry="3.5" transform="rotate(60 12 12)" {...soft} />
+      <ellipse cx="12" cy="12" rx="8.5" ry="3.5" transform="rotate(120 12 12)" {...soft} />
+    </>
+  ),
+
   // equate — 수식 타일 행(= 기호 + 연산 점들)
   equate: (
     <>
