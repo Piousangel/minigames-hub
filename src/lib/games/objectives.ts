@@ -74,4 +74,5 @@ export const OBJECTIVES: Record<string, string> = {
   chess: 'Checkmate the enemy king to win.',
   'golf-solitaire': 'Clear every column one rank up or down.',
   dominoes: 'Match the ends and empty your hand first.',
+  jigsaw: 'Place every piece to complete the picture.',
 }

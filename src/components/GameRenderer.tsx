@@ -40,6 +40,7 @@ import { GameMahjong } from '@/components/games/GameMahjong'
 import { GameChess } from '@/components/games/GameChess'
 import { GameGolf } from '@/components/games/GameGolf'
 import { GameDominoes } from '@/components/games/GameDominoes'
+import { GameJigsaw } from '@/components/games/GameJigsaw'
 import { GamePolytap } from '@/components/games/GamePolytap'
 import { GameSonar } from '@/components/games/GameSonar'
 import { GameProspector } from '@/components/games/GameProspector'
@@ -222,6 +223,8 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameGolf storageKey={`best:${page.slug}`} />
     case 'dominoes':
       return <GameDominoes storageKey={`best:${page.slug}`} />
+    case 'jigsaw':
+      return <GameJigsaw storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

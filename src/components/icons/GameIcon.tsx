@@ -652,6 +652,14 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // jigsaw — 직소 조각(탭이 튀어나온 퍼즐 피스)
+  jigsaw: (
+    <>
+      <path d="M5 6h4a1.6 1.6 0 0 1 3 0h4v4a1.6 1.6 0 0 1 0 3v4h-4a1.6 1.6 0 0 0-3 0H5v-4a1.6 1.6 0 0 0 0-3z" {...soft} />
+      <circle cx="10.5" cy="13" r="1" {...solid} />
+    </>
+  ),
+
   // dominoes — 도미노 타일(가운데 선 + 양쪽 핍)
   dominoes: (
     <>

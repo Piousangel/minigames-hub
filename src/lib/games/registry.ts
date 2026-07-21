@@ -86,6 +86,7 @@ export type GamePage = GamePageBase &
     | { game: 'chess' }
     | { game: 'golf-solitaire' }
     | { game: 'dominoes' }
+    | { game: 'jigsaw' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2218,6 +2219,35 @@ export const gamePages: GamePage[] = [
       { q: 'What is the boneyard?', a: 'The pile of leftover tiles after the deal. If you cannot match an open end, you draw from it until you can, or pass when it is empty.' },
       { q: 'Is it free and account-free?', a: 'Yes. Dominoes plays free in your browser with no download and no sign-up. Your win record saves locally.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap a tile in your hand and tap an open end to play it. It works on phones and tablets as well as desktop.' },
+    ],
+  },
+  {
+    slug: 'jigsaw',
+    game: 'jigsaw',
+    title: 'Play Jigsaw Puzzles Online — Free, No Download',
+    h1: 'Jigsaw Puzzle',
+    metaDescription:
+      'Play free jigsaw puzzles online — assemble a fresh neon picture piece by piece, at easy, medium or hard sizes. Relaxing and always solvable. No download, no sign-up.',
+    shortDescription: 'Assemble the neon picture piece by piece.',
+    howToPlay: [
+      'A neon picture is cut into interlocking pieces and scattered into the tray.',
+      'Tap a piece to pick it up — its home spot on the board lights up.',
+      'Tap the highlighted spot to snap the piece into place; it locks when correct.',
+      'Fill the whole board to complete the picture and win.',
+    ],
+    strategy: [
+      'Turn on the preview to see the finished picture as a guide while you build.',
+      'Start with the corners and edges — flat-sided pieces are easy to spot.',
+      'Group pieces by colour and pattern to find where each one belongs faster.',
+      'Bump the grid up to 4×4 or 6×6 once the small puzzles feel too quick.',
+      'There is no timer, so relax — every piece has exactly one right home.',
+    ],
+    faq: [
+      { q: 'Do I need to download anything?', a: 'No. The puzzle runs entirely in your browser — pick a size and start assembling right away on phone, tablet or desktop.' },
+      { q: 'Where do the pictures come from?', a: 'Each picture is generated fresh in the neon style of the site, so every puzzle is unique, always solvable, and needs no downloaded images.' },
+      { q: 'How do I place a piece?', a: 'Tap a piece in the tray to select it, then tap its highlighted home cell to snap it in. On desktop you can also drag it. Only the correct spot accepts a piece, so you can never place one wrong.' },
+      { q: 'Can I make it harder?', a: 'Yes. Switch between 3×3, 4×4 and 6×6 grids — more pieces means a bigger challenge.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Jigsaw puzzles play free in your browser with no download and no sign-up. Your best score saves locally.' },
     ],
   },
 ]
