@@ -99,6 +99,7 @@ export const gameMeta: Record<string, GameMeta> = {
   'golf-solitaire': { icon: '⛳', accent: 'green', category: 'Classic', addedDate: '2026-07-20' },
   dominoes: { icon: '🎲', accent: 'amber', category: 'Classic', addedDate: '2026-07-20' },
   jigsaw: { icon: '🧩', accent: 'magenta', category: 'Puzzle', addedDate: '2026-07-21' },
+  'yukon-solitaire': { icon: '🃏', accent: 'blue', category: 'Classic', addedDate: '2026-07-21' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

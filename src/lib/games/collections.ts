@@ -119,9 +119,9 @@ export const COLLECTIONS: Record<string, Collection> = {
       'Play free solitaire games online — Klondike, Spider, FreeCell, Pyramid and TriPeaks. Every classic patience game in your browser, no download and no sign-up.',
     intro:
       'Every solitaire worth playing, free and instant in your browser — no download, no account, no ads getting in the way of the cards. Whether you grew up on the Klondike deal that shipped with every computer or you prefer the pure skill of an open board, this shelf has the patience game for you. Play classic Klondike with its stock and foundations, take on FreeCell where every card is face-up and almost every deal can be won, clear the eight suit runs of Spider at one, two or four suits, pair cards up to thirteen in Pyramid, or chain your way across the three peaks of TriPeaks. Each one keeps your best score in your browser, plays perfectly on phone or desktop, and starts a fresh shuffled deal whenever you want one. These are the games people come back to for years — quiet, satisfying, and always one more deal away. Pick a variant below and deal yourself in.',
-    games: ['solitaire', 'freecell', 'spider', 'pyramid', 'tripeaks', 'golf-solitaire'],
+    games: ['solitaire', 'freecell', 'spider', 'pyramid', 'tripeaks', 'golf-solitaire', 'yukon-solitaire'],
     faq: [
-      { q: 'Which solitaire games are here?', a: 'Klondike (the classic solitaire), FreeCell, Spider (1, 2 and 4 suit), Pyramid, TriPeaks and Golf — the most popular patience games, all free.' },
+      { q: 'Which solitaire games are here?', a: 'Klondike (the classic solitaire), FreeCell, Spider (1, 2 and 4 suit), Pyramid, TriPeaks, Golf and Yukon — the most popular patience games, all free.' },
       { q: 'Which solitaire is easiest to win?', a: 'FreeCell — every card is dealt face-up, so almost every game can be won with careful planning. Klondike and Spider involve more luck.' },
       { q: 'Are they really free with no download?', a: 'Yes. Every solitaire game runs instantly in your browser with no install and no account. Your best scores save locally.' },
       { q: 'Do they work on mobile?', a: 'Yes. All of them use tap-to-move controls and play well on phones and tablets as well as desktop.' },

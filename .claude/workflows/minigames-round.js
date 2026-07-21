@@ -46,7 +46,8 @@ mahjong(마작 솔리테어 — 144타일 매칭, free 판정, 풀 수 있는 �
 chess(체스 — 전체 규칙 perft 검증, minimax AI, vs컴퓨터/2P),
 golf-solitaire(골프 솔리테어 — 컬럼 카드 위/아래 1랭크로 제거),
 dominoes(도미노 — 더블식스, 엔드 매칭, vs컴퓨터/2P),
-jigsaw(직소 퍼즐 — 네온 생성 아트 조각, tap-to-place, 3×3/4×4/6×6)`
+jigsaw(직소 퍼즐 — 네온 생성 아트 조각, tap-to-place, 3×3/4×4/6×6),
+yukon-solitaire(유콘 솔리테어 — 스톡 없음, 임의 페이스업 카드+더미 이동)`
 
 // EXISTING에서 직접 센다. 괄호 안 설명에 쉼표가 있으므로(ricochet, duplex) 먼저 제거해야 한다.
 // 프롬프트에 숫자를 하드코딩하면 라운드마다 어긋나므로, 반드시 이 상수를 주입해 쓸 것.

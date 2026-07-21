@@ -713,6 +713,16 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // yukon-solitaire — 카드 열(겹친 3장, 전부 오픈)
+  'yukon-solitaire': (
+    <>
+      <rect x="6" y="4" width="12" height="6" rx="1.2" {...soft} />
+      <rect x="6" y="9" width="12" height="6" rx="1.2" {...soft} />
+      <rect x="6" y="14" width="12" height="6" rx="1.2" {...solid} />
+      <path d="M12 16c-1 .9-1.7 1.4-1.7 2.2a.85.85 0 0 0 1.7.2.85.85 0 0 0 1.7-.2c0-.8-.7-1.3-1.7-2.2z" {...soft} />
+    </>
+  ),
+
   // solitaire — 겹친 카드 두 장 + 스페이드 핍
   solitaire: (
     <>

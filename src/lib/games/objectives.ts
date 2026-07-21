@@ -75,4 +75,5 @@ export const OBJECTIVES: Record<string, string> = {
   'golf-solitaire': 'Clear every column one rank up or down.',
   dominoes: 'Match the ends and empty your hand first.',
   jigsaw: 'Place every piece to complete the picture.',
+  'yukon-solitaire': 'Move all cards to the four foundations.',
 }

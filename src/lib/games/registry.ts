@@ -87,6 +87,7 @@ export type GamePage = GamePageBase &
     | { game: 'golf-solitaire' }
     | { game: 'dominoes' }
     | { game: 'jigsaw' }
+    | { game: 'yukon' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2248,6 +2249,35 @@ export const gamePages: GamePage[] = [
       { q: 'How do I place a piece?', a: 'Tap a piece in the tray to select it, then tap its highlighted home cell to snap it in. On desktop you can also drag it. Only the correct spot accepts a piece, so you can never place one wrong.' },
       { q: 'Can I make it harder?', a: 'Yes. Switch between 3×3, 4×4 and 6×6 grids — more pieces means a bigger challenge.' },
       { q: 'Is it free and account-free?', a: 'Yes. Jigsaw puzzles play free in your browser with no download and no sign-up. Your best score saves locally.' },
+    ],
+  },
+  {
+    slug: 'yukon-solitaire',
+    game: 'yukon',
+    title: 'Play Yukon Solitaire Online — Free Card Game, No Download',
+    h1: 'Yukon Solitaire',
+    metaDescription:
+      'Play Yukon Solitaire free online — a Klondike cousin with no stock, where you can move any face-up card with the whole pile on top. Every card is in play. No download, no sign-up.',
+    shortDescription: 'Move any face-up card with its whole pile.',
+    howToPlay: [
+      'All the cards are dealt to seven columns — there is no stock or waste pile to draw from.',
+      'Build the four foundations up by suit from Ace to King to win.',
+      'On the tableau, stack cards down in alternating colours — a red six on a black seven.',
+      'Move ANY face-up card and everything on top of it as one group, even if that group is not in order.',
+    ],
+    strategy: [
+      'The move-any-pile rule is powerful — use it to dig out buried cards you need.',
+      'Turn over face-down cards as fast as you can; they are the whole challenge.',
+      'Try to empty a column so you can park a King and the pile beneath it.',
+      'Do not rush cards to the foundations — you may still need them to shuffle piles around.',
+      'Plan a few moves ahead; with no stock to bail you out, order of moves matters.',
+    ],
+    faq: [
+      { q: 'How is Yukon different from Klondike solitaire?', a: 'There is no stock or waste — every card is on the table from the start. And you can move any face-up card along with all the cards on top of it, even when they are not in sequence.' },
+      { q: 'How do I win Yukon Solitaire?', a: 'Move all 52 cards to the four foundations, built up by suit from Ace to King.' },
+      { q: 'Can I move a group of cards that are not in order?', a: 'Yes — that is the signature Yukon rule. As long as the bottom card of the group lands legally, everything on top of it comes along.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Yukon Solitaire plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap a face-up card to pick up its pile and tap a column to drop it. It works on phones and tablets as well as desktop.' },
     ],
   },
 ]

@@ -29,6 +29,7 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   mahjong: { label: 'Score' },
   'golf-solitaire': { label: 'Score' },
   jigsaw: { label: 'Score' },
+  'yukon-solitaire': { label: 'Score' },
   snake: { label: 'Score' },
   tetris: { label: 'Score' },
   breakout: { label: 'Score' },
