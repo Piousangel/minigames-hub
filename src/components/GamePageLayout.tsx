@@ -6,6 +6,7 @@ import { Leaderboard } from '@/components/Leaderboard'
 import { RecordPlay } from '@/components/RecordPlay'
 import { Reveal } from '@/components/Reveal'
 import { NextUp } from '@/components/NextUp'
+import { GameNavProvider } from '@/components/GameNav'
 import { GameStats } from '@/components/GameStats'
 import { DailyDock } from '@/components/DailyDock'
 import { ObjectiveBanner } from '@/components/ObjectiveBanner'
@@ -42,16 +43,21 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
       </h1>
       {/* 목표 한 줄(above-the-fold) — 낯선 유저가 승리 조건을 즉시 이해 */}
       <ObjectiveBanner slug={page.slug} />
-      {children}
 
-      {/* 게임 직후 개인 기록(트로피 케이스) — 데이터 없으면 안 뜸 */}
-      <GameStats slug={page.slug} />
+      {/* 게임(children의 GameOverlay)과 NextUp이 같은 '다음 게임' 픽을 공유 → 승/패 모달의
+          '다음 게임' 버튼 + 보드 아래 NextUp 카드가 일관, RUN 카운터 이중 증가 없음(체류 세션연장). */}
+      <GameNavProvider slug={page.slug}>
+        {children}
 
-      {/* 착지 페이지 리턴 훅: 사이트 streak + 오늘 퀘스트 + 다음 데일리 카운트다운 */}
-      <DailyDock />
+        {/* 게임 직후 개인 기록(트로피 케이스) — 데이터 없으면 안 뜸 */}
+        <GameStats slug={page.slug} />
 
-      {/* 다음 게임으로 잇는 체류 후크(게임오버 catch point, 크로스셀은 스택 마지막) */}
-      <NextUp currentSlug={page.slug} />
+        {/* 착지 페이지 리턴 훅: 사이트 streak + 오늘 퀘스트 + 다음 데일리 카운트다운 */}
+        <DailyDock />
+
+        {/* 다음 게임으로 잇는 체류 후크(게임오버 catch point, 크로스셀은 스택 마지막) */}
+        <NextUp currentSlug={page.slug} />
+      </GameNavProvider>
 
       {hasLeaderboard(page.slug) && <Leaderboard slug={page.slug} />}
 

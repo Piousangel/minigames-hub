@@ -1,55 +1,17 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import { gamePages } from '@/lib/games/registry'
-import { DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
 import { GameCard } from '@/components/GameCard'
-import { todayUTC } from '@/lib/dailyDate'
-import { loadPlayedToday } from '@/lib/today'
-import { RECENT_KEY } from '@/components/RecordPlay'
-
-const RUN_KEY = 'run:count'
+import { useGameNav } from '@/components/GameNav'
 
 /**
- * 게임 직후 "NEXT UP" — 이탈 지점(게임오버)에서 다음 게임으로 원탭 유도(체류↑).
- * 오늘·이번 세션·최근에 안 한 게임을 같은 카테고리 우선으로 하나 제안(결정비용 제거).
- * 세션 RUN ×N 카운터로 "달리고 있다"는 관성. 클라이언트 전용(하이드레이션 안전).
+ * 게임 직후 "NEXT UP" 카드 — 이탈 지점(게임오버)에서 다음 게임으로 원탭 유도(체류↑).
+ * 다음 게임 픽 + RUN 카운터는 GameNavProvider(단일 소스)에서 온다 — GameOverlay의 '다음 게임'
+ * 버튼과 동일 픽을 공유하고 RUN이 이중 증가하지 않는다. 준비 전/픽 없으면 안 그림.
  */
-export function NextUp({ currentSlug }: { currentSlug: string }) {
-  const [ready, setReady] = useState(false)
-  const [runCount, setRunCount] = useState(0)
-  const [nextSlug, setNextSlug] = useState<string | null>(null)
-
-  useEffect(() => {
-    // 이 게임을 이번 세션에 열었다 → RUN +1 (탭/세션 닫으면 리셋)
-    let run = 0
-    try {
-      run = (Number(sessionStorage.getItem(RUN_KEY)) || 0) + 1
-      sessionStorage.setItem(RUN_KEY, String(run))
-    } catch {
-      run = 1
-    }
-    setRunCount(run)
-
-    // 다음 게임 픽: 오늘/세션/최근 미플레이 우선, 같은 카테고리 우선, RUN으로 회전
-    const played = new Set(loadPlayedToday(todayUTC()))
-    let recent: string[] = []
-    try {
-      recent = JSON.parse(localStorage.getItem(RECENT_KEY) || '[]') as string[]
-    } catch {
-      recent = []
-    }
-    const excl = new Set<string>([currentSlug, ...played, ...recent])
-    const cat = (gameMeta[currentSlug] ?? DEFAULT_META).category
-    const all = gamePages.map((g) => g.slug)
-    const fresh = all.filter((s) => !excl.has(s))
-    const sameCat = fresh.filter((s) => (gameMeta[s] ?? DEFAULT_META).category === cat)
-    const pool = sameCat.length > 0 ? sameCat : fresh.length > 0 ? fresh : all.filter((s) => s !== currentSlug)
-    setNextSlug(pool.length > 0 ? pool[run % pool.length] : null)
-    setReady(true)
-  }, [currentSlug])
-
-  if (!ready || !nextSlug) return null
+export function NextUp({ currentSlug: _currentSlug }: { currentSlug: string }) {
+  const { nextSlug, runCount } = useGameNav()
+  if (!nextSlug) return null
   const g = gamePages.find((p) => p.slug === nextSlug)
   if (!g) return null
 
