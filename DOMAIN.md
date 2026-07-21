@@ -158,6 +158,9 @@ CMP(대시보드 '유럽 규정 GDPR 메시지' 활성)**가 담당, adsbygoogle
 - **수익화 보조:** Ko-fi 후원 링크(siteConfig.kofiUrl) 푸터 단순 링크. AdSense 승인 전에도 소액 후원 경로.
 - ⑭ **Jigsaw** ✅ 완료 — 'jigsaw'(75종). 대형 검색 갭 + 긴 체류. 외부 이미지 0(네온 생성 아트),
   strict-correct 배치로 항상 풀림. 3×3/4×4/6×6.
+- ⑮ **Yukon Solitaire** ✅ 완료 — 'yukon-solitaire'(76종). 스톡 없는 Klondike 사촌, 임의 페이스업
+  더미 이동. **솔리테어 클러스터 7종**(solitaire-games 컬렉션). ⚠️ 새 게임은 GameRenderer의
+  dynamic 코드스플리팅 목록에도 추가할 것(static import 하면 번들 비대 재발).
 - ⚠️ **갬블링 금지(AdSense 승인 리스크):** 블랙잭/포커/룰렛 등 카지노류는 승인 전 절대 추가 금지.
 - **판단(재확인):** 게임 74종·SEO 랜딩 다수·리텐션·분석 완비 = 공급 충실. 병목은 수요(트래픽) =
   커뮤니티 게시(사람)·색인 시간·AdSense 승인. 팀은 supply-side 롱테일 게임/SEO를 계속하되, 실데이터
