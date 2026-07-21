@@ -68,6 +68,13 @@
   분석이 공짜. 논블로킹·무한 카디널리티(slug=blob)·SQL 조회. JS 비콘이 놓치는 분량까지 잡음.
 - **인기 랭킹 = 소셜프루프.** 단 유저 0 초기엔 '3 plays' 노출이 역효과 → **임계값(100회+) 게이팅 필수.**
 
+## 7.5 성능/CWV (SEO 랭킹 직결)
+- ✅ **게임별 코드 스플리팅(2026-07-21):** GameRenderer가 75게임을 static import 하던 걸 'use client'
+  + 게임별 `next/dynamic(ssr:false)`로 전환 → 게임 페이지 First Load JS **401kB→165kB**([slug] 청크
+  844KB→32KB, 청크 10→108). 트래픽 착지 페이지 LCP/TBT 대폭 개선. 보드는 원래 클라 전용이라 SSR
+  손실 0, 프로즈는 서버 렌더 유지. ⚠️ next/dynamic 옵션은 **인라인 객체 리터럴 필수**(공유 변수 불가).
+- **교훈: 게임/컴포넌트가 늘면 배럴 import 번들 비대 주기적 점검**(`grep [slug] 빌드로그`로 First Load JS).
+
 ## 8. 우리 절대 제약 (권고가 이걸 어기면 무가치)
 - 정적 Next export, 서버는 리더보드용 Cloudflare Worker+D1 하나뿐.
 - 계정/로그인 없음. 진행상태 전부 localStorage("이 브라우저에서의 나").
