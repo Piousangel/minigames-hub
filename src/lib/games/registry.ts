@@ -88,6 +88,7 @@ export type GamePage = GamePageBase &
     | { game: 'dominoes' }
     | { game: 'jigsaw' }
     | { game: 'yukon' }
+    | { game: 'gomoku' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2278,6 +2279,35 @@ export const gamePages: GamePage[] = [
       { q: 'Can I move a group of cards that are not in order?', a: 'Yes — that is the signature Yukon rule. As long as the bottom card of the group lands legally, everything on top of it comes along.' },
       { q: 'Is it free and account-free?', a: 'Yes. Yukon Solitaire plays free in your browser with no download and no sign-up. Your best score saves locally.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap a face-up card to pick up its pile and tap a column to drop it. It works on phones and tablets as well as desktop.' },
+    ],
+  },
+  {
+    slug: 'gomoku',
+    game: 'gomoku',
+    title: 'Play Gomoku Online — Free Five in a Row vs Computer or 2 Player',
+    h1: 'Gomoku',
+    metaDescription:
+      'Play Gomoku (Five in a Row) free online — against the computer at three difficulty levels or two-player on one device. Get five stones in a row to win. No download, no sign-up.',
+    shortDescription: 'Get five in a row to win.',
+    howToPlay: [
+      'Take turns placing stones on the 15×15 board — Black moves first.',
+      'Make an unbroken line of five of your stones to win.',
+      'A line counts in any direction: across, down, or diagonally.',
+      'Play the computer at Easy, Medium or Hard, or pass and play with a friend.',
+    ],
+    strategy: [
+      'Build an "open three" (three in a row with both ends free) — it forces your opponent to react.',
+      'An "open four" is an instant win threat; make one and always block your opponent’s.',
+      'Watch both ends of every line — a four blocked on one side can still be extended on the other.',
+      'Create two threats at once (a fork); your opponent can only block one.',
+      'Do not just attack — one missed block from the opponent’s four loses the game.',
+    ],
+    faq: [
+      { q: 'How do you win at Gomoku?', a: 'Be the first to line up five of your stones in a row — horizontally, vertically or diagonally — on the 15×15 board.' },
+      { q: 'Can I play against the computer?', a: 'Yes. Choose your colour and Easy, Medium or Hard. The computer takes wins, blocks your threats and plays a real game. Two-player pass-and-play is also available.' },
+      { q: 'Who goes first?', a: 'Black moves first, which is a small advantage — switch colours between games to keep it fair.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Gomoku plays free in your browser with no download and no sign-up. Your win record saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap an empty spot to place a stone. The board scales to fit phones and tablets as well as desktop.' },
     ],
   },
 ]

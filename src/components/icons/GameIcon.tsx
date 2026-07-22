@@ -713,6 +713,16 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // gomoku — 격자 + 5목 라인(돌 하나 강조)
+  gomoku: (
+    <>
+      <path d="M5 5v14M12 5v14M19 5v14M5 5h14M5 12h14M5 19h14" {...soft} />
+      <circle cx="5" cy="12" r="1.6" {...solid} />
+      <circle cx="12" cy="12" r="1.6" {...solid} />
+      <circle cx="19" cy="12" r="1.6" {...solid} />
+    </>
+  ),
+
   // yukon-solitaire — 카드 열(겹친 3장, 전부 오픈)
   'yukon-solitaire': (
     <>

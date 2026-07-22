@@ -510,6 +510,11 @@ test('yukon-solitaire: 로드 → 보드 표시', async ({ page }) => {
   await expect(page.getByTestId('yukon-solitaire-board')).toBeVisible()
 })
 
+test('gomoku: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/gomoku')
+  await expect(page.getByTestId('gomoku-board')).toBeVisible()
+})
+
 test('게임 페이지: 목표 한 줄이 보드 위에 노출된다', async ({ page }) => {
   await page.goto('/clusters')
   await expect(page.getByTestId('objective')).toBeVisible()
