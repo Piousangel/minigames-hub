@@ -165,6 +165,8 @@ CMP(대시보드 '유럽 규정 GDPR 메시지' 활성)**가 담당, adsbygoogle
 - ⑮ **Yukon Solitaire** ✅ 완료 — 'yukon-solitaire'(76종). 스톡 없는 Klondike 사촌, 임의 페이스업
   더미 이동. **솔리테어 클러스터 7종**(solitaire-games 컬렉션). ⚠️ 새 게임은 GameRenderer의
   dynamic 코드스플리팅 목록에도 추가할 것(static import 하면 번들 비대 재발).
+- ⑯ **Gomoku** ✅ 완료 — 'gomoku'(77종). Five in a Row, 15×15, vs컴퓨터/2P, 휴리스틱 AI(포 블록).
+  two-player-games 컬렉션 8종.
 - ⚠️ **갬블링 금지(AdSense 승인 리스크):** 블랙잭/포커/룰렛 등 카지노류는 승인 전 절대 추가 금지.
 - **판단(재확인):** 게임 74종·SEO 랜딩 다수·리텐션·분석 완비 = 공급 충실. 병목은 수요(트래픽) =
   커뮤니티 게시(사람)·색인 시간·AdSense 승인. 팀은 supply-side 롱테일 게임/SEO를 계속하되, 실데이터
