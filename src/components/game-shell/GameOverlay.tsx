@@ -31,6 +31,9 @@ export function GameOverlay({
   if (!show) return null
   // 승/패에 따른 네온 색 — 컨테이너 currentColor 로 .neon-box 발광.
   const neon = variant === 'win' ? 'var(--neon-green)' : 'var(--neon-red)'
+  // 세션 연속 플레이(RUN) 게임화: 손실회피로 "한 판 더"를 유도(방문당 플레이 수↑).
+  const run = nav.runCount
+  const runMilestone = run >= 3 && (run === 3 || run === 5 || run === 10 || run === 20 || run % 25 === 0)
   return (
     <div
       data-testid={testId}
@@ -47,6 +50,16 @@ export function GameOverlay({
           {title}
         </p>
         <div className="flex flex-col items-center gap-3 text-fg">{children}</div>
+        {run > 1 && (
+          <p
+            data-testid="overlay-run"
+            className={`text-sm font-semibold ${runMilestone ? 'text-neon-amber' : 'text-fg-muted'}`}
+          >
+            {runMilestone
+              ? `🔥 ${run}-game run! Keep it going —`
+              : `🔥 Run ×${run} · one more?`}
+          </p>
+        )}
         {nav.nextSlug && nav.nextTitle && (
           <Link
             href={`/${nav.nextSlug}`}
