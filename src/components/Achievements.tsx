@@ -9,18 +9,42 @@ import { GOALS, goalState, type GoalState } from '@/lib/achievements'
  * 기존 localStorage 신호에서 진척 계산(클라이언트 전용, 하이드레이션 안전). 아직 아무것도 안 한
  * 완전 신규 방문자(전부 0)에겐 안 그려 첫 화면을 어지럽히지 않는다.
  */
+const TIERS_KEY = 'goals:tiers'
+
 export function Achievements() {
   const [states, setStates] = useState<(GoalState & { id: string; label: string; icon: string })[] | null>(
     null,
   )
+  const [reached, setReached] = useState<string[]>([]) // 방금 넘은 티어(축하)
 
   useEffect(() => {
-    setStates(
-      GOALS.map((g) => {
-        const v = g.value()
-        return { id: g.id, label: g.label, icon: g.icon, ...goalState(g, v) }
-      }),
-    )
+    const computed = GOALS.map((g) => {
+      const v = g.value()
+      return { id: g.id, label: g.label, icon: g.icon, ...goalState(g, v) }
+    })
+    setStates(computed)
+
+    // 티어 달성 축하: 저장된 티어보다 올라갔으면 보상 배너. 최초(저장 없음)엔 기준선만 세팅
+    // (기존 진척을 소급 축하하지 않음).
+    try {
+      const rawSeen = localStorage.getItem(TIERS_KEY)
+      const seen: Record<string, number> = rawSeen ? JSON.parse(rawSeen) : {}
+      const cur: Record<string, number> = {}
+      const newly: string[] = []
+      for (const s of computed) {
+        cur[s.id] = s.tierIndex
+        if (rawSeen && s.tierIndex > (seen[s.id] ?? 0)) {
+          const [name] = s.label.split(' — ')
+          const g = GOALS.find((x) => x.id === s.id)
+          const tierVal = g?.tiers[s.tierIndex - 1]
+          newly.push(`${s.icon} ${name}${tierVal ? ` — ${tierVal}` : ''}`)
+        }
+      }
+      if (newly.length) setReached(newly)
+      localStorage.setItem(TIERS_KEY, JSON.stringify(cur))
+    } catch {
+      /* ignore */
+    }
   }, [])
 
   if (!states) return null
@@ -38,6 +62,16 @@ export function Achievements() {
           className="h-px flex-1 bg-gradient-to-r from-neon-lime/50 to-transparent"
         />
       </div>
+
+      {reached.length > 0 && (
+        <div
+          className="mb-4 rounded-xl border border-neon-amber/60 bg-neon-amber/10 px-4 py-3 text-sm text-neon-amber"
+          role="status"
+          data-testid="goal-reached"
+        >
+          🎉 Goal reached! {reached.join(' · ')}
+        </div>
+      )}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {states.map((s) => {
