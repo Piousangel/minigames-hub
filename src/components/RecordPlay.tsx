@@ -8,6 +8,8 @@ import { sendHit } from '@/lib/hit'
 
 export const RECENT_KEY = 'recent:games'
 export const RECENT_MAX = 8
+/** 누적으로 플레이한 서로 다른 게임 slug 전부(탐험 목표/achievements용). */
+export const PLAYED_ALL_KEY = 'played:all'
 
 /**
  * 게임 페이지 방문 시 (1) 최근 플레이 목록, (2) 오늘 퀘스트 기록, (3) 사이트 전역
@@ -21,6 +23,11 @@ export function RecordPlay({ slug }: { slug: string }) {
       const list: string[] = raw ? JSON.parse(raw) : []
       const next = [slug, ...list.filter((s) => s !== slug)].slice(0, RECENT_MAX)
       localStorage.setItem(RECENT_KEY, JSON.stringify(next))
+
+      // 누적 다른 게임 수(탐험 목표용) — 처음 보는 게임이면 추가.
+      const allRaw = localStorage.getItem(PLAYED_ALL_KEY)
+      const all: string[] = allRaw ? JSON.parse(allRaw) : []
+      if (!all.includes(slug)) localStorage.setItem(PLAYED_ALL_KEY, JSON.stringify([...all, slug]))
 
       // TODAY 보드: 오늘 퀘스트 + 사이트 day-streak (bumpStreak은 같은 날 멱등).
       const today = todayUTC()

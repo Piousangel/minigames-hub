@@ -5,6 +5,7 @@ import { DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
 import { siteConfig } from '@/lib/siteConfig'
 import { AdSlot } from '@/components/ads/AdSlot'
 import { GameBrowser, type BrowseItem } from '@/components/GameBrowser'
+import { Achievements } from '@/components/Achievements'
 import { Marquee } from '@/components/Marquee'
 import { MyGames } from '@/components/MyGames'
 import { NewGames } from '@/components/NewGames'
@@ -81,6 +82,9 @@ export default function Home() {
 
       {/* ===== TODAY 보드(사이트 streak + 오늘 3게임 퀘스트 + 오늘의 픽) ===== */}
       <TodayBoard items={items} />
+
+      {/* ===== Goals(목표 진척 — 계속 플레이 유도, 진척 없으면 안 보임) ===== */}
+      <Achievements />
 
       {/* ===== My Games(즐겨찾기, 비었으면 안 보임) ===== */}
       <MyGames items={items} />
