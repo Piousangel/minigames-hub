@@ -7,6 +7,7 @@ import { RecordPlay } from '@/components/RecordPlay'
 import { Reveal } from '@/components/Reveal'
 import { NextUp } from '@/components/NextUp'
 import { GameNavProvider } from '@/components/GameNav'
+import { GameSwitcher } from '@/components/GameSwitcher'
 import { GameStats } from '@/components/GameStats'
 import { DailyDock } from '@/components/DailyDock'
 import { ObjectiveBanner } from '@/components/ObjectiveBanner'
@@ -48,6 +49,9 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
           '다음 게임' 버튼 + 보드 아래 NextUp 카드가 일관, RUN 카운터 이중 증가 없음(체류 세션연장). */}
       <GameNavProvider slug={page.slug}>
         {children}
+
+        {/* 최근 게임 퀵스위처 — 게임 중에도 방금 하던 게임으로 원탭 전환(체류) */}
+        <GameSwitcher currentSlug={page.slug} />
 
         {/* 게임 직후 개인 기록(트로피 케이스) — 데이터 없으면 안 뜸 */}
         <GameStats slug={page.slug} />
