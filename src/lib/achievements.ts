@@ -14,6 +14,8 @@ export interface Goal {
   tiers: number[]
   /** 현재 값(클라이언트에서 localStorage 읽어 계산). */
   value: () => number
+  /** 게임오버 넛지용 단위(예: 'win'). 지금 바로 늘릴 수 있는 목표만 지정(streak 제외 = undefined). */
+  unit?: string
 }
 
 function num(raw: string | null): number {
@@ -47,13 +49,14 @@ function totalWins(): number {
 }
 
 export const GOALS: Goal[] = [
-  { id: 'explorer', label: 'Explorer — play different games', icon: '🧭', tiers: [5, 15, 30], value: distinctPlayed },
+  { id: 'explorer', label: 'Explorer — play different games', icon: '🧭', tiers: [5, 15, 30], value: distinctPlayed, unit: 'game' },
   {
     id: 'streak',
     label: 'Streak — days in a row',
     icon: '🔥',
     tiers: [3, 7, 30],
     value: () => currentStreak(loadStreak('site:streak')),
+    // streak은 지금 당장 늘릴 수 없음(다음 날) → 게임오버 넛지에서 제외.
   },
   {
     id: 'marathon',
@@ -67,8 +70,9 @@ export const GOALS: Goal[] = [
         return 0
       }
     },
+    unit: 'game',
   },
-  { id: 'champion', label: 'Champion — games won', icon: '🏆', tiers: [10, 50, 150], value: totalWins },
+  { id: 'champion', label: 'Champion — games won', icon: '🏆', tiers: [10, 50, 150], value: totalWins, unit: 'win' },
   {
     id: 'daily-three',
     label: "Daily Three — different games today",
@@ -81,8 +85,30 @@ export const GOALS: Goal[] = [
         return 0
       }
     },
+    unit: 'game',
   },
 ]
+
+/**
+ * 게임오버 넛지: 지금 바로 늘릴 수 있는 목표 중, 다음 티어까지 1~maxAway개 남은 가장 가까운 것을
+ * "N more win(s) for Champion" 식으로. 없으면 null. (streak처럼 unit 없는 목표는 제외.)
+ */
+export function nearestGoalHint(maxAway = 3): { text: string; icon: string } | null {
+  let best: { remaining: number; text: string; icon: string } | null = null
+  for (const g of GOALS) {
+    if (!g.unit) continue
+    const st = goalState(g, g.value())
+    if (st.complete) continue
+    const remaining = st.target - st.value
+    if (remaining <= 0 || remaining > maxAway) continue
+    if (!best || remaining < best.remaining) {
+      const [name] = g.label.split(' — ')
+      const unit = remaining === 1 ? g.unit : `${g.unit}s`
+      best = { remaining, text: `${remaining} more ${unit} for ${name}`, icon: g.icon }
+    }
+  }
+  return best ? { text: best.text, icon: best.icon } : null
+}
 
 export interface GoalState {
   value: number

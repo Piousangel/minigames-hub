@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { goalState, GOALS, type Goal } from './achievements'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { goalState, GOALS, nearestGoalHint, type Goal } from './achievements'
 
 const g: Goal = { id: 't', label: 't', icon: '⭐', tiers: [5, 15, 30], value: () => 0 }
 
@@ -36,5 +36,32 @@ describe('GOALS 정의', () => {
   })
   it('goal id 고유', () => {
     expect(new Set(GOALS.map((x) => x.id)).size).toBe(GOALS.length)
+  })
+})
+
+describe('nearestGoalHint (게임오버 넛지)', () => {
+  function mockStore(entries: Record<string, string>) {
+    const keys = Object.keys(entries)
+    const store = {
+      length: keys.length,
+      key: (i: number) => keys[i] ?? null,
+      getItem: (k: string) => entries[k] ?? null,
+      setItem: () => {},
+      removeItem: () => {},
+    }
+    vi.stubGlobal('localStorage', store)
+    vi.stubGlobal('sessionStorage', { getItem: () => null, setItem: () => {} })
+  }
+  beforeEach(() => vi.unstubAllGlobals())
+
+  it('승수가 다음 티어에 1개 모자라면 Champion 넛지', () => {
+    mockStore({ 'stats:x': JSON.stringify({ plays: 20, wins: 9 }) }) // champion tier1=10 → 1 남음
+    const h = nearestGoalHint()
+    expect(h?.text).toBe('1 more win for Champion')
+    expect(h?.icon).toBe('🏆')
+  })
+  it('maxAway 밖이면 null (전부 0, maxAway 2)', () => {
+    mockStore({}) // 전부 0 → 가장 가까운 게 daily-three(3 남음). maxAway 2면 제외 → null.
+    expect(nearestGoalHint(2)).toBeNull()
   })
 })
