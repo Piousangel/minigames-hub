@@ -41,7 +41,8 @@ export function GameOverlay({
       aria-label={title}
       className="anim-backdrop-in absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl bg-bg/75"
     >
-      {variant === 'win' && <Confetti active={show} />}
+      {/* 승리 + 세션 RUN 마일스톤에 축하 — 세션 길이 자체를 보상해 '한 판 더'를 강화(체류↑). */}
+      {(variant === 'win' || runMilestone) && <Confetti active={show} />}
       <div
         style={{ color: neon }}
         className="neon-box anim-overlay-in flex flex-col items-center gap-4 rounded-2xl border border-current/40 bg-bg-2/85 px-8 py-6 text-center"
