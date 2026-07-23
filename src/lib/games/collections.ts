@@ -188,10 +188,10 @@ export const COLLECTIONS: Record<string, Collection> = {
     h1: 'Free Logic Puzzle Games',
     title: 'Free Logic Puzzle Games — Deduction Puzzles Online, No App',
     metaDescription:
-      'Play free logic puzzle games online — Sudoku, minesweeper, nonogram, sokoban, lights out and mastermind. Pure deduction, no luck, in your browser with no download.',
+      'Play free logic puzzle games online — Sudoku, minesweeper, nonogram, Unblock, Flow, sokoban, lights out and mastermind. Pure deduction, no luck, in your browser with no download.',
     intro:
-      'Logic puzzles are the quiet, satisfying kind: no timer pressure unless you want it, no luck involved, just you and a solvable board that always has one right answer if you reason carefully enough. This collection gathers the deduction puzzles on the site for anyone who likes to think a few steps ahead. Fill a Sudoku grid without a contradiction, clear a minefield from the numbers alone, paint a hidden picture in a nonogram, push crates onto their targets in sokoban, switch off every light, or crack a secret code in mastermind. Each one rewards patience and pattern-spotting rather than fast fingers, and every board is fair — the answer is always deducible, never a guess. They are free, run instantly in the browser with nothing to install, and save your progress locally so you can put a hard one down and come back to it. If you like the feeling of a puzzle clicking into place, start with any board below.',
-    games: ['sudoku', 'minesweeper', 'nonogram', 'sokoban', 'lights-out', 'mastermind'],
+      'Logic puzzles are the quiet, satisfying kind: no timer pressure unless you want it, no luck involved, just you and a solvable board that always has one right answer if you reason carefully enough. This collection gathers the deduction puzzles on the site for anyone who likes to think a few steps ahead. Fill a Sudoku grid without a contradiction, clear a minefield from the numbers alone, paint a hidden picture in a nonogram, slide the jammed blocks aside to free the trapped one in Unblock, connect every pair and fill every square in Flow, push crates onto their targets in sokoban, switch off every light, or crack a secret code in mastermind. Each one rewards patience and pattern-spotting rather than fast fingers, and every board is fair — the answer is always deducible, never a guess. They are free, run instantly in the browser with nothing to install, and save your progress locally so you can put a hard one down and come back to it. If you like the feeling of a puzzle clicking into place, start with any board below.',
+    games: ['sudoku', 'minesweeper', 'nonogram', 'unblock', 'flow', 'sokoban', 'lights-out', 'mastermind'],
     faq: [
       { q: 'Are these puzzles solvable by logic alone?', a: 'Yes. Every board has a unique solution reachable by deduction — no guessing or luck required.' },
       { q: 'Are they free and account-free?', a: 'Yes. Free in your browser, no download and no sign-up. Progress saves locally.' },
@@ -199,6 +199,24 @@ export const COLLECTIONS: Record<string, Collection> = {
       { q: 'Is there a timer?', a: 'Some track your time so you can beat your best, but you can take as long as you like to solve the board.' },
     ],
     accent: 'blue',
+  },
+
+  'brain-games': {
+    slug: 'brain-games',
+    h1: 'Free Brain Games',
+    title: 'Free Brain Games — Puzzles to Train Focus & Memory, No App',
+    metaDescription:
+      'Play free brain games online — puzzles and brain teasers that stretch memory, focus and reasoning. Flow, Unblock, Sudoku, memory, mastermind and more, in your browser, no download or sign-up.',
+    intro:
+      'Brain games are the ones you play to feel a little sharper afterwards — small puzzles that make you hold a plan in your head, spot a pattern, or reason your way to the only answer that fits. This collection pulls together the site’s best brain teasers into one place, mixing pure logic with memory and focus. Trace pipes to connect every pair and fill the grid in Flow, slide the jammed traffic aside to free the trapped block in Unblock, fill a Sudoku without a contradiction, hold a growing pattern in your head in the memory games, or crack a hidden code in mastermind. What they share is that they reward thinking over reflexes: there is no luck to blame and no timer forcing a rushed move unless you want the challenge. Every one is free, loads instantly in your browser with nothing to install, and saves your progress and best scores locally so you can build a daily habit. They work just as well on a phone during a commute as on a desktop, so pick a puzzle below and give your brain a proper workout.',
+    games: ['flow', 'unblock', 'sudoku', 'memory-game', 'mastermind', 'number-memory', 'nonogram', 'minesweeper'],
+    faq: [
+      { q: 'Do brain games actually help?', a: 'They are a fun, low-stakes way to practise focus, working memory and logical reasoning. Treat them as enjoyable mental exercise rather than a medical claim.' },
+      { q: 'Which one should I start with?', a: 'Flow and Unblock are the most approachable — clear rules and instant feedback. Sudoku and mastermind reward deeper, slower thinking.' },
+      { q: 'Are they free and account-free?', a: 'Yes. Every game is free in your browser with no sign-up and no download. Your progress and best scores save locally.' },
+      { q: 'Do they work on mobile?', a: 'Yes. They all support touch controls and scale to phones and tablets as well as desktop.' },
+    ],
+    accent: 'purple',
   },
 }
 

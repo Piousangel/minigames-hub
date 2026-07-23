@@ -42,6 +42,17 @@ JS 없으면 href=solitaire로 동작(점진적 향상). Math.random은 클릭 �
   MyGames/Recent/Goals 비어있음) 자리에 "이런 걸 해보세요" 유도, (c) 첫 게임 진입 시 30초
   온보딩 카드(objective+조작 글리프, 도메인 P3), (d) Featured 순서 A/B(데이터 붙으면).
 
+**전환 funnel 실측 + SEO 컬렉션:** 전환 레인을 더 팠는데, 실측 결과 funnel은 이미 건강했다.
+- 데스크톱 히어로: PLAY NOW CTA가 fold 중앙에 있어 OK(재구조 불필요).
+- 게임 페이지 board 아래 "거대한 공백"으로 보였던 건 **또 fullPage 스크린샷 아티팩트** —
+  SEO 섹션이 `<Reveal>`(스크롤 인터섹션)로 감싸여 스크롤 전엔 opacity:0. 실제 스크롤하면
+  How to play/Strategy/FAQ 정상 표시(opacity 1). **세 번째 같은 교훈 — 정적 스샷 불신, 상호작용 검증.**
+- 전환이 solid하니 실제 병목(트래픽)에서 움직일 수 있는 SEO 레버로: **신규 Flow·Unblock이
+  어느 컬렉션에도 없어 내부링크 고아**였고, 대용량 검색어 "brain games" 미커버였다.
+  → (a) logic-games에 flow·unblock 추가, (b) **신규 컬렉션 `brain-games`**(고유 intro 200+단어
+  + FAQ, 멤버 8종, flow·unblock 포함). 이제 두 신규 게임이 게임페이지 "ALSO IN"으로 역링크됨.
+  컬렉션 12종, 게임페이지 192개. collections.test 70 통과. 라이브 검증됨.
+
 ### ⚠️ 기존 테스트 인프라 이슈 (내 변경과 무관, 클린 main에도 존재)
 `pnpm test`가 유닛 **2338개 전부 통과**하지만 **4개 unhandled error**로 종료코드 비0:
 `ERR_INVALID_URL: /api/hit`. `src/lib/hit.ts`의 분석 비콘이 **jsdom에서 상대 URL**을 못 풀어
