@@ -21,16 +21,18 @@ export interface GameMeta {
   daily?: true
   /** 추가된 날짜 'YYYY-MM-DD'(UTC). 최근이면 홈 'New games' 행 + NEW 뱃지(자동 만료). */
   addedDate?: string
+  /** 엄선(Featured) — 잘 만든/찾는 게임. 홈 최상단 Featured 레일 + 추천 가중. 첫인상=체류. */
+  featured?: true
 }
 
 export const gameMeta: Record<string, GameMeta> = {
-  '2048': { icon: '🔢', accent: 'amber', category: 'Puzzle' },
+  '2048': { icon: '🔢', accent: 'amber', category: 'Puzzle', featured: true },
   '2048-animals': { icon: '🐾', accent: 'lime', category: 'Puzzle' },
-  snake: { icon: '🐍', accent: 'green', category: 'Arcade' },
-  minesweeper: { icon: '💣', accent: 'red', category: 'Puzzle' },
+  snake: { icon: '🐍', accent: 'green', category: 'Arcade', featured: true },
+  minesweeper: { icon: '💣', accent: 'red', category: 'Puzzle', featured: true },
   'memory-game': { icon: '🧠', accent: 'purple', category: 'Skill' },
   'typing-test': { icon: '⌨️', accent: 'cyan', category: 'Skill' },
-  tetris: { icon: '🧱', accent: 'blue', category: 'Arcade' },
+  tetris: { icon: '🧱', accent: 'blue', category: 'Arcade', featured: true },
   'sliding-puzzle': { icon: '🔀', accent: 'cyan', category: 'Puzzle' },
   breakout: { icon: '🧱', accent: 'magenta', category: 'Arcade' },
   'word-guess': { icon: '🔤', accent: 'lime', category: 'Puzzle' },
@@ -85,20 +87,20 @@ export const gameMeta: Record<string, GameMeta> = {
   handful: { icon: '🧺', accent: 'lime', category: 'Arcade', daily: true , addedDate: '2026-07-17' },
   flapjack: { icon: '🥞', accent: 'cyan', category: 'Puzzle', daily: true , addedDate: '2026-07-18' },
   interlock: { icon: '⛓️', accent: 'magenta', category: 'Puzzle', daily: true , addedDate: '2026-07-18' },
-  clusters: { icon: '🔠', accent: 'lime', category: 'Puzzle', daily: true , addedDate: '2026-07-19' },
-  quadle: { icon: '🔡', accent: 'cyan', category: 'Puzzle', daily: true, addedDate: '2026-07-20' },
-  equate: { icon: '🔢', accent: 'purple', category: 'Puzzle', daily: true, addedDate: '2026-07-20' },
-  reactor: { icon: '⚡', accent: 'green', category: 'Arcade', addedDate: '2026-07-20' },
-  solitaire: { icon: '🃏', accent: 'green', category: 'Classic', addedDate: '2026-07-20' },
+  clusters: { icon: '🔠', accent: 'lime', category: 'Puzzle', daily: true , addedDate: '2026-07-19', featured: true },
+  quadle: { icon: '🔡', accent: 'cyan', category: 'Puzzle', daily: true, addedDate: '2026-07-20', featured: true },
+  equate: { icon: '🔢', accent: 'purple', category: 'Puzzle', daily: true, addedDate: '2026-07-20', featured: true },
+  reactor: { icon: '⚡', accent: 'green', category: 'Arcade', addedDate: '2026-07-20', featured: true },
+  solitaire: { icon: '🃏', accent: 'green', category: 'Classic', addedDate: '2026-07-20', featured: true },
   freecell: { icon: '🎴', accent: 'cyan', category: 'Classic', addedDate: '2026-07-20' },
   spider: { icon: '🕷️', accent: 'purple', category: 'Classic', addedDate: '2026-07-20' },
   pyramid: { icon: '🔺', accent: 'amber', category: 'Classic', addedDate: '2026-07-20' },
   tripeaks: { icon: '⛰️', accent: 'green', category: 'Classic', addedDate: '2026-07-20' },
-  mahjong: { icon: '🐉', accent: 'red', category: 'Puzzle', addedDate: '2026-07-20' },
-  chess: { icon: '♟️', accent: 'cyan', category: 'Classic', addedDate: '2026-07-20' },
+  mahjong: { icon: '🐉', accent: 'red', category: 'Puzzle', addedDate: '2026-07-20', featured: true },
+  chess: { icon: '♟️', accent: 'cyan', category: 'Classic', addedDate: '2026-07-20', featured: true },
   'golf-solitaire': { icon: '⛳', accent: 'green', category: 'Classic', addedDate: '2026-07-20' },
   dominoes: { icon: '🎲', accent: 'amber', category: 'Classic', addedDate: '2026-07-20' },
-  jigsaw: { icon: '🧩', accent: 'magenta', category: 'Puzzle', addedDate: '2026-07-21' },
+  jigsaw: { icon: '🧩', accent: 'magenta', category: 'Puzzle', addedDate: '2026-07-21', featured: true },
   'yukon-solitaire': { icon: '🃏', accent: 'blue', category: 'Classic', addedDate: '2026-07-21' },
   gomoku: { icon: '⚫', accent: 'cyan', category: 'Classic', addedDate: '2026-07-22' },
 }

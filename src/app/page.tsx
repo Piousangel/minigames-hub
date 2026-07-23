@@ -6,6 +6,7 @@ import { siteConfig } from '@/lib/siteConfig'
 import { AdSlot } from '@/components/ads/AdSlot'
 import { GameBrowser, type BrowseItem } from '@/components/GameBrowser'
 import { Achievements } from '@/components/Achievements'
+import { FeaturedGames } from '@/components/FeaturedGames'
 import { Marquee } from '@/components/Marquee'
 import { MyGames } from '@/components/MyGames'
 import { NewGames } from '@/components/NewGames'
@@ -79,6 +80,9 @@ export default function Home() {
           </Link>
         ))}
       </nav>
+
+      {/* ===== Featured(엄선 — 최고 게임을 첫 화면에, 서버 렌더) ===== */}
+      <FeaturedGames items={items} />
 
       {/* ===== TODAY 보드(사이트 streak + 오늘 3게임 퀘스트 + 오늘의 픽) ===== */}
       <TodayBoard items={items} />

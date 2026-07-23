@@ -47,7 +47,18 @@ export function GameNavProvider({ slug, children }: { slug: string; children: Re
     const all = gamePages.map((g) => g.slug)
     const fresh = all.filter((s) => !excl.has(s))
     const sameCat = fresh.filter((s) => (gameMeta[s] ?? DEFAULT_META).category === cat)
-    const pool = sameCat.length > 0 ? sameCat : fresh.length > 0 ? fresh : all.filter((s) => s !== slug)
+    // 추천 가중: 잘 만든(featured) 게임을 우선 제안(같은 카테고리 우선 유지) → 다음 게임도 품질 위주.
+    const feat = (list: string[]) => list.filter((s) => gameMeta[s]?.featured)
+    const pool =
+      feat(sameCat).length > 0
+        ? feat(sameCat)
+        : sameCat.length > 0
+          ? sameCat
+          : feat(fresh).length > 0
+            ? feat(fresh)
+            : fresh.length > 0
+              ? fresh
+              : all.filter((s) => s !== slug)
     const nextSlug = pool.length > 0 ? pool[run % pool.length] : null
     const g = nextSlug ? gamePages.find((p) => p.slug === nextSlug) : null
     setNav({ nextSlug, nextTitle: g?.h1 ?? null, runCount: run })
