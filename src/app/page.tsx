@@ -7,6 +7,7 @@ import { AdSlot } from '@/components/ads/AdSlot'
 import { GameBrowser, type BrowseItem } from '@/components/GameBrowser'
 import { Achievements } from '@/components/Achievements'
 import { FeaturedGames } from '@/components/FeaturedGames'
+import { HeroPlayButton } from '@/components/HeroPlayButton'
 import { Marquee } from '@/components/Marquee'
 import { MyGames } from '@/components/MyGames'
 import { NewGames } from '@/components/NewGames'
@@ -55,6 +56,10 @@ export default function Home() {
         <p className="mx-auto max-w-xl text-sm leading-relaxed text-fg-muted sm:text-base">
           {siteConfig.description}
         </p>
+        {/* 1차 CTA — "즉시 플레이"를 실제 버튼으로. 콜드 방문자를 바로 게임에 진입시켜 활성화. */}
+        <div className="mt-7 flex justify-center">
+          <HeroPlayButton />
+        </div>
       </section>
 
       {/* ===== 아케이드 마퀴 티커 ===== */}

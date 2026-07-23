@@ -33,6 +33,15 @@ testid만 보고 통과 처리 금지. 이번 세션 3건 모두 이 방식으�
   느낌. **네온 타일로 교체**(발광 시안 오브=플레이어, 앰버 네온 크레이트, 타깃 앰버 링,
   베벨 네온 월; 타깃 안착 시 녹색 잠금+pop). 엔진 무변경(순수 로직), 렌더층만. 라이브 검증됨.
 
+**전환 레인 착수 — 히어로 "▶ PLAY NOW" CTA:** 신규 방문자 관점(빈 localStorage)으로 홈을
+캡처해 보니, **모바일 히어로가 첫 화면을 꽉 채우고 첫 플레이 게임(Featured)이 fold 아래**라
+"PLAY INSTANTLY"를 내걸면서 즉시 플레이 버튼이 없었다. → 히어로에 1차 CTA 추가
+(`HeroPlayButton.tsx`, 클라이언트). 클릭 시 엄선(graspable) 10종 중 랜덤 진입(활성화 최대화),
+JS 없으면 href=solitaire로 동작(점진적 향상). Math.random은 클릭 핸들러에서만. 라이브 검증됨.
+- **다음 전환/체류 후보**: (a) 데스크톱 히어로도 게임을 fold 위로, (b) 홈 빈 섹션(신규 유저에
+  MyGames/Recent/Goals 비어있음) 자리에 "이런 걸 해보세요" 유도, (c) 첫 게임 진입 시 30초
+  온보딩 카드(objective+조작 글리프, 도메인 P3), (d) Featured 순서 A/B(데이터 붙으면).
+
 ### ⚠️ 기존 테스트 인프라 이슈 (내 변경과 무관, 클린 main에도 존재)
 `pnpm test`가 유닛 **2338개 전부 통과**하지만 **4개 unhandled error**로 종료코드 비0:
 `ERR_INVALID_URL: /api/hit`. `src/lib/hit.ts`의 분석 비콘이 **jsdom에서 상대 URL**을 못 풀어
