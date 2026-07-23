@@ -53,6 +53,8 @@ const GameDominoes = dynamic(() => import('@/components/games/GameDominoes').the
 const GameJigsaw = dynamic(() => import('@/components/games/GameJigsaw').then((m) => m.GameJigsaw), { ssr: false, loading: Loading })
 const GameYukon = dynamic(() => import('@/components/games/GameYukon').then((m) => m.GameYukon), { ssr: false, loading: Loading })
 const GameGomoku = dynamic(() => import('@/components/games/GameGomoku').then((m) => m.GameGomoku), { ssr: false, loading: Loading })
+const GameFlow = dynamic(() => import('@/components/games/GameFlow').then((m) => m.GameFlow), { ssr: false, loading: Loading })
+const GameUnblock = dynamic(() => import('@/components/games/GameUnblock').then((m) => m.GameUnblock), { ssr: false, loading: Loading })
 const GamePolytap = dynamic(() => import('@/components/games/GamePolytap').then((m) => m.GamePolytap), { ssr: false, loading: Loading })
 const GameSonar = dynamic(() => import('@/components/games/GameSonar').then((m) => m.GameSonar), { ssr: false, loading: Loading })
 const GameProspector = dynamic(() => import('@/components/games/GameProspector').then((m) => m.GameProspector), { ssr: false, loading: Loading })
@@ -241,6 +243,10 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameYukon storageKey={`best:${page.slug}`} />
     case 'gomoku':
       return <GameGomoku storageKey={`best:${page.slug}`} />
+    case 'flow':
+      return <GameFlow storageKey={`best:${page.slug}`} />
+    case 'unblock':
+      return <GameUnblock storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

@@ -1,6 +1,35 @@
 # 인계: AdSense 승인받아 광고를 켜고, 게임 라운드를 계속 돌린다
 
-> 갱신: 2026-07-18 · 브랜치: `main` · 커밋 상태: **committed (scratch 외 트리 clean)** · 전부 배포됨
+> 갱신: 2026-07-23 · 브랜치: `main` · 커밋 상태: **committed** · 전부 배포됨
+
+## 2026-07-23 세션 — 품질 우선 전환 + Jigsaw 정비 + 신규 2종 (Flow·Unblock)
+전부 커밋·배포·**브라우저 실플레이 검증**됨. 게임 **79종**(라이브 `/flow` `/unblock` 200).
+
+**🔑 새 표준(CEO 지시, 메모리 [[quality-first-playtest-critique]]):** 게임은 "테스트 통과"가
+아니라 **"실제로 플레이해서 재밌는가"**로 출시 판단. 빌드 에이전트 스펙에 **셀프 플레이테스트+
+UX 크리틱** 단계를 필수로 넣고, 오케스트레이터가 **브라우저에서 직접 플레이**해 검증한다.
+testid만 보고 통과 처리 금지. 이번 세션 3건 모두 이 방식으로 스크린샷 검증까지 마침.
+
+- **Jigsaw 전면 정비**(사용자가 "이 퀄리티면 누가 와도 안 한다"고 지목): `artworkFor`를
+  랜덤 blob → **알아볼 수 있는 네온 씬 6종**(sunset/mountains/orbit/city/bokeh/burst)으로
+  재작성 + **그림 가이드 항상 표시**(조각이 그림을 채워가는 "맞는 느낌") + 홈 셀 앰버 발광 +
+  놓을 때 스냅 펄스 + 유리타일 엣지 + 헷갈리던 Score/Best → **Solved/Best**. 엔진 37 통과.
+- **Flow**(🔗 Puzzle, Flow Free식): 같은 색 점을 파이프로 잇고 격자를 꽉 채움. 손가락 추종
+  드래그(탭이 파이프 안 자름·스냅백 리트랙트), 항상 보이는 엔드포인트, 커버리지%, 지우개.
+  **엄선 레벨 26종**(5×5~7×7, 전부 solver로 solvable 증명). 엔진 35 통과. `flow/`.
+- **Unblock**(🚗 Puzzle, Rush Hour식): 블록을 축 방향으로 밀어 빨간 블록을 우측 출구로.
+  출구 레인+화살표로 목표 명확, par 달성 시 "Optimal!" 인식. **BFS 검증 레벨 27종**(par 2→25).
+  엔진 47 통과. `unblock/`.
+- 배선: registry(유니온+SEO)·GameRenderer(dynamic+switch)·gameMeta·**FeaturedGames 레일**에
+  flow/unblock 추가(featured). 둘 다 `best:<slug>`에 숫자 저장(리더보드 안전).
+
+### ⚠️ 기존 테스트 인프라 이슈 (내 변경과 무관, 클린 main에도 존재)
+`pnpm test`가 유닛 **2338개 전부 통과**하지만 **4개 unhandled error**로 종료코드 비0:
+`ERR_INVALID_URL: /api/hit`. `src/lib/hit.ts`의 분석 비콘이 **jsdom에서 상대 URL**을 못 풀어
+나는 것(실 브라우저는 정상). 스태시로 확인 — 내 3건 추가 전 main에서도 동일 4에러 발생.
+**회귀 아님.** 고치려면 hit.ts 비콘을 테스트 env에서 no-op 하거나 절대 URL 가드(별건 작업).
+
+
 
 ## 2026-07-18~19 자율 마라톤 세션 요약 ("묻지 말고 계속 디벨롭" + "팀으로 도메인 최고 사이트")
 전부 커밋·배포·검증됨. 게임 **61종**. **먼저 [DOMAIN.md](./DOMAIN.md) 읽을 것** — 도메인

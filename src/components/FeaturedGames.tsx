@@ -9,6 +9,8 @@ const FEATURED_ORDER = [
   'solitaire',
   'chess',
   '2048',
+  'flow',
+  'unblock',
   'mahjong',
   'clusters',
   'minesweeper',

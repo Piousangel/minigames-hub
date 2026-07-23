@@ -89,6 +89,8 @@ export type GamePage = GamePageBase &
     | { game: 'jigsaw' }
     | { game: 'yukon' }
     | { game: 'gomoku' }
+    | { game: 'flow' }
+    | { game: 'unblock' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2308,6 +2310,64 @@ export const gamePages: GamePage[] = [
       { q: 'Who goes first?', a: 'Black moves first, which is a small advantage — switch colours between games to keep it fair.' },
       { q: 'Is it free and account-free?', a: 'Yes. Gomoku plays free in your browser with no download and no sign-up. Your win record saves locally.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap an empty spot to place a stone. The board scales to fit phones and tablets as well as desktop.' },
+    ],
+  },
+  {
+    slug: 'flow',
+    game: 'flow',
+    title: 'Play Flow Free Online — Connect the Dots Pipe Puzzle',
+    h1: 'Flow',
+    metaDescription:
+      'Play Flow free online — connect each pair of coloured dots with a pipe and fill the whole grid without crossing. 26 hand-made levels from 5×5 to 7×7. No download, no sign-up.',
+    shortDescription: 'Connect the dots, fill the grid.',
+    howToPlay: [
+      'Drag from a coloured dot to its matching twin to lay a pipe of that colour.',
+      'Pipes cannot cross or overlap another pipe.',
+      'You win when every pair is connected AND every square is filled.',
+      'Drag back over your own pipe to erase it, or tap a colour dot below the board to clear it.',
+    ],
+    strategy: [
+      'Start with the corners and edges — they have the fewest ways in and out.',
+      'A pair on the same row or column rarely connects in a straight line; you usually need the detour to help fill the grid.',
+      'If a pipe would trap an empty square with only one opening, reroute — every cell must be reachable.',
+      'Full coverage is the real goal: connecting all pairs the short way often leaves gaps and does not solve the level.',
+      'Use Undo freely to test a route without losing your other pipes.',
+    ],
+    faq: [
+      { q: 'How do you win at Flow?', a: 'Connect every pair of same-coloured dots with a pipe AND fill all squares. Connecting the pairs alone is not enough — the whole grid must be covered.' },
+      { q: 'Can pipes cross each other?', a: 'No. Each square holds at most one pipe. If you drag into another colour’s pipe it stops; drag back over your own to shorten it.' },
+      { q: 'How many levels are there?', a: 'There are 26 hand-made levels that get bigger and trickier — nine 5×5, nine 6×6 and eight 7×7 boards. Your furthest level is saved locally.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Flow plays free in your browser with no download and no sign-up.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Drag with your finger from dot to dot. The board scales to fit phones, tablets and desktop.' },
+    ],
+  },
+  {
+    slug: 'unblock',
+    game: 'unblock',
+    title: 'Play Unblock Online — Free Sliding Block Puzzle (Rush Hour)',
+    h1: 'Unblock',
+    metaDescription:
+      'Play Unblock free online — slide the blocking cars out of the way and drive the red block out through the exit. 27 hand-made levels from easy to expert. No download, no sign-up.',
+    shortDescription: 'Slide the blocks, free the red one.',
+    howToPlay: [
+      'Drag a block along its own axis — horizontal blocks move left/right, vertical blocks move up/down.',
+      'Blocks stop against the walls and against each other; they cannot turn or jump.',
+      'Clear a path so the red block can slide out through the gap on the right edge.',
+      'Solve each level in as few moves as you can — every level has a known best.',
+    ],
+    strategy: [
+      'Work backwards from the exit: find what is directly blocking the red block, then what blocks that.',
+      'A vertical block only helps when it slides fully clear of the red block’s row — half-way is still in the way.',
+      'Do not shuffle blindly; each move should open a specific block’s path, not just rearrange the jam.',
+      'Corner and edge blocks have the least freedom — plan their one useful move early.',
+      'If you are stuck, Undo back a few moves and try freeing a different blocker first.',
+    ],
+    faq: [
+      { q: 'How do you win at Unblock?', a: 'Slide the other blocks out of the way until the red block has a clear path, then slide it out through the gap on the right edge.' },
+      { q: 'Which way can blocks move?', a: 'Only along their own length. A horizontal block slides left and right; a vertical block slides up and down. They never rotate.' },
+      { q: 'How many levels are there?', a: 'There are 27 hand-made levels, verified solvable, from 2-move warm-ups up to a 25-move expert. Your best move count per level is saved locally.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Unblock plays free in your browser with no download and no sign-up.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Drag blocks with your finger, or tap a block then tap where it should go. The board scales to fit any screen.' },
     ],
   },
 ]

@@ -103,6 +103,8 @@ export const gameMeta: Record<string, GameMeta> = {
   jigsaw: { icon: '🧩', accent: 'magenta', category: 'Puzzle', addedDate: '2026-07-21', featured: true },
   'yukon-solitaire': { icon: '🃏', accent: 'blue', category: 'Classic', addedDate: '2026-07-21' },
   gomoku: { icon: '⚫', accent: 'cyan', category: 'Classic', addedDate: '2026-07-22' },
+  flow: { icon: '🔗', accent: 'cyan', category: 'Puzzle', addedDate: '2026-07-23', featured: true },
+  unblock: { icon: '🚗', accent: 'red', category: 'Puzzle', addedDate: '2026-07-23', featured: true },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']
