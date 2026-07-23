@@ -22,6 +22,7 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   equate: { label: 'Score' },
   reactor: { label: 'Charge' },
   solitaire: { label: 'Score' },
+  yahtzee: { label: 'Score' },
   freecell: { label: 'Score' },
   spider: { label: 'Score' },
   pyramid: { label: 'Score' },

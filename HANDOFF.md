@@ -53,6 +53,16 @@ JS 없으면 href=solitaire로 동작(점진적 향상). Math.random은 클릭 �
   + FAQ, 멤버 8종, flow·unblock 포함). 이제 두 신규 게임이 게임페이지 "ALSO IN"으로 역링크됨.
   컬렉션 12종, 게임페이지 192개. collections.test 70 통과. 라이브 검증됨.
 
+**신규 게임 Yahtzee(🎲) — 검색 트래픽 겨냥한 랜딩:** 기술/온페이지 SEO가 이미 성숙
+(게임페이지 VideoGame/FAQPage/Breadcrumb, 컬렉션 스키마 완비)이라, 트래픽 레버 중 남은 건
+"랭크 못 하는 고검색어에 랜딩 만들기". **주사위 게임이 전무**했고 "yahtzee online free"는
+대량 검색·즉시친숙·무에셋·가족친화(AdSense 안전). 품질 우선 프로세스로 빌드(에이전트
+셀프 플레이테스트 + **잠재점수 프리뷰** 필수) → 배선 → **브라우저 실플레이 검증**
+(굴림·홀드 라임 배지·리롤·프리뷰 갱신·13턴). 엔진 60 테스트, 게임 80종.
+- best:<slug>에 총점 plain number 저장 → **리더보드 편입**(주간 경쟁=재방문). featured·Classic.
+- ⚠️ 배포 직후 /yahtzee가 status 200인데 title이 404였음 = **엣지 캐시 stale 404**(알려진 현상,
+  §4). out/yahtzee.html·sitemap 정상이면 배포는 옳은 것 — 캐시버스터 쿼리로 fresh 확인하고 폴링.
+
 ### ⚠️ 기존 테스트 인프라 이슈 (내 변경과 무관, 클린 main에도 존재)
 `pnpm test`가 유닛 **2338개 전부 통과**하지만 **4개 unhandled error**로 종료코드 비0:
 `ERR_INVALID_URL: /api/hit`. `src/lib/hit.ts`의 분석 비콘이 **jsdom에서 상대 URL**을 못 풀어

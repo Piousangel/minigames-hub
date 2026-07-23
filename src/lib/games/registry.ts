@@ -91,6 +91,7 @@ export type GamePage = GamePageBase &
     | { game: 'gomoku' }
     | { game: 'flow' }
     | { game: 'unblock' }
+    | { game: 'yahtzee' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2368,6 +2369,35 @@ export const gamePages: GamePage[] = [
       { q: 'How many levels are there?', a: 'There are 27 hand-made levels, verified solvable, from 2-move warm-ups up to a 25-move expert. Your best move count per level is saved locally.' },
       { q: 'Is it free and account-free?', a: 'Yes. Unblock plays free in your browser with no download and no sign-up.' },
       { q: 'Does it work on mobile?', a: 'Yes. Drag blocks with your finger, or tap a block then tap where it should go. The board scales to fit any screen.' },
+    ],
+  },
+  {
+    slug: 'yahtzee',
+    game: 'yahtzee',
+    title: 'Play Yahtzee Online — Free Dice Game, No App or Sign-Up',
+    h1: 'Yahtzee',
+    metaDescription:
+      'Play Yahtzee free online — roll five dice, hold the ones you want and fill all 13 scoring boxes for the highest total. Live score previews, upper bonus, Yahtzee bonus. No download, no sign-up.',
+    shortDescription: 'Roll the dice, fill the scorecard.',
+    howToPlay: [
+      'Roll all five dice, then tap any dice to HOLD them and re-roll the rest — up to three rolls per turn.',
+      'When you are happy, tap a scorecard row to bank the roll into that category.',
+      'Every unused row shows the score you would get right now, so you can pick the best one.',
+      'Fill all 13 categories over 13 turns; score 63+ in the upper section for a +35 bonus.',
+    ],
+    strategy: [
+      'Chase the upper bonus early — banking three or more of each number from Ones to Sixes hits 63 and adds 35.',
+      'Keep the Chance box in reserve for a wasted roll instead of zeroing a big category.',
+      'Hold toward a Large Straight (40) or Full House (25) only when a couple of dice already fit — do not force it.',
+      'Score a rubbish roll into Ones or Twos rather than throwing away Yahtzee, Large Straight or Four of a Kind.',
+      'Once you have scored a 50 Yahtzee, every extra five-of-a-kind is worth a +100 bonus — hold for it if you are close.',
+    ],
+    faq: [
+      { q: 'How do you score a Yahtzee?', a: 'Roll five dice of the same number and bank it in the Yahtzee box for 50 points. Each extra Yahtzee after that adds a +100 bonus.' },
+      { q: 'How many rolls do I get per turn?', a: 'Up to three. Roll all five, hold any you like, re-roll the rest, and you can do that twice more before you must score.' },
+      { q: 'What is the upper bonus?', a: 'If the six upper boxes (Ones through Sixes) add up to 63 or more, you get a +35 bonus — roughly three of each number.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Yahtzee plays free in your browser with no download and no sign-up. Your best total saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap dice to hold and tap a row to score. The dice and scorecard scale to fit phones and tablets.' },
     ],
   },
 ]
