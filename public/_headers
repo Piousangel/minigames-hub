@@ -5,3 +5,8 @@
   Content-Type: image/png
 /*/opengraph-image
   Content-Type: image/png
+# 파비콘/앱아이콘도 확장자 없는 PNG(Next 생성) → 구글/브라우저가 이미지로 인식하게 image/png 명시.
+/icon
+  Content-Type: image/png
+/apple-icon
+  Content-Type: image/png
