@@ -33,16 +33,6 @@ const KEY_DIRS: Record<string, Direction> = {
   D: 'right',
 }
 
-const TILE_EMOJI: Record<TileKind, string> = {
-  wall: '🧱',
-  floor: '',
-  target: '🎯',
-  box: '📦',
-  'box-on-target': '📦',
-  player: '🙂',
-  'player-on-target': '🙂',
-}
-
 const bestKey = (storageKey: string, level: number) => `${storageKey}:lvl${level}`
 
 function loadBest(storageKey: string, level: number): number | null {
@@ -212,7 +202,8 @@ export function GameSokoban({ storageKey }: { storageKey: string }) {
     doMove(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up')
   }
 
-  const hint = 'Arrow keys / WASD or swipe to move. Push every 📦 onto a 🎯. Z to undo.'
+  const hint =
+    'Arrow keys / WASD or swipe to move the orb. Push every crate onto a glowing ring — it locks green. Z to undo.'
 
   if (!state) {
     return (
@@ -299,24 +290,58 @@ export function GameSokoban({ storageKey }: { storageKey: string }) {
                   data-kind={kind}
                   className={`relative flex aspect-square items-center justify-center text-lg leading-none sm:text-xl ${cellBg(kind)}`}
                 >
-                  {(kind === 'target' || isBoxOnTarget) && (
+                  {/* Target marker — a glowing amber ring, under any box/player. */}
+                  {(kind === 'target' || isBoxOnTarget || kind === 'player-on-target') && (
                     <span
                       aria-hidden="true"
-                      className={`pointer-events-none absolute inset-0 flex items-center justify-center text-base opacity-70 ${
-                        isBoxOnTarget ? '' : 'sok-glow'
+                      className={`pointer-events-none absolute h-[44%] w-[44%] rounded-full ${
+                        isBoxOnTarget || kind === 'player-on-target' ? '' : 'sok-glow'
                       }`}
-                    >
-                      🎯
-                    </span>
+                      style={{ border: '2px solid var(--neon-amber)', boxShadow: '0 0 8px var(--neon-amber)' }}
+                    />
                   )}
-                  {TILE_EMOJI[kind] && (
+                  {/* Wall — a beveled neon-slate block. */}
+                  {kind === 'wall' && (
                     <span
-                      key={isPlayerCell ? nudge?.key ?? 0 : undefined}
                       aria-hidden="true"
-                      className={`relative ${nudgeClass}`}
-                    >
-                      {TILE_EMOJI[kind]}
-                    </span>
+                      className="pointer-events-none absolute inset-[6%] rounded-[3px]"
+                      style={{
+                        background: 'linear-gradient(to bottom, rgba(120,150,235,0.30), rgba(80,100,175,0.12))',
+                        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22), inset 0 0 0 1px rgba(130,150,235,0.4)',
+                      }}
+                    />
+                  )}
+                  {/* Box — a neon crate; turns green and pops when it locks onto a target. */}
+                  {(kind === 'box' || isBoxOnTarget) && (
+                    <span
+                      key={isPushedBox ? nudge?.key ?? 0 : undefined}
+                      aria-hidden="true"
+                      className={`pointer-events-none absolute inset-[15%] rounded-[5px] ${
+                        isBoxOnTarget ? 'sok-pop' : ''
+                      } ${isPushedBox ? nudgeClass : ''}`}
+                      style={{
+                        background: isBoxOnTarget
+                          ? 'color-mix(in srgb, var(--neon-green) 45%, transparent)'
+                          : 'color-mix(in srgb, var(--neon-amber) 28%, transparent)',
+                        border: `2px solid ${isBoxOnTarget ? 'var(--neon-green)' : 'var(--neon-amber)'}`,
+                        boxShadow: isBoxOnTarget
+                          ? '0 0 10px var(--neon-green), inset 0 0 6px rgba(52,227,155,0.5)'
+                          : '0 0 6px var(--neon-amber), inset 0 0 5px rgba(251,191,36,0.4)',
+                      }}
+                    />
+                  )}
+                  {/* Player — a glowing neon orb (the site's "play" identity). */}
+                  {isPlayerCell && (
+                    <span
+                      key={nudge?.key ?? 0}
+                      aria-hidden="true"
+                      className={`pointer-events-none absolute inset-[20%] rounded-full ${nudgeClass}`}
+                      style={{
+                        background:
+                          'radial-gradient(circle at 40% 34%, #ffffff, var(--neon-cyan) 52%, rgba(34,211,238,0.18) 80%)',
+                        boxShadow: '0 0 10px var(--neon-cyan), 0 0 3px #ffffff',
+                      }}
+                    />
                   )}
                 </div>
               )
@@ -409,8 +434,9 @@ function DpadButton({
 }
 
 function cellBg(kind: TileKind): string {
-  if (kind === 'wall') return 'bg-white/10'
-  return 'bg-white/[0.03]'
+  // Walls now render their own beveled block; keep the cell base a faint floor
+  // so the grid reads without competing with the neon pieces.
+  return kind === 'wall' ? 'bg-white/[0.04]' : 'bg-white/[0.02]'
 }
 
 function nudgeAnim(dir: Direction): string {
