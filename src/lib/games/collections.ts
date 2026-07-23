@@ -98,10 +98,10 @@ export const COLLECTIONS: Record<string, Collection> = {
     h1: 'Free 2 Player Games',
     title: 'Free 2 Player Games — Chess, Checkers & Classics vs a Friend',
     metaDescription:
-      'Play free 2 player games online — chess, checkers, connect four, reversi, tic-tac-toe and dots and boxes. Take turns against a friend or the computer, in your browser, no download.',
+      'Play free 2 player games online — chess, checkers, connect four, mancala, reversi, tic-tac-toe and dots and boxes. Take turns against a friend or the computer, in your browser, no download.',
     intro:
-      'Some games are best with an opponent, and these are the timeless ones — quick to learn, endlessly replayable, and just as fun across a table as against a clever computer. This collection rounds up the turn-based classics on the site: outsmart your rival in chess, jump pieces in checkers, drop discs to connect four, flip the board in reversi, line up three in tic-tac-toe, and close the most squares in dots and boxes. Each plays instantly in the browser with no download and no sign-up, and you can pass-and-play with a friend on the same device or test yourself against a built-in opponent at the difficulty you choose. They are the kind of games that fill a spare few minutes without any setup — no board to dig out, no pieces to lose. Pick one below, choose your side, and take the first move. Every one works on phone, tablet and desktop, so the next match is always a tap away.',
-    games: ['chess', 'checkers', 'connect-four', 'gomoku', 'reversi', 'dominoes', 'tic-tac-toe', 'dots-and-boxes'],
+      'Some games are best with an opponent, and these are the timeless ones — quick to learn, endlessly replayable, and just as fun across a table as against a clever computer. This collection rounds up the turn-based classics on the site: outsmart your rival in chess, jump pieces in checkers, drop discs to connect four, sow and capture in mancala, flip the board in reversi, line up three in tic-tac-toe, and close the most squares in dots and boxes. Each plays instantly in the browser with no download and no sign-up, and you can pass-and-play with a friend on the same device or test yourself against a built-in opponent at the difficulty you choose. They are the kind of games that fill a spare few minutes without any setup — no board to dig out, no pieces to lose. Pick one below, choose your side, and take the first move. Every one works on phone, tablet and desktop, so the next match is always a tap away.',
+    games: ['chess', 'checkers', 'connect-four', 'gomoku', 'mancala', 'reversi', 'dominoes', 'tic-tac-toe', 'dots-and-boxes'],
     faq: [
       { q: 'Can I play these against a friend?', a: 'Yes. These turn-based classics work as pass-and-play on one device, and several also offer a computer opponent.' },
       { q: 'Are they free?', a: 'Yes. Every game is free in your browser with no account and no download.' },
@@ -217,6 +217,24 @@ export const COLLECTIONS: Record<string, Collection> = {
       { q: 'Do they work on mobile?', a: 'Yes. They all support touch controls and scale to phones and tablets as well as desktop.' },
     ],
     accent: 'purple',
+  },
+
+  'family-games': {
+    slug: 'family-games',
+    h1: 'Free Family Games',
+    title: 'Free Family Games Online — Classic Tabletop Games, No App',
+    metaDescription:
+      'Play free family games online — the classic tabletop games everyone knows: Yahtzee, Mancala, dominoes, connect four, checkers and chess. Simple rules, quick rounds, in your browser, no download or sign-up.',
+    intro:
+      'These are the games that come out at the kitchen table — the ones with rules simple enough for a kid and enough bite to keep a grown-up hooked. This collection gathers the timeless tabletop classics in one place, no box to dig out and no pieces to lose down the sofa. Roll for a full house in Yahtzee, sow and capture your way around a Mancala board, match the ends in dominoes, drop discs to connect four, jump for a double in checkers, or settle it over a game of chess. They are the kind of games that turn ten spare minutes into a proper round, whether you are passing a phone back and forth on a car trip or playing the computer while you wait. Every one is free, loads instantly in the browser with nothing to install, keeps your record or best score locally, and scales cleanly to a phone, tablet or laptop. Pick a game below and deal everyone in.',
+    games: ['yahtzee', 'mancala', 'dominoes', 'connect-four', 'checkers', 'chess', 'gomoku'],
+    faq: [
+      { q: 'Which of these is best for younger players?', a: 'Connect four, dominoes and Mancala have the simplest rules and quick rounds, so they are easy for kids to pick up while still fun for adults.' },
+      { q: 'Can we play together on one device?', a: 'Yes. The two-player games support pass-and-play on a single phone or tablet, and several also offer a computer opponent when you are on your own.' },
+      { q: 'Are they really free?', a: 'Yes. Every game is free in your browser with no account and no download. Your win record or best score saves locally.' },
+      { q: 'Do they work on a phone?', a: 'Yes. All of them are built mobile-first with big touch targets and scale to phones, tablets and desktops.' },
+    ],
+    accent: 'amber',
   },
 }
 

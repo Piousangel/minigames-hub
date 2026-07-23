@@ -92,6 +92,7 @@ export type GamePage = GamePageBase &
     | { game: 'flow' }
     | { game: 'unblock' }
     | { game: 'yahtzee' }
+    | { game: 'mancala' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2398,6 +2399,35 @@ export const gamePages: GamePage[] = [
       { q: 'What is the upper bonus?', a: 'If the six upper boxes (Ones through Sixes) add up to 63 or more, you get a +35 bonus — roughly three of each number.' },
       { q: 'Is it free and account-free?', a: 'Yes. Yahtzee plays free in your browser with no download and no sign-up. Your best total saves locally.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap dice to hold and tap a row to score. The dice and scorecard scale to fit phones and tablets.' },
+    ],
+  },
+  {
+    slug: 'mancala',
+    game: 'mancala',
+    title: 'Play Mancala Online — Free Kalah Board Game vs Computer or 2 Player',
+    h1: 'Mancala',
+    metaDescription:
+      'Play Mancala (Kalah) free online — sow the stones around the board, land in your store to go again, and capture to build the biggest pile. Versus the computer at three levels or two players. No download, no sign-up.',
+    shortDescription: 'Sow the stones, fill your store.',
+    howToPlay: [
+      'On your turn, pick one of your own pits and sow its stones one by one counter-clockwise.',
+      'Sow into your own store (on your right) but skip your opponent’s store.',
+      'If your last stone lands in your store, you take another turn.',
+      'If it lands in an empty pit on your side, capture that stone and the pit directly opposite into your store.',
+    ],
+    strategy: [
+      'Chain extra turns: a pit with exactly the right number of stones to end in your store lets you move again.',
+      'Set up captures — leave a pit empty so a later sow lands there and grabs a full pit opposite.',
+      'Watch your opponent’s threats; a pit poised to reach their store hands them a free extra move.',
+      'Late game, hoard stones on your own side — when a side empties, each player keeps the stones left on theirs.',
+      'Loading your rightmost pits keeps more sowings ending in your store instead of feeding the opponent.',
+    ],
+    faq: [
+      { q: 'How do you win Mancala?', a: 'Collect more stones in your store than your opponent. The game ends when one side’s pits are empty, and each player banks the stones remaining on their own side.' },
+      { q: 'When do I get an extra turn?', a: 'Whenever the last stone you sow lands in your own store. Chaining extra turns is the heart of good Mancala play.' },
+      { q: 'How does a capture work?', a: 'If your last stone lands in an empty pit on your own side, you capture that stone plus every stone in the pit directly across from it, into your store.' },
+      { q: 'Can I play the computer?', a: 'Yes — choose Easy, Medium or Hard. The computer uses real look-ahead, takes captures and chains extra turns. Two-player pass-and-play is also available.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Mancala plays free in your browser with no download and no sign-up. Your win record saves locally.' },
     ],
   },
 ]

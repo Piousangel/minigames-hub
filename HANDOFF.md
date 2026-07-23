@@ -63,6 +63,16 @@ JS 없으면 href=solitaire로 동작(점진적 향상). Math.random은 클릭 �
 - ⚠️ 배포 직후 /yahtzee가 status 200인데 title이 404였음 = **엣지 캐시 stale 404**(알려진 현상,
   §4). out/yahtzee.html·sitemap 정상이면 배포는 옳은 것 — 캐시버스터 쿼리로 fresh 확인하고 폴링.
 
+**신규 게임 Mancala(🪙) + family-games 컬렉션:** 검색 랜딩 레버 계속 — "mancala online"은
+견실한 검색, 우리 검증된 "보드게임 vs CPU" 패턴(chess/checkers/reversi)에 그대로 맞고
+데이터·에셋 의존 없음. 품질 우선 빌드(에이전트 셀프 플레이테스트 + **실제 alpha-beta 미니맥스
+AI** 2/5/8 plies)로 Kalah 규칙 구현. 배선 → **브라우저 실플레이 검증**(씨뿌리기·추가턴 발동
+·소유/방향 명확·AI 응답). 엔진 47 테스트. 게임 81종.
+- W/L/D 기록 저장(체커/리버시 패턴, 리더보드 아님). featured·Classic. "You's turn"→"Your turn" 폴리시.
+- **컬렉션 정비**: mancala를 two-player-games에 편입 + 신규 **family-games**(yahtzee+mancala+
+  dominoes+connect-four+checkers+chess+gomoku, "family games online" 타깃) → 지금까지 고아였던
+  Yahtzee·Mancala가 게임페이지 "ALSO IN" 역링크 획득. 컬렉션 13종, collections.test 76 통과.
+
 ### ⚠️ 기존 테스트 인프라 이슈 (내 변경과 무관, 클린 main에도 존재)
 `pnpm test`가 유닛 **2338개 전부 통과**하지만 **4개 unhandled error**로 종료코드 비0:
 `ERR_INVALID_URL: /api/hit`. `src/lib/hit.ts`의 분석 비콘이 **jsdom에서 상대 URL**을 못 풀어
