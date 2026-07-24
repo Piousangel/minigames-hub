@@ -42,6 +42,11 @@ JS 없으면 href=solitaire로 동작(점진적 향상). Math.random은 클릭 �
   MyGames/Recent/Goals 비어있음) 자리에 "이런 걸 해보세요" 유도, (c) 첫 게임 진입 시 30초
   온보딩 카드(objective+조작 글리프, 도메인 P3), (d) Featured 순서 A/B(데이터 붙으면).
 
+**신규 게임 Battleship(🚢, 실제 hunt/target AI):** 재심사 대기 중 리뷰-안전한 가족친화 검색
+랜딩. "battleship online" 대량 검색, 없던 추격/추론 장르. 확률밀도 hunt/target AI 3단(easy 96.7
+vs hard 43.6 shots로 추격 입증), 자동배치 기본. 순수 엔진 44 테스트, 브라우저 실플레이 검증.
+고유 intro + family-games 편입. W/L 저장, featured·Classic. 게임 82종.
+
 **🔴 AdSense "가치가 별로 없는 콘텐츠"(low value content) 거부 대응 (2026-07-24):**
 AdSense가 사이트를 검토 후 거부(사유: 가치 낮은 콘텐츠). ads.txt는 승인됨. 신생·무트래픽
 미니게임 허브의 흔한 거부 — 콘텐츠만으로 100% 해결 안 됨(연령·트래픽도 반영), 재심사 여러 번
@@ -52,8 +57,11 @@ AdSense가 사이트를 검토 후 거부(사유: 가치 낮은 콘텐츠). ads.
 - ✅ **전 게임(81종) "About this game" 고유 intro 완성**(`gameIntros.ts` 맵 + GamePageLayout 렌더).
   각 게임에 실제 규칙·전략·역사 기반 ≈150~220단어 고유 산문(템플릿/필러 아님). 3 병렬 에이전트
   초안 → 리뷰·병합. 이제 색인 페이지가 board+템플릿 위에 편집 가치를 갖는다.
-- ⏳ **남은 것**: 재심사 결과 대기. 실패 시 콘텐츠 더 깊이거나 트래픽(커뮤니티 게시=사용자 몫)
-  붙은 뒤 재도전. 허브 페이지(daily/unblocked/leaderboards)는 얇은 편이나 우선순위 낮음.
+- ✅ **leaderboards 허브**도 실질 콘텐츠(작동 설명 2문단 + FAQ 4항목) 보강. daily/unblocked·
+  category·collections는 이미 intro/FAQ 보유. 이제 모든 색인 페이지 유형이 실질 콘텐츠 갖춤.
+- ⏳ **재심사 신청 완료(2026-07-24), 결과 최소 이틀.** 통과면 광고 켜기(§7.2 순서: 슬롯 ID 교체
+  먼저 → adsenseEnabled true). 재거부면 사유 확인 후 콘텐츠 더 깊이거나 트래픽(커뮤니티 게시=
+  사용자 몫) 붙은 뒤 재도전 — 신생 사이트는 후자가 결정적일 때 많음.
 
 **전환 funnel 실측 + SEO 컬렉션:** 전환 레인을 더 팠는데, 실측 결과 funnel은 이미 건강했다.
 - 데스크톱 히어로: PLAY NOW CTA가 fold 중앙에 있어 OK(재구조 불필요).
