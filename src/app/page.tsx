@@ -8,6 +8,7 @@ import { GameBrowser, type BrowseItem } from '@/components/GameBrowser'
 import { Achievements } from '@/components/Achievements'
 import { FeaturedGames } from '@/components/FeaturedGames'
 import { HeroPlayButton } from '@/components/HeroPlayButton'
+import { HomeAbout } from '@/components/HomeAbout'
 import { Marquee } from '@/components/Marquee'
 import { MyGames } from '@/components/MyGames'
 import { NewGames } from '@/components/NewGames'
@@ -106,6 +107,9 @@ export default function Home() {
 
       {/* ===== 검색 + 필터 + 랜덤 + 게임 그리드 ===== */}
       <GameBrowser items={items} />
+
+      {/* ===== 실질 편집 콘텐츠(사이트 목적·차별점·구성) — 심사자 착지 페이지의 고유 가치 ===== */}
+      <HomeAbout />
 
       {/* 하단 광고 자리(승인 전엔 렌더 안 됨) */}
       <AdSlot slot="home-footer" className="mt-14" />
