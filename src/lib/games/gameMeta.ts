@@ -107,6 +107,7 @@ export const gameMeta: Record<string, GameMeta> = {
   unblock: { icon: '🚗', accent: 'red', category: 'Puzzle', addedDate: '2026-07-23', featured: true },
   yahtzee: { icon: '🎲', accent: 'amber', category: 'Classic', addedDate: '2026-07-23', featured: true },
   mancala: { icon: '🪙', accent: 'lime', category: 'Classic', addedDate: '2026-07-23', featured: true },
+  battleship: { icon: '🚢', accent: 'blue', category: 'Classic', addedDate: '2026-07-24', featured: true },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

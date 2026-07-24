@@ -227,7 +227,7 @@ export const COLLECTIONS: Record<string, Collection> = {
       'Play free family games online — the classic tabletop games everyone knows: Yahtzee, Mancala, dominoes, connect four, checkers and chess. Simple rules, quick rounds, in your browser, no download or sign-up.',
     intro:
       'These are the games that come out at the kitchen table — the ones with rules simple enough for a kid and enough bite to keep a grown-up hooked. This collection gathers the timeless tabletop classics in one place, no box to dig out and no pieces to lose down the sofa. Roll for a full house in Yahtzee, sow and capture your way around a Mancala board, match the ends in dominoes, drop discs to connect four, jump for a double in checkers, or settle it over a game of chess. They are the kind of games that turn ten spare minutes into a proper round, whether you are passing a phone back and forth on a car trip or playing the computer while you wait. Every one is free, loads instantly in the browser with nothing to install, keeps your record or best score locally, and scales cleanly to a phone, tablet or laptop. Pick a game below and deal everyone in.',
-    games: ['yahtzee', 'mancala', 'dominoes', 'connect-four', 'checkers', 'chess', 'gomoku'],
+    games: ['yahtzee', 'mancala', 'battleship', 'dominoes', 'connect-four', 'checkers', 'chess', 'gomoku'],
     faq: [
       { q: 'Which of these is best for younger players?', a: 'Connect four, dominoes and Mancala have the simplest rules and quick rounds, so they are easy for kids to pick up while still fun for adults.' },
       { q: 'Can we play together on one device?', a: 'Yes. The two-player games support pass-and-play on a single phone or tablet, and several also offer a computer opponent when you are on your own.' },

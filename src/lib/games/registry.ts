@@ -93,6 +93,7 @@ export type GamePage = GamePageBase &
     | { game: 'unblock' }
     | { game: 'yahtzee' }
     | { game: 'mancala' }
+    | { game: 'battleship' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2428,6 +2429,35 @@ export const gamePages: GamePage[] = [
       { q: 'How does a capture work?', a: 'If your last stone lands in an empty pit on your own side, you capture that stone plus every stone in the pit directly across from it, into your store.' },
       { q: 'Can I play the computer?', a: 'Yes — choose Easy, Medium or Hard. The computer uses real look-ahead, takes captures and chains extra turns. Two-player pass-and-play is also available.' },
       { q: 'Is it free and account-free?', a: 'Yes. Mancala plays free in your browser with no download and no sign-up. Your win record saves locally.' },
+    ],
+  },
+  {
+    slug: 'battleship',
+    game: 'battleship',
+    title: 'Play Battleship Online — Free Naval Strategy Game vs Computer',
+    h1: 'Battleship',
+    metaDescription:
+      'Play Battleship free online — place your fleet, then fire on a 10×10 grid to hunt and sink the computer’s ships before it sinks yours. Smart hunting AI at three levels. No download, no sign-up.',
+    shortDescription: 'Hunt and sink the enemy fleet.',
+    howToPlay: [
+      'Place your five ships on your grid, or tap Auto-place to set the whole fleet at once.',
+      'Take turns firing at one cell of the enemy grid — a shot is a hit or a miss.',
+      'Hit every cell of a ship to sink it; sink all five enemy ships to win.',
+      'Watch the enemy’s shots on your own grid and protect your remaining ships.',
+    ],
+    strategy: [
+      'Fire in a checkerboard pattern while hunting — no ship longer than one cell can hide from it, so you cover the board in half the shots.',
+      'After a hit, fire the four cells around it to find the ship’s direction, then follow that line until it sinks.',
+      'Spread your own ships out and avoid clustering them, so one lucky enemy hit does not reveal two ships.',
+      'Keep count of which enemy ships are still afloat — knowing a 5-length Carrier remains tells you where it can still fit.',
+      'Placing ships flush against the edges makes them a little harder for a probability-based opponent to find.',
+    ],
+    faq: [
+      { q: 'How do you win at Battleship?', a: 'Be the first to sink your opponent’s entire fleet — all five ships — by hitting every cell each ship occupies.' },
+      { q: 'How big is the fleet?', a: 'Five ships: a Carrier (5 cells), a Battleship (4), a Cruiser (3), a Submarine (3) and a Destroyer (2), placed on a 10×10 grid.' },
+      { q: 'Does the computer play a real strategy?', a: 'Yes. On Normal and Hard it hunts with a parity pattern and, once it lands a hit, targets the surrounding cells and follows the ship’s line until it sinks — it does not fire at random.' },
+      { q: 'Do I have to place my own ships?', a: 'Only if you want to. Tap Auto-place to drop the whole fleet legally in one go, or place and rotate each ship yourself.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Battleship plays free in your browser with no download and no sign-up. Your win record saves locally.' },
     ],
   },
 ]
