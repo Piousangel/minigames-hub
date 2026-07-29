@@ -58,6 +58,7 @@ const GameUnblock = dynamic(() => import('@/components/games/GameUnblock').then(
 const GameYahtzee = dynamic(() => import('@/components/games/GameYahtzee').then((m) => m.GameYahtzee), { ssr: false, loading: Loading })
 const GameMancala = dynamic(() => import('@/components/games/GameMancala').then((m) => m.GameMancala), { ssr: false, loading: Loading })
 const GameBattleship = dynamic(() => import('@/components/games/GameBattleship').then((m) => m.GameBattleship), { ssr: false, loading: Loading })
+const GameKakuro = dynamic(() => import('@/components/games/GameKakuro').then((m) => m.GameKakuro), { ssr: false, loading: Loading })
 const GamePolytap = dynamic(() => import('@/components/games/GamePolytap').then((m) => m.GamePolytap), { ssr: false, loading: Loading })
 const GameSonar = dynamic(() => import('@/components/games/GameSonar').then((m) => m.GameSonar), { ssr: false, loading: Loading })
 const GameProspector = dynamic(() => import('@/components/games/GameProspector').then((m) => m.GameProspector), { ssr: false, loading: Loading })
@@ -256,6 +257,8 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameMancala storageKey={`best:${page.slug}`} />
     case 'battleship':
       return <GameBattleship storageKey={`best:${page.slug}`} />
+    case 'kakuro':
+      return <GameKakuro storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

@@ -94,6 +94,7 @@ export type GamePage = GamePageBase &
     | { game: 'yahtzee' }
     | { game: 'mancala' }
     | { game: 'battleship' }
+    | { game: 'kakuro' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2458,6 +2459,35 @@ export const gamePages: GamePage[] = [
       { q: 'Does the computer play a real strategy?', a: 'Yes. On Normal and Hard it hunts with a parity pattern and, once it lands a hit, targets the surrounding cells and follows the ship’s line until it sinks — it does not fire at random.' },
       { q: 'Do I have to place my own ships?', a: 'Only if you want to. Tap Auto-place to drop the whole fleet legally in one go, or place and rotate each ship yourself.' },
       { q: 'Is it free and account-free?', a: 'Yes. Battleship plays free in your browser with no download and no sign-up. Your win record saves locally.' },
+    ],
+  },
+  {
+    slug: 'kakuro',
+    game: 'kakuro',
+    title: 'Play Kakuro Online — Free Cross Sums Number Puzzle, No App',
+    h1: 'Kakuro',
+    metaDescription:
+      'Play Kakuro free online — fill the white cells 1–9 so every run adds up to its clue with no repeated digits. 16 hand-checked puzzles from easy to expert, with notes and a combo helper. No download, no sign-up.',
+    shortDescription: 'Cross-sums: fill the grid to the clues.',
+    howToPlay: [
+      'Fill each empty white cell with a digit from 1 to 9.',
+      'Every horizontal and vertical run of white cells must add up to the clue number for that run.',
+      'No digit may repeat within the same run.',
+      'The clue for an across run sits in the top-right of the black cell to its left; a down-run clue sits in the bottom-left of the black cell above it.',
+    ],
+    strategy: [
+      'Start with the most constrained runs — a two-cell run summing to 3 can only be 1+2, and a 17 can only be 8+9.',
+      'Use the combo helper: it lists which sets of digits can make a run’s sum in the number of cells it has.',
+      'Work the crossings — a cell shared by an across run and a down run must satisfy both, which often pins it to one digit.',
+      'Pencil in candidates when a cell has a few options, then eliminate as the crossing runs fill in.',
+      'It is pure logic — every puzzle has exactly one solution, so you never need to guess.',
+    ],
+    faq: [
+      { q: 'How is Kakuro different from Sudoku?', a: 'Both are no-repeat number logic puzzles, but in Kakuro the clues are sums: each run of white cells must total its clue number, and digits only can’t repeat within a run rather than across a whole row or box.' },
+      { q: 'Can a digit repeat in a run?', a: 'No. Within any single across or down run every digit must be different, though the same digit can appear in a different run that crosses it.' },
+      { q: 'Do I have to guess?', a: 'Never. Every puzzle here is checked to have exactly one solution reachable by logic, so careful deduction always gets you there.' },
+      { q: 'What does the combo helper do?', a: 'For the selected run it shows the possible sets of digits that add up to the clue in that many cells — the classic Kakuro solving aid.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Kakuro plays free in your browser with no download and no sign-up. Your best times save locally.' },
     ],
   },
 ]
