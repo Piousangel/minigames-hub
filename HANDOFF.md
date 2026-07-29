@@ -42,6 +42,20 @@ JS 없으면 href=solitaire로 동작(점진적 향상). Math.random은 클릭 �
   MyGames/Recent/Goals 비어있음) 자리에 "이런 걸 해보세요" 유도, (c) 첫 게임 진입 시 30초
   온보딩 카드(objective+조작 글리프, 도메인 P3), (d) Featured 순서 A/B(데이터 붙으면).
 
+## 2026-07-29 세션 — 재심사 대기 중 안전·고확신 개선 (breadth 포화 → 품질·리텐션)
+- **AdSense 재심사 진행 중** — 대시보드 "준비 중"(저품질 플래그 걷힘), Gmail에 7/24 이후 새 거부
+  메일 없음. 미결·대기. 새 거부 오면 대응.
+- **건강 스윕**: 유닛 2501 통과·타입체크·프로덕션 200, 7종 추가 회귀 없음.
+- **lint 정상화**: `eslint.config.mjs` ignores에 `out/**` 추가 — `pnpm lint`가 export 산출물
+  스캔해 12에러+4992경고로 항상 실패하던 것 해소(이제 소스만, 에러 0). pre-merge 훅 복구.
+- **Featured 레일 수정**: yahtzee·mancala·battleship이 gameMeta엔 featured였으나 FeaturedGames
+  고정 리스트에 빠져 홈 첫인상에 안 떴음 → 추가.
+- **PWA 설치 아이콘**: manifest에 192·512 PNG(any+maskable) 추가(`src/app/icons/pwa-192|512/route.tsx`
+  + `_logo.tsx`, force-static ImageResponse) + _headers image/png → Android/Chrome "홈 화면에 추가"
+  기준 충족(재방문 레버). ⚠️ Satori는 CSS-보더 삼각형을 사각형으로 렌더 → 재생 아이콘은 **SVG
+  polygon** 써야 함(pwa 아이콘·favicon 둘 다 교정). ⚠️ 신규 /icons 경로는 배포 직후 엣지캐시 404,
+  캐시버스터로 확인.
+
 **신규 게임 Battleship(🚢, 실제 hunt/target AI):** 재심사 대기 중 리뷰-안전한 가족친화 검색
 랜딩. "battleship online" 대량 검색, 없던 추격/추론 장르. 확률밀도 hunt/target AI 3단(easy 96.7
 vs hard 43.6 shots로 추격 입증), 자동배치 기본. 순수 엔진 44 테스트, 브라우저 실플레이 검증.
