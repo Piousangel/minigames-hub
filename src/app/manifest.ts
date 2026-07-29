@@ -17,6 +17,10 @@ export default function manifest(): MetadataRoute.Manifest {
     categories: ['games', 'entertainment'],
     icons: [
       { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
+      // Android/Chrome 설치 기준: 192·512 PNG 필수. maskable로 적응형 아이콘도 대응.
+      { src: '/icons/pwa-192', sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: '/icons/pwa-512', sizes: '512x512', type: 'image/png', purpose: 'any' },
+      { src: '/icons/pwa-512', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
       { src: '/apple-icon', sizes: '180x180', type: 'image/png' },
     ],
   }
