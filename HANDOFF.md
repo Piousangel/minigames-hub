@@ -42,6 +42,13 @@ JS 없으면 href=solitaire로 동작(점진적 향상). Math.random은 클릭 �
   MyGames/Recent/Goals 비어있음) 자리에 "이런 걸 해보세요" 유도, (c) 첫 게임 진입 시 30초
   온보딩 카드(objective+조작 글리프, 도메인 P3), (d) Featured 순서 A/B(데이터 붙으면).
 
+## 2026-08-03 세션 — 재심사 계속 대기(quickminigames 무소식·미결) → 내부링크 SEO
+- **AdSense 재심사 여전히 미결**: Gmail 기준 quickminigames.site 앞 새 메일 없음(7/24 재신청 후
+  10일째). 최근 AdSense 메일은 fibercalc.site 건(별도 프로젝트, 8/2 저품질 거부). 계속 대기.
+- **고아 게임 33종 컬렉션 편입(내부링크 SEO, 리뷰-안전)**: 어느 컬렉션에도 없던 게임들을 홈 처리.
+  신규 컬렉션 `original-games`(오리지널 네온 27종, 홈 차별점과 일치, 고유 intro+FAQ) + 클래식 6종을
+  기존 컬렉션에 배치. 고아 0, 컬렉션 14종. 전 게임이 게임페이지 "ALSO IN" 백링크 보유.
+
 ## 2026-07-29 세션 — 재심사 대기 중 안전·고확신 개선 (breadth 포화 → 품질·리텐션)
 - **신규 게임 Kakuro(➕)** — 크로스섬 로직. solver로 16 퍼즐 유니크 해 증명(121 테스트), SVG 분할
   클루 셀, run 하이라이트·콤보 보조·사용숫자 딤. best:<slug>=풀이수(plain number), 시간은 별도 키.
