@@ -65,7 +65,7 @@ export const COLLECTIONS: Record<string, Collection> = {
       'Hooked on 2048? Play free games like it — slide and merge number tiles, match gems, and stack blocks to chase a high score. In your browser, no download, no sign-up.',
     intro:
       'The magic of 2048 is the one-more-slide compulsion: every swipe merges tiles, doubles a number, and inches you toward a bigger goal while the board quietly fills up. If that pull is what you are after, this set delivers the same tile-sliding, number-climbing, just-one-more-run feeling for free in your browser. You will find the original doubling game and a themed twist on it, plus games that share its DNA in different shapes — matching gems into clears, stacking falling blocks into tidy rows, and building tall towers a tap at a time. They all reward planning a couple of moves ahead and punish greedy ones, and each keeps your best score locally so there is always a number to beat. Nothing to install and no account to make — pick a board and start climbing. Your high score saves in the browser, and many of these have a weekly online leaderboard if you want to push past your personal best.',
-    games: ['2048', '2048-animals', 'gem-match', 'tetris', 'tower-stack', 'bubble-shooter'],
+    games: ['2048', '2048-animals', 'gem-match', 'tetris', 'tower-stack', 'sliding-puzzle', 'bubble-shooter'],
     faq: [
       { q: 'Is the original 2048 here?', a: 'Yes — the classic slide-and-merge game plus an animal-themed variant with the same doubling mechanic.' },
       { q: 'What makes a game "like 2048"?', a: 'The merge-and-climb loop: combine matching pieces into bigger ones and chase a high score. Tile-matching, stacking and tower games share that pull.' },
@@ -137,7 +137,7 @@ export const COLLECTIONS: Record<string, Collection> = {
       'Loved Snake? Play free games like it — fast retro arcade games where one more run always beats your high score. Tetris, breakout, space shooter and more, in your browser, no download.',
     intro:
       'Snake is the phone-era classic that taught a generation the one-more-go reflex: a simple rule, a rising high score, and a run that ends the instant you get greedy. If that twitchy, keep-going arcade feeling is what you are chasing, this shelf is built for it. These are fast, free browser games where a single mistake ends the run and the only goal is to beat the number you got last time — dodge, stack, blast and pop your way up the board. Stack falling blocks into clean rows, break every brick, shoot down waves in space, or thread a bird through gaps that keep coming. None of them need a download or an account, they load in a second, and your best score is saved right in the browser so there is always a target on your back. Several also feed a weekly online leaderboard if you want to see how your reflexes stack up against everyone else. Pick a cabinet below and start a run.',
-    games: ['snake', 'tetris', 'breakout', 'space-shooter', 'flappy', 'bubble-shooter'],
+    games: ['snake', 'tetris', 'breakout', 'space-shooter', 'flappy', 'pong', 'bubble-shooter'],
     faq: [
       { q: 'What makes a game "like Snake"?', a: 'The arcade high-score loop: a simple rule, a run that ends on one mistake, and the pull to immediately try again and beat your last score.' },
       { q: 'Are they free with no download?', a: 'Yes. Every game runs instantly in your browser with no install and no account.' },
@@ -155,7 +155,7 @@ export const COLLECTIONS: Record<string, Collection> = {
       'Only have five minutes? Play free quick games — reaction time, aim trainer, whack-a-mole, typing test and more. Instant fun on a break, in your browser, no download.',
     intro:
       'Sometimes you just want a quick hit of fun on a coffee break, in a queue, or between tasks — no tutorial, no long game to commit to, just pick up and play. These are the fastest games on the site, the kind you can start and finish in a couple of minutes and still walk away with a score to beat next time. Test how fast you can react to a flash of colour, snap your aim onto targets before they vanish, whack moles as they pop, race the clock to type as many words as you can, or repeat a growing pattern until your memory cracks. Each one is instant to start, needs no download or account, and saves your best result locally so a spare moment always has a tiny challenge waiting. They are perfect for a short break and just as good for a quick warm-up before something longer. Grab any of them below — you will be playing within a second or two.',
-    games: ['reaction-time', 'aim-trainer', 'whack-a-mole', 'typing-test', 'simon', 'number-memory'],
+    games: ['reaction-time', 'aim-trainer', 'whack-a-mole', 'typing-test', 'simon', 'number-memory', 'rock-paper-scissors', 'maze'],
     faq: [
       { q: 'How long do these take?', a: 'A minute or two each. They are designed for a quick break — start, play a round, beat your score, done.' },
       { q: 'Are they free?', a: 'Yes. Free in your browser with no download and no account.' },
@@ -209,7 +209,7 @@ export const COLLECTIONS: Record<string, Collection> = {
       'Play free brain games online — puzzles and brain teasers that stretch memory, focus and reasoning. Flow, Unblock, Sudoku, memory, mastermind and more, in your browser, no download or sign-up.',
     intro:
       'Brain games are the ones you play to feel a little sharper afterwards — small puzzles that make you hold a plan in your head, spot a pattern, or reason your way to the only answer that fits. This collection pulls together the site’s best brain teasers into one place, mixing pure logic with memory and focus. Trace pipes to connect every pair and fill the grid in Flow, slide the jammed traffic aside to free the trapped block in Unblock, fill a Sudoku without a contradiction, hold a growing pattern in your head in the memory games, or crack a hidden code in mastermind. What they share is that they reward thinking over reflexes: there is no luck to blame and no timer forcing a rushed move unless you want the challenge. Every one is free, loads instantly in your browser with nothing to install, and saves your progress and best scores locally so you can build a daily habit. They work just as well on a phone during a commute as on a desktop, so pick a puzzle below and give your brain a proper workout.',
-    games: ['flow', 'unblock', 'sudoku', 'kakuro', 'memory-game', 'mastermind', 'number-memory', 'nonogram', 'minesweeper'],
+    games: ['flow', 'unblock', 'sudoku', 'kakuro', 'memory-game', 'mahjong', 'mastermind', 'number-memory', 'nonogram', 'minesweeper'],
     faq: [
       { q: 'Do brain games actually help?', a: 'They are a fun, low-stakes way to practise focus, working memory and logical reasoning. Treat them as enjoyable mental exercise rather than a medical claim.' },
       { q: 'Which one should I start with?', a: 'Flow and Unblock are the most approachable — clear rules and instant feedback. Sudoku and mastermind reward deeper, slower thinking.' },
@@ -227,7 +227,7 @@ export const COLLECTIONS: Record<string, Collection> = {
       'Play free family games online — the classic tabletop games everyone knows: Yahtzee, Mancala, dominoes, connect four, checkers and chess. Simple rules, quick rounds, in your browser, no download or sign-up.',
     intro:
       'These are the games that come out at the kitchen table — the ones with rules simple enough for a kid and enough bite to keep a grown-up hooked. This collection gathers the timeless tabletop classics in one place, no box to dig out and no pieces to lose down the sofa. Roll for a full house in Yahtzee, sow and capture your way around a Mancala board, match the ends in dominoes, drop discs to connect four, jump for a double in checkers, or settle it over a game of chess. They are the kind of games that turn ten spare minutes into a proper round, whether you are passing a phone back and forth on a car trip or playing the computer while you wait. Every one is free, loads instantly in the browser with nothing to install, keeps your record or best score locally, and scales cleanly to a phone, tablet or laptop. Pick a game below and deal everyone in.',
-    games: ['yahtzee', 'mancala', 'battleship', 'dominoes', 'connect-four', 'checkers', 'chess', 'gomoku'],
+    games: ['yahtzee', 'mancala', 'battleship', 'dominoes', 'connect-four', 'checkers', 'chess', 'gomoku', 'jigsaw'],
     faq: [
       { q: 'Which of these is best for younger players?', a: 'Connect four, dominoes and Mancala have the simplest rules and quick rounds, so they are easy for kids to pick up while still fun for adults.' },
       { q: 'Can we play together on one device?', a: 'Yes. The two-player games support pass-and-play on a single phone or tablet, and several also offer a computer opponent when you are on your own.' },
@@ -235,6 +235,52 @@ export const COLLECTIONS: Record<string, Collection> = {
       { q: 'Do they work on a phone?', a: 'Yes. All of them are built mobile-first with big touch targets and scale to phones, tablets and desktops.' },
     ],
     accent: 'amber',
+  },
+
+  'original-games': {
+    slug: 'original-games',
+    h1: 'Original Games',
+    title: 'Original Online Games — Unique Games You Won’t Find Elsewhere',
+    metaDescription:
+      'Play original games you won’t find anywhere else — small, inventive puzzle, skill and nerve games designed and built just for Quick MiniGames. Free in your browser, no download, no sign-up.',
+    intro:
+      'Most game sites are shelves stacked with the same titles borrowed from around the web. This is the opposite: a collection of games that were invented, designed and coded specifically for this site — small original ideas you genuinely will not find anywhere else. Each one is built around a single clever mechanic that takes seconds to learn and a while to master. Some are pure logic: herd a fleeing target you can only sense in Quarry, snip a network into single-colour groups in Splice, pour colours that sink by weight in Decant, or drive two mirrored tokens with one input in Duplex. Some are tests of timing and nerve: swing from peg to peg on momentum alone in Latch, hold two clashing rhythms at once in Polytap, dive for treasure before your air runs out in Deepdive, or ride a hot streak and cash out before it breaks in Ticker. Others chase a high score through cascading chain reactions, like the one-tap bolt of Ricochet or the spreading overload of a full board. They share a look — retro neon — and a philosophy: one idea, taught instantly, deep enough to keep you chasing a better run. Every one is free, loads in about a second in your browser, saves your best locally, and asks for no account. If you have played the classics to death, this is where to find something new.',
+    games: [
+      'ricochet',
+      'splice',
+      'quarry',
+      'decant',
+      'duplex',
+      'pinwheel',
+      'overfold',
+      'sonar',
+      'latch',
+      'flywheel',
+      'overdub',
+      'deepdive',
+      'umbra',
+      'reactor',
+      'cleave',
+      'fuse',
+      'polytap',
+      'ripple',
+      'ticker',
+      'backspace',
+      'stackpot',
+      'zero-hour',
+      'overload',
+      'prospector',
+      'flapjack',
+      'interlock',
+      'handful',
+    ],
+    faq: [
+      { q: 'What makes these games “original”?', a: 'They were not cloned or embedded from elsewhere — each was designed and coded from scratch for this site, around a mechanic you will not find in the usual game portals.' },
+      { q: 'Are they hard to learn?', a: 'No. Each is built around one idea you can pick up in a few seconds; the depth comes from mastering it and chasing a higher score, not from complicated rules.' },
+      { q: 'Are they free and account-free?', a: 'Yes. Every game here is free in your browser with no download and no sign-up. Your best scores save locally, and several feed a weekly leaderboard.' },
+      { q: 'Do they work on mobile?', a: 'Yes. They are built mobile-first with touch controls and scale to phones, tablets and desktops.' },
+    ],
+    accent: 'magenta',
   },
 }
 
