@@ -607,6 +607,36 @@ test('leaderboards: 허브 페이지 로드', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Leaderboards', level: 1 })).toBeVisible()
 })
 
+test('flow: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/flow')
+  await expect(page.getByTestId('flow-board')).toBeVisible()
+})
+
+test('unblock: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/unblock')
+  await expect(page.getByTestId('unblock-board')).toBeVisible()
+})
+
+test('yahtzee: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/yahtzee')
+  await expect(page.getByTestId('yahtzee-board')).toBeVisible()
+})
+
+test('mancala: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/mancala')
+  await expect(page.getByTestId('mancala-board')).toBeVisible()
+})
+
+test('battleship: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/battleship')
+  await expect(page.getByTestId('battleship-board')).toBeVisible()
+})
+
+test('kakuro: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/kakuro')
+  await expect(page.getByTestId('kakuro-board')).toBeVisible()
+})
+
 test('unblocked 랜딩: 로드 + 게임 그리드', async ({ page }) => {
   await page.goto('/unblocked')
   await expect(page.getByRole('heading', { name: 'Unblocked Games', level: 1 })).toBeVisible()
