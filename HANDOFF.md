@@ -1,6 +1,82 @@
 # 인계: AdSense 승인받아 광고를 켜고, 게임 라운드를 계속 돌린다
 
-> 갱신: 2026-07-23 · 브랜치: `main` · 커밋 상태: **committed** · 전부 배포됨
+> 갱신: 2026-08-04 · 브랜치: `main` · 커밋 상태: **committed & merged (PR #1)** · 배포 진행 중
+
+## 2026-08-04 세션 — 게임 라운드10 (Beatline·Skew·Turntile) + UI/UX 감사 상위 5건
+
+사용자가 "팀 회의 거쳐서 신규 게임 개발" 요청 → `minigames-round` 워크플로우 실행(20 에이전트).
+**돌리기 전 `EXISTING` 상수를 최근 6종(flow/unblock/yahtzee/mancala/battleship/kakuro) 반영해
+갱신함** — 이전 세션까지 누락돼 있었다(재탕 방지). `/ship`으로 13개 커밋 + PR #1 생성 → 리뷰에서
+실버그 5건 추가 발견·수정(아래) → `/land-and-deploy`로 머지.
+
+⚠️ **머지 중 발견: 로컬 `main`이 2026-07-23부터 24개 커밋을 GitHub에 push 안 하고 있었다**(이번
+세션 이전부터 있던 상황 — 과거 세션들이 로컬 커밋만 하고 push를 빠뜨려 온 것으로 보임). GitHub의
+`main`은 그만큼 오래된 지점에 머물러 있었고, PR #1은 그 오래된 지점 위에 squash됐다. 배포는
+git과 무관하게 로컬에서 직접 하는 구조(`pnpm run deploy`)라 실서비스엔 문제없었지만, 저장소
+자체가 크게 뒤처져 있었다. `git merge origin/main`으로 두 이력을 합치며 6개 파일 충돌(전부
+"같은 게임을 다른 경로로 이미 추가함" 유형 — 실제 로직 충돌 아님) 해결 후 push.
+**교훈: 세션 끝에 `git push`를 빠뜨리지 않았는지 확인할 것 — `git status`가 clean이어도 로컬이
+origin보다 앞서 있을 수 있다.**
+
+**신규 게임 3종 — 전부 배선·검증 완료(로컬):**
+- **Beatline**(🎧 Skill, featured) — 4레인 리듬게임. D/F/J/K로 판정선 노트를 침, Perfect/Good
+  판정, 5스테이지, 라이프. 엔진 33 테스트.
+- **Skew**(📐 Puzzle) — 스와이프 대신 보드 전체를 좌/우로 "기울여서"(shear) 대각선 매치.
+  6×8, 5색, 무효수 없음(매 tilt가 항상 보드를 바꿈), 30틸트 예산. 엔진 31 테스트.
+- **Turntile**(🔄 Puzzle) — 2×2 블록을 뒤집으면 점대칭 재배치+뒷면 공개, 4칸 같은 무늬면 잠김.
+  뒤집기가 자기 역원(=언두 불필요). 엔진 25 테스트.
+- 게임 **83 → 86종**. 배선 6곳(registry/GameRenderer/gameMeta/e2e/leaderboard/objectives) 전부
+  오케스트레이터가 직접(에이전트는 자기 파일 3개만). `pnpm build`(210 라우트) + 유닛 2717 +
+  e2e 103 전부 GREEN.
+
+**빌드 에이전트 산출물에서 실버그 2건 발견·수정(브라우저 실검증으로만 잡힘 — testid만 봤으면 놓쳤다):**
+1. **Beatline 한국어 UI 문자열** — 빌드 에이전트가 hint 3개 + GameOverlay title 2개를 한국어로
+   작성(`'완주! 오늘의 곡 클리어'` 등). 사이트는 전역 영어(글로벌 검색 트래픽 모델) — 스크린샷으로
+   실제 렌더링을 봐서야 발견. 6곳 전부 영어로 교체. **교훈: 신규 게임 컴포넌트는 브라우저로 열어
+   텍스트를 직접 읽을 것 — grep이나 testid 통과로는 안 잡힌다.**
+2. **Mahjong 반응형 스케일링(감사 #5) 첫 구현이 동작 안 함** — `useLayoutEffect(..., [])`로
+   ResizeObserver를 붙였는데, 마운트 첫 렌더는 로딩 스켈레톤(다른 DOM, ref 없음)이라 `el`이
+   `null`이라 옵저버가 아예 안 붙음. Game2048의 검증된 패턴(`[state !== null]` 의존성)으로 고침.
+   **추가로 패딩 버그도 발견**: `el.clientWidth`가 `p-2`(16px) 패딩을 포함해서 스케일이
+   16px만큼 과대산정 → 가로 오버플로 발생. `(el.clientWidth - 16) / BOARD_W`로 수정.
+   ⚠️ **자동화 브라우저 탭은 backgrounded 상태면 `ResizeObserver`가 paint-throttle로 안 돈다**
+   (`document.hidden===true`). 검증하려면 스크린샷(강제 paint) 이후 DOM을 다시 읽을 것.
+
+**UI/UX 감사(5차원, 11건 → 상위 5건) — 전부 구현·로컬 검증 완료:**
+- **#1 Flow 리더보드 미등록** — `leaderboard.ts`에 `flow: { label: 'Level' }` 1줄 추가.
+- **#2 objectives.ts 6종 누락**(flow/unblock/yahtzee/mancala/battleship/kakuro, registry엔
+  있으나 목표 배너가 안 뜸) — 6줄 추가. 신규 3종도 같이 추가.
+- **#3 Ricochet/Stackpot/Quarry에 day-streak 신설** — `dailyStreak.ts` 헬퍼 재사용(Overfold
+  패턴). ⚠️ **Quarry엔 이미 `streak`(런 내 콤보, `data-testid="streak"`)가 있어 이름 충돌** —
+  새 변수는 `dayStreak`/`data-testid="day-streak"`로 분리. 완료 시점: Quarry는 `status==='lost'`
+  (데일리 런 종료), Ricochet은 `outcome.state.over`, Stackpot은 `state.over` 이펙트.
+- **#4 패션스 4종(Spider/FreeCell/Yukon/Solitaire) 수동 "No moves left" 버튼** — 자동 막힘
+  감지는 오탐 위험 커서 배제(감사가 명시적으로 금지), 대신 버튼 클릭 시
+  `GameOverlay variant="lose"` 발동 → 사이트 핵심 리텐션 넛지("Next: {game}")가 처음으로
+  이 4종에서도 발동. `recordResult(slug,{won:false})`로 첫 패배 기록도 남김.
+- **#5 Mahjong 모바일 반응형** — `ResizeObserver` + `transform:scale()`로 보드 전체 축소
+  (좌표계·클릭핸들러 불변, Game2048 패턴). 버그 2건은 위 참고.
+- **하지 말 것 목록(감사가 명시, 착수 안 함)**: daily 모드 토글 라벨 15종 전면 통일, 카드류
+  8종 FLIP 애니메이션, Score float 8종 일괄추가(polish, 가치 낮음), Reversi/Mancala
+  Losses 노출 + Chess Losses 신설(범위 혼재), 자동 막힘감지(오탐 위험).
+
+**검증(전부 로컬 실행, 라이브 미배포):**
+```
+pnpm typecheck && pnpm lint && pnpm vitest run && pnpm build && pnpm e2e
+```
+typecheck 클린 / lint 0 에러(경고 15개 전부 기존) / 유닛 2717 통과(gameStats.test.ts의
+`ERR_INVALID_URL /api/hit` 4건은 기존 jsdom 이슈, 회귀 아님 — §"기존 테스트 인프라 이슈" 참고) /
+build 210라우트 성공 / e2e 103 통과. 브라우저(Chrome MCP)로 Beatline/Skew/Turntile 렌더,
+Spider "No moves left"→lose 오버레이→"Next" 넛지, Mahjong 375px/300px 스케일+탭 히트테스트
+전부 직접 확인.
+
+**`/ship` 프리랜딩 리뷰에서 추가로 실버그 5건 더 발견·수정**(체크리스트+4 스페셜리스트+레드팀):
+Beatline/Turntile이 `daily:true` 누락으로 `/daily`·홈 필터에서 안 보였음(daily 노출 경로 회귀
+클래스, 기존 e2e 테스트가 정확히 이 케이스를 잡아냄), "No moves left"→Undo→재클릭으로 패배
+기록 중복 가능(일반 플레이로도 도달 가능), Turntile 보드가 좁은 화면에서 오버플로(폴백 없음),
+Turntile 터치타깃 36→44px, `beatline`의 `featured:true`가 홈 고정 리스트(`FeaturedGames.tsx`)에
+누락(과거 동일 버그 재발). 전부 커밋·검증 완료. `TODOS.md` 신설(jsdom+RTL 검토 P2, 커스텀
+아이콘 3종 P3). 최종 13개 커밋 → PR #1 → `/land-and-deploy`로 머지.
 
 ## 2026-07-23 세션 — 품질 우선 전환 + Jigsaw 정비 + 신규 2종 (Flow·Unblock)
 전부 커밋·배포·**브라우저 실플레이 검증**됨. 게임 **79종**(라이브 `/flow` `/unblock` 200).

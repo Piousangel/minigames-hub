@@ -7,6 +7,7 @@ import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import * as R from '@/lib/games/ricochet/engine'
 import { todayUTC as todayISO } from '@/lib/dailyDate'
+import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
 import { shareDaily, gradeMore, barGlyph, resultSnippet } from '@/lib/dailyShare'
 
 // Component-scoped keyframes — globals.css stays untouched.
@@ -102,6 +103,7 @@ export function GameRicochet({ storageKey }: { storageKey: string }) {
   const [state, setState] = useState<R.GameState | null>(null)
   const [best, setBest] = useState(0)
   const [bestChain, setBestChain] = useState(0)
+  const [dayStreak, setDayStreak] = useState(0)
   const [mode, setMode] = useState<R.Mode>('endless')
 
   // Animation state.
@@ -193,6 +195,7 @@ export function GameRicochet({ storageKey }: { storageKey: string }) {
     const cv = Number.isFinite(c) && c > 0 ? c : 0
     bestChainRef.current = cv
     setBestChain(cv)
+    setDayStreak(currentStreak(loadStreak(`${storageKey}:streak`)))
 
     // 우선순위: ?seed=(공유 링크) > 저장 모드 > daily(기본). 홈의 Daily 필터가
     // 이 게임을 가리키므로 저장값이 없으면 daily로 연다.
@@ -235,6 +238,13 @@ export function GameRicochet({ storageKey }: { storageKey: string }) {
       play('win')
     } else {
       setNewChain(false)
+    }
+
+    if (outcome.state.over && modeRef.current === 'daily') {
+      const streakKey = `${storageKey}:streak`
+      const bumped = bumpStreak(loadStreak(streakKey))
+      saveStreak(streakKey, bumped)
+      setDayStreak(bumped.streak)
     }
 
     setIsAnimating(false)
@@ -436,6 +446,7 @@ export function GameRicochet({ storageKey }: { storageKey: string }) {
         { label: 'Score', value: state?.score ?? 0, testId: 'score', float: true },
         { label: 'Best', value: best },
         { label: 'Longest', value: bestChain },
+        ...(isDaily ? [{ label: 'Day Streak', value: dayStreak, testId: 'day-streak' }] : []),
       ]}
       headerExtra={<ModeToggle mode={mode} onChange={switchMode} disabled={isAnimating} />}
       onNewGame={() => startGame(mode, isDaily ? state?.seed : undefined)}

@@ -77,4 +77,13 @@ export const OBJECTIVES: Record<string, string> = {
   jigsaw: 'Place every piece to complete the picture.',
   'yukon-solitaire': 'Move all cards to the four foundations.',
   gomoku: 'Get five of your stones in a row to win.',
+  flow: 'Connect every pair of coloured dots and fill the whole grid.',
+  unblock: 'Slide the blocks aside to drive the red block out.',
+  yahtzee: 'Fill all 13 scoring boxes for the highest total.',
+  mancala: 'Collect more stones in your store than your opponent.',
+  battleship: "Sink the enemy's entire fleet before yours goes down.",
+  kakuro: 'Fill the grid so every run of cells adds up to its clue.',
+  beatline: 'Hit every falling note in the right lane, on the beat.',
+  skew: 'Tilt the board to line up colours before your tilts run out.',
+  turntile: 'Flip blocks until every tile on the board matches.',
 }
