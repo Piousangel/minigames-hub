@@ -105,6 +105,7 @@ export function GameSpider({ storageKey }: { storageKey: string }) {
   const [best, setBest] = useState(0)
   const [elapsed, setElapsed] = useState(0)
   const [difficulty, setDifficulty] = useState<SuitCount>(1)
+  const [manuallyEnded, setManuallyEnded] = useState(false)
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reduced } = useReducedMotion()
@@ -113,6 +114,10 @@ export function GameSpider({ storageKey }: { storageKey: string }) {
   const prevOverRef = useRef(false)
   const startRef = useRef(0)
   const difficultyRef = useRef<SuitCount>(1)
+  // manuallyEnded is UI state (Undo resets it so the overlay can close and play resume) —
+  // this ref tracks whether THIS deal already recorded a loss, independent of Undo, so
+  // click "No moves left" → Undo → click "No moves left" again can't double-record a loss.
+  const lossRecordedRef = useRef(false)
   const slug = storageKey.replace(/^best:/, '')
 
   const commit = useCallback((next: State) => {
@@ -201,6 +206,8 @@ export function GameSpider({ storageKey }: { storageKey: string }) {
       setHistory([])
       setSel(null)
       setElapsed(0)
+      setManuallyEnded(false)
+      lossRecordedRef.current = false
       commit(createGame(freshSeed(), count))
     },
     [commit],
@@ -210,12 +217,23 @@ export function GameSpider({ storageKey }: { storageKey: string }) {
     startDeal(difficultyRef.current)
   }, [startDeal])
 
+  const endNoMoves = useCallback(() => {
+    if (stateRef.current?.status === 'won' || manuallyEnded) return
+    setManuallyEnded(true)
+    play('lose')
+    if (!lossRecordedRef.current) {
+      lossRecordedRef.current = true
+      recordResult(slug, { won: false })
+    }
+  }, [manuallyEnded, play, slug])
+
   const undo = useCallback(() => {
     setHistory((h) => {
       if (h.length === 0) return h
       const prev = h[h.length - 1]
       commit(prev)
       prevOverRef.current = prev.status === 'won'
+      setManuallyEnded(false)
       setSel(null)
       play('flip')
       return h.slice(0, -1)
@@ -500,9 +518,17 @@ export function GameSpider({ storageKey }: { storageKey: string }) {
           <GameButton variant="ghost" onClick={undo} disabled={history.length === 0}>
             Undo
           </GameButton>
+          <GameButton variant="ghost" onClick={endNoMoves} disabled={won || manuallyEnded} data-testid="end-round">
+            No moves left
+          </GameButton>
         </div>
 
-        <GameOverlay show={won} variant="win" title="You win!" testId="game-over">
+        <GameOverlay
+          show={won || manuallyEnded}
+          variant={won ? 'win' : 'lose'}
+          title={won ? 'You win!' : 'Round ended'}
+          testId="game-over"
+        >
           <div className="flex flex-col items-center gap-1 text-sm">
             <p>
               Score <span className="font-bold text-accent">{score}</span>

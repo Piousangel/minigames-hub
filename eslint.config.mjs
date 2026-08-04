@@ -3,7 +3,7 @@ import { FlatCompat } from '@eslint/eslintrc'
 const compat = new FlatCompat({ baseDirectory: import.meta.dirname })
 
 const eslintConfig = [
-  { ignores: ['.next/**', 'node_modules/**', 'playwright-report/**', 'test-results/**', 'next-env.d.ts'] }, // next-env.d.ts: Next가 자동 생성/관리하는 파일
+  { ignores: ['.next/**', 'out/**', 'node_modules/**', 'playwright-report/**', 'test-results/**', 'next-env.d.ts'] }, // out/**: 정적 export 산출물(압축 벤더 JS) · next-env.d.ts: Next 자동 생성 파일
   ...compat.extends('next/core-web-vitals', 'next/typescript'),
 ]
 

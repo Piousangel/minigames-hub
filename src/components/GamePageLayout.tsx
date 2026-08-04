@@ -1,4 +1,5 @@
 import { accentVar, DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
+import { GAME_INTROS } from '@/lib/games/gameIntros'
 import { hasLeaderboard } from '@/lib/leaderboard'
 import type { GamePage } from '@/lib/games/registry'
 import { AdSlot } from '@/components/ads/AdSlot'
@@ -64,6 +65,19 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
       </GameNavProvider>
 
       {hasLeaderboard(page.slug) && <Leaderboard slug={page.slug} />}
+
+      {GAME_INTROS[page.slug] && (
+        <Reveal>
+          <section className="mt-12">
+            <SectionHeading color={color}>About {page.h1}</SectionHeading>
+            <div className="space-y-4 leading-relaxed text-fg-muted">
+              {GAME_INTROS[page.slug].split('\n\n').map((para) => (
+                <p key={para.slice(0, 32)}>{para}</p>
+              ))}
+            </div>
+          </section>
+        </Reveal>
+      )}
 
       <Reveal>
         <section className="mt-12">

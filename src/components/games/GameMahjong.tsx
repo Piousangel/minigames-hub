@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import {
   type State,
   type Tile,
@@ -122,6 +122,7 @@ export function GameMahjong({ storageKey }: { storageKey: string }) {
   const [best, setBest] = useState(0)
   const [elapsed, setElapsed] = useState(0)
   const [hint, setHint] = useState<[number, number] | null>(null)
+  const [scale, setScale] = useState(1)
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reduced } = useReducedMotion()
@@ -129,7 +130,23 @@ export function GameMahjong({ storageKey }: { storageKey: string }) {
   const stateRef = useRef<State | null>(null)
   const prevOverRef = useRef(false)
   const startRef = useRef(0)
+  const wrapRef = useRef<HTMLDivElement>(null)
   const slug = storageKey.replace(/^best:/, '')
+
+  // 좁은 화면(모바일)에서 보드를 통째로 축소 — 좌표계·클릭 핸들러는 그대로 두고
+  // 시각적으로만 scale한다. overflow-x-auto는 그 아래(<340px)로 밀릴 때의 폴백.
+  useLayoutEffect(() => {
+    const el = wrapRef.current
+    if (!el) return
+    // el은 p-2(8px) 패딩을 가진 컨테이너라 clientWidth엔 패딩이 포함된다 — 콘텐츠 폭 기준으로 빼준다.
+    const WRAP_PAD_X = 16
+    const measure = () =>
+      setScale(Math.max(0.6, Math.min(1, (el.clientWidth - WRAP_PAD_X) / BOARD_W)))
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [state !== null])
 
   const commit = useCallback((next: State) => {
     stateRef.current = next
@@ -348,6 +365,7 @@ export function GameMahjong({ storageKey }: { storageKey: string }) {
       maxWidthClassName="max-w-140"
     >
       <div
+        ref={wrapRef}
         role="group"
         aria-label="Mahjong Solitaire board"
         tabIndex={0}
@@ -355,7 +373,11 @@ export function GameMahjong({ storageKey }: { storageKey: string }) {
         className="relative overflow-x-auto rounded-xl bg-surface p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         data-testid="mahjong-board"
       >
-        <div className="relative mx-auto" style={{ width: BOARD_W, height: BOARD_H }}>
+        <div className="relative mx-auto" style={{ width: BOARD_W * scale, height: BOARD_H * scale }}>
+        <div
+          className="relative"
+          style={{ width: BOARD_W, height: BOARD_H, transform: `scale(${scale})`, transformOrigin: 'top left' }}
+        >
           {LAYOUT.map((slot, i) => {
             const tile = state.tiles[i]
             if (!tile) return null
@@ -390,6 +412,7 @@ export function GameMahjong({ storageKey }: { storageKey: string }) {
               </button>
             )
           })}
+        </div>
         </div>
 
         {/* Controls */}

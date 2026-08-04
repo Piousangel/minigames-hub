@@ -34,16 +34,10 @@ export default function Icon() {
             borderRadius: 14,
           }}
         >
-          <div
-            style={{
-              width: 0,
-              height: 0,
-              marginLeft: 6,
-              borderTop: '13px solid transparent',
-              borderBottom: '13px solid transparent',
-              borderLeft: '21px solid #fbbf24',
-            }}
-          />
+          {/* 재생 삼각형 — Satori에서 CSS-보더 삼각형이 사각형으로 렌더돼 SVG polygon 사용 */}
+          <svg width={22} height={26} viewBox="0 0 10 12" style={{ marginLeft: 4 }}>
+            <polygon points="0,0 10,6 0,12" fill="#fbbf24" />
+          </svg>
         </div>
         {/* 스탠드(마젠타) */}
         <div style={{ width: 30, height: 6, borderRadius: 3, backgroundColor: '#ff3d9a' }} />

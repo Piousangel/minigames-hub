@@ -10,3 +10,8 @@
   Content-Type: image/png
 /apple-icon
   Content-Type: image/png
+# PWA 설치 아이콘도 확장자 없는 PNG(route handler 생성) → image/png 명시.
+/icons/pwa-192
+  Content-Type: image/png
+/icons/pwa-512
+  Content-Type: image/png

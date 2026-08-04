@@ -103,6 +103,15 @@ export const gameMeta: Record<string, GameMeta> = {
   jigsaw: { icon: '🧩', accent: 'magenta', category: 'Puzzle', addedDate: '2026-07-21', featured: true },
   'yukon-solitaire': { icon: '🃏', accent: 'blue', category: 'Classic', addedDate: '2026-07-21' },
   gomoku: { icon: '⚫', accent: 'cyan', category: 'Classic', addedDate: '2026-07-22' },
+  flow: { icon: '🔗', accent: 'cyan', category: 'Puzzle', addedDate: '2026-07-23', featured: true },
+  unblock: { icon: '🚗', accent: 'red', category: 'Puzzle', addedDate: '2026-07-23', featured: true },
+  yahtzee: { icon: '🎲', accent: 'amber', category: 'Classic', addedDate: '2026-07-23', featured: true },
+  mancala: { icon: '🪙', accent: 'lime', category: 'Classic', addedDate: '2026-07-23', featured: true },
+  battleship: { icon: '🚢', accent: 'blue', category: 'Classic', addedDate: '2026-07-24', featured: true },
+  kakuro: { icon: '🧮', accent: 'blue', category: 'Puzzle', addedDate: '2026-07-29' },
+  beatline: { icon: '🎧', accent: 'magenta', category: 'Skill', addedDate: '2026-08-04', featured: true, daily: true },
+  skew: { icon: '📐', accent: 'lime', category: 'Puzzle', addedDate: '2026-08-04' },
+  turntile: { icon: '🔄', accent: 'purple', category: 'Puzzle', addedDate: '2026-08-04', daily: true },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

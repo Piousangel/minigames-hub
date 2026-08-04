@@ -7,6 +7,8 @@ import { AdSlot } from '@/components/ads/AdSlot'
 import { GameBrowser, type BrowseItem } from '@/components/GameBrowser'
 import { Achievements } from '@/components/Achievements'
 import { FeaturedGames } from '@/components/FeaturedGames'
+import { HeroPlayButton } from '@/components/HeroPlayButton'
+import { HomeAbout } from '@/components/HomeAbout'
 import { Marquee } from '@/components/Marquee'
 import { MyGames } from '@/components/MyGames'
 import { NewGames } from '@/components/NewGames'
@@ -55,6 +57,10 @@ export default function Home() {
         <p className="mx-auto max-w-xl text-sm leading-relaxed text-fg-muted sm:text-base">
           {siteConfig.description}
         </p>
+        {/* 1차 CTA — "즉시 플레이"를 실제 버튼으로. 콜드 방문자를 바로 게임에 진입시켜 활성화. */}
+        <div className="mt-7 flex justify-center">
+          <HeroPlayButton />
+        </div>
       </section>
 
       {/* ===== 아케이드 마퀴 티커 ===== */}
@@ -101,6 +107,9 @@ export default function Home() {
 
       {/* ===== 검색 + 필터 + 랜덤 + 게임 그리드 ===== */}
       <GameBrowser items={items} />
+
+      {/* ===== 실질 편집 콘텐츠(사이트 목적·차별점·구성) — 심사자 착지 페이지의 고유 가치 ===== */}
+      <HomeAbout />
 
       {/* 하단 광고 자리(승인 전엔 렌더 안 됨) */}
       <AdSlot slot="home-footer" className="mt-14" />

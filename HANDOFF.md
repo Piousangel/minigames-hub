@@ -1,6 +1,191 @@
 # 인계: AdSense 승인받아 광고를 켜고, 게임 라운드를 계속 돌린다
 
-> 갱신: 2026-07-18 · 브랜치: `main` · 커밋 상태: **committed (scratch 외 트리 clean)** · 전부 배포됨
+> 갱신: 2026-08-04 · 브랜치: `main` · 커밋 상태: **미커밋(작업 트리에 남아있음)** · 미배포
+
+## 2026-08-04 세션 — 게임 라운드10 (Beatline·Skew·Turntile) + UI/UX 감사 상위 5건
+
+사용자가 "팀 회의 거쳐서 신규 게임 개발" 요청 → `minigames-round` 워크플로우 실행(20 에이전트).
+**돌리기 전 `EXISTING` 상수를 최근 6종(flow/unblock/yahtzee/mancala/battleship/kakuro) 반영해
+갱신함** — 이전 세션까지 누락돼 있었다(재탕 방지). ⚠️ **아직 커밋도 배포도 안 했다** —
+사용자가 명시적으로 커밋/배포를 요청하지 않아 작업 트리에만 있음. 다음 세션(또는 이 세션 이어서)
+`git status`로 diff 검토 후 커밋할 것.
+
+**신규 게임 3종 — 전부 배선·검증 완료(로컬):**
+- **Beatline**(🎧 Skill, featured) — 4레인 리듬게임. D/F/J/K로 판정선 노트를 침, Perfect/Good
+  판정, 5스테이지, 라이프. 엔진 33 테스트.
+- **Skew**(📐 Puzzle) — 스와이프 대신 보드 전체를 좌/우로 "기울여서"(shear) 대각선 매치.
+  6×8, 5색, 무효수 없음(매 tilt가 항상 보드를 바꿈), 30틸트 예산. 엔진 31 테스트.
+- **Turntile**(🔄 Puzzle) — 2×2 블록을 뒤집으면 점대칭 재배치+뒷면 공개, 4칸 같은 무늬면 잠김.
+  뒤집기가 자기 역원(=언두 불필요). 엔진 25 테스트.
+- 게임 **83 → 86종**. 배선 6곳(registry/GameRenderer/gameMeta/e2e/leaderboard/objectives) 전부
+  오케스트레이터가 직접(에이전트는 자기 파일 3개만). `pnpm build`(210 라우트) + 유닛 2717 +
+  e2e 103 전부 GREEN.
+
+**빌드 에이전트 산출물에서 실버그 2건 발견·수정(브라우저 실검증으로만 잡힘 — testid만 봤으면 놓쳤다):**
+1. **Beatline 한국어 UI 문자열** — 빌드 에이전트가 hint 3개 + GameOverlay title 2개를 한국어로
+   작성(`'완주! 오늘의 곡 클리어'` 등). 사이트는 전역 영어(글로벌 검색 트래픽 모델) — 스크린샷으로
+   실제 렌더링을 봐서야 발견. 6곳 전부 영어로 교체. **교훈: 신규 게임 컴포넌트는 브라우저로 열어
+   텍스트를 직접 읽을 것 — grep이나 testid 통과로는 안 잡힌다.**
+2. **Mahjong 반응형 스케일링(감사 #5) 첫 구현이 동작 안 함** — `useLayoutEffect(..., [])`로
+   ResizeObserver를 붙였는데, 마운트 첫 렌더는 로딩 스켈레톤(다른 DOM, ref 없음)이라 `el`이
+   `null`이라 옵저버가 아예 안 붙음. Game2048의 검증된 패턴(`[state !== null]` 의존성)으로 고침.
+   **추가로 패딩 버그도 발견**: `el.clientWidth`가 `p-2`(16px) 패딩을 포함해서 스케일이
+   16px만큼 과대산정 → 가로 오버플로 발생. `(el.clientWidth - 16) / BOARD_W`로 수정.
+   ⚠️ **자동화 브라우저 탭은 backgrounded 상태면 `ResizeObserver`가 paint-throttle로 안 돈다**
+   (`document.hidden===true`). 검증하려면 스크린샷(강제 paint) 이후 DOM을 다시 읽을 것.
+
+**UI/UX 감사(5차원, 11건 → 상위 5건) — 전부 구현·로컬 검증 완료:**
+- **#1 Flow 리더보드 미등록** — `leaderboard.ts`에 `flow: { label: 'Level' }` 1줄 추가.
+- **#2 objectives.ts 6종 누락**(flow/unblock/yahtzee/mancala/battleship/kakuro, registry엔
+  있으나 목표 배너가 안 뜸) — 6줄 추가. 신규 3종도 같이 추가.
+- **#3 Ricochet/Stackpot/Quarry에 day-streak 신설** — `dailyStreak.ts` 헬퍼 재사용(Overfold
+  패턴). ⚠️ **Quarry엔 이미 `streak`(런 내 콤보, `data-testid="streak"`)가 있어 이름 충돌** —
+  새 변수는 `dayStreak`/`data-testid="day-streak"`로 분리. 완료 시점: Quarry는 `status==='lost'`
+  (데일리 런 종료), Ricochet은 `outcome.state.over`, Stackpot은 `state.over` 이펙트.
+- **#4 패션스 4종(Spider/FreeCell/Yukon/Solitaire) 수동 "No moves left" 버튼** — 자동 막힘
+  감지는 오탐 위험 커서 배제(감사가 명시적으로 금지), 대신 버튼 클릭 시
+  `GameOverlay variant="lose"` 발동 → 사이트 핵심 리텐션 넛지("Next: {game}")가 처음으로
+  이 4종에서도 발동. `recordResult(slug,{won:false})`로 첫 패배 기록도 남김.
+- **#5 Mahjong 모바일 반응형** — `ResizeObserver` + `transform:scale()`로 보드 전체 축소
+  (좌표계·클릭핸들러 불변, Game2048 패턴). 버그 2건은 위 참고.
+- **하지 말 것 목록(감사가 명시, 착수 안 함)**: daily 모드 토글 라벨 15종 전면 통일, 카드류
+  8종 FLIP 애니메이션, Score float 8종 일괄추가(polish, 가치 낮음), Reversi/Mancala
+  Losses 노출 + Chess Losses 신설(범위 혼재), 자동 막힘감지(오탐 위험).
+
+**검증(전부 로컬 실행, 라이브 미배포):**
+```
+pnpm typecheck && pnpm lint && pnpm vitest run && pnpm build && pnpm e2e
+```
+typecheck 클린 / lint 0 에러(경고 15개 전부 기존) / 유닛 2717 통과(gameStats.test.ts의
+`ERR_INVALID_URL /api/hit` 4건은 기존 jsdom 이슈, 회귀 아님 — §"기존 테스트 인프라 이슈" 참고) /
+build 210라우트 성공 / e2e 103 통과. 브라우저(Chrome MCP)로 Beatline/Skew/Turntile 렌더,
+Spider "No moves left"→lose 오버레이→"Next" 넛지, Mahjong 375px/300px 스케일+탭 히트테스트
+전부 직접 확인.
+
+## 2026-07-23 세션 — 품질 우선 전환 + Jigsaw 정비 + 신규 2종 (Flow·Unblock)
+전부 커밋·배포·**브라우저 실플레이 검증**됨. 게임 **79종**(라이브 `/flow` `/unblock` 200).
+
+**🔑 새 표준(CEO 지시, 메모리 [[quality-first-playtest-critique]]):** 게임은 "테스트 통과"가
+아니라 **"실제로 플레이해서 재밌는가"**로 출시 판단. 빌드 에이전트 스펙에 **셀프 플레이테스트+
+UX 크리틱** 단계를 필수로 넣고, 오케스트레이터가 **브라우저에서 직접 플레이**해 검증한다.
+testid만 보고 통과 처리 금지. 이번 세션 3건 모두 이 방식으로 스크린샷 검증까지 마침.
+
+- **Jigsaw 전면 정비**(사용자가 "이 퀄리티면 누가 와도 안 한다"고 지목): `artworkFor`를
+  랜덤 blob → **알아볼 수 있는 네온 씬 6종**(sunset/mountains/orbit/city/bokeh/burst)으로
+  재작성 + **그림 가이드 항상 표시**(조각이 그림을 채워가는 "맞는 느낌") + 홈 셀 앰버 발광 +
+  놓을 때 스냅 펄스 + 유리타일 엣지 + 헷갈리던 Score/Best → **Solved/Best**. 엔진 37 통과.
+- **Flow**(🔗 Puzzle, Flow Free식): 같은 색 점을 파이프로 잇고 격자를 꽉 채움. 손가락 추종
+  드래그(탭이 파이프 안 자름·스냅백 리트랙트), 항상 보이는 엔드포인트, 커버리지%, 지우개.
+  **엄선 레벨 26종**(5×5~7×7, 전부 solver로 solvable 증명). 엔진 35 통과. `flow/`.
+- **Unblock**(🚗 Puzzle, Rush Hour식): 블록을 축 방향으로 밀어 빨간 블록을 우측 출구로.
+  출구 레인+화살표로 목표 명확, par 달성 시 "Optimal!" 인식. **BFS 검증 레벨 27종**(par 2→25).
+  엔진 47 통과. `unblock/`.
+- 배선: registry(유니온+SEO)·GameRenderer(dynamic+switch)·gameMeta·**FeaturedGames 레일**에
+  flow/unblock 추가(featured). 둘 다 `best:<slug>`에 숫자 저장(리더보드 안전).
+
+**전 게임(79종) 시각 품질 감사 + Sokoban 네온 정비:** 팀 판단으로 "저품질 게임 찾아 고치기"
+라운드를 돌림. `out/`를 serve 후 79종 초기화면을 스크린샷 → 컨택트 시트로 전수 스캔.
+- **결론: Jigsaw급 결함은 더 없다.** 클래식·카드 7종·워드·신규 전부 폴리시 양호.
+- ⚠️ **감사 자체 함정 기록:** 스크린샷을 높이 클립(y 90~560)하니 추상 게임(quarry/sonar/fuse)이
+  "빈 화면"처럼 보였는데, **전체 높이로 다시 찍으니 보드 아래 how-to 힌트가 멀쩡히 있었다**.
+  DO-5의 "빈 캔버스=고장" 오판을 반복할 뻔함 → **가짜 수정 금지, 없는 문제 만들지 말 것.**
+- **진짜 갭 1건만 수정:** Sokoban이 이모지(🧱🙂📦🎯)로 렌더돼 유일하게 off-brand·placeholder
+  느낌. **네온 타일로 교체**(발광 시안 오브=플레이어, 앰버 네온 크레이트, 타깃 앰버 링,
+  베벨 네온 월; 타깃 안착 시 녹색 잠금+pop). 엔진 무변경(순수 로직), 렌더층만. 라이브 검증됨.
+
+**전환 레인 착수 — 히어로 "▶ PLAY NOW" CTA:** 신규 방문자 관점(빈 localStorage)으로 홈을
+캡처해 보니, **모바일 히어로가 첫 화면을 꽉 채우고 첫 플레이 게임(Featured)이 fold 아래**라
+"PLAY INSTANTLY"를 내걸면서 즉시 플레이 버튼이 없었다. → 히어로에 1차 CTA 추가
+(`HeroPlayButton.tsx`, 클라이언트). 클릭 시 엄선(graspable) 10종 중 랜덤 진입(활성화 최대화),
+JS 없으면 href=solitaire로 동작(점진적 향상). Math.random은 클릭 핸들러에서만. 라이브 검증됨.
+- **다음 전환/체류 후보**: (a) 데스크톱 히어로도 게임을 fold 위로, (b) 홈 빈 섹션(신규 유저에
+  MyGames/Recent/Goals 비어있음) 자리에 "이런 걸 해보세요" 유도, (c) 첫 게임 진입 시 30초
+  온보딩 카드(objective+조작 글리프, 도메인 P3), (d) Featured 순서 A/B(데이터 붙으면).
+
+## 2026-08-03 세션 — 재심사 계속 대기(quickminigames 무소식·미결) → 내부링크 SEO
+- **AdSense 재심사 여전히 미결**: Gmail 기준 quickminigames.site 앞 새 메일 없음(7/24 재신청 후
+  10일째). 최근 AdSense 메일은 fibercalc.site 건(별도 프로젝트, 8/2 저품질 거부). 계속 대기.
+- **고아 게임 33종 컬렉션 편입(내부링크 SEO, 리뷰-안전)**: 어느 컬렉션에도 없던 게임들을 홈 처리.
+  신규 컬렉션 `original-games`(오리지널 네온 27종, 홈 차별점과 일치, 고유 intro+FAQ) + 클래식 6종을
+  기존 컬렉션에 배치. 고아 0, 컬렉션 14종. 전 게임이 게임페이지 "ALSO IN" 백링크 보유.
+
+## 2026-07-29 세션 — 재심사 대기 중 안전·고확신 개선 (breadth 포화 → 품질·리텐션)
+- **신규 게임 Kakuro(➕)** — 크로스섬 로직. solver로 16 퍼즐 유니크 해 증명(121 테스트), SVG 분할
+  클루 셀, run 하이라이트·콤보 보조·사용숫자 딤. best:<slug>=풀이수(plain number), 시간은 별도 키.
+  logic-games/brain-games 편입. 게임 **83종**. 리뷰-안전 검색 랜딩.
+- **PWA 아이콘 세트 통일**: apple-icon도 🕹️ → 공유 네온 로고. favicon·PWA 192/512·apple 전부 동일.
+- **AdSense 재심사 진행 중** — 대시보드 "준비 중"(저품질 플래그 걷힘), Gmail에 7/24 이후 새 거부
+  메일 없음. 미결·대기. 새 거부 오면 대응.
+- **건강 스윕**: 유닛 2501 통과·타입체크·프로덕션 200, 7종 추가 회귀 없음.
+- **lint 정상화**: `eslint.config.mjs` ignores에 `out/**` 추가 — `pnpm lint`가 export 산출물
+  스캔해 12에러+4992경고로 항상 실패하던 것 해소(이제 소스만, 에러 0). pre-merge 훅 복구.
+- **Featured 레일 수정**: yahtzee·mancala·battleship이 gameMeta엔 featured였으나 FeaturedGames
+  고정 리스트에 빠져 홈 첫인상에 안 떴음 → 추가.
+- **PWA 설치 아이콘**: manifest에 192·512 PNG(any+maskable) 추가(`src/app/icons/pwa-192|512/route.tsx`
+  + `_logo.tsx`, force-static ImageResponse) + _headers image/png → Android/Chrome "홈 화면에 추가"
+  기준 충족(재방문 레버). ⚠️ Satori는 CSS-보더 삼각형을 사각형으로 렌더 → 재생 아이콘은 **SVG
+  polygon** 써야 함(pwa 아이콘·favicon 둘 다 교정). ⚠️ 신규 /icons 경로는 배포 직후 엣지캐시 404,
+  캐시버스터로 확인.
+
+**신규 게임 Battleship(🚢, 실제 hunt/target AI):** 재심사 대기 중 리뷰-안전한 가족친화 검색
+랜딩. "battleship online" 대량 검색, 없던 추격/추론 장르. 확률밀도 hunt/target AI 3단(easy 96.7
+vs hard 43.6 shots로 추격 입증), 자동배치 기본. 순수 엔진 44 테스트, 브라우저 실플레이 검증.
+고유 intro + family-games 편입. W/L 저장, featured·Classic. 게임 82종.
+
+**🔴 AdSense "가치가 별로 없는 콘텐츠"(low value content) 거부 대응 (2026-07-24):**
+AdSense가 사이트를 검토 후 거부(사유: 가치 낮은 콘텐츠). ads.txt는 승인됨. 신생·무트래픽
+미니게임 허브의 흔한 거부 — 콘텐츠만으로 100% 해결 안 됨(연령·트래픽도 반영), 재심사 여러 번
+가능. **사용자 결정: 지금 재심사 + 병행 콘텐츠 강화.** 재심사 클릭은 사용자 몫(대시보드→사이트).
+- ✅ **홈 편집 콘텐츠**(`HomeAbout.tsx`, ~450단어 + 카테고리 내부링크) — 심사자 착지 페이지에
+  실질 콘텐츠가 사실상 0이었던 걸 메움. 차별점=직접 만든 오리지널 게임.
+- ✅ **Contact 보강**(89→실질).
+- ✅ **전 게임(81종) "About this game" 고유 intro 완성**(`gameIntros.ts` 맵 + GamePageLayout 렌더).
+  각 게임에 실제 규칙·전략·역사 기반 ≈150~220단어 고유 산문(템플릿/필러 아님). 3 병렬 에이전트
+  초안 → 리뷰·병합. 이제 색인 페이지가 board+템플릿 위에 편집 가치를 갖는다.
+- ✅ **leaderboards 허브**도 실질 콘텐츠(작동 설명 2문단 + FAQ 4항목) 보강. daily/unblocked·
+  category·collections는 이미 intro/FAQ 보유. 이제 모든 색인 페이지 유형이 실질 콘텐츠 갖춤.
+- ⏳ **재심사 신청 완료(2026-07-24), 결과 최소 이틀.** 통과면 광고 켜기(§7.2 순서: 슬롯 ID 교체
+  먼저 → adsenseEnabled true). 재거부면 사유 확인 후 콘텐츠 더 깊이거나 트래픽(커뮤니티 게시=
+  사용자 몫) 붙은 뒤 재도전 — 신생 사이트는 후자가 결정적일 때 많음.
+
+**전환 funnel 실측 + SEO 컬렉션:** 전환 레인을 더 팠는데, 실측 결과 funnel은 이미 건강했다.
+- 데스크톱 히어로: PLAY NOW CTA가 fold 중앙에 있어 OK(재구조 불필요).
+- 게임 페이지 board 아래 "거대한 공백"으로 보였던 건 **또 fullPage 스크린샷 아티팩트** —
+  SEO 섹션이 `<Reveal>`(스크롤 인터섹션)로 감싸여 스크롤 전엔 opacity:0. 실제 스크롤하면
+  How to play/Strategy/FAQ 정상 표시(opacity 1). **세 번째 같은 교훈 — 정적 스샷 불신, 상호작용 검증.**
+- 전환이 solid하니 실제 병목(트래픽)에서 움직일 수 있는 SEO 레버로: **신규 Flow·Unblock이
+  어느 컬렉션에도 없어 내부링크 고아**였고, 대용량 검색어 "brain games" 미커버였다.
+  → (a) logic-games에 flow·unblock 추가, (b) **신규 컬렉션 `brain-games`**(고유 intro 200+단어
+  + FAQ, 멤버 8종, flow·unblock 포함). 이제 두 신규 게임이 게임페이지 "ALSO IN"으로 역링크됨.
+  컬렉션 12종, 게임페이지 192개. collections.test 70 통과. 라이브 검증됨.
+
+**신규 게임 Yahtzee(🎲) — 검색 트래픽 겨냥한 랜딩:** 기술/온페이지 SEO가 이미 성숙
+(게임페이지 VideoGame/FAQPage/Breadcrumb, 컬렉션 스키마 완비)이라, 트래픽 레버 중 남은 건
+"랭크 못 하는 고검색어에 랜딩 만들기". **주사위 게임이 전무**했고 "yahtzee online free"는
+대량 검색·즉시친숙·무에셋·가족친화(AdSense 안전). 품질 우선 프로세스로 빌드(에이전트
+셀프 플레이테스트 + **잠재점수 프리뷰** 필수) → 배선 → **브라우저 실플레이 검증**
+(굴림·홀드 라임 배지·리롤·프리뷰 갱신·13턴). 엔진 60 테스트, 게임 80종.
+- best:<slug>에 총점 plain number 저장 → **리더보드 편입**(주간 경쟁=재방문). featured·Classic.
+- ⚠️ 배포 직후 /yahtzee가 status 200인데 title이 404였음 = **엣지 캐시 stale 404**(알려진 현상,
+  §4). out/yahtzee.html·sitemap 정상이면 배포는 옳은 것 — 캐시버스터 쿼리로 fresh 확인하고 폴링.
+
+**신규 게임 Mancala(🪙) + family-games 컬렉션:** 검색 랜딩 레버 계속 — "mancala online"은
+견실한 검색, 우리 검증된 "보드게임 vs CPU" 패턴(chess/checkers/reversi)에 그대로 맞고
+데이터·에셋 의존 없음. 품질 우선 빌드(에이전트 셀프 플레이테스트 + **실제 alpha-beta 미니맥스
+AI** 2/5/8 plies)로 Kalah 규칙 구현. 배선 → **브라우저 실플레이 검증**(씨뿌리기·추가턴 발동
+·소유/방향 명확·AI 응답). 엔진 47 테스트. 게임 81종.
+- W/L/D 기록 저장(체커/리버시 패턴, 리더보드 아님). featured·Classic. "You's turn"→"Your turn" 폴리시.
+- **컬렉션 정비**: mancala를 two-player-games에 편입 + 신규 **family-games**(yahtzee+mancala+
+  dominoes+connect-four+checkers+chess+gomoku, "family games online" 타깃) → 지금까지 고아였던
+  Yahtzee·Mancala가 게임페이지 "ALSO IN" 역링크 획득. 컬렉션 13종, collections.test 76 통과.
+
+### ⚠️ 기존 테스트 인프라 이슈 (내 변경과 무관, 클린 main에도 존재)
+`pnpm test`가 유닛 **2338개 전부 통과**하지만 **4개 unhandled error**로 종료코드 비0:
+`ERR_INVALID_URL: /api/hit`. `src/lib/hit.ts`의 분석 비콘이 **jsdom에서 상대 URL**을 못 풀어
+나는 것(실 브라우저는 정상). 스태시로 확인 — 내 3건 추가 전 main에서도 동일 4에러 발생.
+**회귀 아님.** 고치려면 hit.ts 비콘을 테스트 env에서 no-op 하거나 절대 URL 가드(별건 작업).
+
+
 
 ## 2026-07-18~19 자율 마라톤 세션 요약 ("묻지 말고 계속 디벨롭" + "팀으로 도메인 최고 사이트")
 전부 커밋·배포·검증됨. 게임 **61종**. **먼저 [DOMAIN.md](./DOMAIN.md) 읽을 것** — 도메인

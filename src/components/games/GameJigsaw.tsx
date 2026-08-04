@@ -89,59 +89,71 @@ function piecePath(e: Edges): string {
 
 // -- artwork rendering (deterministic neon composition) ----------------------
 
-function ArtworkContent({ art, w }: { art: Artwork; w: number }) {
+function ArtworkContent({ art, w, uid }: { art: Artwork; w: number; uid: string }) {
+  const gid = `jig-grad-${uid}`
+  const stops = art.bg
+  const last = Math.max(1, stops.length - 1)
   return (
     <>
-      <rect x={0} y={0} width={w} height={w} fill="#0a0e1a" />
-      <rect x={0} y={0} width={w} height={w} fill={art.bg[0]} opacity={0.5} />
-      <rect x={0} y={0} width={w} height={w} fill={art.bg[1]} opacity={0.28} />
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+          {stops.map((c, i) => (
+            <stop key={i} offset={`${(i / last) * 100}%`} stopColor={c} />
+          ))}
+        </linearGradient>
+      </defs>
+      <rect x={0} y={0} width={w} height={w} fill={`url(#${gid})`} />
       {art.shapes.map((s, i) => {
-        const cx = s.cx * w
-        const cy = s.cy * w
-        const rr = s.r * w
         const key = `s${i}`
         if (s.kind === 'circle') {
-          return <circle key={key} cx={cx} cy={cy} r={rr} fill={s.color} opacity={s.opacity} />
+          return <circle key={key} cx={s.cx * w} cy={s.cy * w} r={s.r * w} fill={s.color} opacity={s.opacity} />
         }
         if (s.kind === 'ring') {
           return (
             <circle
               key={key}
-              cx={cx}
-              cy={cy}
-              r={rr}
+              cx={s.cx * w}
+              cy={s.cy * w}
+              r={s.r * w}
               fill="none"
               stroke={s.color}
-              strokeWidth={rr * 0.28}
+              strokeWidth={Math.max(1, s.sw * w)}
               opacity={s.opacity}
             />
           )
         }
-        if (s.kind === 'bar') {
-          return (
-            <rect
-              key={key}
-              x={cx - rr}
-              y={cy - rr * 0.28}
-              width={rr * 2}
-              height={rr * 0.56}
-              rx={rr * 0.2}
-              fill={s.color}
-              opacity={s.opacity}
-              transform={`rotate(${s.rot} ${cx} ${cy})`}
-            />
-          )
+        if (s.kind === 'triangle') {
+          const cx = s.cx * w
+          const cy = s.cy * w
+          const rr = s.r * w
+          const pts = [
+            [cx, cy - rr],
+            [cx + rr * 0.87, cy + rr * 0.5],
+            [cx - rr * 0.87, cy + rr * 0.5],
+          ]
+            .map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`)
+            .join(' ')
+          return <polygon key={key} points={pts} fill={s.color} opacity={s.opacity} />
         }
-        // triangle
-        const pts = [
-          [cx, cy - rr],
-          [cx + rr * 0.87, cy + rr * 0.5],
-          [cx - rr * 0.87, cy + rr * 0.5],
-        ]
-          .map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`)
-          .join(' ')
+        // rect (buildings, horizons, starburst rays)
+        const x = s.x * w
+        const y = s.y * w
+        const rw = s.w * w
+        const rh = s.h * w
+        const cxc = x + rw / 2
+        const cyc = y + rh / 2
         return (
-          <polygon key={key} points={pts} fill={s.color} opacity={s.opacity} transform={`rotate(${s.rot} ${cx} ${cy})`} />
+          <rect
+            key={key}
+            x={x}
+            y={y}
+            width={rw}
+            height={rh}
+            rx={(s.round ?? 0) * w}
+            fill={s.color}
+            opacity={s.opacity}
+            transform={s.rot ? `rotate(${s.rot} ${cxc} ${cyc})` : undefined}
+          />
         )
       })}
     </>
@@ -156,7 +168,6 @@ function PieceArt({
   col,
   n,
   uid,
-  strokeColor,
   strong,
 }: {
   art: Artwork
@@ -165,7 +176,6 @@ function PieceArt({
   col: number
   n: number
   uid: string
-  strokeColor: string
   strong?: boolean
 }) {
   const path = useMemo(() => piecePath(edges), [edges])
@@ -185,16 +195,18 @@ function PieceArt({
       </defs>
       <g clipPath={`url(#${clipId})`}>
         <g transform={`translate(${-col * L} ${-row * L})`}>
-          <ArtworkContent art={art} w={w} />
+          <ArtworkContent art={art} w={w} uid={uid} />
         </g>
       </g>
+      {/* Clean beveled tile edge (dark base + light inner) so pieces read as
+          interlocking glass tiles over the picture — no rainbow noise. */}
+      <path d={path} fill="none" stroke="rgba(0,0,0,0.55)" strokeWidth={strong ? 4.5 : 3.5} strokeLinejoin="round" />
       <path
         d={path}
         fill="none"
-        stroke={strokeColor}
-        strokeWidth={strong ? 3.5 : 2}
+        stroke={strong ? 'var(--neon-amber)' : 'rgba(255,255,255,0.6)'}
+        strokeWidth={strong ? 2.6 : 1.4}
         strokeLinejoin="round"
-        opacity={strong ? 1 : 0.85}
       />
     </svg>
   )
@@ -212,6 +224,9 @@ export function GameJigsaw({ storageKey }: { storageKey: string }) {
   const [sel, setSel] = useState<number | null>(null) // selected tray pieceId
   const [preview, setPreview] = useState(false)
   const [best, setBest] = useState(0)
+  const [solved, setSolved] = useState(0) // puzzles completed on this device
+  const [flash, setFlash] = useState<{ row: number; col: number; k: number } | null>(null) // snap pulse
+  const flashK = useRef(0)
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reduced } = useReducedMotion()
@@ -232,15 +247,20 @@ export function GameJigsaw({ storageKey }: { storageKey: string }) {
       nRef.current = size
       setN(size)
       setSel(null)
+      setFlash(null)
       commit(createGame(freshSeed(), size))
     },
     [commit],
   )
 
+  const solvedKey = `${slug}:solved`
+
   // Bootstrap on the client only (SSR-safe: no random/Date in render).
   useEffect(() => {
     const stored = Number(localStorage.getItem(storageKey))
     setBest(Number.isFinite(stored) && stored > 0 ? Math.floor(stored) : 0)
+    const sv = Number(localStorage.getItem(solvedKey))
+    setSolved(Number.isFinite(sv) && sv > 0 ? Math.floor(sv) : 0)
     startNew(3)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storageKey])
@@ -258,9 +278,19 @@ export function GameJigsaw({ storageKey }: { storageKey: string }) {
         }
         setBest(s)
       }
+      // Solved count — a stat that's always meaningful (never "Best 0 / Score 100").
+      setSolved((prevSolved) => {
+        const nextSolved = prevSolved + 1
+        try {
+          localStorage.setItem(solvedKey, String(nextSolved))
+        } catch {
+          /* storage unavailable */
+        }
+        return nextSolved
+      })
       recordResult(slug, { won: true })
     },
-    [storageKey, slug],
+    [storageKey, slug, solvedKey],
   )
 
   // Try to place the selected (or given) piece onto (row,col).
@@ -275,6 +305,9 @@ export function GameJigsaw({ storageKey }: { storageKey: string }) {
       }
       commit(next)
       setSel(null)
+      // Snap pulse on the cell that just locked in — makes placement feel solid.
+      flashK.current += 1
+      setFlash({ row, col, k: flashK.current })
       if (next.status === 'won' && !wonRef.current) {
         wonRef.current = true
         play('win')
@@ -350,6 +383,13 @@ export function GameJigsaw({ storageKey }: { storageKey: string }) {
     [startNew],
   )
 
+  // Clear the snap pulse shortly after it fires (one-shot).
+  useEffect(() => {
+    if (!flash) return
+    const t = setTimeout(() => setFlash((cur) => (cur && cur.k === flash.k ? null : cur)), 480)
+    return () => clearTimeout(t)
+  }, [flash])
+
   // Artwork is derived deterministically from the seed + variant.
   const art = useMemo<Artwork | null>(
     () => (state ? artworkFor(state.seed, state.variant) : null),
@@ -378,32 +418,19 @@ export function GameJigsaw({ storageKey }: { storageKey: string }) {
       : 'Tap a tray piece to pick it up — its home cell lights up. Tap that cell to place it.'
 
   const headerExtra = (
-    <>
-      <span className="rounded-lg border border-border bg-surface/80 px-3 py-1.5 text-sm">
-        <span className="text-fg-muted">Pieces</span>{' '}
-        <span className="font-bold text-accent" data-testid="placed">
-          {state.placedCount}/{total}
-        </span>
+    <span className="rounded-lg border border-border bg-surface/80 px-3 py-1.5 text-sm">
+      <span className="text-fg-muted">Pieces</span>{' '}
+      <span className="font-bold text-accent" data-testid="placed">
+        {state.placedCount}/{total}
       </span>
-      <span className="rounded-lg border border-border bg-surface/80 px-3 py-1.5 text-sm">
-        <span className="text-fg-muted">Moves</span>{' '}
-        <span className="font-bold text-accent" data-testid="moves">
-          {state.moves}
-        </span>
-      </span>
-    </>
+    </span>
   )
-
-  const strokeFor = (i: number) => {
-    const palette = ['var(--neon-cyan)', 'var(--neon-magenta)', 'var(--neon-lime)', 'var(--neon-purple)']
-    return palette[i % palette.length]
-  }
 
   return (
     <GameShell
       stats={[
-        { label: 'Score', value: score, testId: 'score' },
-        { label: 'Best', value: best, testId: 'best' },
+        { label: 'Solved', value: solved, testId: 'solved' },
+        { label: 'Best', value: Math.max(best, won ? score : 0), testId: 'best' },
       ]}
       headerExtra={headerExtra}
       onNewGame={() => startNew(nRef.current)}
@@ -452,17 +479,17 @@ export function GameJigsaw({ storageKey }: { storageKey: string }) {
           className="relative mx-auto w-full max-w-100 rounded-lg border border-border bg-bg-2/40 p-1"
           data-testid="jigsaw-grid"
         >
-          {/* Faint full-picture guide */}
-          {(preview || won) && (
-            <svg
-              viewBox={`0 0 ${state.n * L} ${state.n * L}`}
-              className="pointer-events-none absolute inset-1 h-[calc(100%-0.5rem)] w-[calc(100%-0.5rem)] rounded"
-              style={{ opacity: won ? 0.9 : 0.22 }}
-              aria-hidden="true"
-            >
-              <ArtworkContent art={art} w={state.n * L} />
-            </svg>
-          )}
+          {/* Always-on picture guide behind the cells: you can see the target
+              image, and each placed piece visibly completes it (the "fitting"
+              feel). Faint while playing, brighter with Show preview / on win. */}
+          <svg
+            viewBox={`0 0 ${state.n * L} ${state.n * L}`}
+            className="pointer-events-none absolute inset-1 h-[calc(100%-0.5rem)] w-[calc(100%-0.5rem)] rounded"
+            style={{ opacity: won ? 0.95 : preview ? 0.42 : 0.16 }}
+            aria-hidden="true"
+          >
+            <ArtworkContent art={art} w={state.n * L} uid="guide" />
+          </svg>
           <div
             className="grid gap-0"
             style={{ gridTemplateColumns: `repeat(${state.n}, minmax(0, 1fr))` }}
@@ -489,16 +516,12 @@ export function GameJigsaw({ storageKey }: { storageKey: string }) {
                       : `Empty cell row ${row + 1}, column ${col + 1}`
                   }
                   className={`relative aspect-square outline-none ${
-                    pieceId === null
-                      ? 'border border-dashed border-border/60'
-                      : ''
+                    pieceId === null ? 'rounded-[2px] border border-white/12 bg-white/[0.02]' : ''
                   }`}
                   style={
-                    isTarget && !reduced
-                      ? { boxShadow: 'inset 0 0 0 3px var(--neon-amber)', borderRadius: 4 }
-                      : isTarget
-                        ? { boxShadow: 'inset 0 0 0 3px var(--neon-amber)' }
-                        : undefined
+                    isTarget
+                      ? { boxShadow: 'inset 0 0 0 3px var(--neon-amber), 0 0 12px var(--neon-amber)', borderRadius: 4 }
+                      : undefined
                   }
                 >
                   {pieceId !== null && (
@@ -510,9 +533,16 @@ export function GameJigsaw({ storageKey }: { storageKey: string }) {
                         col={col}
                         n={state.n}
                         uid={`b-${pieceId}`}
-                        strokeColor={strokeFor(pieceId)}
                       />
                     </span>
+                  )}
+                  {/* Snap pulse — a quick amber ring on the cell that just locked. */}
+                  {flash?.row === row && flash.col === col && !reduced && (
+                    <span
+                      key={flash.k}
+                      className="pointer-events-none absolute inset-0 animate-ping rounded ring-2 ring-neon-amber"
+                      style={{ zIndex: state.n + 2 }}
+                    />
                   )}
                 </button>
               )
@@ -560,7 +590,6 @@ export function GameJigsaw({ storageKey }: { storageKey: string }) {
                     col={cell.col}
                     n={state.n}
                     uid={`t-${pieceId}`}
-                    strokeColor={strokeFor(pieceId)}
                     strong={selected}
                   />
                 </button>

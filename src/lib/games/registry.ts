@@ -89,6 +89,15 @@ export type GamePage = GamePageBase &
     | { game: 'jigsaw' }
     | { game: 'yukon' }
     | { game: 'gomoku' }
+    | { game: 'flow' }
+    | { game: 'unblock' }
+    | { game: 'yahtzee' }
+    | { game: 'mancala' }
+    | { game: 'battleship' }
+    | { game: 'kakuro' }
+    | { game: 'beatline' }
+    | { game: 'skew' }
+    | { game: 'turntile' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2308,6 +2317,267 @@ export const gamePages: GamePage[] = [
       { q: 'Who goes first?', a: 'Black moves first, which is a small advantage — switch colours between games to keep it fair.' },
       { q: 'Is it free and account-free?', a: 'Yes. Gomoku plays free in your browser with no download and no sign-up. Your win record saves locally.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap an empty spot to place a stone. The board scales to fit phones and tablets as well as desktop.' },
+    ],
+  },
+  {
+    slug: 'flow',
+    game: 'flow',
+    title: 'Play Flow Free Online — Connect the Dots Pipe Puzzle',
+    h1: 'Flow',
+    metaDescription:
+      'Play Flow free online — connect each pair of coloured dots with a pipe and fill the whole grid without crossing. 26 hand-made levels from 5×5 to 7×7. No download, no sign-up.',
+    shortDescription: 'Connect the dots, fill the grid.',
+    howToPlay: [
+      'Drag from a coloured dot to its matching twin to lay a pipe of that colour.',
+      'Pipes cannot cross or overlap another pipe.',
+      'You win when every pair is connected AND every square is filled.',
+      'Drag back over your own pipe to erase it, or tap a colour dot below the board to clear it.',
+    ],
+    strategy: [
+      'Start with the corners and edges — they have the fewest ways in and out.',
+      'A pair on the same row or column rarely connects in a straight line; you usually need the detour to help fill the grid.',
+      'If a pipe would trap an empty square with only one opening, reroute — every cell must be reachable.',
+      'Full coverage is the real goal: connecting all pairs the short way often leaves gaps and does not solve the level.',
+      'Use Undo freely to test a route without losing your other pipes.',
+    ],
+    faq: [
+      { q: 'How do you win at Flow?', a: 'Connect every pair of same-coloured dots with a pipe AND fill all squares. Connecting the pairs alone is not enough — the whole grid must be covered.' },
+      { q: 'Can pipes cross each other?', a: 'No. Each square holds at most one pipe. If you drag into another colour’s pipe it stops; drag back over your own to shorten it.' },
+      { q: 'How many levels are there?', a: 'There are 26 hand-made levels that get bigger and trickier — nine 5×5, nine 6×6 and eight 7×7 boards. Your furthest level is saved locally.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Flow plays free in your browser with no download and no sign-up.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Drag with your finger from dot to dot. The board scales to fit phones, tablets and desktop.' },
+    ],
+  },
+  {
+    slug: 'unblock',
+    game: 'unblock',
+    title: 'Play Unblock Online — Free Sliding Block Puzzle (Rush Hour)',
+    h1: 'Unblock',
+    metaDescription:
+      'Play Unblock free online — slide the blocking cars out of the way and drive the red block out through the exit. 27 hand-made levels from easy to expert. No download, no sign-up.',
+    shortDescription: 'Slide the blocks, free the red one.',
+    howToPlay: [
+      'Drag a block along its own axis — horizontal blocks move left/right, vertical blocks move up/down.',
+      'Blocks stop against the walls and against each other; they cannot turn or jump.',
+      'Clear a path so the red block can slide out through the gap on the right edge.',
+      'Solve each level in as few moves as you can — every level has a known best.',
+    ],
+    strategy: [
+      'Work backwards from the exit: find what is directly blocking the red block, then what blocks that.',
+      'A vertical block only helps when it slides fully clear of the red block’s row — half-way is still in the way.',
+      'Do not shuffle blindly; each move should open a specific block’s path, not just rearrange the jam.',
+      'Corner and edge blocks have the least freedom — plan their one useful move early.',
+      'If you are stuck, Undo back a few moves and try freeing a different blocker first.',
+    ],
+    faq: [
+      { q: 'How do you win at Unblock?', a: 'Slide the other blocks out of the way until the red block has a clear path, then slide it out through the gap on the right edge.' },
+      { q: 'Which way can blocks move?', a: 'Only along their own length. A horizontal block slides left and right; a vertical block slides up and down. They never rotate.' },
+      { q: 'How many levels are there?', a: 'There are 27 hand-made levels, verified solvable, from 2-move warm-ups up to a 25-move expert. Your best move count per level is saved locally.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Unblock plays free in your browser with no download and no sign-up.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Drag blocks with your finger, or tap a block then tap where it should go. The board scales to fit any screen.' },
+    ],
+  },
+  {
+    slug: 'yahtzee',
+    game: 'yahtzee',
+    title: 'Play Yahtzee Online — Free Dice Game, No App or Sign-Up',
+    h1: 'Yahtzee',
+    metaDescription:
+      'Play Yahtzee free online — roll five dice, hold the ones you want and fill all 13 scoring boxes for the highest total. Live score previews, upper bonus, Yahtzee bonus. No download, no sign-up.',
+    shortDescription: 'Roll the dice, fill the scorecard.',
+    howToPlay: [
+      'Roll all five dice, then tap any dice to HOLD them and re-roll the rest — up to three rolls per turn.',
+      'When you are happy, tap a scorecard row to bank the roll into that category.',
+      'Every unused row shows the score you would get right now, so you can pick the best one.',
+      'Fill all 13 categories over 13 turns; score 63+ in the upper section for a +35 bonus.',
+    ],
+    strategy: [
+      'Chase the upper bonus early — banking three or more of each number from Ones to Sixes hits 63 and adds 35.',
+      'Keep the Chance box in reserve for a wasted roll instead of zeroing a big category.',
+      'Hold toward a Large Straight (40) or Full House (25) only when a couple of dice already fit — do not force it.',
+      'Score a rubbish roll into Ones or Twos rather than throwing away Yahtzee, Large Straight or Four of a Kind.',
+      'Once you have scored a 50 Yahtzee, every extra five-of-a-kind is worth a +100 bonus — hold for it if you are close.',
+    ],
+    faq: [
+      { q: 'How do you score a Yahtzee?', a: 'Roll five dice of the same number and bank it in the Yahtzee box for 50 points. Each extra Yahtzee after that adds a +100 bonus.' },
+      { q: 'How many rolls do I get per turn?', a: 'Up to three. Roll all five, hold any you like, re-roll the rest, and you can do that twice more before you must score.' },
+      { q: 'What is the upper bonus?', a: 'If the six upper boxes (Ones through Sixes) add up to 63 or more, you get a +35 bonus — roughly three of each number.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Yahtzee plays free in your browser with no download and no sign-up. Your best total saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap dice to hold and tap a row to score. The dice and scorecard scale to fit phones and tablets.' },
+    ],
+  },
+  {
+    slug: 'mancala',
+    game: 'mancala',
+    title: 'Play Mancala Online — Free Kalah Board Game vs Computer or 2 Player',
+    h1: 'Mancala',
+    metaDescription:
+      'Play Mancala (Kalah) free online — sow the stones around the board, land in your store to go again, and capture to build the biggest pile. Versus the computer at three levels or two players. No download, no sign-up.',
+    shortDescription: 'Sow the stones, fill your store.',
+    howToPlay: [
+      'On your turn, pick one of your own pits and sow its stones one by one counter-clockwise.',
+      'Sow into your own store (on your right) but skip your opponent’s store.',
+      'If your last stone lands in your store, you take another turn.',
+      'If it lands in an empty pit on your side, capture that stone and the pit directly opposite into your store.',
+    ],
+    strategy: [
+      'Chain extra turns: a pit with exactly the right number of stones to end in your store lets you move again.',
+      'Set up captures — leave a pit empty so a later sow lands there and grabs a full pit opposite.',
+      'Watch your opponent’s threats; a pit poised to reach their store hands them a free extra move.',
+      'Late game, hoard stones on your own side — when a side empties, each player keeps the stones left on theirs.',
+      'Loading your rightmost pits keeps more sowings ending in your store instead of feeding the opponent.',
+    ],
+    faq: [
+      { q: 'How do you win Mancala?', a: 'Collect more stones in your store than your opponent. The game ends when one side’s pits are empty, and each player banks the stones remaining on their own side.' },
+      { q: 'When do I get an extra turn?', a: 'Whenever the last stone you sow lands in your own store. Chaining extra turns is the heart of good Mancala play.' },
+      { q: 'How does a capture work?', a: 'If your last stone lands in an empty pit on your own side, you capture that stone plus every stone in the pit directly across from it, into your store.' },
+      { q: 'Can I play the computer?', a: 'Yes — choose Easy, Medium or Hard. The computer uses real look-ahead, takes captures and chains extra turns. Two-player pass-and-play is also available.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Mancala plays free in your browser with no download and no sign-up. Your win record saves locally.' },
+    ],
+  },
+  {
+    slug: 'battleship',
+    game: 'battleship',
+    title: 'Play Battleship Online — Free Naval Strategy Game vs Computer',
+    h1: 'Battleship',
+    metaDescription:
+      'Play Battleship free online — place your fleet, then fire on a 10×10 grid to hunt and sink the computer’s ships before it sinks yours. Smart hunting AI at three levels. No download, no sign-up.',
+    shortDescription: 'Hunt and sink the enemy fleet.',
+    howToPlay: [
+      'Place your five ships on your grid, or tap Auto-place to set the whole fleet at once.',
+      'Take turns firing at one cell of the enemy grid — a shot is a hit or a miss.',
+      'Hit every cell of a ship to sink it; sink all five enemy ships to win.',
+      'Watch the enemy’s shots on your own grid and protect your remaining ships.',
+    ],
+    strategy: [
+      'Fire in a checkerboard pattern while hunting — no ship longer than one cell can hide from it, so you cover the board in half the shots.',
+      'After a hit, fire the four cells around it to find the ship’s direction, then follow that line until it sinks.',
+      'Spread your own ships out and avoid clustering them, so one lucky enemy hit does not reveal two ships.',
+      'Keep count of which enemy ships are still afloat — knowing a 5-length Carrier remains tells you where it can still fit.',
+      'Placing ships flush against the edges makes them a little harder for a probability-based opponent to find.',
+    ],
+    faq: [
+      { q: 'How do you win at Battleship?', a: 'Be the first to sink your opponent’s entire fleet — all five ships — by hitting every cell each ship occupies.' },
+      { q: 'How big is the fleet?', a: 'Five ships: a Carrier (5 cells), a Battleship (4), a Cruiser (3), a Submarine (3) and a Destroyer (2), placed on a 10×10 grid.' },
+      { q: 'Does the computer play a real strategy?', a: 'Yes. On Normal and Hard it hunts with a parity pattern and, once it lands a hit, targets the surrounding cells and follows the ship’s line until it sinks — it does not fire at random.' },
+      { q: 'Do I have to place my own ships?', a: 'Only if you want to. Tap Auto-place to drop the whole fleet legally in one go, or place and rotate each ship yourself.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Battleship plays free in your browser with no download and no sign-up. Your win record saves locally.' },
+    ],
+  },
+  {
+    slug: 'kakuro',
+    game: 'kakuro',
+    title: 'Play Kakuro Online — Free Cross Sums Number Puzzle, No App',
+    h1: 'Kakuro',
+    metaDescription:
+      'Play Kakuro free online — fill the white cells 1–9 so every run adds up to its clue with no repeated digits. 16 hand-checked puzzles from easy to expert, with notes and a combo helper. No download, no sign-up.',
+    shortDescription: 'Cross-sums: fill the grid to the clues.',
+    howToPlay: [
+      'Fill each empty white cell with a digit from 1 to 9.',
+      'Every horizontal and vertical run of white cells must add up to the clue number for that run.',
+      'No digit may repeat within the same run.',
+      'The clue for an across run sits in the top-right of the black cell to its left; a down-run clue sits in the bottom-left of the black cell above it.',
+    ],
+    strategy: [
+      'Start with the most constrained runs — a two-cell run summing to 3 can only be 1+2, and a 17 can only be 8+9.',
+      'Use the combo helper: it lists which sets of digits can make a run’s sum in the number of cells it has.',
+      'Work the crossings — a cell shared by an across run and a down run must satisfy both, which often pins it to one digit.',
+      'Pencil in candidates when a cell has a few options, then eliminate as the crossing runs fill in.',
+      'It is pure logic — every puzzle has exactly one solution, so you never need to guess.',
+    ],
+    faq: [
+      { q: 'How is Kakuro different from Sudoku?', a: 'Both are no-repeat number logic puzzles, but in Kakuro the clues are sums: each run of white cells must total its clue number, and digits only can’t repeat within a run rather than across a whole row or box.' },
+      { q: 'Can a digit repeat in a run?', a: 'No. Within any single across or down run every digit must be different, though the same digit can appear in a different run that crosses it.' },
+      { q: 'Do I have to guess?', a: 'Never. Every puzzle here is checked to have exactly one solution reachable by logic, so careful deduction always gets you there.' },
+      { q: 'What does the combo helper do?', a: 'For the selected run it shows the possible sets of digits that add up to the clue in that many cells — the classic Kakuro solving aid.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Kakuro plays free in your browser with no download and no sign-up. Your best times save locally.' },
+    ],
+  },
+  {
+    slug: 'beatline',
+    game: 'beatline',
+    title: 'Play Beatline Online — Free 4-Lane Rhythm Game, No App',
+    h1: 'Beatline',
+    metaDescription:
+      'Play Beatline free online — hit falling notes in the right lane at the right beat across 5 stages. Daily challenge and practice mode, live combo and multiplier. No download, no sign-up.',
+    shortDescription: 'Hit the note, on the beat, in the lane.',
+    howToPlay: [
+      'Notes fall down four lanes toward the judgement line at the bottom.',
+      'Press the matching lane key (D, F, J, K) — or tap the lane on touch — exactly as the note crosses the line.',
+      'A Perfect hit scores more than a Good hit; missing a note costs a life and resets your combo.',
+      'Clear all 5 stages before you run out of lives to win the run.',
+    ],
+    strategy: [
+      'Watch the judgement line, not the falling note — let the note come to you instead of chasing it up the lane.',
+      'The Perfect window is tight; if you are consistently early or late, nudge your timing by half a beat.',
+      'Combo drives your score multiplier, so protecting an unbroken streak beats chasing one risky Perfect.',
+      'Later stages layer more notes per beat — lock onto the rhythm rather than reacting note-by-note.',
+      'Practice mode replays a stage without spending a daily attempt — use it to learn a hard section first.',
+    ],
+    faq: [
+      { q: 'How do you play Beatline?', a: 'Press the lane key (D, F, J, K) exactly as the falling note crosses the judgement line. Hitting inside the tight window scores a Perfect; a wider window scores a Good.' },
+      { q: 'What happens if I miss a note?', a: 'A miss breaks your combo and costs a life. Run out of lives before clearing the stage and the run ends.' },
+      { q: 'How many stages are there?', a: 'Five stages, each with a denser note chart than the last. Clear all five to win the run.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Beatline plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap a lane button as the note crosses the line — the four lanes span the width of the board on any screen.' },
+    ],
+  },
+  {
+    slug: 'skew',
+    game: 'skew',
+    title: 'Play Skew Online — Free Tilt & Match Puzzle, No App',
+    h1: 'Skew',
+    metaDescription:
+      'Play Skew free online — tilt the whole board instead of swiping tiles, shear the grid diagonally, and match 5 colours in cascading waves. No download, no sign-up.',
+    shortDescription: 'Tilt the board, let the colours line up.',
+    howToPlay: [
+      'Tap the left or right tilt button (or press ←/→) to shear the whole board diagonally, one row at a time.',
+      'Tilting scatters and realigns colours across the diagonal — matching 3 or more in a row or column clears them.',
+      'Cleared tiles drop and refill, and a fresh match can cascade into another for a wave bonus.',
+      'You have a limited number of tilts — score as high as you can before they run out.',
+    ],
+    strategy: [
+      'A tilt shifts every row (except the top) by a different amount, so plan for the whole board moving, not one tile.',
+      'Chain a match right after your last one to keep the combo streak alive — a tilt with no match resets it.',
+      'Cascading waves multiply your score, so a tilt that sets up a chain reaction beats one that only clears a single line.',
+      'There is no invalid move — every tilt changes the board, so there is never a need to hunt for a legal move.',
+      'Alternate tilt direction when obvious matches run out — the other diagonal often opens fresh lines.',
+    ],
+    faq: [
+      { q: 'How do you play Skew?', a: 'Tap the left or right button to tilt the whole board diagonally. Rows shift by different amounts, scattering colours until three or more line up and clear.' },
+      { q: 'Do I swipe individual tiles?', a: 'No — Skew has no tile swapping. You only ever tilt the entire board left or right; the diagonal shear does the rearranging.' },
+      { q: 'How many tilts do I get?', a: 'You start with 30 tilts. Score as many cascading matches as you can before they run out.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Skew plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap the on-screen tilt buttons, or swipe left or right on the board itself.' },
+    ],
+  },
+  {
+    slug: 'turntile',
+    game: 'turntile',
+    title: 'Play Turntile Online — Free Flip & Reveal Tile Puzzle',
+    h1: 'Turntile',
+    metaDescription:
+      'Play Turntile free online — flip 2×2 blocks to swap tiles and reveal their hidden face, and lock every block once its four faces match. No download, no sign-up.',
+    shortDescription: 'Flip a block, reveal its faces, lock the match.',
+    howToPlay: [
+      'Every tile has two faces; only one is showing at a time.',
+      'Tap a pivot point to flip the 2×2 block around it — the four tiles swap positions point-symmetrically and their hidden faces are revealed.',
+      'A block locks in place the moment all four of its tiles show the same face.',
+      'Lock every block on the board to win — fewer flips than the par is a better score.',
+    ],
+    strategy: [
+      'Flipping is its own undo — flip the same block again and it returns exactly to where it was.',
+      'Track which faces you have already seen on nearby tiles; a flip both moves tiles and refreshes your memory of them.',
+      'Work outward from a block you can already match rather than flipping at random — each flip touches four tiles at once, so plan for the ripple.',
+      'A block near the edge has fewer overlapping neighbours, so it is usually safer to lock first.',
+      'The par shown is the exact number of flips used to scramble the board, so matching or beating it is always possible.',
+    ],
+    faq: [
+      { q: 'How do you play Turntile?', a: 'Tap a pivot to flip the surrounding 2×2 block. The four tiles swap positions and reveal their hidden face; a block locks once all four faces match.' },
+      { q: 'How do I win?', a: 'Lock every 2×2 block on the board by getting all four of its tiles to show the same face.' },
+      { q: 'Can I undo a flip?', a: 'There is no separate undo button, but every flip is its own reverse — flip the same pivot again to put it back.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Turntile plays free in your browser with no download and no sign-up. Your best flip count saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap a pivot point to flip its block — the grid scales to fit phones and tablets as well as desktop.' },
     ],
   },
 ]

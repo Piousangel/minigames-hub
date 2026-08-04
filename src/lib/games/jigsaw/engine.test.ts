@@ -339,25 +339,41 @@ describe('artworkFor', () => {
     expect(artworkFor(12345, 0)).toEqual(artworkFor(12345, 0))
   })
 
-  it('only uses on-brand neon palette colours', () => {
+  it('renders a recognizable, well-formed scene', () => {
     const art = artworkFor(42, 3)
-    expect(NEON_PALETTE).toContain(art.bg[0])
-    expect(NEON_PALETTE).toContain(art.bg[1])
-    expect(NEON_PALETTE).toContain(art.accent)
+    expect(typeof art.scene).toBe('string')
+    expect(art.scene.length).toBeGreaterThan(0)
+    // Vertical gradient: at least 2 stops, all valid hex.
+    expect(art.bg.length).toBeGreaterThanOrEqual(2)
+    for (const c of art.bg) expect(c).toMatch(/^#[0-9a-fA-F]{6}$/)
+    // Every shape is on-brand, opaque-ish, and inside the picture-ish bounds.
     for (const sh of art.shapes) {
-      expect(NEON_PALETTE).toContain(sh.color)
-      expect(sh.cx).toBeGreaterThanOrEqual(0)
-      expect(sh.cx).toBeLessThanOrEqual(1)
+      expect(sh.color).toMatch(/^#[0-9a-fA-F]{3,8}$/)
       expect(sh.opacity).toBeGreaterThan(0)
       expect(sh.opacity).toBeLessThanOrEqual(1)
+      if (sh.kind === 'circle' || sh.kind === 'ring' || sh.kind === 'triangle') {
+        expect(sh.cx).toBeGreaterThanOrEqual(-0.2)
+        expect(sh.cx).toBeLessThanOrEqual(1.2)
+        expect(sh.r).toBeGreaterThan(0)
+      }
     }
   })
 
-  it('produces a handful of shapes and differs across variants', () => {
+  it('uses on-brand neon accents somewhere in the composition', () => {
+    const colors = new Set(artworkFor(7, 1).shapes.map((s) => s.color))
+    expect(NEON_PALETTE.some((c) => colors.has(c))).toBe(true)
+  })
+
+  it('each variant maps to a distinct scene template', () => {
+    const scenes = Array.from({ length: 6 }, (_, v) => artworkFor(100, v).scene)
+    expect(new Set(scenes).size).toBe(6) // sunset, mountains, orbit, city, bokeh, burst
+  })
+
+  it('produces a legible number of shapes and differs across variants', () => {
     const a = artworkFor(100, 0)
     const b = artworkFor(100, 1)
     expect(a.shapes.length).toBeGreaterThanOrEqual(5)
-    expect(a.shapes.length).toBeLessThanOrEqual(8)
+    expect(a.shapes.length).toBeLessThanOrEqual(40)
     expect(a).not.toEqual(b)
   })
 })

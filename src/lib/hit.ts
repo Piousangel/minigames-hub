@@ -37,11 +37,16 @@ export function sendHit(slug: string, event: string, dwell?: number): void {
     if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
       navigator.sendBeacon('/api/hit', new Blob([body], { type: 'application/json' }))
     } else {
-      void fetch('/api/hit', {
+      // catch 필수 — 이 fetch는 sendBeacon 미지원 환경(구형 브라우저·jsdom)의 폴백이라
+      // 실패가 흔하다. .catch() 없으면 async 거부가 try/catch를 우회해 unhandled
+      // rejection이 된다(jsdom은 상대 URL을 못 풀어 항상 여기서 던진다).
+      fetch('/api/hit', {
         method: 'POST',
         body,
         keepalive: true,
         headers: { 'content-type': 'application/json' },
+      }).catch(() => {
+        // 분석 실패가 UX를 막지 않게 삼킨다
       })
     }
   } catch {

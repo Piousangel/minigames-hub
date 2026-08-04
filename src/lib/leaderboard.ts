@@ -22,6 +22,7 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   equate: { label: 'Score' },
   reactor: { label: 'Charge' },
   solitaire: { label: 'Score' },
+  yahtzee: { label: 'Score' },
   freecell: { label: 'Score' },
   spider: { label: 'Score' },
   pyramid: { label: 'Score' },
@@ -54,6 +55,10 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   splice: { label: 'Score' },
   quarry: { label: 'Best' },
   latch: { label: 'Score' },
+  beatline: { label: 'Score' },
+  skew: { label: 'Score' },
+  turntile: { label: 'Score' },
+  flow: { label: 'Level' },
 }
 
 export function hasLeaderboard(slug: string): boolean {
