@@ -55,6 +55,10 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   splice: { label: 'Score' },
   quarry: { label: 'Best' },
   latch: { label: 'Score' },
+  beatline: { label: 'Score' },
+  skew: { label: 'Score' },
+  turntile: { label: 'Score' },
+  flow: { label: 'Level' },
 }
 
 export function hasLeaderboard(slug: string): boolean {

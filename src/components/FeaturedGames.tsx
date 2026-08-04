@@ -15,6 +15,7 @@ const FEATURED_ORDER = [
   'yahtzee',
   'mancala',
   'battleship',
+  'beatline',
   'clusters',
   'minesweeper',
   'snake',

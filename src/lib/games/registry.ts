@@ -95,6 +95,9 @@ export type GamePage = GamePageBase &
     | { game: 'mancala' }
     | { game: 'battleship' }
     | { game: 'kakuro' }
+    | { game: 'beatline' }
+    | { game: 'skew' }
+    | { game: 'turntile' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2488,6 +2491,93 @@ export const gamePages: GamePage[] = [
       { q: 'Do I have to guess?', a: 'Never. Every puzzle here is checked to have exactly one solution reachable by logic, so careful deduction always gets you there.' },
       { q: 'What does the combo helper do?', a: 'For the selected run it shows the possible sets of digits that add up to the clue in that many cells — the classic Kakuro solving aid.' },
       { q: 'Is it free and account-free?', a: 'Yes. Kakuro plays free in your browser with no download and no sign-up. Your best times save locally.' },
+    ],
+  },
+  {
+    slug: 'beatline',
+    game: 'beatline',
+    title: 'Play Beatline Online — Free 4-Lane Rhythm Game, No App',
+    h1: 'Beatline',
+    metaDescription:
+      'Play Beatline free online — hit falling notes in the right lane at the right beat across 5 stages. Daily challenge and practice mode, live combo and multiplier. No download, no sign-up.',
+    shortDescription: 'Hit the note, on the beat, in the lane.',
+    howToPlay: [
+      'Notes fall down four lanes toward the judgement line at the bottom.',
+      'Press the matching lane key (D, F, J, K) — or tap the lane on touch — exactly as the note crosses the line.',
+      'A Perfect hit scores more than a Good hit; missing a note costs a life and resets your combo.',
+      'Clear all 5 stages before you run out of lives to win the run.',
+    ],
+    strategy: [
+      'Watch the judgement line, not the falling note — let the note come to you instead of chasing it up the lane.',
+      'The Perfect window is tight; if you are consistently early or late, nudge your timing by half a beat.',
+      'Combo drives your score multiplier, so protecting an unbroken streak beats chasing one risky Perfect.',
+      'Later stages layer more notes per beat — lock onto the rhythm rather than reacting note-by-note.',
+      'Practice mode replays a stage without spending a daily attempt — use it to learn a hard section first.',
+    ],
+    faq: [
+      { q: 'How do you play Beatline?', a: 'Press the lane key (D, F, J, K) exactly as the falling note crosses the judgement line. Hitting inside the tight window scores a Perfect; a wider window scores a Good.' },
+      { q: 'What happens if I miss a note?', a: 'A miss breaks your combo and costs a life. Run out of lives before clearing the stage and the run ends.' },
+      { q: 'How many stages are there?', a: 'Five stages, each with a denser note chart than the last. Clear all five to win the run.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Beatline plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap a lane button as the note crosses the line — the four lanes span the width of the board on any screen.' },
+    ],
+  },
+  {
+    slug: 'skew',
+    game: 'skew',
+    title: 'Play Skew Online — Free Tilt & Match Puzzle, No App',
+    h1: 'Skew',
+    metaDescription:
+      'Play Skew free online — tilt the whole board instead of swiping tiles, shear the grid diagonally, and match 5 colours in cascading waves. No download, no sign-up.',
+    shortDescription: 'Tilt the board, let the colours line up.',
+    howToPlay: [
+      'Tap the left or right tilt button (or press ←/→) to shear the whole board diagonally, one row at a time.',
+      'Tilting scatters and realigns colours across the diagonal — matching 3 or more in a row or column clears them.',
+      'Cleared tiles drop and refill, and a fresh match can cascade into another for a wave bonus.',
+      'You have a limited number of tilts — score as high as you can before they run out.',
+    ],
+    strategy: [
+      'A tilt shifts every row (except the top) by a different amount, so plan for the whole board moving, not one tile.',
+      'Chain a match right after your last one to keep the combo streak alive — a tilt with no match resets it.',
+      'Cascading waves multiply your score, so a tilt that sets up a chain reaction beats one that only clears a single line.',
+      'There is no invalid move — every tilt changes the board, so there is never a need to hunt for a legal move.',
+      'Alternate tilt direction when obvious matches run out — the other diagonal often opens fresh lines.',
+    ],
+    faq: [
+      { q: 'How do you play Skew?', a: 'Tap the left or right button to tilt the whole board diagonally. Rows shift by different amounts, scattering colours until three or more line up and clear.' },
+      { q: 'Do I swipe individual tiles?', a: 'No — Skew has no tile swapping. You only ever tilt the entire board left or right; the diagonal shear does the rearranging.' },
+      { q: 'How many tilts do I get?', a: 'You start with 30 tilts. Score as many cascading matches as you can before they run out.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Skew plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap the on-screen tilt buttons, or swipe left or right on the board itself.' },
+    ],
+  },
+  {
+    slug: 'turntile',
+    game: 'turntile',
+    title: 'Play Turntile Online — Free Flip & Reveal Tile Puzzle',
+    h1: 'Turntile',
+    metaDescription:
+      'Play Turntile free online — flip 2×2 blocks to swap tiles and reveal their hidden face, and lock every block once its four faces match. No download, no sign-up.',
+    shortDescription: 'Flip a block, reveal its faces, lock the match.',
+    howToPlay: [
+      'Every tile has two faces; only one is showing at a time.',
+      'Tap a pivot point to flip the 2×2 block around it — the four tiles swap positions point-symmetrically and their hidden faces are revealed.',
+      'A block locks in place the moment all four of its tiles show the same face.',
+      'Lock every block on the board to win — fewer flips than the par is a better score.',
+    ],
+    strategy: [
+      'Flipping is its own undo — flip the same block again and it returns exactly to where it was.',
+      'Track which faces you have already seen on nearby tiles; a flip both moves tiles and refreshes your memory of them.',
+      'Work outward from a block you can already match rather than flipping at random — each flip touches four tiles at once, so plan for the ripple.',
+      'A block near the edge has fewer overlapping neighbours, so it is usually safer to lock first.',
+      'The par shown is the exact number of flips used to scramble the board, so matching or beating it is always possible.',
+    ],
+    faq: [
+      { q: 'How do you play Turntile?', a: 'Tap a pivot to flip the surrounding 2×2 block. The four tiles swap positions and reveal their hidden face; a block locks once all four faces match.' },
+      { q: 'How do I win?', a: 'Lock every 2×2 block on the board by getting all four of its tiles to show the same face.' },
+      { q: 'Can I undo a flip?', a: 'There is no separate undo button, but every flip is its own reverse — flip the same pivot again to put it back.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Turntile plays free in your browser with no download and no sign-up. Your best flip count saves locally.' },
+      { q: 'Does it work on mobile?', a: 'Yes. Tap a pivot point to flip its block — the grid scales to fit phones and tablets as well as desktop.' },
     ],
   },
 ]

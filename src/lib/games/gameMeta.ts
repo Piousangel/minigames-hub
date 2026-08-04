@@ -109,6 +109,9 @@ export const gameMeta: Record<string, GameMeta> = {
   mancala: { icon: '🪙', accent: 'lime', category: 'Classic', addedDate: '2026-07-23', featured: true },
   battleship: { icon: '🚢', accent: 'blue', category: 'Classic', addedDate: '2026-07-24', featured: true },
   kakuro: { icon: '🧮', accent: 'blue', category: 'Puzzle', addedDate: '2026-07-29' },
+  beatline: { icon: '🎧', accent: 'magenta', category: 'Skill', addedDate: '2026-08-04', featured: true, daily: true },
+  skew: { icon: '📐', accent: 'lime', category: 'Puzzle', addedDate: '2026-08-04' },
+  turntile: { icon: '🔄', accent: 'purple', category: 'Puzzle', addedDate: '2026-08-04', daily: true },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']
