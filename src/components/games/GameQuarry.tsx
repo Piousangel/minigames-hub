@@ -16,6 +16,7 @@ import {
   type Rng,
 } from '@/lib/games/quarry/engine'
 import { todayUTC as todayStr } from '@/lib/dailyDate'
+import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
@@ -58,6 +59,7 @@ export function GameQuarry({ storageKey }: { storageKey: string }) {
   const [lastScore, setLastScore] = useState<LevelScore | null>(null)
   const [lastPoints, setLastPoints] = useState(0)
   const [newBest, setNewBest] = useState(false)
+  const [dayStreak, setDayStreak] = useState(0)
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reducedRef } = useReducedMotion()
@@ -126,6 +128,7 @@ export function GameQuarry({ storageKey }: { storageKey: string }) {
     modeRef.current = initialMode
     setMode(initialMode)
     startRun(initialMode)
+    setDayStreak(currentStreak(loadStreak(`${storageKey}:streak`)))
     const stored = Number(localStorage.getItem(storageKey))
     const value = Number.isFinite(stored) && stored > 0 ? stored : 0
     bestRef.current = value
@@ -161,13 +164,19 @@ export function GameQuarry({ storageKey }: { storageKey: string }) {
         setLastScore(null)
         const isNew = persistBest(scoreRef.current)
         setNewBest(isNew)
+        if (modeRef.current === 'daily') {
+          const streakKey = `${storageKey}:streak`
+          const bumped = bumpStreak(loadStreak(streakKey))
+          saveStreak(streakKey, bumped)
+          setDayStreak(bumped.streak)
+        }
       } else if (lp?.fled) {
         play('move') // the panic-hop
       } else {
         play('error') // pinned / no progress
       }
     },
-    [commit, play, persistBest],
+    [commit, play, persistBest, storageKey],
   )
 
   const handleNext = useCallback(() => {
@@ -291,6 +300,7 @@ export function GameQuarry({ storageKey }: { storageKey: string }) {
         { label: 'Level', value: state.level, testId: 'level' },
         { label: 'Score', value: score, testId: 'score', float: true },
         { label: 'Best', value: best, testId: 'best' },
+        ...(mode === 'daily' ? [{ label: 'Day Streak', value: dayStreak, testId: 'day-streak' }] : []),
       ]}
       headerExtra={headerExtra}
       onNewGame={restart}

@@ -19,6 +19,7 @@ import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 import { todayUTC as todayString } from '@/lib/dailyDate'
+import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
 
 const COMBO_KEY_SUFFIX = ':combo'
 
@@ -46,6 +47,7 @@ export function GameStackpot({ storageKey }: { storageKey: string }) {
   const [bestCombo, setBestCombo] = useState(1)
   const [newBest, setNewBest] = useState(false)
   const [daily, setDaily] = useState(false)
+  const [dayStreak, setDayStreak] = useState(0)
   // 마지막 액션 결과에 붙는 애니메이션 키 — 리렌더 때마다 증가.
   const [fxKey, setFxKey] = useState(0)
 
@@ -87,6 +89,7 @@ export function GameStackpot({ storageKey }: { storageKey: string }) {
     const isDaily = localStorage.getItem(`${storageKey}:mode`) !== 'random'
     dailyRef.current = isDaily
     setDaily(isDaily)
+    setDayStreak(currentStreak(loadStreak(`${storageKey}:streak`)))
     restart()
     return () => clearTimers()
   }, [restart, storageKey, clearTimers])
@@ -126,6 +129,12 @@ export function GameStackpot({ storageKey }: { storageKey: string }) {
     if (state.longestCombo > bestCombo) {
       setBestCombo(state.longestCombo)
       localStorage.setItem(storageKey + COMBO_KEY_SUFFIX, String(state.longestCombo))
+    }
+    if (dailyRef.current) {
+      const streakKey = `${storageKey}:streak`
+      const bumped = bumpStreak(loadStreak(streakKey))
+      saveStreak(streakKey, bumped)
+      setDayStreak(bumped.streak)
     }
     play(beat ? 'win' : 'lose')
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -211,6 +220,7 @@ export function GameStackpot({ storageKey }: { storageKey: string }) {
           { label: 'Score', value: state.score, testId: 'score', float: true },
           { label: 'Best', value: best },
           { label: 'Combo', value: state.combo, testId: 'combo' },
+          ...(daily ? [{ label: 'Day Streak', value: dayStreak, testId: 'day-streak' }] : []),
         ]}
         headerExtra={
           <div className="flex items-center gap-2">
