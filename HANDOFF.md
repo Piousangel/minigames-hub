@@ -1,6 +1,6 @@
 # 인계: AdSense 승인받아 광고를 켜고, 게임 라운드를 계속 돌린다
 
-> 갱신: 2026-08-04 · 브랜치: `main` · 커밋 상태: **committed & merged (PR #1)** · 배포 진행 중
+> 갱신: 2026-08-04 · 브랜치: `main` · 커밋 상태: **committed & merged (PR #1)** · **배포 완료·검증됨** (quickminigames.site, 게임 87종)
 
 ## 2026-08-04 세션 — 게임 라운드10 (Beatline·Skew·Turntile) + UI/UX 감사 상위 5건
 
