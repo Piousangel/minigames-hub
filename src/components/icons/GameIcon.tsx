@@ -784,6 +784,127 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // flow — 두 점을 잇는 파이프(직각 코너)
+  flow: (
+    <>
+      <path d="M5 7h6v10h8" {...soft} />
+      <circle cx="5" cy="7" r="2.2" {...solid} />
+      <circle cx="19" cy="17" r="2.2" />
+    </>
+  ),
+
+  // unblock — 빨간 블록이 출구로 슬라이드(러쉬아워)
+  unblock: (
+    <>
+      <rect x="3" y="4" width="18" height="16" rx="1.5" {...soft} />
+      <rect x="5.5" y="10.5" width="7" height="3.5" rx="1" {...solid} />
+      <rect x="9" y="5.5" width="3.5" height="4" rx="1" {...soft} />
+      <path d="M15 12.2h6M18.4 9.6l2.6 2.6-2.6 2.6" />
+    </>
+  ),
+
+  // yahtzee — 주사위 두 개(핍 패턴)
+  yahtzee: (
+    <>
+      <rect x="3.5" y="9" width="9" height="9" rx="1.8" {...soft} />
+      <circle cx="6.2" cy="11.7" r="0.85" {...solid} />
+      <circle cx="9.8" cy="11.7" r="0.85" {...solid} />
+      <circle cx="6.2" cy="15.3" r="0.85" {...solid} />
+      <circle cx="9.8" cy="15.3" r="0.85" {...solid} />
+      <rect x="12.5" y="4.5" width="8" height="8" rx="1.8" {...solid} />
+      <circle cx="16.5" cy="8.5" r="0.9" />
+    </>
+  ),
+
+  // mancala — 6개 구덩이 + 양쪽 스토어(씨뿌리기)
+  mancala: (
+    <>
+      <path d="M6 6a6 8 0 0 0 0 12M18 6a6 8 0 0 1 0 12" {...soft} />
+      <circle cx="9.5" cy="8.5" r="1.4" />
+      <circle cx="14.5" cy="8.5" r="1.4" {...solid} />
+      <circle cx="9.5" cy="15.5" r="1.4" {...solid} />
+      <circle cx="14.5" cy="15.5" r="1.4" />
+    </>
+  ),
+
+  // battleship — 함체 + 조준 레티클(hunt/target)
+  battleship: (
+    <>
+      <path d="M5 14h14l-2.2 5H7.2z" {...soft} />
+      <path d="M7 14V8h4V5h2v3h4v6" />
+      <path d="M4 14h16" />
+      <circle cx="18" cy="5.5" r="2" />
+      <path d="M18 3.5v.6M18 6.4v.6M16 5.5h.6M19.4 5.5h.6" />
+    </>
+  ),
+
+  // kakuro — 크로스섬: 대각선 클루 셀 + 흰 칸 격자
+  kakuro: (
+    <>
+      <rect x="3.5" y="3.5" width="6" height="6" {...soft} />
+      <path d="M3.5 3.5l6 6" />
+      <rect x="9.5" y="3.5" width="6" height="6" />
+      <rect x="3.5" y="9.5" width="6" height="6" />
+      <rect x="9.5" y="9.5" width="6" height="6" {...soft} />
+    </>
+  ),
+
+  // pyramid — 3단 카드 피라미드(합13 페어 제거)
+  pyramid: (
+    <>
+      <rect x="10.5" y="3.5" width="3" height="4.4" rx="0.6" {...solid} />
+      <rect x="7.2" y="9" width="3" height="4.4" rx="0.6" {...soft} />
+      <rect x="13.8" y="9" width="3" height="4.4" rx="0.6" {...soft} />
+      <rect x="3.9" y="14.5" width="3" height="4.4" rx="0.6" />
+      <rect x="10.5" y="14.5" width="3" height="4.4" rx="0.6" {...solid} />
+      <rect x="17.1" y="14.5" width="3" height="4.4" rx="0.6" />
+    </>
+  ),
+
+  // tripeaks — 세 봉우리(삼봉)
+  tripeaks: (
+    <>
+      <path d="M5 15l2.2-6.5L9.4 15z" {...soft} />
+      <path d="M9.8 15l2.2-8L14.2 15z" {...solid} />
+      <path d="M14.6 15l2.2-6.5L19 15z" {...soft} />
+      <path d="M3.5 15.5h17" />
+    </>
+  ),
+
+  // beatline — 낙하하는 노트 3개 + 판정선(리듬게임)
+  beatline: (
+    <>
+      <path d="M3 18.5h18" />
+      <rect x="4" y="12.5" width="3.4" height="4" rx="1" {...solid} />
+      <rect x="10.3" y="6" width="3.4" height="4" rx="1" {...soft} />
+      <rect x="16.6" y="9.5" width="3.4" height="4" rx="1" {...solid} />
+      <path d="M3 4v3M21 4v3" {...soft} />
+    </>
+  ),
+
+  // skew — 기울어진(전단) 그리드 + 좌우 틸트 화살표
+  skew: (
+    <>
+      <g transform="skewX(-12)">
+        <rect x="6" y="4" width="12" height="12" rx="1" {...soft} />
+        <path d="M6 8h12M6 12h12M10 4v12M14 4v12" />
+      </g>
+      <path d="M3 20l2-1.6-2-1.6M21 20l-2-1.6 2-1.6" {...soft} />
+    </>
+  ),
+
+  // turntile — 2×2 블록 플립(회전 화살표)
+  turntile: (
+    <>
+      <rect x="4" y="4" width="7" height="7" rx="1" {...solid} />
+      <rect x="13" y="4" width="7" height="7" rx="1" {...soft} />
+      <rect x="4" y="13" width="7" height="7" rx="1" {...soft} />
+      <rect x="13" y="13" width="7" height="7" rx="1" {...solid} />
+      <path d="M15.5 9.5a4 4 0 1 1 -.9-4.6" {...soft} />
+      <path d="M13.6 4l1 1 1.5-1.2" {...soft} />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>

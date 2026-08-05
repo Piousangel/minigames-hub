@@ -25,24 +25,17 @@ CI가 못 잡는다. 도입한다면: (1) jsdom + @testing-library/react 설치,
 **Priority:** P2
 **Depends on:** None
 
-### Beatline/Skew/Turntile용 커스텀 SVG 아이콘 제작
-
-**What:** `src/components/icons/GameIcon.tsx`의 `glyphs` 맵(22개 게임 전용 네온 라인 아이콘)에
-beatline/skew/turntile 3종 추가.
-
-**Why:** `GameCard.tsx`가 이모지(`gameMeta.icon`)가 아니라 이 SVG 아이콘 세트를 카드에
-렌더한다. 목록에 없는 slug는 전부 제네릭 조이스틱(`__default`)으로 폴백 — 회귀는
-아니다(86종 중 22종만 커버하는 게 기존 상태이고, 나머지 60여 종도 이미 이 폴백을
-쓴다), 다만 신규 3종도 지금은 이 다수 폴백군에 합류한 상태.
-
-**Context:** 아이콘 패밀리 규칙(GameIcon.tsx 상단 주석 참고): viewBox 24×24,
-stroke-width 1.75, `soft`/`softer`/`solid` 저투명 fill 프리셋, 2px 그리드 정렬. 각
-게임의 핵심 동사를 라인아트로 표현할 것(예: Beatline=4레인 노트, Skew=기울어진
-그리드, Turntile=2×2 플립 화살표). 급하지 않음 — 폴백이 깨진 게 아니라 그냥 덜
-폴리시된 상태.
-
-**Effort:** S
-**Priority:** P3
-**Depends on:** None
-
 ## Completed
+
+### 게임 카드 커스텀 SVG 아이콘 누락 11종 채움
+
+**What:** `src/components/icons/GameIcon.tsx`의 `glyphs` 맵에 battleship/beatline/flow/
+kakuro/mancala/pyramid/skew/tripeaks/turntile/unblock/yahtzee 11종 추가.
+
+**Why:** 원래 스코프는 beatline/skew/turntile 3종이었으나, 실제 슬러그 대조 결과
+flow/unblock/yahtzee/mancala/battleship/kakuro/pyramid/tripeaks도 이전 세션부터
+이미 누락돼 있었다(레포 전체 86종 중 22종만 커버 → 실제로는 11종만 진짜 갭이었고
+나머지는 원래부터 의도적 폴백 대상). 같은 파일·같은 패턴이라 한 번에 전부 처리.
+
+**Completed:** 2026-08-05. 브라우저(Chrome MCP)로 11개 전부 홈 카드에서 렌더 확인,
+`pnpm typecheck && pnpm test && pnpm build` 통과.
