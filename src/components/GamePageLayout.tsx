@@ -5,6 +5,7 @@ import type { GamePage } from '@/lib/games/registry'
 import { AdSlot } from '@/components/ads/AdSlot'
 import { Leaderboard } from '@/components/Leaderboard'
 import { Reactions } from '@/components/Reactions'
+import { Comments } from '@/components/Comments'
 import { RecordPlay } from '@/components/RecordPlay'
 import { Reveal } from '@/components/Reveal'
 import { NextUp } from '@/components/NextUp'
@@ -52,6 +53,11 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
       <GameNavProvider slug={page.slug}>
         {children}
 
+        {/* 게임 바로 아래, 스크롤 없이 보이는 위치 — 리액션은 눈에 띄어야 눌린다(사용자 피드백,
+            2026-08-10: "이거 보고 잘 눌를것같지 않은데"). GameSwitcher/GameStats/DailyDock/NextUp
+            보다 먼저 둬서 시선이 첫 번째로 닿는 위젯으로 만듦. */}
+        <Reactions slug={page.slug} />
+
         {/* 최근 게임 퀵스위처 — 게임 중에도 방금 하던 게임으로 원탭 전환(체류) */}
         <GameSwitcher currentSlug={page.slug} />
 
@@ -65,10 +71,10 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
         <NextUp currentSlug={page.slug} />
       </GameNavProvider>
 
-      {/* 게임별 이모지 리액션 — 리더보드 유무와 무관하게 전 게임 공용(사이트 내장 커뮤니티 v1) */}
-      <Reactions slug={page.slug} />
-
       {hasLeaderboard(page.slug) && <Leaderboard slug={page.slug} />}
+
+      {/* 게임별 익명 댓글 — 리더보드 유무와 무관하게 전 게임 공용(사이트 내장 커뮤니티 Approach A) */}
+      <Comments slug={page.slug} />
 
       {GAME_INTROS[page.slug] && (
         <Reveal>

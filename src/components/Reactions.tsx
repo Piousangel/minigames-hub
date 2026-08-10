@@ -66,28 +66,35 @@ export function Reactions({ slug }: { slug: string }) {
   }
 
   return (
-    <div
-      data-testid="reactions"
-      className="mx-auto mt-6 flex w-full max-w-100 items-center justify-center gap-2"
-    >
-      {REACTIONS.map((emoji) => (
-        <button
-          key={emoji}
-          type="button"
-          onClick={() => react(emoji)}
-          disabled={reacted[emoji]}
-          aria-pressed={!!reacted[emoji]}
-          aria-label={`React with ${emoji}`}
-          className={`btn-press flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors ${
-            reacted[emoji]
-              ? 'border-neon-cyan/60 bg-neon-cyan/10 text-neon-cyan'
-              : 'border-border bg-surface/60 text-fg hover:border-neon-cyan/40'
-          }`}
-        >
-          <span aria-hidden="true">{emoji}</span>
-          <span className="tabular-nums text-fg-muted">{counts[emoji]}</span>
-        </button>
-      ))}
+    <div data-testid="reactions" className="mx-auto mt-4 flex w-full max-w-100 flex-col items-center gap-2">
+      <span
+        aria-hidden="true"
+        className="font-pixel text-[9px] uppercase tracking-[0.2em] text-neon-cyan"
+      >
+        How was it?
+      </span>
+      <div className="flex items-center justify-center gap-2.5">
+        {REACTIONS.map((emoji) => (
+          <button
+            key={emoji}
+            type="button"
+            onClick={() => react(emoji)}
+            disabled={reacted[emoji]}
+            aria-pressed={!!reacted[emoji]}
+            aria-label={`React with ${emoji}`}
+            className={`btn-press flex flex-col items-center gap-0.5 rounded-2xl border-2 px-4 py-2.5 transition-colors ${
+              reacted[emoji]
+                ? 'border-neon-cyan bg-neon-cyan/15'
+                : 'border-neon-cyan/40 bg-neon-cyan/5 hover:border-neon-cyan hover:bg-neon-cyan/10'
+            }`}
+          >
+            <span aria-hidden="true" className="text-2xl leading-none">
+              {emoji}
+            </span>
+            <span className="text-xs font-bold tabular-nums text-neon-cyan">{counts[emoji]}</span>
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

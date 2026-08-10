@@ -544,6 +544,22 @@ test('게임 페이지: 리액션 클릭 시 카운트가 오르고 재클릭이
   await expect(fireBtn).toBeDisabled()
 })
 
+test('게임 페이지: 댓글을 남기면 목록에 바로 나타난다', async ({ page }) => {
+  // 리액션과 같은 이유로 /api/comments(s)를 목킹한다.
+  await page.route('**/api/comments**', (route) =>
+    route.fulfill({ json: { comments: [] } }),
+  )
+  await page.route('**/api/comment', (route) =>
+    route.fulfill({ json: { comments: [{ name: 'Anon', text: 'great game', createdAt: 1 }] } }),
+  )
+  await page.goto('/snake')
+  await expect(page.getByText('No comments yet — be the first!')).toBeVisible()
+  await page.getByLabel('Your comment').fill('great game')
+  await page.getByRole('button', { name: 'Post' }).click()
+  await expect(page.getByText('great game')).toBeVisible()
+  await expect(page.getByLabel('Your comment')).toHaveValue('')
+})
+
 test('pinwheel: 마우스 클릭으로 핀이 꽂힌다', async ({ page }) => {
   // 셀의 onFocus가 핀을 꽂고 onClick 토글이 곧바로 해제해 마우스로는 플레이가
   // 불가능했다. 실제 마우스 클릭은 포커스를 유발하므로 이 경로를 고정한다.

@@ -14,6 +14,13 @@ import {
   isValidReactionSlug,
   type ReactionCounts,
 } from '../src/lib/reactions'
+import {
+  COMMENT_RATE_LIMIT_MS,
+  cleanCommentText,
+  containsLink,
+  type CommentRow,
+} from '../src/lib/comments'
+import { isValidGameSlug } from '../src/lib/slug'
 
 // 최소 타입(CF 타입 의존 없이) — 번들은 wrangler(esbuild)가 처리.
 interface D1Stmt {
@@ -58,6 +65,18 @@ async function reactionCounts(env: Env, slug: string): Promise<ReactionCounts> {
     if (isValidReaction(r.emoji)) counts[r.emoji] = r.count
   }
   return counts
+}
+
+const COMMENTS_PER_GAME = 50
+const COMMENTS_RECENT_GLOBAL = 100
+
+async function commentsFor(env: Env, slug: string): Promise<CommentRow[]> {
+  const { results } = await env.DB.prepare(
+    'SELECT name, text, created_at FROM comments WHERE slug=? ORDER BY created_at DESC LIMIT ?',
+  )
+    .bind(slug, COMMENTS_PER_GAME)
+    .all<{ name: string; text: string; created_at: number }>()
+  return results.map((r) => ({ name: r.name, text: r.text, createdAt: r.created_at }))
 }
 
 export default {
@@ -134,6 +153,71 @@ export default {
         .bind(game, emoji)
         .run()
       return json({ counts: await reactionCounts(env, game) })
+    }
+
+    // 게임별 익명 댓글(Approach A, 2026-08-10) — src/lib/comments.ts 참고. slug 없이 호출하면
+    // 전 게임 최신순(운영자 모니터링용 — UI로 안 노출, curl/wrangler d1로 직접 조회하는 게 기본
+    // 사용법이지만 API로도 열어둠).
+    if (url.pathname === '/api/comments' && request.method === 'GET') {
+      const game = url.searchParams.get('game')
+      if (game !== null) {
+        if (!isValidGameSlug(game)) return json({ error: 'unknown game' }, 400)
+        return json({ comments: await commentsFor(env, game) })
+      }
+      const { results } = await env.DB.prepare(
+        'SELECT slug, name, text, created_at FROM comments ORDER BY created_at DESC LIMIT ?',
+      )
+        .bind(COMMENTS_RECENT_GLOBAL)
+        .all<{ slug: string; name: string; text: string; created_at: number }>()
+      return json({
+        comments: results.map((r) => ({ slug: r.slug, name: r.name, text: r.text, createdAt: r.created_at })),
+      })
+    }
+
+    if (url.pathname === '/api/comment' && request.method === 'POST') {
+      let body: Record<string, unknown>
+      try {
+        body = (await request.json()) as Record<string, unknown>
+      } catch {
+        return json({ error: 'bad json' }, 400)
+      }
+      const game = String(body.game ?? '')
+      if (!isValidGameSlug(game)) return json({ error: 'unknown game' }, 400)
+
+      // 허니팟: 봇이 자동으로 채우는 미끼 필드. 값이 있으면 저장하지 않되, 성공한 것처럼
+      // 응답해 봇에게 거부됐다는 신호를 안 준다.
+      if (String(body.hp ?? '').length > 0) {
+        return json({ comments: await commentsFor(env, game) })
+      }
+
+      const text = cleanCommentText(body.text)
+      if (text.length === 0) return json({ error: 'empty comment' }, 400)
+      if (containsLink(text)) return json({ error: 'links not allowed' }, 400)
+      const name = cleanName(body.name)
+
+      const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown'
+      const now = Date.now()
+      const { results: limitRows } = await env.DB.prepare(
+        'SELECT last_at FROM comment_rate_limits WHERE ip=?',
+      )
+        .bind(ip)
+        .all<{ last_at: number }>()
+      const lastAt = limitRows[0]?.last_at ?? 0
+      if (now - lastAt < COMMENT_RATE_LIMIT_MS) return json({ error: 'slow down' }, 429)
+
+      await env.DB.prepare(
+        'INSERT INTO comment_rate_limits (ip, last_at) VALUES (?,?) ' +
+          'ON CONFLICT(ip) DO UPDATE SET last_at = excluded.last_at',
+      )
+        .bind(ip, now)
+        .run()
+      await env.DB.prepare(
+        'INSERT INTO comments (slug, name, text, created_at) VALUES (?,?,?,?)',
+      )
+        .bind(game, name, text, now)
+        .run()
+
+      return json({ comments: await commentsFor(env, game) })
     }
 
     // 1st-party 분석 비콘: 게임별 조회('view')·체류('dwell', 초)를 Analytics Engine에 기록.
