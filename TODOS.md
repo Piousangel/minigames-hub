@@ -58,44 +58,32 @@ Stakehouse엔 "중간에 캐시아웃" 옵션이 없어서(끝까지 하거나 �
 
 ## Testing
 
-### jsdom + RTL 파일럿 확장 — 남은 canvas/grid 게임
+### jsdom + RTL 파일럿 확장 — 남은 canvas 게임(Breakout/BubbleShooter/Pong)
 
-**What:** jsdom + @testing-library/react는 이번(라운드11) 도입됐고 GameReaction/
-GameAimTrainer(둘 다 순수 DOM)에서 파일럿으로 실동작 확인까지 마쳤다. 남은 건
-GameSonar(그리드 퍼즐, 데일리 시드가 결정적이라 이론상 가능)와 GameBreakout/
-GameBubbleShooter/GamePong(canvas+requestAnimationFrame 루프)에 같은 수준의
-컴포넌트 테스트를 확장할지 결정.
+**What:** GameSonar는 **완료**(2026-08-10) — 데일리 시드가 순수 함수라 컴포넌트
+바깥에서 `createGame(DAILY_CONFIG, dailySeed(todayUTC()))`로 타겟 위치를 미리
+계산하고 정확히 그 칸만 Mark로 클릭해 오탐 없이 승리를 재현할 수 있었다
+(`GameSonar.test.tsx`, 2건 — "New best score!" 배지가 첫 승리엔 뜨고 기존 베스트를
+못 넘으면 안 뜨는지 실제 클릭으로 검증).
 
-**Why:** 라운드11 커버리지 감사(AI 추정 76%)가 Breakout/BubbleShooter/Sonar의
-신기록 축하 로직(isBest)과 AimTrainer/Pong/Reaction의 recordResult() 배선에
-직접 테스트가 없다고 지적했다. Breakout/BubbleShooter는 핵심 판정 로직을
-`src/lib/bestScore.ts`(순수 함수)로 뽑아 유닛테스트 5건으로 커버해 실질적으로
-해소했다. 남은 갭은 (1) Sonar의 "New best score!" 배지 표시 자체(로직은 이미
-engine.ts로 잘 테스트됨, UI 렌더링 조건만 미검증), (2) GamePong의 recordResult()
-호출부(손으로 추적해 중복 호출 없음은 확인했으나 직접 테스트는 없음). 둘 다
-canvas/grid+rAF라 실제 라운드를 끝까지 재현하는 테스트가 비용 대비 가치가
-낮다고 판단해 이번엔 스코프에서 뺐다.
+남은 GameBreakout/GameBubbleShooter/GamePong(canvas+requestAnimationFrame 루프)은
+**같은 접근이 안 통한다** — 시도해보니 이유가 명확해졌다: Sonar는 컴포넌트 밖에서
+동일한 순수 엔진 함수를 호출해 "정확히 이 액션 시퀀스면 이긴다"를 미리 계산할 수
+있지만, Pong류는 게임 상태(`gameRef`)가 컴포넌트 내부 ref에 갇혀 있고 실제 물리
+시뮬레이션(공 속도·CPU AI)이 실시간 `requestAnimationFrame` 타임스탬프에 의존해서,
+외부에서 "정확히 몇 프레임 후 승리"를 결정론적으로 예측할 방법이 없다. 테스트
+가능하게 하려면 컴포넌트에 시드/초기상태를 주입하는 테스트 전용 prop을 추가하는
+리팩터가 먼저 필요한데, 그건 "테스트 추가"가 아니라 "테스트 가능하도록 컴포넌트
+구조를 바꾸는" 별개 스코프다 — 사람 판단 없이 자율로 진행하지 않음.
 
-**Context:** jsdom+RTL 설정은 완료됨(`vitest.config.ts`가 `test.projects`로
-`engine`(node, `*.test.ts`)과 `component`(jsdom, `*.test.tsx`) 분리, `vitest.setup.ts`에
-matchMedia 폴리필 + RTL auto-cleanup). 새 컴포넌트 테스트를 추가하려면 `*.test.tsx`
-파일만 만들면 된다. canvas 게임은 jsdom이 2D context를 지원 안 해 `getContext()`
-호출부에서 콘솔 경고만 나고 죽지는 않는다(무해, 이미 확인됨) — 그리기 로직 자체를
-검증하려면 별도 mock이 필요하다.
+**Why:** 라운드11 커버리지 감사가 지적한 갭. GamePong의 `recordResult()` 단일발화
+안전성은 코드 리딩으로 확인됨(`syncHud`가 `frame()`의 `if (!g.over)` 블록 안에서만
+불리고, `gameRef.current`가 갱신된 다음 프레임엔 `g.over`가 true라 재호출 안 됨) —
+다만 이건 직접 테스트가 아니라 수동 추적이라는 한계는 남아있음.
 
-**⚠️ 실제 사례:** `/ship` 레드팀 리뷰가 이 정확한 클래스의 버그를 하나 실제로 잡았다 —
-`GameBubbleShooter.tsx`가 신기록 갱신 여부를 `setIsBest(beat)`(그 틱만 판정)로 썼는데,
-`over`는 득점과 무관하게(`!cleared && gridHasDeath(grid)`) 발동할 수 있어서 "중간 샷에서
-신기록 세우고, 마지막 무득점 샷에서 게임 종료" 시나리오면 `beat`가 false라 축하 오버레이가
-안 뜬다(로컬스토리지 best는 정확히 저장됨 — 화면 표시만 조용히 실패). `GameBreakout.tsx`는
-같은 순간 `setIsBest((v) => v || beat)`(누적) 패턴을 이미 썼어서 안전했다 — **같은 세션에서
-같은 패턴을 두 파일에 다르게 짠 게 원인.** `setIsBest(beat)` → `setIsBest((v) => v || beat)`로
-고쳐 해소함(2026-08-10). 컴포넌트 테스트가 있었다면 커밋 시점에 잡혔을 버그라 canvas 게임
-파일럿의 우선순위를 올릴 근거가 된다.
-
-**Effort:** M
-**Priority:** P3
-**Depends on:** None
+**Effort:** 테스트 가능한 시드 주입 리팩터까지 하면 M, 안 하면 이 항목은 사실상 닫힘.
+**Priority:** P4(리팩터 없이는 더 진행 불가 — 사람이 "리팩터할 가치 있는지" 판단 필요).
+**Depends on:** 컴포넌트 테스트 시드 주입 리팩터(별도 결정 필요).
 
 ## Completed
 
