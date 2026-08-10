@@ -1,5 +1,25 @@
 # TODOS
 
+## Community
+
+### 게임별 리액션 → 댓글(Approach A) 확장 여부 판단
+
+**What:** 2026-08-10에 배포한 게임별 이모지 리액션(design doc:
+`~/.gstack/projects/Piousangel-minigames-hub/hyunseok-main-design-20260810-154432.md`)
+이 실제로 재방문 신호를 만드는지 데이터로 확인해야 한다. `mg_events`에서
+`event='reaction'` 건수와, 리액션을 클릭한 vid의 재방문율(다른 날 재방문 비율)을
+클릭 안 한 vid와 비교.
+
+**Why:** 설계 문서의 성공 기준. 반응이 있으면(리액션 사용량 > 0, 재방문율 유의미하게
+상승) Approach A(게임별 자유 텍스트 댓글, 스팸 필터 포함)로 확장 — 없으면 커뮤니티
+기능보다 다른 재방문 레버(콘텐츠, 알림 등)를 재검토해야 한다. AdSense 재심사 대기
+중이라 모더레이션 없는 자유 텍스트 UGC는 가설 검증 전엔 리스크만 더한다고 판단해
+지금은 리액션까지만 냄.
+
+**Effort:** 확인은 XS(쿼리만), 확장 결정되면 A는 M.
+**Priority:** P2 — 1~2주 뒤(데이터가 쌓인 후) 재확인.
+**Depends on:** 배포 후 최소 1주 데이터 축적.
+
 ## Games
 
 ### Stakehouse "Best"가 중도 피크가 아니라 완주 시점 뱅크롤만 기록
