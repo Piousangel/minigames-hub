@@ -254,6 +254,62 @@ tests**(comments.ts 7건 + Comments.tsx 3건 신규) GREEN / build 성공 / e2e 
 확인). 스팸이 뚫리는 패턴이 보이면 방어선 강화(금칙어 목록, Cloudflare Bot Fight Mode
 등) 검토. 설계 문서의 "The Assignment"(실제 사람 관찰)는 여전히 유효.
 
+### ✅ 같은 세션 이어서 — 사용자가 "리뷰돌려봐라" 요청 → `/review`가 실버그 2건 잡음
+
+이 레포는 PR 없이 `main`에 직접 커밋하는 구조라, `/review`가 표준으로 하는
+base-branch diff(`origin/main` vs `HEAD`)는 항상 비어 있다(이미 다 push했으므로).
+그래서 이번 세션의 실제 작업 범위(`dd5d364`, 지난 세션 종료 커밋, ~HEAD, 21개
+파일·1132줄)를 기준선으로 잡고 리뷰했다 — 스킬을 문자 그대로 안 따르고 의도에
+맞게 조정한 것, 다음에 `/review`를 쓸 때도 이 패턴을 참고할 것.
+
+**Testing·Maintainability·Security·API Contract 4개 스페셜리스트 + Claude 적대적
+리뷰 1개, 병렬 디스패치(Codex는 이 환경에 미설치라 스킵).** 실제로 잡은 것:
+
+1. **[실버그, 지금 라이브로 뚫려 있었음] 링크 차단이 댓글 본문만 검사하고 이름
+   필드는 검사 안 함** — 이름 필드 최대 16자면 짧은 링크 하나 넣기 충분해서,
+   `{"name":"http://spam.co","text":"..."}`로 스팸 방어 전체가 통째로 우회됐다.
+   Claude 적대적 리뷰가 발견(스페셜리스트들은 못 잡음) — 즉시 수정해 name·text
+   둘 다 검사하게 고침.
+2. **[실버그] 레이트리밋이 SELECT-then-INSERT라 경쟁 상태(TOCTOU)** — Testing
+   스페셜리스트와 Claude 적대적 리뷰 둘 다 독립적으로 발견(MULTI-SPECIALIST
+   CONFIRMED). 같은 IP에서 동시에 두 요청이 오면 둘 다 같은 stale `last_at`을
+   읽고 둘 다 통과할 수 있었음. `INSERT ... ON CONFLICT DO UPDATE ... WHERE
+   excluded.last_at - last_at >= ?` 원자적 UPSERT 하나로 교체(D1 SELECT 왕복
+   자체를 없앰) — **코드에 넣기 전에 실제 프로덕션 D1에 직접 3연속 호출(성공→
+   차단→통과)로 동작을 검증**하고서야 배포함(1000ms/6000ms/36000ms 타임스탬프로
+   changes=1/0/1 확인).
+3. **[실버그, 검증됨] `cleanCommentText`가 UTF-16 code unit 단위로 잘라서, 이모지가
+   240자 경계에 딱 걸리면 서로게이트 페어가 반토막나 깨진 문자가 저장될 수 있었음**
+   — Testing 스페셜리스트가 실제로 함수를 돌려서 재현·검증. 코드포인트 단위 슬라이스로
+   수정.
+4. **부수적으로 발견: Aim Trainer `SCORE_SCALE` 변경(이전 세션)에 백필이 없어서,
+   그 전에 제출된 점수는 이제 10으로 나눠져 잘못 표시됨.** D1 직접 조회로 실제로
+   `shiptest` 테스트 점수(score=1) 하나가 이 상태였음을 확인 → 삭제(실 유저 영향
+   없음, 리더보드 자체가 이번 세션에 처음 등록됐으므로 그 전 실유저 데이터가
+   있을 수 없었음).
+5. **마이너 정리 5건**(전부 기계적, 자율로 고침): worker의 POST 핸들러 3곳에
+   중복돼 있던 JSON 파싱 try/catch를 `parseJsonBody` 헬퍼로 통일 · `/api/reactions`·
+   `/api/reaction`이 `isValidReactionSlug`(별칭)를, `/api/comments`가
+   `isValidGameSlug`(원본)를 따로 써서 같은 검증을 다른 이름으로 부르던 것 통일 ·
+   `Comments.tsx`가 `Reactions.tsx`엔 있던 stale-response race 가드(`cancelled`
+   플래그)가 빠져 있던 것 추가 · 댓글 API 응답이 game 파라미터 유무에 따라
+   `slug` 필드 있고 없고가 갈렸던 것 통일(항상 포함) · 허니팟 판정을 워커 인라인
+   로직에서 순수 함수로 분리해 테스트 가능하게 함 · `src/lib/slug.ts`(리액션·댓글이
+   공유하는 슬러그 검증기)에 전용 테스트 파일이 없던 것 추가.
+
+**사용자에게 물어보고 그대로 두기로 한 것 2건**(design/product 판단, 자율로 안 바꿈):
+링크 차단 정규식이 `http(s)://`/`www.`만 잡고 맨도메인(`bit.ly/x` 등)은 못 잡는 것,
+리액션 엔드포인트에 서버 사이드 레이트리밋이 전혀 없는 것(D1 일일 쓰기 할당량
+공유라는 새 리스크 각도를 적대적 리뷰가 짚었지만, 하루 5~10명 트래픽에선 아직
+이론적). 둘 다 TODOS.md에 P3로 기록, 스팸이 실제로 뚫리면 재검토.
+
+**검증:** typecheck 클린 / lint 0 errors(기존 경고만) / vitest 107 files ·
+**2866 tests**(신규 10건: comments.ts 서로게이트 경계·honeypot 케이스, slug.ts
+전용 테스트, Comments.tsx 링크 에러 메시지) GREEN / build 성공 / e2e 108 GREEN.
+`pnpm run deploy` → 프로덕션에서 두 실버그 수정 모두 curl로 재현·확인(이름 필드
+링크 차단 확인, 레이트리밋 429 확인 — 첫 시도는 배포 직후 엣지 전파 지연으로
+구버전이 응답해 재현 실패했다가 재시도로 확인, 기존에 반복 관찰된 패턴).
+
 ## 2026-08-05 세션 — 아이콘 갭 11종 정리 + Vercel 레거시 연동 발견
 
 "계속진행"(방향 안 묻고 백로그에서 자율로 다음 작업 진행하라는 스탠딩 지시) → TODOS.md P3 항목(Beatline/
