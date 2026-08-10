@@ -104,6 +104,9 @@ export type GamePage = GamePageBase &
     | { game: 'offbeat' }
     | { game: 'hogline' }
     | { game: 'prismbox' }
+    | { game: 'gravwell' }
+    | { game: 'loopgrid' }
+    | { game: 'bisect' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2746,6 +2749,87 @@ export const gamePages: GamePage[] = [
       { q: 'What is this game based on?', a: 'Prismbox is inspired by the classic deduction game Black Box, reimagined with a light-beam theme and daily seeded puzzles.' },
       { q: 'What does a refracted beam mean?', a: 'A refraction means your beam bent around an atom without directly hitting it — the atom sits next to the bend point, not on the straight path.' },
       { q: 'Is it free and account-free?', a: 'Yes. Prismbox plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+    ],
+  },
+  {
+    slug: 'gravwell',
+    game: 'gravwell',
+    title: 'Play Gravwell Online — Free Gravity Slingshot Puzzle',
+    h1: 'Gravwell',
+    metaDescription:
+      'Play Gravwell free online — aim and launch a probe past orbiting planets and let gravity bend its path into the target ring. One shot, then physics takes over. No download, no sign-up.',
+    shortDescription: 'One shot. Gravity bends the rest.',
+    howToPlay: [
+      'Drag the launch pad, use the angle/power steppers, or the arrow keys to aim your probe.',
+      'Press Launch (or Space) to fire — after that, you only watch as the planets’ gravity curves the flight path.',
+      'Reach the target ring to win. Crash into a planet, fly off the board, or time out and the shot is wasted.',
+      'A close graze past a planet scores a bonus without ending the attempt — but drift too close and it is a crash.',
+    ],
+    strategy: [
+      'Watch the dashed preview line while aiming — it shows exactly where gravity will carry the current angle and power.',
+      'A heavier planet bends the path more sharply from farther away — use that curve instead of fighting it with raw power.',
+      'Grazing a planet’s pull adds bonus points, so a trajectory that skims close (without crashing) beats a wide, safe miss.',
+      'Fewer shots to reach the ring score a bigger par bonus — a good first-attempt read beats trial and error.',
+    ],
+    faq: [
+      { q: 'How do you play Gravwell?', a: 'Drag the launch pad or use the angle/power steppers (or arrow keys) to aim, then press Launch. Gravity from nearby planets bends the flight path after that — you cannot steer mid-flight.' },
+      { q: 'What happens if I crash into a planet?', a: 'The probe is destroyed and that shot is wasted. You get a limited number of shots per difficulty, so a crash costs one of them.' },
+      { q: 'What is a "graze"?', a: 'Flying close to a planet without colliding scores a graze bonus, since it means you read the gravity well correctly without playing it too safe.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Gravwell plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+    ],
+  },
+  {
+    slug: 'loopgrid',
+    game: 'loopgrid',
+    title: 'Play Loopgrid Online — Free Cyclic Grid Puzzle',
+    h1: 'Loopgrid',
+    metaDescription:
+      'Play Loopgrid free online — cycle whole rows and columns of a color grid (the far end wraps around) to line up every row. No empty tile, no sliding — every move loops. No download, no sign-up.',
+    shortDescription: 'Cycle rows and columns — the far end always wraps around.',
+    howToPlay: [
+      'Every tile in the grid has a color. There is no empty slot — you never slide a single tile.',
+      'Press a row or column arrow to cycle the whole row or column one step in that direction; the tile that falls off one end reappears on the other.',
+      'Line up a full row to a single color to complete it — completed rows lock in and stay counted even after later moves.',
+      'Complete every row before you run out of moves (or as fast as possible on Daily) to win.',
+    ],
+    strategy: [
+      'Think in whole loops, not single tiles — every cycle shifts an entire row or column at once, so plan a few moves ahead.',
+      'Completing rows back-to-back builds a combo bonus, so chain finishes together instead of tidying one row fully before starting the next.',
+      'A completed row stays locked in even if later moves disturb its neighbors, so work on the grid in whatever order clears fastest.',
+      'On harder difficulties the grid is bigger, so scan for the row or column closest to done before committing a move.',
+    ],
+    faq: [
+      { q: 'How do you play Loopgrid?', a: 'Use the row and column arrow buttons around the grid to cycle a full row or column one step. The tile that leaves one end reappears on the opposite end.' },
+      { q: 'Why can’t I just slide one tile?', a: 'Loopgrid has no empty slot — unlike a sliding puzzle, every move shifts an entire row or column as a loop, which changes the whole solving approach.' },
+      { q: 'Can I play a fresh puzzle every day?', a: 'Yes — Daily mode gives everyone the same seeded grid each day, with a streak counter for playing on consecutive days. Practice mode gives you a fresh random grid at any difficulty.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Loopgrid plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+    ],
+  },
+  {
+    slug: 'bisect',
+    game: 'bisect',
+    title: 'Play Bisect Online — Free Midpoint Timing Game',
+    h1: 'Bisect',
+    metaDescription:
+      'Play Bisect free online — a pure timing game with no clock and no countdown. Watch for a start signal and an end signal, then tap the exact halfway point between them. No download, no sign-up.',
+    shortDescription: 'No clock, no countdown — tap the exact midpoint between two signals.',
+    howToPlay: [
+      'Press Space, tap, or click to arm a round — a start flash fires, then an end flash fires some time later.',
+      'There is no visible countdown or progress bar between the two flashes — only your internal sense of time.',
+      'Tap again exactly halfway between the start and end flash. The closer to the true midpoint, the higher the grade.',
+      'You have three lives — a false start, a miss, or a badly-timed tap costs one. The run ends when you run out.',
+    ],
+    strategy: [
+      'The screen stays completely blank between flashes on purpose — resist the urge to count out loud and instead judge the gap by feel.',
+      'The interval length changes every round, so a fixed rhythm from the last round will not carry over to the next.',
+      'A streak of good taps in a row builds a growing bonus, so consistency across rounds is worth more than one lucky perfect hit.',
+      'Tapping too early is treated the same as tapping too late — aim to feel the gap shrink rather than guessing towards either end.',
+    ],
+    faq: [
+      { q: 'How do you play Bisect?', a: 'Press Space, tap, or click to start a round. Watch for the start flash, then the end flash, and tap again exactly halfway between the two — there is no visible timer.' },
+      { q: 'Why is there no countdown or progress bar?', a: 'The blank screen is the entire point — Bisect tests your internal sense of elapsed time, not your ability to read a clock.' },
+      { q: 'Does the game ever end?', a: 'No — Bisect is an endless survival run with three lives. Play continues until you run out.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Bisect plays free in your browser with no download and no sign-up. Your best score saves locally.' },
     ],
   },
 ]

@@ -137,6 +137,9 @@ export const gameMeta: Record<string, GameMeta> = {
   offbeat: { icon: '🔇', accent: 'magenta', category: 'Skill', addedDate: '2026-08-10', controls: ['tap'] },
   hogline: { icon: '🥌', accent: 'blue', category: 'Puzzle', addedDate: '2026-08-10', daily: true, controls: ['drag', 'arrows'] },
   prismbox: { icon: '🌈', accent: 'lime', category: 'Puzzle', addedDate: '2026-08-10', daily: true, controls: ['tap', 'arrows'] },
+  gravwell: { icon: '🪐', accent: 'purple', category: 'Puzzle', addedDate: '2026-08-10', daily: true, controls: ['drag', 'arrows'] },
+  loopgrid: { icon: '🔁', accent: 'cyan', category: 'Puzzle', addedDate: '2026-08-10', daily: true, controls: ['tap'] },
+  bisect: { icon: '✂️', accent: 'magenta', category: 'Skill', addedDate: '2026-08-10', controls: ['tap'] },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

@@ -92,4 +92,7 @@ export const OBJECTIVES: Record<string, string> = {
   offbeat: 'Tap the silent gap between beats, not the beats.',
   hogline: 'Throw stones and control the house.',
   prismbox: 'Fire beams of light to find the hidden atoms.',
+  gravwell: 'One shot — aim, launch, and let gravity steer you into the ring.',
+  loopgrid: 'Cycle rows and columns to line up every color.',
+  bisect: 'Tap the exact midpoint between two signals — no clock allowed.',
 }

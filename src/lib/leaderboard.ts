@@ -64,6 +64,9 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   offbeat: { label: 'Score' },
   hogline: { label: 'House' },
   prismbox: { label: 'Score' },
+  gravwell: { label: 'Score' },
+  loopgrid: { label: 'Score' },
+  bisect: { label: 'Score' },
   flow: { label: 'Level' },
   'aim-trainer': { label: 'Targets/s' },
 }

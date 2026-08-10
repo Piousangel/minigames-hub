@@ -68,6 +68,9 @@ const GameCountcircle = dynamic(() => import('@/components/games/GameCountcircle
 const GameOffbeat = dynamic(() => import('@/components/games/GameOffbeat').then((m) => m.GameOffbeat), { ssr: false, loading: Loading })
 const GameHogline = dynamic(() => import('@/components/games/GameHogline').then((m) => m.GameHogline), { ssr: false, loading: Loading })
 const GamePrismbox = dynamic(() => import('@/components/games/GamePrismbox').then((m) => m.GamePrismbox), { ssr: false, loading: Loading })
+const GameGravwell = dynamic(() => import('@/components/games/GameGravwell').then((m) => m.GameGravwell), { ssr: false, loading: Loading })
+const GameLoopgrid = dynamic(() => import('@/components/games/GameLoopgrid').then((m) => m.GameLoopgrid), { ssr: false, loading: Loading })
+const GameBisect = dynamic(() => import('@/components/games/GameBisect').then((m) => m.GameBisect), { ssr: false, loading: Loading })
 const GamePolytap = dynamic(() => import('@/components/games/GamePolytap').then((m) => m.GamePolytap), { ssr: false, loading: Loading })
 const GameSonar = dynamic(() => import('@/components/games/GameSonar').then((m) => m.GameSonar), { ssr: false, loading: Loading })
 const GameProspector = dynamic(() => import('@/components/games/GameProspector').then((m) => m.GameProspector), { ssr: false, loading: Loading })
@@ -286,6 +289,12 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameHogline storageKey={`best:${page.slug}`} />
     case 'prismbox':
       return <GamePrismbox storageKey={`best:${page.slug}`} />
+    case 'gravwell':
+      return <GameGravwell storageKey={`best:${page.slug}`} />
+    case 'loopgrid':
+      return <GameLoopgrid storageKey={`best:${page.slug}`} />
+    case 'bisect':
+      return <GameBisect storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null
