@@ -384,7 +384,7 @@ export function GameSolitaire({ storageKey }: { storageKey: string }) {
   return (
     <GameShell
       stats={[
-        { label: 'Score', value: score, testId: 'score' },
+        { label: 'Score', value: score, testId: 'score', float: true },
         { label: 'Best', value: best, testId: 'best' },
       ]}
       headerExtra={headerExtra}
@@ -435,7 +435,7 @@ export function GameSolitaire({ storageKey }: { storageKey: string }) {
               }
               data-testid="waste"
               data-selected={wasteSelected}
-              className={`${CARD_W} ${CARD_H} rounded-md`}
+              className={`${CARD_W} ${CARD_H} touch-manipulation rounded-md`}
               style={{
                 transform: wasteSelected && !reduced ? 'translateY(-4px)' : undefined,
                 boxShadow: wasteSelected ? '0 0 0 2px var(--neon-amber)' : undefined,
@@ -525,7 +525,7 @@ export function GameSolitaire({ storageKey }: { storageKey: string }) {
                         }
                         data-testid="tableau-card"
                         data-selected={selectedRun}
-                        className={`absolute left-0 ${CARD_W} ${CARD_H}`}
+                        className={`absolute left-0 ${CARD_W} ${CARD_H} touch-manipulation`}
                         style={{
                           top: positions[index],
                           zIndex: index,

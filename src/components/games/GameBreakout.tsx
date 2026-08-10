@@ -339,7 +339,7 @@ export function GameBreakout({ storageKey }: { storageKey: string }) {
       ? 'Press New Game to play again.'
       : phase === 'won'
         ? 'Cleared! Press New Game for another round.'
-        : 'Move with your mouse or ← →. Space / click to launch.'
+        : 'Drag or move with your mouse / ← →. Space, click, or tap to launch.'
 
   return (
     <GameShell

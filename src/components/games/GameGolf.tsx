@@ -291,7 +291,7 @@ export function GameGolf({ storageKey }: { storageKey: string }) {
   return (
     <GameShell
       stats={[
-        { label: 'Score', value: scoreVal, testId: 'score' },
+        { label: 'Score', value: scoreVal, testId: 'score', float: true },
         { label: 'Best', value: best, testId: 'best' },
       ]}
       headerExtra={headerExtra}

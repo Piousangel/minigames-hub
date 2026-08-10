@@ -44,6 +44,9 @@ export function GameStats({ slug }: { slug: string }) {
     setReady(true)
   }, [slug, meta.daily])
 
+  // Maze/Sliding/WordSearch never call recordResult() on purpose: their "best" is a
+  // lower-is-better time, and this panel's "Best" display assumes higher-is-better —
+  // wiring them in would show a misleading trophy case. Don't "fix" that here.
   if (!ready || stats.plays === 0) return null
 
   const scoreLabel = LEADERBOARD_GAMES[slug]?.label ?? 'Best'

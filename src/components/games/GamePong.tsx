@@ -275,7 +275,7 @@ export function GamePong({ storageKey }: { storageKey: string }) {
       ? 'You win! Press New Game to play again.'
       : phase === 'lost'
         ? 'CPU wins. Press New Game to try again.'
-        : `Move with your mouse or ↑ ↓. First to ${WIN_SCORE} wins.`
+        : `Drag or move with your mouse / ↑ ↓. First to ${WIN_SCORE} wins.`
 
   return (
     <GameShell

@@ -286,7 +286,7 @@ export function GameQuadle({ storageKey }: { storageKey: string }) {
   return (
     <GameShell
       stats={[
-        { label: 'Score', value: score, testId: 'score' },
+        { label: 'Score', value: score, testId: 'score', float: true },
         { label: 'Best', value: best, testId: 'best' },
         { label: 'Solved', value: solvedCount(state), testId: 'solved' },
       ]}

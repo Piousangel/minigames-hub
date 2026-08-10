@@ -356,7 +356,7 @@ export function GameYukon({ storageKey }: { storageKey: string }) {
   return (
     <GameShell
       stats={[
-        { label: 'Score', value: score, testId: 'score' },
+        { label: 'Score', value: score, testId: 'score', float: true },
         { label: 'Best', value: best, testId: 'best' },
       ]}
       headerExtra={headerExtra}
@@ -449,7 +449,7 @@ export function GameYukon({ storageKey }: { storageKey: string }) {
                         }
                         data-testid="tableau-card"
                         data-selected={selectedPile}
-                        className={`absolute left-0 ${CARD_W} ${CARD_H}`}
+                        className={`absolute left-0 ${CARD_W} ${CARD_H} touch-manipulation`}
                         style={{
                           top: positions[index],
                           zIndex: index,

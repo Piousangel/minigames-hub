@@ -409,7 +409,7 @@ export function GameFreecell({ storageKey }: { storageKey: string }) {
   return (
     <GameShell
       stats={[
-        { label: 'Score', value: score, testId: 'score' },
+        { label: 'Score', value: score, testId: 'score', float: true },
         { label: 'Best', value: best, testId: 'best' },
       ]}
       headerExtra={headerExtra}
@@ -534,7 +534,7 @@ export function GameFreecell({ storageKey }: { storageKey: string }) {
                         aria-label={`${RANK_LABEL(card.rank)} of ${card.suit}`}
                         data-testid="cascade-card"
                         data-selected={selectedRun}
-                        className={`absolute left-0 ${CARD_W} ${CARD_H}`}
+                        className={`absolute left-0 ${CARD_W} ${CARD_H} touch-manipulation`}
                         style={{
                           top: positions[index],
                           zIndex: index,

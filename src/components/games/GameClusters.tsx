@@ -305,7 +305,7 @@ export function GameClusters({ storageKey }: { storageKey: string }) {
   return (
     <GameShell
       stats={[
-        { label: 'Score', value: score, testId: 'score' },
+        { label: 'Score', value: score, testId: 'score', float: true },
         { label: 'Best', value: best, testId: 'best' },
       ]}
       headerExtra={headerExtra}

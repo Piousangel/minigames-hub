@@ -330,7 +330,7 @@ export function GameMahjong({ storageKey }: { storageKey: string }) {
   return (
     <GameShell
       stats={[
-        { label: 'Score', value: scoreVal, testId: 'score' },
+        { label: 'Score', value: scoreVal, testId: 'score', float: true },
         { label: 'Best', value: best, testId: 'best' },
         { label: 'Left', value: tilesLeft, testId: 'tiles-left' },
         { label: 'Moves', value: state.moves, testId: 'moves' },
