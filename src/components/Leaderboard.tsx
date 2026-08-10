@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { LEADERBOARD_GAMES, MAX_NAME_LEN, type ScoreRow } from '@/lib/leaderboard'
+import { LEADERBOARD_GAMES, MAX_NAME_LEN, SCORE_SCALE, type ScoreRow } from '@/lib/leaderboard'
 import { gamePages } from '@/lib/games/registry'
 import { siteConfig } from '@/lib/siteConfig'
 
@@ -13,6 +13,8 @@ import { siteConfig } from '@/lib/siteConfig'
  */
 export function Leaderboard({ slug }: { slug: string }) {
   const meta = LEADERBOARD_GAMES[slug]
+  const scale = SCORE_SCALE[slug] ?? 1
+  const fmt = (score: number) => (scale === 1 ? score.toLocaleString() : (score / scale).toFixed(1))
   const [rows, setRows] = useState<ScoreRow[] | null>(null)
   const [week, setWeek] = useState('')
   const [available, setAvailable] = useState(true)
@@ -46,14 +48,14 @@ export function Leaderboard({ slug }: { slug: string }) {
     submittedRef.current = 0 // 새 게임(slug) 진입 시 제출 허용 초기화
     const readBest = () => {
       const raw = Number(localStorage.getItem(`best:${slug}`))
-      const v = Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : 0
+      const v = Number.isFinite(raw) && raw > 0 ? Math.floor(raw * scale) : 0
       setBest((prev) => (prev === v ? prev : v))
       if (v > submittedRef.current) setSubmitted(false) // 기록을 갱신했을 때만 다시 제출 가능
     }
     readBest()
     const id = setInterval(readBest, 1000)
     return () => clearInterval(id)
-  }, [load, slug])
+  }, [load, slug, scale])
 
   async function submit() {
     if (best <= 0 || submitting) return
@@ -82,7 +84,7 @@ export function Leaderboard({ slug }: { slug: string }) {
     if (best <= 0) return
     const title = gamePages.find((g) => g.slug === slug)?.h1 ?? slug
     const url = `${location.origin}/${slug}`
-    const text = `I scored ${best.toLocaleString()} ${meta!.label} in ${title} on ${siteConfig.name}! Can you beat it? 🎮`
+    const text = `I scored ${fmt(best)} ${meta!.label} in ${title} on ${siteConfig.name}! Can you beat it? 🎮`
     try {
       if (navigator.share) {
         await navigator.share({ title: `${title} — ${siteConfig.name}`, text, url })
@@ -130,7 +132,7 @@ export function Leaderboard({ slug }: { slug: string }) {
                 </span>
                 <span className="truncate">{r.name}</span>
               </span>
-              <span className="font-bold text-neon-cyan">{r.score.toLocaleString()}</span>
+              <span className="font-bold text-neon-cyan">{fmt(r.score)}</span>
             </li>
           ))
         )}
@@ -151,7 +153,7 @@ export function Leaderboard({ slug }: { slug: string }) {
             disabled={submitting}
             className="btn-press rounded-lg border border-neon-cyan/60 bg-neon-cyan/10 px-3 py-2 text-sm font-semibold text-neon-cyan disabled:opacity-50"
           >
-            {submitting ? '…' : `Submit ${meta.label} ${best.toLocaleString()}`}
+            {submitting ? '…' : `Submit ${meta.label} ${fmt(best)}`}
           </button>
         </div>
       ) : submitted ? (

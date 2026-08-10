@@ -69,6 +69,13 @@ export function hasLeaderboard(slug: string): boolean {
   return Object.prototype.hasOwnProperty.call(LEADERBOARD_GAMES, slug)
 }
 
+// 리더보드는 정수만 저장(cleanScore가 Math.floor) — 소수점 단위(targets/sec 등)를
+// 쓰는 게임은 제출 전 이 배율을 곱해 정수화하고, 표시할 땐 다시 나눈다.
+// 나머지 게임은 배율 1(기존과 동일한 정수 그대로).
+export const SCORE_SCALE: Record<string, number> = {
+  'aim-trainer': 10,
+}
+
 // 위조 방어(캐주얼): 말도 안 되는 값 컷.
 export const MAX_SCORE = 100_000_000
 export const MAX_NAME_LEN = 16
