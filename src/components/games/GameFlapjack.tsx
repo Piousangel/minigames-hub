@@ -338,7 +338,7 @@ export function GameFlapjack({ storageKey }: { storageKey: string }) {
       ]}
       headerExtra={headerExtra}
       onNewGame={onNewGame}
-      newGameLabel={won ? 'Play again' : mode === 'daily' ? 'Reset' : 'New Board'}
+      newGameLabel={won ? 'Play again' : mode === 'daily' ? 'Replay Daily' : 'New Board'}
       muted={muted}
       onToggleMute={toggleMuted}
       hint={hint}

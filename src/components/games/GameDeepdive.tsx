@@ -347,7 +347,7 @@ export function GameDeepdive({ storageKey }: { storageKey: string }) {
       ]}
       headerExtra={headerExtra}
       onNewGame={onNewGame}
-      newGameLabel={over ? 'Play again' : mode === 'daily' ? 'Reset' : 'New Shaft'}
+      newGameLabel={over ? 'Play again' : mode === 'daily' ? 'Replay Daily' : 'New Shaft'}
       muted={muted}
       onToggleMute={toggleMuted}
       hint={hint}

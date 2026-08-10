@@ -316,7 +316,7 @@ export function GameHandful({ storageKey }: { storageKey: string }) {
       ]}
       headerExtra={headerExtra}
       onNewGame={onNewGame}
-      newGameLabel={over ? 'Play again' : mode === 'daily' ? 'Reset' : 'New Basket'}
+      newGameLabel={over ? 'Play again' : mode === 'daily' ? 'Replay Daily' : 'New Basket'}
       muted={muted}
       onToggleMute={toggleMuted}
       hint={hint}

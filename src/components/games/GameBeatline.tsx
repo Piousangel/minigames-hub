@@ -362,7 +362,7 @@ export function GameBeatline({ storageKey }: { storageKey: string }) {
       ]}
       headerExtra={headerExtra}
       onNewGame={onNewGame}
-      newGameLabel={won || lost ? 'Play again' : mode === 'daily' ? 'Reset' : 'New Game'}
+      newGameLabel={won || lost ? 'Play again' : mode === 'daily' ? 'Replay Daily' : 'New Game'}
       muted={muted}
       onToggleMute={toggleMuted}
       hint={hint}

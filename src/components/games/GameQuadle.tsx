@@ -292,7 +292,7 @@ export function GameQuadle({ storageKey }: { storageKey: string }) {
       ]}
       headerExtra={headerExtra}
       onNewGame={onNewGame}
-      newGameLabel={mode === 'daily' ? 'Replay' : 'New Board'}
+      newGameLabel={mode === 'daily' ? 'Replay Daily' : 'New Board'}
       muted={muted}
       onToggleMute={toggleMuted}
       hint={hint}
@@ -443,7 +443,7 @@ export function GameQuadle({ storageKey }: { storageKey: string }) {
               }}
             />
           )}
-          <GameButton onClick={onNewGame}>{mode === 'daily' ? 'Replay daily' : 'New Board'}</GameButton>
+          <GameButton onClick={onNewGame}>{mode === 'daily' ? 'Replay Daily' : 'New Board'}</GameButton>
         </div>
       </GameOverlay>
     </GameShell>
