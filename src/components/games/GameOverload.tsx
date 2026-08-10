@@ -18,6 +18,7 @@ import {
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { isTypingTarget } from '@/lib/isTypingTarget'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const TAP_DELAY = 120 // ms: show the tapped +1 before the first wave fires
@@ -162,12 +163,14 @@ export function GameOverload({ storageKey }: { storageKey: string }) {
       if (next.cleared) {
         play('win')
         persistBoard(next)
+        recordResult(storageKey.replace(/^best:/, ''), { won: true })
       } else if (next.over) {
         play('lose')
         persistBoard(next)
+        recordResult(storageKey.replace(/^best:/, ''), { won: false })
       }
     },
-    [persistBest, persistBoard, play],
+    [persistBest, persistBoard, play, storageKey],
   )
 
   const finishCascade = useCallback(

@@ -18,6 +18,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound, type SoundName } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 type Difficulty = 'easy' | 'normal' | 'hard'
@@ -180,6 +181,7 @@ export function GamePinwheel({ storageKey }: { storageKey: string }) {
           saveBest(storageKey, nb)
           return nb
         })
+        recordResult(storageKey.replace(/^best:/, ''), { won: true })
       }
       prevWon.current = next.won
     },

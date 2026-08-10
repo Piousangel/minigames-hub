@@ -23,6 +23,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 /** Wall-clock is read ONLY here; the engine stays pure and time-agnostic. */
@@ -208,7 +209,8 @@ export function GameReactor({ storageKey }: { storageKey: string }) {
     persist(next)
     play('win')
     setConfirmReboot(false)
-  }, [commit, persist, play])
+    recordResult(storageKey.replace(/^best:/, ''), { won: true })
+  }, [commit, persist, play, storageKey])
 
   // Keyboard: 1-6 buy modules, Space/Enter taps (when not on a control).
   useEffect(() => {

@@ -15,6 +15,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const STEP_DEG = 360 / STEPS // 22.5
@@ -201,6 +202,7 @@ export function GameOverdub({ storageKey }: { storageKey: string }) {
       const isNew = persistBest(next.score)
       setNewBest(isNew)
       play(isNew ? 'win' : 'lose')
+      recordResult(storageKey.replace(/^best:/, ''), { won: true })
       return
     }
 
@@ -231,7 +233,7 @@ export function GameOverdub({ storageKey }: { storageKey: string }) {
     } else {
       play('move')
     }
-  }, [commit, play, persistBest, reducedRef])
+  }, [commit, play, persistBest, reducedRef, storageKey])
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {

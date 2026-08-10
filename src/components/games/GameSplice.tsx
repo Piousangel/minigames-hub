@@ -22,6 +22,7 @@ import { todayUTC as todayISO } from '@/lib/dailyDate'
 import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
 import { DailyShareButton } from '@/components/DailyShareButton'
 import { gradeFewer, barGlyph, resultSnippet } from '@/lib/dailyShare'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // A fixed, asset-free node palette (CSS discs only). Color id -> HSL.
@@ -201,9 +202,12 @@ export function GameSplice({ storageKey }: { storageKey: string }) {
   const resolveOutcome = useCallback(
     (next: GameState) => {
       persistBest(next.score)
-      if (next.won || next.lost) persistDaily(next, cutLineRef.current.slice())
+      if (next.won || next.lost) {
+        persistDaily(next, cutLineRef.current.slice())
+        recordResult(storageKey.replace(/^best:/, ''), { won: next.won })
+      }
     },
-    [persistBest, persistDaily],
+    [persistBest, persistDaily, storageKey],
   )
 
   const commitCut = useCallback(

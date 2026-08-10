@@ -19,6 +19,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // Component-scoped keyframes — globals.css stays untouched.
@@ -175,6 +176,7 @@ export function GameProspector({ storageKey }: { storageKey: string }) {
     if (next.phase === 'collapsed') {
       play('lose')
       if (!reducedRef.current) setShakeKey((k) => k + 1)
+      recordResult(storageKey.replace(/^best:/, ''), { won: false })
       return
     }
     if (kind === 'gas') {
@@ -188,7 +190,7 @@ export function GameProspector({ storageKey }: { storageKey: string }) {
       if (big && !reducedRef.current) setGlowKey((k) => k + 1)
       if (!reducedRef.current) after(120, () => play('match'))
     }
-  }, [after, commit, play, reducedRef])
+  }, [after, commit, play, reducedRef, storageKey])
 
   const doBank = useCallback(() => {
     const cur = stateRef.current
@@ -216,6 +218,8 @@ export function GameProspector({ storageKey }: { storageKey: string }) {
       setDeepest(cur.safeFlips)
       localStorage.setItem(`${storageKey}:depth`, String(cur.safeFlips))
     }
+
+    recordResult(storageKey.replace(/^best:/, ''), { won: true })
 
     setVerdict(
       evBeforeRef.current <= 0

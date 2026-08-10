@@ -24,6 +24,7 @@ import { todayUTC as todayISO } from '@/lib/dailyDate'
 import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
 import { DailyShareButton } from '@/components/DailyShareButton'
 import { gradeFewer, barGlyph, resultSnippet } from '@/lib/dailyShare'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // A fixed, asset-free pip palette (CSS discs only).
@@ -192,9 +193,12 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
   const resolveOutcome = useCallback(
     (next: GameState) => {
       persistBest(next.score)
-      if (next.won || next.lost) persistDaily(next)
+      if (next.won || next.lost) {
+        persistDaily(next)
+        recordResult(storageKey.replace(/^best:/, ''), { won: next.won })
+      }
     },
-    [persistBest, persistDaily],
+    [persistBest, persistDaily, storageKey],
   )
 
   const commitFold = useCallback(

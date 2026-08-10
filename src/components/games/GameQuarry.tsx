@@ -20,6 +20,7 @@ import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailySt
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 type Mode = 'daily' | 'free'
@@ -170,6 +171,7 @@ export function GameQuarry({ storageKey }: { storageKey: string }) {
           saveStreak(streakKey, bumped)
           setDayStreak(bumped.streak)
         }
+        recordResult(storageKey.replace(/^best:/, ''), { won: true })
       } else if (lp?.fled) {
         play('move') // the panic-hop
       } else {

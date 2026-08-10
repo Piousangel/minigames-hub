@@ -2,46 +2,6 @@
 
 ## Games
 
-### GameStats 트로피 패널 확산 — 남은 20종
-
-**What:** DOMAIN.md P1의 유일한 잔여 항목("나머지 승/패 게임들도 recordResult 붙이면
-패널이 그 게임에도 뜬다"). 이번 세션에 29종 처리 완료(TicTacToe/DotsAndBoxes/
-NumberMemory/Typing/ZeroHour/WhackAMole/GemMatch/Rps/Simon/SpaceShooter/Flappy/
-TowerStack/Stackpot/Ticker/Breakout/BubbleShooter/Sonar/Ricochet/Countcircle/
-Grasp/Stakehouse/2048/Snake/Tetris/Decant/Interlock/Deepdive/Handful/Backspace).
-남은 20종:
-
-```
-Beatline, Cleave, Duplex, Flapjack, Flywheel, Fuse, Latch, Overdub,
-Overfold, Overload, Pinwheel, Polytap, Prospector, Quarry, Reactor,
-Ripple, Skew, Splice, Turntile, Umbra
-```
-
-**⚠️ 의도적 제외 3종 — 여기 포함하지 말 것:** `Sliding`/`Maze`/`WordSearch`는
-라운드10 UI/UX 감사에서 이미 명시적으로 제외 결정됨 — best가 "낮을수록 좋음"
-(시간·이동수)이라 `GameStats.tsx`의 단순 `won:true` 표시가 의미상 반대로 보일 수
-있음. 붙이려면 GameStats 쪽에 "낮을수록 좋음" 배지 로직이 먼저 필요(별도 작업).
-
-**Why:** Wordle류 스탯모달의 84% 익일복귀 효과를 벤치마크로 삼은 기능
-([[retention-is-the-northstar]]). 패턴은 이미 정립됨 — 다음 세션이 참고할 것:
-1. `state.over`/`phase==='over'` 단일 발화 지점(주로 `useEffect([state, ...])`나
-   `dispatch` 콜백 내부의 `prevOver.current` 가드)을 찾는다.
-2. **rAF 루프가 게임오버 후에도 매 프레임 도는 게임(Breakout류)은 별도
-   `recordedRef` 게이팅이 필수** — 안 하면 오버레이가 떠 있는 동안 초당 60회
-   `recordResult`가 불려 `stats.plays`가 폭증한다(이번 세션에 Breakout에서
-   실제로 이 케이스를 만나 고침). `shoot()`/`land()`처럼 발사당 1회만 불리는
-   구조(BubbleShooter류)나 `phase !== 'playing'`이면 즉시 return하는 tick 루프
-   (Countcircle류)는 자연히 1회만 발화하니 추가 게이팅 불필요 — 게임마다 루프
-   구조를 먼저 확인할 것.
-3. `won` 값은 게임의 실제 승패 정의를 따른다(단순 "완료=true"가 아님) — 2인
-   대전/CPU전(2048 없음, 이 목록엔 대전 게임 없음)은 실제 승자, 점수 어택은
-   "완료=true"(승패 개념 없음), push-your-luck류는 "성공적으로 완주/탈출했는가"
-   (Ticker의 `green`, Grasp의 `cleared`, Stakehouse의 `phase==='complete'`가 예시).
-
-**Effort:** M (20종, 게임마다 개별 검증 필요)
-**Priority:** P2
-**Depends on:** None
-
 ### Stakehouse "Best"가 중도 피크가 아니라 완주 시점 뱅크롤만 기록
 
 **What:** `GameStakehouse.tsx`의 `persistBest`는 `phase`가 `'betting'`을 벗어나는
@@ -145,6 +105,46 @@ matchMedia 폴리필 + RTL auto-cleanup). 새 컴포넌트 테스트를 추가�
 **Depends on:** None
 
 ## Completed
+
+### GameStats 트로피 패널 확산 — 49종 전부 완료 (DOMAIN.md P1 종결)
+
+**What:** 승/패가 있는데 `recordResult()`를 안 부르던 게임 49종 전부에 배선 완료
+(2026-08-10, 한 세션에 3개 배치로 나눠 진행). TicTacToe/DotsAndBoxes/NumberMemory/
+Typing/ZeroHour/WhackAMole/GemMatch/Rps/Simon/SpaceShooter/Flappy/TowerStack/
+Stackpot/Ticker/Breakout/BubbleShooter/Sonar/Ricochet/Countcircle/Grasp/
+Stakehouse/2048/Snake/Tetris/Decant/Interlock/Deepdive/Handful/Backspace/
+Beatline/Cleave/Duplex/Flapjack/Flywheel/Fuse/Latch/Overdub/Overfold/Overload/
+Pinwheel/Polytap/Prospector/Quarry/Reactor/Ripple/Skew/Splice/Turntile/Umbra.
+**의도적 제외 3종**: Sliding/Maze/WordSearch(best가 "낮을수록 좋음"이라 GameStats의
+단순 표시가 반대로 보임 — 별도 배지 로직 필요, 라운드10 감사에서 이미 결정).
+
+**Why:** DOMAIN.md P1의 마지막 잔여 항목. Wordle류 스탯모달의 84% 익일복귀 효과를
+벤치마크로 삼은 재방문 기능([[retention-is-the-northstar]]).
+
+**패턴(다음에 유사 작업 시 참고):**
+1. `state.over`/`phase==='over'` 단일 발화 지점(`useEffect([state,...])`나 `dispatch`
+   콜백의 `prevOver.current`/`prevWon.current` 가드, 혹은 진입점 자체가
+   `if (s.over) return`으로 재진입을 막는 구조)을 찾는다.
+2. **rAF/tick 루프가 게임오버 후에도 계속 도는 게임은 안전성을 개별 확인해야 한다.**
+   안전한 유형: (a) 바깥쪽에 `phase !== 'playing'`이면 즉시 return하는 가드가 있는
+   루프(Countcircle/Flywheel/Fuse/Latch/Ripple류 — phase가 이 블록 안에서
+   'over'로 바뀌므로 다음 프레임엔 진입 자체가 막힘), (b) 발사/탭당 1회만 불리는
+   구조(BubbleShooter/Ricochet류), (c) 게임오버 후 엔진이 이벤트를 매 틱 리셋하는
+   구조(Umbra — `step()`이 `phase!=='running'`이면 `events`를 빈 값으로 반환).
+   **위험한 유형**: 외곽 가드 없이 매 프레임 무조건 실행되는 루프(Breakout이
+   실제 사례) — `recordedRef` 같은 전용 단일발화 ref가 반드시 필요, 안 하면
+   오버레이가 떠 있는 동안 초당 60회 `recordResult`가 불려 `stats.plays`가 폭증.
+3. `persistBest`/`persistX` 같은 헬퍼가 "라이브 베스트 갱신"과 "런 종료" 둘 다에서
+   호출되는 경우(Deepdive) `recordResult`를 헬퍼 안에 넣지 말고 호출부에서
+   종료 조건에만 게이팅할 것 — 안 그러면 라이브 갱신마다 중복 카운트된다.
+4. `won` 값은 게임의 실제 승패 정의를 따른다(단순 "완료=true"가 아님) — 대전류는
+   실제 승자, 순수 점수 어택은 "완료=true"(승패 개념 자체가 없음), push-your-luck류는
+   "성공적으로 완주/탈출했는가"(Ticker의 `green`, Grasp의 `cleared`, Stakehouse의
+   `phase==='complete'`, Prospector의 은행 성공 vs `'collapsed'` 붕괴).
+
+**Completed:** 2026-08-10. `pnpm typecheck && pnpm lint`(0 errors) · `pnpm vitest run`
+(102 files / 2835 tests) · `pnpm build`(216 라우트) · `pnpm exec playwright test`(106)
+전부 GREEN. 3개 배치로 나눠 각각 검증 후 배포·라이브 확인 완료.
 
 ### jsdom + React Testing Library 도입 (파일럿: GameReaction·GameAimTrainer)
 

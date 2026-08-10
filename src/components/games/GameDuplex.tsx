@@ -27,6 +27,7 @@ import { todayUTC as localISODate } from '@/lib/dailyDate'
 import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
 import { DailyShareButton } from '@/components/DailyShareButton'
 import { gradeFewer, barGlyph, resultSnippet } from '@/lib/dailyShare'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const KEY_DIRS: Record<string, Direction> = {
@@ -261,6 +262,7 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
         } else {
           persistSolved(next.levelIndex)
         }
+        recordResult(storageKey.replace(/^best:/, ''), { won: true })
       } else if (next.youPellets.size < s.youPellets.size || next.echoPellets.size < s.echoPellets.size) {
         play('eat')
       } else if ((after.you && !before.you) || (after.echo && !before.echo)) {

@@ -18,6 +18,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 type Phase = 'idle' | 'playing' | 'over'
@@ -279,6 +280,7 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
           flashRef.current = 1
           shakeRef.current = 10
           persistBest(s)
+          recordResult(storageKey.replace(/^best:/, ''), { won: true })
         }
       }
 
@@ -293,7 +295,7 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
       draw()
       rafRef.current = requestAnimationFrame(frame)
     },
-    [draw, play, persistBest, reducedRef],
+    [draw, play, persistBest, reducedRef, storageKey],
   )
 
   // ---- Responsive canvas ----
