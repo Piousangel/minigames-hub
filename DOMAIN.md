@@ -103,9 +103,14 @@
 - **P2 장르/의도 허브 랜딩** ✅ 완료 — `/category/[puzzle|arcade|classic|skill]` + `/daily` + `/collections`
   (10종) + `/unblocked`(대형 검색 의도) 전부 SSG + JSON-LD + sitemap + 내부링크. `/popular`는 트래픽/데이터
   필요(저트래픽 노출=역소셜프루프)라 보류. `/new`는 NewGames 홈 레일로 대체(전용 랜딩은 저ROI, 선택).
-- **P3 온보딩** 🟡 — 목표 한 줄 above-the-fold(✅ objectives.ts 62종 + ObjectiveBanner, 보드 위 상시).
-  **남은 것: 언어독립 조작 글리프(방향키·스와이프·탭)** — 게임별 `controls` 메타 + 최초 플레이 시
-  `seen:<slug>` 게이팅 Start 카드. 목표(가장 큰 갭)는 상시 노출로 해결했으니 글리프는 후속.
+- **P3 온보딩** ✅ 완료(2026-08-10) — 목표 한 줄 above-the-fold(objectives.ts 89종 +
+  ObjectiveBanner, 보드 위 상시) + **언어독립 조작 글리프**: `gameMeta.ts`에
+  `ControlScheme`(arrows/tap/type/drag/point) 89종 전부 분류(registry.ts의 howToPlay
+  원문 근거 + 애매한 카드류는 실제 컴포넌트 이벤트 핸들러까지 확인), ObjectiveBanner에
+  같은 줄로 표시. 원래 구상이던 "최초 플레이 시 seen:<slug> 게이팅 Start 카드"는 89개
+  게임 컴포넌트 전부를 블로킹 첫 화면으로 리팩터해야 하는 고위험 스코프라 안 하고,
+  이미 검증된 상시노출 패턴(목표 배너)에 얹는 저위험 방식으로 대체했다. 배포 후 브라우저
+  스크린샷 검증 중 🖱️ 이모지가 이 환경에서 빈 상자로 깨지는 걸 발견해 플레인 `↔`로 교체.
 - **P4 스트릭 프리즈** ✅ 완료 — dailyStreak.ts freeze(gap 2+잔량>0이면 프리즈 소모, 5일마다 +1, 최대 2),
   TodayBoard ❄️ 표시. ⚠️ loadStreak가 freezes 떨구던 버그 브라우저 검증으로 잡음. **데일리 아카이브(`/daily`
   지난 날짜 결정론 재생)는 남음.**
