@@ -4,6 +4,7 @@ import { hasLeaderboard } from '@/lib/leaderboard'
 import type { GamePage } from '@/lib/games/registry'
 import { AdSlot } from '@/components/ads/AdSlot'
 import { Leaderboard } from '@/components/Leaderboard'
+import { Reactions } from '@/components/Reactions'
 import { RecordPlay } from '@/components/RecordPlay'
 import { Reveal } from '@/components/Reveal'
 import { NextUp } from '@/components/NextUp'
@@ -63,6 +64,9 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
         {/* 다음 게임으로 잇는 체류 후크(게임오버 catch point, 크로스셀은 스택 마지막) */}
         <NextUp currentSlug={page.slug} />
       </GameNavProvider>
+
+      {/* 게임별 이모지 리액션 — 리더보드 유무와 무관하게 전 게임 공용(사이트 내장 커뮤니티 v1) */}
+      <Reactions slug={page.slug} />
 
       {hasLeaderboard(page.slug) && <Leaderboard slug={page.slug} />}
 

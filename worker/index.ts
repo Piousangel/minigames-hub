@@ -8,6 +8,12 @@ import {
   isoWeek,
   type ScoreRow,
 } from '../src/lib/leaderboard'
+import {
+  emptyReactionCounts,
+  isValidReaction,
+  isValidReactionSlug,
+  type ReactionCounts,
+} from '../src/lib/reactions'
 
 // 최소 타입(CF 타입 의존 없이) — 번들은 wrangler(esbuild)가 처리.
 interface D1Stmt {
@@ -41,6 +47,17 @@ async function top(env: Env, game: string, week: string): Promise<ScoreRow[]> {
     .bind(game, week, TOP_N)
     .all<ScoreRow>()
   return results
+}
+
+async function reactionCounts(env: Env, slug: string): Promise<ReactionCounts> {
+  const { results } = await env.DB.prepare('SELECT emoji, count FROM reactions WHERE slug=?')
+    .bind(slug)
+    .all<{ emoji: string; count: number }>()
+  const counts = emptyReactionCounts()
+  for (const r of results) {
+    if (isValidReaction(r.emoji)) counts[r.emoji] = r.count
+  }
+  return counts
 }
 
 export default {
@@ -90,6 +107,33 @@ export default {
         .bind(game, week, name, score, Date.now())
         .run()
       return json({ week, top: await top(env, game, week), submitted: { name, score } })
+    }
+
+    // 게임별 이모지 리액션(무계정, UGC 없음) — src/lib/reactions.ts 참고.
+    if (url.pathname === '/api/reactions' && request.method === 'GET') {
+      const game = url.searchParams.get('game') ?? ''
+      if (!isValidReactionSlug(game)) return json({ error: 'unknown game' }, 400)
+      return json({ counts: await reactionCounts(env, game) })
+    }
+
+    if (url.pathname === '/api/reaction' && request.method === 'POST') {
+      let body: Record<string, unknown>
+      try {
+        body = (await request.json()) as Record<string, unknown>
+      } catch {
+        return json({ error: 'bad json' }, 400)
+      }
+      const game = String(body.game ?? '')
+      const emoji = String(body.emoji ?? '')
+      if (!isValidReactionSlug(game)) return json({ error: 'unknown game' }, 400)
+      if (!isValidReaction(emoji)) return json({ error: 'unknown emoji' }, 400)
+      await env.DB.prepare(
+        'INSERT INTO reactions (slug, emoji, count) VALUES (?,?,1) ' +
+          'ON CONFLICT(slug, emoji) DO UPDATE SET count = count + 1',
+      )
+        .bind(game, emoji)
+        .run()
+      return json({ counts: await reactionCounts(env, game) })
     }
 
     // 1st-party 분석 비콘: 게임별 조회('view')·체류('dwell', 초)를 Analytics Engine에 기록.

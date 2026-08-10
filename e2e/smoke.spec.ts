@@ -526,6 +526,24 @@ test('게임 페이지: DailyDock 리턴 훅(streak+퀘스트+카운트다운)',
   await expect(page.getByTestId('dock-countdown')).toBeVisible()
 })
 
+test('게임 페이지: 리액션 클릭 시 카운트가 오르고 재클릭이 막힌다', async ({ page }) => {
+  // 로컬 정적 서버(serve out)에는 Worker의 /api/reaction(s)가 없다 — 리더보드와 같은 이유로
+  // API를 목킹해야 컴포넌트가 스스로를 숨기지 않는다.
+  await page.route('**/api/reactions**', (route) =>
+    route.fulfill({ json: { counts: { '🔥': 0, '😂': 0, '😭': 0, '💀': 0 } } }),
+  )
+  await page.route('**/api/reaction', (route) =>
+    route.fulfill({ json: { counts: { '🔥': 1, '😂': 0, '😭': 0, '💀': 0 } } }),
+  )
+  await page.goto('/snake')
+  const fireBtn = page.getByRole('button', { name: 'React with 🔥' })
+  await expect(fireBtn).toBeVisible()
+  await expect(fireBtn).toContainText('0')
+  await fireBtn.click()
+  await expect(fireBtn).toContainText('1')
+  await expect(fireBtn).toBeDisabled()
+})
+
 test('pinwheel: 마우스 클릭으로 핀이 꽂힌다', async ({ page }) => {
   // 셀의 onFocus가 핀을 꽂고 onClick 토글이 곧바로 해제해 마우스로는 플레이가
   // 불가능했다. 실제 마우스 클릭은 포커스를 유발하므로 이 경로를 고정한다.
