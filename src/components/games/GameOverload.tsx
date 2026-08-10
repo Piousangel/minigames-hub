@@ -355,36 +355,13 @@ export function GameOverload({ storageKey }: { storageKey: string }) {
     </div>
   )
 
-  const tapsChip = (
-    <div className="rounded-lg border border-border bg-surface/80 px-3 py-1.5 text-sm">
-      <span className="text-fg-muted">Taps</span>{' '}
-      <span data-testid="taps" className="font-bold text-accent">
-        {state ? state.tapsLeft : 0}
-      </span>
-    </div>
-  )
-
-  const roundChip =
-    mode === 'endless' ? (
-      <div className="rounded-lg border border-border bg-surface/80 px-3 py-1.5 text-sm">
-        <span className="text-fg-muted">Round</span>{' '}
-        <span data-testid="round" className="font-bold text-accent">
-          {state ? state.level : 1}
-        </span>
-      </div>
-    ) : null
-
-  const headerExtra = (
-    <>
-      {tapsChip}
-      {roundChip}
-      {modeToggle}
-    </>
-  )
+  const headerExtra = modeToggle
 
   const stats = [
     { label: 'Score', value: state ? state.score : 0, testId: 'score', float: true },
     { label: 'Best', value: best, testId: 'best' },
+    { label: 'Taps', value: state ? state.tapsLeft : 0, testId: 'taps' },
+    ...(mode === 'endless' ? [{ label: 'Round', value: state ? state.level : 1, testId: 'round' }] : []),
   ]
 
   if (!state) {

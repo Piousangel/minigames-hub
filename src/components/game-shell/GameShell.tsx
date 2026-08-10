@@ -5,10 +5,12 @@ import { GameButton } from './GameButton'
 
 export interface StatSpec {
   label: string
-  value: number
+  /** 대부분 숫자. Mahjong의 Time("mm:ss"), Yahtzee의 Turn("5/13")처럼 포맷된 문자열도
+   * 허용한다 — 그런 항목엔 float을 절대 지정하지 말 것(델타 연산이 숫자 전제). */
+  value: number | string
   /** data-testid applied to the value span (e.g. "score"). */
   testId?: string
-  /** Show a floating "+N" when the value increases. */
+  /** Show a floating "+N" when the value increases. Number values only. */
   float?: boolean
 }
 
@@ -26,7 +28,8 @@ function Stat({ label, value, testId, float }: StatSpec) {
 
   useEffect(() => {
     if (prev.current === value) return
-    const delta = value - prev.current
+    // 문자열 값은 델타 연산 대상이 아니다(포맷된 표시용) — pulse만 타고 float은 안 뜬다.
+    const delta = typeof value === 'number' && typeof prev.current === 'number' ? value - prev.current : 0
     prev.current = value
     setPulseKey((k) => k + 1)
     if (float && delta > 0) {

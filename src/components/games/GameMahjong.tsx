@@ -327,36 +327,15 @@ export function GameMahjong({ storageKey }: { storageKey: string }) {
         ? 'No free matching pair — shuffle to rescue the board.'
         : 'Tap a free (bright) tile, then its matching free tile to clear the pair. Blocked tiles are dimmed.'
 
-  const headerExtra = (
-    <>
-      <span className="rounded-lg border border-border bg-surface/80 px-3 py-1.5 text-sm">
-        <span className="text-fg-muted">Left</span>{' '}
-        <span className="font-bold text-accent" data-testid="tiles-left">
-          {tilesLeft}
-        </span>
-      </span>
-      <span className="rounded-lg border border-border bg-surface/80 px-3 py-1.5 text-sm">
-        <span className="text-fg-muted">Moves</span>{' '}
-        <span className="font-bold text-accent" data-testid="moves">
-          {state.moves}
-        </span>
-      </span>
-      <span className="rounded-lg border border-border bg-surface/80 px-3 py-1.5 text-sm">
-        <span className="text-fg-muted">Time</span>{' '}
-        <span className="font-bold text-accent" data-testid="time">
-          {fmtTime(elapsed)}
-        </span>
-      </span>
-    </>
-  )
-
   return (
     <GameShell
       stats={[
         { label: 'Score', value: scoreVal, testId: 'score' },
         { label: 'Best', value: best, testId: 'best' },
+        { label: 'Left', value: tilesLeft, testId: 'tiles-left' },
+        { label: 'Moves', value: state.moves, testId: 'moves' },
+        { label: 'Time', value: fmtTime(elapsed), testId: 'time' },
       ]}
-      headerExtra={headerExtra}
       onNewGame={newDeal}
       newGameLabel="New deal"
       muted={muted}

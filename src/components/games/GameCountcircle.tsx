@@ -373,7 +373,12 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
           />
         </div>
 
-        <GameOverlay show={phase === 'over'} variant="lose" title="Eliminated" testId="game-over">
+        <GameOverlay
+          show={phase === 'over'}
+          variant={newBest ? 'win' : 'lose'}
+          title={newBest ? 'New best!' : 'Eliminated'}
+          testId="game-over"
+        >
           <div className="flex flex-col items-center gap-1 text-sm">
             <p>
               Score <span className="font-bold text-accent">{state.score}</span>
@@ -384,11 +389,6 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
             <p>
               Best <span className="font-bold text-accent">{best}</span>
             </p>
-            {newBest && (
-              <p className="font-bold text-neon-amber" data-testid="new-best">
-                New best!
-              </p>
-            )}
           </div>
           <div className="flex flex-wrap justify-center gap-2">
             <GameButton onClick={restart}>Play again</GameButton>

@@ -397,23 +397,13 @@ export function GameYahtzee({ storageKey }: { storageKey: string }) {
       ? `ROLL (${state.rollsLeft} left)`
       : 'No rolls left'
 
-  const headerExtra = (
-    <span className="rounded-lg border border-border bg-surface/80 px-3 py-1.5 text-sm">
-      <span className="text-fg-muted">Turn</span>{' '}
-      <span className="font-bold text-accent" data-testid="turn">
-        {Math.min(state.turn + (over ? 0 : 1), 13)}
-      </span>
-      <span className="text-fg-muted">/13</span>
-    </span>
-  )
-
   return (
     <GameShell
       stats={[
         { label: 'Total', value: total, testId: 'score', float: true },
         { label: 'Best', value: best_, testId: 'best' },
+        { label: 'Turn', value: `${Math.min(state.turn + (over ? 0 : 1), 13)}/13`, testId: 'turn' },
       ]}
-      headerExtra={headerExtra}
       onNewGame={newGame}
       newGameLabel="New game"
       muted={muted}
