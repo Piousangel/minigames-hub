@@ -2,23 +2,25 @@
 
 ## Community
 
-### 게임별 리액션 → 댓글(Approach A) 확장 여부 판단
+### 댓글 스팸 감시 — 방어선이 실제로 버티는지 확인
 
-**What:** 2026-08-10에 배포한 게임별 이모지 리액션(design doc:
-`~/.gstack/projects/Piousangel-minigames-hub/hyunseok-main-design-20260810-154432.md`)
-이 실제로 재방문 신호를 만드는지 데이터로 확인해야 한다. `mg_events`에서
-`event='reaction'` 건수와, 리액션을 클릭한 vid의 재방문율(다른 날 재방문 비율)을
-클릭 안 한 vid와 비교.
+**What:** 2026-08-10에 Approach A(게임별 익명 댓글)를 배포했다(design doc:
+`~/.gstack/projects/Piousangel-minigames-hub/hyunseok-main-design-20260810-154432.md`).
+방어선 4개(허니팟·링크차단·길이제한·IP 30초 레이트리밋)를 프로덕션에서 curl로
+직접 검증까지 했지만, 실제 트래픽(특히 스캐너·봇)에 노출된 뒤에도 버티는지는
+며칠~1-2주 지켜봐야 안다. `GET /api/comments`(game 파라미터 없이 호출)로 전 게임
+최신 댓글을 주기적으로 훑어 스팸 패턴이 뚫리는지 확인할 것.
 
-**Why:** 설계 문서의 성공 기준. 반응이 있으면(리액션 사용량 > 0, 재방문율 유의미하게
-상승) Approach A(게임별 자유 텍스트 댓글, 스팸 필터 포함)로 확장 — 없으면 커뮤니티
-기능보다 다른 재방문 레버(콘텐츠, 알림 등)를 재검토해야 한다. AdSense 재심사 대기
-중이라 모더레이션 없는 자유 텍스트 UGC는 가설 검증 전엔 리스크만 더한다고 판단해
-지금은 리액션까지만 냄.
+**Why:** 모더레이션 큐 없이 즉시공개하기로 한 결정(솔로 개발자 운영 부담 회피)이라,
+방어선을 뚫는 스팸이 있으면 사람이 직접 알아채고 지워야 한다(`wrangler d1 execute
+minigames-leaderboard --remote --command "DELETE FROM comments WHERE ..."`). 뚫리는
+패턴이 보이면: 금칙어 목록 추가, 레이트리밋 윈도 확대, 또는 Cloudflare Bot Fight
+Mode 활성화(이전엔 SEO 크롤러 오탐 우려로 보류했었음 — 이번엔 다른 트레이드오프라
+재검토 가치 있음) 순으로 대응.
 
-**Effort:** 확인은 XS(쿼리만), 확장 결정되면 A는 M.
-**Priority:** P2 — 1~2주 뒤(데이터가 쌓인 후) 재확인.
-**Depends on:** 배포 후 최소 1주 데이터 축적.
+**Effort:** 모니터링 자체는 XS. 방어 강화 필요 시 S~M.
+**Priority:** P2.
+**Depends on:** 실제 트래픽 노출(시간 경과).
 
 ## Games
 
