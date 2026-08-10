@@ -86,4 +86,7 @@ export const OBJECTIVES: Record<string, string> = {
   beatline: 'Hit every falling note in the right lane, on the beat.',
   skew: 'Tilt the board to line up colours before your tilts run out.',
   turntile: 'Flip blocks until every tile on the board matches.',
+  stakehouse: 'Spread your bets across the jars and survive 12 rounds without going bust.',
+  grasp: 'Grasp cards for points before the haste gauge forces the round to end.',
+  countcircle: 'Swap seats before the deadly count reaches you.',
 }

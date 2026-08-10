@@ -98,6 +98,9 @@ export type GamePage = GamePageBase &
     | { game: 'beatline' }
     | { game: 'skew' }
     | { game: 'turntile' }
+    | { game: 'stakehouse' }
+    | { game: 'grasp' }
+    | { game: 'countcircle' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2578,6 +2581,87 @@ export const gamePages: GamePage[] = [
       { q: 'Can I undo a flip?', a: 'There is no separate undo button, but every flip is its own reverse — flip the same pivot again to put it back.' },
       { q: 'Is it free and account-free?', a: 'Yes. Turntile plays free in your browser with no download and no sign-up. Your best flip count saves locally.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap a pivot point to flip its block — the grid scales to fit phones and tablets as well as desktop.' },
+    ],
+  },
+  {
+    slug: 'stakehouse',
+    game: 'stakehouse',
+    title: 'Play Stakehouse Online — Free Push-Your-Luck Jar Betting Game',
+    h1: 'Stakehouse',
+    metaDescription:
+      'Play Stakehouse free online — split your bankroll across four jars of fully visible odds and cash in as gems and duds get drawn. No download, no sign-up.',
+    shortDescription: 'Spread your bets across four jars of visible odds.',
+    howToPlay: [
+      'Each of the four jars starts full of gem and dud tokens, and you can see exactly how many of each remain at all times.',
+      'Before each round, spread your bankroll across as many jars as you like — the fewer gems remain in a jar, the higher its payout multiplier.',
+      "Commit the round and every jar you bet on draws one token at once: a gem pays out at that jar's multiplier, a dud takes your bet.",
+      'Survive 12 rounds with bankroll left to complete the run — hit zero and the run ends.',
+    ],
+    strategy: [
+      'A jar with only a few gems left pays big, but every draw that misses is one gem closer to running out entirely.',
+      'Spreading bets across jars smooths your variance; going all-in on one jar is higher risk for a higher single payout.',
+      'Watch the odds shift every round — a jar that looked safe early can turn into the best, or worst, bet later.',
+      'Sitting a round out with no bet is always valid — sometimes the best move is to wait for better odds.',
+    ],
+    faq: [
+      { q: 'How do you play Stakehouse?', a: 'Split your bankroll across four jars before each round. When you commit, every jar you bet on draws one token — a gem pays out, a dud costs you the bet.' },
+      { q: 'How do I know the odds?', a: 'Every jar shows its exact remaining gem and dud count, so its payout multiplier is always visible before you bet.' },
+      { q: 'What happens if I lose all my bankroll?', a: 'Hitting zero bankroll ends the run immediately. Survive all 12 rounds with bankroll remaining to complete it.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Stakehouse plays free in your browser with no download and no sign-up. Your best bankroll saves locally.' },
+    ],
+  },
+  {
+    slug: 'grasp',
+    game: 'grasp',
+    title: 'Play Grasp Online — Free Push-Your-Luck Card Gauge Game',
+    h1: 'Grasp',
+    metaDescription:
+      'Play Grasp free online — grasp or release each card as it flips, but every grasp fills your haste gauge until it forces the round to end. No download, no sign-up.',
+    shortDescription: 'Grasp cards for points, but the haste gauge is always rising.',
+    howToPlay: [
+      'Cards flip one at a time from a shuffled deck. Grasp a card to add its value to your score, or release it for free and move on.',
+      'Every grasp fills your haste gauge a little more — release costs you nothing but the chance to score.',
+      'The instant the gauge fills, the round ends on the spot, wherever you are.',
+      'See the deck through to the very last card before the gauge caps and you clear the round for a big bonus instead.',
+    ],
+    strategy: [
+      'Early grasps are cheap — the gauge has plenty of room, so take the value while it is safe.',
+      'Watch the gauge closely near the end of the deck: reaching the last card the instant it would cap turns a bust into a clear.',
+      'Releasing costs nothing but potential score, so when the gauge is near full, release freely to survive to the finish.',
+      'Higher difficulties shrink your grasp budget, so plan how many grasps you can afford from the very first card.',
+    ],
+    faq: [
+      { q: 'How do you play Grasp?', a: 'As each card flips, choose to grasp it (add its value to your score, fill the gauge) or release it (no score, no gauge cost).' },
+      { q: 'What happens when the gauge fills?', a: 'The round ends immediately, wherever you are — unless you grasp the very last card in the deck at that same moment, which clears the round for a bonus instead.' },
+      { q: 'What is the difference between difficulties?', a: 'Easy, Normal, and Hard shrink how many grasps you can make before the gauge caps, so higher difficulties demand tighter judgment calls.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Grasp plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+    ],
+  },
+  {
+    slug: 'countcircle',
+    game: 'countcircle',
+    title: 'Play Countcircle Online — Free Josephus Survival Arcade Game',
+    h1: 'Countcircle',
+    metaDescription:
+      'Play Countcircle free online — the deadly count is already heading for your seat. Swap places before the window closes and survive as long as you can. No download, no sign-up.',
+    shortDescription: 'Swap seats before the deadly count reaches you.',
+    howToPlay: [
+      'You sit in a circle of seats. Every elimination cycle, a target seat is telegraphed with a pulsing ring.',
+      'If the target is you, swap with the seat on either side before the countdown window closes, or you are eliminated.',
+      'Clearing a round, down to the last survivor, instantly starts a bigger circle with no pause between rounds.',
+      'The count keeps going forever — survive as many eliminations and rounds as you can for the highest score.',
+    ],
+    strategy: [
+      "The countdown window shrinks as eliminations pile up, so react fast and don't wait for confirmation before swapping.",
+      'Escaping a window where you were the actual target earns a clutch bonus — cutting it close pays off if you make it.',
+      'Clearing a round adds three more seats immediately, so the circle only gets more dangerous the longer you survive.',
+      'Watch the ring, not the number — the pulsing highlight tells you exactly which seat is about to be hit.',
+    ],
+    faq: [
+      { q: 'How do you play Countcircle?', a: 'Watch for the pulsing ring marking the next target seat. If it lands on you, press left or right to swap with an adjacent seat before the window closes.' },
+      { q: 'What happens when I get caught?', a: 'Getting caught on your own seat ends the run immediately — your final score reflects how many eliminations and rounds you survived.' },
+      { q: 'Does the game ever end?', a: 'No — Countcircle is an endless survival run. Each cleared round adds more seats and the countdown windows get tighter.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Countcircle plays free in your browser with no download and no sign-up. Your best score saves locally.' },
     ],
   },
 ]

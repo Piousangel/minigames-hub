@@ -62,6 +62,9 @@ const GameKakuro = dynamic(() => import('@/components/games/GameKakuro').then((m
 const GameBeatline = dynamic(() => import('@/components/games/GameBeatline').then((m) => m.GameBeatline), { ssr: false, loading: Loading })
 const GameSkew = dynamic(() => import('@/components/games/GameSkew').then((m) => m.GameSkew), { ssr: false, loading: Loading })
 const GameTurntile = dynamic(() => import('@/components/games/GameTurntile').then((m) => m.GameTurntile), { ssr: false, loading: Loading })
+const GameStakehouse = dynamic(() => import('@/components/games/GameStakehouse').then((m) => m.GameStakehouse), { ssr: false, loading: Loading })
+const GameGrasp = dynamic(() => import('@/components/games/GameGrasp').then((m) => m.GameGrasp), { ssr: false, loading: Loading })
+const GameCountcircle = dynamic(() => import('@/components/games/GameCountcircle').then((m) => m.GameCountcircle), { ssr: false, loading: Loading })
 const GamePolytap = dynamic(() => import('@/components/games/GamePolytap').then((m) => m.GamePolytap), { ssr: false, loading: Loading })
 const GameSonar = dynamic(() => import('@/components/games/GameSonar').then((m) => m.GameSonar), { ssr: false, loading: Loading })
 const GameProspector = dynamic(() => import('@/components/games/GameProspector').then((m) => m.GameProspector), { ssr: false, loading: Loading })
@@ -268,6 +271,12 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameSkew storageKey={`best:${page.slug}`} />
     case 'turntile':
       return <GameTurntile storageKey={`best:${page.slug}`} />
+    case 'stakehouse':
+      return <GameStakehouse storageKey={`best:${page.slug}`} />
+    case 'grasp':
+      return <GameGrasp storageKey={`best:${page.slug}`} />
+    case 'countcircle':
+      return <GameCountcircle storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

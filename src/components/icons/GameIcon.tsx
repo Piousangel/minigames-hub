@@ -906,6 +906,41 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // stakehouse — 4개 항아리(보석/꽝 배율 베팅)
+  stakehouse: (
+    <>
+      <path d="M6 9h5v9.5a2 2 0 0 1 -2 2H8a2 2 0 0 1 -2-2z" {...soft} />
+      <path d="M13 9h5v6.5a2 2 0 0 1 -2 2h-1a2 2 0 0 1 -2-2z" {...soft} />
+      <path d="M6 9a2.5 2.5 0 0 1 5 0" />
+      <path d="M13 9a2.5 2.5 0 0 1 5 0" />
+      <circle cx="8.5" cy="14" r="1.1" {...solid} />
+      <circle cx="15.5" cy="12.5" r="1.1" {...solid} />
+    </>
+  ),
+
+  // grasp — 카드 한 장을 쥔 손(즉시 결정)
+  grasp: (
+    <>
+      <rect x="9" y="3.5" width="8" height="11" rx="1.4" {...soft} />
+      <path d="M5.5 12v2.5a1.6 1.6 0 0 0 3.2 0V11" />
+      <path d="M8.5 12.5v2a1.6 1.6 0 0 0 3.2 0v-1.5" />
+      <path d="M6.5 20a3 3 0 0 1 2-4.8h4a3 3 0 0 1 2 4.8z" {...soft} />
+    </>
+  ),
+
+  // countcircle — 원형 좌석 배치 + 다가오는 표적 링
+  countcircle: (
+    <>
+      <circle cx="12" cy="12" r="7.5" {...soft} />
+      <circle cx="12" cy="4.8" r="1.7" {...solid} />
+      <circle cx="18.2" cy="9" r="1.5" />
+      <circle cx="15.8" cy="17.2" r="1.5" />
+      <circle cx="8.2" cy="17.2" r="1.5" />
+      <circle cx="5.8" cy="9" r="1.5" />
+      <circle cx="12" cy="4.8" r="3" {...softer} />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>
