@@ -436,7 +436,7 @@ export function GameRicochet({ storageKey }: { storageKey: string }) {
 
   const hintText = state
     ? isDaily
-      ? `${state.tapsLeft ?? 0} taps left · par ${par}. Longest chain this board: ${state.longestChain}.`
+      ? `Tap any tile to fire a bolt — it jumps its number, then obeys wherever it lands. ${state.tapsLeft ?? 0} taps left · par ${par}. Longest chain this board: ${state.longestChain}.`
       : 'Tap any tile to fire a bolt — it jumps its number, then obeys wherever it lands. Chase one monster ignition.'
     : ''
 
