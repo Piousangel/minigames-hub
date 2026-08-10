@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Confetti } from './Confetti'
 import { useGameNav } from '@/components/GameNav'
 import { nearestGoalHint } from '@/lib/achievements'
+import { siteConfig } from '@/lib/siteConfig'
 
 /**
  * Shared win/lose overlay: blurred backdrop, entrance animation, optional
@@ -81,6 +82,18 @@ export function GameOverlay({
             <span aria-hidden="true">▶</span>
             <span>Next: {nav.nextTitle}</span>
           </Link>
+        )}
+        {/* 후원 넛지: RUN 마일스톤(몰입한 유저)에만, 세션당 한 번뿐인 순간이라 부담 없음. */}
+        {runMilestone && siteConfig.kofiUrl && (
+          <a
+            href={siteConfig.kofiUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-testid="overlay-support"
+            className="text-xs text-fg-muted underline decoration-dotted underline-offset-2 transition-colors hover:text-neon-magenta"
+          >
+            ☕ On a roll — support the site?
+          </a>
         )}
       </div>
     </div>
