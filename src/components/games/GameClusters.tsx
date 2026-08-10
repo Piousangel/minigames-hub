@@ -310,7 +310,7 @@ export function GameClusters({ storageKey }: { storageKey: string }) {
       ]}
       headerExtra={headerExtra}
       onNewGame={onNewGame}
-      newGameLabel={mode === 'daily' ? 'Reset' : 'New Board'}
+      newGameLabel={mode === 'daily' ? 'Replay Daily' : 'New Board'}
       muted={muted}
       onToggleMute={toggleMuted}
       hint={hint}
@@ -464,7 +464,7 @@ export function GameClusters({ storageKey }: { storageKey: string }) {
               />
             )}
             <GameButton onClick={onNewGame}>
-              {mode === 'daily' ? 'Replay daily' : 'New Board'}
+              {mode === 'daily' ? 'Replay Daily' : 'New Board'}
             </GameButton>
           </div>
         </GameOverlay>

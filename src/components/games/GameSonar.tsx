@@ -81,6 +81,7 @@ export function GameSonar({ storageKey }: { storageKey: string }) {
   const [difficulty, setDifficulty] = useState<Difficulty>('normal')
   const [interaction, setInteraction] = useState<Interaction>('ping')
   const [best, setBest] = useState(0)
+  const [isBest, setIsBest] = useState(false)
   const [streak, setStreak] = useState(0)
   const [pingKey, setPingKey] = useState(0)
 
@@ -118,6 +119,7 @@ export function GameSonar({ storageKey }: { storageKey: string }) {
           : createGame(DIFFICULTIES[diff], freshSeed())
       prevOver.current = false
       setPingKey(0)
+      setIsBest(false)
       commit(g)
     },
     [commit],
@@ -125,7 +127,10 @@ export function GameSonar({ storageKey }: { storageKey: string }) {
 
   const persistOver = useCallback(
     (next: SonarState) => {
-      const nextBest = Math.max(loadBest(storageKey), next.score)
+      const prevBest = loadBest(storageKey)
+      const beatBest = next.score > 0 && next.score > prevBest
+      setIsBest(beatBest)
+      const nextBest = Math.max(prevBest, next.score)
       try {
         localStorage.setItem(storageKey, String(nextBest))
       } catch {
@@ -366,7 +371,7 @@ export function GameSonar({ storageKey }: { storageKey: string }) {
       ]}
       headerExtra={headerExtra}
       onNewGame={onNewGame}
-      newGameLabel={won ? 'Play again' : lost ? 'Retry' : mode === 'daily' ? 'Reset' : 'New Board'}
+      newGameLabel={won ? 'Play again' : lost ? 'Retry' : mode === 'daily' ? 'Replay Daily' : 'New Board'}
       muted={muted}
       onToggleMute={toggleMuted}
       hint={hint}
@@ -484,6 +489,7 @@ export function GameSonar({ storageKey }: { storageKey: string }) {
 
         <GameOverlay show={won} variant="win" title="All contacts found!" testId="you-win">
           <div className="flex flex-col items-center gap-1 text-sm">
+            {isBest && <p className="font-bold text-accent">New best score!</p>}
             <p>
               Score <span className="font-bold text-accent">{state.score}</span>
             </p>
@@ -537,6 +543,7 @@ export function GameSonar({ storageKey }: { storageKey: string }) {
         </GameOverlay>
 
         <GameOverlay show={lost} variant="lose" title="Signal lost" testId="game-over">
+          {isBest && <p className="text-sm font-bold text-accent">New best score!</p>}
           <p className="text-sm text-fg-muted">
             Found <span className="font-bold text-accent">{foundCount}</span> of {T} before the sonar went dark.
           </p>

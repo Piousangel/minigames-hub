@@ -22,6 +22,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
+import { updateBestScore } from '@/lib/bestScore'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 interface Particle {
@@ -45,6 +46,7 @@ function rowHue(row: number): number {
 
 export function GameBreakout({ storageKey }: { storageKey: string }) {
   const [best, setBest] = useState(0)
+  const [isBest, setIsBest] = useState(false)
   const [hud, setHud] = useState({ score: 0, lives: 0 })
   const [phase, setPhase] = useState<'idle' | 'playing' | 'won' | 'over'>('idle')
   const [ready, setReady] = useState(false)
@@ -62,19 +64,16 @@ export function GameBreakout({ storageKey }: { storageKey: string }) {
   const trailRef = useRef<Trail[]>([])
   const paddleFlashRef = useRef(0)
   const cssSizeRef = useRef(FIELD_W)
+  const bestRef = useRef(0)
 
   // ---- HUD 동기화 (프레임마다 값이 바뀔 때만 리렌더) ----
   const syncHud = useCallback((s: BreakoutState) => {
     setHud((prev) => (prev.score === s.score && prev.lives === s.lives ? prev : { score: s.score, lives: s.lives }))
-    if (s.over) setPhase((p) => (p === 'over' ? p : 'over'))
-    else if (s.won) setPhase((p) => (p === 'won' ? p : 'won'))
-    if (s.score > 0) {
-      setBest((b) => {
-        if (s.score <= b) return b
-        localStorage.setItem(storageKey, String(s.score))
-        return s.score
-      })
-    }
+    const beat = updateBestScore(s.score, bestRef, storageKey, setBest)
+    if (s.over) {
+      setPhase((p) => (p === 'over' ? p : 'over'))
+      setIsBest((v) => v || beat)
+    } else if (s.won) setPhase((p) => (p === 'won' ? p : 'won'))
   }, [storageKey])
 
   const spawnParticles = useCallback((x: number, y: number, hue: number) => {
@@ -257,6 +256,7 @@ export function GameBreakout({ storageKey }: { storageKey: string }) {
     lastTsRef.current = 0
     setHud({ score: 0, lives: gameRef.current.lives })
     setPhase('idle')
+    setIsBest(false)
     draw()
   }, [draw])
 
@@ -265,7 +265,9 @@ export function GameBreakout({ storageKey }: { storageKey: string }) {
     gameRef.current = newGame()
     setHud({ score: 0, lives: gameRef.current.lives })
     const stored = Number(localStorage.getItem(storageKey))
-    setBest(Number.isFinite(stored) ? stored : 0)
+    const b = Number.isFinite(stored) ? stored : 0
+    bestRef.current = b
+    setBest(b)
     resize()
     rafRef.current = requestAnimationFrame(frame)
     const ro = new ResizeObserver(resize)
@@ -362,7 +364,7 @@ export function GameBreakout({ storageKey }: { storageKey: string }) {
             Play again
           </GameButton>
         </GameOverlay>
-        <GameOverlay show={phase === 'over'} variant="lose" title="Game over" testId="game-over">
+        <GameOverlay show={phase === 'over'} variant={isBest ? 'win' : 'lose'} title={isBest ? 'New best!' : 'Game over'} testId="game-over">
           <p className="text-fg-muted">Score: {hud.score}</p>
           <GameButton onClick={restart} className="px-4 py-2">
             Try again

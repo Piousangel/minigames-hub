@@ -58,7 +58,11 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   beatline: { label: 'Score' },
   skew: { label: 'Score' },
   turntile: { label: 'Score' },
+  stakehouse: { label: 'Bankroll' },
+  grasp: { label: 'Score' },
+  countcircle: { label: 'Score' },
   flow: { label: 'Level' },
+  'aim-trainer': { label: 'Targets/s' },
 }
 
 export function hasLeaderboard(slug: string): boolean {

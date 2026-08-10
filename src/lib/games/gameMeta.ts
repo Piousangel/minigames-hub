@@ -112,6 +112,9 @@ export const gameMeta: Record<string, GameMeta> = {
   beatline: { icon: '🎧', accent: 'magenta', category: 'Skill', addedDate: '2026-08-04', featured: true, daily: true },
   skew: { icon: '📐', accent: 'lime', category: 'Puzzle', addedDate: '2026-08-04' },
   turntile: { icon: '🔄', accent: 'purple', category: 'Puzzle', addedDate: '2026-08-04', daily: true },
+  stakehouse: { icon: '🏺', accent: 'amber', category: 'Arcade', addedDate: '2026-08-10' },
+  grasp: { icon: '🤏', accent: 'red', category: 'Skill', addedDate: '2026-08-10', daily: true },
+  countcircle: { icon: '💺', accent: 'blue', category: 'Arcade', addedDate: '2026-08-10' },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

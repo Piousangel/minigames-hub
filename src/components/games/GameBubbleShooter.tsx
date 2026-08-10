@@ -20,6 +20,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
+import { updateBestScore } from '@/lib/bestScore'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // 네온 팔레트(색 인덱스 0..4). 채움/글로우 모두 여기서 파생한다.
@@ -46,6 +47,7 @@ const SHOT_SPEED = 7 // 프레임당 진행할 경로 인덱스 수(경로 간�
 
 export function GameBubbleShooter({ storageKey }: { storageKey: string }) {
   const [best, setBest] = useState(0)
+  const [isBest, setIsBest] = useState(false)
   const [hud, setHud] = useState({ score: 0 })
   const [phase, setPhase] = useState<'playing' | 'won' | 'over'>('playing')
   const [ready, setReady] = useState(false)
@@ -62,18 +64,13 @@ export function GameBubbleShooter({ storageKey }: { storageKey: string }) {
   const aimAngleRef = useRef(0) // 수직 기준(우측 +)
   const guidePathRef = useRef<{ x: number; y: number }[]>([])
   const cssSizeRef = useRef(FIELD_W)
+  const bestRef = useRef(0)
 
   // ---- HUD/Best 동기화 ----
   const syncHud = useCallback(
     (s: BubbleState) => {
       setHud((prev) => (prev.score === s.score ? prev : { score: s.score }))
-      if (s.score > 0) {
-        setBest((b) => {
-          if (s.score <= b) return b
-          localStorage.setItem(storageKey, String(s.score))
-          return s.score
-        })
-      }
+      return updateBestScore(s.score, bestRef, storageKey, setBest)
     },
     [storageKey],
   )
@@ -217,12 +214,13 @@ export function GameBubbleShooter({ storageKey }: { storageKey: string }) {
       play('move')
     }
 
-    syncHud(res)
+    const beat = syncHud(res)
     if (res.cleared) {
       setPhase('won')
       play('win')
     } else if (res.over) {
       setPhase('over')
+      setIsBest((v) => v || beat)
       play('lose')
     }
     updateGuide()
@@ -276,6 +274,7 @@ export function GameBubbleShooter({ storageKey }: { storageKey: string }) {
     aimAngleRef.current = 0
     setHud({ score: 0 })
     setPhase('playing')
+    setIsBest(false)
     updateGuide()
     draw()
   }, [draw, updateGuide])
@@ -285,7 +284,9 @@ export function GameBubbleShooter({ storageKey }: { storageKey: string }) {
     setReady(true)
     gameRef.current = newGame(Math.random)
     const stored = Number(localStorage.getItem(storageKey))
-    setBest(Number.isFinite(stored) ? stored : 0)
+    const b = Number.isFinite(stored) ? stored : 0
+    bestRef.current = b
+    setBest(b)
     resize()
     updateGuide()
     rafRef.current = requestAnimationFrame(frame)
@@ -389,7 +390,7 @@ export function GameBubbleShooter({ storageKey }: { storageKey: string }) {
             Play again
           </GameButton>
         </GameOverlay>
-        <GameOverlay show={phase === 'over'} variant="lose" title="Game over" testId="game-over">
+        <GameOverlay show={phase === 'over'} variant={isBest ? 'win' : 'lose'} title={isBest ? 'New best!' : 'Game over'} testId="game-over">
           <p className="text-fg-muted">Score: {hud.score}</p>
           <GameButton onClick={restart} className="px-4 py-2">
             Try again
