@@ -1,6 +1,54 @@
-# 인계: 게임 라운드12(Offbeat/Hogline/Prismbox) + UI/UX 감사 대응 완료·배포함
+# 인계: 게임 라운드13(Gravwell/Loopgrid/Bisect) + UI/UX 감사 대응 완료·배포함
 
-> 갱신: 2026-08-10 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main)** · **배포 완료·검증됨** (quickminigames.site, 게임 93종)
+> 갱신: 2026-08-10 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main)** · **배포 완료·검증됨** (quickminigames.site, 게임 96종)
+
+## 2026-08-10 세션(3) — 게임 라운드13(Gravwell/Loopgrid/Bisect) + UI/UX 감사 대응
+
+**게임 93 → 96종.** `Workflow({ scriptPath: '.claude/workflows/minigames-round.js' })`로
+신규 3종 기획→구현. 이번엔 이름 대신 `scriptPath`로 직접 호출해 [[workflow-name-invocation-staleness]]
+캐싱 함정을 우회함(라운드12 직후 `EXISTING`을 93종으로 갱신·커밋해뒀는데, 같은 턴에
+이름으로 호출하면 반영이 안 될 수 있어서 예방적으로 우회).
+- **Gravwell**(🪐 Puzzle, daily) — 원샷 중력 슬링샷 퍼즐. 발사 각도·속도만 입력하고
+  나머지는 역제곱 중력이 궤적을 통째로 휘게 둔다. 정수 고정소수점(mu, SCALE=1000)
+  물리 엔진, semi-implicit Euler 적분.
+- **Loopgrid**(🔁 Puzzle, daily) — 빈칸 없는 순환 그리드 컬러 정렬. 행/열 전체를
+  한 방향으로 순환시키면 끝 칸이 반대편으로 넘어옴(뫼비우스 그리드).
+- **Bisect**(✂️ Skill) — 카운트다운도 진행바도 없는 순수 시간감각 서바이벌. 시작
+  신호와 끝 신호 사이 정중앙을 짚어야 함. 데일리 없음(엔드리스, 라이프 3개).
+
+배선 6곳(registry/GameRenderer/gameMeta/leaderboard/objectives/e2e 스모크) +
+Daily 필터 e2e 기대 타이틀 목록(Gravwell/Loopgrid 추가) 전부 오케스트레이터가 직접.
+브라우저(Chrome MCP)로 3종 모두 실플레이 검증 — Gravwell 궤적이 행성 중력에 실제로
+휘어지는 것, 그레이즈 보너스 획득 확인 / Loopgrid 순환이 끝 칸→반대편 wraparound로
+정확히 동작 확인 / Bisect의 armed 화면이 스펙대로 완전히 비어있고(카운트다운 없음),
+타임아웃 시 라이프가 정확히 깎이는 것 확인.
+
+**UI/UX 감사 5건 중 4건 구현, 1건 보류:**
+1. 카드게임 3종(Solitaire/Yukon/Freecell) 더블탭→파운데이션 이동이 iOS Safari에서
+   시스템 확대 제스처로 가로채임 → 해당 버튼에 `touch-manipulation` 추가(4개 지점).
+2. **재차 반려** — Maze/Sliding/WordSearch에 `recordResult()` 추가 제안. 라운드12와
+   동일한 사유(낮을수록 좋은 시간 기록이라 트로피 패널의 "높을수록 좋음" 표시와 충돌)로
+   반려. 신선한 컨텍스트의 감사가 매번 재발견하지 않도록 `GameStats.tsx`의 게이팅
+   줄 위에 이유를 코드 주석으로 남겨둠.
+3. **보류(TODOS.md에 감사의 구현 계획 그대로 기록)** — word-guess에 Daily 모드/스트릭
+   인프라 이식(quadle 패턴 복제). 5건 중 스코프가 가장 크고(엔진+컴포넌트 대폭 수정),
+   감사 스스로 "기본 모드 전환으로 기존 e2e가 깨질 수 있다"고 경고한 리스크가 있어
+   이번 라운드 나머지 작업과 섞지 않고 다음 라운드에 전담 검증과 함께 진행하기로 함.
+4. 카드게임 8종 + Clusters/Quadle, Score가 실시간 증가하는데 `float: true` 누락 →
+   10개 파일에 각 1줄 추가(펄스 시 "+N" 팝업 활성화).
+5. Breakout/Pong 힌트 문구가 "mouse"만 언급 — 실제론 터치 드래그를 이미 완전
+   지원하는데 모바일 방문자가 오인할 수 있음 → 문구에 터치 언급 추가(2곳).
+
+**검증(전부 실행함):** `pnpm typecheck && pnpm lint`(0 errors, 기존 경고 15개만) ·
+`pnpm vitest run`(114 files / 3085 tests) · `pnpm build`(신규 3라우트 포함) ·
+`pnpm exec playwright test`(115, 전부 GREEN). main 직접 커밋 7개 → push →
+`pnpm run deploy` → quickminigames.site 7개 라우트 curl 200 확인(`/gravwell`,
+`/bisect`는 배포 직후 404 → ~8초 내 자연 해소, 계속 반복되는 패턴).
+
+**다음 세션 후보(TODOS.md 참고):** word-guess Daily 모드 이식(P2, 구현 계획 완료
+대기) · Gravwell/Loopgrid/Bisect 커스텀 SVG 아이콘 · Offbeat/Hogline/Prismbox
+커스텀 SVG 아이콘(라운드12부터 이월) · New Game 확인-탭 인프라 · GameButton 44px
+터치 타겟 캐스케이드-안전 재시도.
 
 ## 2026-08-10 세션(2) — 게임 라운드12(Offbeat/Hogline/Prismbox) + UI/UX 감사 대응
 
