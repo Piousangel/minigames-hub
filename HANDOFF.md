@@ -1,6 +1,71 @@
-# 인계: AdSense 승인받아 광고를 켜고, 게임 라운드를 계속 돌린다
+# 인계: 트래픽은 붙었는데 전환(리더보드 참여·후원)이 0 — 다음 우선순위는 진단
 
-> 갱신: 2026-08-05 · 브랜치: `main` · 커밋 상태: **committed & pushed** · **배포 완료·검증됨** (quickminigames.site, 게임 87종, 커스텀 아이콘 87종 전체 커버)
+> 갱신: 2026-08-10 · 브랜치: `main` · 커밋 상태: **committed & pushed & merged (PR #2)** · **배포 완료·검증됨** (quickminigames.site, 게임 90종, PR #2 squash-merge → `pnpm run deploy` 직접 실행)
+
+## 2026-08-10 세션 — 게임 라운드11(Stakehouse/Grasp/Countcircle) + UI/UX 감사 5건 + jsdom/RTL 도입 + ⚠️ 트래픽 신호 갱신
+
+**게임 87 → 90종.** `Workflow({ name: "minigames-round" })`로 신규 3종 기획→구현:
+- **Stakehouse**(🏺 Arcade) — 4개 항아리 push-your-luck 베팅. 배당 실시간 공개, 12라운드 생존.
+- **Grasp**(🤏 Skill, daily) — 카드 쥐기/흘리기, 조급 게이지가 차면 라운드 강제 종료(단, 마지막 카드를
+  쥐는 순간이면 클리어로 역전).
+- **Countcircle**(💺 Arcade) — 조세푸스 서바이벌. 카운트가 도달하기 전 옆자리로 피함. 엔드리스.
+
+배선 6곳(registry/GameRenderer/gameMeta/GameIcon/leaderboard/objectives) + e2e 스모크
+전부 오케스트레이터가 직접. 브라우저(Chrome MCP)로 Stakehouse/Grasp 실플레이 검증(베팅
+배당 실시간 반영, 게이지 캡→오버레이 정상 확인) — 세션 도중 사용자가 "크롬띄우지말고
+작업해" 지시해 이후엔 코드 기반 검증(typecheck/lint/vitest/build/e2e)으로 전환
+([[prefer-code-only-verification-when-busy]] 메모리 참고, 국지적 지시로 해석함).
+
+**UI/UX 감사 상위 5건 전부 구현:**
+1. Ricochet 데일리 힌트에 조작법 누락 → 추가.
+2. Breakout/BubbleShooter/Sonar 신기록 축하 오버레이 부재 → 추가(`src/lib/bestScore.ts`로
+   판정 로직 공용화).
+3. AimTrainer/Pong/Reaction의 `recordResult()` 미배선(GameStats 트로피 패널 죽어있었음) → 배선.
+4. 11개 게임 데일리 리셋 버튼 라벨 3중 분열("Reset"/"Replay"/"Replay Daily") → "Replay Daily"로 통일.
+5. Aim Trainer가 유효한 점수를 갖고도 `LEADERBOARD_GAMES` 누락 → 등록 + 배포 후 실제
+   제출(POST /api/score) 200 확인 완료.
+
+**⚠️ jsdom + React Testing Library 이번 세션에 정식 도입** (TODOS.md P2, 2026-08-04부터
+대기 중이던 결정 — `/ship` 커버리지 감사가 76%를 보고하며 사용자에게 확인 후 진행).
+`vitest.config.ts`를 `test.projects`로 분리(`engine`: node/`*.test.ts` 기존 그대로,
+`component`: jsdom/`*.test.tsx` 신규). GameAimTrainer/GameReaction에 실제 클릭·타이머
+조작 컴포넌트 테스트 파일럿(6건). canvas+rAF 게임(Breakout/BubbleShooter/Pong)과
+그리드 게임(Sonar)은 다음 라운드 후보로 TODOS.md에 남김.
+
+**`/ship` 리뷰가 실제 버그 2건을 잡았다(둘 다 이번 세션에 내가 직접 만든 버그):**
+- `GameGrasp.tsx`(신규 파일)가 "Replay Daily" 통일 스윕 대상(기존 11개 파일)에서
+  빠져 옛 라벨 "Reset"이 남아있었음 — 커버리지 감사가 발견.
+- `GameBubbleShooter.tsx`의 신기록 플래그가 `setIsBest(beat)`(그 틱만 판정)로,
+  `GameBreakout.tsx`의 `setIsBest(v => v || beat)`(누적) 패턴과 달라 — 중간 라운드에
+  신기록을 세우고 마지막이 무득점 샷으로 끝나면 축하 UI가 조용히 안 뜨는 버그였음
+  (레드팀 리뷰가 발견, CRITICAL). 두 파일 패턴 통일로 수정.
+- 적대적 리뷰가 추가로 `src/lib/bestScore.ts`의 `localStorage.setItem`에 try/catch가
+  없어 rAF 루프 도중 예외가 터지면 게임이 영구 멈출 수 있는 버그도 잡아 즉시 수정.
+
+**보류(사람 판단 필요, TODOS.md에 상세 기록):** Stakehouse의 "Best"가 완주 시에만
+기록되고 버스트 시 중도 피크는 안 잡히는 문제(설계 의도일 수도), Stakehouse 12라운드째
+뱅크롤 정확히 0으로 완주 시 Busted로 뜨는 엣지케이스, Aim Trainer 리더보드가 소수점
+tps를 정수로 잘라 변별력이 낮은 문제(제출 경로 자체는 배포 후 확인 완료, 스케일링만 남음).
+
+**검증(전부 실행함):** `pnpm typecheck && pnpm lint`(0 errors, 기존 경고 15개만) ·
+`pnpm vitest run`(101 files / 2832 tests) · `pnpm build`(216 라우트) ·
+`pnpm exec playwright test`(106). `/ship`(5개 스페셜리스트 + 레드팀 + 적대적 리뷰) →
+PR #2 → `/land-and-deploy`(squash merge, 수동 `pnpm run deploy`, quickminigames.site
++ 신규 3라우트 + 리더보드 API 실검증). 배포 직후 `/stakehouse` 엣지캐시 stale 404 →
+~10초 내 자연 해소(기존에도 반복된 패턴, 회귀 아님).
+
+### ⚠️ 중요 — 트래픽 신호 갱신 (2026-08-10, 사용자가 애널리틱스 스크린샷 공유)
+
+**"데이터가 없다"던 기존 판단은 더 이상 사실이 아니다.** 순방문자 **3.04k/최근 30일**
+(7/13~8/10, 7/17경부터 눈에 띄게 유입). 그런데 **리더보드 실유저 제출은 여전히 0건**
+(D1 직접 조회: 총 2건, 전부 세션 자체 테스트 — `snake/FIRST/42`, `aim-trainer/shiptest/1`).
+**사용자가 직접 지적**: "반응 괜찮아서 계속 디벨롭 해야하는데, 후원이 한 건도 없어서
+수익이 안 난다"는 게 걱정.
+
+**해석: 병목이 "트래픽 없음"에서 "트래픽은 있는데 전환이 안 됨"으로 이동했다.**
+자세한 내용과 다음 세션 진단 순서는 메모리 [[data-signals-premature]] 참고
+(재방문율 실측 / 리더보드 제출 퍼널 어디서 새는지 / 후원 도입 여부 / AdSense 상태
+재확인). **다음 세션은 게임 라운드12를 바로 돌리지 말고 이 진단을 먼저 할 것.**
 
 ## 2026-08-05 세션 — 아이콘 갭 11종 정리 + Vercel 레거시 연동 발견
 
@@ -262,51 +327,45 @@ Ricochet/Stackpot/Quarry per-game streak은 **사이트 전역 site:streak(Today
 
 ## 멈춘 지점
 
-**막힌 코드 없음.** 08-04(라운드10)·08-05(아이콘 11종) 작업 전부 커밋·배포·라이브 검증
-끝났다. 08-05 세션 말미에 사용자가 "팀 회의 거쳐 계속 개발"(라운드11) 요청 → 시작하려는
-순간 사용자가 "핸드오프 문서부터" + "새 세션 진행할 예정"이라고 해서 **워크플로우를 돌리지
-않고 여기서 멈춤.** 다음 세션의 첫 행동은 라운드11을 시작하는 것.
+**막힌 코드 없음.** 라운드11(신규 게임 3종 + UI/UX 감사 5건 + jsdom/RTL 도입) 전부
+커밋·PR #2 머지·배포·라이브 검증 끝났다(2026-08-10). **막힌 지점은 코드가 아니라 방향
+전환이다** — 세션 중반에 사용자가 트래픽 애널리틱스(3.04k 순방문/30일)를 공유하며
+"후원이 한 건도 없어 수익이 안 난다"고 우려를 표했다. 다음 세션의 첫 행동은 게임을
+더 찍어내는 게 아니라 **전환 진단**이어야 한다 — 아래 "다음 단계" 1번 참고.
 
 ## 다음 단계 (순서대로)
 
-1. **게임 라운드11**(사용자가 이미 요청함 — 승인 대기 없이 바로 시작):
+1. **⚠️ 전환 진단부터(게임 라운드12보다 우선)** — 자세한 배경은 메모리
+   [[data-signals-premature]] 참고. 순서:
+   - D1/Analytics Engine에서 재방문율·vid별 세션수 실측(3k명이 서로 다른 사람인지,
+     소수의 반복 방문인지 구분).
+   - 브라우저로 직접 리더보드 제출 퍼널을 걸어보고 어디서 마찰이 있는지 확인(제출
+     폼 위치, 이름 입력 요구 등) — 실유저 제출이 아직 0건인 이유를 가설이 아니라
+     직접 확인할 것.
+   - 후원(도네이션) 도입 여부 확인. 없다면 가장 마찰 적은 옵션(예: Buy Me a Coffee
+     링크 하나)부터 검토 — AdSense 미승인 상태에서 가장 빠른 수익화 레버일 수 있음.
+   - AdSense 상태 재확인(마지막 확인이 오래됐다, 2026-07-16) — `from:adsense-noreply@google.com`
+     Gmail 재검색. 승인 났으면 §7.2의 3단계 순서(슬롯 ID 교체 → `adsenseEnabled: true`) 그대로.
+2. **게임 라운드12**(전환 진단 이후, 필요하다고 판단되면):
    ```
    Workflow({ name: "minigames-round" })
    ```
-   - 스크립트: `.claude/workflows/minigames-round.js` (커밋됨).
-   - **`EXISTING` 상수는 라운드10까지 반영돼 87종 기준이다**(2026-08-04 갱신 확인함,
-     08-05 아이콘 작업은 게임 추가가 아니라 갱신 불필요). 라운드11에서 새 게임을
-     배포한 뒤에는 다시 추가할 것. 안 갱신하면 이미 있는 게임을 재탕 제안한다.
-   - 에이전트는 자기 파일 3개(engine/engine.test/Game*.tsx)만 쓴다. **배선 6곳은 오케스트레이터가 직접**
-   - ⚠️ **에이전트의 "테스트 통과"는 게임이 돌아간다는 뜻이 아니다.**
-     반드시 브라우저로 직접 플레이해 검증할 것(§ 라운드10에서 이 방식으로 실버그 2건 잡음).
-   - ⚠️ **`/ship`·`/land-and-deploy`의 프리랜딩 리뷰도 생략하지 말 것** — 라운드10에서
-     체크리스트+스페셜리스트+레드팀이 진짜 CRITICAL 버그 5건을 잡았다(daily 필터 누락,
-     손실 이중기록 등). "빌드 에이전트가 테스트 통과라고 했다"는 안전 근거가 안 된다.
-2. **AdSense** — 여전히 승인 대기 중으로 추정되나 마지막 확인이 오래됐다(2026-07-16).
-   다음 세션에서 `from:adsense-noreply@google.com` Gmail 재검색으로 새 메일 있는지부터 확인할 것.
-   승인 났으면 §7.2의 3단계 순서(슬롯 ID 교체 → `adsenseEnabled: true`) 그대로.
-3. **TODOS.md P2** — jsdom+RTL 컴포넌트 테스트 인프라 도입 검토. 사용자에게 제안했으나
-   아직 결정 안 됨. 스코프가 커서(테스트 컨벤션 자체를 바꾸는 결정) 진행 전 확인 필요.
-4. **Vercel 레거시 연동** — GitHub push마다 자동 빌드 시도하다 실패하는 게 정상이다
-   (실제 배포는 Cloudflare Workers, Vercel은 마이그레이션 전 잔재). 사용자가 대시보드에서
-   직접 Disconnect하기로 함(Project Settings → Git → Disconnect) — 아직 안 했으면 실패
-   알림이 계속 뜨는데 무해하니 무시. 에이전트가 대신 처리 못 함(계정 접근 불가).
-
-## ⚠️ 데이터 신호는 아직 이르다 (2026-07-16 실측)
-
-"게임이 쌓이면 리더보드·검색어 데이터로 다음 게임을 정하자"는 방향은 맞다. **단 지금은
-데이터가 없다.** 성급히 뽑으러 가지 말 것 — 다음이 실측 결과다:
-
-- **리더보드(D1) 제출 = 총 1건.** 그것도 `snake / FIRST / 42`, 명백한 본인 테스트 제출.
-  실제 유저 데이터 0. 계기판(34개 리더보드)은 깔렸으나 아직 잴 게 안 들어왔다.
-  조회법: `npx wrangler d1 execute minigames-leaderboard --remote --json --command "SELECT game, COUNT(*) n FROM scores GROUP BY game ORDER BY n DESC"`
-- **Search Console 검색어 = 에이전트 접근 불가.** MCP에 Gmail/Drive는 있어도 Search Console은
-  없다. 사용자가 직접 실적 메뉴를 봐야 한다.
-
-**결론**: 병목은 게임 품질이 아니라 트래픽(아직 아무도 안 온다)이다. 트래픽은 색인+시간+광고의
-함수. **라운드8도 데이터가 아니라 감(각도별 오리지널)으로 돌리는 게 맞다.** 몇 주 뒤 트래픽이
-붙으면 그때 리더보드 제출·검색어가 진짜 신호가 되고, 그때 심의 입력으로 넣으면 된다.
+   - `EXISTING` 상수는 **90종 기준으로 갱신돼 있다**(라운드11까지 반영, 2026-08-10 확인).
+     라운드12에서 새 게임을 배포한 뒤에는 다시 갱신할 것.
+   - 에이전트는 자기 파일 3개(engine/engine.test/Game*.tsx)만 쓴다. **배선 6곳은 오케스트레이터가 직접**.
+   - ⚠️ 신규 게임은 반드시 브라우저 실플레이로 검증할 것(라운드10·11 둘 다 이 방식으로
+     실버그를 잡았다). 세션 중 "크롬 띄우지 말고"류 지시가 오면 국지적 지시로 해석해
+     코드 기반 검증으로 전환하되, 그 세션 한정으로 그친다([[prefer-code-only-verification-when-busy]]).
+   - ⚠️ **`/ship`·`/land-and-deploy`의 프리랜딩·적대적 리뷰도 생략하지 말 것** — 라운드10·11
+     둘 다 체크리스트+스페셜리스트+레드팀+적대적 리뷰가 CRITICAL 버그를 잡았다(라운드11:
+     BubbleShooter 신기록 플래그 버그, bestScore.ts 미보호 localStorage 예외). "빌드
+     에이전트가 테스트 통과라고 했다"는 안전 근거가 안 된다.
+3. **TODOS.md** — 라운드11이 남긴 4개 후속 항목 참고(Stakehouse Best 시맨틱스,
+   Stakehouse 0-뱅크롤 엣지케이스, Aim Trainer 리더보드 정밀도 스케일링, canvas/grid
+   게임 jsdom+RTL 파일럿 확장).
+4. **Vercel 레거시 연동** — GitHub push마다 자동 빌드 시도하던 게 최근엔 정상 통과한다
+   (README.md 정정 이후). 여전히 무해하니 무시해도 되나, 원한다면 사용자가 대시보드에서
+   직접 Disconnect(Project Settings → Git → Disconnect)할 수 있다.
 
 ## 검증 상태 (2026-07-16 기준, 전부 실행함)
 
@@ -328,7 +387,9 @@ Ricochet/Stackpot/Quarry per-game streak은 **사이트 전역 site:streak(Today
 
 - **무엇**: 무료 브라우저 미니게임 사이트. 광고(AdSense)로 월 5~10만원 수익 목표.
 - **지금 상태**: **라이브** — https://quickminigames.site (커스텀 도메인 + SSL 정상, Cloudflare Workers 배포).
-- **게임 수**: 56종 (registry 기준). 상당수 오리지널 창작 게임 + 클래식.
+- **게임 수**: 90종 (registry 기준, 2026-08-10 라운드11까지 반영). 상당수 오리지널 창작 게임 + 클래식.
+  이 §0 섹션 나머지는 2026-07-16 기준 스냅샷이라 낡았다 — 최신 상태는 이 파일 맨 위 갱신일자와
+  2026-08-10 세션 섹션을 볼 것. AdSense 상태·리더보드 게임 수 등은 재확인 필요.
 - **리더보드**: 34개 게임에 주간 Top10 온라인 리더보드 (Cloudflare D1).
   나머지 22개는 **의도적으로 없다** — 리더보드는 "높을수록 좋음" 점수가 필요한데
   소도쿠·미로·행맨은 완주형, 틱택토·체커·리버시는 AI 대전, reaction-time·aim-trainer와
