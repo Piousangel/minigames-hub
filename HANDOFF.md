@@ -1,4 +1,4 @@
-# 인계: 실참여 진단 + 후원 넛지 + GameStats 확산(21종) 전부 배포함
+# 인계: 실참여 진단 + 후원 넛지 + GameStats 확산 전 게임(49종) 완료·배포함
 
 > 갱신: 2026-08-10 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main, PR #2 이후 소규모 후속 커밋 다수)** · **배포 완료·검증됨** (quickminigames.site, 게임 90종)
 
@@ -113,8 +113,15 @@ Breakout/BubbleShooter/Sonar/Ricochet/Countcircle/Grasp/Stakehouse — 이번 �
 넣으면 오버레이 떠 있는 동안 `recordResult`가 초당 60회 불려 `stats.plays`가 폭증;
 `recordedRef` 단일발화 게이팅으로 해결(TODOS.md에 이 함정 기록해둠). 전체 검증
 (typecheck/lint/vitest 2835/build/e2e 106) GREEN 확인 후 배포·라이브 확인 완료.
-남은 31종 + 패턴 가이드는 TODOS.md 참고 — Sliding/Maze/WordSearch 3종은 의도적 제외
-(낮을수록 좋음 best).
+
+**✅ 사용자가 계속 "쉬지 말고 연구/작업하라"고 해서 남은 게임까지 마저 끝냈다.**
+2개 배치 더 진행해 **49종 전부 완료**(3개 배치 합계) — DOMAIN.md P1이 이걸로 완전히
+닫혔다. 각 배치마다 typecheck/lint/vitest/build/e2e 전부 재검증·배포·라이브 확인.
+안전성 패턴(rAF 루프가 게임오버 후에도 도는데 안전한 경우 vs `recordedRef` 게이팅이
+필요한 경우 구분법)과 `won` 판정 컨벤션(대전/점수어택/push-your-luck별)은 TODOS.md
+Completed 섹션에 상세 기록해뒀다 — 다음에 신규 게임을 만들 때도 참고할 것. 의도적
+제외 3종(Sliding/Maze/WordSearch, "낮을수록 좋음" best)만 남음, 별도 배지 로직
+없이는 손대지 말 것.
 
 **사용자가 "커뮤니티도 만들어볼까"라고 물어서 짧게 답함(구현 안 함, 논의만):** 지금
 당장은 보류 추천 — 커뮤니티는 부트스트랩할 기존 유저층이 필요한데(닭과 달걀 문제),
