@@ -6,6 +6,7 @@ import { Confetti } from './Confetti'
 import { useGameNav } from '@/components/GameNav'
 import { nearestGoalHint } from '@/lib/achievements'
 import { siteConfig } from '@/lib/siteConfig'
+import { hasLeaderboard } from '@/lib/leaderboard'
 
 /**
  * Shared win/lose overlay: blurred backdrop, entrance animation, optional
@@ -82,6 +83,21 @@ export function GameOverlay({
             <span aria-hidden="true">▶</span>
             <span>Next: {nav.nextTitle}</span>
           </Link>
+        )}
+        {/* 리더보드 발견 유도: 페이지 하단(NextUp/GameStats/DailyDock 다음)에 묻혀 있어
+            스크롤로는 잘 안 보임 — 게임오버 순간 바로 점프시켜 존재를 알린다(참여율↑). */}
+        {hasLeaderboard(nav.slug) && (
+          <a
+            href="#leaderboard"
+            data-testid="overlay-leaderboard"
+            onClick={(e) => {
+              e.preventDefault()
+              document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }}
+            className="text-xs text-fg-muted underline decoration-dotted underline-offset-2 transition-colors hover:text-neon-amber"
+          >
+            🏆 See this week&apos;s leaderboard
+          </a>
         )}
         {/* 후원 넛지: RUN 마일스톤(몰입한 유저)에만, 세션당 한 번뿐인 순간이라 부담 없음. */}
         {runMilestone && siteConfig.kofiUrl && (

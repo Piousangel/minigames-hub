@@ -39,3 +39,27 @@ describe('GameOverlay — support-the-site nudge', () => {
     expect(screen.queryByTestId('overlay-support')).not.toBeInTheDocument()
   })
 })
+
+describe('GameOverlay — leaderboard discovery nudge', () => {
+  beforeEach(() => {
+    sessionStorage.clear()
+    localStorage.clear()
+  })
+
+  it('shows a leaderboard link for a game with a leaderboard (snake), even on the first game', () => {
+    renderOverlay(0) // bumps to 1 — not a RUN milestone, but leaderboard link isn't gated on that
+    const link = screen.getByTestId('overlay-leaderboard')
+    expect(link).toBeInTheDocument()
+    expect(link).toHaveAttribute('href', '#leaderboard')
+  })
+
+  it('does not show a leaderboard link for a game without one', () => {
+    sessionStorage.setItem(RUN_KEY, '0')
+    render(
+      <GameNavProvider slug="no-such-leaderboard-game">
+        <GameOverlay show variant="lose" title="Game over" testId="game-over" />
+      </GameNavProvider>,
+    )
+    expect(screen.queryByTestId('overlay-leaderboard')).not.toBeInTheDocument()
+  })
+})

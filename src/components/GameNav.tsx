@@ -10,12 +10,13 @@ import { RECENT_KEY } from '@/components/RecordPlay'
 const RUN_KEY = 'run:count'
 
 export interface GameNav {
+  slug: string // 현재 게임(오버레이가 리더보드 존재 여부 등을 판단할 때 씀)
   nextSlug: string | null // 다음에 권할 게임
   nextTitle: string | null
   runCount: number // 이번 세션 연속 플레이 수
 }
 
-const Ctx = createContext<GameNav>({ nextSlug: null, nextTitle: null, runCount: 0 })
+const Ctx = createContext<GameNav>({ slug: '', nextSlug: null, nextTitle: null, runCount: 0 })
 export const useGameNav = () => useContext(Ctx)
 
 /**
@@ -25,7 +26,7 @@ export const useGameNav = () => useContext(Ctx)
  * 클라이언트 전용(하이드레이션 안전). 프로바이더 밖에선 nextSlug=null이라 버튼이 안 뜬다.
  */
 export function GameNavProvider({ slug, children }: { slug: string; children: ReactNode }) {
-  const [nav, setNav] = useState<GameNav>({ nextSlug: null, nextTitle: null, runCount: 0 })
+  const [nav, setNav] = useState<GameNav>({ slug, nextSlug: null, nextTitle: null, runCount: 0 })
 
   useEffect(() => {
     let run = 0
@@ -61,7 +62,7 @@ export function GameNavProvider({ slug, children }: { slug: string; children: Re
               : all.filter((s) => s !== slug)
     const nextSlug = pool.length > 0 ? pool[run % pool.length] : null
     const g = nextSlug ? gamePages.find((p) => p.slug === nextSlug) : null
-    setNav({ nextSlug, nextTitle: g?.h1 ?? null, runCount: run })
+    setNav({ slug, nextSlug, nextTitle: g?.h1 ?? null, runCount: run })
   }, [slug])
 
   return <Ctx.Provider value={nav}>{children}</Ctx.Provider>
