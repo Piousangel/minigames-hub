@@ -54,6 +54,43 @@ minigames-leaderboard --remote --command "DELETE FROM comments WHERE ..."`). 뚫
 
 ## Games
 
+### Word Guess에 Daily 모드/스트릭 인프라 이식 (2026-08-10 라운드13 감사 3순위, 보류)
+
+**What:** `word-guess`(원조 워들형 게임, 검색 유입이 가장 클 후보)만 `gameMeta.ts`에
+`daily: true`가 없어 `/daily` 허브·홈 Daily 필터·GameStats Streak 칸에서 전부 빠져
+있다. 엔진(`newGame(rng: Rng)`)은 이미 결정론적 RNG 주입 구조라 quadle 패턴을 그대로
+복제할 준비가 돼 있다.
+
+**구현 계획(감사가 이미 quadle을 정확한 참조 템플릿으로 작성해둠):**
+1. `src/lib/games/wordguess/engine.ts` — `src/lib/games/quadle/engine.ts:57-78`의
+   `mulberry32(seed)` + `dailySeed(dateStr)`를 바이트 동일하게 복사(quadle 자체 주석이
+   "byte-identical to the wordguess/clusters template's mulberry32"라고 명시).
+   `newGame(rng: Rng)` 시그니처는 이미 호환.
+2. `src/components/games/GameWordGuess.tsx` — quadle의 `Mode`/`modeRef`/`startBoard`/
+   `streakKey`/`headerExtra`(daily·practice 세그먼트+Streak)/`DailyShareButton` 배선을
+   그대로 이식(quadle 78-441행이 정확한 참조 라인). **기존 `readStats(storageKey)`의
+   `{wins,streak}` JSON은 건드리지 말고, 신규 `streakKey`를 별도 키로 얹을 것** — 기존
+   로컬 기록과 충돌 방지.
+3. `src/lib/games/gameMeta.ts` — `word-guess` 엔트리에 `daily: true` 추가.
+
+**Why:** 이번 라운드(13) 나머지 작업(신규 게임 3종 wiring + 감사 1/4/5순위)과 함께
+서두르면, 감사 스스로 경고한 리스크(word-guess 기본 모드가 daily로 바뀌면서 기존
+e2e 스모크의 "로드 시 기본 상태" 가정이 깨질 수 있음)를 놓칠 수 있어 다음 라운드에
+전담 검증과 함께 진행하는 게 안전하다고 판단해 미룸. 5건 중 스코프가 가장 크다
+(엔진+컴포넌트 대폭 수정, 나머지 4건은 각 1~10줄).
+
+**Effort:** M. **Priority:** P2 — 검색 유입 원조 게임의 재방문 훅 공백이라 다음
+라운드 1순위 후보로.
+
+### Gravwell/Loopgrid/Bisect 커스텀 SVG 아이콘 (2026-08-10 라운드13 추가분)
+
+**What:** 세 게임 모두 `gameMeta.ts`에 이모지(🪐/🔁/✂️)만 등록돼 있다. Offbeat/Hogline/
+Prismbox와 같은 이유로 같은 배치에 묶어 후속 처리 가능.
+
+**Why:** 라운드13 빌드 스코프 밖(신규 게임 3종 wiring + 감사 4건이 우선)이라 미룸.
+
+**Effort:** S (게임당 SVG 1개). **Priority:** P3.
+
 ### Offbeat/Hogline/Prismbox 커스텀 SVG 아이콘 (2026-08-10 라운드12 추가분)
 
 **What:** 세 게임 모두 `gameMeta.ts`에 이모지(🔇/🥌/🌈)만 등록돼 있다.
