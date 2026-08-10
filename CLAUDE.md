@@ -26,6 +26,17 @@
 - 정적 내보내기 제약: `robots.ts` / `sitemap.ts` / `opengraph-image.tsx`에 `export const dynamic = 'force-static'` 필수.
 - 커스텀 도메인 구매 시 변경 지점: `src/lib/siteConfig.ts`의 `url` 한 줄 + Cloudflare 대시보드에서 도메인 라우트 연결.
 
+## Testing
+
+- `pnpm vitest run` — 유닛/컴포넌트 테스트. `vitest.config.ts`가 `test.projects`로 둘로 나뉨:
+  - `engine`(node): `src/**/*.test.ts` — 게임 순수 로직(`engine.ts`). 신규 게임은 항상 여기.
+  - `component`(jsdom): `src/**/*.test.tsx` — 복잡한 상태 로직이 있는 `Game*.tsx`에 한해 선택적으로.
+    canvas+rAF 게임은 jsdom이 2D context를 지원하지 않아(콘솔 경고만, 안 죽음) 실제 드로잉은
+    검증 불가 — 상태 전이·localStorage 영속처럼 canvas 밖 로직만 테스트할 것.
+- `pnpm exec playwright test` — e2e 스모크(로드+보드 표시 위주). 신규 게임은 항상 여기도 추가.
+- 컨벤션: 100% 커버리지가 목표가 아니라, 회귀가 조용히 들어오는 지점(신기록 판정, 저장 로직,
+  daily/streak 배선)을 우선 테스트한다. TODOS.md에 남은 파일럿 확장 후보 있음.
+
 ## Skill routing
 
 When the user's request matches an available skill, invoke it via the Skill tool. When in doubt, invoke the skill.
