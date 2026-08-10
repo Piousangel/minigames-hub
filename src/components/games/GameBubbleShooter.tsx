@@ -21,6 +21,7 @@ import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { updateBestScore } from '@/lib/bestScore'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // 네온 팔레트(색 인덱스 0..4). 채움/글로우 모두 여기서 파생한다.
@@ -218,13 +219,15 @@ export function GameBubbleShooter({ storageKey }: { storageKey: string }) {
     if (res.cleared) {
       setPhase('won')
       play('win')
+      recordResult(storageKey.replace(/^best:/, ''), { won: true })
     } else if (res.over) {
       setPhase('over')
       setIsBest((v) => v || beat)
       play('lose')
+      recordResult(storageKey.replace(/^best:/, ''), { won: false })
     }
     updateGuide()
-  }, [play, spawnPops, syncHud, updateGuide])
+  }, [play, spawnPops, syncHud, updateGuide, storageKey])
 
   // ---- 게임 루프 ----
   const frame = useCallback(() => {

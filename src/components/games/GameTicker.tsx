@@ -18,6 +18,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const CHOICES: Choice[] = ['A', 'B', 'C', 'CASH']
@@ -275,6 +276,7 @@ export function GameTicker({ storageKey }: { storageKey: string }) {
       const win = isNewHigh || (!hadRecord && green)
       setNewBest(win)
       play(win ? 'win' : 'lose')
+      recordResult(storageKey.replace(/^best:/, ''), { won: green })
     }
     prevOver.current = state.over
   }, [state, best, storageKey, play])

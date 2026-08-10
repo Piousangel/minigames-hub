@@ -5,6 +5,7 @@ import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import * as R from '@/lib/games/ricochet/engine'
 import { todayUTC as todayISO } from '@/lib/dailyDate'
 import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
@@ -245,6 +246,10 @@ export function GameRicochet({ storageKey }: { storageKey: string }) {
       const bumped = bumpStreak(loadStreak(streakKey))
       saveStreak(streakKey, bumped)
       setDayStreak(bumped.streak)
+    }
+    if (outcome.state.over) {
+      const wonRun = outcome.state.longestChain >= R.dailyPar(outcome.state.seed)
+      recordResult(storageKey.replace(/^best:/, ''), { won: wonRun })
     }
 
     setIsAnimating(false)

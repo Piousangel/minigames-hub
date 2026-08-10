@@ -2,6 +2,46 @@
 
 ## Games
 
+### GameStats 트로피 패널 확산 — 남은 31종
+
+**What:** DOMAIN.md P1의 유일한 잔여 항목("나머지 승/패 게임들도 recordResult 붙이면
+패널이 그 게임에도 뜬다"). 이번 세션에 21종 처리 완료(TicTacToe/DotsAndBoxes/
+NumberMemory/Typing/ZeroHour/WhackAMole/GemMatch/Rps/Simon/SpaceShooter/Flappy/
+TowerStack/Stackpot/Ticker/Breakout/BubbleShooter/Sonar/Ricochet/Countcircle/
+Grasp/Stakehouse). 남은 31종:
+
+```
+2048, Backspace, Beatline, Cleave, Decant, Deepdive, Duplex, Flapjack,
+Flywheel, Fuse, Handful, Interlock, Latch, Overdub, Overfold, Overload,
+Pinwheel, Polytap, Prospector, Quarry, Reactor, Ripple, Skew, Snake,
+Splice, Tetris, Turntile, Umbra
+```
+
+**⚠️ 의도적 제외 3종 — 여기 포함하지 말 것:** `Sliding`/`Maze`/`WordSearch`는
+라운드10 UI/UX 감사에서 이미 명시적으로 제외 결정됨 — best가 "낮을수록 좋음"
+(시간·이동수)이라 `GameStats.tsx`의 단순 `won:true` 표시가 의미상 반대로 보일 수
+있음. 붙이려면 GameStats 쪽에 "낮을수록 좋음" 배지 로직이 먼저 필요(별도 작업).
+
+**Why:** Wordle류 스탯모달의 84% 익일복귀 효과를 벤치마크로 삼은 기능
+([[retention-is-the-northstar]]). 패턴은 이미 정립됨 — 다음 세션이 참고할 것:
+1. `state.over`/`phase==='over'` 단일 발화 지점(주로 `useEffect([state, ...])`나
+   `dispatch` 콜백 내부의 `prevOver.current` 가드)을 찾는다.
+2. **rAF 루프가 게임오버 후에도 매 프레임 도는 게임(Breakout류)은 별도
+   `recordedRef` 게이팅이 필수** — 안 하면 오버레이가 떠 있는 동안 초당 60회
+   `recordResult`가 불려 `stats.plays`가 폭증한다(이번 세션에 Breakout에서
+   실제로 이 케이스를 만나 고침). `shoot()`/`land()`처럼 발사당 1회만 불리는
+   구조(BubbleShooter류)나 `phase !== 'playing'`이면 즉시 return하는 tick 루프
+   (Countcircle류)는 자연히 1회만 발화하니 추가 게이팅 불필요 — 게임마다 루프
+   구조를 먼저 확인할 것.
+3. `won` 값은 게임의 실제 승패 정의를 따른다(단순 "완료=true"가 아님) — 2인
+   대전/CPU전(2048 없음, 이 목록엔 대전 게임 없음)은 실제 승자, 점수 어택은
+   "완료=true"(승패 개념 없음), push-your-luck류는 "성공적으로 완주/탈출했는가"
+   (Ticker의 `green`, Grasp의 `cleared`, Stakehouse의 `phase==='complete'`가 예시).
+
+**Effort:** L (31종, 게임마다 개별 검증 필요)
+**Priority:** P2
+**Depends on:** None
+
 ### Stakehouse "Best"가 중도 피크가 아니라 완주 시점 뱅크롤만 기록
 
 **What:** `GameStakehouse.tsx`의 `persistBest`는 `phase`가 `'betting'`을 벗어나는

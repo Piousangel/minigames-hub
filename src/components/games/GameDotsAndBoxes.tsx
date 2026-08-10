@@ -16,6 +16,7 @@ import {
 } from '@/lib/games/dotsandboxes/engine'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const CPU_DELAY = 520
@@ -114,9 +115,10 @@ export function GameDotsAndBoxes({ storageKey }: { storageKey: string }) {
         play('match')
         bumpRecord('d')
       }
+      recordResult(storageKey.replace(/^best:/, ''), { won: win?.player === YOU })
       return true
     },
-    [bumpRecord, play],
+    [bumpRecord, play, storageKey],
   )
 
   // Draw a single edge; returns whether it moved and whether the game ended.

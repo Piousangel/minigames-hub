@@ -10,6 +10,7 @@ import {
 } from '@/lib/games/tictactoe/engine'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const AI_DELAY_MS = 420
@@ -83,6 +84,7 @@ export function GameTicTacToe({ storageKey }: { storageKey: string }) {
       if (s.winner === PLAYER) play('win')
       else if (s.winner === COMPUTER) play('lose')
       else play('match')
+      recordResult(storageKey.replace(/^best:/, ''), { won: s.winner === PLAYER })
     },
     [play, storageKey],
   )

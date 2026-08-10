@@ -14,6 +14,7 @@ import {
 } from '@/lib/games/whackamole/engine'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const TICK_MS = 80
@@ -149,6 +150,7 @@ export function GameWhackAMole({ storageKey }: { storageKey: string }) {
       } else {
         play('lose')
       }
+      recordResult(storageKey.replace(/^best:/, ''), { won: true })
     }
     prevOver.current = state.over
   }, [state, best, storageKey, play])

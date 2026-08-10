@@ -12,6 +12,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // ---- View geometry (engine units; x maps 1:1 to FIELD_W) ----
@@ -250,6 +251,7 @@ export function GameTowerStack({ storageKey }: { storageKey: string }) {
       } else {
         play('lose')
       }
+      recordResult(storageKey.replace(/^best:/, ''), { won: true })
       return
     }
 

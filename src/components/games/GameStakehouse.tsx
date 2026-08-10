@@ -21,6 +21,7 @@ import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { updateBestScore } from '@/lib/bestScore'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // Component-scoped keyframes — globals.css stays untouched.
@@ -300,10 +301,11 @@ export function GameStakehouse({ storageKey }: { storageKey: string }) {
 
       if (next.phase !== 'betting' && prevPhase.current === 'betting') {
         persistBest(next)
+        recordResult(storageKey.replace(/^best:/, ''), { won: next.phase === 'complete' })
       }
       prevPhase.current = next.phase
     },
-    [commit, play, persistBest],
+    [commit, play, persistBest, storageKey],
   )
 
   const setBet = useCallback((pot: number, amount: number) => dispatch({ type: 'setBet', pot, amount }), [dispatch])

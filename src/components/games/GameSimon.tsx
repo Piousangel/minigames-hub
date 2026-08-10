@@ -10,6 +10,7 @@ import {
 } from '@/lib/games/simon/engine'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // 클래식 Simon 톤 주파수 (green / red / yellow / blue).
@@ -217,6 +218,7 @@ export function GameSimon({ storageKey }: { storageKey: string }) {
         const isBest = res.state.score > bestBeforeRef.current
         setNewBest(isBest && res.state.score > 0)
         after(180, () => (isBest && res.state.score > 0 ? play('win') : play('lose')))
+        recordResult(storageKey.replace(/^best:/, ''), { won: true })
         return
       }
 

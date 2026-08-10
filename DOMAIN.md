@@ -96,8 +96,11 @@
 - **P1 게임오버 오버레이 개편** 🟡 — 다음게임(✅ NextUp)·streak(✅ TodayBoard/공유카드)·
   마일스톤 축하(✅ 7/30/100/365)·데일리 카운트다운(✅ HH:MM:SS)·개인 스탯 패널(✅ GameStats
   `stats:<slug>` Played/Win%/Streak/MaxStreak/Best, GamePageLayout 삽입)·maxStreak(✅ dailyStreak).
-  **남은 것: AdSense 자리표시자(승인 후)만.** 스탯은 게임이 recordResult를 호출해야 채워짐 —
-  Clusters 채택 완료, **나머지 승/패 게임들도 recordResult 붙이면 패널이 그 게임에도 뜬다(확산 작업).**
+  **recordResult 확산 작업 57/88종 완료**(2026-08-10, 라운드11에서 21종 추가 — 이전
+  Clusters 등 36종 + 이번 21종). 남은 31종은 TODOS.md에 이름·패턴·주의사항 기록됨
+  (rAF 루프가 게임오버 후에도 도는 게임은 recordedRef 게이팅 필수 — Breakout에서
+  실제로 버그로 만남). Sliding/Maze/WordSearch 3종은 "낮을수록 좋음" best라 의도적
+  제외. **남은 것: AdSense 자리표시자(승인 후)만.**
 - **P2 장르/의도 허브 랜딩** ✅ 완료 — `/category/[puzzle|arcade|classic|skill]` + `/daily` + `/collections`
   (10종) + `/unblocked`(대형 검색 의도) 전부 SSG + JSON-LD + sitemap + 내부링크. `/popular`는 트래픽/데이터
   필요(저트래픽 노출=역소셜프루프)라 보류. `/new`는 NewGames 홈 레일로 대체(전용 랜딩은 저ROI, 선택).

@@ -22,6 +22,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 interface Particle {
@@ -257,6 +258,7 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
         if (ev.over) {
           play('lose')
           setIsBest(s.score > 0 && s.score >= bestRef.current)
+          recordResult(storageKey.replace(/^best:/, ''), { won: true })
         }
 
         syncHud(s)
@@ -287,7 +289,7 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
       draw()
       rafRef.current = requestAnimationFrame(frame)
     },
-    [draw, play, reducedRef, spawnExplosion, syncHud],
+    [draw, play, reducedRef, spawnExplosion, syncHud, storageKey],
   )
 
   // ---- 캔버스 크기(반응형 + DPR) ----

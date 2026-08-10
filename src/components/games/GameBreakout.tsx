@@ -23,6 +23,7 @@ import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { updateBestScore } from '@/lib/bestScore'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 interface Particle {
@@ -65,6 +66,7 @@ export function GameBreakout({ storageKey }: { storageKey: string }) {
   const paddleFlashRef = useRef(0)
   const cssSizeRef = useRef(FIELD_W)
   const bestRef = useRef(0)
+  const recordedRef = useRef(false)
 
   // ---- HUD 동기화 (프레임마다 값이 바뀔 때만 리렌더) ----
   const syncHud = useCallback((s: BreakoutState) => {
@@ -74,6 +76,12 @@ export function GameBreakout({ storageKey }: { storageKey: string }) {
       setPhase((p) => (p === 'over' ? p : 'over'))
       setIsBest((v) => v || beat)
     } else if (s.won) setPhase((p) => (p === 'won' ? p : 'won'))
+    // step()이 over/won 이후 상태를 얼려도 rAF 루프는 계속 돌아 syncHud가 매 프레임 재호출된다 —
+    // recordResult는 반드시 게임당 1회만 불러야 하므로 별도 ref로 게이팅.
+    if ((s.over || s.won) && !recordedRef.current) {
+      recordedRef.current = true
+      recordResult(storageKey.replace(/^best:/, ''), { won: s.won })
+    }
   }, [storageKey])
 
   const spawnParticles = useCallback((x: number, y: number, hue: number) => {
@@ -257,6 +265,7 @@ export function GameBreakout({ storageKey }: { storageKey: string }) {
     setHud({ score: 0, lives: gameRef.current.lives })
     setPhase('idle')
     setIsBest(false)
+    recordedRef.current = false
     draw()
   }, [draw])
 

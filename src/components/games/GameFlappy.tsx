@@ -15,6 +15,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 type Phase = 'idle' | 'playing' | 'over'
@@ -208,6 +209,7 @@ export function GameFlappy({ storageKey }: { storageKey: string }) {
           shakeRef.current = 10
           phaseRef.current = 'over'
           setPhase('over')
+          recordResult(storageKey.replace(/^best:/, ''), { won: true })
         }
 
         scrollRef.current += 2.6 * dt
