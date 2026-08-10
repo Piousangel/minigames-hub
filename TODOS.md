@@ -34,8 +34,9 @@ kakuro/mancala/pyramid/skew/tripeaks/turntile/unblock/yahtzee 11종 추가.
 
 **Why:** 원래 스코프는 beatline/skew/turntile 3종이었으나, 실제 슬러그 대조 결과
 flow/unblock/yahtzee/mancala/battleship/kakuro/pyramid/tripeaks도 이전 세션부터
-이미 누락돼 있었다(레포 전체 86종 중 22종만 커버 → 실제로는 11종만 진짜 갭이었고
-나머지는 원래부터 의도적 폴백 대상). 같은 파일·같은 패턴이라 한 번에 전부 처리.
+이미 누락돼 있었다 — 파일 상단 주석은 "22개 게임"이라 적혀 있었지만 실측 커버리지는
+76종이었고, 진짜 갭은 이 11종뿐이었다. 같은 파일·같은 패턴이라 한 번에 전부 처리.
 
 **Completed:** 2026-08-05. 브라우저(Chrome MCP)로 11개 전부 홈 카드에서 렌더 확인,
-`pnpm typecheck && pnpm test && pnpm build` 통과.
+`pnpm typecheck && pnpm test && pnpm build` 통과. 결과: 레포 87종 = 커스텀 아이콘 87종
+(전체 커버, 조이스틱 폴백 완전 소진). 파일 상단 주석도 이 사실 반영해 갱신함.

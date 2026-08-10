@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 
 /**
- * GameIcon — 사이트 22개 게임을 위한 커스텀 네온 라인 아이콘 세트.
+ * GameIcon — 사이트 전 게임(87종, 2026-08-05 기준)을 위한 커스텀 네온 라인 아이콘 세트.
+ * 새 게임을 추가하면 여기도 같이 채울 것 — 안 채우면 __default(조이스틱)로 폴백된다.
  *
  * 패밀리 규칙(응집성):
  *  - viewBox="0 0 24 24", fill="none", stroke="currentColor"
