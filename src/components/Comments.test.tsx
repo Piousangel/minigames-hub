@@ -71,6 +71,23 @@ describe('Comments', () => {
     expect(screen.getByLabelText('Your comment')).toHaveValue('again')
   })
 
+  it('shows a link-specific message when the server rejects a link', async () => {
+    mockFetchSequence([
+      () => jsonResponse({ comments: [] }),
+      () => jsonResponse({ error: 'links not allowed' }, 400),
+    ])
+
+    render(<Comments slug="snake" />)
+    await screen.findByTestId('comments')
+
+    const user = userEvent.setup()
+    await user.type(screen.getByLabelText('Your comment'), 'visit www.spam.com')
+    await user.click(screen.getByRole('button', { name: 'Post' }))
+
+    const alert = await screen.findByRole('alert')
+    expect(alert).toHaveTextContent('Links aren’t allowed')
+  })
+
   it('does not render when the comments API is unavailable', async () => {
     mockFetchSequence([() => Promise.reject(new Error('network error'))])
     const { container } = render(<Comments slug="snake" />)

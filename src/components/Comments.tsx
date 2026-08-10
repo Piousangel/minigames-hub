@@ -19,6 +19,7 @@ export function Comments({ slug }: { slug: string }) {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    let cancelled = false
     fetch(`/api/comments?game=${encodeURIComponent(slug)}`, {
       headers: { accept: 'application/json' },
     })
@@ -26,9 +27,16 @@ export function Comments({ slug }: { slug: string }) {
         if (!res.ok) throw new Error('bad')
         return res.json() as Promise<{ comments: CommentRow[] }>
       })
-      .then((data) => setComments(data.comments))
-      .catch(() => setAvailable(false))
+      .then((data) => {
+        if (!cancelled) setComments(data.comments)
+      })
+      .catch(() => {
+        if (!cancelled) setAvailable(false)
+      })
     setName(localStorage.getItem('lb:name') ?? '')
+    return () => {
+      cancelled = true
+    }
   }, [slug])
 
   if (!available || comments === null) return null
