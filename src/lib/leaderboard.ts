@@ -61,6 +61,9 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   stakehouse: { label: 'Bankroll' },
   grasp: { label: 'Score' },
   countcircle: { label: 'Score' },
+  offbeat: { label: 'Score' },
+  hogline: { label: 'House' },
+  prismbox: { label: 'Score' },
   flow: { label: 'Level' },
   'aim-trainer': { label: 'Targets/s' },
 }

@@ -89,4 +89,7 @@ export const OBJECTIVES: Record<string, string> = {
   stakehouse: 'Spread your bets across the jars and survive 12 rounds without going bust.',
   grasp: 'Grasp cards for points before the haste gauge forces the round to end.',
   countcircle: 'Swap seats before the deadly count reaches you.',
+  offbeat: 'Tap the silent gap between beats, not the beats.',
+  hogline: 'Throw stones and control the house.',
+  prismbox: 'Fire beams of light to find the hidden atoms.',
 }

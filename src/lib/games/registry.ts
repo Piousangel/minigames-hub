@@ -101,6 +101,9 @@ export type GamePage = GamePageBase &
     | { game: 'stakehouse' }
     | { game: 'grasp' }
     | { game: 'countcircle' }
+    | { game: 'offbeat' }
+    | { game: 'hogline' }
+    | { game: 'prismbox' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2662,6 +2665,87 @@ export const gamePages: GamePage[] = [
       { q: 'What happens when I get caught?', a: 'Getting caught on your own seat ends the run immediately — your final score reflects how many eliminations and rounds you survived.' },
       { q: 'Does the game ever end?', a: 'No — Countcircle is an endless survival run. Each cleared round adds more seats and the countdown windows get tighter.' },
       { q: 'Is it free and account-free?', a: 'Yes. Countcircle plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+    ],
+  },
+  {
+    slug: 'offbeat',
+    game: 'offbeat',
+    title: 'Play Offbeat Online — Free Inverted Rhythm Survival Game',
+    h1: 'Offbeat',
+    metaDescription:
+      'Play Offbeat free online — an inverted rhythm game where you tap the silent gap between beats, not the beat itself. Survive as the pulse speeds up. No download, no sign-up.',
+    shortDescription: 'Tap the silence between the beats, not the beats.',
+    howToPlay: [
+      'A steady pulse fires and speeds up every cycle — watch the ring fill between each pulse.',
+      'Tap exactly halfway between two pulses, the silent gap — not on the pulse itself.',
+      'Tapping on a pulse, too early, too late, or missing a pulse entirely costs one of your three lives.',
+      'A close tap scores Good, a dead-centre tap scores Perfect and builds your combo. The run ends when you run out of lives.',
+    ],
+    strategy: [
+      'Watch the lime marker on the ring — that is the exact offbeat target, not the pulse flash itself.',
+      'The pulse always accelerates on a fixed schedule, so the rhythm stays learnable even as it speeds up.',
+      'A big combo pays off — perfect taps in a row score increasingly more, so consistency beats the occasional lucky hit.',
+      'When the pulse speeds up hardest, resist the urge to tap on reflex — aim for the shrinking midpoint, not the beat.',
+    ],
+    faq: [
+      { q: 'How do you play Offbeat?', a: 'Watch the pulse ring and tap (or press Space/Enter) exactly halfway between two beats — the silent gap, not the beat itself.' },
+      { q: 'Why does tapping on the beat lose a life?', a: 'Offbeat inverts standard rhythm-game rules — the beat itself is the danger zone. Only the midpoint between beats is safe to tap.' },
+      { q: 'Does the game get harder over time?', a: 'Yes — the pulse accelerates every cycle, so the safe window between beats keeps shrinking the longer you survive.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Offbeat plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+    ],
+  },
+  {
+    slug: 'hogline',
+    game: 'hogline',
+    title: 'Play Hogline Online — Free Curling Momentum Puzzle',
+    h1: 'Hogline',
+    metaDescription:
+      'Play Hogline free online — a curling-inspired momentum puzzle. Throw stones with the right power and angle, bounce off obstacles, and control the house. No download, no sign-up.',
+    shortDescription: 'Throw stones, control the house, master the bounce.',
+    howToPlay: [
+      'Set your throw power and angle, then release — your stone slides and slows down under friction as it travels up the sheet.',
+      'Stones bounce off each other realistically, so a well-placed throw can knock obstacle stones out of the house or into position.',
+      'Your score is the house count — how many of your stones sit closer to the centre than any obstacle stone.',
+      'Use all your shots, or bank early for a bonus on any you skip. Reach the target score to win.',
+    ],
+    strategy: [
+      'A stone deep in the house is safer than one on the edge — closer beats farther when counting control of the centre.',
+      'Use a lighter throw to nudge an obstacle stone out of the way before committing to a hard shot at the button.',
+      'Banking early trades potential points for a guaranteed bonus — only worth it once you are safely ahead.',
+      'Angle matters as much as power: a stone that curls past an obstacle can reach the house a straight throw cannot.',
+    ],
+    faq: [
+      { q: 'How do you play Hogline?', a: 'Set your power and angle (arrow keys, drag, or the on-screen controls) and release to throw. Your stone slides and slows under friction, bouncing off any stones in its path.' },
+      { q: 'What is the “house”?', a: 'The house is the target circle at the top of the sheet. Your score counts how many of your stones sit closer to its centre than any obstacle stone.' },
+      { q: 'Can I play a fresh puzzle every day?', a: 'Yes — Daily mode gives everyone the same seeded layout each day, with a streak counter for playing on consecutive days. Practice mode gives you a fresh random layout anytime.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Hogline plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+    ],
+  },
+  {
+    slug: 'prismbox',
+    game: 'prismbox',
+    title: 'Play Prismbox Online — Free Light Beam Deduction Puzzle',
+    h1: 'Prismbox',
+    metaDescription:
+      'Play Prismbox free online — fire beams of light from the edge of a hidden grid and deduce where the atoms are from how each beam exits. No download, no sign-up.',
+    shortDescription: 'Fire light beams, deduce the hidden atoms.',
+    howToPlay: [
+      'Hidden atoms sit somewhere on the grid — you cannot see them directly.',
+      'Fire a beam of light from any edge port and watch how it exits: a direct hit, a straight pass-through, a reflection back the way it came, or a bent refraction.',
+      'Use the pattern of hits, refractions, and reflections across multiple beams to work out exactly where each atom is hiding.',
+      'Mark every atom you have found to win — fewer beams used earns a bigger bonus.',
+    ],
+    strategy: [
+      'A beam that passes straight through tells you an entire lane is clear — use that to rule out large parts of the grid fast.',
+      'A reflection means the beam bounced right back without entering — atoms near your entry point are blocking it, but a reflection alone gives no coordinates.',
+      'Refracted beams bend around atoms without hitting them — the atom sits next to the bend point, not on the beam path itself.',
+      'Fire beams from ports on different sides early to build overlapping clues before committing to a guess.',
+    ],
+    faq: [
+      { q: 'How do you play Prismbox?', a: 'Fire a beam of light from any edge port (click, tap, or arrow keys + Enter) and use how it exits — hit, pass-through, reflection, or refraction — to deduce where the hidden atoms are.' },
+      { q: 'What is this game based on?', a: 'Prismbox is inspired by the classic deduction game Black Box, reimagined with a light-beam theme and daily seeded puzzles.' },
+      { q: 'What does a refracted beam mean?', a: 'A refraction means your beam bent around an atom without directly hitting it — the atom sits next to the bend point, not on the straight path.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Prismbox plays free in your browser with no download and no sign-up. Your best score saves locally.' },
     ],
   },
 ]
