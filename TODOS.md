@@ -36,33 +36,6 @@ Stakehouse엔 "중간에 캐시아웃" 옵션이 없어서(끝까지 하거나 �
 **Priority:** P4
 **Depends on:** None
 
-## Leaderboard
-
-### Aim Trainer 리더보드가 소수점 tps를 정수로 잘라 변별력을 죽임
-
-**What:** `Leaderboard.tsx`(공용 컴포넌트, 이번 라운드에 안 건드림)가
-`best:<slug>`를 `Math.floor()`로 읽어 표시·제출한다. Aim Trainer의 `best`는
-targets-per-second 소수(예: 4.9)라, 4.1~4.9는 전부 "4"로 뭉개져서 제출된다.
-크래시는 아니고 랭킹 순서 자체는 유지되지만(내림은 단조), 같은 정수 구간 내
-동점자가 과도하게 많아진다.
-
-**Why:** 이번 라운드 UI/UX 감사(§ 재방문 동기)와 `/ship` 적대적 리뷰가
-독립적으로 같은 지점을 지적했다 — 두 번 나온 신호라 우선순위를 올렸다.
-고치려면 제출 값만 10배 스케일(반올림 정수)하고 `Leaderboard.tsx`에
-`aim-trainer` 한정 `/10` 표시 분기를 추가해야 한다. 이건 공용 컴포넌트에
-게임별 예외를 심는 일이다.
-
-**✅ 스테이징 확인 완료(2026-08-10, 배포 직후):** `curl -X POST /api/score
-{"game":"aim-trainer","name":"shiptest","score":1}` → 200, `GET
-/api/leaderboard?game=aim-trainer`에 즉시 반영 확인. 제출 경로 자체는
-정상 동작한다 — 남은 건 순수 정밀도 문제(스케일링)뿐이라 다음 우선순위
-그대로 진행 가능. (`shiptest`/1점 테스트 제출은 그대로 둠 — snake/FIRST/42와
-같은 컨벤션, 실 유저 점수가 들어오면 자연히 밀려남.)
-
-**Effort:** M
-**Priority:** P3
-**Depends on:** None
-
 ## Testing
 
 ### jsdom + RTL 파일럿 확장 — 남은 canvas/grid 게임
@@ -105,6 +78,34 @@ matchMedia 폴리필 + RTL auto-cleanup). 새 컴포넌트 테스트를 추가�
 **Depends on:** None
 
 ## Completed
+
+### 리더보드 발견 넛지 + Aim Trainer 소수점 정밀도 (2026-08-10)
+
+**What:** 두 건.
+1. 리더보드가 페이지 하단(NextUp/GameStats/DailyDock 다음)에 묻혀 있어 발견률이
+   낮은 문제 — 페이지 순서는 그대로 두고(NextUp 위치를 건드리면 세션연장 장치가
+   흔들릴 위험), `GameOverlay.tsx`(게임오버 = 최대 이탈 지점, 전 게임 공용)에
+   `hasLeaderboard(slug)` 조건으로 `#leaderboard`로 스크롤하는 텍스트 링크를 추가.
+   `GameNav` 컨텍스트에 `slug` 필드를 새로 실어 `GameOverlay`가 프롭 드릴링 없이
+   현재 게임을 알 수 있게 함.
+2. Aim Trainer 리더보드가 targets/sec 소수(예: 4.9)를 `Math.floor()`로 정수
+   절삭해 변별력을 죽이던 문제 — `leaderboard.ts`에 `SCORE_SCALE`(슬러그별 배율,
+   현재 `aim-trainer: 10`만) 추가, `Leaderboard.tsx`의 읽기/제출/표시 3곳에서만
+   적용(localStorage 원본과 GameStats 표시는 그대로 소수 유지, D1엔 여전히
+   정수만 저장 — score × scale).
+
+**Why:** 사용자가 "배치 문제도 더 파보고, 페이지를 계속 디벨롭하라"고 지시 —
+리더보드 배치를 조사하다 GamePageLayout.tsx 순서 문제를 확인했고, TODOS.md에
+남아있던 P3 Aim Trainer 정밀도 항목도 같은 세션에 마저 처리.
+
+**검증:** typecheck 클린 / lint 0 errors(기존 경고만) / vitest 102 files ·
+2840 tests GREEN / build 성공 / e2e 106 GREEN. main 직접 커밋(2건) · push ·
+`pnpm run deploy` · 배포된 번들에서 `SCORE_SCALE`(`"aim-trainer":10`)과
+`overlay-leaderboard` 문자열 둘 다 curl로 라이브 확인. 상세는 HANDOFF.md
+2026-08-10 세션 참고.
+
+**효과 측정은 아직:** 넛지가 실제로 리더보드 제출을 늘리는지는 며칠 뒤
+`mg_events`/D1 재조회로 확인 필요(배선만 확인된 상태).
 
 ### GameStats 트로피 패널 확산 — 49종 전부 완료 (DOMAIN.md P1 종결)
 
