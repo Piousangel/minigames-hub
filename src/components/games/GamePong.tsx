@@ -19,6 +19,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 interface Trail {
@@ -67,6 +68,7 @@ export function GamePong({ storageKey }: { storageKey: string }) {
       } else {
         setPhase((p) => (p === 'lost' ? p : 'lost'))
       }
+      recordResult(storageKey.replace(/^best:/, ''), { won: s.winner === 'player' })
     }
   }, [storageKey])
 
