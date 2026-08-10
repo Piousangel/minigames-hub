@@ -1,4 +1,4 @@
-# 인계: 실참여 진단 + 후원 넛지 + GameStats 확산 전 게임(49종) 완료·배포함
+# 인계: 실참여 진단 + 후원 넛지 + 리더보드 발견 넛지 + GameStats 확산 전 게임(49종) 완료·배포함
 
 > 갱신: 2026-08-10 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main, PR #2 이후 소규모 후속 커밋 다수)** · **배포 완료·검증됨** (quickminigames.site, 게임 90종)
 
@@ -128,6 +128,37 @@ Completed 섹션에 상세 기록해뒀다 — 다음에 신규 게임을 만들
 실제 인간 트래픽 자체가 아직 얇다는 걸 방금 확인했다. 체류·전환이 먼저 개선된 뒤
 소규모로(Discord 채널 2~3개, 리더보드/데일리 챌린지 연동) 시작하는 걸 권함. 커뮤니티
 게시·운영은 어차피 사용자 몫([[autonomous-continuous-dev]]).
+
+**✅ 이어서 사용자가 "배치 문제도 더 파보고, 계속해서 페이지를 디벨롭하라"고 지시 —
+리더보드 배치(discoverability) 문제를 팠다.** `GamePageLayout.tsx`를 다시 보니
+`<Leaderboard>`는 `NextUp`/`GameSwitcher`/`GameStats`/`DailyDock`(전부
+`GameNavProvider` 안, 게임 바로 아래)을 지나고서야 나온다 — 즉 리더보드가 있는 게임
+64종에서도 실제로는 스크롤을 상당히 내려야만 보인다. 페이지 순서를 바꾸는 안은
+일부러 피했다: `NextUp`(다음 게임 카드)을 리더보드보다 위로 올리면 세션 연장이라는
+핵심 체류 장치의 위치가 흔들릴 위험이 있어서다. 대신 **게임오버 오버레이(가장
+이탈률 높은 지점, 전 게임 공용)에 `#leaderboard`로 점프하는 넛지를 추가**하는
+쪽으로 갔다 — 페이지 구조는 그대로 두고 발견 경로만 새로 뚫은 것.
+
+구현: `GameNav` 컨텍스트(`src/components/GameNav.tsx`)가 지금까지 `nextSlug`/
+`nextTitle`/`runCount`만 들고 있었는데, `GameOverlay`가 `hasLeaderboard()` 판정을
+하려면 현재 게임의 `slug`가 필요해서 인터페이스에 `slug` 필드를 추가(초기 상태값 +
+`useEffect`의 `setNav(...)` 양쪽 다 갱신). `GameOverlay.tsx`에 `hasLeaderboard(nav.slug)`
+조건으로 "🏆 See this week's leaderboard" 텍스트 링크 추가 — `#leaderboard`로
+`scrollIntoView({behavior:'smooth'})`. 후원 링크와 달리 `runMilestone` 게이팅을
+안 걸었다(반복 요청이 아니라 기능 발견이라 매번 떠도 괜찮다는 판단). 리더보드가
+없는 게임(26종)에서는 안 뜬다.
+
+`GameOverlay.test.tsx`에 2건 추가(리더보드 있는 게임=snake에서 첫 판에도 뜨는지,
+없는 슬러그에서 안 뜨는지). 전체 검증: typecheck 클린 / lint 0 errors(기존 경고
+15개만) / vitest 102 files · **2837 tests** 전부 GREEN / build 성공 / e2e **106**
+전부 GREEN. main 직접 커밋·push·`pnpm run deploy` → quickminigames.site 200 확인,
+배포된 청크(`4815.*.js`)에 `overlay-leaderboard`/`See this week` 문자열 포함까지
+curl로 직접 확인.
+
+**다음 세션 후보(강제 아님, 우선순위 판단은 트래픽 신호 재확인 후):** 이 넛지가
+실제로 리더보드 제출 건수를 늘리는지는 `mg_events`/D1 재조회로 며칠 뒤 확인해볼
+가치가 있다(현재는 배선만 확인, 효과는 미측정). 그 외엔 위 "다음 세션은 라운드12
+바로 돌리지 말고" 순서(신호 재확인 → AdSense 재확인)를 그대로 따를 것.
 
 ## 2026-08-05 세션 — 아이콘 갭 11종 정리 + Vercel 레거시 연동 발견
 
