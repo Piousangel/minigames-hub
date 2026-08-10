@@ -54,6 +54,46 @@ minigames-leaderboard --remote --command "DELETE FROM comments WHERE ..."`). 뚫
 
 ## Games
 
+### Offbeat/Hogline/Prismbox 커스텀 SVG 아이콘 (2026-08-10 라운드12 추가분)
+
+**What:** 세 게임 모두 `gameMeta.ts`에 이모지(🔇/🥌/🌈)만 등록돼 있다.
+2026-08-05 "아이콘 갭 11종" 세션과 동일한 패턴으로 `GameIcon.tsx`용 커스텀
+SVG를 후속 배치로 만들 수 있다.
+
+**Why:** 라운드12 빌드 스코프 밖(신규 게임 3종 wiring이 우선)이라 미룸.
+
+**Effort:** S (게임당 SVG 1개). **Priority:** P3.
+
+### New Game 확인-탭(오조작 방지) 인프라 도입 여부
+
+**What:** 라운드12 UI/UX 감사가 제안한 항목 — 진행 중인 게임에서 "New Game"을
+실수로 눌러 진행 상황을 날리는 걸 막는 확인 단계(더블탭/확인 모달 등).
+
+**Why:** 감사 자체 설계도 "인프라를 먼저 깔고 게임별로 옵트인"하는 단계적
+계획이었는데, 인프라만 깔면 아무 게임도 옵트인 안 한 상태로는 가치가 없어
+이번 라운드에서는 보류. 리스크 자체는 낮다(순수 추가 인프라, 기존 게임에
+영향 없음) — 다음에 착수한다면 "오래 걸리는 진행 상황이 있는 게임"(Mahjong,
+Sudoku, 장문 퍼즐류)부터 옵트인 우선순위로.
+
+**Effort:** M (인프라 S + 게임별 옵트인 XS×N). **Priority:** P3.
+
+### GameButton 44px 터치 타겟 — 캐스케이드-안전한 재시도
+
+**What:** 라운드12 UI/UX 감사가 기본 패딩을 `px-4 py-2`→`px-4 py-2.5`로 키워
+44px 터치 타겟을 맞추자고 제안했으나, 시도해보니 사이트 전역 92곳의 기존
+`className="px-4 py-2"` 오버라이드가 Tailwind 빌드 CSS의 클래스 discovery
+순서상 새 기본값에 밀려(`py-2.5`가 `py-2`보다 스타일시트에서 나중에 나와
+승리) 의도와 반대로 깨지는 걸 빌드된 CSS 바이트 오프셋 대조로 확인 —
+`git checkout --`로 되돌렸다.
+
+**Why:** 92곳을 전부 일일이 `py-2.5`로 맞춰 오버라이드를 없애는 건 이번
+라운드 스코프 밖. 재시도한다면 패딩 스케일을 새로 만드는 대신 기존
+`px-4 py-2` 컨벤션은 그대로 두고 `min-h-11`(44px) 같은 min-height 플로어만
+추가하는 쪽이 안전 — padding과 달리 min-height는 기존 클래스와 충돌할
+여지가 없다.
+
+**Effort:** S. **Priority:** P3.
+
 ### Stakehouse "Best"가 중도 피크가 아니라 완주 시점 뱅크롤만 기록
 
 **What:** `GameStakehouse.tsx`의 `persistBest`는 `phase`가 `'betting'`을 벗어나는

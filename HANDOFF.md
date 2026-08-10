@@ -1,6 +1,60 @@
-# 인계: 조작 글리프(P3 종결) + 사이트 내장 커뮤니티(리액션+익명 댓글) + `/review` 실버그 2건 수정 + 실참여 진단 + 후원/리더보드 넛지 + GameStats 확산(49종) 완료·배포함
+# 인계: 게임 라운드12(Offbeat/Hogline/Prismbox) + UI/UX 감사 대응 완료·배포함
 
-> 갱신: 2026-08-10 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main)** · **배포 완료·검증됨** (quickminigames.site, 게임 90종)
+> 갱신: 2026-08-10 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main)** · **배포 완료·검증됨** (quickminigames.site, 게임 93종)
+
+## 2026-08-10 세션(2) — 게임 라운드12(Offbeat/Hogline/Prismbox) + UI/UX 감사 대응
+
+**게임 90 → 93종.** `Workflow({ name: "minigames-round" })`로 신규 3종 기획→구현
+(Track A: 5개 앵글 아이디어→3렌즈 심사→상위 3종 스펙→빌드, Track B: 5차원 UI/UX
+감사→테크리드 종합, 병렬):
+- **Offbeat**(🔇 Skill) — 역발상 리듬 서바이벌. 박자에 맞춰 누르는 게 아니라 박자
+  "사이 무음 구간"을 탭. 데일리 없이 순수 엔드리스 생존(재시작마다 `freshSeed()`).
+- **Hogline**(🥌 Puzzle, daily) — 컬링 모멘텀 퍼즐. 돌을 던져 하우스를 장악.
+- **Prismbox**(🌈 Puzzle, daily) — 빛 광선 발사로 숨은 원자 찾기(블랙박스류 추론).
+
+배선 6곳(registry/GameRenderer/gameMeta/leaderboard/objectives/e2e 스모크)
+전부 오케스트레이터가 직접. e2e "Daily 필터" 테스트의 하드코딩된 기대 타이틀
+배열이 신규 데일리 게임 2종 누락으로 깨진 걸 잡아 수정. 브라우저(Chrome MCP)로
+3종 모두 실플레이 검증 완료.
+
+**⚠️ 운영상 함정 발견(메모리 기록 예정):** `.claude/workflows/minigames-round.js`의
+`EXISTING`(게임 목록, 컨셉 중복 방지용) 상수를 직접 수정한 뒤 `Workflow({name:...})`로
+호출해도 라이브 수정이 반영 안 됨 — 실제 실행된 스크립트는 세션 스코프 경로에
+캐시된 예전 사본(83종 목록)을 그대로 썼다(`grep -c` 대조로 확인). 비싼 20-agent
+파이프라인 재실행 대신, 신규 3종과 목록에서 빠졌던 6종 간 기계적 중복이 없음을
+수동 대조로 확인하고 진행. 수정한 `EXISTING`(89종 반영)은 다음 라운드부터는
+정상 반영될 것으로 기대.
+
+**UI/UX 감사 5건 처리(전부 근거 남기며 판단):**
+1. Countcircle 게임오버 오버레이가 신기록을 세워도 항상 "Eliminated"만 표시 →
+   Flywheel과 동일하게 `variant={newBest ? 'win' : 'lose'}`로 수정.
+2. **의도적으로 스킵** — Maze/Sliding/WordSearch에 `recordResult()` 추가 제안.
+   이번 세션 이전에 이미 의도적으로 뺀 게임들(낮을수록 좋은 "Best"라 GameStats의
+   단순 "높을수록 좋음" 표시가 오도함) — 세션 내 과거 결정과 충돌해 반려.
+3. **경험적으로 검증 후 되돌림** — GameButton 기본 터치 타겟을 44px로 키우는 안.
+   감사가 "Tailwind 클래스 충돌 가능성"만 막연히 언급했는데, 실제로 빌드된 CSS의
+   바이트 오프셋을 대조해보니 새 기본값(`py-2.5`)이 사이트 전역 92곳의 기존
+   `className="px-4 py-2"` 오버라이드를 캐스케이드 순서상 실제로 이겨버리는 걸
+   확인 — 의도와 반대로 깨질 확률이 높아 `git checkout --`로 되돌림.
+4. New Game 확인-탭 인프라(오조작 방지) — 낮은 리스크지만 특정 게임이 옵트인해야
+   가치가 생기는 순수 인프라라 이번 라운드에서는 보류, TODOS.md에 기록.
+5. Mahjong/Overload/Yahtzee가 직접 만든 `headerExtra` span(Left/Moves/Time,
+   Taps/Round, Turn)을 쓰고 있어 GameShell 표준 stats 배열의 펄스/플로트 연출을
+   못 받던 문제 → 마이그레이션. `StatSpec.value`를 `number | string`으로 확장
+   (Mahjong의 mm:ss, Yahtzee의 N/13처럼 포맷 문자열 표시용, `float`은 숫자 전용
+   가드 추가). 브라우저로 3종 다 렌더 확인, 시각적 회귀 없음.
+
+**검증(전부 실행함):** `pnpm typecheck && pnpm lint`(0 errors, 기존 경고 15개만) ·
+`pnpm vitest run`(111 files / 2973 tests) · `pnpm build`(신규 3라우트 포함) ·
+`pnpm exec playwright test`(112, 전부 GREEN). main 직접 커밋 4개 + 배송 1개(총 5개)
+→ push → `pnpm run deploy` → quickminigames.site 8개 라우트 curl 200 확인
+(`/offbeat`, `/prismbox`는 배포 직후 404 → ~8초 내 자연 해소, 기존 반복 패턴 재확인).
+
+**다음 세션 후보:** Offbeat/Hogline/Prismbox 커스텀 SVG 아이콘(현재 이모지만,
+2026-08-05 "아이콘 갭 11종" 세션과 동일 패턴으로 후속 배치 가능) · New Game
+확인-탭 인프라 구현 여부 결정 · GameButton 44px 터치 타겟을 캐스케이드-안전한
+방식(기존 `px-4 py-2` 컨벤션 유지 + 충돌 없는 `min-h-11` 플로어 추가)으로
+재시도할지 검토.
 
 ## 2026-08-10 세션 — 게임 라운드11(Stakehouse/Grasp/Countcircle) + UI/UX 감사 5건 + jsdom/RTL 도입 + ⚠️ 트래픽 신호 갱신
 
