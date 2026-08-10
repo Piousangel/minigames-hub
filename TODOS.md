@@ -2,19 +2,19 @@
 
 ## Games
 
-### GameStats 트로피 패널 확산 — 남은 31종
+### GameStats 트로피 패널 확산 — 남은 20종
 
 **What:** DOMAIN.md P1의 유일한 잔여 항목("나머지 승/패 게임들도 recordResult 붙이면
-패널이 그 게임에도 뜬다"). 이번 세션에 21종 처리 완료(TicTacToe/DotsAndBoxes/
+패널이 그 게임에도 뜬다"). 이번 세션에 29종 처리 완료(TicTacToe/DotsAndBoxes/
 NumberMemory/Typing/ZeroHour/WhackAMole/GemMatch/Rps/Simon/SpaceShooter/Flappy/
 TowerStack/Stackpot/Ticker/Breakout/BubbleShooter/Sonar/Ricochet/Countcircle/
-Grasp/Stakehouse). 남은 31종:
+Grasp/Stakehouse/2048/Snake/Tetris/Decant/Interlock/Deepdive/Handful/Backspace).
+남은 20종:
 
 ```
-2048, Backspace, Beatline, Cleave, Decant, Deepdive, Duplex, Flapjack,
-Flywheel, Fuse, Handful, Interlock, Latch, Overdub, Overfold, Overload,
-Pinwheel, Polytap, Prospector, Quarry, Reactor, Ripple, Skew, Snake,
-Splice, Tetris, Turntile, Umbra
+Beatline, Cleave, Duplex, Flapjack, Flywheel, Fuse, Latch, Overdub,
+Overfold, Overload, Pinwheel, Polytap, Prospector, Quarry, Reactor,
+Ripple, Skew, Splice, Turntile, Umbra
 ```
 
 **⚠️ 의도적 제외 3종 — 여기 포함하지 말 것:** `Sliding`/`Maze`/`WordSearch`는
@@ -38,7 +38,7 @@ Splice, Tetris, Turntile, Umbra
    "완료=true"(승패 개념 없음), push-your-luck류는 "성공적으로 완주/탈출했는가"
    (Ticker의 `green`, Grasp의 `cleared`, Stakehouse의 `phase==='complete'`가 예시).
 
-**Effort:** L (31종, 게임마다 개별 검증 필요)
+**Effort:** M (20종, 게임마다 개별 검증 필요)
 **Priority:** P2
 **Depends on:** None
 

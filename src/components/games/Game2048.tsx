@@ -6,6 +6,7 @@ import type { Theme2048 } from '@/lib/games/g2048/themes'
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 import { findSpawn, planMove, tilesFromBoard, type Tile } from './tiles2048'
 
@@ -155,6 +156,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
         else if (newEngine.over) {
           setNewBest(newBestRef.current)
           play(newBestRef.current ? 'win' : 'lose')
+          recordResult(storageKey.replace(/^best:/, ''), { won: true })
         }
 
         animatingRef.current = false
@@ -179,7 +181,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
       // Phase 2: settle (merge pop, remove consumed tiles, spawn new tile).
       window.setTimeout(finish, SLIDE_MS)
     },
-    [commitState, commitTiles, nextId, play, reducedRef],
+    [commitState, commitTiles, nextId, play, reducedRef, storageKey],
   )
 
   const doMove = useCallback(

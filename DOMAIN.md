@@ -96,8 +96,8 @@
 - **P1 게임오버 오버레이 개편** 🟡 — 다음게임(✅ NextUp)·streak(✅ TodayBoard/공유카드)·
   마일스톤 축하(✅ 7/30/100/365)·데일리 카운트다운(✅ HH:MM:SS)·개인 스탯 패널(✅ GameStats
   `stats:<slug>` Played/Win%/Streak/MaxStreak/Best, GamePageLayout 삽입)·maxStreak(✅ dailyStreak).
-  **recordResult 확산 작업 57/88종 완료**(2026-08-10, 라운드11에서 21종 추가 — 이전
-  Clusters 등 36종 + 이번 21종). 남은 31종은 TODOS.md에 이름·패턴·주의사항 기록됨
+  **recordResult 확산 작업 65/88종 완료**(2026-08-10, 라운드11에서 29종 추가 — 이전
+  Clusters 등 36종 + 이번 29종). 남은 20종은 TODOS.md에 이름·패턴·주의사항 기록됨
   (rAF 루프가 게임오버 후에도 도는 게임은 recordedRef 게이팅 필수 — Breakout에서
   실제로 버그로 만남). Sliding/Maze/WordSearch 3종은 "낮을수록 좋음" best라 의도적
   제외. **남은 것: AdSense 자리표시자(승인 후)만.**

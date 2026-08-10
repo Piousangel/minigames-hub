@@ -20,6 +20,7 @@ import { todayUTC } from '@/lib/dailyDate'
 import { gradeRatio, barGlyph, resultSnippet } from '@/lib/dailyShare'
 import { useGameSound, type SoundName } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 type Mode = 'daily' | 'practice'
@@ -194,9 +195,12 @@ export function GameDeepdive({ storageKey }: { storageKey: string }) {
 
       // Live Best update whenever locked score grows; persist run end too.
       if (next.banked > bestRef.current || (next.over && !prevOver.current)) persist(next)
+      if (next.over && !prevOver.current) {
+        recordResult(storageKey.replace(/^best:/, ''), { won: next.won })
+      }
       prevOver.current = next.over
     },
-    [commit, play, persist],
+    [commit, play, persist, storageKey],
   )
 
   const onKeyDown = useCallback(

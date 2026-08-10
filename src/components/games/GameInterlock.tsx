@@ -23,6 +23,7 @@ import { todayUTC } from '@/lib/dailyDate'
 import { gradeFewer, barGlyph, resultSnippet } from '@/lib/dailyShare'
 import { useGameSound, type SoundName } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 type Mode = 'daily' | 'practice'
@@ -225,6 +226,7 @@ export function GameInterlock({ storageKey }: { storageKey: string }) {
       }
       setBest(nextSave.score)
       saveAll(storageKey, nextSave)
+      recordResult(storageKey.replace(/^best:/, ''), { won: true })
     },
     [storageKey],
   )

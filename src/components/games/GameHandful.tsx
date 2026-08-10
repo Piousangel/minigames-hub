@@ -20,6 +20,7 @@ import { todayUTC } from '@/lib/dailyDate'
 import { gradeRatio, barGlyph, resultSnippet } from '@/lib/dailyShare'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 type Mode = 'daily' | 'practice'
@@ -186,10 +187,13 @@ export function GameHandful({ storageKey }: { storageKey: string }) {
         const seq = ++badgeSeq.current
         setBadges((b) => [...b, { seq, combo: next.combo }])
       }
-      if (next.over && !prevOver.current) persistWin(next)
+      if (next.over && !prevOver.current) {
+        persistWin(next)
+        recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      }
       prevOver.current = next.over
     },
-    [commit, play, persistWin],
+    [commit, play, persistWin, storageKey],
   )
 
   const onKeyDown = useCallback(
