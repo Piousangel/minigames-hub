@@ -1,6 +1,6 @@
-# 인계: 실참여 규모 진단 완료 + 후원 넛지 GameOverlay에 추가 배포함
+# 인계: 실참여 진단 + 후원 넛지 + GameStats 확산(21종) 전부 배포함
 
-> 갱신: 2026-08-10 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main, PR #2 이후 소규모 후속 커밋)** · **배포 완료·검증됨** (quickminigames.site, 게임 90종)
+> 갱신: 2026-08-10 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main, PR #2 이후 소규모 후속 커밋 다수)** · **배포 완료·검증됨** (quickminigames.site, 게임 90종)
 
 ## 2026-08-10 세션 — 게임 라운드11(Stakehouse/Grasp/Countcircle) + UI/UX 감사 5건 + jsdom/RTL 도입 + ⚠️ 트래픽 신호 갱신
 
@@ -101,6 +101,26 @@ lint/vitest 2835/build/e2e 106) 전부 GREEN 확인 후 main 직접 커밋·배�
 계측(vid) 기준으로 진짜 인간 도달을 계속 추적, (3) AdSense 상태 재확인 요청 순으로
 진행할 것. Bot Fight Mode 활성화는 SEO 크롤러를 실수로 막을 리스크가 있어 사용자
 확인 없이 건드리지 않았다 — 옵션으로만 남겨둠.
+
+**✅ 이어서 사용자가 "쉬지 말고 계속 연구하라"고 해서 DOMAIN.md P1의 마지막 잔여
+항목(GameStats 트로피 패널 확산)에 착수·완료했다.** 승/패가 있는데 `recordResult()`를
+안 부르던 게임 52종 중 21종(TicTacToe/DotsAndBoxes/NumberMemory/Typing/ZeroHour/
+WhackAMole/GemMatch/Rps/Simon/SpaceShooter/Flappy/TowerStack/Stackpot/Ticker/
+Breakout/BubbleShooter/Sonar/Ricochet/Countcircle/Grasp/Stakehouse — 이번 세션에
+만든 신규 3종도 빠져 있었다)에 배선. 각 게임의 실제 승패 정의를 따랐다(단순
+"완료=true"가 아니라 push-your-luck류는 성공적 탈출 여부 등). **Breakout에서 실제
+버그를 하나 새로 만들 뻔했다** — rAF 루프가 게임오버 후에도 매 프레임 돌아서 순진하게
+넣으면 오버레이 떠 있는 동안 `recordResult`가 초당 60회 불려 `stats.plays`가 폭증;
+`recordedRef` 단일발화 게이팅으로 해결(TODOS.md에 이 함정 기록해둠). 전체 검증
+(typecheck/lint/vitest 2835/build/e2e 106) GREEN 확인 후 배포·라이브 확인 완료.
+남은 31종 + 패턴 가이드는 TODOS.md 참고 — Sliding/Maze/WordSearch 3종은 의도적 제외
+(낮을수록 좋음 best).
+
+**사용자가 "커뮤니티도 만들어볼까"라고 물어서 짧게 답함(구현 안 함, 논의만):** 지금
+당장은 보류 추천 — 커뮤니티는 부트스트랩할 기존 유저층이 필요한데(닭과 달걀 문제),
+실제 인간 트래픽 자체가 아직 얇다는 걸 방금 확인했다. 체류·전환이 먼저 개선된 뒤
+소규모로(Discord 채널 2~3개, 리더보드/데일리 챌린지 연동) 시작하는 걸 권함. 커뮤니티
+게시·운영은 어차피 사용자 몫([[autonomous-continuous-dev]]).
 
 ## 2026-08-05 세션 — 아이콘 갭 11종 정리 + Vercel 레거시 연동 발견
 
