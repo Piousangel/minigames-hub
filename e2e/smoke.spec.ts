@@ -520,6 +520,13 @@ test('게임 페이지: 목표 한 줄이 보드 위에 노출된다', async ({ 
   await expect(page.getByTestId('objective')).toBeVisible()
 })
 
+test('게임 페이지: 언어독립 조작 글리프가 목표 배너에 붙는다', async ({ page }) => {
+  await page.goto('/snake') // arrows
+  await expect(page.getByTestId('controls-glyph')).toHaveText('↑↓←→')
+  await page.goto('/minesweeper') // tap
+  await expect(page.getByTestId('controls-glyph')).toHaveText('👆')
+})
+
 test('게임 페이지: DailyDock 리턴 훅(streak+퀘스트+카운트다운)', async ({ page }) => {
   await page.goto('/clusters')
   await expect(page.getByTestId('daily-dock')).toBeVisible()

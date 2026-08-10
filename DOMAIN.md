@@ -113,11 +113,13 @@
   OG PNG(아이콘+이름+액센트) 빌드타임 생성 + og:image 메타 출력. ⚠️ **핵심 함정 발견/수정:** 확장자
   없는 `opengraph-image` 파일을 CF assets가 Content-Type 없이 서빙 → 크롤러가 미리보기 안 띄움.
   `public/_headers`로 `/opengraph-image`·`/*/opengraph-image`에 `Content-Type: image/png` 강제(라이브 검증).
-- **P6 분석 계측** ✅ 활성 — Analytics Engine mg_events 데이터셋 대시보드 활성화 완료(2026-07-20) +
+- **P6 분석 계측** ✅ 완료 — Analytics Engine mg_events 데이터셋 대시보드 활성화 완료(2026-07-20) +
   바인딩 배포 → `/api/hit` 비콘이 실기록 중(view+dwell+country+ref+**vid**, 1st-party·PII 없음).
   vid(익명 방문자 id)로 북극성 3요소 계산 가능: view=트래픽, dwell=체류, same-vid distinct-day=재방문,
-  세션당 view=방문당 플레이. 조회는 AE SQL API(CF 토큰) 후속. **다음: play/finish 이벤트(승/패 퍼널)는
-  게임별 배선 필요 — 커뮤니티 게시 직전 승격.**
+  세션당 view=방문당 플레이. 조회는 AE SQL API(CF 토큰). **play/finish 이벤트(승/패 퍼널)도
+  완료(2026-08-10)** — `gameStats.ts`의 `recordResult()`가 `stats:<slug>` 갱신과 함께
+  `sendHit(slug, won?'win':'lose')`를 호출해, `recordResult`가 배선된 85종 게임 전부에서
+  자동으로 승/패 이벤트가 찍힌다(게임별 개별 배선 불필요 — 이미 끝남).
 - **P7 홈 신선함 + 인기 레일** 🟡 — 신선함(✅ gameMeta addedDate + NewBadge + 'New games' 행,
   클라이언트 now로 21일 자동 만료). **인기 레일은 보류** — Worker read 엔드포인트 + 임계값(100회+)
   게이팅 필요한데 트래픽 전이라 시기상조(저트래픽 플레이수 노출 = 역소셜프루프). P6 분석 데이터 후.
