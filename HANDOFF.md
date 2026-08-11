@@ -1,18 +1,60 @@
-# 인계: 게임 100종 달성(Bearing) — 사용자 요청으로 세션 마무리, UI/UX 감사는 착수 안 함
+# 인계: 게임 100종 달성(Bearing) + 홈페이지 마일스톤 공지 — 세션 마무리
 
 > 갱신: 2026-08-11 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main)** · **배포 완료·검증됨** (quickminigames.site, 게임 **100종**)
 
-## 2026-08-11 세션(2) — 게임 라운드15: 100종 달성(Bearing) 후 세션 마무리
+## ▶ 다음 세션 시작 가이드 (여기부터 읽을 것)
+
+**직전 배포는 정상.** `pnpm run deploy` 성공 로그 확인 + `curl`로 라이브 200
+재확인까지 마쳤다(홈 `/`, `/bearing`, 홈페이지 마일스톤 공지 텍스트 전부).
+git 작업 트리는 깨끗하고(uncommitted 없음), origin과 동기화됨. **바로 새 작업을
+시작해도 안전한 상태.**
+
+**우선순위 1 — TODOS.md의 "라운드15 UI/UX 감사" 항목부터.** 사용자가 100종
+달성 후 쉬자고 해서 이번 세션엔 미착수. 구현 계획까지 다 적어놨으니 그대로
+따라가면 됨:
+1. Beatline/Gridlock 힌트 문구가 탭 조작을 안 알려줌 — 3줄짜리 텍스트 수정,
+   무위험.
+2. Simon이 오답 시 시각 피드백(`anim-shake`)이 없는 유일한 게임 — 단일 파일,
+   상태 하나 추가.
+3~5순위는 라운드15 워크플로(`wf_813db7ff-ccc`, 완료된 세션 로그에 전문 있음)의
+   UI/UX synthesis 참고 — 12건 원본 중 상위 5건 + "하지 말 것" 분류가 있음.
+
+**우선순위 2 — 신규 게임 라운드16.** `minigames-round.js`는 다시 3종 뽑는
+기본값으로 원복돼 있음(라운드15에서 1종만 뽑으려고 임시로 1로 바꿨다가 원복
+완료 — 지금 열어보면 `if (winners.length === 3) break`가 맞다). `EXISTING`
+목록도 100종 전부 반영된 최신 상태. 바로 `Workflow({ scriptPath:
+'.claude/workflows/minigames-round.js' })`로 돌리면 됨.
+
+**우선순위 3 — 누적 커스텀 SVG 아이콘 (7종 밀림).** Gravwell/Loopgrid/Bisect
+(라운드13) + Slotter/Carousel/Gridlock(라운드14) + Bearing(라운드15) 전부
+이모지만 있음. 2026-08-05 "아이콘 갭 11종" 세션과 동일 패턴으로 한 배치 처리
+가능 — TODOS.md 참고.
+
+**주의할 함정:**
+- `Workflow({name:...})`로 `.claude/workflows/*.js`를 수정한 직후 같은 턴에
+  호출하면 옛 사본이 실행될 수 있음([[workflow-name-invocation-staleness]]) —
+  `scriptPath`로 직접 호출하는 게 안전.
+- 워크플로의 build 에이전트가 "Connection closed mid-response"로 실패 처리돼도
+  실제 파일은 이미 완성돼 있을 수 있음([[workflow-build-agent-connection-drop-check-files-first]])
+  — 재실행 전에 `git status`/`pnpm vitest run <경로>`로 먼저 확인할 것.
+- 배포 직후 신규 라우트가 일시적으로 404 나는 건 Cloudflare 엣지캐시 지연,
+  ~10초 내 자연 해소되는 정상 패턴(회귀 아님) — 매 라운드 반복 관측됨.
+
+---
+
+## 2026-08-11 세션(2) — 게임 라운드15: 100종 달성(Bearing) + 홈페이지 마일스톤 공지
 
 사용자가 "100개까지 만들고 좀 쉬자"고 명시적으로 요청 — 이번 라운드는 신규 게임
 **1종만** 만들어 정확히 100종에서 멈추고, UI/UX 감사는 구현 없이 TODOS.md에만
-기록한 뒤 세션을 마무리했다.
+기록한 뒤 세션을 마무리했다. 이어서 사용자가 "100개 게임 런칭했다고 홈페이지에
+알리는 것까지 하자"고 추가 요청해 마일스톤 공지 배너까지 배포하고 마무리.
 
 **게임 99 → 100종.** `minigames-round.js`의 승선 로직(`if (winners.length === 3)
 break`)을 이번 실행 한정으로 `1`로 임시 수정해 `Workflow({scriptPath:...})`로
-실행, 완료 직후 3으로 원복(다음 라운드부터 다시 3종). 이 편집이 실행 중이던
-백그라운드 잡에 영향을 주지 않는지는 [[workflow-name-invocation-staleness]]
-메모리의 반대 방향 우려였는데, 실제로 문제없이 1종만 정확히 나왔다.
+실행, 완료 직후 3으로 원복(다음 라운드부터 다시 3종 — **원복 확인 완료**, 위
+가이드 참고). 이 편집이 실행 중이던 백그라운드 잡에 영향을 주지 않는지는
+[[workflow-name-invocation-staleness]] 메모리의 반대 방향 우려였는데, 실제로
+문제없이 1종만 정확히 나왔다.
 - **Bearing**(🧭 Puzzle, daily) — 부호만 알려주는 나침반 추리 보물찾기. 매 삽질이
   거리 없이 방향(N/S/E/W/대각선)만 반환 — `atan2`/거리 계산 없이 순수 부호 비교로
   구현된 결정론적 엔진, 한 번의 삽질이 셀 하나가 아니라 영역 전체를 배제시킴.
@@ -27,6 +69,19 @@ quickminigames.site `/`·`/bearing` curl 200 즉시 확인.
 분류를 TODOS.md에 그대로 옮겨 다음 세션이 바로 착수할 수 있게 해뒀다 — 1순위는
 Beatline/Gridlock 힌트 문구가 탭 조작을 안 알려주는 저위험 3줄 수정, 2순위는
 Simon의 오답 시 시각 피드백 부재(`anim-shake` 미적용, 유일한 예외 게임).
+
+**✅ 홈페이지 100종 마일스톤 공지 추가·배포.** `src/app/page.tsx` 히어로 섹션에
+lime 계열 필(pill) 배지 추가 — "🎉 100 free games and counting — newest:
+Bearing", `/bearing`로 링크(최신작 유입 CTA 겸 공지). 기존 `NewBadge.tsx`가 쓰는
+lime 컨벤션(`border-neon-lime/40 bg-neon-lime/10 text-neon-lime`)을 그대로 재사용.
+서버 컴포넌트라 정적 HTML에 텍스트가 직접 박힘(`out/index.html`에서 grep으로
+확인) — 클라이언트 하이드레이션 의존 없음. `Marquee.tsx`의 티커도
+`${gamePages.length} GAMES`로 게임 수를 동적으로 읽어오므로 "100 GAMES"가
+자동으로 이미 반영돼 있었음(별도 수정 불필요, 확인만 함). 검증: typecheck/
+eslint 클린 · `pnpm build` 후 정적 HTML에 문구 존재 확인 · 관련 e2e 2건(홈
+카드 이동, Daily 필터) GREEN · 전체 vitest(3218)/e2e(119) 재확인 GREEN. 배포 후
+엣지캐시 지연으로 최초 curl엔 문구가 안 잡혔다가 ~8초 뒤 재확인 시 정상 노출
+(반복 관측된 패턴, 회귀 아님).
 
 **메모리 기록:** [[workflow-build-agent-connection-drop-check-files-first]](라운드14에서
 새로 배움)를 재확인할 기회는 없었지만, 워크플로 스크립트를 임시로 고쳐서 1개만
