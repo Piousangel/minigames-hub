@@ -136,8 +136,8 @@ export function GameHangman({ storageKey }: { storageKey: string }) {
     return (
       <GameShell
         stats={[
-          { label: 'Wins', value: stats.wins },
-          { label: 'Streak', value: stats.streak },
+          { label: 'Wins', value: stats.wins, float: true },
+          { label: 'Streak', value: stats.streak, float: true },
         ]}
         onNewGame={restart}
         newGameDisabled
@@ -158,8 +158,8 @@ export function GameHangman({ storageKey }: { storageKey: string }) {
   return (
     <GameShell
       stats={[
-        { label: 'Wins', value: stats.wins },
-        { label: 'Streak', value: stats.streak },
+        { label: 'Wins', value: stats.wins, float: true },
+        { label: 'Streak', value: stats.streak, float: true },
       ]}
       onNewGame={restart}
       muted={muted}

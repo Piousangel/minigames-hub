@@ -4,7 +4,9 @@ import {
   MAX_GUESSES,
   VALID_GUESSES,
   WORD_LENGTH,
+  dailySeed,
   isValidGuess,
+  mulberry32,
   newGame,
   scoreGuess,
   submitGuess,
@@ -12,6 +14,31 @@ import {
 } from './engine'
 
 const start = (answer: string): GameState => ({ answer, guesses: [], status: 'playing' })
+
+describe('mulberry32 / dailySeed determinism', () => {
+  it('mulberry32 is deterministic for a given seed', () => {
+    const a = mulberry32(42)
+    const b = mulberry32(42)
+    expect([a(), a(), a()]).toEqual([b(), b(), b()])
+  })
+
+  it('mulberry32 differs across seeds', () => {
+    expect(mulberry32(1)()).not.toBe(mulberry32(2)())
+  })
+
+  it('dailySeed is a stable 32-bit unsigned hash', () => {
+    const s = dailySeed('2026-07-20')
+    expect(s).toBe(dailySeed('2026-07-20'))
+    expect(s).toBe(s >>> 0)
+    expect(dailySeed('2026-07-20')).not.toBe(dailySeed('2026-07-21'))
+  })
+
+  it('newGame(mulberry32(dailySeed(date))) is deterministic for the same date', () => {
+    const gameA = newGame(mulberry32(dailySeed('2026-08-11')))
+    const gameB = newGame(mulberry32(dailySeed('2026-08-11')))
+    expect(gameA.answer).toBe(gameB.answer)
+  })
+})
 
 describe('word list integrity', () => {
   it('every answer is a lowercase 5-letter word', () => {

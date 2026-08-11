@@ -37,7 +37,7 @@ export function GameCard({
         </p>
         <span
           aria-hidden="true"
-          className="font-pixel relative z-[1] mt-1 text-[9px] tracking-[0.2em] text-fg-muted opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+          className="font-pixel relative z-[1] mt-1 text-[9px] tracking-[0.2em] text-fg-muted opacity-60 transition-opacity duration-200 sm:opacity-0 sm:group-hover:opacity-100"
         >
           PLAY ►
         </span>

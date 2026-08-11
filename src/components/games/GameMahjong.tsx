@@ -108,6 +108,7 @@ function TileFace({
         opacity: free ? 1 : 0.85,
         boxShadow: ring,
         transform: selected && !reduced ? 'translateY(-2px)' : undefined,
+        transition: reduced ? undefined : 'transform .15s ease, box-shadow .15s ease',
       }}
     >
       <span className="text-[0.85rem] sm:text-base">{f.main}</span>

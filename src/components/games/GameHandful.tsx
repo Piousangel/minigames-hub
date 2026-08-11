@@ -270,7 +270,7 @@ export function GameHandful({ storageKey }: { storageKey: string }) {
 
   const hint = over
     ? `Basket empty — final score ${state.score}.`
-    : `Bigger handfuls score more — but one rotten spoils the whole grab. All-ripe chance: ${oddsPct}%`
+    : `Tap +/- to size your handful, then GRAB. Bigger scores more — but one rotten spoils the whole handful. All-ripe chance: ${oddsPct}%`
 
   const headerExtra = (
     <>

@@ -4,13 +4,19 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   MAX_GUESSES,
   WORD_LENGTH,
+  dailySeed,
   isValidGuess,
+  mulberry32,
   newGame,
   submitGuess,
   type GameState,
   type LetterState,
 } from '@/lib/games/wordguess/engine'
 import { isTypingTarget } from '@/lib/isTypingTarget'
+import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
+import { DailyShareButton } from '@/components/DailyShareButton'
+import { todayUTC } from '@/lib/dailyDate'
+import { gradeFewer, barGlyph, resultSnippet } from '@/lib/dailyShare'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordResult } from '@/lib/gameStats'
@@ -19,6 +25,11 @@ import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 // Reveal timing (skipped entirely under prefers-reduced-motion).
 const FLIP_MS = 320
 const STAGGER_MS = 220
+
+type Mode = 'daily' | 'practice'
+
+// "Good" Wordle guess count — the community-standard par for the share-card grade.
+const PAR_GUESSES = 4
 
 interface Stats {
   wins: number
@@ -78,6 +89,8 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
   const [state, setState] = useState<GameState | null>(null)
   const [guess, setGuess] = useState('')
   const [stats, setStats] = useState<Stats>(EMPTY_STATS)
+  const [mode, setMode] = useState<Mode>('daily')
+  const [streak, setStreak] = useState(0)
   const [shakeKey, setShakeKey] = useState(0)
   const [revealRow, setRevealRow] = useState(-1)
   const [revealing, setRevealing] = useState(false)
@@ -87,8 +100,14 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
 
   const stateRef = useRef<GameState | null>(null)
   const guessRef = useRef('')
+  const modeRef = useRef<Mode>('daily')
   const revealingRef = useRef(false)
   const timers = useRef<number[]>([])
+
+  // Separate key from `storageKey` (which stays the existing {wins,streak} JSON
+  // blob) so the new daily streak never collides with a returning player's
+  // existing practice-mode record.
+  const streakKey = `${storageKey}:streak`
 
   const commitState = useCallback((s: GameState) => {
     stateRef.current = s
@@ -104,21 +123,40 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
     timers.current = []
   }, [])
 
+  const startBoard = useCallback(
+    (nextMode: Mode) => {
+      modeRef.current = nextMode
+      clearTimers()
+      revealingRef.current = false
+      setRevealing(false)
+      setRevealRow(-1)
+      setShakeKey(0)
+      commitGuess('')
+      commitState(nextMode === 'daily' ? newGame(mulberry32(dailySeed(todayUTC()))) : newGame(Math.random))
+    },
+    [clearTimers, commitGuess, commitState],
+  )
+
   const restart = useCallback(() => {
-    clearTimers()
-    revealingRef.current = false
-    setRevealing(false)
-    setRevealRow(-1)
-    setShakeKey(0)
-    commitGuess('')
-    commitState(newGame(Math.random))
-  }, [clearTimers, commitGuess, commitState])
+    startBoard(modeRef.current)
+  }, [startBoard])
+
+  const switchMode = useCallback(
+    (m: Mode) => {
+      if (m === mode) return
+      setMode(m)
+      startBoard(m)
+    },
+    [mode, startBoard],
+  )
 
   useEffect(() => {
-    restart()
+    startBoard('daily')
     setStats(readStats(storageKey))
+    setStreak(currentStreak(loadStreak(streakKey)))
     return () => clearTimers()
-  }, [restart, storageKey, clearTimers])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey])
 
   const recordEnd = useCallback(
     (won: boolean) => {
@@ -133,8 +171,13 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
         }
         return next
       })
+      if (won && modeRef.current === 'daily') {
+        const bumped = bumpStreak(loadStreak(streakKey))
+        saveStreak(streakKey, bumped)
+        setStreak(bumped.streak)
+      }
     },
-    [storageKey],
+    [storageKey, streakKey],
   )
 
   const handleSubmit = useCallback(() => {
@@ -231,13 +274,38 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
 
   const hint = 'Type a 5-letter word and press Enter. Green = right spot, yellow = wrong spot.'
 
+  const headerExtra = (
+    <>
+      <div className="flex overflow-hidden rounded-lg border border-border" role="group" aria-label="Game mode">
+        {(['daily', 'practice'] as Mode[]).map((m) => (
+          <button
+            key={m}
+            onClick={() => switchMode(m)}
+            aria-pressed={mode === m}
+            className={`btn-press px-2.5 py-1.5 text-sm font-semibold capitalize ${
+              mode === m ? 'bg-accent text-stone-900' : 'bg-surface text-fg-muted'
+            }`}
+          >
+            {m}
+          </button>
+        ))}
+      </div>
+      {mode === 'daily' && (
+        <span className="rounded-lg border border-border bg-surface/80 px-3 py-1.5 text-sm">
+          Day Streak <span className="font-bold text-accent" data-testid="day-streak">{streak}</span>
+        </span>
+      )}
+    </>
+  )
+
   if (!state) {
     return (
       <GameShell
         stats={[
-          { label: 'Wins', value: stats.wins },
-          { label: 'Streak', value: stats.streak },
+          { label: 'Wins', value: stats.wins, float: true },
+          { label: 'Streak', value: stats.streak, float: true },
         ]}
+        headerExtra={headerExtra}
         onNewGame={restart}
         newGameDisabled
         muted={muted}
@@ -256,10 +324,12 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
   return (
     <GameShell
       stats={[
-        { label: 'Wins', value: stats.wins },
-        { label: 'Streak', value: stats.streak },
+        { label: 'Wins', value: stats.wins, float: true },
+        { label: 'Streak', value: stats.streak, float: true },
       ]}
+      headerExtra={headerExtra}
       onNewGame={restart}
+      newGameLabel={mode === 'daily' ? 'Replay Daily' : 'New Game'}
       muted={muted}
       onToggleMute={toggleMuted}
       hint={hint}
@@ -355,9 +425,45 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
         <p className="text-fg-muted">
           Solved in {state.guesses.length} {state.guesses.length === 1 ? 'guess' : 'guesses'}
         </p>
-        <GameButton onClick={restart} className="px-4 py-2">
-          New Game
-        </GameButton>
+        {mode === 'daily' && (
+          <p>
+            Day Streak <span className="font-bold text-accent">{streak}</span>
+          </p>
+        )}
+        <div className="flex flex-wrap justify-center gap-2">
+          {mode === 'daily' && (
+            <DailyShareButton
+              payload={() => {
+                const used = state.guesses.length
+                const grade = gradeFewer(used, PAR_GUESSES)
+                const glyph = barGlyph(used, PAR_GUESSES, `${used} GUESSES`)
+                return {
+                  gameName: 'Word Guess',
+                  dateISO: todayUTC(),
+                  accent: '#a3e635',
+                  lines: [],
+                  streak,
+                  url: `${window.location.origin}/word-guess`,
+                  isDaily: true,
+                  grade,
+                  glyph,
+                  textSnippet: resultSnippet(
+                    'Word Guess',
+                    todayUTC(),
+                    true,
+                    grade,
+                    glyph.cells,
+                    PAR_GUESSES,
+                    `solved in ${used} ${used === 1 ? 'guess' : 'guesses'}`,
+                  ),
+                }
+              }}
+            />
+          )}
+          <GameButton onClick={restart} className="px-4 py-2">
+            {mode === 'daily' ? 'Replay Daily' : 'New Game'}
+          </GameButton>
+        </div>
       </GameOverlay>
 
       <GameOverlay
@@ -370,7 +476,7 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
           The word was <span className="font-bold uppercase tracking-wide text-fg">{state.answer}</span>
         </p>
         <GameButton onClick={restart} className="px-4 py-2">
-          Try again
+          {mode === 'daily' ? 'Replay Daily' : 'Try again'}
         </GameButton>
       </GameOverlay>
     </GameShell>
