@@ -71,6 +71,9 @@ const GamePrismbox = dynamic(() => import('@/components/games/GamePrismbox').the
 const GameGravwell = dynamic(() => import('@/components/games/GameGravwell').then((m) => m.GameGravwell), { ssr: false, loading: Loading })
 const GameLoopgrid = dynamic(() => import('@/components/games/GameLoopgrid').then((m) => m.GameLoopgrid), { ssr: false, loading: Loading })
 const GameBisect = dynamic(() => import('@/components/games/GameBisect').then((m) => m.GameBisect), { ssr: false, loading: Loading })
+const GameSlotter = dynamic(() => import('@/components/games/GameSlotter').then((m) => m.GameSlotter), { ssr: false, loading: Loading })
+const GameCarousel = dynamic(() => import('@/components/games/GameCarousel').then((m) => m.GameCarousel), { ssr: false, loading: Loading })
+const GameGridlock = dynamic(() => import('@/components/games/GameGridlock').then((m) => m.GameGridlock), { ssr: false, loading: Loading })
 const GamePolytap = dynamic(() => import('@/components/games/GamePolytap').then((m) => m.GamePolytap), { ssr: false, loading: Loading })
 const GameSonar = dynamic(() => import('@/components/games/GameSonar').then((m) => m.GameSonar), { ssr: false, loading: Loading })
 const GameProspector = dynamic(() => import('@/components/games/GameProspector').then((m) => m.GameProspector), { ssr: false, loading: Loading })
@@ -295,6 +298,12 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameLoopgrid storageKey={`best:${page.slug}`} />
     case 'bisect':
       return <GameBisect storageKey={`best:${page.slug}`} />
+    case 'slotter':
+      return <GameSlotter storageKey={`best:${page.slug}`} />
+    case 'carousel':
+      return <GameCarousel storageKey={`best:${page.slug}`} />
+    case 'gridlock':
+      return <GameGridlock storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

@@ -67,6 +67,9 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   gravwell: { label: 'Score' },
   loopgrid: { label: 'Score' },
   bisect: { label: 'Score' },
+  slotter: { label: 'Score' },
+  carousel: { label: 'Score' },
+  gridlock: { label: 'Score' },
   flow: { label: 'Level' },
   'aim-trainer': { label: 'Targets/s' },
 }

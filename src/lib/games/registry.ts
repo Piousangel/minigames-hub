@@ -107,6 +107,9 @@ export type GamePage = GamePageBase &
     | { game: 'gravwell' }
     | { game: 'loopgrid' }
     | { game: 'bisect' }
+    | { game: 'slotter' }
+    | { game: 'carousel' }
+    | { game: 'gridlock' }
   )
 
 export const gamePages: GamePage[] = [
@@ -1733,7 +1736,7 @@ export const gamePages: GamePage[] = [
       'Play Deepdive free online — dive a vertical shaft grabbing richer treasure the deeper you go, but every step down is a breath you need to climb back. Run out of air before the surface and you lose it all. No download, no sign-up.',
     shortDescription: 'Dive deep, but save the breath to climb back.',
     howToPlay: [
-      'Move down and around the shaft with the arrow keys or WASD. Each step costs air.',
+      'Tap an adjacent cell to move there (or use the arrow keys / WASD on desktop). Each step costs air.',
       'The deeper you go, the more valuable the treasure — but you spend air getting there.',
       'You only bank treasure when you climb back to the surface. Reach it before your air runs out.',
       'Run out of air below the surface and you drown, losing everything you were carrying.',
@@ -1790,7 +1793,7 @@ export const gamePages: GamePage[] = [
     shortDescription: 'Decide how big to grab, then grab blind.',
     howToPlay: [
       'The basket shows exactly how many good and rotten items are left — only the order is hidden.',
-      'Each turn, choose how big a handful to grab (bigger with the up/right keys, smaller with down/left).',
+      'Each turn, tap the on-screen +/- to size your handful (or use the up/right and down/left keys on desktop), then tap GRAB.',
       'Grab a clean handful and you score more the bigger it was, and clean streaks build a combo.',
       'Grab even one rotten item and the whole handful scores nothing and your combo resets.',
     ],
@@ -2830,6 +2833,87 @@ export const gamePages: GamePage[] = [
       { q: 'Why is there no countdown or progress bar?', a: 'The blank screen is the entire point — Bisect tests your internal sense of elapsed time, not your ability to read a clock.' },
       { q: 'Does the game ever end?', a: 'No — Bisect is an endless survival run with three lives. Play continues until you run out.' },
       { q: 'Is it free and account-free?', a: 'Yes. Bisect plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+    ],
+  },
+  {
+    slug: 'slotter',
+    game: 'slotter',
+    title: 'Play Slotter Online — Free Sorted-Row Insertion Game',
+    h1: 'Slotter',
+    metaDescription:
+      'Play Slotter free online — a number card approaches the deadline every round. Click the exact gap in your sorted row before it arrives, or the row breaks. No download, no sign-up.',
+    shortDescription: 'Slot the card into the exact gap before it reaches the deadline.',
+    howToPlay: [
+      'A number card appears and slides steadily toward the deadline on a fixed schedule.',
+      'Click the gap in your row where the card belongs — your row is always kept in ascending order, left to right.',
+      'Placing it in the wrong gap breaks the row and ends the run immediately.',
+      'Placing it correctly keeps the run going, but the next card comes in a little faster than the last.',
+    ],
+    strategy: [
+      'Scan the row for the two neighbors the incoming number falls between — the correct gap is always the one place it fits without breaking the order.',
+      'React early: as the pace ramps up, deciding while the card is still approaching beats waiting for it to get close.',
+      'A run of correct placements in a row builds a streak bonus, so consistency under pressure pays off more than any single perfect placement.',
+      'Keyboard players can move between gaps with the arrow keys and confirm with Enter — often faster than reaching for the right gap by mouse.',
+    ],
+    faq: [
+      { q: 'How do you play Slotter?', a: 'Click (or use arrow keys + Enter) on the gap in your sorted row where the incoming number card belongs, before it reaches the deadline on the right.' },
+      { q: 'What happens if I pick the wrong gap?', a: 'The row breaks immediately and the run ends — your score is how many cards you correctly slotted in before that happened.' },
+      { q: 'Does the game get harder over time?', a: 'Yes — each correctly placed card slightly speeds up the pace of the next one, so the deadline window keeps shrinking.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Slotter plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+    ],
+  },
+  {
+    slug: 'carousel',
+    game: 'carousel',
+    title: 'Play Carousel Online — Free Rotating Ring Match Game',
+    h1: 'Carousel',
+    metaDescription:
+      'Play Carousel free online — a ring of slots rotates on its own every time you place a marble. Line up three of the same color along the ring before it fills up. No download, no sign-up.',
+    shortDescription: 'Place a marble, the ring turns itself — line up three to clear them.',
+    howToPlay: [
+      'Choose a colored marble from your hand and place it in the loader slot.',
+      'After every placement, the whole ring automatically rotates a fixed number of slots — you never control the rotation directly.',
+      'Line up three marbles of the same color anywhere along the ring and they clear, scoring points and opening space.',
+      'The ring fills up and locks in more marbles the longer you go without clearing a match — if it fills completely, the run ends.',
+    ],
+    strategy: [
+      'Think one rotation ahead — since the ring always turns the same amount after your placement, you can predict exactly where today’s marble will land next turn.',
+      'Difficulty changes the ring size and rotation step, so a plan that works on Easy will not directly transfer to Hard.',
+      'Clearing early keeps the ring from filling up, which matters more than chasing a bigger match once space gets tight.',
+      'Watch for near-complete color runs building up around the ring, not just next to the loader — the rotation will bring them to you.',
+    ],
+    faq: [
+      { q: 'How do you play Carousel?', a: 'Pick a marble from your hand (click, tap, or number keys 1-3) and place it at the loader. The ring then rotates on its own by a fixed amount before your next turn.' },
+      { q: 'Why did the ring move without me doing anything?', a: 'That is the core twist — every placement triggers an automatic rotation, so you are always planning around where the ring will be next, not just where it is now.' },
+      { q: 'What happens if the ring fills up?', a: 'The run ends. Clear same-color runs of three or more before that happens to keep space open.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Carousel plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+    ],
+  },
+  {
+    slug: 'gridlock',
+    game: 'gridlock',
+    title: 'Play Gridlock Online — Free Traffic Intersection Survival Game',
+    h1: 'Gridlock',
+    metaDescription:
+      'Play Gridlock free online — four lanes of traffic approach a single intersection. Grant right-of-way to one lane at a time and keep every car moving without a crash or a timeout. No download, no sign-up.',
+    shortDescription: 'One intersection, four lanes — grant right-of-way without a crash.',
+    howToPlay: [
+      'Cars approach a single shared intersection continuously from all four directions.',
+      'Use the arrow keys (or WASD) to grant right-of-way to one lane at a time — only that lane may enter the intersection.',
+      'Switching to a lane while another car is still crossing causes a crash and ends the run.',
+      'Leaving a waiting car stuck too long at the stop line also ends the run — the wait timer shows as amber, then red.',
+    ],
+    strategy: [
+      'Watch every lane at once, not just the active one — a car turning red while you are focused elsewhere is the most common way runs end.',
+      'Switch lanes proactively before a car reaches a critical wait, rather than reacting only once it starts flashing red.',
+      'Traffic spawns faster as your score climbs, so a rotation rhythm that works early will need to tighten up later.',
+      'When two lanes are both getting urgent, prioritize whichever has waited longer — a fresh arrival can usually wait one more cycle.',
+    ],
+    faq: [
+      { q: 'How do you play Gridlock?', a: 'Use the arrow keys or WASD to grant right-of-way to one lane (N/S/E/W) at a time. Only cars in the active lane may enter the intersection.' },
+      { q: 'What ends a run?', a: 'Either a crash (switching lanes while a car is still crossing the intersection) or a timeout (a waiting car left too long at the stop line).' },
+      { q: 'Does the game ever end on its own?', a: 'No — Gridlock is an endless survival run. Your score is how many vehicles you safely processed before a crash or timeout.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Gridlock plays free in your browser with no download and no sign-up. Your best score saves locally.' },
     ],
   },
 ]

@@ -95,4 +95,7 @@ export const OBJECTIVES: Record<string, string> = {
   gravwell: 'One shot — aim, launch, and let gravity steer you into the ring.',
   loopgrid: 'Cycle rows and columns to line up every color.',
   bisect: 'Tap the exact midpoint between two signals — no clock allowed.',
+  slotter: 'Click the exact gap in your sorted row before the deadline.',
+  carousel: 'Line up three marbles as the ring rotates on its own.',
+  gridlock: 'Grant right-of-way to one lane at a time — no crashes, no timeouts.',
 }

@@ -639,7 +639,7 @@ test('홈: Daily 필터가 Daily 모드 게임만 보여준다', async ({ page }
   // TodayBoard/RecentlyPlayed도 게임 카드를 그리므로 브라우저 결과 그리드로 좁힌다.
   const titles = await page.getByTestId('browse-results').locator('a:has(h3) h3').allInnerTexts()
   expect(titles.sort()).toEqual(
-    ['Beatline', 'Clusters', 'Decant', 'Deepdive', 'Duplex', 'Equate', 'Flapjack', 'Gravwell', 'Grasp', 'Handful', 'Hogline', 'Interlock', 'Loopgrid', 'Overfold', 'Prismbox', 'Quadle', 'Quarry', 'Ricochet', 'Sonar', 'Splice', 'Stackpot', 'Turntile'].sort(),
+    ['Beatline', 'Clusters', 'Decant', 'Deepdive', 'Duplex', 'Equate', 'Flapjack', 'Gravwell', 'Grasp', 'Handful', 'Hogline', 'Interlock', 'Loopgrid', 'Overfold', 'Prismbox', 'Quadle', 'Quarry', 'Ricochet', 'Sonar', 'Splice', 'Stackpot', 'Turntile', 'Word Guess'].sort(),
   )
 })
 
@@ -736,6 +736,21 @@ test('loopgrid: 로드 → 보드 표시', async ({ page }) => {
 test('bisect: 로드 → 보드 표시', async ({ page }) => {
   await page.goto('/bisect')
   await expect(page.getByTestId('bisect-board')).toBeVisible()
+})
+
+test('slotter: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/slotter')
+  await expect(page.getByTestId('slotter-board')).toBeVisible()
+})
+
+test('carousel: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/carousel')
+  await expect(page.getByTestId('carousel-board')).toBeVisible()
+})
+
+test('gridlock: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/gridlock')
+  await expect(page.getByTestId('gridlock-board')).toBeVisible()
 })
 
 test('unblocked 랜딩: 로드 + 게임 그리드', async ({ page }) => {

@@ -54,7 +54,7 @@ export const gameMeta: Record<string, GameMeta> = {
   tetris: { icon: '🧱', accent: 'blue', category: 'Arcade', featured: true, controls: ['arrows'] },
   'sliding-puzzle': { icon: '🔀', accent: 'cyan', category: 'Puzzle', controls: ['tap', 'arrows'] },
   breakout: { icon: '🧱', accent: 'magenta', category: 'Arcade', controls: ['point', 'arrows'] },
-  'word-guess': { icon: '🔤', accent: 'lime', category: 'Puzzle', controls: ['type'] },
+  'word-guess': { icon: '🔤', accent: 'lime', category: 'Puzzle', daily: true, controls: ['type'] },
   'tic-tac-toe': { icon: '⭕', accent: 'cyan', category: 'Classic', controls: ['tap'] },
   'reaction-time': { icon: '⚡', accent: 'amber', category: 'Skill', controls: ['tap'] },
   'connect-four': { icon: '🔴', accent: 'red', category: 'Classic', controls: ['tap'] },
@@ -101,9 +101,9 @@ export const gameMeta: Record<string, GameMeta> = {
   umbra: { icon: '🌑', accent: 'purple', category: 'Skill' , addedDate: '2026-07-16', controls: ['tap'] },
   fuse: { icon: '🧨', accent: 'red', category: 'Puzzle' , addedDate: '2026-07-16', controls: ['tap'] },
   polytap: { icon: '🥁', accent: 'cyan', category: 'Skill' , addedDate: '2026-07-16', controls: ['tap'] },
-  deepdive: { icon: '🤿', accent: 'cyan', category: 'Skill', daily: true , addedDate: '2026-07-17', controls: ['arrows'] },
+  deepdive: { icon: '🤿', accent: 'cyan', category: 'Skill', daily: true , addedDate: '2026-07-17', controls: ['tap', 'arrows'] },
   sonar: { icon: '📡', accent: 'blue', category: 'Puzzle', daily: true , addedDate: '2026-07-17', controls: ['tap'] },
-  handful: { icon: '🧺', accent: 'lime', category: 'Arcade', daily: true , addedDate: '2026-07-17', controls: ['arrows'] },
+  handful: { icon: '🧺', accent: 'lime', category: 'Arcade', daily: true , addedDate: '2026-07-17', controls: ['tap', 'arrows'] },
   flapjack: { icon: '🥞', accent: 'cyan', category: 'Puzzle', daily: true , addedDate: '2026-07-18', controls: ['tap'] },
   interlock: { icon: '⛓️', accent: 'magenta', category: 'Puzzle', daily: true , addedDate: '2026-07-18', controls: ['tap'] },
   clusters: { icon: '🔠', accent: 'lime', category: 'Puzzle', daily: true , addedDate: '2026-07-19', featured: true, controls: ['tap'] },
@@ -140,6 +140,9 @@ export const gameMeta: Record<string, GameMeta> = {
   gravwell: { icon: '🪐', accent: 'purple', category: 'Puzzle', addedDate: '2026-08-10', daily: true, controls: ['drag', 'arrows'] },
   loopgrid: { icon: '🔁', accent: 'cyan', category: 'Puzzle', addedDate: '2026-08-10', daily: true, controls: ['tap'] },
   bisect: { icon: '✂️', accent: 'magenta', category: 'Skill', addedDate: '2026-08-10', controls: ['tap'] },
+  slotter: { icon: '🎰', accent: 'amber', category: 'Skill', addedDate: '2026-08-11', controls: ['tap', 'arrows'] },
+  carousel: { icon: '🎠', accent: 'blue', category: 'Puzzle', addedDate: '2026-08-11', controls: ['tap', 'arrows'] },
+  gridlock: { icon: '🚦', accent: 'red', category: 'Arcade', addedDate: '2026-08-11', controls: ['arrows'] },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']
