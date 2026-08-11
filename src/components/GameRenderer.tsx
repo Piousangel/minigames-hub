@@ -74,6 +74,7 @@ const GameBisect = dynamic(() => import('@/components/games/GameBisect').then((m
 const GameSlotter = dynamic(() => import('@/components/games/GameSlotter').then((m) => m.GameSlotter), { ssr: false, loading: Loading })
 const GameCarousel = dynamic(() => import('@/components/games/GameCarousel').then((m) => m.GameCarousel), { ssr: false, loading: Loading })
 const GameGridlock = dynamic(() => import('@/components/games/GameGridlock').then((m) => m.GameGridlock), { ssr: false, loading: Loading })
+const GameBearing = dynamic(() => import('@/components/games/GameBearing').then((m) => m.GameBearing), { ssr: false, loading: Loading })
 const GamePolytap = dynamic(() => import('@/components/games/GamePolytap').then((m) => m.GamePolytap), { ssr: false, loading: Loading })
 const GameSonar = dynamic(() => import('@/components/games/GameSonar').then((m) => m.GameSonar), { ssr: false, loading: Loading })
 const GameProspector = dynamic(() => import('@/components/games/GameProspector').then((m) => m.GameProspector), { ssr: false, loading: Loading })
@@ -304,6 +305,8 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameCarousel storageKey={`best:${page.slug}`} />
     case 'gridlock':
       return <GameGridlock storageKey={`best:${page.slug}`} />
+    case 'bearing':
+      return <GameBearing storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

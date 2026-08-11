@@ -70,6 +70,7 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   slotter: { label: 'Score' },
   carousel: { label: 'Score' },
   gridlock: { label: 'Score' },
+  bearing: { label: 'Score' },
   flow: { label: 'Level' },
   'aim-trainer': { label: 'Targets/s' },
 }

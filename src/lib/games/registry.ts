@@ -110,6 +110,7 @@ export type GamePage = GamePageBase &
     | { game: 'slotter' }
     | { game: 'carousel' }
     | { game: 'gridlock' }
+    | { game: 'bearing' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2914,6 +2915,33 @@ export const gamePages: GamePage[] = [
       { q: 'What ends a run?', a: 'Either a crash (switching lanes while a car is still crossing the intersection) or a timeout (a waiting car left too long at the stop line).' },
       { q: 'Does the game ever end on its own?', a: 'No — Gridlock is an endless survival run. Your score is how many vehicles you safely processed before a crash or timeout.' },
       { q: 'Is it free and account-free?', a: 'Yes. Gridlock plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+    ],
+  },
+  {
+    slug: 'bearing',
+    game: 'bearing',
+    title: 'Play Bearing Online — Free Compass Deduction Treasure Hunt',
+    h1: 'Bearing',
+    metaDescription:
+      'Play Bearing free online — a treasure is buried somewhere on the grid. Each dig only tells you which direction to go, never how far. Triangulate the exact spot before you run out of shovels. No download, no sign-up.',
+    shortDescription: 'Every dig gives a direction, never a distance — triangulate the treasure.',
+    howToPlay: [
+      'A treasure is hidden somewhere on the grid, but you cannot see it directly.',
+      'Dig any cell (click, tap, or arrow keys + Enter) and you get a compass direction pointing toward the treasure — N, S, E, W, or a diagonal.',
+      'A direction only tells you which way to go, never how far — each dig rules out a whole region of the grid, not just one cell.',
+      'Keep digging closer using the directions you have gathered. Find the treasure before you run out of shovels to win.',
+    ],
+    strategy: [
+      'Treat every dig as ruling out a whole half (or quarter) of the grid, not just missing on one cell — the dimmed region shows exactly what is left.',
+      'A diagonal direction (like northeast) is more informative than a pure cardinal one, since it narrows two axes down at once.',
+      'Dig near the center of your remaining region rather than the edges — a central dig splits the remaining area more evenly.',
+      'Harder difficulties use a bigger grid with a tighter shovel budget, so plan each dig to cut the search area as much as possible.',
+    ],
+    faq: [
+      { q: 'How do you play Bearing?', a: 'Dig a cell (click, tap, or arrow keys + Enter) and you get a compass direction toward the hidden treasure. Use each direction to narrow down where it could be, then dig again.' },
+      { q: 'Why doesn’t the game tell me how far away the treasure is?', a: 'That is the whole puzzle — you only ever get a direction, never a distance, so you have to triangulate the exact cell using multiple digs.' },
+      { q: 'Can I play a fresh puzzle every day?', a: 'Yes — Daily mode gives everyone the same seeded board each day, with a streak counter for playing on consecutive days. Practice mode gives you a fresh random board at any difficulty.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Bearing plays free in your browser with no download and no sign-up. Your best score saves locally.' },
     ],
   },
 ]

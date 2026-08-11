@@ -98,4 +98,5 @@ export const OBJECTIVES: Record<string, string> = {
   slotter: 'Click the exact gap in your sorted row before the deadline.',
   carousel: 'Line up three marbles as the ring rotates on its own.',
   gridlock: 'Grant right-of-way to one lane at a time — no crashes, no timeouts.',
+  bearing: 'Dig for treasure — each try only tells you which way to go.',
 }

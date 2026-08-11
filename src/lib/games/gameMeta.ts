@@ -143,6 +143,7 @@ export const gameMeta: Record<string, GameMeta> = {
   slotter: { icon: '🎰', accent: 'amber', category: 'Skill', addedDate: '2026-08-11', controls: ['tap', 'arrows'] },
   carousel: { icon: '🎠', accent: 'blue', category: 'Puzzle', addedDate: '2026-08-11', controls: ['tap', 'arrows'] },
   gridlock: { icon: '🚦', accent: 'red', category: 'Arcade', addedDate: '2026-08-11', controls: ['arrows'] },
+  bearing: { icon: '🧭', accent: 'amber', category: 'Puzzle', addedDate: '2026-08-11', daily: true, controls: ['tap', 'arrows'] },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']
