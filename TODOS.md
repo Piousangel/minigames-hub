@@ -54,33 +54,46 @@ minigames-leaderboard --remote --command "DELETE FROM comments WHERE ..."`). 뚫
 
 ## Games
 
-### Word Guess에 Daily 모드/스트릭 인프라 이식 (2026-08-10 라운드13 감사 3순위, 보류)
+### Gridlock/Slotter/Carousel + Gravwell/Loopgrid/Bisect 커스텀 SVG 아이콘 (누적)
 
-**What:** `word-guess`(원조 워들형 게임, 검색 유입이 가장 클 후보)만 `gameMeta.ts`에
-`daily: true`가 없어 `/daily` 허브·홈 Daily 필터·GameStats Streak 칸에서 전부 빠져
-있다. 엔진(`newGame(rng: Rng)`)은 이미 결정론적 RNG 주입 구조라 quadle 패턴을 그대로
-복제할 준비가 돼 있다.
+**What:** 라운드13(Gravwell/Loopgrid/Bisect)·라운드14(Slotter/Carousel/Gridlock)
+6종 전부 `gameMeta.ts`에 이모지만 등록돼 있다. 2026-08-05 "아이콘 갭 11종" 세션과
+동일한 패턴으로 한 배치에 묶어 처리 가능.
 
-**구현 계획(감사가 이미 quadle을 정확한 참조 템플릿으로 작성해둠):**
-1. `src/lib/games/wordguess/engine.ts` — `src/lib/games/quadle/engine.ts:57-78`의
-   `mulberry32(seed)` + `dailySeed(dateStr)`를 바이트 동일하게 복사(quadle 자체 주석이
-   "byte-identical to the wordguess/clusters template's mulberry32"라고 명시).
-   `newGame(rng: Rng)` 시그니처는 이미 호환.
-2. `src/components/games/GameWordGuess.tsx` — quadle의 `Mode`/`modeRef`/`startBoard`/
-   `streakKey`/`headerExtra`(daily·practice 세그먼트+Streak)/`DailyShareButton` 배선을
-   그대로 이식(quadle 78-441행이 정확한 참조 라인). **기존 `readStats(storageKey)`의
-   `{wins,streak}` JSON은 건드리지 말고, 신규 `streakKey`를 별도 키로 얹을 것** — 기존
-   로컬 기록과 충돌 방지.
-3. `src/lib/games/gameMeta.ts` — `word-guess` 엔트리에 `daily: true` 추가.
+**Why:** 매 라운드 신규 게임 wiring이 우선이라 계속 미뤄짐 — 누적 6종이면 슬슬
+전담 배치로 처리할 가치가 생긴다.
 
-**Why:** 이번 라운드(13) 나머지 작업(신규 게임 3종 wiring + 감사 1/4/5순위)과 함께
-서두르면, 감사 스스로 경고한 리스크(word-guess 기본 모드가 daily로 바뀌면서 기존
-e2e 스모크의 "로드 시 기본 상태" 가정이 깨질 수 있음)를 놓칠 수 있어 다음 라운드에
-전담 검증과 함께 진행하는 게 안전하다고 판단해 미룸. 5건 중 스코프가 가장 크다
-(엔진+컴포넌트 대폭 수정, 나머지 4건은 각 1~10줄).
+**Effort:** S~M (게임당 SVG 1개, 6개). **Priority:** P3.
 
-**Effort:** M. **Priority:** P2 — 검색 유입 원조 게임의 재방문 훅 공백이라 다음
-라운드 1순위 후보로.
+### Mahjong 매치 제거 애니메이션 2단계 (fade/scale-out)
+
+**What:** 라운드14 감사가 1단계(타일 선택 시 리프트 트랜지션)는 이번 라운드에 구현
+완료. 2단계(매치로 지워지는 타일의 fade+scale-out, 200ms 유지 후 제거)는 범위 밖으로
+미룸.
+
+**Why:** `state.tiles`에서 매치된 타일을 즉시 null 처리하지 않고 잠시 유지하는
+방식으로 바꾸면, free-tile 판정·stuck-board 감지·힌트/셔플 로직이 "매치됐지만
+아직 안 지워진 타일"을 어떻게 다룰지에 따라 정상 진행 가능한 판을 게임이 스스로
+오판해 종료시키는 정합성 버그가 될 수 있다. **엔진 로직(`free` 계산)을 건드리기
+전에 GameMahjong 전용 회귀 테스트부터 작성해 통과시킬 것.**
+
+**Effort:** M(엔진 회귀 테스트 선행 필요). **Priority:** P3.
+
+### 하지 말 것로 확정된 항목(라운드14 감사, 참고용)
+
+향후 감사가 재발견해도 아래 이유로 반려할 것 — 실행하지 말 것:
+- **난이도 라벨 'Normal'→'Medium' 통일을 내부 유니온 키까지 바꾸는 방식.** 14개+
+  게임이 localStorage에 `'normal'` 문자열로 난이도를 저장 중이라, 내부 키를
+  바꾸면 재방문 유저의 저장된 설정이 마이그레이션 없이 조용히 깨진다. 하려면
+  라벨 문자열만 매핑 테이블로 분리(Sudoku의 `DIFF_LABEL` 패턴)하고 내부 키는
+  절대 건드리지 말 것.
+- **vs-CPU stats 패널(Chess/Gomoku/Reversi/Pong/Mancala 등 9개)을 한 커밋으로
+  "통일".** 이미 데이터를 추적 중인 게임(라벨만 추가)과 신규 state 추적이
+  필요한 게임(Chess/Gomoku)이 섞여 있어 위험도가 다른데 한 커밋으로 묶으면
+  리뷰가 불가능해진다 — 반드시 별개로 쪼갤 것.
+- **Duplex/Overfold/Splice의 `testId: 'streak'`를 `'day-streak'`로 바꾸는 걸
+  라벨 통일과 한 커밋으로 섞는 것.** testId 변경은 e2e 실행 후 통과 확인까지
+  별도 커밋으로 분리할 것(라벨 문자열 변경 자체는 무위험).
 
 ### Gravwell/Loopgrid/Bisect 커스텀 SVG 아이콘 (2026-08-10 라운드13 추가분)
 

@@ -1,6 +1,64 @@
-# 인계: 게임 라운드13(Gravwell/Loopgrid/Bisect) + UI/UX 감사 대응 완료·배포함
+# 인계: 게임 라운드14(Slotter/Carousel/Gridlock) + Word Guess Daily 이식 + UI/UX 감사 대응 완료·배포함
 
-> 갱신: 2026-08-10 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main)** · **배포 완료·검증됨** (quickminigames.site, 게임 96종)
+> 갱신: 2026-08-11 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main)** · **배포 완료·검증됨** (quickminigames.site, 게임 99종)
+
+## 2026-08-11 세션 — 게임 라운드14(Slotter/Carousel/Gridlock) + Word Guess Daily 이식 + UI/UX 감사 대응
+
+**게임 96 → 99종.** `Workflow({ scriptPath: '.claude/workflows/minigames-round.js' })`로
+신규 3종 기획→구현 시도. **이번 라운드는 20개 에이전트 중 2개(carousel/gridlock의
+build 단계)가 "Connection closed mid-response" API 오류로 실패 처리됐지만, 실제로는
+작업 대부분이 이미 완료된 상태였다** — 파일을 직접 확인해보니 carousel은 엔진+테스트
++컴포넌트까지 전부 완성(typecheck/vitest 클린), gridlock은 엔진+테스트(29개 통과)는
+완성됐고 컴포넌트만 빠져 있었다. 전체 파이프라인을 재실행하는 대신, gridlock 컴포넌트만
+별도 `Agent` 호출로 기존 엔진을 건드리지 않고 완성시켜 3종 모두 살렸다.
+- **Slotter**(🎰 Skill) — 정렬된 줄에 마감 전 정확한 틈을 클릭해 카드를 끼워 넣는
+  압박 게임. 오답이나 타임아웃이면 줄이 깨짐, 정답마다 다음 카드가 조금씩 빨라짐.
+- **Carousel**(🎠 Puzzle) — 마블을 로더에 놓을 때마다 링 전체가 스스로 고정폭만큼
+  회전. 플레이어가 회전을 직접 조작하지 않고 "한 수 앞의 위치"를 예측해 계획해야 함.
+- **Gridlock**(🚦 Arcade) — 사거리 하나를 4방향 교통이 공유. 한 번에 한 레인에만
+  통행권을 줌 — 점유 중 전환하면 크래시, 너무 오래 방치하면 타임아웃. 엔드리스 생존.
+
+배선 6곳 + e2e 스모크 전부 오케스트레이터가 직접. 세 게임 모두 데일리 모드 없음
+(순수 엔드리스/1회성 세션).
+
+**⚠️ 이번 세션 중 Chrome MCP 브라우저 탭 세션이 반복적으로 깨져서(frame removed,
+tab group 소실) 사용자가 "로컬로띄우지마"라고 지시 — 이후 code-only 검증
+([[prefer-code-only-verification-when-busy]] 패턴)으로 전환. typecheck/lint/
+vitest(3185)/build/e2e(118) 전부 GREEN 확인 후 배포, 라이브 curl 200 확인으로
+마무리(Gravwell/Loopgrid/Bisect 3종은 이전 세션에 이미 브라우저 실플레이 검증
+완료됨 — round14 신규 3종만 code-only로 검증).
+
+**UI/UX 감사 5건 전부 구현 — 1순위가 드디어 Word Guess Daily 이식이었다:**
+1. **Word Guess에 Daily 모드/스트릭 인프라 이식(라운드12·13에서 2번 연속 최우선
+   보류됐던 항목, 이번에 착수).** `wordguess/engine.ts`에 quadle과 바이트 동일한
+   `mulberry32`/`dailySeed` 추가(+결정론 테스트). `GameWordGuess.tsx`에 quadle의
+   Daily/Practice 토글·`DailyShareButton`·스트릭 배선을 이식하되, **기존
+   `readStats(storageKey)`의 `{wins,streak}` JSON은 손대지 않고 신규
+   `${storageKey}:streak`를 별도 키로 얹었다** — 두 라운드 전부터 감사가 반복
+   경고한 리스크(기존 로컬 기록 오염)를 실제로 피함. 신규 데일리 스트릭 배지는
+   기존 stats 패널의 "Streak"(연승 스트릭)과 이름이 겹칠 뻔해서 "Day Streak"로
+   구분해 라벨 충돌을 피함(Quarry 등이 이미 쓰던 라벨 재사용).
+2. Hangman/WordGuess의 Wins/Streak stat에 `float: true` 누락 → 4곳 추가.
+3. `GameCard.tsx`의 "PLAY ►" 라벨이 호버 전용(`opacity-0 group-hover:opacity-100`)
+   이라 터치 기기에선 절대 안 보임 → `opacity-60 sm:opacity-0 sm:group-hover:...`로
+   모바일엔 옅게 상시 노출.
+4. `gameMeta.ts`의 deepdive/handful `controls: ['arrows']`가 실제 탭 우선 조작과
+   달라 첫 화면 글리프가 틀린 조작법을 안내 → `['tap', 'arrows']`로 정정 + registry
+   카피 2곳·GameHandful 힌트 문구 동반 수정.
+5. Mahjong 타일 선택 시 리프트가 순간이동처럼 스냅됨(transition 없음) → 1단계만
+   구현(transition 추가), 2단계(매치 제거 fade)는 free-tile 판정 회귀 위험 때문에
+   TODOS.md에 회귀 테스트 선행 조건과 함께 이월.
+
+**검증(전부 실행함):** `pnpm typecheck && pnpm lint`(0 errors, 기존 경고 15개만) ·
+`pnpm vitest run`(117 files / 3185 tests, word-guess 결정론 테스트 4건 추가) ·
+`pnpm build`(신규 3라우트 포함) · `pnpm exec playwright test`(118, Daily 필터
+테스트에 Word Guess 추가 확인 포함). main 직접 커밋 7개 → push → `pnpm run deploy`
+→ quickminigames.site 5개 라우트 curl 200(엣지캐시 지연 없이 즉시 200).
+
+**다음 세션 후보(TODOS.md 참고):** 6종 누적 커스텀 SVG 아이콘(라운드13+14) ·
+Mahjong 매치 제거 애니메이션 2단계(회귀 테스트 선행) · 감사가 "하지 말 것"으로
+확정한 3건(난이도 라벨 통일/vs-CPU stats 통일/testid 리네임 — 재발견돼도 반려할 것,
+이유는 TODOS.md 참고).
 
 ## 2026-08-10 세션(3) — 게임 라운드13(Gravwell/Loopgrid/Bisect) + UI/UX 감사 대응
 
