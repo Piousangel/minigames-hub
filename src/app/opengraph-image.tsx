@@ -6,7 +6,7 @@ export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 // Next가 이 값을 og:image:alt / twitter:image:alt로 내보낸다. 공유 카드가 이미지를
 // 못 불러오거나 스크린리더로 읽힐 때 쓰인다.
-export const alt = 'Quick MiniGames — play free classic mini games online, no download'
+export const alt = 'Quick MiniGames — 100+ free mini games online, no download'
 
 export default function OgImage() {
   return new ImageResponse(
@@ -31,7 +31,7 @@ export default function OgImage() {
           <div style={{ fontSize: 84, fontWeight: 800, color: '#22d3ee' }}>{siteConfig.name}</div>
         </div>
         <div style={{ fontSize: 34, color: '#9494b8', marginTop: 24 }}>
-          Free online mini games — play instantly, no download
+          100+ free online mini games — play instantly, no download
         </div>
       </div>
     ),

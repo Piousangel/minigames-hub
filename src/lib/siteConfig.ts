@@ -2,7 +2,7 @@ export const siteConfig = {
   name: 'Quick MiniGames', // 브랜드명
   url: 'https://quickminigames.site', // 커스텀 도메인
   description:
-    'Play free classic mini games online — 2048, snake, minesweeper and more. No download, no sign-up.',
+    '100+ free mini games — 2048, snake, minesweeper, solitaire, and more. Play instantly online. No download, no sign-up.',
   // 발급된 AdSense 퍼블리셔 ID. 사이트 소유권 확인용 메타 태그(layout.tsx)와
   // public/ads.txt가 이 값을 쓰므로 승인 전에도 채워져 있어야 한다.
   adsenseClientId: 'ca-pub-9363381710674627',
