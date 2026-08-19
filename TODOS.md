@@ -89,18 +89,6 @@ minigames-leaderboard --remote --command "DELETE FROM comments WHERE ..."`). 뚫
 
 **Effort:** 1·2순위 합쳐 S. **Priority:** P2 — 다음 라운드 시작 시 우선 처리 후보.
 
-### 누적 10종 커스텀 SVG 아이콘 (라운드13~16)
-
-**What:** 라운드13(Gravwell/Loopgrid/Bisect)·라운드14(Slotter/Carousel/Gridlock)·
-라운드15(Bearing)·라운드16(Strata/Bankshot/Morse Relay) 10종 전부 `gameMeta.ts`에
-이모지만 등록돼 있다. 2026-08-05 "아이콘 갭 11종" 세션과 동일한 패턴으로 한
-배치에 묶어 처리 가능.
-
-**Why:** 매 라운드 신규 게임 wiring이 우선이라 계속 미뤄짐 — 누적 10종이면
-슬슬 전담 배치로 처리할 가치가 생긴다.
-
-**Effort:** M (게임당 SVG 1개, 10개). **Priority:** P2 — 다음엔 정말 처리할 것.
-
 ### Mahjong 매치 제거 애니메이션 2단계 (fade/scale-out)
 
 **What:** 라운드14 감사가 1단계(타일 선택 시 리프트 트랜지션)는 이번 라운드에 구현

@@ -1,19 +1,18 @@
-# 인계: 게임 라운드16(Strata/Bankshot/Morse Relay, 게임 103종) + UI/UX 감사 8건 대응 완료·배포함
+# 인계: 게임 라운드16(Strata/Bankshot/Morse Relay, 게임 103종) + UI/UX 감사 + 누적 아이콘 10종 완료·배포함
 
-> 갱신: 2026-08-19 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main)** · **배포 완료·검증됨** (quickminigames.site, 게임 **103종**)
+> 갱신: 2026-08-19 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main)** · **배포 완료·검증됨** (quickminigames.site, 게임 **103종**, 전 게임 커스텀 아이콘 보유)
 
 ## ▶ 다음 세션 시작 가이드 (여기부터 읽을 것)
 
-**직전 배포는 정상.** `pnpm run deploy` 성공 + 홈/`/strata`/`/bankshot`/`/morse-relay`
-curl 200 즉시 확인(이번엔 엣지캐시 지연도 없었음). git 작업 트리 깨끗, origin과
-동기화됨. **바로 새 작업을 시작해도 안전한 상태.**
+**직전 배포는 정상.** `pnpm run deploy` 성공 + 홈 curl 200 즉시 확인. git 작업
+트리 깨끗, origin과 동기화됨. **바로 새 작업을 시작해도 안전한 상태.**
 
-**⚠️ 미확인 사항 — "로그인했어" 응답 대기 중.** 이번 세션 시작 시 사용자가 "로그인했어"
-라고 언급했는데 **어느 서비스인지 확인을 못 받았다**(itch.io? CrazyGames? AdSense?
-Search Console?). 다음 세션 시작 시 반드시 먼저 물어볼 것 — 만약 게임 포털
-개발자 계정 가입이었다면 [[data-signals-premature]] 세션(2026-08-13)에서 제안한
-"포털 배급" 수익화 로드맵(Playgama SDK/GameDistribution/itch.io 템플릿 팩)을
-바로 이어갈 수 있음.
+**⚠️ 미확인 사항 — "로그인했어" 응답 아직 못 받음(2번째 세션째 이월).** 사용자가
+"로그인했어"라고 언급했는데 **어느 서비스인지 아직 확인을 못 받았다**(itch.io?
+CrazyGames? AdSense? Search Console?). 다음 세션 시작 시 반드시 먼저 물어볼 것 —
+만약 게임 포털 개발자 계정 가입이었다면 [[data-signals-premature]] 세션
+(2026-08-13)에서 제안한 "포털 배급" 수익화 로드맵(Playgama SDK/GameDistribution/
+itch.io 템플릿 팩)을 바로 이어갈 수 있음.
 
 **우선순위 1 — 수익화(여전히 유효, 미착수).** 2026-08-13 진단 핵심: 실인간 트래픽
 하루 1~3명(Cloudflare 대시보드 숫자의 60%+는 AI크롤러/봇), AdSense는 "거절"
@@ -26,12 +25,17 @@ itch.io에 게임을 제출/라이선싱 — 우리 사이트 트래픽과 무�
 (클론게임), (3) itch.io 화이트라벨 템플릿 팩 — 전부 코드 준비는 에이전트가 하고
 계정 가입·본인인증·결제연결만 사용자 몫.
 
-**우선순위 2 — 누적 10종 커스텀 SVG 아이콘.** TODOS.md 참고, 이제 P2로 승격.
+**✅ 우선순위 2(누적 10종 커스텀 SVG 아이콘)는 이번 세션에 완료.** Gravwell/
+Loopgrid/Bisect/Slotter/Carousel/Gridlock/Bearing/Strata/Bankshot/Morse Relay
+전부 `GameIcon.tsx`에 게임 메카닉을 반영한 라인 아이콘 추가·배포 완료 — 이제
+전 103종이 기본 조이스틱 폴백 없이 고유 아이콘을 가짐. 크롬 없이 code-only로
+검증(typecheck/lint/build/vitest만, 시각 확인은 다음에 사용자가 원하면 스크린샷
+요청할 것).
 
 **우선순위 3 — 신규 게임 라운드17.** `minigames-round.js`는 3종 기본값,
 `EXISTING` 목록도 103종 전부 최신 반영됨. 단, 우선순위 1(수익화)이 여전히
 "코드보다 유통이 병목"이라는 진단이 유효하므로, 게임을 더 만들기 전에 사용자
-의향을 확인할 것 — 이번 라운드는 사용자가 명시적으로 "퀄리티 좋은 게임 개발
+의향을 확인할 것 — 라운드16은 사용자가 명시적으로 "퀄리티 좋은 게임 개발
 착수하자"고 요청해서 진행했다.
 
 **주의할 함정(갱신):**
