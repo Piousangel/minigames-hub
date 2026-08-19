@@ -1,11 +1,112 @@
-# 인계: 수익화 병목 재진단 — 코드 문제 아님, 유통(discovery) 문제로 확정
+# 인계: 게임 라운드16(Strata/Bankshot/Morse Relay, 게임 103종) + UI/UX 감사 8건 대응 완료·배포함
 
-> 갱신: 2026-08-13 · 브랜치: `main` · 커밋 상태: **코드 변경 없음, 진단만 함** · quickminigames.site 게임 **100종**, 배포 정상(직전 세션에 완료·검증됨)
+> 갱신: 2026-08-19 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main)** · **배포 완료·검증됨** (quickminigames.site, 게임 **103종**)
 
 ## ▶ 다음 세션 시작 가이드 (여기부터 읽을 것)
 
-**이번 세션은 코드를 안 건드렸다 — "수익이 안 난다"는 사용자 호소를 진단만 했다.**
-결론: **개발/UX 문제가 아니라 유통(distribution) 문제.** 자세한 증거는 메모리
+**직전 배포는 정상.** `pnpm run deploy` 성공 + 홈/`/strata`/`/bankshot`/`/morse-relay`
+curl 200 즉시 확인(이번엔 엣지캐시 지연도 없었음). git 작업 트리 깨끗, origin과
+동기화됨. **바로 새 작업을 시작해도 안전한 상태.**
+
+**⚠️ 미확인 사항 — "로그인했어" 응답 대기 중.** 이번 세션 시작 시 사용자가 "로그인했어"
+라고 언급했는데 **어느 서비스인지 확인을 못 받았다**(itch.io? CrazyGames? AdSense?
+Search Console?). 다음 세션 시작 시 반드시 먼저 물어볼 것 — 만약 게임 포털
+개발자 계정 가입이었다면 [[data-signals-premature]] 세션(2026-08-13)에서 제안한
+"포털 배급" 수익화 로드맵(Playgama SDK/GameDistribution/itch.io 템플릿 팩)을
+바로 이어갈 수 있음.
+
+**우선순위 1 — 수익화(여전히 유효, 미착수).** 2026-08-13 진단 핵심: 실인간 트래픽
+하루 1~3명(Cloudflare 대시보드 숫자의 60%+는 AI크롤러/봇), AdSense는 "거절"
+아닌 "준비 중", 기술 SEO는 이미 정상 — **병목은 코드가 아니라 유통.** 2026-08-13
+후속 세션에서 워크플로 기반 수익화 브레인스토밍(31개 아이디어, 실제 리서치 근거
+포함)까지 돌렸고 결론은 "포털 배급"(CrazyGames/Poki/GameDistribution/GameMonetize/
+itch.io에 게임을 제출/라이선싱 — 우리 사이트 트래픽과 무관하게 포털 자체 트래픽에서
+수익 발생)이 최우선. 구체적 Top 3와 역할 분담은 그 세션 대화 로그 참고, 요약만
+남기면: (1) Playgama Bridge SDK 1회 연동, (2) GameDistribution/GameMonetize 제출
+(클론게임), (3) itch.io 화이트라벨 템플릿 팩 — 전부 코드 준비는 에이전트가 하고
+계정 가입·본인인증·결제연결만 사용자 몫.
+
+**우선순위 2 — 누적 10종 커스텀 SVG 아이콘.** TODOS.md 참고, 이제 P2로 승격.
+
+**우선순위 3 — 신규 게임 라운드17.** `minigames-round.js`는 3종 기본값,
+`EXISTING` 목록도 103종 전부 최신 반영됨. 단, 우선순위 1(수익화)이 여전히
+"코드보다 유통이 병목"이라는 진단이 유효하므로, 게임을 더 만들기 전에 사용자
+의향을 확인할 것 — 이번 라운드는 사용자가 명시적으로 "퀄리티 좋은 게임 개발
+착수하자"고 요청해서 진행했다.
+
+**주의할 함정(갱신):**
+- 워크플로 build 에이전트가 "Connection closed"뿐 아니라 **"agent stalled"로도
+  실패할 수 있음** — 두 경우 다 실제로는 엔진 파일만 완성돼 있고 테스트+컴포넌트만
+  빠진 상태였다. 재실행 전에 항상 파일부터 확인할 것([[workflow-build-agent-connection-drop-check-files-first]]).
+- 신규 게임 엔진의 리듀서에서 `if (state.bool) return ...` 가드 이후
+  `let x = state.bool`처럼 재대입하면 TS가 리터럴 `false`로 좁혀 이후 대입이
+  타입 에러남 — `let x: boolean = ...`로 명시할 것([[typescript-let-narrowing-boolean-widen]]).
+- registry.ts에 새 게임 카피를 쓸 때 작은따옴표 문자열 안에 아포스트로피(`'s`)를
+  그대로 쓰면 문법이 깨짐 — 항상 `’`(커브드 쿼트)로 쓸 것, 매 라운드 최소 1번은
+  이 실수가 나온다.
+- 감사가 제안한 JSON 필드 키 이름을 그대로 믿지 말 것 — 라운드16에서 "9~10개
+  게임이 전부 `wins` 키"라는 감사 주장을 실제 코드로 재확인했더니 6개는 `w`였다.
+
+---
+
+## 2026-08-19 세션 — 게임 라운드16(Strata/Bankshot/Morse Relay) + UI/UX 감사 8건
+
+사용자가 "추가적으로 퀄리티 좋은게임들 개발 착수하자 너네팀은 이제 어벤져스야"라고
+요청 — 수익화 진단(아래 이전 세션 기록)의 "코드보다 유통이 병목" 결론과 별개로,
+사용자가 명시적으로 게임 개발 재개를 원해서 라운드16을 진행했다.
+
+**게임 100 → 103종.** `Workflow({scriptPath:...})`로 3종 기획→구현 시도, 이번엔
+20개 에이전트 중 **2개가 서로 다른 사유로 실패**(morse-relay: "Connection closed
+mid-response", bankshot: "agent stalled on all 6 attempts") — 둘 다
+[[workflow-build-agent-connection-drop-check-files-first]] 패턴대로 엔진만
+완성돼 있고 테스트+컴포넌트가 빠진 상태였다. 별도 `Agent` 호출 2개(백그라운드
+병렬)로 각 엔진을 절대 안 건드리는 조건으로 테스트+컴포넌트만 마저 완성시켜 3종
+전부 살렸다.
+- **Strata**(🧊 Puzzle, daily) — 숨은 3D 복셀 형상(박스 2~4개 합집합)을 축 슬라이스로
+  단면 실루엣만 보고 재구성하는 공간 추리 퍼즐.
+- **Bankshot**(🎱 Puzzle, daily) — 쿠션 벽 당구 물리 퍼즐. `simulateShot()`이 전체
+  물리를 한 번에 결정론적으로 계산해 반환, 컴포넌트는 그 경로를 애니메이션으로
+  재생만 함.
+- **Morse Relay**(📡 Skill) — 실제 모스부호로 단어를 타전하는 서바이벌. 엔진은
+  시계를 전혀 모르고 컴포넌트가 준 단조증가 타임스탬프만 diff — 플레이어 자신의
+  첫 입력으로 타이밍 기준을 보정.
+
+배선 6곳(registry/GameRenderer/gameMeta/leaderboard/objectives/e2e, Daily 필터
+기대 타이틀 포함) 전부 오케스트레이터가 직접. `morse-relay/engine.ts`에서
+TypeScript let-narrowing 타입 에러 발견·수정(런타임 동작 무변경, 순수 타입 주석
+추가) — [[typescript-let-narrowing-boolean-widen]]에 신규 기록.
+
+**UI/UX 감사 8건 중 상위 5건 전부 구현:**
+1. Chess/Gomoku/Pong이 이미 plain-number로 승수를 추적 중인데 `LEADERBOARD_GAMES`
+   미등록 → 3줄 추가.
+2. 생존형 게임 5종(Offbeat/Bisect/Carousel/Gridlock/Slotter)이 신기록을 세워도
+   항상 "lose" 오버레이만 표시 → Flywheel 패턴으로 전부 통일(Gridlock/Slotter는
+   win 사운드 자체가 아예 없었던 것도 같이 발견·수정).
+3. 게임오버 타이틀 5건 Title Case → 문장체 통일(Carousel은 2번 작업과 같은 줄이라
+   무료로 같이 처리).
+4. GameShell 헤더 버튼(New Game/Mute) 44px 미만 → `GameButton.tsx` base 클래스는
+   그대로 두고 GameShell.tsx 호출부 2곳에만 `min-h-11`(패딩과 충돌 없는 속성이라
+   라운드14에서 우려했던 캐스케이드 문제 없음).
+5. 승패 게임 10개의 JSON best 값이 트로피 케이스에서 안 보임 → `WINS_JSON_GAMES`
+   fallback 추가(리더보드 등록은 파밍 위험으로 이번 스코프 제외). **감사가 10개
+   전부 `wins` 키라고 가정했는데, 실제 코드 확인 결과 6개는 `w` — 검증 없이
+   적용했으면 6개 게임에서 조용히 실패했을 것.**
+
+**검증(전부 실행함):** `pnpm typecheck && pnpm lint`(0 errors) · `pnpm vitest run`
+(121 files / 3372 tests) · `pnpm build` · `pnpm exec playwright test`(122, 전부
+GREEN). Strata는 브라우저로 실플레이 확인(슬라이스 쿼리 소모, 보드 렌더 정상) —
+이후 사용자가 "따로 크롬띄우지마"라고 해서 나머지 2종은 code-only 검증으로 전환
+([[prefer-code-only-verification-when-busy]] 재확인). 커밋 6개 → push → deploy →
+quickminigames.site 4개 라우트 curl 즉시 200(엣지캐시 지연 없었음).
+
+**메모리 기록:** [[workflow-build-agent-connection-drop-check-files-first]]에
+"stalled" 실패 유형 추가, [[typescript-let-narrowing-boolean-widen]] 신규 작성.
+
+---
+
+## 2026-08-13 세션(2) — 수익화 병목 재진단 + 브레인스토밍 워크플로
+
+**진단 결론: 개발/UX 문제가 아니라 유통(distribution) 문제.** 자세한 증거는 메모리
 [[data-signals-premature]]의 "2026-08-13 재확인" 절 참고. 요약:
 
 1. **Cloudflare 대시보드 방문자 수(24시간 107명, 7일 910명)의 60%+ 는 명명된 AI
@@ -25,24 +126,18 @@
    BreadcrumbList JSON-LD)도 이미 전부 정상** — 이번 세션에 훑은 기술 SEO 범위 전체에서
    에이전트가 코드로 고칠 만한 갭을 못 찾았다.
 
-**다음 세션에서 할 일(우선순위 순):**
-1. `mg_events` 재조회로 실인간 트래픽 추세 확인(늘었는지) + Search Console 색인
-   반영 여부 확인 — 재현 쿼리는 [[data-signals-premature]] 참고. 며칠~1-2주 간격 권장,
-   당장 재조회해도 큰 변화 없을 가능성 높음.
-2. AdSense "준비 중" 상태가 몇 주째 그대로면, 사용자가 직접 AdSense 고객지원에 문의할
-   시점 — 에이전트가 확인할 방법 없음.
-3. **외부 커뮤니티 홍보(Reddit r/WebGames, 국내 커뮤니티, itch.io 등)** — 사용자가
-   2026-08-13엔 보류(SEO/AdSense 먼저 확인하고 싶어함). 지금 상황에서 실질적으로
-   가장 빠른 실인간 유입 레버라는 판단은 유효 — 사용자가 여유 생기면 다시 제안할 것.
-   소개 문구·포스팅 초안 작성은 에이전트가 도울 수 있음(계정으로 올리는 것 자체만
-   사용자 몫).
-4. 게임 라운드16(`minigames-round.js`, 3종 기본값으로 원복돼 있음)은 여전히 유효한
-   백로그지만, **지금 우선순위는 아니다** — 신규 게임을 더 만드는 게 수익화 병목을
-   풀지 못한다는 게 이번 진단의 핵심 결론.
+**같은 날 후속으로 수익화 브레인스토밍 워크플로도 돌렸다(6개 각도 병렬 아이디어
+생성 → 3개 렌즈 채점 → 종합 로드맵).** 31개 아이디어 중 결론: 트래픽 의존형
+(광고 네트워크·제휴·Patreon)은 지금 규모에서 전부 무효, **"포털 배급"(CrazyGames/
+Poki/GameDistribution/GameMonetize/itch.io에 게임 제출·라이선싱)이 유일하게
+말이 되는 방향** — 우리 사이트 트래픽과 무관하게 포털 자체 트래픽에서 수익 발생.
+Top 3(Playgama SDK 1회 연동/GD·GameMonetize 제출/itch.io 화이트라벨 템플릿 팩)
+전부 코드 준비는 에이전트, 계정 가입·본인인증·결제만 사용자 몫으로 역할 분담까지
+정리됨. **아직 착수 안 함** — 위 "다음 세션 시작 가이드" 참고.
 
 ---
 
-## ▶ 다음 세션 시작 가이드 (여기부터 읽을 것)
+### (당시 "다음 세션 가이드" — 라운드16에서 대부분 처리됨, 기록용으로 보존)
 
 **직전 배포는 정상.** `pnpm run deploy` 성공 로그 확인 + `curl`로 라이브 200
 재확인까지 마쳤다(홈 `/`, `/bearing`, 홈페이지 마일스톤 공지 텍스트 전부).

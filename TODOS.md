@@ -54,17 +54,34 @@ minigames-leaderboard --remote --command "DELETE FROM comments WHERE ..."`). 뚫
 
 ## Games
 
-### 라운드15(Bearing) UI/UX 감사 — 전부 미착수, 다음 라운드로
+### 라운드16 감사 — "하지 말 것" 목록(참고용, 재발견돼도 반려할 것)
 
-**What:** 라운드15 감사 12건 중 상위 5건(구현 계획 포함, 사용자가 100종 달성 후
-휴식을 원해 이번엔 착수하지 않음):
+- **9~10개 승패 게임을 LEADERBOARD_GAMES에 등록하는 것.** GameStats 트로피
+  케이스 fallback(`WINS_JSON_GAMES`, 라운드16에 구현 완료)까지만 하고 주간
+  리더보드 노출은 별도. vs-AI 게임이라 난이도를 쉽게 잡고 승수를 파밍할 위험이
+  있음 — 파밍 방지책(최고 난이도에서만 카운트 등)을 설계한 뒤 별도로 진행.
+- **Spider/FreeCell/Solitaire/Yukon 4개 파일에 시각 scale transform을 한 번에
+  적용하는 것.** absolute 포지셔닝 좌표계라 selected-run 하이라이트/드래그
+  목적지 표시 로직과 충돌 여지가 큼 — Spider 단독으로 먼저 검증 후 확산할 것.
+- **Difficulty enum 값 리네임('normal'→'medium')을 마이그레이션 가드 없이
+  하는 것.** 기존 사용자의 localStorage `'normal'` 문자열이 조용히 기본값으로
+  리셋됨 — 라벨만 고치는 게 아니라 로드 시점 값 검증/매핑 코드가 반드시 필요.
+- **21개 게임을 커버하는 신규 `DailyModeToggle` 공용 컴포넌트 신설.** 실제
+  결함은 Quarry/Overfold/Ricochet 3개뿐 — 착수한다면 3개 파일만 직접 수정
+  (배열 순서 반전 + 라벨 통일), 스트릭 저장 키는 절대 바꾸지 말 것(3개 게임
+  모두 이미 `${storageKey}:streak` 컨벤션이라 마이그레이션 불필요, testId만
+  `'day-streak'`→`'streak'`로 바꾸면 됨).
+
+### 라운드15(Bearing) UI/UX 감사 잔여분 — 아직 미착수
+
+**What:** 라운드15 감사 12건 중 상위 2건(라운드16에서 처리 안 함, 여전히 유효):
 1. **Beatline/Gridlock 힌트 문구가 탭 조작을 숨김.** `GameBeatline.tsx`(hint
    문자열), `GameGridlock.tsx:309`(hint 문자열), `gameMeta.ts`의 `gridlock`
    엔트리(`controls: ['arrows']` → `['tap', 'arrows']`) 3곳. 텍스트/배열 순서만
    바꾸는 저위험 작업.
 2. **Simon 오답 시 시각 피드백 부재.** `GameSimon.tsx`에 `wrongPad` state 추가해
    오답 패드에 `anim-shake` + 빨간 배경, 180ms 지연 없이 즉시 사운드 재생.
-3~5순위는 전체 워크플로 결과의 UI/UX synthesis 참고(세션 로그에 전문 있음,
+3~5순위는 라운드15 워크플로 결과의 UI/UX synthesis 참고(세션 로그에 전문 있음,
 필요시 워크플로 재실행 없이 그대로 재사용 가능). 12건 원본 중 "하지 말 것"으로
 분류된 것: [12] Classic 10종 스트릭 부재 — 제안 자체가 "AI 난이도 재검토 없이
 기계적으로 붙이면 역효과" 자기모순 경고 포함, 실행 계획이 아니라 별도 리서치
@@ -72,16 +89,17 @@ minigames-leaderboard --remote --command "DELETE FROM comments WHERE ..."`). 뚫
 
 **Effort:** 1·2순위 합쳐 S. **Priority:** P2 — 다음 라운드 시작 시 우선 처리 후보.
 
-### Gridlock/Slotter/Carousel/Bearing + Gravwell/Loopgrid/Bisect 커스텀 SVG 아이콘 (누적)
+### 누적 10종 커스텀 SVG 아이콘 (라운드13~16)
 
 **What:** 라운드13(Gravwell/Loopgrid/Bisect)·라운드14(Slotter/Carousel/Gridlock)·
-라운드15(Bearing) 7종 전부 `gameMeta.ts`에 이모지만 등록돼 있다. 2026-08-05
-"아이콘 갭 11종" 세션과 동일한 패턴으로 한 배치에 묶어 처리 가능.
+라운드15(Bearing)·라운드16(Strata/Bankshot/Morse Relay) 10종 전부 `gameMeta.ts`에
+이모지만 등록돼 있다. 2026-08-05 "아이콘 갭 11종" 세션과 동일한 패턴으로 한
+배치에 묶어 처리 가능.
 
-**Why:** 매 라운드 신규 게임 wiring이 우선이라 계속 미뤄짐 — 누적 7종이면 슬슬
-전담 배치로 처리할 가치가 생긴다.
+**Why:** 매 라운드 신규 게임 wiring이 우선이라 계속 미뤄짐 — 누적 10종이면
+슬슬 전담 배치로 처리할 가치가 생긴다.
 
-**Effort:** S~M (게임당 SVG 1개, 7개). **Priority:** P3.
+**Effort:** M (게임당 SVG 1개, 10개). **Priority:** P2 — 다음엔 정말 처리할 것.
 
 ### Mahjong 매치 제거 애니메이션 2단계 (fade/scale-out)
 
