@@ -7,23 +7,32 @@
 **직전 배포는 정상.** `pnpm run deploy` 성공 + 홈 curl 200 즉시 확인. git 작업
 트리 깨끗, origin과 동기화됨. **바로 새 작업을 시작해도 안전한 상태.**
 
-**⚠️ 미확인 사항 — "로그인했어" 응답 아직 못 받음(2번째 세션째 이월).** 사용자가
-"로그인했어"라고 언급했는데 **어느 서비스인지 아직 확인을 못 받았다**(itch.io?
-CrazyGames? AdSense? Search Console?). 다음 세션 시작 시 반드시 먼저 물어볼 것 —
-만약 게임 포털 개발자 계정 가입이었다면 [[data-signals-premature]] 세션
-(2026-08-13)에서 제안한 "포털 배급" 수익화 로드맵(Playgama SDK/GameDistribution/
-itch.io 템플릿 팩)을 바로 이어갈 수 있음.
+**"로그인했어" 건은 사용자가 무시하라고 확인함(2026-08-19) — 더 이상 추적 불필요.**
 
-**우선순위 1 — 수익화(여전히 유효, 미착수).** 2026-08-13 진단 핵심: 실인간 트래픽
-하루 1~3명(Cloudflare 대시보드 숫자의 60%+는 AI크롤러/봇), AdSense는 "거절"
-아닌 "준비 중", 기술 SEO는 이미 정상 — **병목은 코드가 아니라 유통.** 2026-08-13
-후속 세션에서 워크플로 기반 수익화 브레인스토밍(31개 아이디어, 실제 리서치 근거
-포함)까지 돌렸고 결론은 "포털 배급"(CrazyGames/Poki/GameDistribution/GameMonetize/
-itch.io에 게임을 제출/라이선싱 — 우리 사이트 트래픽과 무관하게 포털 자체 트래픽에서
-수익 발생)이 최우선. 구체적 Top 3와 역할 분담은 그 세션 대화 로그 참고, 요약만
-남기면: (1) Playgama Bridge SDK 1회 연동, (2) GameDistribution/GameMonetize 제출
-(클론게임), (3) itch.io 화이트라벨 템플릿 팩 — 전부 코드 준비는 에이전트가 하고
-계정 가입·본인인증·결제연결만 사용자 몫.
+**우선순위 1 — 수익화(진행 중).** 2026-08-13 진단 핵심: 실인간 트래픽 하루
+1~3명(Cloudflare 대시보드 숫자의 60%+는 AI크롤러/봇), AdSense는 "거절" 아닌
+"준비 중", 기술 SEO는 이미 정상 — **병목은 코드가 아니라 유통.** 워크플로 기반
+브레인스토밍(31개 아이디어) 결론은 "포털 배급"이 최우선: (1) Playgama Bridge
+SDK 연동, (2) GameDistribution/GameMonetize 제출(클론게임), (3) itch.io
+화이트라벨 템플릿 팩.
+
+**✅ (3) itch.io 템플릿 팩은 2026-08-19에 실제로 완성했다.** 사이트 트래픽과
+무관하게 코드만으로 끝낼 수 있는 항목이라 바로 착수. Reactor(idle 클리커)·
+Flywheel(리듬 타이밍)·Countcircle(조세푸스 서바이벌) 3종 + 공용 셸(GameShell/
+GameOverlay/GameButton/Confetti/useGameSound/useReducedMotion/gameStats)을
+사이트 전용 의존성(허브 내비게이션·리더보드 링크·후원 넛지·자체 분석 비콘) 전부
+제거하고 완전 독립 Vite+React+TS+Tailwind v4 프로젝트로 재구성 — 실제로
+`npm install && npm run build`가 에러 0개로 통과하고 `vite preview`가 200을
+반환하는 것까지 확인함(진짜로 동작하는 산출물, 서류상 계획이 아님).
+- 산출물 위치: `/private/tmp/claude-501/.../scratchpad/template-pack/`(소스)
+  + `neon-arcade-template-pack.zip`(업로드용, 39파일 78KB) + `itch-listing-copy.md`
+  (제목/설명/가격($9~15 제안)/태그/스크린샷 체크리스트 초안) — **이 경로는
+  세션 스크래치패드라 세션이 끝나면 사라진다. 다음 세션에서 이어가려면 먼저
+  이 파일들이 아직 있는지 확인하고, 없으면 재생성해야 함.**
+- 사용자가 할 일: 스크린샷 5장(listing copy에 체크리스트 있음, 필요하면
+  에이전트가 `npm run dev` 띄우고 대신 찍어줄 수 있음) → itch.io 계정으로
+  직접 업로드·게시.
+- (1)(2) 포털 SDK 연동/제출은 아직 미착수 — 개발자 계정 가입이 선행돼야 함.
 
 **✅ 우선순위 2(누적 10종 커스텀 SVG 아이콘)는 이번 세션에 완료.** Gravwell/
 Loopgrid/Bisect/Slotter/Carousel/Gridlock/Bearing/Strata/Bankshot/Morse Relay
