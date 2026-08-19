@@ -941,6 +941,112 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // gravwell — 행성을 스치며 휘어지는 궤적 + 발사점 + 목표 링
+  gravwell: (
+    <>
+      <circle cx="15.5" cy="8" r="3" {...soft} />
+      <path d="M4 19c3-1 5-2.5 6-5s1-5.5 3.5-6.8" />
+      <circle cx="19.5" cy="15.5" r="2.3" />
+      <circle cx="4" cy="19" r="1" {...solid} />
+    </>
+  ),
+
+  // loopgrid — 빈칸 없는 그리드, 양끝이 서로 순환하는 화살표(wraparound)
+  loopgrid: (
+    <>
+      <rect x="4" y="8" width="16" height="8" rx="1.2" {...soft} />
+      <path d="M4 8v8M9.3 8v8M14.7 8v8M20 8v8" />
+      <path d="M21 10.3 22.5 12 21 13.7" />
+      <path d="M3 10.3 1.5 12 3 13.7" />
+    </>
+  ),
+
+  // bisect — 두 신호점 사이, 빈 중앙에 정확히 얹힌 표적(카운트다운 없음)
+  bisect: (
+    <>
+      <path d="M3.5 12h6.3M14.2 12h6.3" />
+      <circle cx="3.5" cy="12" r="1.7" {...solid} />
+      <circle cx="20.5" cy="12" r="1.7" {...solid} />
+      <circle cx="12" cy="12" r="2.4" {...soft} />
+      <circle cx="12" cy="12" r="0.8" {...solid} />
+    </>
+  ),
+
+  // slotter — 오름차순으로 쌓인 막대 사이 틈에 꽂히는 카드(마감 삽입)
+  slotter: (
+    <>
+      <rect x="3.5" y="14" width="3.4" height="6" rx="0.8" {...soft} />
+      <rect x="8.5" y="10.5" width="3.4" height="9.5" rx="0.8" {...soft} />
+      <rect x="16.6" y="6" width="3.4" height="14" rx="0.8" {...soft} />
+      <path d="M13.5 4v9M12 10.5l1.5 1.7 1.5-1.7" />
+    </>
+  ),
+
+  // carousel — 로더가 채워 넣고 스스로 도는 마블 링
+  carousel: (
+    <>
+      <circle cx="12" cy="10.5" r="6.5" {...soft} />
+      <circle cx="12" cy="4" r="1.4" {...solid} />
+      <circle cx="17.6" cy="7.75" r="1.4" />
+      <circle cx="17.6" cy="13.25" r="1.4" {...solid} />
+      <circle cx="6.4" cy="13.25" r="1.4" />
+      <circle cx="6.4" cy="7.75" r="1.4" {...solid} />
+      <path d="M12 19.5v2.5" />
+      <circle cx="12" cy="17" r="1.6" {...softer} />
+    </>
+  ),
+
+  // gridlock — 사거리 교차점 + 진입하는 두 대(4방향 통행권)
+  gridlock: (
+    <>
+      <path d="M9 2v20M15 2v20M2 9h20M2 15h20" {...soft} />
+      <rect x="9" y="9" width="6" height="6" rx="1" />
+      <rect x="10.3" y="3" width="3.4" height="4.5" rx="1" {...solid} />
+      <rect x="16.5" y="10.3" width="4.5" height="3.4" rx="1" {...solid} />
+    </>
+  ),
+
+  // bearing — 탐색 영역 안, 거리 없이 방향만 가리키는 나침반 바늘
+  bearing: (
+    <>
+      <rect x="3.5" y="3.5" width="17" height="17" rx="1.5" {...soft} />
+      <circle cx="12" cy="12" r="1" {...solid} />
+      <path d="M12 12 17 7l-2 7z" {...solid} />
+      <path d="M12 12 7 17l2-7z" {...soft} />
+    </>
+  ),
+
+  // strata — 아이소메트릭 큐브를 가로지르는 단면 슬라이스
+  strata: (
+    <>
+      <path d="M12 3.5 20 8v8l-8 4.5-8-4.5V8z" {...soft} />
+      <path d="M12 3.5 20 8l-8 4.5L4 8z" />
+      <path d="M4 8v8l8 4.5M20 8v8l-8 4.5" opacity="0.5" />
+      <path d="M5.5 12.2 12 16l6.5-3.8" {...softer} />
+    </>
+  ),
+
+  // bankshot — 쿠션 벽을 튕겨 목표 링으로 꺾이는 궤적
+  bankshot: (
+    <>
+      <rect x="18" y="3.5" width="2.5" height="17" rx="1" {...soft} />
+      <path d="M4 19 15 9.5 8 4" />
+      <circle cx="4" cy="19" r="1.5" {...solid} />
+      <circle cx="8" cy="4" r="2.2" {...soft} />
+      <circle cx="8" cy="4" r="0.8" {...solid} />
+    </>
+  ),
+
+  // morse-relay — 점·선(모스부호) 그 자체
+  'morse-relay': (
+    <>
+      <circle cx="4.5" cy="12" r="1.6" {...solid} />
+      <path d="M9 10.5h4a1.5 1.5 0 0 1 0 3H9z" {...soft} />
+      <circle cx="16.5" cy="12" r="1.6" {...solid} />
+      <path d="M19.5 10.5h1a1.5 1.5 0 0 1 0 3h-1z" {...soft} />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>
