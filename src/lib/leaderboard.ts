@@ -71,12 +71,34 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   carousel: { label: 'Score' },
   gridlock: { label: 'Score' },
   bearing: { label: 'Score' },
+  strata: { label: 'Score' },
+  bankshot: { label: 'Score' },
+  'morse-relay': { label: 'Score' },
+  chess: { label: 'Wins' },
+  gomoku: { label: 'Wins' },
+  pong: { label: 'Wins' },
   flow: { label: 'Level' },
   'aim-trainer': { label: 'Targets/s' },
 }
 
 export function hasLeaderboard(slug: string): boolean {
   return Object.prototype.hasOwnProperty.call(LEADERBOARD_GAMES, slug)
+}
+
+// best:<slug>가 plain number가 아니라 JSON 블롭({wins,...})으로 저장되는 게임 —
+// GameStats/Leaderboard가 트로피 케이스에서 승수만 읽어오는 폴백에 쓴다. 리더보드
+// 등록(LEADERBOARD_GAMES) 대상은 아니다(AI 난이도 파밍 우려로 별도 검토 필요).
+export const WINS_JSON_GAMES: Record<string, string> = {
+  'tic-tac-toe': 'wins',
+  'connect-four': 'w',
+  checkers: 'w',
+  reversi: 'w',
+  mancala: 'w',
+  dominoes: 'w',
+  battleship: 'w',
+  hangman: 'wins',
+  mastermind: 'wins',
+  'rock-paper-scissors': 'wins',
 }
 
 // 리더보드는 정수만 저장(cleanScore가 Math.floor) — 소수점 단위(targets/sec 등)를

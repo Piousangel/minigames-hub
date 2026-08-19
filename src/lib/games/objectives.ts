@@ -99,4 +99,7 @@ export const OBJECTIVES: Record<string, string> = {
   carousel: 'Line up three marbles as the ring rotates on its own.',
   gridlock: 'Grant right-of-way to one lane at a time — no crashes, no timeouts.',
   bearing: 'Dig for treasure — each try only tells you which way to go.',
+  strata: 'Slice the hidden 3D shape and reconstruct it from the silhouettes.',
+  bankshot: 'Bank the ball off cushion walls to reach the target.',
+  'morse-relay': 'Hold to key dots and dashes, release for the right gaps.',
 }

@@ -111,6 +111,9 @@ export type GamePage = GamePageBase &
     | { game: 'carousel' }
     | { game: 'gridlock' }
     | { game: 'bearing' }
+    | { game: 'strata' }
+    | { game: 'bankshot' }
+    | { game: 'morse-relay' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2942,6 +2945,87 @@ export const gamePages: GamePage[] = [
       { q: 'Why doesn’t the game tell me how far away the treasure is?', a: 'That is the whole puzzle — you only ever get a direction, never a distance, so you have to triangulate the exact cell using multiple digs.' },
       { q: 'Can I play a fresh puzzle every day?', a: 'Yes — Daily mode gives everyone the same seeded board each day, with a streak counter for playing on consecutive days. Practice mode gives you a fresh random board at any difficulty.' },
       { q: 'Is it free and account-free?', a: 'Yes. Bearing plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+    ],
+  },
+  {
+    slug: 'strata',
+    game: 'strata',
+    title: 'Play Strata Online — Free 3D Voxel Deduction Puzzle',
+    h1: 'Strata',
+    metaDescription:
+      'Play Strata free online — a hidden 3D shape is buried in a cube grid. Slice through it to see silhouettes, then reconstruct the exact shape from what you learn. No download, no sign-up.',
+    shortDescription: 'Slice a hidden 3D shape to see its silhouette, then reconstruct it.',
+    howToPlay: [
+      'A 3D shape is hidden somewhere inside the cube grid — you cannot see it directly.',
+      'Query a slice along any axis and layer to reveal that cross-section as a flat silhouette.',
+      'Use the silhouettes you have gathered to build your best guess of the full 3D shape, layer by layer.',
+      'Submit your guess to check it against the hidden shape — an exact match wins, and giving up early still scores partial credit for how close you got.',
+    ],
+    strategy: [
+      'Slice along different axes early — an X-axis slice and a Y-axis slice of the same layer reveal different information about the same region.',
+      'A silhouette rules out every cell that is empty in it, not just confirms the cells that are filled — use the negative space too.',
+      'You have a limited number of slices, so prioritize the layers most likely to disambiguate between the shapes you are still considering.',
+      'Partial credit rewards a close guess, so if you run low on slices, submit your best reconstruction rather than guessing wildly.',
+    ],
+    faq: [
+      { q: 'How do you play Strata?', a: 'Query slices along the X, Y, or Z axis to reveal flat silhouettes of the hidden 3D shape, then paint your guess onto the voxel grid layer by layer and submit it.' },
+      { q: 'What happens if I run out of slices?', a: 'You can still submit your best guess or give up — either way you score partial credit based on how close your guess is to the actual hidden shape.' },
+      { q: 'Can I play a fresh puzzle every day?', a: 'Yes — Daily mode gives everyone the same seeded shape each day, with a streak counter for playing on consecutive days. Practice mode gives you a fresh random shape at any difficulty.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Strata plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+    ],
+  },
+  {
+    slug: 'bankshot',
+    game: 'bankshot',
+    title: 'Play Bankshot Online — Free Cushion Physics Billiards Puzzle',
+    h1: 'Bankshot',
+    metaDescription:
+      'Play Bankshot free online — aim and fire a ball off cushion walls to reach the target. Real bounce physics and rolling friction decide where it stops. No download, no sign-up.',
+    shortDescription: 'Bank the ball off the walls — physics decides where it stops.',
+    howToPlay: [
+      'Drag from the launch point (or use the angle/power steppers) to aim, then fire.',
+      'The ball bounces off the board edges and any walls in its path, slowing down every tick under rolling friction.',
+      'Watch where it comes to rest — landing inside the target circle wins the board.',
+      'Not happy with a shot? Undo it (a limited number of times) and try a different angle or power.',
+    ],
+    strategy: [
+      'Think in bounces, not straight lines — a wall in the way is often the fastest path to the target, not an obstacle to avoid.',
+      'Higher power travels farther before friction kills its speed, but overshooting past the target is just as much a miss as falling short.',
+      'Use your undos on early attempts to feel out how a wall’s angle redirects the ball, then commit once you have a read on it.',
+      'Fewer shots to sink the target score a bigger bonus, so a confident, well-aimed guess beats poking around at random.',
+    ],
+    faq: [
+      { q: 'How do you play Bankshot?', a: 'Drag from the launch point to set angle and power (or use the steppers / keyboard), then fire. The ball bounces off walls and slows under friction until it stops.' },
+      { q: 'What happens if I miss?', a: 'You can undo a limited number of shots to retry, or just fire again — there is no shot limit, only a cap on undos.' },
+      { q: 'Can I play a fresh puzzle every day?', a: 'Yes — Daily mode gives everyone the same seeded board each day, with a streak counter for playing on consecutive days. Practice mode gives you a fresh random board at any difficulty.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Bankshot plays free in your browser with no download and no sign-up. Your best score saves locally.' },
+    ],
+  },
+  {
+    slug: 'morse-relay',
+    game: 'morse-relay',
+    title: 'Play Morse Relay Online — Free Morse Code Typing Game',
+    h1: 'Morse Relay',
+    metaDescription:
+      'Play Morse Relay free online — key a target word in real Morse code by holding for dots and dashes, and resting for the right gaps between them. No download, no sign-up.',
+    shortDescription: 'Hold to key dots and dashes, release for gaps — send the word in Morse code.',
+    howToPlay: [
+      'A target word appears — key it out in Morse code using a single telegraph key.',
+      'Hold briefly for a dot, hold longer for a dash, then release. The game learns your speed from your very first press.',
+      'Rest between symbols, letters, and words for the right length gap — too short or too long counts as a mistake.',
+      'You have five lives. A wrong symbol or a wrong gap costs one. Clear words to advance and keep your run going.',
+    ],
+    strategy: [
+      'Your first press sets the pace for the whole word, so commit to a comfortable, repeatable rhythm from the very first symbol.',
+      'Dashes and long gaps both take roughly three times as long as a dot or a short gap — count in multiples of your own unit, not the clock.',
+      'A clean run of correct symbols builds a combo multiplier, so consistency is worth more than rushing through individual letters.',
+      'Harder levels tighten the timing tolerance, so as your run goes on, aim for your cleanest, most deliberate taps yet.',
+    ],
+    faq: [
+      { q: 'How do you play Morse Relay?', a: 'Hold the telegraph key (on-screen or Spacebar) for a dot or a dash and release, resting between presses for the right gap length. The game calibrates to your own tapping speed from your first press.' },
+      { q: 'What happens if I mistime a press?', a: 'A wrong symbol or a wrong-length gap costs one of your five lives. Lose all five and the run ends.' },
+      { q: 'Does the game ever end on its own?', a: 'No — Morse Relay is an endless survival run. Your score is how many letters and words you keyed correctly before running out of lives.' },
+      { q: 'Is it free and account-free?', a: 'Yes. Morse Relay plays free in your browser with no download and no sign-up. Your best score saves locally.' },
     ],
   },
 ]
