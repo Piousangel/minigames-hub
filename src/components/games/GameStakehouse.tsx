@@ -483,7 +483,7 @@ export function GameStakehouse({ storageKey }: { storageKey: string }) {
         <GameOverlay
           show={terminal}
           variant={busted ? 'lose' : 'win'}
-          title={busted ? 'Busted' : 'House Closed'}
+          title={busted ? 'Busted!' : 'House closed!'}
           testId={busted ? 'game-over' : 'you-win'}
         >
           <div className="flex flex-col items-center gap-1 text-sm">

@@ -145,10 +145,11 @@ export function GameSlotter({ storageKey }: { storageKey: string }) {
         saveBest(storageKey, state.score)
       }
       setNewBest(beatBest)
+      if (beatBest) play('win')
       recordResult(storageKey.replace(/^best:/, ''), { won: false, bucket: state.streak })
     }
     prevOver.current = state.over
-  }, [state, best, storageKey])
+  }, [state, best, storageKey, play])
 
   // Keep the roving gap focus in range as the row grows/shrinks/resets.
   useEffect(() => {
@@ -333,7 +334,7 @@ export function GameSlotter({ storageKey }: { storageKey: string }) {
           })}
         </div>
 
-        <GameOverlay show={state.over} variant="lose" title="Row broken!" testId="game-over">
+        <GameOverlay show={state.over} variant={newBest ? 'win' : 'lose'} title={newBest ? 'New best!' : 'Row broken!'} testId="game-over">
           <div className="flex flex-col items-center gap-1 text-sm">
             <p>
               Score <span className="font-bold text-accent">{state.score}</span>
@@ -345,7 +346,6 @@ export function GameSlotter({ storageKey }: { storageKey: string }) {
             <p>
               Placed <span className="font-bold text-accent">{state.placed}</span>
             </p>
-            {newBest && <p className="font-bold text-neon-amber">New best score!</p>}
           </div>
           <GameButton onClick={() => start()}>Play again</GameButton>
         </GameOverlay>

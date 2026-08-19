@@ -4,7 +4,20 @@ import { useEffect, useState } from 'react'
 import { loadStats, winRate, type GameStats as Stats } from '@/lib/gameStats'
 import { currentStreak, loadStreak } from '@/lib/dailyStreak'
 import { DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
-import { LEADERBOARD_GAMES } from '@/lib/leaderboard'
+import { LEADERBOARD_GAMES, WINS_JSON_GAMES } from '@/lib/leaderboard'
+
+/** best:<slug>가 plain number가 아니라 {wins,...} JSON 블롭인 게임의 승수만 읽는다. */
+function readWinsFromJsonBlob(slug: string, raw: string | null): number {
+  const key = WINS_JSON_GAMES[slug]
+  if (!key || !raw) return 0
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+    const n = Number(parsed?.[key])
+    return Number.isFinite(n) && n > 0 ? Math.floor(n) : 0
+  } catch {
+    return 0
+  }
+}
 
 /**
  * 게임 페이지 개인 기록('트로피 케이스', DOMAIN §3). 완료 판수/승률/스트릭/최고점을 보여
@@ -34,8 +47,13 @@ export function GameStats({ slug }: { slug: string }) {
 
   useEffect(() => {
     setStats(loadStats(slug))
-    const storedBest = Number(localStorage.getItem(`best:${slug}`))
-    setBest(Number.isFinite(storedBest) && storedBest > 0 ? Math.floor(storedBest) : 0)
+    const rawBest = localStorage.getItem(`best:${slug}`)
+    const storedBest = Number(rawBest)
+    const best =
+      Number.isFinite(storedBest) && storedBest > 0
+        ? Math.floor(storedBest)
+        : readWinsFromJsonBlob(slug, rawBest)
+    setBest(best)
     if (meta.daily) {
       const rec = loadStreak(`best:${slug}:streak`)
       setStreak(currentStreak(rec))

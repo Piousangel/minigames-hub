@@ -526,7 +526,7 @@ export function GamePrismbox({ storageKey }: { storageKey: string }) {
           </span>
         ))}
 
-        <GameOverlay show={won} variant="win" title="Atoms Found!" testId="you-win">
+        <GameOverlay show={won} variant="win" title="Atoms found!" testId="you-win">
           <div className="flex flex-col items-center gap-1 text-sm">
             <p>
               Score <span className="font-bold text-accent">{state.score}</span>

@@ -525,7 +525,7 @@ export function GameOverload({ storageKey }: { storageKey: string }) {
         <GameOverlay
           show={won || lost}
           variant={won ? 'win' : 'lose'}
-          title={won ? 'Perfect Storm!' : 'Out of taps'}
+          title={won ? 'Perfect storm!' : 'Out of taps'}
           testId="game-over"
         >
           {won ? (

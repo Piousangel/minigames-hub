@@ -114,6 +114,7 @@ export function GameBisect({ storageKey }: { storageKey: string }) {
   const stateRef = useRef<BisectState | null>(null)
   const rngRef = useRef<Rng>(mulberry32(1))
   const bestRef = useRef(0)
+  const newBestRef = useRef(false)
   const rafRef = useRef(0)
   const lastTsRef = useRef(0)
   const tickAccumRef = useRef(0)
@@ -127,7 +128,8 @@ export function GameBisect({ storageKey }: { storageKey: string }) {
 
   const persist = useCallback(
     (score: number) => {
-      if (score > bestRef.current) {
+      newBestRef.current = score > bestRef.current
+      if (newBestRef.current) {
         bestRef.current = score
         setBest(score)
       }
@@ -142,19 +144,21 @@ export function GameBisect({ storageKey }: { storageKey: string }) {
       const prevPhase = stateRef.current?.phase
       commit(next)
 
-      const sound = SOUND[next.lastEvent]
+      // Persist before deciding the game-over sound so newBestRef reflects
+      // this run's outcome (over -> win/lose, matching the newBest title/variant).
+      if (next.phase === 'over' && prevPhase !== 'over' && !overPersistedRef.current) {
+        overPersistedRef.current = true
+        persist(next.score)
+      }
+      if (next.phase !== 'over') overPersistedRef.current = false
+
+      const sound = next.lastEvent === 'over' ? (newBestRef.current ? 'win' : 'lose') : SOUND[next.lastEvent]
       if (sound) play(sound)
 
       if (next.lastEvent === 'start' || next.lastEvent === 'end') {
         flashSeq.current += 1
         setFlash({ seq: flashSeq.current, kind: next.lastEvent })
       }
-
-      if (next.phase === 'over' && prevPhase !== 'over' && !overPersistedRef.current) {
-        overPersistedRef.current = true
-        persist(next.score)
-      }
-      if (next.phase !== 'over') overPersistedRef.current = false
     },
     [commit, play, persist],
   )
@@ -332,7 +336,7 @@ export function GameBisect({ storageKey }: { storageKey: string }) {
           )}
         </div>
 
-        <GameOverlay show={phase === 'over'} variant="lose" title="Time's up" testId="game-over">
+        <GameOverlay show={phase === 'over'} variant={newBestRef.current ? 'win' : 'lose'} title={newBestRef.current ? 'New best!' : "Time's up"} testId="game-over">
           <div className="flex flex-col items-center gap-1 text-sm">
             <p>
               Score <span className="font-bold text-accent">{state.score}</span>

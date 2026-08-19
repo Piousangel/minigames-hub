@@ -469,7 +469,7 @@ export function GameCleave({ storageKey }: { storageKey: string }) {
           </div>
         )}
 
-        <GameOverlay show={phase === 'over'} variant={newBest ? 'win' : 'lose'} title={newBest ? 'New best!' : 'Cleaved Out'} testId="game-over">
+        <GameOverlay show={phase === 'over'} variant={newBest ? 'win' : 'lose'} title={newBest ? 'New best!' : 'Cleaved out!'} testId="game-over">
           <div className="flex flex-col items-center gap-1 text-sm">
             <p>
               Score <span className="font-bold text-accent">{state.score}</span>

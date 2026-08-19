@@ -444,7 +444,7 @@ export function GameCarousel({ storageKey }: { storageKey: string }) {
           </span>
         ))}
 
-        <GameOverlay show={gameOver} variant="lose" title="Ring Stopped!" testId="game-over">
+        <GameOverlay show={gameOver} variant={newBestRef.current ? 'win' : 'lose'} title={newBestRef.current ? 'New best!' : 'Ring stopped!'} testId="game-over">
           <div className="flex flex-col items-center gap-1 text-sm">
             <p>
               Score <span className="font-bold text-accent">{state.score}</span>
@@ -458,9 +458,6 @@ export function GameCarousel({ storageKey }: { storageKey: string }) {
             <p>
               Cleared <span className="font-bold text-accent">{state.cleared}</span>
             </p>
-            {newBestRef.current && (
-              <p className="font-bold text-neon-lime">New Best!</p>
-            )}
           </div>
           <GameButton onClick={onNewGame}>Play again</GameButton>
         </GameOverlay>

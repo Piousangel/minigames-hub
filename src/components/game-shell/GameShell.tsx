@@ -69,7 +69,7 @@ function MuteButton({ muted, onToggle }: { muted: boolean; onToggle: () => void 
       aria-label={muted ? 'Unmute sound' : 'Mute sound'}
       aria-pressed={muted}
       title={muted ? 'Unmute' : 'Mute'}
-      className="btn-press rounded-lg border border-border bg-surface/80 px-2.5 py-1.5 text-base hover:border-neon-cyan/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+      className="btn-press min-h-11 min-w-11 rounded-lg border border-border bg-surface/80 px-2.5 py-1.5 text-base hover:border-neon-cyan/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
     >
       <span aria-hidden="true">{muted ? '🔇' : '🔊'}</span>
     </button>
@@ -116,7 +116,7 @@ export function GameShell({
         </div>
         <div className="flex items-center gap-2">
           <MuteButton muted={muted} onToggle={onToggleMute} />
-          <GameButton onClick={onNewGame} disabled={newGameDisabled}>
+          <GameButton onClick={onNewGame} disabled={newGameDisabled} className="min-h-11">
             {newGameLabel}
           </GameButton>
         </div>

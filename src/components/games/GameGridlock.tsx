@@ -240,10 +240,11 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
         saveBest(storageKey, state.score)
       }
       setNewBest(beatBest)
+      if (beatBest) play('win')
       recordResult(storageKey.replace(/^best:/, ''), { won: false })
     }
     prevOver.current = state.gameOver
-  }, [state, best, storageKey])
+  }, [state, best, storageKey, play])
 
   const setLane = useCallback(
     (lane: Lane) => {
@@ -353,13 +354,12 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
           <div aria-hidden="true" />
         </div>
 
-        <GameOverlay show={state.gameOver} variant="lose" title="Gridlock!" testId="game-over">
+        <GameOverlay show={state.gameOver} variant={newBest ? 'win' : 'lose'} title={newBest ? 'New best!' : 'Gridlock!'} testId="game-over">
           <div className="flex flex-col items-center gap-1 text-sm">
             <p>
               Score <span className="font-bold text-accent">{state.score}</span>
             </p>
             {failText && <p className="text-fg-muted">{failText}</p>}
-            {newBest && <p className="font-bold text-neon-amber">New best!</p>}
           </div>
           <GameButton onClick={() => start()}>Try again</GameButton>
         </GameOverlay>

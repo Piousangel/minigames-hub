@@ -96,6 +96,7 @@ export function GameOffbeat({ storageKey }: { storageKey: string }) {
 
   const stateRef = useRef<OffbeatState | null>(null)
   const prevOverRef = useRef(false)
+  const newBestRef = useRef(false)
   const flashSeq = useRef(0)
   const badgeSeq = useRef(0)
   const rafRef = useRef(0)
@@ -107,7 +108,9 @@ export function GameOffbeat({ storageKey }: { storageKey: string }) {
 
   const persistOver = useCallback(
     (next: OffbeatState) => {
-      const merged = Math.max(loadBest(storageKey), next.score)
+      const prevBest = loadBest(storageKey)
+      newBestRef.current = next.score > prevBest
+      const merged = Math.max(prevBest, next.score)
       saveBest(storageKey, merged)
       setBest(merged)
       // Endless/survival game: no true "win" — a completed run is what counts
@@ -134,8 +137,8 @@ export function GameOffbeat({ storageKey }: { storageKey: string }) {
       }
       if (ev.cycleAdvanced) setPulseBeat((b) => b + 1)
       if (ev.over) {
-        play('lose')
         if (!prevOverRef.current) persistOver(next)
+        play(newBestRef.current ? 'win' : 'lose')
       }
       prevOverRef.current = next.over
     },
@@ -318,7 +321,7 @@ export function GameOffbeat({ storageKey }: { storageKey: string }) {
           </span>
         ))}
 
-        <GameOverlay show={state.over} variant="lose" title="Offbeat!" testId="game-over">
+        <GameOverlay show={state.over} variant={newBestRef.current ? 'win' : 'lose'} title={newBestRef.current ? 'New best!' : 'Offbeat!'} testId="game-over">
           <div className="flex flex-col items-center gap-1 text-sm">
             <p>
               Score <span className="font-bold text-accent">{state.score}</span>
