@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { siteConfig } from '@/lib/siteConfig'
 import { Logo } from '@/components/Logo'
 import { TrophyIcon } from '@/components/icons/TrophyIcon'
+import { RecordPageView } from '@/components/RecordPageView'
 import { pixelFont } from './fonts'
 import './globals.css'
 
@@ -78,6 +79,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </nav>
         </header>
+        {/* 전 페이지 조회·체류 비콘. 게임 페이지는 RecordPlay가 'view'를 따로 보내므로
+            여기서는 'pageview'로 분리 기록한다(기존 'view' 집계 정의 보존). */}
+        <RecordPageView />
         <div className="flex-1">{children}</div>
         <footer className="border-t border-border bg-bg-2/60 py-8 text-center text-sm text-fg-muted">
           <p

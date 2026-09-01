@@ -29,7 +29,13 @@ export function sendHit(slug: string, event: string, dwell?: number): void {
   try {
     const payload: Record<string, unknown> = { slug, event, vid: visitorId() }
     if (dwell != null) payload.dwell = Math.round(dwell)
-    if (event === 'view' && typeof document !== 'undefined' && document.referrer) {
+    // referrer는 진입 이벤트에만 의미가 있다. 'pageview'(비게임 페이지)도 진입이므로
+    // 포함해야 외부 유입 캠페인(커뮤니티 배포 등)의 referrer를 실제로 잡을 수 있다.
+    if (
+      (event === 'view' || event === 'pageview') &&
+      typeof document !== 'undefined' &&
+      document.referrer
+    ) {
       payload.ref = document.referrer
     }
     const body = JSON.stringify(payload)

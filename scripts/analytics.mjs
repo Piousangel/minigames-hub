@@ -92,6 +92,42 @@ async function main() {
   console.log(`\n[유입 출처(referrer)]`)
   console.log(table(refs.data, [{ h: 'referrer', k: 'referrer' }, { h: 'n', k: 'n' }]))
 
+  // 3.5) 사이트 전체 도달 — 'pageview'(RecordPageView, 전 페이지)는 홈만 보고 나간
+  // 방문자까지 잡는다. 'view'(게임 전용)만 보면 하한선만 보인다.
+  const pv = await q(
+    `SELECT SUM(_sample_interval) AS pageviews, COUNT(DISTINCT blob4) AS visitors
+     FROM mg_events WHERE blob1='pageview' AND ${SINCE}`,
+  )
+  const p = pv.data?.[0] || {}
+  console.log(`\n[사이트 전체 도달 — 홈·카테고리 포함]`)
+  console.log(`  전체 페이지뷰:  ${Number(p.pageviews || 0)}`)
+  console.log(`  순방문자(vid):  ${Number(p.visitors || 0)}   (게임 페이지만 센 위 숫자보다 항상 크거나 같음)`)
+
+  const landing = await q(
+    `SELECT index1 AS page, SUM(_sample_interval) AS n
+     FROM mg_events WHERE blob1='pageview' AND ${SINCE} GROUP BY page ORDER BY n DESC LIMIT 15`,
+  )
+  console.log(`\n[페이지별 조회]`)
+  console.log(table(landing.data, [{ h: 'page', k: 'page' }, { h: 'n', k: 'n' }]))
+
+  // 3.6) 외부 유입 — 커뮤니티 배포·SEO 캠페인이 실제로 사람을 데려왔는지 판정하는 표.
+  // 내부 이동(quickminigames.site/...)을 빼면 남는 게 진짜 외부 채널이다.
+  const ext = await q(
+    `SELECT blob3 AS referrer, SUM(_sample_interval) AS hits, COUNT(DISTINCT blob4) AS visitors
+     FROM mg_events
+     WHERE (blob1='view' OR blob1='pageview') AND blob3!=''
+       AND positionCaseInsensitive(blob3, 'quickminigames.site') = 0 AND ${SINCE}
+     GROUP BY referrer ORDER BY visitors DESC LIMIT 20`,
+  )
+  console.log(`\n[★ 외부 유입 출처 — 캠페인 성패 판정]`)
+  console.log(
+    table(ext.data, [
+      { h: 'referrer', k: 'referrer' },
+      { h: 'hits', k: 'hits' },
+      { h: 'visitors', k: 'visitors' },
+    ]),
+  )
+
   // 4) 국가
   const geo = await q(
     `SELECT blob2 AS country, SUM(_sample_interval) AS n
