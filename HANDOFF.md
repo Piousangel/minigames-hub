@@ -2,6 +2,58 @@
 
 > 갱신: 2026-08-19 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main)** · **배포 완료·검증됨** (quickminigames.site, 게임 **103종**, 전 게임 커스텀 아이콘 보유)
 
+## ▶ 2026-09-01 세션 — 유통 전환 결정 + 계측 사각지대 제거 (최신, 여기부터)
+
+**한 줄:** 3개월 만에 처음으로 코드가 아니라 유통을 하기로 결정했고, 그걸 측정할
+계측을 먼저 붙여서 배포했다.
+
+**진단 재확인(4번째).** 자체 `mg_events` 기준 실인간 30일 13명(진단용 vid 2개 제외),
+**2026-08-21 15:07 UTC 이후 11일간 전 이벤트 0건.** CF 대시보드는 같은 기간 하루
+98~260 uniques. 이번엔 처음으로 "비콘이 죽은 것"을 4중으로 배제했다: (1) curl POST
+/api/hit → 204 + AE 적재, (2) 라이브 chunk에 `api/hit` 포함, (3) `@playwright/test`
+chromium으로 실제 `/chess` 로드 → `POST /api/hit` 발화·JS 에러 0, (4) 존 로그에서
+`clientRequestPath='/api/hit'`가 8/30·8/31 0건인데 진단 curl은 정확히 1건 잡힘.
+**11일 0명은 실제 값이다.**
+
+**중요한 정정 — 35뷰 5일짜리 KR vid는 사용자 본인이 아니다.** 사용자가 부인 →
+Chrome `Default/History`의 `visits` 테이블 대조로 반증. 그 vid의 활동일 중 사용자
+브라우저가 사이트를 연 날은 7/23·8/4뿐이고 가장 활발했던 8/10~8/12엔 0건.
+gstack browse도 아니다(`browse-audit.jsonl`에 7/16·8/4만). **즉 이 사이트 최초의
+진짜 리텐션 유저다** — 3주간 8일, 13개 게임, chess 28분 34초, 리액션 3건. 8/12 이후
+사라졌다. `[[data-signals-premature]]` 메모리에 반영함.
+
+**`/office-hours`로 방향 확정 → 설계 문서 APPROVED:**
+`docs/designs/portal-distribution-and-community-launch.md` (사본:
+`~/.gstack/projects/Piousangel-minigames-hub/hyunseok-main-design-20260901-115356.md`).
+Approach C(병렬) 선택 — **에이전트는 포털 배급 준비, 사용자는 한국 커뮤니티 배포**,
+미국 unblocked SEO는 Googlebot이 8/27부터 실제 크롤 중이므로 대기 트랙.
+
+**✅ 이번 세션에 구현·배포 완료 (커밋 `ad3e80b`):**
+- `src/components/RecordPageView.tsx` — 루트 레이아웃에 건 전 페이지 조회/체류 비콘.
+  **이벤트 이름을 `pageview`로 분리**(게임 전용 `view` 집계 정의와 2026-08 이전
+  수치 비교를 보존). 홈만 보고 나간 방문자가 안 잡히던 사각지대를 닫음.
+- `src/lib/hit.ts` — `pageview`에도 referrer 부착(진입 이벤트라서 필요).
+- `scripts/analytics.mjs` — `[사이트 전체 도달]`·`[페이지별 조회]` +
+  **`[★ 외부 유입 출처]`**(내부 이동 제외) 표 추가. 캠페인 성패를 이 표로 판정한다.
+- 검증 전부 GREEN: typecheck 0 errors · lint 0 errors(경고 19, 변경 파일엔 0) ·
+  vitest **3378/3378** · build 216 라우트 · e2e **122/122** · 배포 후 playwright로
+  홈·카테고리 비콘 발화 확인 · **AE에 `pageview` 실적재 확인**(home,
+  collection/two-player-games, morse-relay, strata, sonar).
+
+**⏭ 다음 세션 우선순위:**
+1. **itch.io 템플릿 팩 재생성** — 8/19 산출물은 세션 스크래치패드와 함께 소실됐고
+   `node_modules`만 남았다. 이번엔 반드시 **레포 안(`packages/template-pack/`)에
+   커밋**할 것. 절차는 아래 8/19 섹션에 있음.
+2. GameDistribution/GameMonetize 제출용 빌드(계정 가입은 사용자 몫).
+3. 커뮤니티 배포 결과 확인: `CF_ANALYTICS_TOKEN=<토큰> node scripts/analytics.mjs 3`
+   → `[★ 외부 유입 출처]` 표만 보면 된다. 지난 30일 이 표는 완전히 비어 있었다.
+
+**사용자 과제(에이전트 불가):** 이번 주 안에 게임 하나를 한국 커뮤니티에 직접 올리기.
+초안 2종(일반/게임 커뮤니티용 Morse Relay 글 + 개발자 커뮤니티용 스택 글)이
+`docs/launch/community-post-drafts.md`에 있다. Morse Relay를 고른 이유도 거기 적혀 있음.
+
+---
+
 ## ▶ 다음 세션 시작 가이드 (여기부터 읽을 것)
 
 **직전 배포는 정상.** `pnpm run deploy` 성공 + 홈 curl 200 즉시 확인. git 작업
