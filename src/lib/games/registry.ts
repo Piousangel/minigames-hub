@@ -1926,15 +1926,15 @@ export const gamePages: GamePage[] = [
     ],
     strategy: [
       'Early on, tap to afford your first Capacitor, then let auto-production snowball.',
-      'Always buy the cheapest module you can — steady growth beats saving for one big tier.',
+      'Buy by payback, not price: pick the module with the lowest cost ÷ output — it reaches Reboot about twice as fast as cheapest-first.',
       'Check back after a break: offline earnings often buy the next tier outright.',
       'Reboot resets your modules but multiplies all future output, so time it when growth stalls.',
-      'Each reboot compounds, so the earlier you can afford the next one, the faster you climb.',
+      'Each reboot adds +10% production (linear) and +1 tap power; the next one needs another 1M lifetime energy.',
     ],
     faq: [
       { q: 'Do I have to keep tapping?', a: 'No. Tapping only bootstraps your first modules. After that the reactor produces energy automatically, even while the tab is closed.' },
       { q: 'Does it really earn while I am away?', a: 'Yes. Offline progress is capped at eight hours, and you get a welcome-back summary of what your reactor made while you were gone.' },
-      { q: 'What does Reboot (prestige) do?', a: 'It resets your charge and modules but grants a permanent production multiplier that stacks with every reboot — the long game.' },
+      { q: 'What does Reboot (prestige) do?', a: 'It resets your charge and modules but keeps your lifetime energy, adds +10% to all production per reboot and +1 tap power. The first reboot unlocks at 1M lifetime energy, and each later one needs another 1M.' },
       { q: 'Is my progress saved?', a: 'Yes, in your browser. Your reactor, modules and reboots are stored locally, and your best lifetime energy can go on the weekly leaderboard.' },
     ],
   },
