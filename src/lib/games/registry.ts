@@ -1348,7 +1348,7 @@ export const gamePages: GamePage[] = [
       'The paper grid holds colored pips, each colour in a matching pair.',
       'Tap a crease between two rows or columns to fold the smaller flap over the rest.',
       'Where a pip lands on a matching pip, both seal and score; several seals in one fold combo.',
-      'Different colours colliding jam a cell permanently. Seal every pip to solve the board.',
+      'Different colours colliding jam a cell permanently. The board is solved when no pips remain — sealed or jammed.',
     ],
     strategy: [
       'Every fold shrinks the paper permanently, so plan the order — the board only gets smaller.',
@@ -1831,7 +1831,7 @@ export const gamePages: GamePage[] = [
     title: 'Play Clusters Online — Free Daily Word Grouping Puzzle',
     h1: 'Clusters',
     metaDescription:
-      'Play Clusters free online — a daily word grouping puzzle. Sixteen tiles hide four secret groups of four. Find every group in four mistakes or fewer, then share your spoiler-free grid. New puzzle every day, no download, no sign-up.',
+      'Play Clusters free online — a daily word grouping puzzle. Sixteen tiles hide four secret groups of four. Find every group before your fourth mistake, then share your spoiler-free grid. New puzzle every day, no download, no sign-up.',
     shortDescription: 'Sort 16 tiles into their four hidden groups.',
     howToPlay: [
       'Sixteen tiles hide four secret groups of four — by category, theme, or connection.',
@@ -1841,9 +1841,9 @@ export const gamePages: GamePage[] = [
     ],
     strategy: [
       'Start with the group you are surest of — locking it in removes four tiles and clears the clutter.',
-      'Watch for traps: tiles are chosen so some look like they fit two groups. The trickiest tier is purple.',
+      'Each puzzle has exactly one group per difficulty tier, from yellow (easiest) to purple (trickiest) — expect the purple group to be the least obvious.',
       'If a guess is "one away", three of your four belong together — swap the odd one out instead of starting over.',
-      'Do not spend a life on a hunch. Shuffle to see the tiles fresh and hold off until a group clicks.',
+      'Do not spend a life on a hunch. Shuffle rotates the tiles to a new arrangement (neighbours stay neighbours), so look for groups across the whole grid rather than relying on it.',
       'The fewer mistakes you make, the higher your grade — a flawless solve is worth the patience.',
     ],
     faq: [
@@ -2750,7 +2750,7 @@ export const gamePages: GamePage[] = [
     ],
     strategy: [
       'The screen stays completely blank between flashes on purpose — resist the urge to count out loud and instead judge the gap by feel.',
-      'The interval length changes every round, so a fixed rhythm from the last round will not carry over to the next.',
+      'Because the end flash only comes after the midpoint, waiting for it never works — a steady, practised delay from the start flash scores better than reacting.',
       'A streak of good taps in a row builds a growing bonus, so consistency across rounds is worth more than one lucky perfect hit.',
       'Tapping too early is treated the same as tapping too late — aim to feel the gap shrink rather than guessing towards either end.',
     ],
