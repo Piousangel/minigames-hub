@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { siteConfig } from '@/lib/siteConfig'
+import { siteConfig, thinPageRobots } from '@/lib/siteConfig'
 import { LeaderboardsHub } from '@/components/LeaderboardsHub'
 
 export const metadata: Metadata = {
@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   description:
     'This week’s top scores across all Quick MiniGames games. Beat the leaders and get your name on the board.',
   alternates: { canonical: '/leaderboards' },
+  robots: thinPageRobots,
   openGraph: { url: '/leaderboards' },
 }
 

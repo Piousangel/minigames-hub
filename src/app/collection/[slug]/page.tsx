@@ -5,7 +5,7 @@ import { gamePages } from '@/lib/games/registry'
 import { COLLECTIONS, COLLECTION_SLUGS } from '@/lib/games/collections'
 import { accentVar } from '@/lib/games/gameMeta'
 import { GameCard } from '@/components/GameCard'
-import { siteConfig } from '@/lib/siteConfig'
+import { siteConfig, thinPageRobots } from '@/lib/siteConfig'
 
 export const dynamicParams = false
 
@@ -25,6 +25,7 @@ export async function generateMetadata({
     title: { absolute: c.title },
     description: c.metaDescription,
     alternates: { canonical: `/collection/${slug}` },
+    robots: thinPageRobots,
     openGraph: {
       title: c.title,
       description: c.metaDescription,

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { gamePages } from '@/lib/games/registry'
 import { DEFAULT_META, gameMeta, type GameCategory } from '@/lib/games/gameMeta'
 import { GameCard } from '@/components/GameCard'
-import { siteConfig } from '@/lib/siteConfig'
+import { siteConfig, thinPageRobots } from '@/lib/siteConfig'
 
 export const dynamicParams = false
 
@@ -94,6 +94,7 @@ export async function generateMetadata({
     title: { absolute: hub.title },
     description: hub.metaDescription,
     alternates: { canonical: `/category/${slug}` },
+    robots: thinPageRobots,
     openGraph: {
       title: hub.title,
       description: hub.metaDescription,

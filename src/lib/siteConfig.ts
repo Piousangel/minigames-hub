@@ -13,5 +13,18 @@ export const siteConfig = {
   // 후원(선택) — Ko-fi 페이지. 위젯 스크립트가 아니라 단순 외부 링크로만 연결(외부 JS·추적기
   // 금지 원칙 유지). 비우면 후원 링크가 안 뜬다.
   kofiUrl: 'https://ko-fi.com/piousangel',
+  // AdSense 심사 기간 스위치(low-value-content 대응). true면 얇은 목록/허브 페이지
+  // (/category/*, /collection/*, /collections, /leaderboards)에 robots noindex(follow 유지)를
+  // 걸고 sitemap.xml에서 뺀다. 페이지 자체와 내부 링크는 그대로 둔다.
+  // ⚠️ AdSense 승인 후 false로 되돌릴 것 — 이 한 줄만 바꾸면 noindex·sitemap이 함께 복구된다.
+  thinPagesNoindex: true,
 }
+
+/**
+ * 얇은 목록/허브 페이지용 robots 메타. thinPagesNoindex가 꺼지면 undefined(= 기본 index,follow).
+ * 대상 페이지의 metadata에 `robots: thinPageRobots` 로 붙인다.
+ */
+export const thinPageRobots = siteConfig.thinPagesNoindex
+  ? { index: false, follow: true }
+  : undefined
 

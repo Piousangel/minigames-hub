@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { COLLECTIONS, COLLECTION_SLUGS } from '@/lib/games/collections'
 import { accentVar } from '@/lib/games/gameMeta'
-import { siteConfig } from '@/lib/siteConfig'
+import { siteConfig, thinPageRobots } from '@/lib/siteConfig'
 
 const TITLE = 'Game Collections — Free Browser Games by Theme'
 const META_DESC =
@@ -12,6 +12,7 @@ export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: META_DESC,
   alternates: { canonical: '/collections' },
+  robots: thinPageRobots,
   openGraph: { title: TITLE, description: META_DESC, url: '/collections', siteName: siteConfig.name, type: 'website' },
   twitter: { card: 'summary_large_image', title: TITLE, description: META_DESC },
 }
