@@ -18,6 +18,7 @@ import {
   VMAX,
   WALL_GAP,
   applyImpulse,
+  capVelocity,
   createGame,
   createGameForSeed,
   createGameFromLayout,
@@ -26,6 +27,8 @@ import {
   dirFromVector,
   generateLayout,
   isOver,
+  layoutSeed,
+  MAX_GEN_ATTEMPTS,
   mulberry32,
   predictPath,
   rotateDir,
@@ -137,11 +140,48 @@ describe('rotateDir / applyImpulse / timeBonus', () => {
     expect(rotateDir(15, 1)).toBe(0)
     expect(rotateDir(3, -20)).toBe(15)
   })
-  it('applyImpulse clamps to VMAX', () => {
+  it('applyImpulse is pure vector addition — the speed cap lives in capVelocity', () => {
     let v = { vx: 0, vy: 0 }
     for (let i = 0; i < 5; i++) v = applyImpulse(v.vx, v.vy, 8)
-    expect(v).toEqual({ vx: VMAX, vy: 0 })
+    expect(v).toEqual({ vx: 5 * 256, vy: 0 })
+    expect(capVelocity(v.vx, v.vy)).toEqual({ vx: VMAX, vy: 0 })
     expect(VMAX).toBe(1024)
+  })
+  it('capVelocity keeps direction (no per-axis bending) and never exceeds VMAX', () => {
+    expect(capVelocity(300, -400)).toEqual({ vx: 300, vy: -400 })
+    // per-axis clamp would give (-1024, -181): the x part saturates, y doesn't → path bends.
+    const c = capVelocity(-1205, -181)
+    expect(Math.hypot(c.vx, c.vy)).toBeLessThanOrEqual(VMAX)
+    expect(Math.hypot(c.vx, c.vy)).toBeGreaterThan(VMAX - 2)
+    expect(Math.abs(c.vx * -181 - c.vy * -1205)).toBeLessThan(1205 * 2) // ~parallel to the input
+    for (let a = 0; a < 16; a++) {
+      for (let k = 1; k <= 14; k++) {
+        const c2 = capVelocity(DIRS[a][0] * k, DIRS[a][1] * k)
+        expect(Math.abs(c2.vx)).toBeLessThanOrEqual(VMAX)
+        expect(Math.abs(c2.vy)).toBeLessThanOrEqual(VMAX)
+        expect(c2.vx * c2.vx + c2.vy * c2.vy).toBeLessThanOrEqual(VMAX * VMAX)
+        expect(Math.sign(c2.vx)).toBe(Math.sign(DIRS[a][0]))
+        expect(Math.sign(c2.vy)).toBe(Math.sign(DIRS[a][1]))
+      }
+    }
+  })
+  it('a pair of opposite shots cancels exactly even past the speed cap', () => {
+    // Saturate along a diagonal, then fire every opposite pair: the momentum must return exactly.
+    for (const sat of [0, 2, 5, 8]) {
+      let base = { vx: 0, vy: 0 }
+      for (let i = 0; i < 6; i++) base = applyImpulse(base.vx, base.vy, sat)
+      for (let a = 0; a < 16; a++) {
+        const one = applyImpulse(base.vx, base.vy, a)
+        expect(applyImpulse(one.vx, one.vy, (a + 8) % 16)).toEqual(base)
+      }
+    }
+    // …and through the real step loop, with the ship at top speed.
+    let s = L(N, [], [FAR], { ship: [160, 112] })
+    for (let i = 0; i < 5; i++) s = step(s, { fire: 8 })
+    const before = { vx: s.vx, vy: s.vy }
+    s = step(s, { fire: 1 })
+    s = step(s, { fire: 9 })
+    expect({ vx: s.vx, vy: s.vy }).toEqual(before)
   })
   it('timeBonus', () => {
     expect(timeBonus(0)).toBe(600)
@@ -556,8 +596,8 @@ describe('determinism', () => {
         expect(n.score).toBeGreaterThanOrEqual(s.score)
         expect(n.ammo).toBeGreaterThanOrEqual(0)
         expect(n.ammo).toBeLessThanOrEqual(n.config.ammo)
-        expect(Math.abs(n.vx)).toBeLessThanOrEqual(VMAX)
-        expect(Math.abs(n.vy)).toBeLessThanOrEqual(VMAX)
+        const ev = capVelocity(n.vx, n.vy)
+        expect(ev.vx * ev.vx + ev.vy * ev.vy).toBeLessThanOrEqual(VMAX * VMAX)
         expect(order[n.phase]).toBeGreaterThanOrEqual(order[s.phase])
         if (s.phase === 'won' || s.phase === 'lost') expect(n.phase).toBe(s.phase)
         expect(n.ticks - s.ticks).toBe(n === s ? 0 : 1)
@@ -589,6 +629,27 @@ describe('seed ⇒ difficulty encoding', () => {
     expect(a).not.toBe(b)
     expect(difficultyOfSeed(a)).toBe('normal')
     expect(createGameForSeed(a).config).toEqual(DAILY_CONFIG)
+  })
+
+  it('layout retry seeds never land on a neighbouring daily / practice seed', () => {
+    for (let k = 0; k < 4; k++) expect(layoutSeed(0x1234 + k, 0)).toBe(0x1234 + k)
+    const dailies = new Set<number>()
+    for (let d = 0; d < 400; d++) {
+      const dt = new Date(Date.UTC(2026, 0, 1) + d * 86_400_000)
+      dailies.add(dailySeedFor(dt.getUTCFullYear() * 10000 + (dt.getUTCMonth() + 1) * 100 + dt.getUTCDate()))
+    }
+    for (const seed of dailies) {
+      for (let i = 1; i < MAX_GEN_ATTEMPTS; i++) {
+        const r = layoutSeed(seed, i)
+        expect(dailies.has(r)).toBe(false)
+        // nowhere near the base seed (old scheme: seed + i, so attempt 4 hit tomorrow's daily)
+        expect(Math.abs(r - seed)).toBeGreaterThan(1 << 16)
+      }
+    }
+    // distinct attempts of one seed are distinct
+    const s = dailySeedFor(20261009)
+    const attempts = new Set(Array.from({ length: MAX_GEN_ATTEMPTS }, (_, i) => layoutSeed(s, i)))
+    expect(attempts.size).toBe(MAX_GEN_ATTEMPTS)
   })
 
   it('createGameForSeed: same seed → identical board and rules', () => {

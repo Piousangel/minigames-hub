@@ -544,7 +544,7 @@ function illegal(s: HunchState): HunchState {
 /**
  * Dead-end guard: back in 'test' with no legal play (test cap reached or hand
  * empty) and nothing left to probe → the run ends instead of soft-locking.
- * Only reachable after dozens of cancelled probes drain the draw pile.
+ * Only reachable after dozens of probes (cancelled or answered) drain the draw pile.
  */
 export function isStuck(s: HunchState): boolean {
   return s.phase === 'test' && !canPlay(s) && !canPredict(s)
@@ -644,7 +644,11 @@ export function reduce(s: HunchState, a: HunchAction): HunchState {
       const target = st.probeTargets[probeIdx % PROBE_TARGETS]
       const next = pickProbe(s.drawPile, st.ruleId, prevCard(base), target)
       if (!next.probe) {
-        return { ...base, streak, score, probe: null, phase: 'lost', lastEvent: 'lose' }
+        // The probe just answered was the last card in the pile. That is not a loss:
+        // drop back to 'test' (hand cards may still be played) and let settle() end
+        // the run only if no legal action remains. Leaving predict mode breaks the
+        // run of calls, exactly like cancelPredict, so the streak resets to 0.
+        return settle({ ...base, streak: 0, score, probe: null, phase: 'test', lastEvent: 'correct' })
       }
       return { ...base, streak, score, probe: next.probe, drawPile: next.drawPile, lastEvent: 'correct' }
     }

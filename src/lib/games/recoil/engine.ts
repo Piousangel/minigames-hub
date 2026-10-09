@@ -179,19 +179,40 @@ export function dirFromVector(dx: number, dy: number): Dir | null {
   return best
 }
 
-function clamp(v: number, lo: number, hi: number): number {
-  return Math.max(lo, Math.min(hi, v))
-}
-
-/** Recoil: the ship is pushed opposite to the aim. */
+/**
+ * Recoil: the ship is pushed opposite to the aim. Pure vector addition — no clamping here — so the
+ * documented rule "two exactly-opposite shots cancel out completely" holds in every state, including
+ * at top speed. (Clamping the stored velocity, per axis or by magnitude, makes saturation lossy: the
+ * second shot of an opposite pair would no longer undo the first.) The stored velocity is bounded by
+ * ammo × 256 anyway; the speed limit is applied when moving, see `capVelocity`.
+ */
 export function applyImpulse(vx: number, vy: number, d: Dir): { vx: number; vy: number } {
-  return {
-    vx: clamp(vx - DIRS[d][0], -VMAX, VMAX),
-    vy: clamp(vy - DIRS[d][1], -VMAX, VMAX),
-  }
+  return { vx: vx - DIRS[d][0], vy: vy - DIRS[d][1] }
 }
 
-/** One-tick integration with perfectly elastic axis-separated reflection. */
+/** ceil(sqrt(n)) for a non-negative safe integer, exact (Math.sqrt is correctly rounded; we fix ±1). */
+function isqrtCeil(n: number): number {
+  let r = Math.ceil(Math.sqrt(n))
+  while (r > 0 && (r - 1) * (r - 1) >= n) r--
+  while (r * r < n) r++
+  return r
+}
+
+/**
+ * Per-tick displacement for a stored velocity: the velocity itself while |v| ≤ VMAX, otherwise the
+ * same direction scaled down to VMAX (both axes together, so diagonals never bend). Integer-only and
+ * deterministic: dividing by ceil(|v|) keeps the result's magnitude ≤ VMAX, each axis keeps the sign of
+ * the input, and per-axis rounding (trunc) moves the direction by well under a unit.
+ * Shared by `step` (via `advance`) and `predictPath`.
+ */
+export function capVelocity(vx: number, vy: number): { vx: number; vy: number } {
+  const m2 = vx * vx + vy * vy
+  if (m2 <= VMAX * VMAX) return { vx, vy }
+  const mag = isqrtCeil(m2)
+  return { vx: Math.trunc((vx * VMAX) / mag), vy: Math.trunc((vy * VMAX) / mag) }
+}
+
+/** One-tick integration (displacement = `capVelocity`) with perfectly elastic axis-separated reflection. */
 export function advance(body: Body, walls: Wall[]): Body & { bounced: boolean } {
   const R = SHIP_R * FP
   const minX = R
@@ -201,9 +222,11 @@ export function advance(body: Body, walls: Wall[]): Body & { bounced: boolean } 
   let { vx, vy } = body
   const { y } = body
   let bounced = false
+  // Move by the capped velocity; reflections flip the stored velocity's sign (|v| is unchanged).
+  const cap = capVelocity(vx, vy)
 
   // X axis
-  let nx = body.x + vx
+  let nx = body.x + cap.vx
   if (nx < minX) {
     nx = 2 * minX - nx
     vx = -vx
@@ -224,7 +247,7 @@ export function advance(body: Body, walls: Wall[]): Body & { bounced: boolean } 
   }
 
   // Y axis (with updated nx)
-  let ny = y + vy
+  let ny = y + cap.vy
   if (ny < minY) {
     ny = 2 * minY - ny
     vy = -vy
@@ -381,10 +404,28 @@ export function createGameFromLayout(cfg: RecoilConfig, layout: Layout, seed = 0
   }
 }
 
+/**
+ * RNG seed for the `attempt`-th layout try of a run seed. Attempt 0 is the seed itself; retries are
+ * scattered with an avalanche hash (murmur3 fmix32 of seed ^ attempt·φ). The old `seed + attempt`
+ * landed retries on neighbouring run seeds — daily seeds are 4 apart, so a daily that needed a 5th
+ * try reproduced the next day's board. The difficulty still comes from the run seed's low 2 bits;
+ * this only picks the generator stream.
+ */
+export function layoutSeed(seed: number, attempt: number): number {
+  if (attempt === 0) return seed >>> 0
+  let h = (seed ^ Math.imul(attempt, 0x9e3779b9)) >>> 0
+  h ^= h >>> 16
+  h = Math.imul(h, 0x85ebca6b)
+  h ^= h >>> 13
+  h = Math.imul(h, 0xc2b2ae35)
+  h ^= h >>> 16
+  return h >>> 0
+}
+
 export function createGame(cfg: RecoilConfig, seed: number): RecoilState {
   let layout: Layout | null = null
   for (let i = 0; i < MAX_GEN_ATTEMPTS && !layout; i++) {
-    layout = generateLayout(cfg, mulberry32((seed + i) >>> 0))
+    layout = generateLayout(cfg, mulberry32(layoutSeed(seed, i)))
   }
   return createGameFromLayout(cfg, layout ?? fallbackLayout(cfg), seed)
 }

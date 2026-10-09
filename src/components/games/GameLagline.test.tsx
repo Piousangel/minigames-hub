@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import { challengeQuery } from '@/lib/challenge'
-import { createGame, reduce } from '@/lib/games/lagline/engine'
+import { beatMs, createGame, reduce } from '@/lib/games/lagline/engine'
 
 vi.mock('@/lib/hit', () => ({ sendHit: vi.fn() }))
 
@@ -92,5 +92,77 @@ describe('GameLagline challenge links', () => {
     expect(Number(localStorage.getItem(STORAGE_KEY))).toBeGreaterThan(0)
     expect(sendHit).not.toHaveBeenCalledWith('lagline', 'challenge-done')
     rand.mockRestore()
+  })
+})
+
+describe('GameLagline keyboard & pause', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'setTimeout', 'clearTimeout', 'performance', 'Date'] })
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+    window.history.replaceState(null, '', '/')
+  })
+
+  const advance = (ms: number) =>
+    act(() => {
+      vi.advanceTimersByTime(ms)
+    })
+
+  it('ignores ctrl/meta/alt shortcuts (browser reload, bookmark, save) entirely', () => {
+    render(<GameLagline storageKey={STORAGE_KEY} />)
+    fireEvent.keyDown(window, { key: 'ArrowDown' }) // start
+    advance(beatMs(1) * 1.5)
+    expect(screen.getByTestId('score')).toHaveTextContent('1')
+    // Cmd/Ctrl+R must reach the browser, not restart the run.
+    expect(fireEvent.keyDown(window, { key: 'r', metaKey: true })).toBe(true)
+    expect(fireEvent.keyDown(window, { key: 'r', ctrlKey: true })).toBe(true)
+    expect(screen.getByTestId('score')).toHaveTextContent('1')
+    // Cmd+D / Ctrl+S / Alt+A are not moves.
+    expect(fireEvent.keyDown(window, { key: 'd', metaKey: true })).toBe(true)
+    expect(fireEvent.keyDown(window, { key: 's', ctrlKey: true })).toBe(true)
+    expect(fireEvent.keyDown(window, { key: 'a', altKey: true })).toBe(true)
+    expect(screen.getByTestId('queue-pending')).toHaveAttribute('aria-label', 'Queued now: nothing')
+    // a plain key still works
+    expect(fireEvent.keyDown(window, { key: 'd' })).toBe(false)
+    expect(screen.getByTestId('queue-pending')).toHaveAttribute('aria-label', 'Queued now: right')
+  })
+
+  it('on the game-over screen Enter/Space on an overlay button activate the button, not the game', () => {
+    const { seed } = quickDeathSeed()
+    vi.setSystemTime(0)
+    const rand = vi.spyOn(Math, 'random').mockReturnValue(seed / 2 ** 31)
+    render(<GameLagline storageKey={STORAGE_KEY} />)
+    fireEvent.keyDown(window, { key: 'ArrowDown' })
+    runUntilOver()
+    rand.mockRestore()
+    expect(screen.getByTestId('game-over')).toBeInTheDocument()
+
+    const share = screen.getByRole('button', { name: 'Challenge a friend' })
+    share.focus()
+    expect(fireEvent.keyDown(share, { key: 'Enter' })).toBe(true) // not swallowed → native click
+    expect(fireEvent.keyDown(share, { key: ' ' })).toBe(true)
+    const input = screen.getByRole('textbox', { name: 'Your name for the challenge link' })
+    expect(fireEvent.keyDown(input, { key: 'Enter' })).toBe(true)
+    expect(screen.getByTestId('game-over')).toBeInTheDocument() // run not restarted
+
+    // Enter with focus on the page body still restarts.
+    expect(fireEvent.keyDown(document.body, { key: 'Enter' })).toBe(false)
+    expect(screen.queryByTestId('game-over')).not.toBeInTheDocument()
+  })
+
+  it('pause/resume preserves the beat phase (no free planning time)', () => {
+    render(<GameLagline storageKey={STORAGE_KEY} />)
+    const B = beatMs(1)
+    fireEvent.keyDown(window, { key: 'ArrowDown' }) // start
+    advance(B * 0.6)
+    expect(screen.getByTestId('score')).toHaveTextContent('0')
+    fireEvent.keyDown(window, { key: 'p' })
+    advance(2000)
+    fireEvent.keyDown(window, { key: 'p' })
+    advance(B * 0.6) // 1.2 beats of running time in total
+    expect(screen.getByTestId('score')).toHaveTextContent('1')
   })
 })

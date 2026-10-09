@@ -12,6 +12,7 @@ import {
   PREVIEW_TICKS,
   STAR_PTS,
   WIN_BONUS,
+  capVelocity,
   createGameForSeed,
   dailySeedFor,
   difficultyOfSeed,
@@ -31,7 +32,7 @@ import {
   type RecoilState,
 } from '@/lib/games/recoil/engine'
 import { isTypingTarget } from '@/lib/isTypingTarget'
-import { bumpStreak, currentStreak } from '@/lib/dailyStreak'
+import { bumpStreak, currentStreak, loadStreak, saveStreak } from '@/lib/dailyStreak'
 import { DailyShareButton } from '@/components/DailyShareButton'
 import { todayUTC } from '@/lib/dailyDate'
 import { gradeFewer, barGlyph, resultSnippet } from '@/lib/dailyShare'
@@ -46,55 +47,56 @@ import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 type Mode = 'daily' | 'practice'
 type SoundName = Parameters<ReturnType<typeof useGameSound>['play']>[0]
 
-interface RecoilSave {
-  score: number
-  daily?: { lastDate: string; streak: number }
-}
-
-/** best:<slug> holds a bare number (weekly leaderboard reads it with Number()). Streak lives here. */
+/**
+ * best:<slug> holds a bare number (personal best; read with Number() by the trophy case). The day
+ * streak lives in its own key in the shared `DailyStreak` JSON format — loadStreak/saveStreak keep
+ * freezes/maxStreak. Old saves ({lastDate, streak}) are already that format, so they load as-is.
+ */
 const DAILY_KEY = 'recoil:daily'
+/** Daily seed whose first finished run already counted toward best (blocks reload-farming the daily). */
+const DAILY_TRIED_KEY = 'recoil:daily-tried'
 const TICK_MS = 1000 / 60
 const TRAIL_LEN = 20
 const QUEUE_MAX = 3
 
-function loadDaily(): RecoilSave['daily'] {
+function loadBest(storageKey: string): number {
   try {
-    const raw = localStorage.getItem(DAILY_KEY)
-    if (!raw) return undefined
-    const o = JSON.parse(raw) as Record<string, unknown>
-    if (typeof o?.lastDate === 'string' && typeof o?.streak === 'number') {
-      return { lastDate: o.lastDate, streak: o.streak }
-    }
-  } catch {
-    // corrupt -> no streak
-  }
-  return undefined
-}
-
-function loadSave(storageKey: string): RecoilSave {
-  try {
-    const raw = localStorage.getItem(storageKey)
-    if (!raw) return { score: 0, daily: loadDaily() }
-    const n = Number(raw)
-    if (Number.isFinite(n)) return { score: Math.max(0, Math.floor(n)), daily: loadDaily() }
+    const n = Number(localStorage.getItem(storageKey) ?? 0)
+    if (Number.isFinite(n)) return Math.max(0, Math.floor(n))
   } catch {
     // ignore
   }
-  return { score: 0, daily: loadDaily() }
+  return 0
 }
 
-function saveAll(storageKey: string, save: RecoilSave): void {
+function saveBest(storageKey: string, score: number): void {
   try {
-    localStorage.setItem(storageKey, String(save.score))
-    if (save.daily) localStorage.setItem(DAILY_KEY, JSON.stringify(save.daily))
+    localStorage.setItem(storageKey, String(score))
   } catch {
     // ignore storage failures
   }
 }
 
-function todaySeed(): number {
-  const d = new Date()
-  return dailySeedFor(d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate())
+function loadDailyTried(): number | null {
+  try {
+    const n = Number(localStorage.getItem(DAILY_TRIED_KEY))
+    return localStorage.getItem(DAILY_TRIED_KEY) !== null && Number.isFinite(n) ? n >>> 0 : null
+  } catch {
+    return null
+  }
+}
+
+function saveDailyTried(seed: number): void {
+  try {
+    localStorage.setItem(DAILY_TRIED_KEY, String(seed >>> 0))
+  } catch {
+    // ignore
+  }
+}
+
+/** Daily seed for a UTC 'YYYY-MM-DD' (from todayUTC()). */
+function seedForDay(iso: string): number {
+  return dailySeedFor(Number(iso.replace(/-/g, '')))
 }
 
 /** 도전 모드를 끄면 주소창에서 vs/n/ref를 지워, 새로고침해도 일반 판으로 돌아오게 한다. */
@@ -166,6 +168,11 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
   const challengeRef = useRef<Challenge | null>(null)
   const [name, setName] = useState('')
   const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle')
+  // UTC date the on-screen daily board belongs to (null for practice/challenge). Streak and the share
+  // card use this, not "now" — a board dealt before UTC midnight stays yesterday's board.
+  const [boardDay, setBoardDay] = useState<string | null>(null)
+  // false when the finished run was a replay of an already-finished board (didn't count toward best).
+  const [countedBest, setCountedBest] = useState(true)
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reduced, reducedRef } = useReducedMotion()
@@ -182,6 +189,15 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
   const svgRef = useRef<SVGSVGElement | null>(null)
   const shakeRef = useRef<SVGGElement | null>(null)
   const timersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set())
+  const boardDayRef = useRef<string | null>(null)
+  // Seeds whose run already finished: a later run on the same seed (Retry / Replay / Play again) is a
+  // replay and never counts toward best — otherwise Retry farms a known board.
+  const triedSeedsRef = useRef<Set<number>>(new Set())
+
+  const setDay = useCallback((day: string | null) => {
+    boardDayRef.current = day
+    setBoardDay(day)
+  }, [])
 
   const commit = useCallback((next: RecoilState) => {
     stateRef.current = next
@@ -200,9 +216,10 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
 
   // Init (client only — no Date/Math.random during render).
   useEffect(() => {
-    const save = loadSave(storageKey)
-    setBest(save.score)
-    setStreak(currentStreak(save.daily))
+    setBest(loadBest(storageKey))
+    setStreak(currentStreak(loadStreak(DAILY_KEY)))
+    const tried = loadDailyTried()
+    if (tried !== null) triedSeedsRef.current.add(tried)
     setName(loadPlayerName())
     const incoming = parseChallenge(window.location.search)
     challengeRef.current = incoming
@@ -215,9 +232,12 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
       difficultyRef.current = d
       setMode('practice')
       setDifficulty(d)
+      setDay(null)
       commit(createGameForSeed(incoming.seed))
     } else {
-      commit(createGameForSeed(todaySeed()))
+      const day = todayUTC()
+      setDay(day)
+      commit(createGameForSeed(seedForDay(day)))
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storageKey])
@@ -242,18 +262,29 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
       const cur = stateRef.current
       const ch = challengeRef.current
       let g: RecoilState
-      if (ch) g = createGameForSeed(ch.seed)
-      else if (sameSeed && cur) g = createGameForSeed(cur.seed)
-      else if (nextMode === 'daily') g = createGameForSeed(todaySeed())
-      else g = createGameForSeed(seedWithDifficulty(freshSeed(), diff))
+      if (ch) {
+        g = createGameForSeed(ch.seed)
+        setDay(null)
+      } else if (sameSeed && cur) {
+        g = createGameForSeed(cur.seed) // same board → keeps its own boardDay
+      } else if (nextMode === 'daily') {
+        // Always today's board, recomputed now — never the (possibly pre-midnight) one on screen.
+        const day = todayUTC()
+        g = createGameForSeed(seedForDay(day))
+        setDay(day)
+      } else {
+        g = createGameForSeed(seedWithDifficulty(freshSeed(), diff))
+        setDay(null)
+      }
       resetCosmetics()
       setShareStatus('idle')
+      setCountedBest(true)
       prevPhaseRef.current = 'ready'
       commit(g)
       // Keep keyboard play working after clicking Retry / mode buttons (the overlay button unmounts).
       boardRef.current?.focus({ preventScroll: true })
     },
-    [commit, resetCosmetics],
+    [commit, resetCosmetics, setDay],
   )
 
   const addBadge = useCallback(
@@ -365,16 +396,24 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
     const won = s.phase === 'won'
     const slug = storageKey.replace(/^best:/, '')
     // 도전 판은 같은 시드를 무한 Rematch할 수 있어 최고기록·스트릭에 넣지 않는다(보드 파밍 방지).
+    // 같은 시드의 재도전(Retry/Replay)도 최고기록엔 넣지 않는다 — 시드의 첫 판만 센다.
     if (!challengeRef.current) {
-      const save = loadSave(storageKey)
-      let nextSave: RecoilSave = { ...save, score: Math.max(save.score, s.score) }
-      if (won && modeRef.current === 'daily') {
-        const bumped = bumpStreak(save.daily)
-        nextSave = { ...nextSave, daily: bumped }
+      const first = !triedSeedsRef.current.has(s.seed)
+      triedSeedsRef.current.add(s.seed)
+      const day = boardDayRef.current
+      if (day !== null) saveDailyTried(s.seed)
+      setCountedBest(first)
+      if (first) {
+        const nextBest = Math.max(loadBest(storageKey), s.score)
+        saveBest(storageKey, nextBest)
+        setBest(nextBest)
+      }
+      // 스트릭은 "그날의 판"을 그날 깼을 때만. 자정 전에 받은 판을 자정 후에 깨도 오늘로 치지 않는다.
+      if (won && modeRef.current === 'daily' && day !== null && day === todayUTC()) {
+        const bumped = bumpStreak(loadStreak(DAILY_KEY), day)
+        saveStreak(DAILY_KEY, bumped)
         setStreak(bumped.streak)
       }
-      setBest(nextSave.score)
-      saveAll(storageKey, nextSave)
     }
     recordResult(slug, { won })
     if (challengeRef.current) sendHit(slug, 'challenge-done')
@@ -403,9 +442,10 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
     if (inputQueueRef.current.length < QUEUE_MAX) inputQueueRef.current.push({ fire: s.aim })
   }, [commit, react])
 
+  // Daily: always (re)deal *today's* board — after UTC midnight that is a new board, not a replay of
+  // the one on screen. Practice: a fresh board. (Retry is the same-seed replay.)
   const onNewGame = useCallback(() => {
-    if (modeRef.current === 'daily') startBoard('daily', difficultyRef.current, true)
-    else startBoard('practice', difficultyRef.current, false)
+    startBoard(modeRef.current, difficultyRef.current, false)
   }, [startBoard])
 
   const retry = useCallback(() => startBoard(modeRef.current, difficultyRef.current, true), [startBoard])
@@ -413,6 +453,14 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (isTypingTarget(e.target)) return
+      // Browser/OS shortcuts (Ctrl+R, Cmd+Enter, Alt+…) are never game input.
+      if (e.ctrlKey || e.metaKey || e.altKey) return
+      // Keys bubbling from a focused overlay control (Retry, Rematch, share, links…) belong to that
+      // control: preventDefault on Enter/Space would block its native activation.
+      const t = e.target
+      if (t !== e.currentTarget && t instanceof Element && t.closest('button, a, input, select, textarea, [role="button"]')) {
+        return
+      }
       const s = stateRef.current
       if (!s) return
       switch (e.key) {
@@ -573,6 +621,7 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
   const previewPts = [`${shipX},${shipY}`, ...preview.map((p) => `${u(p.x)},${u(p.y)}`)].join(' ')
   const trailPts = trailRef.current.map((p) => `${u(p.x)},${u(p.y)}`).join(' ')
   const [adx, ady] = DIRS[s.aim]
+  const shown = capVelocity(s.vx, s.vy) // what the ship actually moves per tick
 
   const outcome = challenge && over ? compareChallenge(s.score, challenge.score) : null
   const challengeTitle = !outcome
@@ -911,8 +960,8 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
                 <line
                   x1={shipX}
                   y1={shipY}
-                  x2={shipX + (s.vx * 8) / 256}
-                  y2={shipY + (s.vy * 8) / 256}
+                  x2={shipX + (shown.vx * 8) / 256}
+                  y2={shipY + (shown.vy * 8) / 256}
                   stroke="var(--neon-lime)"
                   strokeOpacity={0.7}
                   strokeWidth={1.2}
@@ -994,6 +1043,9 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
             <p className="text-fg-muted">
               Shots used {s.shotsFired} / {cfg.ammo}
             </p>
+            {!challenge && !countedBest && (
+              <p className="text-xs text-fg-muted">Replays of the same board don&apos;t count toward your best.</p>
+            )}
           </div>
           <div className="flex flex-wrap justify-center gap-2">
             {mode === 'daily' && !challenge && (
@@ -1005,7 +1057,7 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
                   const glyph = barGlyph(used, par, `${used} SHOTS · PAR ${par}`)
                   return {
                     gameName: 'Recoil',
-                    dateISO: todayUTC(),
+                    dateISO: boardDay ?? todayUTC(),
                     accent: '#22d3ee',
                     lines: [],
                     streak,
@@ -1016,7 +1068,7 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
                     glyph,
                     textSnippet: resultSnippet(
                       'Recoil',
-                      todayUTC(),
+                      boardDay ?? todayUTC(),
                       true,
                       grade,
                       glyph.cells,
@@ -1046,6 +1098,9 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
             <p className="text-fg-muted">
               Score <span className="font-bold text-accent">{s.score}</span>
             </p>
+            {!challenge && !countedBest && (
+              <p className="text-xs text-fg-muted">Replays of the same board don&apos;t count toward your best.</p>
+            )}
           </div>
           <div className="flex flex-wrap justify-center gap-2">
             <GameButton onClick={retry}>{challenge ? 'Rematch' : 'Retry'}</GameButton>

@@ -69,8 +69,9 @@ const STAGE_CLUES = [
   'Stage 3 rules combine two clues; some also compare with the last accepted card.',
 ] as const
 
-function dailySeed(d: Date): number {
-  return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate()
+/** 'YYYY-MM-DD' (UTC, from todayUTC()) → YYYYMMDD seed. */
+function dailySeed(dateISO: string): number {
+  return Number(dateISO.replace(/-/g, ''))
 }
 
 /** Event-handler / effect only — never during render (hydration). */
@@ -203,6 +204,10 @@ export function GameHunch({ storageKey }: { storageKey: string }) {
 
   const stateRef = useRef<HunchState | null>(null)
   const modeRef = useRef<Mode>('daily')
+  // UTC date of the daily board on the table (null = not a daily board). A tab left open
+  // past UTC midnight still holds yesterday's board — it must not bump today's streak.
+  const dailyDateRef = useRef<string | null>(null)
+  const [dailyDate, setDailyDate] = useState<string | null>(null)
   const prevPhaseRef = useRef<HunchState['phase']>('test')
   const interactedRef = useRef(false)
   const boardRef = useRef<HTMLDivElement | null>(null)
@@ -231,7 +236,10 @@ export function GameHunch({ storageKey }: { storageKey: string }) {
       modeRef.current = 'practice'
       setMode('practice')
     }
-    const g = createGame(incoming ? incoming.seed : dailySeed(new Date()))
+    const today = incoming ? null : todayUTC()
+    dailyDateRef.current = today
+    setDailyDate(today)
+    const g = createGame(today ? dailySeed(today) : incoming!.seed)
     prevPhaseRef.current = g.phase
     commit(g)
   }, [storageKey, commit])
@@ -245,7 +253,7 @@ export function GameHunch({ storageKey }: { storageKey: string }) {
         const nextBest = Math.max(loadBest(storageKey), next.score)
         saveBest(storageKey, nextBest)
         setBest(nextBest)
-        if (won && modeRef.current === 'daily') {
+        if (won && modeRef.current === 'daily' && dailyDateRef.current === todayUTC()) {
           const bumped = bumpStreak(loadStreak(DAILY_KEY))
           saveStreak(DAILY_KEY, bumped)
           setStreak(bumped.streak)
@@ -287,7 +295,10 @@ export function GameHunch({ storageKey }: { storageKey: string }) {
   const startRun = useCallback(
     (nextMode: Mode) => {
       modeRef.current = nextMode
-      const seed = challengeRef.current?.seed ?? (nextMode === 'daily' ? dailySeed(new Date()) : freshSeed())
+      const today = !challengeRef.current && nextMode === 'daily' ? todayUTC() : null
+      dailyDateRef.current = today
+      setDailyDate(today)
+      const seed = challengeRef.current?.seed ?? (today ? dailySeed(today) : freshSeed())
       const g = createGame(seed)
       prevPhaseRef.current = g.phase
       setFocus(0)
@@ -300,10 +311,12 @@ export function GameHunch({ storageKey }: { storageKey: string }) {
 
   const onNewGame = useCallback(() => {
     setShareStatus('idle')
-    // 도전 판·데일리는 같은 시드로 재시작(reset = 같은 규칙·덱·프로브).
-    if (challengeRef.current || modeRef.current === 'daily') dispatch({ type: 'reset' })
+    // 도전 판은 같은 시드로 재시작(reset = 같은 규칙·덱·프로브).
+    // 데일리는 항상 "오늘" 시드로 새로 연다 — UTC 자정을 넘긴 탭에서 reset하면 어제 판이 된다.
+    if (challengeRef.current) dispatch({ type: 'reset' })
+    else if (modeRef.current === 'daily') startRun('daily')
     else dispatch({ type: 'new', seed: freshSeed() })
-  }, [dispatch])
+  }, [dispatch, startRun])
 
   const leaveChallenge = useCallback(() => {
     challengeRef.current = null
@@ -974,7 +987,7 @@ export function GameHunch({ storageKey }: { storageKey: string }) {
                   const glyph = barGlyph(used, par, `${used} TESTS · PAR ${par}`)
                   return {
                     gameName: 'Hunch',
-                    dateISO: todayUTC(),
+                    dateISO: dailyDate ?? todayUTC(),
                     accent: '#a855f7',
                     lines: [],
                     streak,
@@ -985,7 +998,7 @@ export function GameHunch({ storageKey }: { storageKey: string }) {
                     glyph,
                     textSnippet: resultSnippet(
                       'Hunch',
-                      todayUTC(),
+                      dailyDate ?? todayUTC(),
                       true,
                       grade,
                       glyph.cells,

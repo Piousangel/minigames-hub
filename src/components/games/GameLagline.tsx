@@ -90,6 +90,11 @@ function clearChallengeParams(): void {
   }
 }
 
+/** Focus is on a control that handles Enter/Space itself (overlay buttons, links, inputs). */
+function isControlTarget(t: EventTarget | null): boolean {
+  return t instanceof HTMLElement && t.closest('button, a[href], input, textarea, select, [role="button"]') !== null
+}
+
 interface Banner {
   seq: number
   text: string
@@ -129,10 +134,11 @@ export function GameLagline({ storageKey }: { storageKey: string }) {
     setState(next)
   }, [])
 
+  // accRef (the elapsed part of the current beat) is deliberately kept across
+  // pause/resume: resetting it would hand out a fresh full beat on every P,P.
   const setPausedBoth = useCallback((p: boolean) => {
     pausedRef.current = p
     setPaused(p)
-    accRef.current = 0
   }, [])
 
   const showBanner = useCallback((text: string, color: string) => {
@@ -298,6 +304,9 @@ export function GameLagline({ storageKey }: { storageKey: string }) {
         }
         const after = stateRef.current
         if (after && after.status === 'running') phase = Math.min(1, accRef.current / beatMs(after.beat + 1))
+      } else if (s && s.status === 'running') {
+        // paused: freeze the beat phase where it was (no accumulation, no reset)
+        phase = Math.min(1, accRef.current / beatMs(s.beat + 1))
       } else {
         accRef.current = 0
       }
@@ -321,11 +330,24 @@ export function GameLagline({ storageKey }: { storageKey: string }) {
   // Keyboard.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Browser/OS shortcuts (Cmd/Ctrl+R reload, Cmd+D bookmark, Ctrl+S save…) are never moves.
+      if (e.ctrlKey || e.metaKey || e.altKey) return
       if (isTypingTarget(e.target)) return
       if (e.repeat) return
       const s = stateRef.current
       if (!s) return
       const key = e.key.length === 1 ? e.key.toLowerCase() : e.key
+      // Outside a live run (ready card, pause, game-over overlay) Enter/Space on a focused
+      // button/link must activate it (e.g. "Challenge a friend"), not restart or jump.
+      // The touch-control buttons are excluded: their keyboard input is the game's.
+      if (
+        (key === 'Enter' || key === ' ') &&
+        (s.status !== 'running' || pausedRef.current) &&
+        isControlTarget(e.target) &&
+        !(e.target instanceof HTMLElement && e.target.closest('[data-lagline-control]'))
+      ) {
+        return
+      }
       let cmd: Cmd | null = null
       switch (key) {
         case 'ArrowLeft':
@@ -837,6 +859,7 @@ export function GameLagline({ storageKey }: { storageKey: string }) {
         ).map(([cmd, glyph, label]) => (
           <GameButton
             key={cmd}
+            data-lagline-control=""
             variant="ghost"
             aria-label={label}
             className="min-h-11 min-w-11 text-lg"

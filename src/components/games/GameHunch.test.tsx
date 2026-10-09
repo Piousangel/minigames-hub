@@ -135,3 +135,44 @@ describe('GameHunch challenge links', () => {
     expect(sendHit).not.toHaveBeenCalledWith('hunch', 'challenge-done')
   })
 })
+
+describe('GameHunch daily date boundary', () => {
+  /** Plays the mirrored board to a win with perfect answers. */
+  function winRun(d: ReturnType<typeof driver>) {
+    for (let guard = 0; guard < 100 && d.state.phase !== 'won'; guard++) {
+      if (d.state.phase === 'stageClear') d.nextStage()
+      else if (d.state.phase === 'test') {
+        if (d.state.tests === 0) d.testFirstCard()
+        else d.predict()
+      } else d.answer(true)
+    }
+    expect(d.state.phase).toBe('won')
+  }
+
+  beforeEach(() => {
+    localStorage.clear()
+    vi.useFakeTimers({ toFake: ['Date'] })
+    vi.setSystemTime(new Date('2026-10-08T23:59:00Z'))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it("Replay Daily after UTC midnight starts today's board and a win bumps today's streak", () => {
+    render(<GameHunch storageKey={STORAGE_KEY} />)
+    vi.setSystemTime(new Date('2026-10-09T00:01:00Z'))
+    fireEvent.click(screen.getByRole('button', { name: 'Replay Daily' }))
+    winRun(driver(20261009))
+    expect(screen.getByTestId('you-win')).toBeInTheDocument()
+    expect(JSON.parse(localStorage.getItem('hunch:daily')!)).toMatchObject({ lastDate: '2026-10-09', streak: 1 })
+  })
+
+  it("winning yesterday's board after UTC midnight does not bump today's streak", () => {
+    render(<GameHunch storageKey={STORAGE_KEY} />)
+    vi.setSystemTime(new Date('2026-10-09T00:01:00Z'))
+    winRun(driver(20261008))
+    expect(screen.getByTestId('you-win')).toBeInTheDocument()
+    expect(localStorage.getItem('hunch:daily')).toBeNull()
+  })
+})

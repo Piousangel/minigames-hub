@@ -624,4 +624,36 @@ describe('challenge seeds & fairness', () => {
     expect(s.lastEvent).toBe('lose')
     expect(deckExhausted(s)).toBe(true)
   })
+
+  it('a correct call that empties the draw pile returns to test instead of losing', () => {
+    let s = createGame(77)
+    s = reduce(s, { type: 'play', index: 0 })
+    s = reduce(s, { type: 'predict' })
+    s = { ...s, drawPile: [] } // the probe on the table was the last card
+    const rule = s.stages[s.stageIndex].ruleId
+    const before = s
+    s = reduce(s, { type: 'answer', accept: judge(rule, prevCard(s), s.probe!.id) })
+    expect(s.phase).toBe('test')
+    expect(s.lastEvent).toBe('correct')
+    expect(s.probe).toBeNull()
+    expect(s.streak).toBe(0) // leaving predict mode breaks the run, like cancelPredict
+    expect(s.score).toBe(before.score + 10)
+    expect(s.lives).toBe(before.lives)
+    expect(deckExhausted(s)).toBe(false)
+    // hand cards + test budget remain → still playable
+    const s2 = reduce(s, { type: 'play', index: 0 })
+    expect(s2.lastEvent).not.toBe('illegal')
+  })
+
+  it('a correct call that empties the pile with no hand/tests left ends the run', () => {
+    let s = createGame(77)
+    s = reduce(s, { type: 'play', index: 0 })
+    s = reduce(s, { type: 'predict' })
+    s = { ...s, drawPile: [], tests: MAX_TESTS }
+    const rule = s.stages[s.stageIndex].ruleId
+    s = reduce(s, { type: 'answer', accept: judge(rule, prevCard(s), s.probe!.id) })
+    expect(s.phase).toBe('lost')
+    expect(s.lastEvent).toBe('lose')
+    expect(deckExhausted(s)).toBe(true)
+  })
 })
