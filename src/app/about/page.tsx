@@ -71,7 +71,8 @@ export default function AboutPage() {
         the project has thousands of automated tests that play moves against those engines and
         confirm the scores, streaks and edge cases come out right, plus browser smoke tests that
         load the games and check the board appears. Daily puzzles generate their board from the
-        date, which is why everyone sees the same one on the same day.      </p>
+        date, which is why everyone sees the same one on the same day.
+      </p>
 
       <h2>Your privacy</h2>
       <p>
