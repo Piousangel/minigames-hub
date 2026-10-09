@@ -9,7 +9,8 @@
  *   - 일수: 조회 기간(기본 7). 예: node scripts/analytics.mjs 30
  *
  * mg_events 스키마(우리 worker writeDataPoint 기준):
- *   index1=slug, blob1=event(view|dwell|win|lose), blob2=country, blob3=referrer, blob4=vid, double1=dwell(초)
+ *   index1=slug, blob1=event(view|pageview|dwell|win|lose|challenge-*), blob2=country, blob3=referrer, blob4=vid,
+ *   blob5=유입 태그(?ref=, 예: share — 2026-10 추가, 이전 행은 ''), double1=dwell(초)
  */
 
 const ACCOUNT = process.env.CF_ACCOUNT_ID || 'f9ca01fb346f810310bfb49234926972'
@@ -116,7 +117,7 @@ async function main() {
     `SELECT blob3 AS referrer, SUM(_sample_interval) AS hits, COUNT(DISTINCT blob4) AS visitors
      FROM mg_events
      WHERE (blob1='view' OR blob1='pageview') AND blob3!=''
-       AND positionCaseInsensitive(blob3, 'quickminigames.site') = 0 AND ${SINCE}
+       AND blob3 NOT LIKE '%quickminigames.site%' AND ${SINCE}
      GROUP BY referrer ORDER BY visitors DESC LIMIT 20`,
   )
   console.log(`\n[★ 외부 유입 출처 — 캠페인 성패 판정]`)
@@ -133,6 +134,30 @@ async function main() {
     `SELECT blob2 AS country, SUM(_sample_interval) AS n
      FROM mg_events WHERE blob1='view' AND ${SINCE} GROUP BY country ORDER BY n DESC LIMIT 12`,
   )
+  // 3.7) 도전 링크 루프 — 1:1 도전장(src/lib/challenge.ts)의 7일 판정 표.
+  // share_in = ?ref=share 로 들어온 진입(blob5 태그), challenge-sent = 결과 화면에서 도전장을
+  // 실제로 공유/복사, challenge-done = 도전장으로 들어와 한 판을 끝냄. share_in ≥1 이고 sent가
+  // 2번째 사람에게서 나오면(되받아치기) 루프가 닫힌 것.
+  // 진입은 'pageview'만 센다 — 게임 페이지는 'view'(RecordPlay)와 'pageview'(RecordPageView)가
+  // 둘 다 발화해서, 둘 다 세면 hits가 2배가 된다.
+  const loop = await q(
+    `SELECT
+       if(blob1='pageview', 'share_in', blob1) AS step,
+       SUM(_sample_interval) AS hits, COUNT(DISTINCT blob4) AS visitors
+     FROM mg_events
+     WHERE (blob1='pageview' AND blob5='share'
+        OR blob1='challenge-sent' OR blob1='challenge-done') AND ${SINCE}
+     GROUP BY step ORDER BY step`,
+  )
+  console.log(`\n[★ 도전 링크 루프 — share_in / challenge-sent / challenge-done]`)
+  console.log(
+    table(loop.data, [
+      { h: 'step', k: 'step' },
+      { h: 'hits', k: 'hits' },
+      { h: 'visitors', k: 'visitors' },
+    ]),
+  )
+
   console.log(`\n[국가]`)
   console.log(table(geo.data, [{ h: 'country', k: 'country' }, { h: 'n', k: 'n' }]))
 

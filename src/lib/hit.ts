@@ -22,6 +22,21 @@ function visitorId(): string {
 }
 
 /**
+ * 진입 URL의 `?ref=<tag>` — 도전 링크 등 우리가 뿌린 링크의 유입 태그. 카톡·디스코드 등
+ * 메신저에서 연 링크는 document.referrer가 비어 있어서, 태그 없이는 유입이 통째로 안 보인다.
+ * referrer(blob3)와 섞지 않고 별도 필드(blob5)로 보낸다 — 섞으면 기존 referrer 표가 같은
+ * 출처를 두 줄로 쪼갠다.
+ */
+export function entryTag(search: string): string {
+  try {
+    const raw = new URLSearchParams(search).get('ref') ?? ''
+    return /^[a-z0-9_-]{1,20}$/i.test(raw) ? raw.toLowerCase() : ''
+  } catch {
+    return ''
+  }
+}
+
+/**
  * 1st-party 분석 비콘 — 같은 오리진 /api/hit로 게임별 조회·체류를 논블로킹 전송.
  * 외부 스크립트/CSP/토큰 불필요(DOMAIN §7 Workers Analytics Engine). 실패는 조용히 무시.
  */
@@ -31,12 +46,10 @@ export function sendHit(slug: string, event: string, dwell?: number): void {
     if (dwell != null) payload.dwell = Math.round(dwell)
     // referrer는 진입 이벤트에만 의미가 있다. 'pageview'(비게임 페이지)도 진입이므로
     // 포함해야 외부 유입 캠페인(커뮤니티 배포 등)의 referrer를 실제로 잡을 수 있다.
-    if (
-      (event === 'view' || event === 'pageview') &&
-      typeof document !== 'undefined' &&
-      document.referrer
-    ) {
-      payload.ref = document.referrer
+    if ((event === 'view' || event === 'pageview') && typeof document !== 'undefined') {
+      if (document.referrer) payload.ref = document.referrer
+      const tag = entryTag(typeof location !== 'undefined' ? location.search : '')
+      if (tag) payload.tag = tag
     }
     const body = JSON.stringify(payload)
     // sendBeacon은 언로드 중에도 살아남아 dwell 집계에 적합. 없으면 keepalive fetch.
