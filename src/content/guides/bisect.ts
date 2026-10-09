@@ -11,7 +11,7 @@ export const guide: GameGuide = {
       heading: 'The one rule that changes everything',
       paragraphs: [
         'Most people approach Bisect as "watch the start, watch the end, tap halfway." The code does not allow that. The halfway point always comes before the end signal, and the moment you tap, the round is judged and over. So in any round you score, you have seen the start flash and nothing else. The end flash only appears if you have not tapped yet when it fires — and by then every possible tap is already past the midpoint by at least half the interval, which grades as a miss.',
-        'In other words, Bisect is not a reaction game and not really a "split the interval" game. It is a prediction game: after the start flash, choose when to tap without knowing how long this round will be. Once you accept that, the right strategy becomes something you can calculate, and that is what this guide does. All figures come from scripts/content-sims/bisect.ts in this site\'s repository, which uses the game\'s real grading function.',
+        'In other words, Bisect is not a reaction game and not really a "split the interval" game. It is a prediction game: after the start flash, choose when to tap without knowing how long this round will be. Once you accept that, the right strategy becomes something you can calculate, and that is what this guide does. All figures come from my internal simulation script, which uses the game\'s real grading function.',
       ],
     },
     {
@@ -70,10 +70,10 @@ export const guide: GameGuide = {
       ],
     },
     {
-      heading: 'What the page hints get wrong, and what they get right',
+      heading: 'What Bisect really tests',
       paragraphs: [
-        'You may read elsewhere that you should "watch for the end flash and tap halfway." In this version that is not possible, for the reasons above. Likewise, the idea that a fixed rhythm will not carry over between rounds is backwards: a fixed rhythm is precisely the best available play, because each round is drawn independently and you never get information about its length before you must commit.',
-        'What is true is that early and late errors cost the same, that consistency matters more than any single great tap, and that the streak bonus rewards long runs. Bisect is a test of how reliably you can reproduce one short interval under pressure — and once you treat it that way, your average run will climb.',
+        'Because each round is drawn independently and you never get information about its length before you must commit, a fixed rhythm is precisely the best available play. Watching for the end flash and tapping halfway is not possible here, for the reasons above.',
+        'What does matter is that early and late errors cost the same, that consistency matters more than any single great tap, and that the streak bonus rewards long runs. Bisect is a test of how reliably you can reproduce one short interval under pressure — and once you treat it that way, your average run will climb.',
       ],
     },
   ],

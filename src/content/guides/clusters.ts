@@ -10,7 +10,7 @@ export const guide: GameGuide = {
     {
       heading: 'Where these numbers come from',
       paragraphs: [
-        'This guide describes the Clusters that runs on this site, read directly from its source code and measured with a script that imports the game\'s own engine (scripts/content-sims/clusters.ts in the repository). The script reports only aggregate statistics. Nothing here names a group or tile from any specific day, so you can read it without spoiling a puzzle.',
+        'This guide describes the Clusters that runs on this site, read directly from its source code and measured with my internal simulation script (fixed random seed), which imports the game\'s own engine. The script reports only aggregate statistics. Nothing here names a group or tile from any specific day, so you can read it without spoiling a puzzle.',
         'If you already know the basic loop — pick four, submit, find all four groups — the useful part is knowing how the board is assembled. Several details of the generator give you real information that most players never use.',
       ],
     },

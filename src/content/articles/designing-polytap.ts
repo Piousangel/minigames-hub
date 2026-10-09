@@ -4,7 +4,7 @@ export const article: Article = {
   slug: 'designing-polytap',
   title: 'Designing Polytap: a rhythm game where precision is not the point',
   description:
-    'Why Polytap keeps a fixed, generous timing window, makes three-against-four its whole identity, and why we stopped letting players die in the warm-up.',
+    'Why Polytap keeps a fixed, generous timing window, makes three-against-four its whole identity, and why I stopped letting players die in the warm-up.',
   published: '2026-10-09',
   kind: 'design-notes',
   relatedGames: ['polytap'],
@@ -13,22 +13,22 @@ export const article: Article = {
       heading: 'The idea: two clocks, two hands',
       paragraphs: [
         'Polytap has two keys. F belongs to a clock that ticks every 3 beats; J belongs to a clock that ticks every 4. Each hand only has to follow its own pulse, which on its own is trivial. The game is what happens when you run both at once. Three against four is a classic polyrhythm: the two pulses drift apart, cross, and come back together every 12 beats. At that meeting point, both keys are due at the same moment, and you have to strike them together.',
-        'Our one-line pitch for it was “keep two out-of-phase clocks alive at the same time.” Most rhythm games ask you to follow one stream of notes that gets denser. Polytap asks you to split your attention into two independent streams that keep interfering with each other.',
+        'My one-line pitch for it was “keep two out-of-phase clocks alive at the same time.” Most rhythm games ask you to follow one stream of notes that gets denser. Polytap asks you to split your attention into two independent streams that keep interfering with each other.',
       ],
     },
     {
       heading: 'The constraint: interference, not accuracy',
       paragraphs: [
-        'The first design decision was negative. We decided precision would not be the axis of difficulty. The judgement window is ±1/4 of a beat and it never shrinks, at any stage. There are no Perfect or Great grades either: any hit inside the window scores the same 10 points. The engine source says it plainly, next to the constant: “Never shrinks — this is the design.”',
-        'We did this because a shrinking window turns every rhythm game into the same game. If the timing gets tighter, the challenge becomes reflexes, and the specific thing that makes polyrhythm hard, keeping two pulses independent, gets buried under it. With a fixed, forgiving window, nearly every failure in Polytap is the interesting kind: you played J on the F pulse, or you hesitated because the two clocks were about to collide.',
-        'Tempo does rise, but gently. The game starts at 96 BPM, adds 4 BPM per stage, and stops at 132. At 96 BPM a beat lasts 625 ms, so the window is about ±156 ms; at the 132 BPM cap it is still about ±114 ms. That is a deliberately wide target. Tempo is the core of another game on the site, Flywheel, and we did not want Polytap to become a second version of it.',
+        'The first design decision was negative. I decided precision would not be the axis of difficulty. The judgement window is ±1/4 of a beat and it never shrinks, at any stage. There are no Perfect or Great grades either: any hit inside the window scores the same 10 points. The engine source says it plainly, next to the constant: “Never shrinks — this is the design.”',
+        'I did this because a shrinking window turns every rhythm game into the same game. If the timing gets tighter, the challenge becomes reflexes, and the specific thing that makes polyrhythm hard, keeping two pulses independent, gets buried under it. With a fixed, forgiving window, nearly every failure in Polytap is the interesting kind: you played J on the F pulse, or you hesitated because the two clocks were about to collide.',
+        'Tempo does rise, but gently. The game starts at 96 BPM, adds 4 BPM per stage, and stops at 132. At 96 BPM a beat lasts 625 ms, so the window is about ±156 ms; at the 132 BPM cap it is still about ±114 ms. That is a deliberately wide target. Tempo is the core of another game on the site, Flywheel, and I did not want Polytap to become a second version of it.',
       ],
     },
     {
       heading: 'The collision is sudden death',
       paragraphs: [
         'If the window is generous, something else has to carry the threat. In Polytap it is the confluence, the beat where both clocks are due. You have 3 lives for ordinary misses, but if you drop either half of a confluence, the run ends immediately, no matter how many lives are left. The confluence notes are drawn in amber rather than the lane colors, and the hint text says it directly once both clocks are running: miss the bright column and the run ends.',
-        'We added a second, quieter rule that we think makes the game honest. Tapping a key when nothing is due is a stray, and a stray costs a life. But a stray does not consume the next note. That beat still arrives and, if you do not hit it properly, it counts as a miss as well. The double punishment is intentional. It tends to happen exactly when your two hands start bleeding into each other, which is the failure the game is about.',
+        'I added a second, quieter rule that I think makes the game honest. Tapping a key when nothing is due is a stray, and a stray costs a life. But a stray does not consume the next note. That beat still arrives and, if you do not hit it properly, it counts as a miss as well. The double punishment is intentional. It tends to happen exactly when your two hands start bleeding into each other, which is the failure the game is about.',
       ],
     },
     {
@@ -71,7 +71,7 @@ export const article: Article = {
       heading: 'A playtest lesson that went the other way',
       paragraphs: [
         'During the same round of browser checks, Polytap at first looked broken: the F pad did not respond. It turned out the check itself was wrong. In the warm-up, the F pad is disabled on purpose, because F has not joined yet. The game was fine; the test was poking at a key that was not supposed to work yet.',
-        'We wrote that one down because it was the mirror image of an earlier mistake, where a game passed every unit test and still could not be played with a mouse. The rule we took away is simple and a little uncomfortable: a red result is not proof the game is broken, and a green one is not proof it works. You have to look at the real screen to tell which.',
+        'I wrote that one down because it was the mirror image of an earlier mistake, where a game passed every unit test and still could not be played with a mouse. The rule I took away is simple and a little uncomfortable: a red result is not proof the game is broken, and a green one is not proof it works. You have to look at the real screen to tell which.',
       ],
     },
     {
@@ -84,7 +84,7 @@ export const article: Article = {
     {
       heading: 'What is next',
       paragraphs: [
-        'The pair list stops at 4 against 7, and every pair in it is coprime. A pair with a common factor, like 4 against 6, would collide every 12 beats while sounding much less tangled, so if the list grows, a pair like 5 against 7 is the natural candidate rather than anything with a shared factor. We are also interested in whether the lock bonus is visible enough. Right now a lock shows as a small badge, and the difference between a lock and a plain confluence is mostly felt rather than seen. Those are tuning questions, though. The two rules that define the game, the window that never shrinks and the collision that ends the run, are staying.',
+        'The pair list stops at 4 against 7, and every pair in it is coprime. A pair with a common factor, like 4 against 6, would collide every 12 beats while sounding much less tangled, so if the list grows, a pair like 5 against 7 is the natural candidate rather than anything with a shared factor. I am also interested in whether the lock bonus is visible enough. Right now a lock shows as a small badge, and the difference between a lock and a plain confluence is mostly felt rather than seen. Those are tuning questions, though. The two rules that define the game, the window that never shrinks and the collision that ends the run, are staying.',
       ],
     },
   ],

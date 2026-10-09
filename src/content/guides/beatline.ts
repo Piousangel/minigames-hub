@@ -10,8 +10,8 @@ export const guide: GameGuide = {
     {
       heading: 'The windows, in milliseconds',
       paragraphs: [
-        'Beatline judges every press against the moment the note reaches the line, counted in 10 ms steps. Within 50 ms either side is a Perfect. Within 120 ms either side is a Good. Anything further out is not a late or early hit — it is a press with nothing to hit.',
-        'That last point is the one that costs runs. A press that finds no note in its lane inside the 120 ms window counts as a miss on its own: you lose a life and your combo. A note you never hit is also a miss, judged 120 ms after it passes the line. So a press 150 ms early on a real note is punished twice — once for the empty press, and again when the note sails by. In our simulation, a single press 150 ms too early on the sixth note cost 2 lives, not 1.',
+        'Beatline judges every press against the moment the note reaches the line, counted in 10 ms steps. Within 50 ms either side is a Perfect. Within 120 ms either side is a Good. Anything further out is not a late or early hit — it is a press with nothing to hit. These windows are fixed in milliseconds and do not tighten from stage to stage. (Polytap takes a different route, with a window tied to the beat and no Perfect grade at all; my design notes on it are at /guides/designing-polytap.)',
+        'That last point is the one that costs runs. A press that finds no note in its lane inside the 120 ms window counts as a miss on its own: you lose a life and your combo. A note you never hit is also a miss, judged 120 ms after it passes the line. So a press 150 ms early on a real note is punished twice — once for the empty press, and again when the note sails by. In my simulation, a single press 150 ms too early on the sixth note cost 2 lives, not 1.',
         'You have 4 lives for the whole run, not per stage, and nothing refills them. Four misses anywhere across the five stages ends the run, whether they come from skipped notes or stray taps.',
       ],
     },
@@ -19,7 +19,7 @@ export const guide: GameGuide = {
       heading: 'What each stage throws at you',
       paragraphs: [
         'All five charts are built from a rhythmic grid: notes can only appear on fixed slots, each slot spawns a note with a set probability, and a lane is chosen at random. No two notes ever share a slot, so there are no chords — only one key is ever needed at a time. Notes in the same lane are always at least 250 ms apart. Each note appears 1.5 seconds before it reaches the line.',
-        'We generated the charts for 1,000 seeds with the game’s own generator (scripts/content-sims/beatline.ts) to see what a typical run looks like. Every chart hit its full note count, so a run is always 140 notes.',
+        'I generated the charts for 1,000 seeds with the game’s own generator in my internal simulation script to see what a typical run looks like. Every chart hit its full note count, so a run is always 140 notes.',
       ],
       list: [
         'Stage 1: 96 BPM, notes on a 320 ms grid, 20 notes, last note after 18.4 s on average, 1.09 notes per second.',
@@ -33,7 +33,7 @@ export const guide: GameGuide = {
       heading: 'The real difficulty jump is stage 4',
       paragraphs: [
         'Stages 1 to 3 speed up gradually; stage 4 does not. The grid switches from two slots per beat to three, the tightest gap between notes drops from 250 ms to 150 ms, and note density jumps from 1.81 to 3.00 per second. Stage 5 is only a small step beyond that.',
-        'There is one more change hidden in those numbers. In stages 1 to 3, about a quarter of consecutive notes land in the same lane as the one before (24.8% to 25.1% in our charts). In stages 4 and 5 that drops to 13.9% and 12.4%, because a lane cannot be reused within 250 ms. Fast stages are therefore mostly runs that hop from lane to lane, and same-finger repeats only appear when they are slower. If your hands are going to break down, it will be on rapid alternation across D, F, J and K, so that is what to warm up.',
+        'There is one more change hidden in those numbers. In stages 1 to 3, about a quarter of consecutive notes land in the same lane as the one before (24.8% to 25.1% in my charts). In stages 4 and 5 that drops to 13.9% and 12.4%, because a lane cannot be reused within 250 ms. Fast stages are therefore mostly runs that hop from lane to lane, and same-finger repeats only appear when they are slower. If your hands are going to break down, it will be on rapid alternation across D, F, J and K, so that is what to warm up.',
       ],
     },
     {
@@ -47,7 +47,7 @@ export const guide: GameGuide = {
     {
       heading: 'A miss in the middle costs the most',
       paragraphs: [
-        'Because the multiplier rebuilds slowly, where you miss matters far more than how many points the note itself was worth. We replayed an otherwise perfect run and skipped exactly one note at different points.',
+        'Because the multiplier rebuilds slowly, where you miss matters far more than how many points the note itself was worth. I replayed an otherwise perfect run and skipped exactly one note at different points.',
         'Missing the first or last note costs 2,000 points. Missing the tenth costs 12,800, and the eleventh 14,000, because now the whole ×2 to ×5 climb starts later. Missing a note in the middle of the run, once you are at ×5, costs 32,000 — it takes 40 notes of perfect play to get back to full multiplier.',
       ],
       list: [
@@ -60,9 +60,9 @@ export const guide: GameGuide = {
     {
       heading: 'How precise do you need to be?',
       paragraphs: [
-        'To put numbers on skill, we simulated players whose timing errors follow a bell curve, ran 1,000 runs at each level of precision through the real game logic, and recorded how often they cleared all five stages. The spread of the timing error (the standard deviation) is what changes between rows.',
+        'To put numbers on skill, I simulated players whose timing errors follow a bell curve, ran 1,000 runs at each level of precision through the real game logic, and recorded how often they cleared all five stages. The spread of the timing error (the standard deviation) is what changes between rows.',
         'The results are steep. A player whose typical error is 35 ms clears the run 99.9% of the time and averages 173,204 points. At 50 ms, the win rate falls to 51.6% and the average score to 102,971. At 65 ms, only 0.2% of runs survive and the average run gets no further than stage 2. The difference between a comfortable clear and no chance at all is about 30 ms of consistency.',
-        'The 50 ms group is worth a closer look. Their 484 failed runs were spread across every stage — 29, 68, 108, 132 and 147 losses in stages 1 to 5 — climbing towards the end. That is the shared pool of four lives at work: a run does not die on one hard passage but from misses collected along the way, so the last stages kill the most runs even though the simulated timing error never changes. Real hands do get sloppier as notes speed up, which our model leaves out, so if anything the late stages are harder than these figures suggest.',
+        'The 50 ms group is worth a closer look. Their 484 failed runs were spread across every stage — 29, 68, 108, 132 and 147 losses in stages 1 to 5 — climbing towards the end. That is the shared pool of four lives at work: a run does not die on one hard passage but from misses collected along the way, so the last stages kill the most runs even though the simulated timing error never changes. Real hands do get sloppier as notes speed up, which my model leaves out, so if anything the late stages are harder than these figures suggest.',
       ],
       list: [
         '20 ms spread: 100% of runs won, average 187,306, 99.4% of hits Perfect.',

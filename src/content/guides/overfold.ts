@@ -8,9 +8,9 @@ export const guide: GameGuide = {
   updated: '2026-10-09',
   sections: [
     {
-      heading: 'What we measured, and how',
+      heading: 'What I measured, and how',
       paragraphs: [
-        'Overfold boards are small enough to solve completely by computer, so instead of guessing at strategy we searched every possible fold sequence. The script (scripts/content-sims/overfold.ts in this site\'s repository) generates boards with the game\'s real generator, 1,000 per level for levels 1 to 5, and replays every legal fold through the game\'s own fold-preview function. Level 5 is the last level whose rules change: from there on every board is built from up to seven folds, so the level 5 figures describe every later level too.',
+        'Overfold boards are small enough to solve completely by computer, so instead of guessing at strategy I searched every possible fold sequence. My internal simulation script generates boards with the game\'s real generator, 1,000 per level for levels 1 to 5, and replays every legal fold through the game\'s own fold-preview function. Level 5 is the last level whose rules change: from there on every board is built from up to seven folds, so the level 5 figures describe every later level too.',
         'The results overturn the most common assumption about the game — that the challenge is getting the board cleared. It almost never is.',
       ],
     },

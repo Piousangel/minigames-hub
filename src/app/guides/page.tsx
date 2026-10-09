@@ -5,7 +5,7 @@ import { siteConfig } from '@/lib/siteConfig'
 
 const TITLE = 'Game Guides, Designer Notes & Data'
 const DESCRIPTION =
-  'In-depth strategy guides, designer notes on our original games, and data from simulating our own game engines.'
+  'In-depth strategy guides, designer notes on original games, and data from simulating this site\'s own game engines.'
 
 export const metadata: Metadata = {
   title: { absolute: `${TITLE} — ${siteConfig.name}` },
@@ -33,10 +33,10 @@ export default function GuidesHub() {
     <main className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="mb-3 text-3xl font-bold">{TITLE}</h1>
       <p className="mb-8 leading-relaxed text-fg-muted">
-        Every game on {siteConfig.name} runs on a rules engine we wrote ourselves, which means we can read the exact
+        Every game on {siteConfig.name} runs on a rules engine I wrote myself, which means I can read the exact
         scoring formulas and run thousands of simulated games to see what actually works. These pages are where that
-        goes: strategy guides grounded in the real rules, notes on how our original games were designed and changed,
-        and numbers you won&apos;t find anywhere else.
+        goes: strategy guides grounded in the real rules, notes on how the site&apos;s original games were designed and
+        changed, and numbers you won&apos;t find anywhere else.
       </p>
 
       {GUIDES.length > 0 && (

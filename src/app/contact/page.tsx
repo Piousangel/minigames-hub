@@ -31,8 +31,8 @@ export default function ContactPage() {
           That detail lets me reproduce and fix the problem quickly.
         </li>
         <li>
-          <strong>Game ideas:</strong> the game or mechanic you would like to see. Feedback directly
-          shapes which games get built next — several games on the site started as a player suggestion.
+          <strong>Game ideas:</strong> the game or mechanic you would like to see. I read every
+          suggestion when deciding what to build next.
         </li>
         <li>
           <strong>Corrections:</strong> if a rule, strategy tip or FAQ answer on any game page looks

@@ -51,7 +51,7 @@ export const guide: GameGuide = {
     {
       heading: 'What consistency is worth: simulated keyers',
       paragraphs: [
-        "We fed a model keyer into the game's real reducer. Every hold and every gap was its ideal length multiplied by a random factor with a set spread (σ), so σ = 0.10 means a typical error of about 10%. Each setting was run on 2,000 words drawn from that level's real word list. At level 1, a 10% keyer lost 0.01 lives per word and keyed 99.2% of words without a mistake. At 20% spread that fell to 66.0% mistake-free with 0.29 lives lost per word, and at 30% to 33.0% with 0.75 lives lost.",
+        "I fed a model keyer into the game's real reducer. Every hold and every gap was its ideal length multiplied by a random factor with a set spread (σ), so σ = 0.10 means a typical error of about 10%. Each setting was run on 2,000 words drawn from that level's real word list. At level 1, a 10% keyer lost 0.01 lives per word and keyed 99.2% of words without a mistake. At 20% spread that fell to 66.0% mistake-free with 0.29 lives lost per word, and at 30% to 33.0% with 0.75 lives lost.",
         "Level 4, where the phrases begin, separates players sharply. The 10% keyer still finished 96.0% of words with no mistakes, while the 20% keyer lost 0.99 lives per word and the 30% keyer 2.45. At that rate, five lives last about two phrases. At level 6, even the 10% keyer kept just 71.7% of symbols clean, because the 15% band is narrow. It still lost only 0.03 lives per word, since the dot/dash and gap boundaries don't tighten with level.",
       ],
       list: [
@@ -63,8 +63,8 @@ export const guide: GameGuide = {
     {
       heading: 'How wrong can the first press be?',
       paragraphs: [
-        "In a second test, the keyer was perfect except for its first press, which we stretched or shrank by a factor f, and we checked every word in each level's list. A word still went through without mistakes for f from 0.60 to 1.49 on levels 1–3. From level 4 the upper limit falls to 1.39, because a true 7-unit word gap has to stay above 5 of the inflated units. To keep every symbol clean as well, the window narrows to 0.77–1.39 at level 4, 0.82–1.29 at level 5 and 0.87–1.17 from level 6.",
-        "In practice, an over-long first press is the most common way to wreck a phrase on the later levels. Make the opening symbol the most ordinary press of the word, rather than a deliberate, heavy one, and count every gap in multiples of that same press.",
+        "In a second test, the keyer was perfect except for its first press, which I stretched or shrank by a factor f, and I checked every word in each level's list. A word still went through without mistakes for f from 0.60 to 1.49 on levels 1–3. From level 4 the upper limit falls to 1.39, because a true 7-unit word gap has to stay above 5 of the inflated units. To keep every symbol clean as well, the window narrows to 0.77–1.39 at level 4, 0.82–1.29 at level 5 and 0.87–1.17 from level 6.",
+        "In practice, an over-long first press is the most common way to wreck a phrase on the later levels. Make the opening symbol the most ordinary press of the word, rather than a deliberate, heavy one, and count every gap in multiples of that same press. Why the first press is used as the ruler at all is explained in my design notes at /guides/designing-morse-relay.",
       ],
     },
   ],

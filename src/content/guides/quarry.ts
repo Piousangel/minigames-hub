@@ -39,13 +39,13 @@ export const guide: GameGuide = {
       heading: 'Do not open in the centre',
       paragraphs: [
         'The centre feels like the safe first probe, and it is the worst opening on both boards. From the centre of a 5×5 board the reading can only be 0, 1 or 2, and 16 of the 25 starting cells give the same reading of 2. From the centre of a 7×7 board, 24 of 49 cells all read 3.',
-        'An edge probe splits the board into many more bands. On 5×5, probing the centre leaves an average of 12.8 possible cells; a corner leaves 6.56; the cell next to a corner on the top edge, row 1 column 2, leaves 6.0 and is the best opening we found. On 7×7, the centre leaves 18.3 cells on average, a corner 9.3, and the third cell along the top edge (row 1, column 3) 8.3.',
+        'An edge probe splits the board into many more bands. On 5×5, probing the centre leaves an average of 12.8 possible cells; a corner leaves 6.56; the cell next to a corner on the top edge, row 1 column 2, leaves 6.0 and is the best opening I found. On 7×7, the centre leaves 18.3 cells on average, a corner 9.3, and the third cell along the top edge (row 1, column 3) 8.3.',
               ],
     },
     {
       heading: 'What perfect tracking actually achieves',
       paragraphs: [
-        'The quarry starts on a uniformly random cell and everything after that is deterministic, so we did not need to sample: our script (scripts/content-sims/quarry.ts) runs each strategy through the game’s real probe function from every possible starting cell — all 25 on 5×5 and all 49 on 7×7 — and reports exact results.',
+        'The quarry starts on a uniformly random cell and everything after that is deterministic, so I did not need to sample: my internal simulation script runs each strategy through the game’s real probe function from every possible starting cell — all 25 on 5×5 and all 49 on 7×7 — and reports exact results.',
         'A naive tracker that opens in the centre and then always probes the first cell still in its candidate list never loses. It averages 3.56 probes on 5×5 and 3.61 on 7×7, needs at most 5, and earns three stars from 11 of 25 starting cells on 5×5 but all 49 on 7×7.',
         'A greedy tracker that chooses each probe to make the expected candidate list as small as possible does better: 2.96 probes on average on 5×5 and 3.04 on 7×7, and it never needs more than 4 probes on either board. That is three stars from 20 of the 25 starting cells on 5×5, and from all 49 on 7×7. A deeper search over probe sequences matched it on 5×5 (2.96) and only shaved 7×7 to 3.02, so greedy splitting is essentially as good as it gets.',
       ],
@@ -58,14 +58,14 @@ export const guide: GameGuide = {
     {
       heading: 'Why 7×7 is easier to three-star than 5×5',
       paragraphs: [
-        'Par grows with the board — from 5 to 7 — while the probes a good tracker needs barely move: 2.96 on 5×5 against 3.04 on 7×7. The three-star line on 7×7 sits at 5 probes, a full probe above the worst case of good tracking. On 5×5 the line is 3, and 5 of the 25 starting cells need 4 probes even with the best strategy we could find.',
+        'Par grows with the board — from 5 to 7 — while the probes a good tracker needs barely move: 2.96 on 5×5 against 3.04 on 7×7. The three-star line on 7×7 sits at 5 probes, a full probe above the worst case of good tracking. On 5×5 the line is 3, and 5 of the 25 starting cells need 4 probes even with the best strategy I could find.',
         'So treat levels 1 and 2 as the hard part of the run and expect to drop a star there now and then. From level 3 on, a two-star catch means you wasted probes, and every catch should be under par so that the streak bonus keeps climbing. The tenth consecutive under-par catch is worth 50 points of streak bonus on its own.',
       ],
     },
     {
       heading: 'Walls and corners: less useful than they look',
       paragraphs: [
-        'The game’s own tips talk about herding the quarry into a corner, and it is true that a quarry on the wall it is fleeing toward cannot move. But in the tracking picture, that pin buys you surprisingly little. We checked every probe cell on both boards against every pair of candidate cells that would give the same reading: in no case do two of them land on the same cell after the flee — 0 merges on 5×5 and 0 on 7×7. A wall never squeezes your candidate list; only new readings do.',
+        'Herding the quarry into a corner sounds like the natural plan, and it is true that a quarry on the wall it is fleeing toward cannot move. But in the tracking picture, that pin buys you surprisingly little. I checked every probe cell on both boards against every pair of candidate cells that would give the same reading: in no case do two of them land on the same cell after the flee — 0 merges on 5×5 and 0 on 7×7. A wall never squeezes your candidate list; only new readings do.',
         'What a pin does change is the ring rule: a pinned quarry stays at distance d instead of moving to d + 1. And every probe spent pushing the quarry toward a corner is a probe not spent splitting the candidates. The greedy tracker above never aims for a corner and never needs more than 4 probes. Read first, and herd only when the most informative probe happens to push toward a wall.',
       ],
     },

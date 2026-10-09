@@ -17,7 +17,7 @@ export const guide: GameGuide = {
     {
       heading: 'Cheapest-first versus best payback, simulated',
       paragraphs: [
-        "We drove the game's real engine in 100-millisecond steps from a brand-new save until lifetime charge reached 1,000,000, the point where Reboot unlocks, and tried several buying rules. The usual idle-game advice is to buy whatever is cheapest the moment you can afford it. With a steady three taps per second, that took 1 hour 22 minutes. A different rule, which saves for whichever module currently has the shortest payback even when that means waiting, took 40 minutes 14 seconds. That is just under half the time.",
+        "I drove the game's real engine in 100-millisecond steps from a brand-new save until lifetime charge reached 1,000,000, the point where Reboot unlocks, and tried several buying rules. The usual idle-game advice is to buy whatever is cheapest the moment you can afford it. With a steady three taps per second, that took 1 hour 22 minutes. A different rule, which saves for whichever module currently has the shortest payback even when that means waiting, took 40 minutes 14 seconds. That is just under half the time.",
         "The gap holds when you stop tapping. If you tap only until the first Capacitor and then leave it alone, cheapest-first needs 1 hour 40 minutes and the payback rule 1 hour 2 minutes. Buying nothing but Capacitors, for comparison, took 30 hours 42 minutes even with constant tapping.",
         "You can see why in the final builds. Cheapest-first ended with 59 Capacitors, 43 Coils, 26 Cells and 9 Cores, producing 679.9/s. The payback rule ended with 16/16/14/9 of those plus 4 Arrays, producing 1,592.6/s. Cheapest-first keeps pouring charge into low tiers whose prices have grown far beyond what they return.",
       ],
@@ -38,7 +38,7 @@ export const guide: GameGuide = {
     {
       heading: 'Tapping: worth it only at the very start',
       paragraphs: [
-        "A tap gives your tap power multiplied by the prestige multiplier. On a fresh save that is 1 charge, so ten taps buy the first Capacitor. After that, taps fade into irrelevance quickly. In our runs, doubling the tap rate from 3 to 6 per second saved under three minutes out of forty under the payback rule. Not tapping at all after the first purchase cost about 22 minutes.",
+        "A tap gives your tap power multiplied by the prestige multiplier. On a fresh save that is 1 charge, so ten taps buy the first Capacitor. After that, taps fade into irrelevance quickly. In my runs, doubling the tap rate from 3 to 6 per second saved under three minutes out of forty under the payback rule. Not tapping at all after the first purchase cost about 22 minutes.",
         "Tapping is worth doing in the first few minutes, when a handful of taps equals many seconds of production, and close to pointless once you produce more per second than you can tap. Each Reboot adds 1 to tap power, which nudges this balance a little but doesn't change it.",
       ],
     },
@@ -53,7 +53,7 @@ export const guide: GameGuide = {
       heading: 'Reboot math: a linear boost, not a compounding one',
       paragraphs: [
         "Your first Reboot unlocks when lifetime charge reaches 1,000,000, and each one after that needs another million on top (2,000,000 lifetime for the second, 3,000,000 for the third, and so on). It sets your charge and every module back to zero, keeps your lifetime total, and adds 1 to your reboot count and 1 to your tap power. The production multiplier is 1 + 0.1 × reboots, so it grows in a straight line: ×1.1 after one, ×1.5 after five, ×2.0 after ten. It does not compound. Ten reboots give exactly double, not 1.1 to the tenth power.",
-        "For a sense of scale, we ran the payback rule again straight after one Reboot. Earning a million in that run took 34 minutes 12 seconds, against 40 minutes 14 seconds for the first. The leaderboard score is your lifetime charge plus 1,000,000 for each reboot, capped at 100 million, so a reboot never lowers your standing.",
+        "For a sense of scale, I ran the payback rule again straight after one Reboot. Earning a million in that run took 34 minutes 12 seconds, against 40 minutes 14 seconds for the first. The leaderboard score is your lifetime charge plus 1,000,000 for each reboot, capped at 100 million, so a reboot never lowers your standing.",
       ],
       list: [
         'Multiplier = 1 + 0.1 × reboots (linear).',
@@ -65,7 +65,7 @@ export const guide: GameGuide = {
       heading: 'A plan for your first hour',
       paragraphs: [
         "Tap ten times and buy a Capacitor. Keep tapping in short bursts until a few Coils are running, then stop tapping and switch to the payback rule. Keep the two cheapest tiers level, add Cells and Cores as their price-to-rate figure catches up, and grab the first Array once it is the best ratio on the board. Before any break, empty your charge into the best-ratio module.",
-        "Played like that, the Reboot bar fills in well under an hour of active time in our simulation. Following the cheapest-first habit takes about twice as long to reach the same point.",
+        "Played like that, the Reboot bar fills in well under an hour of active time in my simulation. Following the cheapest-first habit takes about twice as long to reach the same point.",
       ],
     },
   ],

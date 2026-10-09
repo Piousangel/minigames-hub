@@ -2,25 +2,25 @@ import type { Article } from '../types'
 
 export const article: Article = {
   slug: 'yahtzee-300000-games-three-strategies',
-  title: 'We Played 300,000 Games of Yahtzee With Three Bots. Here Is What Actually Scores.',
+  title: 'I Played 300,000 Games of Yahtzee With Three Bots. Here Is What Actually Scores.',
   description:
-    'Three Yahtzee bots, 100,000 games each, run on our own dice engine: rerolling is worth ~48 points, chasing straights ~58 more. Full numbers inside.',
+    'Three Yahtzee bots, 100,000 games each, run on my own dice engine: rerolling is worth ~48 points, chasing straights ~58 more. Full numbers inside.',
   published: '2026-10-09',
   kind: 'data',
   relatedGames: ['yahtzee'],
   sections: [
     {
-      heading: 'Why we did this',
+      heading: 'Why I did this',
       paragraphs: [
-        'Most Yahtzee advice is either folklore ("always go for the upper bonus") or the output of a mathematically optimal solver that no human can follow at the table. We wanted something in between: simple, explainable strategies a person could actually use, measured on the exact rules our Yahtzee game uses.',
-        'So we took the scoring engine that runs our Yahtzee page, wrote three small bots on top of it, and let each one play 100,000 complete games. Every dice roll came from the same seeded random number generator the game itself uses, so anyone with the source can rerun the experiment and get identical numbers.',
+        'Most Yahtzee advice is either folklore ("always go for the upper bonus") or the output of a mathematically optimal solver that no human can follow at the table. I wanted something in between: simple, explainable strategies a person could actually use, measured on the exact rules my Yahtzee game uses.',
+        'So I took the scoring engine that runs my Yahtzee page, wrote three small bots on top of it, and let each one play 100,000 complete games. Every dice roll came from the same seeded random number generator the game itself uses, driven by my internal simulation script with fixed seeds, so the numbers are stable from run to run.',
       ],
     },
     {
       heading: 'The rules these numbers apply to',
       paragraphs: [
-        'Our game follows the standard 13-box scorecard: six upper boxes (ones through sixes), a +35 bonus once the upper boxes add up to 63, and seven lower boxes. Three of a Kind, Four of a Kind and Chance score the sum of all dice; Full House is 25, Small Straight 30, Large Straight 40, and Yahtzee 50. A second Yahtzee scored while the Yahtzee box already holds 50 earns a +100 bonus.',
-        'Two details matter for comparing with other sites. First, our engine does not count five of a kind as a Full House. Second, there is no "joker" rule that lets an extra Yahtzee be used as a straight. Both make Yahtzees slightly less flexible than in some house rules, so scores elsewhere may differ a little.',
+        'The Yahtzee game here follows the standard 13-box scorecard: six upper boxes (ones through sixes), a +35 bonus once the upper boxes add up to 63, and seven lower boxes. Three of a Kind, Four of a Kind and Chance score the sum of all dice; Full House is 25, Small Straight 30, Large Straight 40, and Yahtzee 50. A second Yahtzee scored while the Yahtzee box already holds 50 earns a +100 bonus.',
+        'Two details matter for comparing with other sites. First, my engine does not count five of a kind as a Full House. Second, there is no "joker" rule that lets an extra Yahtzee be used as a straight. Both make Yahtzees slightly less flexible than in some house rules, so scores elsewhere may differ a little.',
       ],
     },
     {
@@ -54,7 +54,7 @@ export const article: Article = {
       heading: 'The upper bonus is harder than it looks',
       paragraphs: [
         'The most surprising number in the whole run is how rarely any bot earned the +35 upper bonus. The one-roll bot never did in 100,000 games. The chaser got it in 2.6% of games and the situational bot in 6.7%. Average upper-section totals were 31.7, 42.0 and 42.7, well short of the 63 needed.',
-        'Reaching 63 essentially requires three of each face, and none of these bots is willing to spend a turn hunting for, say, three fours when something else scores more right now. That is exactly the trade-off the upper bonus is designed to test. Our takeaway is not that the bonus is unreachable — none of these bots chooses which dice to hold with the bonus in mind — but that you will not get it by accident. If you want it, you have to plan for it from the first few turns, and treat a pair of low numbers in the upper section as a real cost, not a free dump.',
+        'Reaching 63 essentially requires three of each face, and none of these bots is willing to spend a turn hunting for, say, three fours when something else scores more right now. That is exactly the trade-off the upper bonus is designed to test. My takeaway is not that the bonus is unreachable — none of these bots chooses which dice to hold with the bonus in mind — but that you will not get it by accident. If you want it, you have to plan for it from the first few turns, and treat a pair of low numbers in the upper section as a real cost, not a free dump.',
       ],
     },
     {
@@ -65,20 +65,20 @@ export const article: Article = {
       list: [
         'Always use your rerolls unless you have already made a fixed-value box you still need. The crudest reroll rule beat no rerolling by 47.5 points.',
         'When a straight box is open and your roll shows three or four consecutive faces with no strong pair, hold the run. The bot that did this scored the Large Straight in 83.7% of games; the bot that never did scored it in 0.2%.',
-        'Do not dump bad rolls into the upper section without thinking. Every few points below three-of-a-face makes the 63 threshold harder, and in our runs the bonus was rare even for the best bot.',
+        'Do not dump bad rolls into the upper section without thinking. Every few points below three-of-a-face makes the 63 threshold harder, and in my runs the bonus was rare even for the best bot.',
       ],
     },
     {
       heading: 'Limitations',
       paragraphs: [
         'These bots are simple on purpose, and they are not optimal. They never plan more than one turn ahead, they do not weigh the probability of finishing a combination before choosing which dice to hold, and the "par" values used by the situational bot were set by hand rather than fitted. A full dynamic-programming solver would score noticeably higher than any of them; the point here was to measure strategies a person can actually follow.',
-        'Results describe our engine and our rules (no joker rule, five of a kind is not a Full House). Every game used a fixed seed, so each bot faced the same 100,000 seeds, but because the bots hold different dice they consume random numbers differently and do not see identical rolls after the first one. With 100,000 games per bot and standard deviations of 28.6 to 62.2 points, the differences between averages are far larger than sampling noise.',
+        'Results describe this site’s engine and rules (no joker rule, five of a kind is not a Full House). Every game used a fixed seed, so each bot faced the same 100,000 seeds, but because the bots hold different dice they consume random numbers differently and do not see identical rolls after the first one. With 100,000 games per bot and standard deviations of 28.6 to 62.2 points, the differences between averages are far larger than sampling noise.',
       ],
     },
   ],
   tables: [
     {
-      caption: 'Final scores, 100,000 games per bot on our Yahtzee engine',
+      caption: 'Final scores, 100,000 games per bot on my Yahtzee engine',
       columns: ['Bot', 'Mean', 'Std. dev.', '10th pct', 'Median', '90th pct', 'Best game', 'Score ≥ 200', 'Score ≥ 300'],
       rows: [
         ['One roll, best box', '111.3', '28.6', '76', '109', '150', '248', '0.1%', '0.0%'],

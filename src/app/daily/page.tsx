@@ -14,12 +14,12 @@ const TITLE = 'Daily Puzzle Games — A New Puzzle Every Day, Free Online'
 const META_DESC =
   'Play a new puzzle every day — daily word, logic and number games, free in your browser. Build a streak, beat the daily challenge, and share your spoiler-free result. No download, no sign-up.'
 const INTRO =
-  'A fresh set of puzzles, every single day — free in your browser with no download and no sign-up. Everyone gets the same daily board, so you and your friends can compare how you did, and each solve builds a day streak you will not want to break. From daily word games and grouping puzzles to logic and number challenges, there is a new reason to come back every morning. Your streak, best scores and stats all save right in your browser, and a countdown ticks down to the next day’s puzzle. Miss a day? A streak freeze has your back. Solve today’s, share the spoiler-free grid, and come back tomorrow for the next one.'
+  'A fresh set of puzzles, every single day — free in your browser with no download and no sign-up. Everyone gets the same daily board, so you and your friends can compare how you did, and each solve builds a day streak you will not want to break. From daily word games and grouping puzzles to logic and number challenges, there is a new reason to come back every morning. Your streak, best scores and stats all save right in your browser, and a countdown ticks down to the next day’s puzzle. Miss a single day? A streak freeze, if you have earned one, keeps your streak alive. Solve today’s, share the spoiler-free grid, and come back tomorrow for the next one.'
 
 const FAQ: { q: string; a: string }[] = [
   { q: 'What is a daily game?', a: 'A daily game gives everyone the same puzzle for that calendar day, generated from the date. You get one board per day per game — solve it, then come back tomorrow for a fresh one.' },
   { q: 'Do my streaks and stats save?', a: 'Yes, in your browser. Every daily solve extends your day streak, and your win rate, best score and longest streak are kept locally — no account needed.' },
-  { q: 'What happens if I miss a day?', a: 'A streak freeze can bridge a single missed day so your streak survives. You earn freezes as your streak grows, just like the big daily word games.' },
+  { q: 'What happens if I miss a day?', a: 'A streak freeze can bridge a single missed day so your streak survives. You earn one each time your streak reaches a multiple of five days, and you can hold up to two. Miss two days in a row and the streak starts over.' },
   { q: 'Can I share my result without spoiling it?', a: 'Yes. Daily games make a spoiler-free result card — a grid of colored squares that shows how you did without revealing the answer.' },
   { q: 'Is there a new puzzle every day?', a: 'Yes. Each daily game rolls over to a new board at midnight UTC, and a countdown on the home page shows the time until the next one.' },
 ]

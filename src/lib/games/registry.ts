@@ -140,9 +140,9 @@ export const gamePages: GamePage[] = [
       'Slow down in the endgame: when the board is over half full, count what each move spawns space for before you swipe.',
     ],
     faq: [
-      { q: 'Is 2048 free to play?', a: 'Yes — this version of 2048 is completely free, with no download, installation, or account required. It runs in your browser on desktop and mobile.' },
+      { q: 'Is the new tile always a 2?', a: 'No. After every move a new tile appears on a random empty square: a 2 nine times out of ten and a 4 the other time.' },
       { q: 'Can I keep playing after reaching 2048?', a: 'Yes. Reaching the 2048 tile wins the game, but you can continue playing to chase 4096, 8192, and a higher score.' },
-      { q: 'Is 2048 a game of luck or skill?', a: 'Mostly skill. Tile spawns are random, but corner strategy and disciplined move directions let good players reach 2048 consistently.' },
+      { q: 'Is 2048 a game of luck or skill?', a: 'More skill than it looks, but the corner rule alone is not enough. Tile spawns are random; keeping your biggest tile in a corner is necessary but not sufficient. In my simulations a strict corner rule never reached 2048 in 2,000 games, while a player that also looked one spawn ahead reached it in 76% of games.' },
     ],
   },
   {
@@ -353,7 +353,7 @@ export const gamePages: GamePage[] = [
       'The gravity speeds up every ten lines, so bank clears early while the pace is still slow.',
     ],
     faq: [
-      { q: 'Is Tetris free to play here?', a: 'Yes — this Tetris runs free in your browser with no download, install, or account, on both desktop and mobile.' },
+      { q: 'Are the pieces completely random?', a: 'Not quite. Pieces are dealt from a shuffled bag of all seven shapes, so every shape appears exactly once in each set of seven. That means an I-piece never waits more than 12 other pieces.' },
       { q: 'How do I play Tetris on mobile?', a: 'On-screen buttons let you move, rotate, soft-drop, and hard-drop with your thumbs. Everything works by touch.' },
       { q: 'What is a "Tetris"?', a: 'Clearing four lines at once with a single vertical I-piece. It is the highest-scoring single move in the game.' },
     ],
@@ -407,7 +407,7 @@ export const gamePages: GamePage[] = [
       'When the ball speeds up, watch its angle rather than chasing its position.',
     ],
     faq: [
-      { q: 'Is Breakout free to play?', a: 'Yes — this brick breaker runs free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Are all bricks worth the same?', a: 'No. Bricks are scored by row: the top row is worth 60 points and each row below is worth 10 less, down to 10 for the bottom row.' },
       { q: 'How do I control the paddle on mobile?', a: 'Slide your finger across the play area and the paddle follows. Tap to launch the ball.' },
       { q: 'How many lives do I get?', a: 'Three. You lose a life whenever the ball falls past your paddle, and the game ends at zero.' },
     ],
@@ -434,7 +434,6 @@ export const gamePages: GamePage[] = [
       'Save risky guesses for when you have spare turns; play it safe when you are down to your last one.',
     ],
     faq: [
-      { q: 'Is Word Guess free?', a: 'Yes — it plays free in your browser with no download, install, or account, on desktop and mobile.' },
       { q: 'How many guesses do I get?', a: 'Six. Each guess must be a valid five-letter word, and the colour clues tell you how close you are.' },
       { q: 'How do I play on mobile?', a: 'Tap the on-screen keyboard to type your guess and press Enter. Everything works by touch.' },
       { q: 'Is there a new word each time?', a: 'Yes. Every game picks a fresh hidden word, so you can play as many rounds as you like.' },
@@ -516,7 +515,7 @@ export const gamePages: GamePage[] = [
       'Do not stack straight up unless it helps — you may be handing the square above to your opponent.',
     ],
     faq: [
-      { q: 'Is Connect Four free to play?', a: 'Yes — it runs free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Who moves first?', a: 'You do. You always play Red and drop the first disc, and the computer answers as Yellow.' },
       { q: 'How do I win?', a: 'Be the first to line up four of your discs in a row, in any direction: horizontal, vertical, or diagonal.' },
       { q: 'How hard is the computer?', a: 'Easy makes casual moves; Hard always takes a winning move, blocks your threats, and favours the centre.' },
     ],
@@ -544,7 +543,6 @@ export const gamePages: GamePage[] = [
     ],
     faq: [
       { q: 'How many wrong guesses do I get?', a: 'Six. Each wrong letter adds a part to the drawing, and the game ends when it is complete.' },
-      { q: 'Is Hangman free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
       { q: 'Are there hints?', a: 'Yes. Every word comes with a category hint (like animals or food) to help you start.' },
       { q: 'Does it save my streak?', a: 'Yes. Your wins and streak are stored in your browser between games on the same device.' },
     ],
@@ -571,7 +569,7 @@ export const gamePages: GamePage[] = [
       'Stay calm as it speeds up — rushing your taps causes more mistakes than the pace does.',
     ],
     faq: [
-      { q: 'Is Simon free to play?', a: 'Yes — it runs free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Does the sequence change every round?', a: 'No. Each round replays the same sequence with one new random step added at the end, so you only have one new step to learn — but a single wrong press ends the game.' },
       { q: 'How does it get harder?', a: 'Every round adds one more step to the sequence and the playback speeds up, so it gets tougher the longer you last.' },
       { q: 'Can I play on my phone?', a: 'Yes. Just tap the colour pads — the whole game works by touch.' },
     ],
@@ -653,7 +651,6 @@ export const gamePages: GamePage[] = [
     ],
     faq: [
       { q: 'Does every puzzle have one solution?', a: 'Yes. Every board is generated with a unique solution, so it can always be solved by logic without guessing.' },
-      { q: 'Is Sudoku free here?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
       { q: 'What are the difficulties?', a: 'Easy, Medium, and Hard, which differ by how many numbers are given at the start.' },
       { q: 'Does it track my time?', a: 'Yes. A timer runs while you solve, and your best time per difficulty is saved in your browser.' },
     ],
@@ -706,7 +703,6 @@ export const gamePages: GamePage[] = [
       'Stay calm as rallies speed up — small adjustments beat big lunges.',
     ],
     faq: [
-      { q: 'Is Pong free to play?', a: 'Yes — it runs free in your browser with no download or sign-up, on desktop and mobile.' },
       { q: 'How do I control my paddle?', a: 'Move the mouse or your finger up and down over the play area, or use the up and down arrow keys.' },
       { q: 'How do I win?', a: 'Be the first to reach seven points. You score whenever the computer fails to return the ball.' },
       { q: 'Does it save my record?', a: 'Yes. Your win count is stored in your browser and persists between games on the same device.' },
@@ -735,7 +731,7 @@ export const gamePages: GamePage[] = [
     ],
     faq: [
       { q: 'Is every board solvable?', a: 'Yes. Each board is scrambled from a solved state with real presses, so it can always be turned off.' },
-      { q: 'Is Lights Out free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How many presses does a board need?', a: 'At most eight. Each board is scrambled with eight random presses from an all-off grid, and pressing a light twice cancels out, so repeating those presses in any order switches everything off.' },
       { q: 'How does tapping work?', a: 'Tapping a light flips it and its four orthogonal neighbors. Corner and edge cells flip fewer lights.' },
     ],
   },
@@ -763,7 +759,6 @@ export const gamePages: GamePage[] = [
     faq: [
       { q: 'How does the feedback work?', a: 'Each guess returns black pegs (right colour, right spot) and white pegs (right colour, wrong spot), never double-counting a peg.' },
       { q: 'Can colours repeat in the code?', a: 'Yes. The secret can contain the same colour more than once, which makes the puzzle trickier.' },
-      { q: 'Is Mastermind free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
       { q: 'How many guesses do I get?', a: 'Ten. Crack the four-colour code before you run out to win.' },
     ],
   },
@@ -789,7 +784,7 @@ export const gamePages: GamePage[] = [
       'Save a colour you have plenty of for setting up a big chain drop.',
     ],
     faq: [
-      { q: 'Is Bubble Shooter free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How are points scored?', a: 'Every bubble you pop is worth 10 points and every bubble that drops after losing its support is worth 20, so cutting a cluster loose pays double.' },
       { q: 'How do I pop bubbles?', a: 'Land a bubble next to two or more of the same colour so the connected group is three or more, and they pop.' },
       { q: 'What are the dropping bubbles?', a: 'When you pop the bubbles holding up others, the now-disconnected bubbles fall and score bonus points.' },
     ],
@@ -844,7 +839,6 @@ export const gamePages: GamePage[] = [
     ],
     faq: [
       { q: 'Are the levels always solvable?', a: 'Yes. Every level is hand-crafted and verified solvable, so there is always a way to push all the boxes onto their targets.' },
-      { q: 'Is Sokoban free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
       { q: 'Can I undo a mistake?', a: 'Yes. There is an Undo button (and a Restart) so you can recover if you push a box into a bad spot.' },
       { q: 'How do I play on mobile?', a: 'Use the on-screen D-pad to move. Everything works by touch.' },
     ],
@@ -898,7 +892,7 @@ export const gamePages: GamePage[] = [
       'Short taps for small adjustments, a firmer tap only when you need real height.',
     ],
     faq: [
-      { q: 'Is Flappy free to play?', a: 'Yes — it runs free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Does the gap get smaller as I go?', a: 'No. Every pair of pipes leaves the same size opening and the pipes scroll at a constant speed; only the height of the gap changes, and it never sits right against the ceiling or the ground.' },
       { q: 'How do I control it?', a: 'One input: click, tap, or press Space to flap. That is the whole game.' },
       { q: 'How do I score?', a: 'You earn a point each time you pass safely through the gap between a pair of pipes.' },
     ],
@@ -1007,7 +1001,6 @@ export const gamePages: GamePage[] = [
     ],
     faq: [
       { q: 'Which directions can words go?', a: 'Any of the eight: horizontal, vertical, and both diagonals, running either forwards or backwards.' },
-      { q: 'Is Word Search free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
       { q: 'How do I select a word?', a: 'Drag from the first letter to the last letter of the word. It works with a mouse or by touch on mobile.' },
       { q: 'Are the boards different each time?', a: 'Yes. Every game generates a fresh grid and word placement, so no two puzzles are the same.' },
     ],
@@ -1063,7 +1056,7 @@ export const gamePages: GamePage[] = [
     faq: [
       { q: 'How do I make a match?', a: 'Swap two neighbouring gems so that three or more of the same kind line up horizontally or vertically.' },
       { q: 'What is a cascade?', a: 'When cleared gems drop and form a new match automatically, you get a chain combo worth bonus points.' },
-      { q: 'Is Gem Match free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How many moves do I get?', a: 'Thirty. Only a swap that makes a match uses a move — a swap that matches nothing is undone for free — and the game ends when your moves run out.' },
     ],
   },
   {
@@ -1088,7 +1081,7 @@ export const gamePages: GamePage[] = [
       'Learn the formation’s side-to-side rhythm so you can time your shots and retreats.',
     ],
     faq: [
-      { q: 'Is Space Shooter free?', a: 'Yes — it runs free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Why do the aliens speed up?', a: 'Two reasons: each new wave starts faster than the last, and within a wave the formation speeds up as you thin it out, so the last few aliens move almost twice as fast as a full formation. You have three lives.' },
       { q: 'How do I control my ship?', a: 'Arrow keys or mouse/touch drag to move, and Space or tap to fire. Hold to keep shooting.' },
       { q: 'How do I win a wave?', a: 'Destroy every alien in the formation. Clearing a wave brings a new, faster one.' },
     ],
@@ -1142,7 +1135,7 @@ export const gamePages: GamePage[] = [
       'Chase your best single bank, not just survival — a fat banked run beats a timid one.',
     ],
     faq: [
-      { q: 'Is Prospector free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Why are deeper gems worth more?', a: 'A depth multiplier climbs with every gem or dynamite tile you flip in a descent — ×1 for the first, then ×1.2, ×1.5, ×2 and upward — so the same gem pays far more the deeper you push your luck.' },
       { q: 'Is it luck or skill?', a: 'Both. Tiles are shuffled, but the deck is fully known and flipped tiles stay visible, so banking is a countable expected-value decision.' },
       { q: 'What ends a descent?', a: 'Banking (safe, you keep your loot) or flipping the third gas tile (the shaft collapses and you lose the un-banked pot).' },
     ],
@@ -1197,7 +1190,7 @@ export const gamePages: GamePage[] = [
     ],
     faq: [
       { q: 'What happens when a cell overloads?', a: 'It resets to zero and sends one charge to each orthogonal neighbour at once; any neighbour that reaches capacity then overloads too, chaining across the board.' },
-      { q: 'Is Overload free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How many taps do I get?', a: 'Puzzle mode gives you 12 taps per board, and a Perfect Storm pays 500 points plus 50 for every tap you still have. Endless mode starts you with 10 taps and adds 5 more after each Perfect Storm.' },
       { q: 'How do I score high?', a: 'Trigger long cascades — each overload in a single chain raises the combo multiplier, so one perfect tap can sweep the grid.' },
     ],
   },
@@ -1225,7 +1218,7 @@ export const gamePages: GamePage[] = [
     faq: [
       { q: 'How does the bolt move?', a: 'It jumps a tile’s number of cells in that tile’s arrow direction, then repeats from wherever it lands, chaining across the board.' },
       { q: 'Can it loop forever?', a: 'No. Each landed tile clears, so any revisit or an off-board hop ends the chain — it always terminates.' },
-      { q: 'Is Ricochet free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How do Daily and Endless differ?', a: 'Daily gives everyone the same board for the UTC day and exactly five taps to score with. Endless has no tap limit, so you can keep chaining for as long as you like.' },
     ],
   },
   {
@@ -1252,7 +1245,7 @@ export const gamePages: GamePage[] = [
     faq: [
       { q: 'Can I choose which number I get?', a: 'No — each chip is dealt at random and you must place it. The skill is triaging where a number you did not pick should go.' },
       { q: 'What ends a run?', a: 'Losing all three lives to busts. Your score is the total you have banked.' },
-      { q: 'Is Stackpot free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Can I get rid of a bad chip?', a: 'Sometimes. A toss discards the chip in your tray. You start with one and earn another for every five lanes you lock, so save them for chips that would otherwise force a bust.' },
     ],
   },
   {
@@ -1306,7 +1299,7 @@ export const gamePages: GamePage[] = [
     faq: [
       { q: 'How do I pop a buoy?', a: 'Not by tapping it — you tap open water, and the expanding ring pops each buoy at the moment its edge sweeps across it.' },
       { q: 'What is an interference combo?', a: 'When two ring crests reach the same buoy on the same beat, you score a multiplier for the overlap.' },
-      { q: 'Is Ripple free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How does a run end?', a: 'Periodic swells wash over the water: an un-popped buoy survives its first swell and drowns on the second, and five drowned buoys end the run. Up to three rings can expand at once, so keep stones in the water.' },
     ],
   },
   {
@@ -1354,13 +1347,13 @@ export const gamePages: GamePage[] = [
       'Every fold shrinks the paper permanently, so plan the order — the board only gets smaller.',
       'Line up matching pips to land on each other, and try to seal several in a single fold.',
       'Avoid folding different colours onto each other; a jam blocks that cell for good.',
-      'Use Unfold sparingly to recover from a bad fold — it is your only safety valve.',
+      'Use Unfold sparingly to recover from a bad fold — you get only three per board.',
       'Every board is solvable within its par fold count; chase a cleaner solve each retry.',
     ],
     faq: [
       { q: 'How does folding work?', a: 'Tapping a crease folds the smaller flap over the rest, reflecting its cells onto the ones beneath so pips can meet, seal, or jam.' },
       { q: 'Is every board solvable?', a: 'Yes. Each board is generated by scrambling a solved layout with inverse folds, so there is always a way to seal every pip.' },
-      { q: 'Is Overfold free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Can I undo a fold?', a: 'Yes, with Unfold (the button or the U key). It restores the board, fold count and score exactly, but you get only three per board and they are not refunded.' },
     ],
   },
   {
@@ -1387,7 +1380,7 @@ export const gamePages: GamePage[] = [
     faq: [
       { q: 'How do I score in Splice?', a: 'When a connected group becomes a single colour it collapses for its size squared in points, and collapses can chain within one turn.' },
       { q: 'Is every board solvable?', a: 'Yes. Each board is generated with a guaranteed achievable par, so it can always be cleared.' },
-      { q: 'Is Splice free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'Can I undo a cut?', a: 'In puzzle and daily modes you get five undos per board, and your cut budget is par plus three. Endless mode has no undo.' },
     ],
   },
   {
@@ -1396,8 +1389,8 @@ export const gamePages: GamePage[] = [
     title: 'Play Quarry Online — Free Hunt-the-Hidden Deduction Game',
     h1: 'Quarry',
     metaDescription:
-      'Play Quarry free online — a pursuit-deduction puzzle. Each probe reveals the distance to a hidden target and spooks it away. Herd it into a corner and catch it. No download, on mobile.',
-    shortDescription: 'Probe, herd, and catch the hidden target.',
+      'Play Quarry free online — a pursuit-deduction puzzle. Each probe reveals the distance to a hidden target and spooks it away. Track where it can be and catch it. No download, on mobile.',
+    shortDescription: 'Probe, track, and catch the hidden target.',
     howToPlay: [
       'A quarry hides on one cell of the grid.',
       'Tap a cell to probe: it reveals how many steps (king moves) away the quarry is.',
@@ -1405,16 +1398,16 @@ export const gamePages: GamePage[] = [
       'Land a probe on the quarry (distance 0) to catch it, within your probe budget.',
     ],
     strategy: [
-      'Reveal and movement are the same action, so plan where your probe will push the quarry, not just what it tells you.',
-      'Probe from the open side to herd the quarry toward a wall or corner where it can’t flee.',
-      'Corners are traps — once pinned, the quarry has nowhere to run.',
-      'Read the distance number like hot-and-cold, but remember it moves after every probe.',
+      'Reveal and movement are the same action: a reading of d means the quarry is now d + 1 from that probe, unless a wall pinned it.',
+      'Choose probes that split the possible cells, not ones that chase or herd — a wall pin never narrows down where the quarry can be.',
+      'Do not open in the centre; an edge cell next to a corner (5×5) or third along an edge (7×7) tells you far more.',
+      'Combine readings from two different directions before committing to a guess.',
       'Fewer probes means a better score, so set up the capture in as few moves as you can.',
     ],
     faq: [
       { q: 'How is Quarry different from minesweeper?', a: 'There is no static mine map — a single hidden target actively flees on a known rule, so you herd it rather than read neighbour counts.' },
       { q: 'Does the target always move?', a: 'Not always. It hops one cell away from each probe, but it never leaves the board, so when a wall blocks its escape it stays put.' },
-      { q: 'Is Quarry free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'How big is the board?', a: 'Levels 1 and 2 are 5×5 with 8 probes; from level 3 on the board is 7×7 with 10 probes, and the run continues until you fail to catch the quarry within your budget.' },
     ],
   },
   {
@@ -1441,7 +1434,7 @@ export const gamePages: GamePage[] = [
     faq: [
       { q: 'How do I control Latch?', a: 'One button: hold to grab and swing, release to launch. You never steer directly — your path comes from timing and momentum.' },
       { q: 'How does a run end?', a: 'When you miss a peg and fall. Your score is how many pegs (and how far) you chained.' },
-      { q: 'Is Latch free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
+      { q: 'What do the glints do?', a: 'Flying through glints builds your combo: every two glints raise the score multiplier by one, up to ×5. Latch onto a peg without collecting a glint on that arc and the multiplier drops back to ×1.' },
     ],
   },
   {
@@ -1469,7 +1462,6 @@ export const gamePages: GamePage[] = [
       { q: 'How is Decant different from other water sorting games?', a: 'Color is density. A poured band does not just stack on top — it sinks to its own layer and pushes lighter bands up, so tubes reorder themselves as you play.' },
       { q: 'What is the daily puzzle?', a: 'Everyone gets the same board each day. Solve it on consecutive days to build a streak, which is saved in your browser.' },
       { q: 'What happens if I get stuck?', a: 'If no legal pour remains, the game tells you — use Undo to step back, or start a new board.' },
-      { q: 'Is Decant free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
     ],
   },
   {
@@ -1524,7 +1516,6 @@ export const gamePages: GamePage[] = [
       { q: 'How do the two tokens move?', a: 'One press drives both. You steps the direction you pressed; Echo steps the direction the level’s mirror axis dictates — horizontal, vertical, point, diagonal or anti-diagonal.' },
       { q: 'How many levels are there?', a: '17 hand-built levels across five mirror axes, each introducing a new way the reflection behaves — plus a fresh daily puzzle.' },
       { q: 'How do I get three stars?', a: 'Clear the level in par moves or fewer. Par is the shortest possible solution, so three stars means you found the optimal path.' },
-      { q: 'Is Duplex free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
     ],
   },
   {
@@ -1579,7 +1570,6 @@ export const gamePages: GamePage[] = [
       { q: 'Can I move a single dot?', a: 'No. Every dot rotates together around your pin. Landing dots on anchors is the only way to separate them.' },
       { q: 'Why did my board shatter?', a: 'A spin sent at least one dot off the grid or onto an already-pinned dot. Preview the spin before committing, or undo.' },
       { q: 'What is par?', a: 'The shortest possible solution for that board. It is proven by construction, not guessed, and beating it pays an uncapped bonus.' },
-      { q: 'Is Pinwheel free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
     ],
   },
   {
@@ -1847,7 +1837,7 @@ export const gamePages: GamePage[] = [
       'The fewer mistakes you make, the higher your grade — a flawless solve is worth the patience.',
     ],
     faq: [
-      { q: 'Is there a new puzzle every day?', a: 'Yes. Clusters is a daily puzzle — the same 16 tiles for everyone that day, generated from the date so no server is needed. Practice mode gives you endless fresh boards any time.' },
+      { q: 'Is there a new puzzle every day?', a: 'Yes. Clusters is a daily puzzle — the same 16 tiles for everyone that day, generated from the UTC date so no server is needed. Practice mode deals a new random board any time, drawn from the same fixed bank of groups, so you will see familiar groups come back.' },
       { q: 'How many mistakes can I make?', a: 'Four. Each wrong group of four costs one life; run out and the puzzle ends. Solve all four groups first to win.' },
       { q: 'What does "one away" mean?', a: 'Your guess had three tiles from a single group and one that belongs elsewhere. Keep the three, swap the fourth.' },
       { q: 'Can I share my result without spoilers?', a: 'Yes. The share card is a colored emoji grid of your guesses — it shows how you did without revealing the answers, just like the daily word games.' },
@@ -2090,19 +2080,20 @@ export const gamePages: GamePage[] = [
       'Clear the board by removing matching pairs of tiles until none are left.',
       'A tile is free to take only when nothing sits on top of it and one of its long sides is open.',
       'Tap a free tile, then its match — identical tiles pair, and any flower matches any flower, any season any season.',
-      'Every deal can be solved, so use hint or shuffle if you get stuck.',
+      'Every deal can be solved; if a wrong order strands you, Undo steps back as far as you need, and Shuffle is a limited last resort.',
     ],
     strategy: [
       'Take tiles that unblock the most other tiles, not just the first pair you spot.',
       'Free the tiles trapped under the upper layers early — they are the hardest to reach.',
       'When several copies of a tile are exposed, think about which pair opens up more of the board.',
       'Keep a matching pair in reserve rather than clearing every match the moment you see it.',
-      'If no moves remain, a shuffle reshuffles the rest — but you only get a few, and a reshuffled board is not guaranteed to be solvable, so plan ahead.',
+      'Hint only shows the first legal pair it finds, not a good one — use it to spot a match, then judge the move yourself.',
+      'If you get stuck, Undo back to your mistake before you Shuffle — Undo is unlimited and keeps the board solvable, while a reshuffled board is not guaranteed to clear and you get only three.',
     ],
     faq: [
       { q: 'How do you play Mahjong Solitaire?', a: 'Match and remove pairs of free tiles until all 144 are gone. A tile is free when no tile covers it and at least one of its left or right sides is open.' },
       { q: 'Which tiles match?', a: 'Two tiles match if they are identical. The exception is the bonus tiles: any flower matches any other flower, and any season matches any other season.' },
-      { q: 'Is every Mahjong board winnable?', a: 'Every new deal is built to be solvable, so with the right order of moves you can clear it. A wrong order can still leave you stuck; a shuffle then gives you a fresh layout, but that layout is not guaranteed to be solvable.' },
+      { q: 'Is every Mahjong board winnable?', a: 'Every new deal is built to be solvable, so with the right order of moves you can clear it. A wrong order can still leave you stuck; Undo rewinds to a position that is still solvable, while a shuffle gives you a fresh layout that is not guaranteed to be solvable.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap a free tile and then its match to clear the pair. It works on phones and tablets as well as desktop.' },
     ],
   },
@@ -2353,7 +2344,7 @@ export const gamePages: GamePage[] = [
     ],
     faq: [
       { q: 'How do you score a Yahtzee?', a: 'Roll five dice of the same number and bank it in the Yahtzee box for 50 points. Each extra Yahtzee after that adds a +100 bonus.' },
-      { q: 'How many rolls do I get per turn?', a: 'Up to three. Roll all five, hold any you like, re-roll the rest, and you can do that twice more before you must score.' },
+      { q: 'How many rolls do I get per turn?', a: 'Up to three rolls in total: the first roll of all five dice, then up to two re-rolls of whichever dice you have not held, before you must score.' },
       { q: 'What is the upper bonus?', a: 'If the six upper boxes (Ones through Sixes) add up to 63 or more, you get a +35 bonus — roughly three of each number.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap dice to hold and tap a row to score. The dice and scorecard scale to fit phones and tablets.' },
     ],

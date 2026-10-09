@@ -85,7 +85,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
         Every number on this page comes from the game&apos;s own code or from simulations run against it. Spotted
         something that doesn&apos;t match how the game plays?{' '}
         <Link href="/contact" className="text-accent">
-          Let us know
+          Let me know
         </Link>
         .
       </p>

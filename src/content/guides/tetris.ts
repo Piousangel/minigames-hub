@@ -10,7 +10,7 @@ export const guide: GameGuide = {
     {
       heading: 'What this guide is based on',
       paragraphs: [
-        'Every rule below was read out of the game code that runs on this page, and every percentage comes from a simulation that drives that same code. The script lives in the repository at scripts/content-sims/tetris.ts, so the numbers can be reproduced exactly. Where this version differs from other Tetris games you may have played, the difference is called out, because habits learned elsewhere can quietly cost you here.',
+        'Every rule below was read out of the game code that runs on this page, and every percentage comes from a simulation that drives that same code. The simulation is my internal script and uses fixed random seeds, so its numbers are stable from run to run. Where this version differs from other Tetris games you may have played, the difference is called out, because habits learned elsewhere can quietly cost you here.',
         'The short version: the piece order is far less random than it looks, the speed curve has a hard floor, scoring rewards one kind of clear above everything else, and there is no lock delay to save a late slide. Each of those facts changes how you should play.',
       ],
     },
@@ -71,7 +71,7 @@ export const guide: GameGuide = {
     {
       heading: 'A plan built for this specific game',
       paragraphs: [
-        'Put the bag, the speed curve and the score table together and a clear strategy falls out. Keep one column empty — the rightmost is easiest, because an I piece spawns horizontally in columns 4–7 and needs one rotation plus a few taps to reach the edge. Build the other nine columns flat, and accept that an I arrives on average every seventh piece and at worst after twelve others. That worst case is your safety margin: twelve pieces add 48 cells, almost five full rows across nine columns, so if the stack beside your well is already past the middle of the board you are betting on a short drought.',
+        'Put the bag, the speed curve and the score table together and a clear strategy falls out. Keep one column empty — the rightmost is easiest, because an I piece spawns horizontally in columns 4–7 and needs one rotation plus a few taps to reach the edge. Build the other nine columns flat, and accept that an I arrives on average every seventh piece and at worst after twelve others. That worst case is your safety margin: twelve pieces add 48 cells, more than five full rows across nine columns, so if the stack beside your well is already past the middle of the board you are betting on a short drought.',
         'Use S and Z on the flat side in pairs where you can; with a maximum run of four from the randomizer you will never be forced into a long sequence of them. Save singles and doubles for emergencies, when the stack is above roughly the middle of the 20-row board.',
         'Finally, know your end condition. A game ends only when a new piece cannot spawn in the top rows, not when blocks merely reach high on the sides. A tall but narrow column at the edge is survivable; anything in the middle four columns near the top is not.',
       ],

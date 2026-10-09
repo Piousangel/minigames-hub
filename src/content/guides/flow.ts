@@ -18,7 +18,7 @@ export const guide: GameGuide = {
     {
       heading: 'None of these puzzles has a single answer',
       paragraphs: [
-        'Commercial pipe puzzles are usually built so that exactly one arrangement fills the board. These are not. We wrote a script (scripts/content-sims/flow.ts) that loads the game’s real level data and exhaustively counts every way to link all pairs while filling every square. Not one of the 26 levels has a unique solution.',
+        'Commercial pipe puzzles are usually built so that exactly one arrangement fills the board. These are not. I wrote an internal simulation script that loads the game’s real level data and exhaustively counts every way to link all pairs while filling every square. Not one of the 26 levels has a unique solution.',
         'The spread is wide. Level 7 is the tightest board in the game with just 2 full-coverage solutions; level 23 is the loosest with 352. The 5×5 boards range from 2 to 33 solutions, the 6×6 boards from 8 to 212, and the 7×7 boards from 4 to 352.',
         'This matters for how you play. On a unique-solution puzzle you can reason “this cell can only belong to blue”, because the designer guaranteed it. Here, that kind of forced logic only takes you part of the way — at some point you will face a genuine choice where both options can work. When you hit that wall, pick the option that keeps the empty space in one connected piece and commit; you are not missing a hidden deduction.',
       ],
@@ -26,7 +26,7 @@ export const guide: GameGuide = {
     {
       heading: 'Which levels are really hard',
       paragraphs: [
-        'Solution count is one measure; another is how much trial and error it takes to find any solution. Our script also counted the search steps a straightforward backtracking solver — the same algorithm the game’s own tests use to prove each level is solvable — needs before it finds its first full cover. It is a crude yardstick, since it tries colours in a fixed order rather than starting where a person would, but it tracks how many dead ends a board contains.',
+        'Solution count is one measure; another is how much trial and error it takes to find any solution. My script also counted the search steps a straightforward backtracking solver — the same algorithm the game’s own tests use to prove each level is solvable — needs before it finds its first full cover. It is a crude yardstick, since it tries colours in a fixed order rather than starting where a person would, but it tracks how many dead ends a board contains.',
         'By that yardstick the curve is real but lumpy. Level 7 falls in 33 steps. Level 14 is the stubborn one among the 6×6 boards at 22,453 steps, the most of any board below 7×7; only 3 of its 10 dots sit on the outer edge, which leaves fewer anchored routes to start from. Among the big boards, level 22 is comparatively gentle at 39,333 steps, while level 21 is the hardest in the bank at 2,457,137 steps and, with only 4 solutions, the least forgiving 7×7.',
       ],
       list: [

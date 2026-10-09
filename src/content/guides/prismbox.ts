@@ -10,7 +10,7 @@ export const guide: GameGuide = {
     {
       heading: 'How this guide was put together',
       paragraphs: [
-        'Prismbox is inspired by the classic Black Box, but its beam rules are its own, and some of the advice that works in Black Box does not apply here. Everything below was taken from this site\'s game code and checked with a simulation that imports the real engine (scripts/content-sims/prismbox.ts in the repository). The simulation enumerates every atom layout the generator can produce, fires every port, and plays thousands of boards with deduction bots that see only what you see on screen.',
+        'Prismbox is inspired by the classic Black Box, but its beam rules are its own, and some of the advice that works in Black Box does not apply here. Everything below was taken from this site\'s game code and checked with my internal simulation script, which imports the real engine and uses fixed random seeds. The simulation enumerates every atom layout the generator can produce, fires every port, and plays thousands of boards with deduction bots that see only what you see on screen.',
         'One clarification first, because it changes how you play: there is no way to place a guess or a marker. An atom counts as found only when one of your beams runs straight into it. Your goal is to work out where an atom is and then hit it.',
       ],
     },
@@ -50,7 +50,7 @@ export const guide: GameGuide = {
     {
       heading: 'What a shot is likely to show you',
       paragraphs: [
-        'Firing all 32 ports on each of 200 generated Normal boards (6,400 shots), the outcomes split as follows: 46.5% refractions, 36.8% hits, 13.7% pass-throughs and 2.9% reflections. On Easy, pass-throughs rise to 16.0%; on Hard they fall to 12.2%, because more atoms leave fewer clean lanes.',
+        'Firing all 32 ports on each of 200 generated Normal boards (6,400 shots), the outcomes split as follows: 46.5% refractions, 36.8% hits, 13.7% pass-throughs and 2.9% reflections. On Easy, pass-throughs rise to 16.0%; on Hard they fall to 12.1%, because more atoms leave fewer clean lanes.',
         'Refractions are the most common result and, by the rule above, the most informative. That is good news: most of your early shots will hand you an exact atom position for free.',
         'Hitting an atom you have located is not always trivial, though. An atom can be struck head-on from just 2.95 of the 32 ports on average on Normal (measured over 800 atoms). A beam aimed straight down an atom\'s column will bend away early if another atom sits beside that column further up, so pick the edge with the cleanest approach. Head-on contact wins over everything: an atom directly ahead is hit even if other atoms flank the beam.',
       ],
@@ -63,8 +63,8 @@ export const guide: GameGuide = {
       list: [
         'Easy (par 12): greedy-hit averaged 4.42 shots, info-first 4.31; worst case 6.',
         'Normal and Daily (par 16): greedy-hit averaged 5.96 shots (median 6, worst 9); info-first 5.75 (median 6, worst 8).',
-        'Hard (par 20): greedy-hit averaged 7.45 shots (worst 11), info-first 7.31 (worst 9). Both solved 196 of 200 boards; the other 4 contain an atom no beam can reach (see the last section).',
-        'Every solved board finished within par, so both bots earned the full par bonus every time.',
+        'Hard (par 20): greedy-hit averaged 7.48 shots (median 7, worst 11), info-first 7.32 (median 7, worst 9). Both solved all 200 boards.',
+        'Every board finished within par, so both bots earned the full par bonus every time.',
       ],
     },
     {
@@ -78,7 +78,7 @@ export const guide: GameGuide = {
         'Use pass-throughs to clear three-lane bands, and stop firing into areas they have already cleared.',
         'Do not re-fire a port: the result is always identical. Fired ports are dimmed for this reason.',
         'If a shot reports a refraction but draws no path, the beam was trapped in a loop between atoms. It is rare — 186 of 640,000 simulated Normal shots — and tells you little beyond "atoms are nearby".',
-        'Every board is guaranteed to be finishable: each hidden atom can be struck directly from at least one edge port. That was not always true — while writing this guide we found that about 1% of Hard layouts (197 of 20,000 tested) hid an atom no beam could reach, and the generator now re-draws those layouts. Easy, Normal and Daily boards were never affected.',
+        'Every board is guaranteed to be finishable: each hidden atom can be struck directly from at least one edge port. That was not always true. While writing this guide I found that, on the earlier version of the generator, about 1% of Hard layouts (197 of 20,000 tested before the fix) hid an atom no beam could reach. The generator now re-draws those layouts, and none of the Hard boards in the bot runs above contained one. Easy, Normal and Daily boards were never affected.',
       ],
     },
   ],
