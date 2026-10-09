@@ -1413,7 +1413,7 @@ export const gamePages: GamePage[] = [
     ],
     faq: [
       { q: 'How is Quarry different from minesweeper?', a: 'There is no static mine map — a single hidden target actively flees on a known rule, so you herd it rather than read neighbour counts.' },
-      { q: 'Does the target always move?', a: 'Yes, it hops one cell away from each probe (but never off the board), which is how you can pin it against a wall.' },
+      { q: 'Does the target always move?', a: 'Not always. It hops one cell away from each probe, but it never leaves the board, so when a wall blocks its escape it stays put.' },
       { q: 'Is Quarry free?', a: 'Yes — it plays free in your browser with no download or sign-up, on desktop and mobile.' },
     ],
   },
@@ -2097,12 +2097,12 @@ export const gamePages: GamePage[] = [
       'Free the tiles trapped under the upper layers early — they are the hardest to reach.',
       'When several copies of a tile are exposed, think about which pair opens up more of the board.',
       'Keep a matching pair in reserve rather than clearing every match the moment you see it.',
-      'If no moves remain, a shuffle reshuffles the rest — but you only get a few, so plan ahead.',
+      'If no moves remain, a shuffle reshuffles the rest — but you only get a few, and a reshuffled board is not guaranteed to be solvable, so plan ahead.',
     ],
     faq: [
       { q: 'How do you play Mahjong Solitaire?', a: 'Match and remove pairs of free tiles until all 144 are gone. A tile is free when no tile covers it and at least one of its left or right sides is open.' },
       { q: 'Which tiles match?', a: 'Two tiles match if they are identical. The exception is the bonus tiles: any flower matches any other flower, and any season matches any other season.' },
-      { q: 'Is every Mahjong board winnable?', a: 'Yes. Every deal here is built to be solvable, so with the right order of moves you can always clear it. Hint and a limited shuffle help when you are stuck.' },
+      { q: 'Is every Mahjong board winnable?', a: 'Every new deal is built to be solvable, so with the right order of moves you can clear it. A wrong order can still leave you stuck; a shuffle then gives you a fresh layout, but that layout is not guaranteed to be solvable.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap a free tile and then its match to clear the pair. It works on phones and tablets as well as desktop.' },
     ],
   },
@@ -2297,7 +2297,7 @@ export const gamePages: GamePage[] = [
     ],
     faq: [
       { q: 'How do you win at Flow?', a: 'Connect every pair of same-coloured dots with a pipe AND fill all squares. Connecting the pairs alone is not enough — the whole grid must be covered.' },
-      { q: 'Can pipes cross each other?', a: 'No. Each square holds at most one pipe. If you drag into another colour’s pipe it stops; drag back over your own to shorten it.' },
+      { q: 'Can pipes cross each other?', a: 'No. Each square holds at most one pipe. Dragging through another colour’s pipe cuts that pipe back at the crossing point (only its dots block you); drag back over your own pipe to shorten it.' },
       { q: 'How many levels are there?', a: 'There are 26 hand-made levels that get bigger and trickier — nine 5×5, nine 6×6 and eight 7×7 boards. Your furthest level is saved locally.' },
       { q: 'Does it work on mobile?', a: 'Yes. Drag with your finger from dot to dot. The board scales to fit phones, tablets and desktop.' },
     ],
@@ -2458,7 +2458,7 @@ export const gamePages: GamePage[] = [
     ],
     strategy: [
       'Watch the judgement line, not the falling note — let the note come to you instead of chasing it up the lane.',
-      'The Perfect window is tight; if you are consistently early or late, nudge your timing by half a beat.',
+      'Perfect is ±50 ms and Good is ±120 ms, so if you are consistently early or late, correct by a few tens of milliseconds — not by a half beat, which is wider than the whole Good window.',
       'Combo drives your score multiplier, so protecting an unbroken streak beats chasing one risky Perfect.',
       'Later stages layer more notes per beat — lock onto the rhythm rather than reacting note-by-note.',
       'Daily mode is the same chart for everyone that day; Practice deals a fresh random five-stage run every time, so use it to drill the faster stages without touching your streak.',

@@ -7,6 +7,11 @@ import { guide as guideMorseRelay } from './guides/morse-relay'
 import { guide as guideReactor } from './guides/reactor'
 import { guide as guideSudoku } from './guides/sudoku'
 import { guide as guideUnblock } from './guides/unblock'
+import { guide as guide2048 } from './guides/2048'
+import { guide as guideBeatline } from './guides/beatline'
+import { guide as guideFlow } from './guides/flow'
+import { guide as guideMahjong } from './guides/mahjong'
+import { guide as guideQuarry } from './guides/quarry'
 
 // 새 공략/기사는 여기에 등록해야 /guides·sitemap·게임 페이지 링크에 나타난다.
 export const GUIDES: GameGuide[] = [
@@ -15,6 +20,11 @@ export const GUIDES: GameGuide[] = [
   guideReactor,
   guideSudoku,
   guideUnblock,
+  guide2048,
+  guideBeatline,
+  guideFlow,
+  guideMahjong,
+  guideQuarry,
 ]
 
 export const ARTICLES: Article[] = [designingMorseRelay, designingPolytap, designingPinwheel]

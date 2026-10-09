@@ -1,4 +1,6 @@
-export const guide = {
+import type { GameGuide } from '../types'
+
+export const guide: GameGuide = {
   slug: 'mahjong',
   title: 'Mahjong Solitaire: Why Solvable Deals Still Get Stuck',
   description:
