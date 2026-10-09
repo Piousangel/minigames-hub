@@ -1,4 +1,6 @@
-export const article = {
+import type { Article } from '../types'
+
+export const article: Article = {
   slug: 'yahtzee-300000-games-three-strategies',
   title: 'We Played 300,000 Games of Yahtzee With Three Bots. Here Is What Actually Scores.',
   description:

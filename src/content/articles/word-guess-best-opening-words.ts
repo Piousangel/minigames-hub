@@ -1,4 +1,6 @@
-export const article = {
+import type { Article } from '../types'
+
+export const article: Article = {
   slug: 'word-guess-best-opening-words',
   title: 'The Best Opening Word for Our Word Guess Game, Tested Against Every Answer',
   description:

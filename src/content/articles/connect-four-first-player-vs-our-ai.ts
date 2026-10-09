@@ -1,4 +1,6 @@
-export const article = {
+import type { Article } from '../types'
+
+export const article: Article = {
   slug: 'connect-four-first-player-vs-our-ai',
   title: 'Does Going First Win at Connect Four? 114,000 Bot Games Against Our AI',
   description:

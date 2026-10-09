@@ -12,6 +12,9 @@ import { guide as guideBeatline } from './guides/beatline'
 import { guide as guideFlow } from './guides/flow'
 import { guide as guideMahjong } from './guides/mahjong'
 import { guide as guideQuarry } from './guides/quarry'
+import { article as connectFourFirstPlayerVsOurAi } from './articles/connect-four-first-player-vs-our-ai'
+import { article as wordGuessBestOpeningWords } from './articles/word-guess-best-opening-words'
+import { article as yahtzee300000GamesThreeStrategies } from './articles/yahtzee-300000-games-three-strategies'
 
 // 새 공략/기사는 여기에 등록해야 /guides·sitemap·게임 페이지 링크에 나타난다.
 export const GUIDES: GameGuide[] = [
@@ -27,7 +30,14 @@ export const GUIDES: GameGuide[] = [
   guideQuarry,
 ]
 
-export const ARTICLES: Article[] = [designingMorseRelay, designingPolytap, designingPinwheel]
+export const ARTICLES: Article[] = [
+  designingMorseRelay,
+  designingPolytap,
+  designingPinwheel,
+  connectFourFirstPlayerVsOurAi,
+  wordGuessBestOpeningWords,
+  yahtzee300000GamesThreeStrategies,
+]
 
 export type ContentEntry =
   | { type: 'guide'; entry: GameGuide }
