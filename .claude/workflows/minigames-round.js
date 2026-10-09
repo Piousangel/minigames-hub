@@ -70,7 +70,10 @@ bisect(카운트다운 없는 순수 시간감각 — 두 신호 사이 정중�
 slotter(정렬된 줄에 마감 전 정확한 틈을 클릭해 카드 삽입 — 오답/타임아웃이면 줄 파괴),
 carousel(마블을 로더에 놓을 때마다 링 전체가 스스로 고정폭 회전 — 3개 색 맞추면 클리어),
 gridlock(사거리 하나를 4방향 교통이 공유 — 한 번에 한 레인에만 통행권, 엔드리스 생존),
-bearing(부호만 알려주는 나침반 추리 보물찾기 — 매 시도가 거리 아닌 방향만 반환, 데일리)`
+bearing(부호만 알려주는 나침반 추리 보물찾기 — 매 시도가 거리 아닌 방향만 반환, 데일리),
+strata(숨은 3D 도형을 층별 단면으로 보고 재구성 — 데일리),
+bankshot(벽에 튕겨 공을 멈출 자리 맞히기 — 물리가 정지점을 결정, 데일리),
+morse-relay(전신키를 눌렀다 떼는 길이로 모스부호 송신 — 첫 입력으로 속도 보정, 1:1 도전 링크)`
 
 // EXISTING에서 직접 센다. 괄호 안 설명에 쉼표가 있으므로(ricochet, duplex) 먼저 제거해야 한다.
 // 프롬프트에 숫자를 하드코딩하면 라운드마다 어긋나므로, 반드시 이 상수를 주입해 쓸 것.
@@ -100,6 +103,15 @@ const RULES = `
 
 ## 공유 파일 편집 금지 (오케스트레이터가 직접 배선한다)
 registry.ts, GameRenderer.tsx, gameMeta.ts, GameIcon.tsx, e2e/smoke.spec.ts, leaderboard.ts, globals.css
+
+## 1:1 도전 링크 내장 (필수 — 2026-10 라운드17부터)
+- 한 판은 **시드 하나로 완전히 결정**돼야 한다: \`createGame(…, seed)\` → 같은 시드 + 같은 입력 = 같은 판. 점수는 **높을수록 좋은 양의 정수**.
+- 컴포넌트는 \`import { parseChallenge, challengeUrl, compareChallenge, type Challenge } from '@/lib/challenge'\`를 쓴다.
+  마운트 시 \`parseChallenge(window.location.search)\`가 있으면 그 seed로 시작하고 배너("<name> scored <score> on this exact run")를 띄운다.
+  결과 오버레이에 \`compareChallenge\`로 승/무/니어미스(%) 한 줄 + "Challenge a friend"(또는 이겼으면 "Send it back") 공유 버튼.
+- **도전 판은 best:<slug>에 저장하지 않는다**(같은 시드 반복으로 리더보드 파밍 방지). 이름은 \`loadPlayerName/savePlayerName\`(@/lib/leaderboard).
+- 공유 성공 후에만 \`sendHit(slug, 'challenge-sent')\`, 도전 판 종료 시 \`sendHit(slug, 'challenge-done')\` (@/lib/hit).
+- **레퍼런스 구현: \`src/components/games/GameMorseRelay.tsx\`** — 도전 배너·결과 카드·공유·Play solo 패턴을 그대로 따른다.
 
 ## 그 외
 - 보드 최상위에 \`data-testid="<key>-board"\` 필수.

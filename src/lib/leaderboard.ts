@@ -74,6 +74,7 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   strata: { label: 'Score' },
   bankshot: { label: 'Score' },
   'morse-relay': { label: 'Score' },
+  lagline: { label: 'Score' },
   chess: { label: 'Wins' },
   gomoku: { label: 'Wins' },
   pong: { label: 'Wins' },

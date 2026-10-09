@@ -114,6 +114,9 @@ export type GamePage = GamePageBase &
     | { game: 'strata' }
     | { game: 'bankshot' }
     | { game: 'morse-relay' }
+    | { game: 'lagline' }
+    | { game: 'recoil' }
+    | { game: 'hunch' }
   )
 
 export const gamePages: GamePage[] = [
@@ -2931,6 +2934,84 @@ export const gamePages: GamePage[] = [
       { q: 'How do you play Morse Relay?', a: 'Hold the telegraph key (on-screen or Spacebar) for a dot or a dash and release, resting between presses for the right gap length. The game calibrates to your own tapping speed from the first press of each word.' },
       { q: 'What happens if I mistime a press?', a: 'A press read as the wrong symbol, or a pause that cuts a letter short, costs one of your five lives. A wrong-length gap after a finished letter only breaks your combo. Lose all five lives and the run ends.' },
       { q: 'Does the game ever end on its own?', a: 'No — Morse Relay is an endless survival run. You score points for cleanly keyed letters (boosted by your combo multiplier) and for each word you finish, with a bonus for mistake-free words.' },
+    ],
+  },
+  {
+    slug: 'lagline',
+    game: 'lagline',
+    title: 'Play Lagline Online — Delayed-Input Lane Dodging Game',
+    h1: 'Lagline',
+    metaDescription:
+      'Play Lagline free online: every move you make lands 3 beats late. Read the lanes ahead, queue dodges and jumps early, and survive as the tempo climbs.',
+    shortDescription: 'Every move lands 3 beats late — dodge walls and jump hurdles by planning ahead.',
+    howToPlay: [
+      'Five lanes of red walls and amber hurdles scroll toward you one row per beat. Press an arrow key, swipe, or tap an on-screen button to start.',
+      'Every command (left, right, jump, or stay) joins a queue and runs 3 beats later. The queue strip shows the moves you have committed, and ghost rings show where they will take you; a red ✕ marks a crash.',
+      'Walls always end the run, so move out of their lane. Hurdles must be jumped: a jump keeps you in the same lane. If you press nothing during a beat, you stay where you are; if you press more than once, only the last press counts.',
+      'Your score is the number of beats you survive. Every 32 beats a new stage speeds the tempo up from 96 BPM toward 160, and reaching 160 beats counts as staying in sync.',
+    ],
+    strategy: [
+      'Look at the row as many beats ahead as the Lag badge shows, not the row you are standing on. That is the row your next press will actually land on.',
+      'Trust the ghost rings. If one shows a red ✕, queue a correction right away; any later press can only change beats further down the line.',
+      'Stay near the middle lanes when you can. From lane 3 you can reach either side, while an edge lane cuts your escape routes in half.',
+      'From stage 5 the second half of each stage stretches the lag to 4. The beat it grows forces a stay, and the beat it shrinks back shows SYNC and ignores your input, so plan around both.',
+    ],
+    faq: [
+      { q: 'How do you play Lagline?', a: 'Steer a runner across five lanes with the arrow keys or WASD (Space also jumps), by swiping, or with the on-screen buttons. Every command is queued and runs 3 beats after you give it, so you dodge walls and jump hurdles by reading the field ahead.' },
+      { q: 'Why did my move happen late?', a: 'That is the core rule. Moves always run on a delay of 3 beats, or 4 during the purple "Lag 4" stretches from stage 5 on. On the beat the lag shrinks back to 3, the queue slot shows SYNC and that beat\'s input is ignored.' },
+      { q: 'Is every run winnable?', a: 'The first 8 rows are always empty, and each new row is generated so that at least one lane stays reachable under the movement rules. A careful planner always has a way through. Pressing P or Esc pauses the run, and switching tabs pauses it automatically.' },
+    ],
+  },
+  {
+    slug: 'recoil',
+    game: 'recoil',
+    title: 'Play Recoil Online — Zero-Gravity Shooting Puzzle Game',
+    h1: 'Recoil',
+    metaDescription:
+      'Play Recoil free online: every shot pushes your ship the opposite way. Bounce off walls, collect all five stars and save rounds in a frictionless arena.',
+    shortDescription: 'Shooting is your only thruster — kick yourself through a frictionless box to grab all five stars.',
+    howToPlay: [
+      'Aim the ship’s gun by pointing with the mouse, touching and dragging on the arena, or with the keys: ←/→ turn 22.5° (hold Shift for 90°), ↑/↓ point straight up or down.',
+      'Fire by releasing the click or tap, or with Space / Enter. Each shot pushes the ship exactly one unit of speed in the opposite direction to your aim — shooting is the only way to move.',
+      'There is no friction: you keep drifting until another shot changes your velocity. The outer walls and the purple bars bounce you back with no speed lost. Fly through all five stars to win.',
+      'Rounds are limited — 14 on Easy, 12 on Normal, 10 on Hard. With the magazine empty you get 8 seconds of drift to reach the remaining stars, and the run ends at once if your last shot leaves you motionless.',
+    ],
+    strategy: [
+      'Trust the dotted ghost line: it traces the next 45 ticks (about three-quarters of a second) of flight for the direction you are aiming, bounces included.',
+      'To brake, fire in the direction you are already moving — two shots in exactly opposite directions cancel out completely. A slow ship is far easier to steer than a fast one.',
+      'Let the walls do the turning. A bounce costs nothing, and any star you collect after a bounce since your last shot is a bank shot worth an extra 50 points.',
+      'Spend rounds sparingly: every unused round pays 150 on a win, more than a star, while the time bonus (up to 600) drops 10 points per second. Try to finish at or under the par shown above the arena.',
+    ],
+    faq: [
+      { q: 'How is Recoil scored?', a: 'Each star is worth 100, plus 50 more if it was a bank shot. Collecting all five adds a 500 win bonus, 150 for every unused round, and a time bonus of up to 600 that shrinks by 10 points per second after your first shot. A failed run keeps its star and bank points.' },
+      { q: 'Why did my run end while I was still moving?', a: 'Once you are out of rounds you only have 8 seconds of drift to collect the remaining stars. If you finish a shot with zero velocity and no rounds left, the run ends immediately as "Dead in space".' },
+      { q: 'Is there a daily board or a way to challenge friends?', a: 'Daily mode gives everyone the same Normal board each UTC day, with a streak for daily wins; Practice deals a fresh board at Easy, Normal or Hard. After any run that scored points you can send a challenge link — it carries the board and difficulty, so your friend flies the exact same walls and stars against your score. Challenge runs do not count toward your best or your streak.' },
+    ],
+  },
+  {
+    slug: 'hunch',
+    game: 'hunch',
+    title: 'Play Hunch Online — Crack the Hidden Card Rule',
+    h1: 'Hunch',
+    metaDescription:
+      'Test cards against a secret rule, read what gets accepted, then call five verdicts in a row to crack it. Three rules per run and a new daily set every day.',
+    shortDescription: 'Test cards, spot the hidden rule, then call five verdicts in a row to crack it.',
+    howToPlay: [
+      'A hidden rule decides which cards are accepted. Tap a card in your eight-card hand, then tap it again (or press Test card) to try it. Accepted cards join the main line, and rejected ones hang under the last card on the line.',
+      'Each run has three stages. Stage 1 rules judge the card alone. Stage 2 rules compare it with the last accepted card on the line. Stage 3 rules combine two clues. The START card is just a random opener.',
+      'When you think you know the rule, press Predict. A probe card appears, and you call Accept or Reject. Five correct calls in a row crack the rule and move you to the next stage. You can go back to testing at any time, but that resets your streak.',
+      'A wrong call costs one of three lives and sends you back to testing. You get 40 tests per stage. Crack all three rules to win. Lose your last life and the run ends with the rule revealed.',
+    ],
+    strategy: [
+      'Pick tests that split your guesses. If you suspect "red", play a red card and a black card of the same rank, not two more hearts.',
+      'From stage 2 on, judge every card against the last accepted card, not the last one you played. Rejected cards never become the reference.',
+      'Probes are a deliberate mix of cards the rule accepts and rejects, so answering the same way every time will not work. Only predict when you can explain every card on the line.',
+      'Each stage pays 20 extra points for every test you save under 20, so after a few tests a confident prediction beats more probing. Unused lives pay a bonus when you finish the run.',
+    ],
+    faq: [
+      { q: 'How is Hunch scored?', a: 'Each correct prediction is worth 10 points. Cracking a stage adds a base bonus of 300, 500 or 800 points, plus 20 for every test you used under 20. Winning all three stages adds 150 points per life you have left.' },
+      { q: 'What kinds of rules are there?', a: 'There are 36 rules, 12 per stage. Stage 1 rules look at one card: its color, suit or rank. Stage 2 rules compare a card with the last accepted card. Stage 3 rules combine two such clues with "and" or "or".' },
+      { q: 'What is the difference between Daily and Practice?', a: 'Daily gives everyone the same three rules and deck for the UTC day, keeps a streak and has a shareable result. Practice deals a new rule set every time. Any run that scores can also become a challenge link that replays your exact rules and deck for a friend.' },
     ],
   },
 ]

@@ -1047,6 +1047,37 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // lagline — 위쪽 큐 슬롯 3칸에서 명령이 한참 돌아 아래 레인의 플레이어에게 늦게 도착
+  lagline: (
+    <>
+      <rect x="3" y="3.5" width="5" height="5" rx="1.2" {...soft} />
+      <rect x="9.5" y="3.5" width="5" height="5" rx="1.2" {...soft} />
+      <rect x="16" y="3.5" width="5" height="5" rx="1.2" {...softer} />
+      <path d="M18.5 11v3.5a2 2 0 0 1-2 2H9" />
+      <circle cx="5.5" cy="16.5" r="2" {...solid} />
+      <path d="M3 21h18" />
+    </>
+  ),
+
+  // recoil — 총구는 위로 쏘고, 반동 화살표로 배는 반대쪽(아래-왼쪽)으로 밀려난다
+  recoil: (
+    <>
+      <circle cx="9" cy="14" r="3.5" {...soft} />
+      <path d="M11.5 11.5 14.5 8.5" />
+      <circle cx="17.5" cy="5.5" r="1.3" {...solid} />
+      <path d="M6.5 16.5 3 20M3 20h3M3 20v-3" />
+    </>
+  ),
+
+  // hunch — 숨은 규칙을 추리하는 카드 한 장과 물음표
+  hunch: (
+    <>
+      <rect x="5.5" y="3" width="13" height="18" rx="2" {...soft} />
+      <path d="M9.6 9.4a2.4 2.4 0 1 1 3.6 2.1c-.8.5-1.2 1-1.2 1.9v.6" />
+      <circle cx="12" cy="17" r="1" {...solid} />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>
