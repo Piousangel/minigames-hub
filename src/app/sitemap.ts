@@ -5,12 +5,13 @@ import { siteConfig } from '@/lib/siteConfig'
 
 export const dynamic = 'force-static'
 
-export default function sitemap(): MetadataRoute.Sitemap {
+/**
+ * 얇은 목록/허브 페이지 — siteConfig.thinPagesNoindex가 켜져 있으면(AdSense 심사 기간)
+ * 해당 페이지들이 robots noindex이므로 sitemap에서도 뺀다. 플래그를 false로 돌리면 복구.
+ */
+function thinListPages(): MetadataRoute.Sitemap {
   return [
-    { url: siteConfig.url, changeFrequency: 'daily', priority: 1 },
-    { url: `${siteConfig.url}/daily`, changeFrequency: 'daily', priority: 0.8 },
     { url: `${siteConfig.url}/collections`, changeFrequency: 'weekly', priority: 0.6 },
-    { url: `${siteConfig.url}/unblocked`, changeFrequency: 'weekly', priority: 0.7 },
     { url: `${siteConfig.url}/leaderboards`, changeFrequency: 'daily', priority: 0.7 },
     ...['puzzle', 'arcade', 'classic', 'skill'].map((c) => ({
       url: `${siteConfig.url}/category/${c}`,
@@ -22,6 +23,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly' as const,
       priority: 0.6,
     })),
+  ]
+}
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  return [
+    { url: siteConfig.url, changeFrequency: 'daily', priority: 1 },
+    { url: `${siteConfig.url}/daily`, changeFrequency: 'daily', priority: 0.8 },
+    { url: `${siteConfig.url}/unblocked`, changeFrequency: 'weekly', priority: 0.7 },
+    ...(siteConfig.thinPagesNoindex ? [] : thinListPages()),
     ...gamePages.map((g) => ({
       url: `${siteConfig.url}/${g.slug}`,
       changeFrequency: 'weekly' as const,

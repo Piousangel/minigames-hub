@@ -2461,11 +2461,11 @@ export const gamePages: GamePage[] = [
       'The Perfect window is tight; if you are consistently early or late, nudge your timing by half a beat.',
       'Combo drives your score multiplier, so protecting an unbroken streak beats chasing one risky Perfect.',
       'Later stages layer more notes per beat — lock onto the rhythm rather than reacting note-by-note.',
-      'Practice mode replays a stage without spending a daily attempt — use it to learn a hard section first.',
+      'Daily mode is the same chart for everyone that day; Practice deals a fresh random five-stage run every time, so use it to drill the faster stages without touching your streak.',
     ],
     faq: [
       { q: 'How do you play Beatline?', a: 'Press the lane key (D, F, J, K) exactly as the falling note crosses the judgement line. Hitting inside the tight window scores a Perfect; a wider window scores a Good.' },
-      { q: 'What happens if I miss a note?', a: 'A miss breaks your combo and costs a life. Run out of lives before clearing the stage and the run ends.' },
+      { q: 'What happens if I miss a note?', a: 'A miss breaks your combo and costs one of your four lives — and so does pressing a lane with no note in it. Lives carry across all five stages; run out and the run ends.' },
       { q: 'How many stages are there?', a: 'Five stages, each with a denser note chart than the last. Clear all five to win the run.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap a lane button as the note crosses the line — the four lanes span the width of the board on any screen.' },
     ],
@@ -2504,24 +2504,24 @@ export const gamePages: GamePage[] = [
     title: 'Play Turntile Online — Free Flip & Reveal Tile Puzzle',
     h1: 'Turntile',
     metaDescription:
-      'Play Turntile free online — flip 2×2 blocks to swap tiles and reveal their hidden face, and lock every block once its four faces match. No download, no sign-up.',
-    shortDescription: 'Flip a block, reveal its faces, lock the match.',
+      'Play Turntile free online — flip 2×2 blocks to swap tiles and reveal their hidden face until every tile on the board shows the same symbol. No download, no sign-up.',
+    shortDescription: 'Flip a block, reveal its faces, match the whole board.',
     howToPlay: [
       'Every tile has two faces; only one is showing at a time.',
       'Tap a pivot point to flip the 2×2 block around it — the four tiles swap positions point-symmetrically and their hidden faces are revealed.',
-      'A block locks in place the moment all four of its tiles show the same face.',
-      'Lock every block on the board to win — fewer flips than the par is a better score.',
+      'A block counts as matched (and scores) the moment all four of its tiles show the same face — but a later flip can break it again, so nothing is locked.',
+      'Win by making every tile on the board show the same face — fewer flips than the par is a better score.',
     ],
     strategy: [
       'Flipping is its own undo — flip the same block again and it returns exactly to where it was.',
       'Track which faces you have already seen on nearby tiles; a flip both moves tiles and refreshes your memory of them.',
       'Work outward from a block you can already match rather than flipping at random — each flip touches four tiles at once, so plan for the ripple.',
-      'A block near the edge has fewer overlapping neighbours, so it is usually safer to lock first.',
+      'A block near the edge has fewer overlapping neighbours, so a match there is less likely to be broken by your next flips.',
       'The par shown is the exact number of flips used to scramble the board, so matching or beating it is always possible.',
     ],
     faq: [
-      { q: 'How do you play Turntile?', a: 'Tap a pivot to flip the surrounding 2×2 block. The four tiles swap positions and reveal their hidden face; a block locks once all four faces match.' },
-      { q: 'How do I win?', a: 'Lock every 2×2 block on the board by getting all four of its tiles to show the same face.' },
+      { q: 'How do you play Turntile?', a: 'Tap a pivot to flip the surrounding 2×2 block. The four tiles swap positions and reveal their hidden face; a block counts as matched while all four faces agree, and later flips can undo that.' },
+      { q: 'How do I win?', a: 'Get every tile on the board to show the same face at once — which is the same as every overlapping 2×2 block being matched at the same time.' },
       { q: 'Can I undo a flip?', a: 'There is no separate undo button, but every flip is its own reverse — flip the same pivot again to put it back.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap a pivot point to flip its block — the grid scales to fit phones and tablets as well as desktop.' },
     ],
@@ -2536,19 +2536,19 @@ export const gamePages: GamePage[] = [
     shortDescription: 'Spread your bets across four jars of visible odds.',
     howToPlay: [
       'Each of the four jars starts full of gem and dud tokens, and you can see exactly how many of each remain at all times.',
-      'Before each round, spread your bankroll across as many jars as you like — the fewer gems remain in a jar, the higher its payout multiplier.',
-      "Commit the round and every jar you bet on draws one token at once: a gem pays out at that jar's multiplier, a dud takes your bet.",
+      'Before each round, spread your bankroll across as many jars as you like — the smaller the share of gems left in a jar, the higher its payout multiplier.',
+      "Commit the round and all four jars draw one token at once, whether you bet on them or not: a gem pays your stake at that jar's multiplier, a dud takes your bet.",
       'Survive 12 rounds with bankroll left to complete the run — hit zero and the run ends.',
     ],
     strategy: [
-      'A jar with only a few gems left pays big, but every draw that misses is one gem closer to running out entirely.',
+      'A jar with a low share of gems pays big because it will usually miss — multipliers are set slightly below fair odds, so no jar is free money.',
       'Spreading bets across jars smooths your variance; going all-in on one jar is higher risk for a higher single payout.',
       'Watch the odds shift every round — a jar that looked safe early can turn into the best, or worst, bet later.',
       'Sitting a round out with no bet is always valid — sometimes the best move is to wait for better odds.',
     ],
     faq: [
-      { q: 'How do you play Stakehouse?', a: 'Split your bankroll across four jars before each round. When you commit, every jar you bet on draws one token — a gem pays out, a dud costs you the bet.' },
-      { q: 'How do I know the odds?', a: 'Every jar shows its exact remaining gem and dud count, so its payout multiplier is always visible before you bet.' },
+      { q: 'How do you play Stakehouse?', a: 'Split your bankroll across four jars before each round. When you commit, all four jars draw one token — on the jars you bet on, a gem pays out and a dud costs you the bet.' },
+      { q: 'How do I know the odds?', a: 'Every jar shows its exact remaining gem and dud count, and its payout multiplier is always visible before you bet. Multipliers come from those counts, trimmed slightly below a fair payout.' },
       { q: 'What happens if I lose all my bankroll?', a: 'Hitting zero bankroll ends the run immediately. Survive all 12 rounds with bankroll remaining to complete it.' },
     ],
   },
@@ -2567,15 +2567,15 @@ export const gamePages: GamePage[] = [
       'See the deck through to the very last card before the gauge caps and you clear the round for a big bonus instead.',
     ],
     strategy: [
-      'Early grasps are cheap — the gauge has plenty of room, so take the value while it is safe.',
+      'Every grasp costs the same amount of gauge, and unused gauge is paid out as a margin bonus when you clear — so weigh each card’s value against the margin it will cost you.',
       'Watch the gauge closely near the end of the deck: reaching the last card the instant it would cap turns a bust into a clear.',
       'Releasing costs nothing but potential score, so when the gauge is near full, release freely to survive to the finish.',
-      'Higher difficulties shrink your grasp budget, so plan how many grasps you can afford from the very first card.',
+      'The grasp that fills the gauge comes sooner on Easy (the 6th of 20 cards) than on Normal (8th of 30) or Hard (10th of 42), so plan how many grasps you can afford from the very first card.',
     ],
     faq: [
       { q: 'How do you play Grasp?', a: 'As each card flips, choose to grasp it (add its value to your score, fill the gauge) or release it (no score, no gauge cost).' },
       { q: 'What happens when the gauge fills?', a: 'The round ends immediately, wherever you are — unless you grasp the very last card in the deck at that same moment, which clears the round for a bonus instead.' },
-      { q: 'What is the difference between difficulties?', a: 'Easy, Normal, and Hard shrink how many grasps you can make before the gauge caps, so higher difficulties demand tighter judgment calls.' },
+      { q: 'What is the difference between difficulties?', a: 'Easy deals 20 cards worth 1–5 and caps on the 6th grasp; Normal deals 30 cards worth 1–6 and caps on the 8th; Hard deals 42 cards worth 1–7 and caps on the 10th. Longer decks mean more decisions before you reach the end.' },
     ],
   },
   {
@@ -2620,7 +2620,7 @@ export const gamePages: GamePage[] = [
     ],
     strategy: [
       'Watch the lime marker on the ring — that is the exact offbeat target, not the pulse flash itself.',
-      'The pulse always accelerates on a fixed schedule, so the rhythm stays learnable even as it speeds up.',
+      'The gap between pulses shrinks steadily, but from the sixth cycle on a beat can occasionally arrive early — keep watching the ring rather than tapping on autopilot.',
       'A big combo pays off — perfect taps in a row score increasingly more, so consistency beats the occasional lucky hit.',
       'When the pulse speeds up hardest, resist the urge to tap on reflex — aim for the shrinking midpoint, not the beat.',
     ],
@@ -2641,18 +2641,18 @@ export const gamePages: GamePage[] = [
     howToPlay: [
       'Set your throw power and angle, then release — your stone slides and slows down under friction as it travels up the sheet.',
       'Stones bounce off each other realistically, so a well-placed throw can knock obstacle stones out of the house or into position.',
-      'Your score is the house count — how many of your stones sit closer to the centre than any obstacle stone.',
+      'Your score is the house count — if your stone is closest to the button, each of your stones closer than the nearest obstacle stone scores 1–3 points by ring.',
       'Use all your shots, or bank early for a bonus on any you skip. Reach the target score to win.',
     ],
     strategy: [
       'A stone deep in the house is safer than one on the edge — closer beats farther when counting control of the centre.',
       'Use a lighter throw to nudge an obstacle stone out of the way before committing to a hard shot at the button.',
       'Banking early trades potential points for a guaranteed bonus — only worth it once you are safely ahead.',
-      'Angle matters as much as power: a stone that curls past an obstacle can reach the house a straight throw cannot.',
+      'Angle matters as much as power: stones travel in straight lines, so use a side-wall bounce or a glancing hit off another stone to reach a spot a direct throw cannot.',
     ],
     faq: [
       { q: 'How do you play Hogline?', a: 'Set your power and angle (arrow keys, drag, or the on-screen controls) and release to throw. Your stone slides and slows under friction, bouncing off any stones in its path.' },
-      { q: 'What is the “house”?', a: 'The house is the target circle at the top of the sheet. Your score counts how many of your stones sit closer to its centre than any obstacle stone.' },
+      { q: 'What is the “house”?', a: 'The house is the target circle at the top of the sheet. If your stone is closest to its centre, every one of your stones nearer than the closest obstacle stone scores by ring; if an obstacle stone is closest, you score nothing.' },
       { q: 'Can I play a fresh puzzle every day?', a: 'Yes — Daily mode gives everyone the same seeded layout each day, with a streak counter for playing on consecutive days. Practice mode gives you a fresh random layout anytime.' },
     ],
   },
@@ -2668,11 +2668,11 @@ export const gamePages: GamePage[] = [
       'Hidden atoms sit somewhere on the grid — you cannot see them directly.',
       'Fire a beam of light from any edge port and watch how it exits: a direct hit, a straight pass-through, a reflection back the way it came, or a bent refraction.',
       'Use the pattern of hits, refractions, and reflections across multiple beams to work out exactly where each atom is hiding.',
-      'Mark every atom you have found to win — fewer beams used earns a bigger bonus.',
+      'An atom counts as found when a beam hits it head-on — find every atom to win. Fewer beams used earns a bigger bonus.',
     ],
     strategy: [
       'A beam that passes straight through tells you an entire lane is clear — use that to rule out large parts of the grid fast.',
-      'A reflection means the beam bounced right back without entering — atoms near your entry point are blocking it, but a reflection alone gives no coordinates.',
+      'A reflection means the beam came back out of its own port — somewhere along its route it was flanked by atoms on both sides — but a reflection alone gives no coordinates.',
       'Refracted beams bend around atoms without hitting them — the atom sits next to the bend point, not on the beam path itself.',
       'Fire beams from ports on different sides early to build overlapping clues before committing to a guess.',
     ],
@@ -2719,13 +2719,13 @@ export const gamePages: GamePage[] = [
     howToPlay: [
       'Every tile in the grid has a color. There is no empty slot — you never slide a single tile.',
       'Press a row or column arrow to cycle the whole row or column one step in that direction; the tile that falls off one end reappears on the other.',
-      'Line up a full row to a single color to complete it — completed rows lock in and stay counted even after later moves.',
-      'Complete every row before you run out of moves (or as fast as possible on Daily) to win.',
+      'Turn a full row into its own single color to complete it — the first completion of each row scores a bonus, even if later moves disturb it again.',
+      'Win by having every row complete at the same time. There is no move limit: par is the number of scramble moves, and finishing at or under par earns the full efficiency bonus.',
     ],
     strategy: [
       'Think in whole loops, not single tiles — every cycle shifts an entire row or column at once, so plan a few moves ahead.',
-      'Completing rows back-to-back builds a combo bonus, so chain finishes together instead of tidying one row fully before starting the next.',
-      'A completed row stays locked in even if later moves disturb its neighbors, so work on the grid in whatever order clears fastest.',
+      'Completing several rows with the same move scores a combo — the bonus grows with the square of the rows finished together.',
+      'A row’s completion bonus is only paid once, but the win needs every row correct at the same time, so a finished row you disturb must be rebuilt.',
       'On harder difficulties the grid is bigger, so scan for the row or column closest to done before committing a move.',
     ],
     faq: [
@@ -2743,9 +2743,9 @@ export const gamePages: GamePage[] = [
       'Play Bisect free online — a pure timing game with no clock and no countdown. Watch for a start signal and an end signal, then tap the exact halfway point between them. No download, no sign-up.',
     shortDescription: 'No clock, no countdown — tap the exact midpoint between two signals.',
     howToPlay: [
-      'Press Space, tap, or click to arm a round — a start flash fires, then an end flash fires some time later.',
+      'Press Space, tap, or click to arm a round — after a short random pause a start flash fires, and an interval of unknown length begins.',
       'There is no visible countdown or progress bar between the two flashes — only your internal sense of time.',
-      'Tap again exactly halfway between the start and end flash. The closer to the true midpoint, the higher the grade.',
+      'Tap again exactly halfway through that interval — before it ends. Your tap ends the round immediately; the end flash only appears if you have not tapped yet, and a tap after it is always a miss.',
       'You have three lives — a false start, a miss, or a badly-timed tap costs one. The run ends when you run out.',
     ],
     strategy: [
@@ -2755,9 +2755,9 @@ export const gamePages: GamePage[] = [
       'Tapping too early is treated the same as tapping too late — aim to feel the gap shrink rather than guessing towards either end.',
     ],
     faq: [
-      { q: 'How do you play Bisect?', a: 'Press Space, tap, or click to start a round. Watch for the start flash, then the end flash, and tap again exactly halfway between the two — there is no visible timer.' },
+      { q: 'How do you play Bisect?', a: 'Press Space, tap, or click to start a round. After the start flash, tap again at the moment you judge to be halfway through the interval — you have to predict the midpoint, because tapping after the end flash is too late. There is no visible timer.' },
       { q: 'Why is there no countdown or progress bar?', a: 'The blank screen is the entire point — Bisect tests your internal sense of elapsed time, not your ability to read a clock.' },
-      { q: 'Does the game ever end?', a: 'No — Bisect is an endless survival run with three lives. Play continues until you run out.' },
+      { q: 'Does the game ever end?', a: 'There is no round limit — Bisect is an endless survival run. It ends only when you lose all three lives.' },
     ],
   },
   {
@@ -2782,7 +2782,7 @@ export const gamePages: GamePage[] = [
     ],
     faq: [
       { q: 'How do you play Slotter?', a: 'Click (or use arrow keys + Enter) on the gap in your sorted row where the incoming number card belongs, before it reaches the deadline on the right.' },
-      { q: 'What happens if I pick the wrong gap?', a: 'The row breaks immediately and the run ends — your score is how many cards you correctly slotted in before that happened.' },
+      { q: 'What happens if I pick the wrong gap?', a: 'The row breaks immediately and the run ends — as it does if the card reaches the deadline. Your score is the points earned before that: each card pays more the longer your row and the faster you place it, multiplied by your streak.' },
       { q: 'Does the game get harder over time?', a: 'Yes — each correctly placed card slightly speeds up the pace of the next one, so the deadline window keeps shrinking.' },
     ],
   },
@@ -2798,7 +2798,7 @@ export const gamePages: GamePage[] = [
       'Choose a colored marble from your hand and place it in the loader slot.',
       'After every placement, the whole ring automatically rotates a fixed number of slots — you never control the rotation directly.',
       'Line up three marbles of the same color anywhere along the ring and they clear, scoring points and opening space.',
-      'The ring fills up and locks in more marbles the longer you go without clearing a match — if it fills completely, the run ends.',
+      'If the slot the loader stops at next is already filled, the run ends — even if other slots on the ring are still open.',
     ],
     strategy: [
       'Think one rotation ahead — since the ring always turns the same amount after your placement, you can predict exactly where today’s marble will land next turn.',
@@ -2809,7 +2809,7 @@ export const gamePages: GamePage[] = [
     faq: [
       { q: 'How do you play Carousel?', a: 'Pick a marble from your hand (click, tap, or number keys 1-3) and place it at the loader. The ring then rotates on its own by a fixed amount before your next turn.' },
       { q: 'Why did the ring move without me doing anything?', a: 'That is the core twist — every placement triggers an automatic rotation, so you are always planning around where the ring will be next, not just where it is now.' },
-      { q: 'What happens if the ring fills up?', a: 'The run ends. Clear same-color runs of three or more before that happens to keep space open.' },
+      { q: 'When does the run end?', a: 'As soon as the slot that rotates under the loader is already occupied — which can happen before the whole ring is full. Clear same-color runs of three or more to keep slots open where the loader will land.' },
     ],
   },
   {
@@ -2870,22 +2870,22 @@ export const gamePages: GamePage[] = [
     title: 'Play Strata Online — Free 3D Voxel Deduction Puzzle',
     h1: 'Strata',
     metaDescription:
-      'Play Strata free online — a hidden 3D shape is buried in a cube grid. Slice through it to see silhouettes, then reconstruct the exact shape from what you learn. No download, no sign-up.',
-    shortDescription: 'Slice a hidden 3D shape to see its silhouette, then reconstruct it.',
+      'Play Strata free online — a hidden 3D shape is buried in a cube grid. Slice through it to see cross-sections, then reconstruct the exact shape from what you learn. No download, no sign-up.',
+    shortDescription: 'Slice a hidden 3D shape to see its cross-sections, then reconstruct it.',
     howToPlay: [
       'A 3D shape is hidden somewhere inside the cube grid — you cannot see it directly.',
-      'Query a slice along any axis and layer to reveal that cross-section as a flat silhouette.',
-      'Use the silhouettes you have gathered to build your best guess of the full 3D shape, layer by layer.',
+      'Query a slice along any axis and layer to reveal that single layer as a flat grid of filled and empty cells.',
+      'Use the cross-sections you have gathered to build your best guess of the full 3D shape, layer by layer.',
       'Submit your guess to check it against the hidden shape — an exact match wins, and giving up early still scores partial credit for how close you got.',
     ],
     strategy: [
       'Slice along different axes early — an X-axis slice and a Y-axis slice of the same layer reveal different information about the same region.',
-      'A silhouette rules out every cell that is empty in it, not just confirms the cells that are filled — use the negative space too.',
+      'A cross-section rules out every cell that is empty in it, not just confirms the cells that are filled — use the negative space too.',
       'You have a limited number of slices, so prioritize the layers most likely to disambiguate between the shapes you are still considering.',
       'Partial credit rewards a close guess, so if you run low on slices, submit your best reconstruction rather than guessing wildly.',
     ],
     faq: [
-      { q: 'How do you play Strata?', a: 'Query slices along the X, Y, or Z axis to reveal flat silhouettes of the hidden 3D shape, then paint your guess onto the voxel grid layer by layer and submit it.' },
+      { q: 'How do you play Strata?', a: 'Query slices along the X, Y, or Z axis to reveal flat cross-sections of the hidden 3D shape, then paint your guess onto the voxel grid layer by layer and submit it.' },
       { q: 'What happens if I run out of slices?', a: 'You can still submit your best guess or give up — either way you score partial credit based on how close your guess is to the actual hidden shape.' },
       { q: 'Can I play a fresh puzzle every day?', a: 'Yes — Daily mode gives everyone the same seeded shape each day, with a streak counter for playing on consecutive days. Practice mode gives you a fresh random shape at any difficulty.' },
     ],
@@ -2926,9 +2926,9 @@ export const gamePages: GamePage[] = [
     shortDescription: 'Hold to key dots and dashes, release for gaps — send the word in Morse code.',
     howToPlay: [
       'A target word appears — key it out in Morse code using a single telegraph key.',
-      'Hold briefly for a dot, hold longer for a dash, then release. The game learns your speed from your very first press.',
-      'Rest between symbols, letters, and words for the right length gap — too short or too long counts as a mistake.',
-      'You have five lives. A wrong symbol or a wrong gap costs one. Clear words to advance and keep your run going.',
+      'Hold briefly for a dot, hold longer for a dash, then release. The first press of each word sets the speed the rest of that word is judged against.',
+      'Rest between symbols, letters, and words for the right length gap — a wrong gap after a letter breaks your combo and costs the clean-word bonus.',
+      'You have five lives. A wrong symbol, or pausing long enough to end a letter before it is finished, costs one. Clear words to advance and keep your run going.',
     ],
     strategy: [
       'Your first press sets the pace for the whole word, so commit to a comfortable, repeatable rhythm from the very first symbol.',
@@ -2937,9 +2937,9 @@ export const gamePages: GamePage[] = [
       'Harder levels tighten the timing tolerance, so as your run goes on, aim for your cleanest, most deliberate taps yet.',
     ],
     faq: [
-      { q: 'How do you play Morse Relay?', a: 'Hold the telegraph key (on-screen or Spacebar) for a dot or a dash and release, resting between presses for the right gap length. The game calibrates to your own tapping speed from your first press.' },
-      { q: 'What happens if I mistime a press?', a: 'A wrong symbol or a wrong-length gap costs one of your five lives. Lose all five and the run ends.' },
-      { q: 'Does the game ever end on its own?', a: 'No — Morse Relay is an endless survival run. Your score is how many letters and words you keyed correctly before running out of lives.' },
+      { q: 'How do you play Morse Relay?', a: 'Hold the telegraph key (on-screen or Spacebar) for a dot or a dash and release, resting between presses for the right gap length. The game calibrates to your own tapping speed from the first press of each word.' },
+      { q: 'What happens if I mistime a press?', a: 'A press read as the wrong symbol, or a pause that cuts a letter short, costs one of your five lives. A wrong-length gap after a finished letter only breaks your combo. Lose all five lives and the run ends.' },
+      { q: 'Does the game ever end on its own?', a: 'No — Morse Relay is an endless survival run. You score points for cleanly keyed letters (boosted by your combo multiplier) and for each word you finish, with a bonus for mistake-free words.' },
     ],
   },
 ]

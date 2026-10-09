@@ -343,7 +343,7 @@ export function GameStrata({ storageKey }: { storageKey: string }) {
     ? 'Solved! Your guess matched the hidden shape exactly.'
     : lost
       ? 'Out of attempts — the shape is revealed below.'
-      : 'Query slices to reveal silhouettes, paint your guess layer by layer, then submit when confident.'
+      : 'Query slices to reveal cross-sections, paint your guess layer by layer, then submit when confident.'
 
   const headerExtra = (
     <>
