@@ -117,7 +117,7 @@ async function main() {
     `SELECT blob3 AS referrer, SUM(_sample_interval) AS hits, COUNT(DISTINCT blob4) AS visitors
      FROM mg_events
      WHERE (blob1='view' OR blob1='pageview') AND blob3!=''
-       AND positionCaseInsensitive(blob3, 'quickminigames.site') = 0 AND ${SINCE}
+       AND blob3 NOT LIKE '%quickminigames.site%' AND ${SINCE}
      GROUP BY referrer ORDER BY visitors DESC LIMIT 20`,
   )
   console.log(`\n[★ 외부 유입 출처 — 캠페인 성패 판정]`)
