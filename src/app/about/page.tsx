@@ -37,7 +37,7 @@ export default function AboutPage() {
         you are asked to install an app or create an account before you can play for two minutes.
         I wanted the opposite: open a page, play straight away, and close it again without having
         handed over anything. That goal shapes almost every decision here — no accounts, no
-        downloads, layouts that work the same on a phone and a desktop, and a short written guide on
+        downloads, and a short written guide on
         every game page explaining the rules, a few strategy ideas and the questions players
         actually ask.
       </p>
