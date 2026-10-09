@@ -25,6 +25,11 @@ noindex + sitemap 제외 + 홈 Unblocked 링크 숨김. **AdSense 승인 후 fal
    Reactor `fmt()`가 1000 미만 내림해 Capacitor "+0" 표시, `comment_rate_limits` TTL 정리 없음.
 4. 30일 실방문자 50명 중 ES vid 하나(9/30~10/2, 900여 이벤트, 전 페이지 referrer=chatgpt.com)는 ChatGPT 에이전트로 추정 — 판정 때 제외.
 
+**같은 날 추가 배포(PR #6·#7):** 버그 4건(Mahjong 셔플 환불·2048 승리 기록·Reactor +0·레이트리밋 정리) +
+신규 게임 3종 **Lagline·Recoil·Hunch**(라운드17, 도전 링크 내장, 게임 105종). Recoil·Hunch는 리더보드 제외(파밍).
+후속: 엔드리스 게임 Win% (`endless` 플래그로 숨기기 — Quarry·Snake·Tetris 등이 종료=won:true),
+Hunch 덱 소진 시 스테이지 클리어 불가(규칙 변경 필요), Recoil 최고속도에서 숨은 운동량(브레이크 체감↓).
+
 **사용자 과제:** Morse Relay 도전 링크 넣은 커뮤니티 글 게시(초안 `docs/launch/community-post-drafts.md`), 지인 3명에게 도전 링크.
 
 ---
