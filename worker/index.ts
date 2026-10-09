@@ -5,7 +5,9 @@ import {
   TOP_N,
   cleanName,
   cleanScore,
+  SCORE_RATE_LIMIT_MS,
   isoWeek,
+  scoreRateKey,
   type ScoreRow,
 } from '../src/lib/leaderboard'
 import {
@@ -124,6 +126,17 @@ export default {
       const score = cleanScore(body.score)
       if (score === null || score <= 0) return json({ error: 'bad score' }, 400)
       const name = cleanName(body.name)
+      // IP당 제출 쿨다운 — 댓글과 같은 원자적 UPSERT+WHERE 패턴(아래 /api/comment 주석 참고).
+      // 예전엔 레이트리밋이 전혀 없어 curl 루프 한 번으로 보드를 도배할 수 있었다.
+      const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown'
+      const limited = await env.DB.prepare(
+        'INSERT INTO comment_rate_limits (ip, last_at) VALUES (?,?) ' +
+          'ON CONFLICT(ip) DO UPDATE SET last_at = excluded.last_at ' +
+          'WHERE excluded.last_at - comment_rate_limits.last_at >= ?',
+      )
+        .bind(scoreRateKey(ip), Date.now(), SCORE_RATE_LIMIT_MS)
+        .run()
+      if ((limited.meta?.changes ?? 0) === 0) return json({ error: 'slow down' }, 429)
       const week = isoWeek(new Date())
       await env.DB.prepare(
         'INSERT INTO scores (game, week, name, score, created_at) VALUES (?,?,?,?,?)',

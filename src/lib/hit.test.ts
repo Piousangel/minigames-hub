@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { sendHit } from './hit'
+import { entryRef, sendHit } from './hit'
 
 /**
  * 회귀 테스트 — sendHit의 sendBeacon 미지원 폴백(fetch)에 .catch()가 없으면
@@ -62,5 +62,22 @@ describe('sendHit', () => {
     expect(beacon).toHaveBeenCalledTimes(1)
     expect(beacon.mock.calls[0][0]).toBe('/api/hit')
     expect(fetchSpy).not.toHaveBeenCalled()
+  })
+})
+
+describe('entryRef', () => {
+  it('referrer만 있으면 그대로', () => {
+    expect(entryRef('', 'https://www.google.com/')).toBe('https://www.google.com/')
+  })
+
+  it('?ref 태그를 앞에 붙인다 — 메신저 링크(referrer 없음)도 잡히게', () => {
+    expect(entryRef('?vs=1-2-abc&ref=share', '')).toBe('ref=share')
+    expect(entryRef('?ref=share', 'https://cafe.naver.com/')).toBe('ref=share https://cafe.naver.com/')
+  })
+
+  it('이상한 태그 값은 버린다', () => {
+    expect(entryRef('?ref=<script>', '')).toBe('')
+    expect(entryRef('?ref=' + 'x'.repeat(21), '')).toBe('')
+    expect(entryRef('', '')).toBe('')
   })
 })

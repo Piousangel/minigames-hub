@@ -16,6 +16,13 @@ import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound, type SoundName } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordResult } from '@/lib/gameStats'
+import { sendHit } from '@/lib/hit'
+import {
+  challengeUrl,
+  compareChallenge,
+  parseChallenge,
+  type Challenge,
+} from '@/lib/challenge'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // Small celebratory pause after a word completes before the next target
@@ -53,6 +60,36 @@ function saveBest(storageKey: string, score: number): void {
     localStorage.setItem(storageKey, String(score))
   } catch {
     // ignore storage failures (private mode / quota)
+  }
+}
+
+// 리더보드(Leaderboard.tsx)와 같은 키 — 한 번 적은 이름을 도전장에도 재사용.
+const NAME_KEY = 'lb:name'
+
+function loadName(): string {
+  try {
+    return localStorage.getItem(NAME_KEY) ?? ''
+  } catch {
+    return ''
+  }
+}
+
+function saveName(name: string): void {
+  try {
+    localStorage.setItem(NAME_KEY, name)
+  } catch {
+    // ignore storage failures
+  }
+}
+
+/** 도전 모드를 끄면 주소창에서 vs/n/ref를 지워, 새로고침해도 일반 판으로 돌아오게 한다. */
+function clearChallengeParams(): void {
+  try {
+    const url = new URL(window.location.href)
+    for (const k of ['vs', 'n', 'ref']) url.searchParams.delete(k)
+    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash)
+  } catch {
+    // ignore
   }
 }
 
@@ -112,6 +149,11 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
   // SSR safety: build the run only on the client (repo-wide template pattern).
   const [state, setState] = useState<MorseRelayState | null>(null)
   const [best, setBest] = useState(0)
+  // 1:1 도전(?vs=...) — 있으면 모든 판을 도전자와 같은 시드로 시작한다(공정한 비교).
+  const [challenge, setChallenge] = useState<Challenge | null>(null)
+  const challengeRef = useRef<Challenge | null>(null)
+  const [name, setName] = useState('')
+  const [shareStatus, setShareStatus] = useState<'idle' | 'copied'>('idle')
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reduced } = useReducedMotion()
@@ -145,6 +187,7 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
       }
       saveBest(storageKey, Math.max(bestRef.current, finalState.score))
       recordResult(storageKey.replace(/^best:/, ''), { won: false })
+      if (challengeRef.current) sendHit(storageKey.replace(/^best:/, ''), 'challenge-done')
     },
     [storageKey],
   )
@@ -208,7 +251,8 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
     }
     overPersistedRef.current = false
     lastFrameTRef.current = elapsedMs()
-    commit(createGame(freshSeed()))
+    setShareStatus('idle')
+    commit(createGame(challengeRef.current?.seed ?? freshSeed()))
     startLoop()
   }, [commit, elapsedMs, startLoop])
 
@@ -218,6 +262,10 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
     const stored = loadBest(storageKey)
     bestRef.current = stored
     setBest(stored)
+    const incoming = parseChallenge(window.location.search)
+    challengeRef.current = incoming
+    setChallenge(incoming)
+    setName(loadName())
     resetGame()
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
@@ -227,6 +275,36 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
     // Mount once. resetGame is a stable useCallback.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storageKey])
+
+  const leaveChallenge = useCallback(() => {
+    challengeRef.current = null
+    setChallenge(null)
+    clearChallengeParams()
+    resetGame()
+  }, [resetGame])
+
+  // 결과 화면의 "친구에게 도전장": 방금 판의 시드+점수를 링크로. 받은 사람은 같은 판을 한다.
+  const shareChallenge = useCallback(
+    async (seed: number, score: number) => {
+      const slug = storageKey.replace(/^best:/, '')
+      const trimmed = name.trim()
+      if (trimmed) saveName(trimmed)
+      const url = challengeUrl(window.location.origin, slug, { seed, score, name: trimmed })
+      const text = `I scored ${score} in Morse Relay. Same words, same run — can you beat me? 📡`
+      sendHit(slug, 'challenge-sent')
+      try {
+        if (navigator.share) {
+          await navigator.share({ title: 'Morse Relay challenge', text, url })
+        } else {
+          await navigator.clipboard.writeText(`${text} ${url}`)
+          setShareStatus('copied')
+        }
+      } catch {
+        // 취소/불가 무시
+      }
+    },
+    [name, storageKey],
+  )
 
   const onDown = useCallback(() => {
     dispatchAction({ type: 'down', t: elapsedMs() })
@@ -284,6 +362,15 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
   const dotDashBoundaryRatio =
     state.unitMs !== null ? Math.min(1, (SYMBOL_BOUNDARY_UNITS * state.unitMs) / maxBarMs) : null
 
+  const outcome = challenge && state.lost ? compareChallenge(state.score, challenge.score) : null
+  const overlayTitle = !outcome
+    ? 'Line went dead'
+    : outcome.kind === 'win'
+      ? `You beat ${challenge!.name}!`
+      : outcome.kind === 'tie'
+        ? `Dead even with ${challenge!.name}`
+        : `${challenge!.name} holds the line`
+
   const headerExtra = (
     <>
       <LivesHearts lives={state.lives} />
@@ -306,6 +393,25 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
       hint={hintFor(state)}
       maxWidthClassName="max-w-125"
     >
+      {challenge && (
+        <div
+          data-testid="challenge-banner"
+          className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-xl border border-accent/40 bg-accent/10 px-4 py-2 text-sm"
+        >
+          <span>
+            ⚔️ <span className="font-bold">{challenge.name}</span> scored{' '}
+            <span className="font-bold text-accent">{challenge.score}</span> on this exact run. Beat it!
+          </span>
+          <button
+            type="button"
+            onClick={leaveChallenge}
+            className="text-xs text-fg-muted underline hover:text-fg"
+            data-testid="challenge-leave"
+          >
+            Play solo
+          </button>
+        </div>
+      )}
       <div className="relative rounded-xl bg-surface p-4" data-testid="morse-relay-board">
         <div className="mb-3 flex items-center justify-center gap-2 text-xs text-fg-muted">
           <span data-testid="level">Level {state.level}</span>
@@ -385,7 +491,23 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
           </span>
         </button>
 
-        <GameOverlay show={state.lost} variant="lose" title="Line went dead" testId="game-over">
+        <GameOverlay
+          show={state.lost}
+          variant={outcome?.kind === 'win' ? 'win' : 'lose'}
+          title={overlayTitle}
+          testId="game-over"
+        >
+          {outcome && (
+            <p data-testid="challenge-result" className="text-base font-bold">
+              {outcome.kind === 'win' && <>🏆 +{outcome.diff} over {challenge!.name}&apos;s {challenge!.score}</>}
+              {outcome.kind === 'tie' && <>Both scored {challenge!.score} — break the tie</>}
+              {outcome.kind === 'lose' && (
+                <>
+                  {outcome.diff} short of {challenge!.score} ({outcome.pct}%) — one more?
+                </>
+              )}
+            </p>
+          )}
           <div className="flex flex-col items-center gap-1 text-sm">
             <p>
               Score <span className="font-bold text-accent">{state.score}</span>
@@ -400,7 +522,27 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
               Max combo <span className="font-bold text-accent">{state.maxCombo}</span>
             </p>
           </div>
-          <GameButton onClick={resetGame}>Try again</GameButton>
+          <GameButton onClick={resetGame}>{challenge ? 'Rematch' : 'Try again'}</GameButton>
+          {state.score > 0 && (
+            <div className="flex flex-col items-center gap-2" data-testid="challenge-share">
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={16}
+                placeholder="Your name"
+                aria-label="Your name for the challenge link"
+                className="w-40 rounded-lg border border-border bg-bg-2 px-3 py-1.5 text-center text-sm text-fg"
+              />
+              <GameButton variant="ghost" onClick={() => void shareChallenge(state.seed, state.score)}>
+                {shareStatus === 'copied'
+                  ? 'Link copied!'
+                  : outcome?.kind === 'win'
+                    ? `Send it back to ${challenge!.name}`
+                    : 'Challenge a friend'}
+              </GameButton>
+            </div>
+          )}
         </GameOverlay>
 
         <style>{`

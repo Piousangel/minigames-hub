@@ -133,6 +133,28 @@ async function main() {
     `SELECT blob2 AS country, SUM(_sample_interval) AS n
      FROM mg_events WHERE blob1='view' AND ${SINCE} GROUP BY country ORDER BY n DESC LIMIT 12`,
   )
+  // 3.7) 도전 링크 루프 — 1:1 도전장(src/lib/challenge.ts)의 7일 판정 표.
+  // share_in = ?ref=share 로 들어온 진입, challenge-sent = 결과 화면에서 도전장 생성,
+  // challenge-done = 도전장으로 들어와 한 판을 끝냄. share_in ≥1 이고 sent가 2번째 사람에게서
+  // 나오면(되받아치기) 루프가 닫힌 것.
+  const loop = await q(
+    `SELECT
+       if(blob1='view' OR blob1='pageview', 'share_in', blob1) AS step,
+       SUM(_sample_interval) AS hits, COUNT(DISTINCT blob4) AS visitors
+     FROM mg_events
+     WHERE ((blob1='view' OR blob1='pageview') AND position(blob3, 'ref=share') = 1
+        OR blob1='challenge-sent' OR blob1='challenge-done') AND ${SINCE}
+     GROUP BY step ORDER BY step`,
+  )
+  console.log(`\n[★ 도전 링크 루프 — share_in / challenge-sent / challenge-done]`)
+  console.log(
+    table(loop.data, [
+      { h: 'step', k: 'step' },
+      { h: 'hits', k: 'hits' },
+      { h: 'visitors', k: 'visitors' },
+    ]),
+  )
+
   console.log(`\n[국가]`)
   console.log(table(geo.data, [{ h: 'country', k: 'country' }, { h: 'n', k: 'n' }]))
 

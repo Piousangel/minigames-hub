@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { challengeQuery } from '../src/lib/challenge'
 
 test('홈에서 게임 카드로 이동할 수 있다', async ({ page }) => {
   await page.goto('/')
@@ -771,6 +772,29 @@ test('bankshot: 로드 → 보드 표시', async ({ page }) => {
 test('morse-relay: 로드 → 보드 표시', async ({ page }) => {
   await page.goto('/morse-relay')
   await expect(page.getByTestId('morse-relay-board')).toBeVisible()
+})
+
+test('morse-relay 도전 링크: 같은 판 + 배너 → Play solo로 해제', async ({ page }) => {
+  const url = `/morse-relay?${challengeQuery({ seed: 123456789, score: 840, name: 'Minsu' })}`
+  await page.goto(url)
+  const banner = page.getByTestId('challenge-banner')
+  await expect(banner).toContainText('Minsu')
+  await expect(banner).toContainText('840')
+  const word = await page.getByTestId('target-label').textContent()
+
+  // 같은 링크를 다시 열면 같은 단어 — 도전자와 같은 판이라는 보장
+  await page.goto(url)
+  await expect(page.getByTestId('target-label')).toHaveText(word!)
+
+  await page.getByTestId('challenge-leave').click()
+  await expect(banner).toBeHidden()
+  await expect(page).not.toHaveURL(/vs=/)
+})
+
+test('morse-relay 도전 링크: 깨진 링크는 일반 판으로 폴백', async ({ page }) => {
+  await page.goto('/morse-relay?vs=zzz-1-000&n=x&ref=share')
+  await expect(page.getByTestId('morse-relay-board')).toBeVisible()
+  await expect(page.getByTestId('challenge-banner')).toHaveCount(0)
 })
 
 test('unblocked 랜딩: 로드 + 게임 그리드', async ({ page }) => {

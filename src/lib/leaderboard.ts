@@ -110,6 +110,13 @@ export const SCORE_SCALE: Record<string, number> = {
 
 // 위조 방어(캐주얼): 말도 안 되는 값 컷.
 export const MAX_SCORE = 100_000_000
+// 같은 IP의 점수 제출 간격(ms). 리더보드는 사람 손으로 한 판 끝나야 제출되므로 10초면
+// 정상 플레이는 안 막고 curl 루프 도배만 막는다. 저장은 comment_rate_limits 테이블을
+// 'score:<ip>' 키로 재사용 — 새 테이블(=원격 D1 마이그레이션) 없이 배포 가능.
+export const SCORE_RATE_LIMIT_MS = 10_000
+export function scoreRateKey(ip: string): string {
+  return `score:${ip}`
+}
 export const MAX_NAME_LEN = 16
 export const TOP_N = 10
 
