@@ -6,6 +6,7 @@ import {
   PRESTIGE_THRESHOLD,
   buy,
   canPrestige,
+  rebootThreshold,
   costOf,
   fmt,
   initialState,
@@ -236,6 +237,17 @@ describe('canPrestige / prestige', () => {
   it('is a no-op (same ref) when locked', () => {
     const s: State = { ...initialState(), lifetime: 10 }
     expect(prestige(s)).toBe(s)
+  })
+
+  it('회귀: 리부트마다 문턱이 1M씩 올라가 연타로 점수를 못 부풀린다', () => {
+    // 예전엔 문턱이 1M 고정 + lifetime 유지라 첫 리부트 후 무한 연타 → +1M 점수/회.
+    const s: State = { ...initialState(), lifetime: PRESTIGE_THRESHOLD * 1.5 }
+    const once = prestige(s)
+    expect(once.prestige).toBe(1)
+    expect(rebootThreshold(once)).toBe(PRESTIGE_THRESHOLD * 2)
+    expect(canPrestige(once)).toBe(false)
+    expect(prestige(once)).toBe(once)
+    expect(canPrestige({ ...once, lifetime: PRESTIGE_THRESHOLD * 2 })).toBe(true)
   })
 })
 

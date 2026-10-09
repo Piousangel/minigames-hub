@@ -52,7 +52,7 @@ export const guide: GameGuide = {
     {
       heading: 'Reboot math: a linear boost, not a compounding one',
       paragraphs: [
-        "Reboot unlocks when lifetime charge reaches 1,000,000. It sets your charge and every module back to zero, keeps your lifetime total, and adds 1 to your reboot count and 1 to your tap power. The production multiplier is 1 + 0.1 × reboots, so it grows in a straight line: ×1.1 after one, ×1.5 after five, ×2.0 after ten. It does not compound. Ten reboots give exactly double, not 1.1 to the tenth power.",
+        "Your first Reboot unlocks when lifetime charge reaches 1,000,000, and each one after that needs another million on top (2,000,000 lifetime for the second, 3,000,000 for the third, and so on). It sets your charge and every module back to zero, keeps your lifetime total, and adds 1 to your reboot count and 1 to your tap power. The production multiplier is 1 + 0.1 × reboots, so it grows in a straight line: ×1.1 after one, ×1.5 after five, ×2.0 after ten. It does not compound. Ten reboots give exactly double, not 1.1 to the tenth power.",
         "For a sense of scale, we ran the payback rule again straight after one Reboot. Earning a million in that run took 34 minutes 12 seconds, against 40 minutes 14 seconds for the first. The leaderboard score is your lifetime charge plus 1,000,000 for each reboot, capped at 100 million, so a reboot never lowers your standing.",
       ],
       list: [

@@ -4,9 +4,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   MODULES,
   PRESTIGE_STEP,
-  PRESTIGE_THRESHOLD,
   buy,
   canPrestige,
+  rebootThreshold,
   fmt,
   initialState,
   nextCost,
@@ -244,7 +244,8 @@ export function GameReactor({ storageKey }: { storageKey: string }) {
   const perTap = tapGain(state)
   const canReboot = canPrestige(state)
   const nextMult = 1 + (state.prestige + 1) * PRESTIGE_STEP
-  const progressToReboot = Math.min(1, state.lifetime / PRESTIGE_THRESHOLD)
+  const nextReboot = rebootThreshold(state)
+  const progressToReboot = Math.min(1, state.lifetime / nextReboot)
 
   const hint = canReboot
     ? 'Tap the reactor and buy modules to auto-generate ⚡. Reboot now for a permanent production boost — it resets modules but keeps your goal.'
@@ -371,7 +372,7 @@ export function GameReactor({ storageKey }: { storageKey: string }) {
           <div className="mb-1.5 flex items-center justify-between text-xs text-fg-muted">
             <span className="font-semibold uppercase tracking-wide">Reboot</span>
             <span className="tabular-nums">
-              {fmt(state.lifetime)} / {fmt(PRESTIGE_THRESHOLD)} lifetime
+              {fmt(state.lifetime)} / {fmt(nextReboot)} lifetime
             </span>
           </div>
           <div className="mb-2 h-1.5 w-full overflow-hidden rounded-full bg-surface" aria-hidden="true">
@@ -406,7 +407,7 @@ export function GameReactor({ storageKey }: { storageKey: string }) {
             )
           ) : (
             <p className="text-xs text-fg-muted">
-              Reach <span className="font-bold text-accent">{fmt(PRESTIGE_THRESHOLD)}</span> lifetime ⚡ to unlock a permanent
+              Reach <span className="font-bold text-accent">{fmt(nextReboot)}</span> lifetime ⚡ to unlock a permanent
               production boost.
             </p>
           )}

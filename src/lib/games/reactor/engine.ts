@@ -122,9 +122,19 @@ export function buy(state: State, index: number): State {
   return { ...state, charge: state.charge - cost, levels }
 }
 
+/**
+ * Lifetime charge needed for the NEXT reboot: (prestige + 1) × PRESTIGE_THRESHOLD.
+ * Lifetime is never reset, so a fixed 1M gate stayed open forever after the first
+ * reboot — the button could be spammed (+1M score each press) straight to MAX_SCORE.
+ * Scaling the gate means every reboot costs another 1M of real earnings.
+ */
+export function rebootThreshold(state: State): number {
+  return (state.prestige + 1) * PRESTIGE_THRESHOLD
+}
+
 /** Whether a Reboot is unlocked. */
 export function canPrestige(state: State): boolean {
-  return state.lifetime >= PRESTIGE_THRESHOLD
+  return state.lifetime >= rebootThreshold(state)
 }
 
 /**
