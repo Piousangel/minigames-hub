@@ -201,7 +201,10 @@ export function GameMahjong({ storageKey }: { storageKey: string }) {
         play('error')
         return false
       }
-      setHistory((h) => [...h, prev])
+      // A shuffle is an undo checkpoint: history is cleared so Undo can't step back
+      // across it. Restoring a pre-shuffle state would also restore its shufflesLeft,
+      // refunding the shuffle (→ unlimited shuffles via shuffle/undo loops).
+      setHistory((h) => (cue === 'shuffle' ? [] : [...h, prev]))
       setHint(null)
       commit(next)
 
