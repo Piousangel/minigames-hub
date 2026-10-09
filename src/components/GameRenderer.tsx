@@ -78,6 +78,9 @@ const GameBearing = dynamic(() => import('@/components/games/GameBearing').then(
 const GameStrata = dynamic(() => import('@/components/games/GameStrata').then((m) => m.GameStrata), { ssr: false, loading: Loading })
 const GameBankshot = dynamic(() => import('@/components/games/GameBankshot').then((m) => m.GameBankshot), { ssr: false, loading: Loading })
 const GameMorseRelay = dynamic(() => import('@/components/games/GameMorseRelay').then((m) => m.GameMorseRelay), { ssr: false, loading: Loading })
+const GameLagline = dynamic(() => import('@/components/games/GameLagline').then((m) => m.GameLagline), { ssr: false, loading: Loading })
+const GameRecoil = dynamic(() => import('@/components/games/GameRecoil').then((m) => m.GameRecoil), { ssr: false, loading: Loading })
+const GameHunch = dynamic(() => import('@/components/games/GameHunch').then((m) => m.GameHunch), { ssr: false, loading: Loading })
 const GamePolytap = dynamic(() => import('@/components/games/GamePolytap').then((m) => m.GamePolytap), { ssr: false, loading: Loading })
 const GameSonar = dynamic(() => import('@/components/games/GameSonar').then((m) => m.GameSonar), { ssr: false, loading: Loading })
 const GameProspector = dynamic(() => import('@/components/games/GameProspector').then((m) => m.GameProspector), { ssr: false, loading: Loading })
@@ -316,6 +319,12 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameBankshot storageKey={`best:${page.slug}`} />
     case 'morse-relay':
       return <GameMorseRelay storageKey={`best:${page.slug}`} />
+    case 'lagline':
+      return <GameLagline storageKey={`best:${page.slug}`} />
+    case 'recoil':
+      return <GameRecoil storageKey={`best:${page.slug}`} />
+    case 'hunch':
+      return <GameHunch storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

@@ -147,6 +147,9 @@ export const gameMeta: Record<string, GameMeta> = {
   strata: { icon: '🧊', accent: 'cyan', category: 'Puzzle', addedDate: '2026-08-19', daily: true, controls: ['tap', 'arrows'] },
   bankshot: { icon: '🎱', accent: 'green', category: 'Puzzle', addedDate: '2026-08-19', daily: true, controls: ['drag', 'arrows'] },
   'morse-relay': { icon: '📡', accent: 'red', category: 'Skill', addedDate: '2026-08-19', controls: ['tap'] },
+lagline: { icon: '⏳', accent: 'purple', category: 'Arcade', addedDate: '2026-10-09', controls: ['arrows', 'tap'] },
+recoil: { icon: '🚀', accent: 'cyan', category: 'Skill', addedDate: '2026-10-09', daily: true, controls: ['point', 'drag', 'arrows'] },
+hunch: { icon: '🃏', accent: 'purple', category: 'Puzzle', addedDate: '2026-10-09', daily: true, controls: ['tap', 'arrows'] },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

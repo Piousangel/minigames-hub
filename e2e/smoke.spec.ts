@@ -640,7 +640,7 @@ test('홈: Daily 필터가 Daily 모드 게임만 보여준다', async ({ page }
   // TodayBoard/RecentlyPlayed도 게임 카드를 그리므로 브라우저 결과 그리드로 좁힌다.
   const titles = await page.getByTestId('browse-results').locator('a:has(h3) h3').allInnerTexts()
   expect(titles.sort()).toEqual(
-    ['Bankshot', 'Beatline', 'Bearing', 'Clusters', 'Decant', 'Deepdive', 'Duplex', 'Equate', 'Flapjack', 'Gravwell', 'Grasp', 'Handful', 'Hogline', 'Interlock', 'Loopgrid', 'Overfold', 'Prismbox', 'Quadle', 'Quarry', 'Ricochet', 'Sonar', 'Splice', 'Stackpot', 'Strata', 'Turntile', 'Word Guess'].sort(),
+    ['Bankshot', 'Beatline', 'Bearing', 'Clusters', 'Decant', 'Deepdive', 'Duplex', 'Equate', 'Flapjack', 'Gravwell', 'Grasp', 'Handful', 'Hogline', 'Hunch', 'Interlock', 'Loopgrid', 'Overfold', 'Prismbox', 'Quadle', 'Quarry', 'Recoil', 'Ricochet', 'Sonar', 'Splice', 'Stackpot', 'Strata', 'Turntile', 'Word Guess'].sort(),
   )
 })
 
@@ -795,6 +795,39 @@ test('morse-relay 도전 링크: 깨진 링크는 일반 판으로 폴백', asyn
   await page.goto('/morse-relay?vs=zzz-1-000&n=x&ref=share')
   await expect(page.getByTestId('morse-relay-board')).toBeVisible()
   await expect(page.getByTestId('challenge-banner')).toHaveCount(0)
+})
+
+test('lagline: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/lagline')
+  await expect(page.getByTestId('lagline-board')).toBeVisible()
+})
+
+test('lagline 도전 링크: 배너 표시', async ({ page }) => {
+  await page.goto(`/lagline?${challengeQuery({ seed: 424242, score: 120, name: 'Minsu' })}`)
+  await expect(page.getByTestId('lagline-board')).toBeVisible()
+  await expect(page.getByText(/Minsu/).first()).toBeVisible()
+})
+
+test('recoil: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/recoil')
+  await expect(page.getByTestId('recoil-board')).toBeVisible()
+})
+
+test('recoil 도전 링크: 배너 표시', async ({ page }) => {
+  await page.goto(`/recoil?${challengeQuery({ seed: 424242, score: 120, name: 'Minsu' })}`)
+  await expect(page.getByTestId('recoil-board')).toBeVisible()
+  await expect(page.getByText(/Minsu/).first()).toBeVisible()
+})
+
+test('hunch: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/hunch')
+  await expect(page.getByTestId('hunch-board')).toBeVisible()
+})
+
+test('hunch 도전 링크: 배너 표시', async ({ page }) => {
+  await page.goto(`/hunch?${challengeQuery({ seed: 424242, score: 120, name: 'Minsu' })}`)
+  await expect(page.getByTestId('hunch-board')).toBeVisible()
+  await expect(page.getByText(/Minsu/).first()).toBeVisible()
 })
 
 test('unblocked 랜딩: 로드 + 게임 그리드', async ({ page }) => {
