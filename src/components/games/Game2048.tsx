@@ -153,10 +153,12 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
 
         if (plan.merges.length) play('merge')
         if (newEngine.won && !s.won) play('win')
-        else if (newEngine.over) {
+        else if (newEngine.over) play(newBestRef.current ? 'win' : 'lose')
+        // Record once per game-over — also when the 2048 tile appears on the very
+        // move that ends the game. "Won" = reached 2048 at some point this game.
+        if (newEngine.over && !s.over) {
           setNewBest(newBestRef.current)
-          play(newBestRef.current ? 'win' : 'lose')
-          recordResult(storageKey.replace(/^best:/, ''), { won: true })
+          recordResult(storageKey.replace(/^best:/, ''), { won: newEngine.won })
         }
 
         animatingRef.current = false

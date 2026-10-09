@@ -171,7 +171,8 @@ export function GameQuarry({ storageKey }: { storageKey: string }) {
           saveStreak(streakKey, bumped)
           setDayStreak(bumped.streak)
         }
-        recordResult(storageKey.replace(/^best:/, ''), { won: true })
+        // The run only ends when a level is lost (the quarry escapes) — that's a loss.
+        recordResult(storageKey.replace(/^best:/, ''), { won: false })
       } else if (lp?.fled) {
         play('move') // the panic-hop
       } else {
