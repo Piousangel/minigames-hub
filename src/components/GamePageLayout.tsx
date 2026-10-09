@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { accentVar, DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
 import { GAME_INTROS } from '@/lib/games/gameIntros'
 import { hasLeaderboard } from '@/lib/leaderboard'
@@ -16,6 +17,7 @@ import { DailyDock } from '@/components/DailyDock'
 import { ObjectiveBanner } from '@/components/ObjectiveBanner'
 import { CollectionLinks } from '@/components/CollectionLinks'
 import { RelatedGames } from '@/components/RelatedGames'
+import { articlesForGame, guideForGame } from '@/content'
 
 /** 게임 액센트 네온 컬러의 섹션 헤딩(가독성 위해 픽셀폰트 대신 산세리프). */
 function SectionHeading({ children, color }: { children: React.ReactNode; color: string }) {
@@ -38,6 +40,8 @@ function SectionHeading({ children, color }: { children: React.ReactNode; color:
 
 export function GamePageLayout({ page, children }: { page: GamePage; children: React.ReactNode }) {
   const color = accentVar((gameMeta[page.slug] ?? DEFAULT_META).accent)
+  const guide = guideForGame(page.slug)
+  const related = articlesForGame(page.slug)
   return (
     // --accent를 페이지 스코프로 깔아 게임 컴포넌트 밖(스탯 패널 등)에서도 text-accent가 먹게 한다.
     <main className="mx-auto max-w-3xl px-4 py-6" style={{ ['--accent' as string]: color }}>
@@ -85,6 +89,30 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
                 <p key={para.slice(0, 32)}>{para}</p>
               ))}
             </div>
+          </section>
+        </Reveal>
+      )}
+
+      {(guide || related.length > 0) && (
+        <Reveal>
+          <section className="mt-8 rounded-xl border border-accent/30 bg-accent/5 p-4" data-testid="game-guides">
+            <p className="mb-2 text-sm font-semibold text-fg">Go deeper</p>
+            <ul className="space-y-1 text-sm">
+              {guide && (
+                <li>
+                  <Link href={`/guides/${guide.slug}`} className="text-accent hover:underline">
+                    📖 {guide.title}
+                  </Link>
+                </li>
+              )}
+              {related.map((a) => (
+                <li key={a.slug}>
+                  <Link href={`/guides/${a.slug}`} className="text-accent hover:underline">
+                    {a.kind === 'data' ? '📊' : '✏️'} {a.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </section>
         </Reveal>
       )}

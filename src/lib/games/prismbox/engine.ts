@@ -231,8 +231,38 @@ export function placeAtoms(cfg: PrismboxConfig, rng: Rng): Coord[] {
   return placed
 }
 
+/** Every edge port of a size×size box (4·size of them). */
+export function allPorts(size: number): Port[] {
+  const ports: Port[] = []
+  for (const edge of ['N', 'S', 'W', 'E'] as const) {
+    for (let lane = 0; lane < size; lane++) ports.push({ edge, lane })
+  }
+  return ports
+}
+
+/** True when each atom is struck directly by at least one port's beam (the only way to find it). */
+export function allAtomsHittable(atoms: Coord[], size: number): boolean {
+  const hit = new Set<string>()
+  for (const port of allPorts(size)) {
+    const shot = simulateShot(atoms, port, size)
+    if (shot.hitAtom) hit.add(key(shot.hitAtom.r, shot.hitAtom.c))
+  }
+  return atoms.every((a) => hit.has(key(a.r, a.c)))
+}
+
+/** Re-draws allowed when a layout hides an atom no beam can reach. */
+export const MAX_LAYOUT_RETRIES = 50
+
 export function createGame(cfg: PrismboxConfig, seed: number): PrismboxState {
-  const atoms = placeAtoms(cfg, mulberry32(seed))
+  // ~1% of hard layouts used to hide an atom that no port could hit, making the board
+  // unwinnable. Re-draw deterministically from the same seed until every atom is
+  // reachable — boards that were already fine (retry 0) are unchanged, so daily seeds
+  // keep their layout.
+  const playable = (a: Coord[]) => a.length === cfg.atoms && allAtomsHittable(a, cfg.size)
+  let atoms = placeAtoms(cfg, mulberry32(seed))
+  for (let retry = 1; retry <= MAX_LAYOUT_RETRIES && !playable(atoms); retry++) {
+    atoms = placeAtoms(cfg, mulberry32((seed ^ Math.imul(retry, 0x9e3779b9)) >>> 0))
+  }
   return {
     config: cfg,
     seed,

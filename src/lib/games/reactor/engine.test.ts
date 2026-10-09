@@ -6,6 +6,8 @@ import {
   PRESTIGE_THRESHOLD,
   buy,
   canPrestige,
+  rebootThreshold,
+  reconcilePrestige,
   costOf,
   fmt,
   initialState,
@@ -237,6 +239,17 @@ describe('canPrestige / prestige', () => {
     const s: State = { ...initialState(), lifetime: 10 }
     expect(prestige(s)).toBe(s)
   })
+
+  it('회귀: 리부트마다 문턱이 1M씩 올라가 연타로 점수를 못 부풀린다', () => {
+    // 예전엔 문턱이 1M 고정 + lifetime 유지라 첫 리부트 후 무한 연타 → +1M 점수/회.
+    const s: State = { ...initialState(), lifetime: PRESTIGE_THRESHOLD * 1.5 }
+    const once = prestige(s)
+    expect(once.prestige).toBe(1)
+    expect(rebootThreshold(once)).toBe(PRESTIGE_THRESHOLD * 2)
+    expect(canPrestige(once)).toBe(false)
+    expect(prestige(once)).toBe(once)
+    expect(canPrestige({ ...once, lifetime: PRESTIGE_THRESHOLD * 2 })).toBe(true)
+  })
 })
 
 describe('offlineGain', () => {
@@ -346,5 +359,20 @@ describe('golden: multi-tier production with prestige', () => {
     expect(productionPerSec(s)).toBeCloseTo(28.6)
     const t = tick(s, 10000) // +286
     expect(t.charge).toBeCloseTo(286)
+  })
+})
+
+describe('reconcilePrestige', () => {
+  it('회귀: 예전 연타 버그로 부풀린 세이브를 실제 가능한 리부트 수로 되돌린다', () => {
+    const inflated: State = { ...initialState(), lifetime: 1_200_000, prestige: 99, tapPower: 100 }
+    const fixed = reconcilePrestige(inflated)
+    expect(fixed.prestige).toBe(1)
+    expect(fixed.tapPower).toBe(2)
+    expect(fixed.lifetime).toBe(1_200_000)
+  })
+
+  it('정상 세이브는 그대로(같은 참조)', () => {
+    const ok: State = { ...initialState(), lifetime: 3_500_000, prestige: 3, tapPower: 4 }
+    expect(reconcilePrestige(ok)).toBe(ok)
   })
 })

@@ -110,8 +110,8 @@ export function Achievements() {
 
       <p className="mt-3 text-xs text-fg-muted">
         Keep playing to hit the next tier.{' '}
-        <Link href="/unblocked" className="text-neon-cyan hover:underline">
-          Find a game →
+        <Link href="/guides" className="text-neon-cyan hover:underline">
+          Read a strategy guide →
         </Link>
       </p>
     </section>

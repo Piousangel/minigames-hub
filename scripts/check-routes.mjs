@@ -2,7 +2,7 @@
 // 배포 라우트 회귀 게이트 — 린트/빌드가 라우트를 "조용히" 떨구면(과거 2회 발생: prefer-const
 // 린트 에러로 정적 export 중단 → out/ 스테일) 배포 전 하드 실패시킨다.
 // registry.ts의 게임 slug 전부 + 허브 라우트가 out/에 실제 생성됐는지 대조한다.
-import { readFileSync, existsSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync } from 'node:fs'
 
 const reg = readFileSync('src/lib/games/registry.ts', 'utf8')
 // gamePages 항목의 `slug: 'xxx',` 를 추출(들여쓰기된 slug 필드).
@@ -33,8 +33,22 @@ const hubs = [
   'daily',
   'collections',
   'unblocked',
+  'guides',
   ...colSlugs.map((s) => `collection/${s}`),
 ]
+// 편집 콘텐츠(공략·기사) 라우트 — src/content/{guides,articles}의 slug 필드에서 추출.
+for (const dir of ['src/content/guides', 'src/content/articles']) {
+  if (!existsSync(dir)) continue
+  for (const f of readdirSync(dir).filter((n) => n.endsWith('.ts'))) {
+    const m = readFileSync(`${dir}/${f}`, 'utf8').match(/^\s*slug:\s*['"]([a-z0-9-]+)['"],/m)
+    // 파싱 실패를 조용히 건너뛰면 그 페이지가 빌드에서 빠져도 'OK'가 나온다 — 하드 실패.
+    if (!m) {
+      console.error(`route-check FAILED — ${dir}/${f}에서 slug를 파싱하지 못함`)
+      process.exit(1)
+    }
+    hubs.push(`guides/${m[1]}`)
+  }
+}
 for (const h of hubs) if (!has(h)) missing.push(h)
 
 if (missing.length) {

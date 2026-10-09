@@ -4,9 +4,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   MODULES,
   PRESTIGE_STEP,
-  PRESTIGE_THRESHOLD,
   buy,
   canPrestige,
+  rebootThreshold,
+  reconcilePrestige,
   fmt,
   initialState,
   nextCost,
@@ -58,13 +59,13 @@ function parseSave(raw: string | null): SaveBlob | null {
     ) {
       return null
     }
-    const clean: State = {
+    const clean: State = reconcilePrestige({
       charge: Number.isFinite(s.charge) ? s.charge : 0,
       lifetime: Number.isFinite(s.lifetime) ? s.lifetime : 0,
       levels: s.levels.map((n) => Math.max(0, Math.floor(n))),
       prestige: Math.max(0, Math.floor(s.prestige)),
       tapPower: Math.max(1, Math.floor(s.tapPower)),
-    }
+    })
     const lastSeen = typeof o.lastSeen === 'number' && Number.isFinite(o.lastSeen) ? o.lastSeen : Date.now()
     return { v: SAVE_VERSION, state: clean, lastSeen }
   } catch {
@@ -118,9 +119,21 @@ export function GameReactor({ storageKey }: { storageKey: string }) {
   // Bootstrap: load save, apply offline accrual, maybe show welcome-back.
   useEffect(() => {
     const storedBest = Number(localStorage.getItem(bestKey))
-    setBest(Number.isFinite(storedBest) && storedBest > 0 ? Math.floor(storedBest) : 0)
+    let best = Number.isFinite(storedBest) && storedBest > 0 ? Math.floor(storedBest) : 0
 
     const blob = parseSave(localStorage.getItem(saveKey))
+    // score() only grows, so a stored best above the (reconciled) save's score can only come
+    // from the old reboot-spam bug — pull it back so the leaderboard doesn't re-submit it.
+    if (blob && best > score(blob.state)) {
+      best = score(blob.state)
+      try {
+        localStorage.setItem(bestKey, String(best))
+      } catch {
+        /* storage unavailable */
+      }
+    }
+    setBest(best)
+
     if (!blob) {
       commit(initialState()) // first-ever load: no popup
       lastPersistRef.current = Date.now()
@@ -244,7 +257,8 @@ export function GameReactor({ storageKey }: { storageKey: string }) {
   const perTap = tapGain(state)
   const canReboot = canPrestige(state)
   const nextMult = 1 + (state.prestige + 1) * PRESTIGE_STEP
-  const progressToReboot = Math.min(1, state.lifetime / PRESTIGE_THRESHOLD)
+  const nextReboot = rebootThreshold(state)
+  const progressToReboot = Math.min(1, state.lifetime / nextReboot)
 
   const hint = canReboot
     ? 'Tap the reactor and buy modules to auto-generate ⚡. Reboot now for a permanent production boost — it resets modules but keeps your goal.'
@@ -371,7 +385,7 @@ export function GameReactor({ storageKey }: { storageKey: string }) {
           <div className="mb-1.5 flex items-center justify-between text-xs text-fg-muted">
             <span className="font-semibold uppercase tracking-wide">Reboot</span>
             <span className="tabular-nums">
-              {fmt(state.lifetime)} / {fmt(PRESTIGE_THRESHOLD)} lifetime
+              {fmt(state.lifetime)} / {fmt(nextReboot)} lifetime
             </span>
           </div>
           <div className="mb-2 h-1.5 w-full overflow-hidden rounded-full bg-surface" aria-hidden="true">
@@ -406,7 +420,7 @@ export function GameReactor({ storageKey }: { storageKey: string }) {
             )
           ) : (
             <p className="text-xs text-fg-muted">
-              Reach <span className="font-bold text-accent">{fmt(PRESTIGE_THRESHOLD)}</span> lifetime ⚡ to unlock a permanent
+              Reach <span className="font-bold text-accent">{fmt(nextReboot)}</span> lifetime ⚡ to unlock a permanent
               production boost.
             </p>
           )}

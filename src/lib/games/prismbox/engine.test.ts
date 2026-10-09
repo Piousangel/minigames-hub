@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   DAILY_CONFIG,
   DIFFICULTIES,
+  allAtomsHittable,
   MAX_STEPS_MULT,
   PAR_BONUS_MAX,
   WIN_BONUS,
@@ -406,5 +407,25 @@ describe('D. reducer / scoring', () => {
     expect(s.found).toEqual([true, true])
     // 2x hit bonus + win + par bonus (par=4, shots=2 -> full PAR_BONUS_MAX), added once.
     expect(s.score).toBe(100 * 2 + WIN_BONUS + PAR_BONUS_MAX)
+  })
+})
+
+describe('layout reachability', () => {
+  it('회귀: 모든 원자는 어떤 포트의 빔으로든 직접 맞힐 수 있다(hard ~1%가 클리어 불가였음)', () => {
+    for (const cfg of [DIFFICULTIES.easy, DIFFICULTIES.normal, DIFFICULTIES.hard]) {
+      for (let seed = 1; seed <= 3000; seed++) {
+        const g = createGame(cfg, seed)
+        expect(allAtomsHittable(g.atoms, cfg.size)).toBe(true)
+      }
+    }
+  })
+
+  it('이미 정상인 배치는 바뀌지 않는다(데일리 시드 보존)', () => {
+    for (let seed = 1; seed <= 500; seed++) {
+      const original = placeAtoms(DIFFICULTIES.normal, mulberry32(seed))
+      if (allAtomsHittable(original, DIFFICULTIES.normal.size)) {
+        expect(createGame(DIFFICULTIES.normal, seed).atoms).toEqual(original)
+      }
+    }
   })
 })
