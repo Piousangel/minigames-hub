@@ -78,7 +78,7 @@ export const guide: GameGuide = {
         'Use pass-throughs to clear three-lane bands, and stop firing into areas they have already cleared.',
         'Do not re-fire a port: the result is always identical. Fired ports are dimmed for this reason.',
         'If a shot reports a refraction but draws no path, the beam was trapped in a loop between atoms. It is rare — 186 of 640,000 simulated Normal shots — and tells you little beyond "atoms are nearby".',
-        'On Hard, be aware that about 1% of boards (197 of 20,000 tested) contain an atom that no port can hit at all, so the board cannot be completed. If you have pinned every atom and one stays unreachable from every edge, start a new board. Easy and Normal had no such boards in 20,000 tests each, and none of the 365 Daily boards from 2026-10-09 onward are affected.',
+        'Every board is guaranteed to be finishable: each hidden atom can be struck directly from at least one edge port. That was not always true — while writing this guide we found that about 1% of Hard layouts (197 of 20,000 tested) hid an atom no beam could reach, and the generator now re-draws those layouts. Easy, Normal and Daily boards were never affected.',
       ],
     },
   ],
