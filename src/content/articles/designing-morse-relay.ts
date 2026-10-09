@@ -1,4 +1,6 @@
-export const article = {
+import type { Article } from '../types'
+
+export const article: Article = {
   slug: 'designing-morse-relay',
   title: 'Designing Morse Relay: a telegraph key that learns your hand',
   description:

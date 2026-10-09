@@ -9,3 +9,6 @@ playwright-report/
 .wrangler/
 .gstack/
 scratch-*
+
+# 에이전트 git worktree(레포 사본)
+.claude/worktrees/

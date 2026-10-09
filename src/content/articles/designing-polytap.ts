@@ -1,4 +1,6 @@
-export const article = {
+import type { Article } from '../types'
+
+export const article: Article = {
   slug: 'designing-polytap',
   title: 'Designing Polytap: a rhythm game where precision is not the point',
   description:

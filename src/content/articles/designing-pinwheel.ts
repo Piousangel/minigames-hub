@@ -1,4 +1,6 @@
-export const article = {
+import type { Article } from '../types'
+
+export const article: Article = {
   slug: 'designing-pinwheel',
   title: 'Designing Pinwheel: a puzzle with no individual moves',
   description:
