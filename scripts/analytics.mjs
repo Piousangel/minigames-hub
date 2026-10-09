@@ -9,7 +9,8 @@
  *   - 일수: 조회 기간(기본 7). 예: node scripts/analytics.mjs 30
  *
  * mg_events 스키마(우리 worker writeDataPoint 기준):
- *   index1=slug, blob1=event(view|dwell|win|lose), blob2=country, blob3=referrer, blob4=vid, double1=dwell(초)
+ *   index1=slug, blob1=event(view|pageview|dwell|win|lose|challenge-*), blob2=country, blob3=referrer, blob4=vid,
+ *   blob5=유입 태그(?ref=, 예: share — 2026-10 추가, 이전 행은 ''), double1=dwell(초)
  */
 
 const ACCOUNT = process.env.CF_ACCOUNT_ID || 'f9ca01fb346f810310bfb49234926972'
@@ -134,15 +135,17 @@ async function main() {
      FROM mg_events WHERE blob1='view' AND ${SINCE} GROUP BY country ORDER BY n DESC LIMIT 12`,
   )
   // 3.7) 도전 링크 루프 — 1:1 도전장(src/lib/challenge.ts)의 7일 판정 표.
-  // share_in = ?ref=share 로 들어온 진입, challenge-sent = 결과 화면에서 도전장 생성,
-  // challenge-done = 도전장으로 들어와 한 판을 끝냄. share_in ≥1 이고 sent가 2번째 사람에게서
-  // 나오면(되받아치기) 루프가 닫힌 것.
+  // share_in = ?ref=share 로 들어온 진입(blob5 태그), challenge-sent = 결과 화면에서 도전장을
+  // 실제로 공유/복사, challenge-done = 도전장으로 들어와 한 판을 끝냄. share_in ≥1 이고 sent가
+  // 2번째 사람에게서 나오면(되받아치기) 루프가 닫힌 것.
+  // 진입은 'pageview'만 센다 — 게임 페이지는 'view'(RecordPlay)와 'pageview'(RecordPageView)가
+  // 둘 다 발화해서, 둘 다 세면 hits가 2배가 된다.
   const loop = await q(
     `SELECT
-       if(blob1='view' OR blob1='pageview', 'share_in', blob1) AS step,
+       if(blob1='pageview', 'share_in', blob1) AS step,
        SUM(_sample_interval) AS hits, COUNT(DISTINCT blob4) AS visitors
      FROM mg_events
-     WHERE ((blob1='view' OR blob1='pageview') AND position(blob3, 'ref=share') = 1
+     WHERE (blob1='pageview' AND blob5='share'
         OR blob1='challenge-sent' OR blob1='challenge-done') AND ${SINCE}
      GROUP BY step ORDER BY step`,
   )

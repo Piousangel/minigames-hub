@@ -81,6 +81,24 @@ async function reactionCounts(env: Env, slug: string): Promise<ReactionCounts> {
 const COMMENTS_PER_GAME = 50
 const COMMENTS_RECENT_GLOBAL = 100
 
+// 키당 쿨다운을 원자적 UPSERT 하나로 판정한다 — 예전엔 SELECT로 마지막 시각을 읽은 뒤
+// 별도 INSERT로 갱신했는데, 그 사이에 동시 요청 두 개가 같은 stale 값을 보고 둘 다 통과할
+// 수 있었다(TOCTOU 경쟁 상태, 리뷰에서 발견). WHERE 절이 있는 ON CONFLICT DO UPDATE는
+// 조건이 거짓이면 행을 안 바꾸고 조용히 끝나므로(에러 아님), changes로 "이번에 갱신됐는지
+// (=쿨다운 통과)"를 판정할 수 있다. 신규 키는 충돌이 없어 무조건 INSERT되므로 changes=1.
+// 테이블 이름은 comment_rate_limits지만 점수 제출('score:<ip>:<game>' 키)도 같이 쓴다 —
+// 새 테이블(=원격 D1 마이그레이션) 없이 배포하려고.
+async function passCooldown(env: Env, key: string, intervalMs: number, now = Date.now()): Promise<boolean> {
+  const result = await env.DB.prepare(
+    'INSERT INTO comment_rate_limits (ip, last_at) VALUES (?,?) ' +
+      'ON CONFLICT(ip) DO UPDATE SET last_at = excluded.last_at ' +
+      'WHERE excluded.last_at - comment_rate_limits.last_at >= ?',
+  )
+    .bind(key, now, intervalMs)
+    .run()
+  return (result.meta?.changes ?? 0) > 0
+}
+
 async function commentsFor(env: Env, slug: string): Promise<CommentRow[]> {
   const { results } = await env.DB.prepare(
     'SELECT name, text, created_at FROM comments WHERE slug=? ORDER BY created_at DESC LIMIT ?',
@@ -126,17 +144,11 @@ export default {
       const score = cleanScore(body.score)
       if (score === null || score <= 0) return json({ error: 'bad score' }, 400)
       const name = cleanName(body.name)
-      // IP당 제출 쿨다운 — 댓글과 같은 원자적 UPSERT+WHERE 패턴(아래 /api/comment 주석 참고).
-      // 예전엔 레이트리밋이 전혀 없어 curl 루프 한 번으로 보드를 도배할 수 있었다.
+      // IP+게임당 제출 쿨다운. 예전엔 레이트리밋이 전혀 없어 curl 루프로 보드를 도배할 수 있었다.
       const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown'
-      const limited = await env.DB.prepare(
-        'INSERT INTO comment_rate_limits (ip, last_at) VALUES (?,?) ' +
-          'ON CONFLICT(ip) DO UPDATE SET last_at = excluded.last_at ' +
-          'WHERE excluded.last_at - comment_rate_limits.last_at >= ?',
-      )
-        .bind(scoreRateKey(ip), Date.now(), SCORE_RATE_LIMIT_MS)
-        .run()
-      if ((limited.meta?.changes ?? 0) === 0) return json({ error: 'slow down' }, 429)
+      if (!(await passCooldown(env, scoreRateKey(ip, game), SCORE_RATE_LIMIT_MS))) {
+        return json({ error: 'slow down' }, 429)
+      }
       const week = isoWeek(new Date())
       await env.DB.prepare(
         'INSERT INTO scores (game, week, name, score, created_at) VALUES (?,?,?,?,?)',
@@ -207,22 +219,10 @@ export default {
       // 링크엔 충분)로 통째로 우회된다(리뷰에서 발견된 실제 우회 경로).
       if (containsLink(text) || containsLink(name)) return json({ error: 'links not allowed' }, 400)
 
-      // IP당 쿨다운을 원자적 UPSERT 하나로 판정한다 — 예전엔 SELECT로 마지막 작성 시각을
-      // 읽은 뒤 별도 INSERT로 갱신했는데, 그 사이에 동시 요청 두 개가 같은 stale 값을 보고
-      // 둘 다 통과할 수 있었다(TOCTOU 경쟁 상태, 리뷰에서 발견). WHERE 절이 있는 ON CONFLICT
-      // DO UPDATE는 조건이 거짓이면 행을 안 바꾸고 조용히 끝나므로(에러 아님), changes로
-      // "이번에 갱신됐는지(=쿨다운 통과)"를 판정할 수 있다. 신규 IP는 충돌이 없어 무조건
-      // INSERT되므로 changes=1.
+      // IP당 30초 쿨다운(passCooldown — 원자적 UPSERT, TOCTOU 없음).
       const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown'
       const now = Date.now()
-      const limitResult = await env.DB.prepare(
-        'INSERT INTO comment_rate_limits (ip, last_at) VALUES (?,?) ' +
-          'ON CONFLICT(ip) DO UPDATE SET last_at = excluded.last_at ' +
-          'WHERE excluded.last_at - comment_rate_limits.last_at >= ?',
-      )
-        .bind(ip, now, COMMENT_RATE_LIMIT_MS)
-        .run()
-      if ((limitResult.meta?.changes ?? 0) === 0) return json({ error: 'slow down' }, 429)
+      if (!(await passCooldown(env, ip, COMMENT_RATE_LIMIT_MS, now))) return json({ error: 'slow down' }, 429)
 
       await env.DB.prepare(
         'INSERT INTO comments (slug, name, text, created_at) VALUES (?,?,?,?)',
@@ -245,11 +245,13 @@ export default {
         const country = (request as unknown as { cf?: { country?: string } }).cf?.country ?? 'XX'
         const ref = (b.ref != null ? String(b.ref) : request.headers.get('referer') ?? '').slice(0, 200)
         const vid = String(b.vid ?? '').slice(0, 64)
+        const tag = String(b.tag ?? '').slice(0, 20)
         if (slug) {
-          // blobs: event, country, referrer, 익명 방문자 id(vid). vid로 재방문·방문당 플레이 계산.
+          // blobs: event, country, referrer, 익명 방문자 id(vid), 유입 태그(?ref=, 예: share).
+          // vid로 재방문·방문당 플레이 계산.
           env.ANALYTICS?.writeDataPoint({
             indexes: [slug],
-            blobs: [event, country, ref, vid],
+            blobs: [event, country, ref, vid, tag],
             doubles: [dwell],
           })
         }

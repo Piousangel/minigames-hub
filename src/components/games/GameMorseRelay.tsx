@@ -17,6 +17,7 @@ import { useGameSound, type SoundName } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordResult } from '@/lib/gameStats'
 import { sendHit } from '@/lib/hit'
+import { MAX_NAME_LEN, loadPlayerName, savePlayerName } from '@/lib/leaderboard'
 import {
   challengeUrl,
   compareChallenge,
@@ -60,25 +61,6 @@ function saveBest(storageKey: string, score: number): void {
     localStorage.setItem(storageKey, String(score))
   } catch {
     // ignore storage failures (private mode / quota)
-  }
-}
-
-// 리더보드(Leaderboard.tsx)와 같은 키 — 한 번 적은 이름을 도전장에도 재사용.
-const NAME_KEY = 'lb:name'
-
-function loadName(): string {
-  try {
-    return localStorage.getItem(NAME_KEY) ?? ''
-  } catch {
-    return ''
-  }
-}
-
-function saveName(name: string): void {
-  try {
-    localStorage.setItem(NAME_KEY, name)
-  } catch {
-    // ignore storage failures
   }
 }
 
@@ -181,11 +163,15 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
 
   const persist = useCallback(
     (finalState: MorseRelayState) => {
-      if (finalState.score > bestRef.current) {
-        bestRef.current = finalState.score
-        setBest(finalState.score)
+      // 도전 판은 같은 시드를 무한 Rematch할 수 있어(단어 순서 암기) 최고기록·주간 리더보드에
+      // 넣지 않는다 — 넣으면 아무 시드로 링크를 만들어 보드를 파밍할 수 있다.
+      if (!challengeRef.current) {
+        if (finalState.score > bestRef.current) {
+          bestRef.current = finalState.score
+          setBest(finalState.score)
+        }
+        saveBest(storageKey, Math.max(bestRef.current, finalState.score))
       }
-      saveBest(storageKey, Math.max(bestRef.current, finalState.score))
       recordResult(storageKey.replace(/^best:/, ''), { won: false })
       if (challengeRef.current) sendHit(storageKey.replace(/^best:/, ''), 'challenge-done')
     },
@@ -265,7 +251,7 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
     const incoming = parseChallenge(window.location.search)
     challengeRef.current = incoming
     setChallenge(incoming)
-    setName(loadName())
+    setName(loadPlayerName())
     resetGame()
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
@@ -288,10 +274,9 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
     async (seed: number, score: number) => {
       const slug = storageKey.replace(/^best:/, '')
       const trimmed = name.trim()
-      if (trimmed) saveName(trimmed)
+      if (trimmed) savePlayerName(trimmed)
       const url = challengeUrl(window.location.origin, slug, { seed, score, name: trimmed })
       const text = `I scored ${score} in Morse Relay. Same words, same run — can you beat me? 📡`
-      sendHit(slug, 'challenge-sent')
       try {
         if (navigator.share) {
           await navigator.share({ title: 'Morse Relay challenge', text, url })
@@ -299,6 +284,8 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
           await navigator.clipboard.writeText(`${text} ${url}`)
           setShareStatus('copied')
         }
+        // 공유 시트 취소·클립보드 실패는 위에서 throw → 'sent'로 세지 않는다.
+        sendHit(slug, 'challenge-sent')
       } catch {
         // 취소/불가 무시
       }
@@ -401,15 +388,19 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
           <span>
             ⚔️ <span className="font-bold">{challenge.name}</span> scored{' '}
             <span className="font-bold text-accent">{challenge.score}</span> on this exact run. Beat it!
+            <span className="block text-xs text-fg-muted">Challenge runs don&apos;t count toward your best.</span>
           </span>
-          <button
-            type="button"
-            onClick={leaveChallenge}
-            className="text-xs text-fg-muted underline hover:text-fg"
-            data-testid="challenge-leave"
-          >
-            Play solo
-          </button>
+          {/* 진행 중인 판에선 숨긴다 — 보드 바로 위라 모바일 오탭 한 번에 판이 날아간다. */}
+          {(state.score === 0 || state.lost) && (
+            <button
+              type="button"
+              onClick={leaveChallenge}
+              className="text-xs text-fg-muted underline hover:text-fg"
+              data-testid="challenge-leave"
+            >
+              Play solo
+            </button>
+          )}
         </div>
       )}
       <div className="relative rounded-xl bg-surface p-4" data-testid="morse-relay-board">
@@ -529,7 +520,7 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                maxLength={16}
+                maxLength={MAX_NAME_LEN}
                 placeholder="Your name"
                 aria-label="Your name for the challenge link"
                 className="w-40 rounded-lg border border-border bg-bg-2 px-3 py-1.5 text-center text-sm text-fg"

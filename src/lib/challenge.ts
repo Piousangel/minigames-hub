@@ -1,4 +1,4 @@
-import { cleanName } from './leaderboard'
+import { MAX_SCORE, cleanName } from './leaderboard'
 
 /**
  * 1:1 도전 링크 — "같은 판(시드)에서 내 점수를 넘어봐"를 URL 하나에 담는다.
@@ -21,7 +21,13 @@ export type ChallengeOutcome =
   | { kind: 'lose'; diff: number; pct: number }
 
 const MAX_SEED = 0xffffffff
-const MAX_CHALLENGE_SCORE = 100_000_000
+
+/** cleanName의 16자 slice가 이모지를 반으로 자르면 외톨이 서로게이트가 남는데,
+ *  URLSearchParams는 그걸 U+FFFD로 바꿔 보낸다 → 받는 쪽 체크섬이 안 맞는다.
+ *  해시하기 전에 같은 치환을 먼저 해서 송수신 양쪽이 같은 문자열을 보게 한다. */
+function linkName(raw: unknown): string {
+  return cleanName(raw).replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g, '\uFFFD')
+}
 
 // FNV-1a 32bit → base36 3자리(36^3 = 46656가지). 오타 검출용으로 충분.
 function checksum(seed: number, score: number, name: string): string {
@@ -36,9 +42,10 @@ function checksum(seed: number, score: number, name: string): string {
 
 /** 도전 쿼리스트링(앞의 '?' 없음). */
 export function challengeQuery(c: Challenge): string {
-  const name = cleanName(c.name)
+  const name = linkName(c.name)
   const seed = c.seed >>> 0
-  const score = Math.max(0, Math.floor(c.score))
+  // 파서와 같은 범위로 클램프 — 범위 밖 점수로 만든 링크는 받는 쪽에서 조용히 버려진다.
+  const score = Math.min(MAX_SCORE, Math.max(0, Math.floor(c.score)))
   const vs = `${seed.toString(36)}-${score.toString(36)}-${checksum(seed, score, name)}`
   return new URLSearchParams({ vs, n: name, ref: 'share' }).toString()
 }
@@ -57,8 +64,8 @@ export function parseChallenge(search: string): Challenge | null {
   const seed = parseInt(m[1], 36)
   const score = parseInt(m[2], 36)
   if (!Number.isFinite(seed) || seed > MAX_SEED) return null
-  if (!Number.isFinite(score) || score <= 0 || score > MAX_CHALLENGE_SCORE) return null
-  const name = cleanName(params.get('n'))
+  if (!Number.isFinite(score) || score <= 0 || score > MAX_SCORE) return null
+  const name = linkName(params.get('n'))
   if (checksum(seed, score, name) !== m[3]) return null
   return { seed, score, name }
 }

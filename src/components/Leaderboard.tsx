@@ -1,7 +1,14 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { LEADERBOARD_GAMES, MAX_NAME_LEN, SCORE_SCALE, type ScoreRow } from '@/lib/leaderboard'
+import {
+  LEADERBOARD_GAMES,
+  MAX_NAME_LEN,
+  SCORE_SCALE,
+  loadPlayerName,
+  savePlayerName,
+  type ScoreRow,
+} from '@/lib/leaderboard'
 import { gamePages } from '@/lib/games/registry'
 import { siteConfig } from '@/lib/siteConfig'
 
@@ -22,6 +29,7 @@ export function Leaderboard({ slug }: { slug: string }) {
   const [name, setName] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [slowDown, setSlowDown] = useState(false) // 429(IP 쿨다운) — 조용히 실패하지 않게 안내
   const [shared, setShared] = useState(false)
   const submittedRef = useRef(0) // 마지막으로 제출한 점수 — 이보다 높아졌을 때만 재제출 허용
 
@@ -44,7 +52,7 @@ export function Leaderboard({ slug }: { slug: string }) {
   // 따라잡되, 동등성 가드로 값이 바뀔 때만 리렌더한다.
   useEffect(() => {
     load()
-    setName(localStorage.getItem('lb:name') ?? '')
+    setName(loadPlayerName())
     submittedRef.current = 0 // 새 게임(slug) 진입 시 제출 허용 초기화
     const readBest = () => {
       const raw = Number(localStorage.getItem(`best:${slug}`))
@@ -66,13 +74,14 @@ export function Leaderboard({ slug }: { slug: string }) {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ game: slug, name, score: best }),
       })
+      setSlowDown(res.status === 429)
       if (!res.ok) throw new Error('bad')
       const data = (await res.json()) as { week: string; top: ScoreRow[] }
       setRows(data.top)
       setWeek(data.week)
       setSubmitted(true)
       submittedRef.current = best // 이 점수는 제출됨 — 더 높은 기록이 나와야 재제출 허용
-      localStorage.setItem('lb:name', name.trim().slice(0, MAX_NAME_LEN))
+      savePlayerName(name)
     } catch {
       /* 무시 */
     } finally {
@@ -156,7 +165,13 @@ export function Leaderboard({ slug }: { slug: string }) {
             {submitting ? '…' : `Submit ${meta.label} ${fmt(best)}`}
           </button>
         </div>
-      ) : submitted ? (
+      ) : null}
+      {canSubmit && slowDown && (
+        <p className="mt-2 text-center text-xs text-neon-amber">
+          Too many submits from your network — try again in a few seconds.
+        </p>
+      )}
+      {canSubmit ? null : submitted ? (
         <p className="mt-3 text-center text-xs text-neon-lime">Submitted! Beat your best to climb higher.</p>
       ) : (
         <p className="mt-3 text-center text-xs text-fg-muted">

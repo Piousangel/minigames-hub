@@ -22,19 +22,18 @@ function visitorId(): string {
 }
 
 /**
- * 진입 이벤트의 유입 출처. URL의 `?ref=<tag>`(도전 링크 등 우리가 뿌린 링크)를 앞에 붙인다 —
- * 카톡·디스코드 등 메신저에서 연 링크는 document.referrer가 비어 있어서, 태그 없이는
- * analytics의 외부 유입 표에서 통째로 사라진다. 형식: "ref=share" 또는 "ref=share <referrer>".
+ * 진입 URL의 `?ref=<tag>` — 도전 링크 등 우리가 뿌린 링크의 유입 태그. 카톡·디스코드 등
+ * 메신저에서 연 링크는 document.referrer가 비어 있어서, 태그 없이는 유입이 통째로 안 보인다.
+ * referrer(blob3)와 섞지 않고 별도 필드(blob5)로 보낸다 — 섞으면 기존 referrer 표가 같은
+ * 출처를 두 줄로 쪼갠다.
  */
-export function entryRef(search: string, referrer: string): string {
-  let tag = ''
+export function entryTag(search: string): string {
   try {
     const raw = new URLSearchParams(search).get('ref') ?? ''
-    if (/^[a-z0-9_-]{1,20}$/i.test(raw)) tag = `ref=${raw.toLowerCase()}`
+    return /^[a-z0-9_-]{1,20}$/i.test(raw) ? raw.toLowerCase() : ''
   } catch {
-    // 잘못된 쿼리는 무시
+    return ''
   }
-  return [tag, referrer].filter(Boolean).join(' ')
 }
 
 /**
@@ -48,8 +47,9 @@ export function sendHit(slug: string, event: string, dwell?: number): void {
     // referrer는 진입 이벤트에만 의미가 있다. 'pageview'(비게임 페이지)도 진입이므로
     // 포함해야 외부 유입 캠페인(커뮤니티 배포 등)의 referrer를 실제로 잡을 수 있다.
     if ((event === 'view' || event === 'pageview') && typeof document !== 'undefined') {
-      const ref = entryRef(typeof location !== 'undefined' ? location.search : '', document.referrer)
-      if (ref) payload.ref = ref
+      if (document.referrer) payload.ref = document.referrer
+      const tag = entryTag(typeof location !== 'undefined' ? location.search : '')
+      if (tag) payload.tag = tag
     }
     const body = JSON.stringify(payload)
     // sendBeacon은 언로드 중에도 살아남아 dwell 집계에 적합. 없으면 keepalive fetch.
