@@ -1,4 +1,6 @@
-export const guide = {
+import type { GameGuide } from '../types'
+
+export const guide: GameGuide = {
   slug: 'overfold',
   title: 'Overfold Strategy: Clearing Is Easy, Scoring Is the Puzzle',
   description:

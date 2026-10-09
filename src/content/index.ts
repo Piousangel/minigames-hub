@@ -15,6 +15,11 @@ import { guide as guideQuarry } from './guides/quarry'
 import { article as connectFourFirstPlayerVsOurAi } from './articles/connect-four-first-player-vs-our-ai'
 import { article as wordGuessBestOpeningWords } from './articles/word-guess-best-opening-words'
 import { article as yahtzee300000GamesThreeStrategies } from './articles/yahtzee-300000-games-three-strategies'
+import { guide as guideBisect } from './guides/bisect'
+import { guide as guideClusters } from './guides/clusters'
+import { guide as guideOverfold } from './guides/overfold'
+import { guide as guidePrismbox } from './guides/prismbox'
+import { guide as guideTetris } from './guides/tetris'
 
 // 새 공략/기사는 여기에 등록해야 /guides·sitemap·게임 페이지 링크에 나타난다.
 export const GUIDES: GameGuide[] = [
@@ -28,6 +33,11 @@ export const GUIDES: GameGuide[] = [
   guideFlow,
   guideMahjong,
   guideQuarry,
+  guideBisect,
+  guideClusters,
+  guideOverfold,
+  guidePrismbox,
+  guideTetris,
 ]
 
 export const ARTICLES: Article[] = [

@@ -1,4 +1,6 @@
-export const guide = {
+import type { GameGuide } from '../types'
+
+export const guide: GameGuide = {
   slug: 'clusters',
   title: 'Clusters Guide: How the Daily Board Is Built, and How to Spend Your Four Lives',
   description:

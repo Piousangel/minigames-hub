@@ -1,4 +1,6 @@
-export const guide = {
+import type { GameGuide } from '../types'
+
+export const guide: GameGuide = {
   slug: 'prismbox',
   title: 'Prismbox Deduction Guide: Reading Bends, Clearing Lanes and Beating Par by Ten',
   description:

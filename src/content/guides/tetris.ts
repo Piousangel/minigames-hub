@@ -1,4 +1,6 @@
-export const guide = {
+import type { GameGuide } from '../types'
+
+export const guide: GameGuide = {
   slug: 'tetris',
   title: 'Tetris Strategy Guide: The 7-Bag, the Speed Curve and Why Tetrises Pay 7.5x',
   description:

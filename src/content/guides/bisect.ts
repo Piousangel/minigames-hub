@@ -1,4 +1,6 @@
-export const guide = {
+import type { GameGuide } from '../types'
+
+export const guide: GameGuide = {
   slug: 'bisect',
   title: 'Bisect Strategy: Why the Best Tap Comes About 0.9 Seconds After the Start Flash',
   description:
