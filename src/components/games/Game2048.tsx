@@ -53,6 +53,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   const [newBest, setNewBest] = useState(false)
   const bestRef = useRef(0) // 지속 best를 미러 — 이동 핸들러에서 동기 비교(이펙트 순서 회피)
   const newBestRef = useRef(false) // 이 게임에서 기록을 깼는지 latch. game-over 시점 비교는 best가 이미 올라 항상 틀리다
+  const recordedRef = useRef(false) // 이 판의 결과를 이미 recordResult 했는지(판당 1회)
   const [wonSeen, setWonSeen] = useState(false)
   const [tiles, setTiles] = useState<Tile[]>([])
   const [cell, setCell] = useState(0)
@@ -87,6 +88,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
     setWonSeen(false)
     newBestRef.current = false
     setNewBest(false)
+    recordedRef.current = false
     const s = newGame(Math.random)
     commitState(s)
     commitTiles(tilesFromBoard(s.board, nextId, true))
@@ -153,10 +155,14 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
 
         if (plan.merges.length) play('merge')
         if (newEngine.won && !s.won) play('win')
-        else if (newEngine.over) {
-          setNewBest(newBestRef.current)
-          play(newBestRef.current ? 'win' : 'lose')
-          recordResult(storageKey.replace(/^best:/, ''), { won: true })
+        else if (newEngine.over) play(newBestRef.current ? 'win' : 'lose')
+        if (newEngine.over) setNewBest(newBestRef.current)
+        // Record once per game: a win the moment the 2048 tile first appears (most players
+        // hit New Game on the win overlay, so waiting for game-over would miss it), otherwise
+        // a loss when the board locks.
+        if (!recordedRef.current && (newEngine.won || newEngine.over)) {
+          recordedRef.current = true
+          recordResult(storageKey.replace(/^best:/, ''), { won: newEngine.won })
         }
 
         animatingRef.current = false

@@ -193,7 +193,7 @@ const UNITS: ReadonlyArray<{ v: number; s: string }> = [
   { v: 1e3, s: 'K' },
 ]
 
-/** Compact number formatting: 1200 → "1.2K", 3.4e6 → "3.4M", 5.6e9 → "5.6B". */
+/** Compact number formatting: 0.1 → "0.1", 48.7 → "48", 1200 → "1.2K", 3.4e6 → "3.4M", 5.6e9 → "5.6B". */
 export function fmt(n: number): string {
   if (!Number.isFinite(n)) return '0'
   const sign = n < 0 ? '-' : ''
@@ -204,6 +204,14 @@ export function fmt(n: number): string {
       const str = (scaled >= 100 ? scaled.toFixed(0) : scaled.toFixed(1)).replace(/\.0$/, '')
       return sign + str + s
     }
+  }
+  // Under 10, keep one decimal so fractional rates (Capacitor +0.1/s) don't read "0".
+  // Floored like the 10–999 branch; the epsilon absorbs float noise (2.3 * 10 === 22.999…).
+  // (The K/M/B branch above rounds with toFixed — unchanged here.)
+  if (x < 10) {
+    const tenths = Math.floor(x * 10 + 1e-9) / 10
+    if (tenths === 0) return '0'
+    return sign + tenths.toFixed(1).replace(/\.0$/, '')
   }
   return sign + String(Math.floor(x))
 }

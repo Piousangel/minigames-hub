@@ -171,6 +171,8 @@ export function GameQuarry({ storageKey }: { storageKey: string }) {
           saveStreak(streakKey, bumped)
           setDayStreak(bumped.streak)
         }
+        // Endless run: like Snake/Tetris/etc. a finished run is recorded with won:true (hub-wide
+        // convention). Hiding Win % for endless games is a separate, cross-game change.
         recordResult(storageKey.replace(/^best:/, ''), { won: true })
       } else if (lp?.fled) {
         play('move') // the panic-hop
