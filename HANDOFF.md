@@ -1,6 +1,33 @@
-# 인계: 게임 라운드16(Strata/Bankshot/Morse Relay, 게임 103종) + UI/UX 감사 + 누적 아이콘 10종 완료·배포함
+# 인계: 도전 링크 + /guides(공략 15·기사 6) + AdSense 저가치 대응 배포 완료 (2026-10-09)
 
 > 갱신: 2026-08-19 · 브랜치: `main` · 커밋 상태: **committed & pushed (직접 main)** · **배포 완료·검증됨** (quickminigames.site, 게임 **103종**, 전 게임 커스텀 아이콘 보유)
+
+## ▶ 2026-10-09 세션 — 도전 링크 + AdSense 저가치 대응 2라운드 (최신, 여기부터)
+
+**배포 완료(PR #3·#4·#5, 전부 main squash, quickminigames.site 라이브 검증).**
+- **#3 Morse Relay 1:1 도전 링크**(`src/lib/challenge.ts`) — `?vs=<seed>-<score>-<chk>&n=<name>&ref=share`.
+  도전 판은 같은 시드 반복이 가능해 best/리더보드에 안 넣는다. 유입 태그는 AE **blob5**(`hit.ts` `entryTag`).
+  `/api/score` IP+게임 10초 쿨다운(`passCooldown`, `comment_rate_limits` 재사용).
+  `analytics.mjs`의 외부 유입 표가 AE 미지원 함수(`positionCaseInsensitive`)로 **9/1부터 계속 실패하고 있었음** → `NOT LIKE`로 수정.
+- **#4** 19종 intro + intro 필수 테스트, registry 사실 오류 수정, About/Privacy/Terms, 얇은 목록 noindex.
+- **#5 `/guides`** — 심화 공략 15 + 설계 노트 3 + 데이터 기사 3(`src/content/**`, 시뮬은 `scripts/content-sims/*`,
+  `npx --yes tsx@4.19.2 <file>`로 실행). 시뮬이 찾은 버그 수정: **Reactor 리부트 무한 연타**(N번째=N×1M, 세이브 보정),
+  **Prismbox Hard ~1% 클리어 불가**(결정적 재추첨). 게임 페이지 문구 ↔ 공략 모순 다수 정리, "Is it free" FAQ 29개 제거.
+
+**⚠️ 심사 스위치:** `siteConfig.thinPagesNoindex: true` — category/collection/collections/leaderboards/**unblocked**
+noindex + sitemap 제외 + 홈 Unblocked 링크 숨김. **AdSense 승인 후 false로.**
+
+**⏭ 다음:**
+1. 7일 판정(~10/16): `node scripts/analytics.mjs 7` → `[★ 도전 링크 루프]` share_in ≥1 & 되받아치기 ≥1이면 2단계
+   (rng.ts 통합 → 데일리 ~30종 도전 링크 → 메달 결과 카드), 0이면 경쟁 트랙 보류.
+2. AdSense 재신청: 배포 2~4주 후(11월 초~중순), Search Console에서 /guides 색인 확인 뒤.
+3. 남은 코드 이슈(공략 작가 보고): Mahjong Undo가 셔플 횟수까지 복구(셔플 무한), Quarry·2048 패배를 `won:true`로 기록,
+   Reactor `fmt()`가 1000 미만 내림해 Capacitor "+0" 표시, `comment_rate_limits` TTL 정리 없음.
+4. 30일 실방문자 50명 중 ES vid 하나(9/30~10/2, 900여 이벤트, 전 페이지 referrer=chatgpt.com)는 ChatGPT 에이전트로 추정 — 판정 때 제외.
+
+**사용자 과제:** Morse Relay 도전 링크 넣은 커뮤니티 글 게시(초안 `docs/launch/community-post-drafts.md`), 지인 3명에게 도전 링크.
+
+---
 
 ## ▶ 2026-09-01 세션 — 유통 전환 결정 + 계측 사각지대 제거 (최신, 여기부터)
 
