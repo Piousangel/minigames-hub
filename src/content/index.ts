@@ -2,9 +2,20 @@ import type { Article, GameGuide } from './types'
 import { article as designingMorseRelay } from './articles/designing-morse-relay'
 import { article as designingPolytap } from './articles/designing-polytap'
 import { article as designingPinwheel } from './articles/designing-pinwheel'
+import { guide as guideMinesweeper } from './guides/minesweeper'
+import { guide as guideMorseRelay } from './guides/morse-relay'
+import { guide as guideReactor } from './guides/reactor'
+import { guide as guideSudoku } from './guides/sudoku'
+import { guide as guideUnblock } from './guides/unblock'
 
 // 새 공략/기사는 여기에 등록해야 /guides·sitemap·게임 페이지 링크에 나타난다.
-export const GUIDES: GameGuide[] = []
+export const GUIDES: GameGuide[] = [
+  guideMinesweeper,
+  guideMorseRelay,
+  guideReactor,
+  guideSudoku,
+  guideUnblock,
+]
 
 export const ARTICLES: Article[] = [designingMorseRelay, designingPolytap, designingPinwheel]
 

@@ -1,4 +1,6 @@
-export const guide = {
+import type { GameGuide } from '../types'
+
+export const guide: GameGuide = {
   slug: 'unblock',
   title: 'Unblock Guide: Par, Opening Moves and the Shape of All 27 Levels',
   description:

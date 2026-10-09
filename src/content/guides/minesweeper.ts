@@ -1,4 +1,6 @@
-export const guide = {
+import type { GameGuide } from '../types'
+
+export const guide: GameGuide = {
   slug: 'minesweeper',
   title: 'Minesweeper Strategy: Where to Click First and How Often You Must Guess',
   description:

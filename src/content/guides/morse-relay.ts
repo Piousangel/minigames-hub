@@ -1,4 +1,6 @@
-export const guide = {
+import type { GameGuide } from '../types'
+
+export const guide: GameGuide = {
   slug: 'morse-relay',
   title: 'Morse Relay Timing Guide: Units, Tolerances and the First-Press Window',
   description:
