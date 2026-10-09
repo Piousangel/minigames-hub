@@ -7,6 +7,7 @@ import {
   buy,
   canPrestige,
   rebootThreshold,
+  reconcilePrestige,
   costOf,
   fmt,
   initialState,
@@ -358,5 +359,20 @@ describe('golden: multi-tier production with prestige', () => {
     expect(productionPerSec(s)).toBeCloseTo(28.6)
     const t = tick(s, 10000) // +286
     expect(t.charge).toBeCloseTo(286)
+  })
+})
+
+describe('reconcilePrestige', () => {
+  it('회귀: 예전 연타 버그로 부풀린 세이브를 실제 가능한 리부트 수로 되돌린다', () => {
+    const inflated: State = { ...initialState(), lifetime: 1_200_000, prestige: 99, tapPower: 100 }
+    const fixed = reconcilePrestige(inflated)
+    expect(fixed.prestige).toBe(1)
+    expect(fixed.tapPower).toBe(2)
+    expect(fixed.lifetime).toBe(1_200_000)
+  })
+
+  it('정상 세이브는 그대로(같은 참조)', () => {
+    const ok: State = { ...initialState(), lifetime: 3_500_000, prestige: 3, tapPower: 4 }
+    expect(reconcilePrestige(ok)).toBe(ok)
   })
 })

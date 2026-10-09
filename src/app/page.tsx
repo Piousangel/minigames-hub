@@ -81,7 +81,7 @@ export default function Home() {
         {[
           { href: '/daily', label: '🔥 Daily games' },
           { href: '/collections', label: '★ Collections' },
-          { href: '/unblocked', label: 'Unblocked' },
+          ...(siteConfig.thinPagesNoindex ? [] : [{ href: '/unblocked', label: 'Unblocked' }]),
           { href: '/category/puzzle', label: 'Puzzle' },
           { href: '/category/arcade', label: 'Arcade' },
           { href: '/category/classic', label: 'Classic' },

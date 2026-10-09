@@ -7,6 +7,7 @@ import {
   buy,
   canPrestige,
   rebootThreshold,
+  reconcilePrestige,
   fmt,
   initialState,
   nextCost,
@@ -58,13 +59,13 @@ function parseSave(raw: string | null): SaveBlob | null {
     ) {
       return null
     }
-    const clean: State = {
+    const clean: State = reconcilePrestige({
       charge: Number.isFinite(s.charge) ? s.charge : 0,
       lifetime: Number.isFinite(s.lifetime) ? s.lifetime : 0,
       levels: s.levels.map((n) => Math.max(0, Math.floor(n))),
       prestige: Math.max(0, Math.floor(s.prestige)),
       tapPower: Math.max(1, Math.floor(s.tapPower)),
-    }
+    })
     const lastSeen = typeof o.lastSeen === 'number' && Number.isFinite(o.lastSeen) ? o.lastSeen : Date.now()
     return { v: SAVE_VERSION, state: clean, lastSeen }
   } catch {
@@ -118,9 +119,21 @@ export function GameReactor({ storageKey }: { storageKey: string }) {
   // Bootstrap: load save, apply offline accrual, maybe show welcome-back.
   useEffect(() => {
     const storedBest = Number(localStorage.getItem(bestKey))
-    setBest(Number.isFinite(storedBest) && storedBest > 0 ? Math.floor(storedBest) : 0)
+    let best = Number.isFinite(storedBest) && storedBest > 0 ? Math.floor(storedBest) : 0
 
     const blob = parseSave(localStorage.getItem(saveKey))
+    // score() only grows, so a stored best above the (reconciled) save's score can only come
+    // from the old reboot-spam bug — pull it back so the leaderboard doesn't re-submit it.
+    if (blob && best > score(blob.state)) {
+      best = score(blob.state)
+      try {
+        localStorage.setItem(bestKey, String(best))
+      } catch {
+        /* storage unavailable */
+      }
+    }
+    setBest(best)
+
     if (!blob) {
       commit(initialState()) // first-ever load: no popup
       lastPersistRef.current = Date.now()

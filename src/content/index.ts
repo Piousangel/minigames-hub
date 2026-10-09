@@ -1,4 +1,4 @@
-import type { Article, GameGuide } from './types'
+import type { Article, ContentSection, ContentTable, GameGuide } from './types'
 import { article as designingMorseRelay } from './articles/designing-morse-relay'
 import { article as designingPolytap } from './articles/designing-polytap'
 import { article as designingPinwheel } from './articles/designing-pinwheel'
@@ -72,10 +72,12 @@ export function articlesForGame(gameSlug: string): Article[] {
   return ARTICLES.filter((a) => a.relatedGames.includes(gameSlug))
 }
 
-/** 대략적 읽기 시간(분) — 영어 기준 230 wpm. */
-export function readingMinutes(sections: { paragraphs: string[]; list?: string[] }[]): number {
-  const words = sections
-    .flatMap((s) => [...s.paragraphs, ...(s.list ?? [])])
+/** 대략적 읽기 시간(분) — 영어 기준 230 wpm. 표(캡션·셀)도 읽는 분량에 포함. */
+export function readingMinutes(entry: { sections: ContentSection[]; tables?: ContentTable[] }): number {
+  const words = [
+    ...entry.sections.flatMap((s) => [s.heading, ...s.paragraphs, ...(s.list ?? [])]),
+    ...(entry.tables ?? []).flatMap((t) => [t.caption, ...t.columns, ...t.rows.flat()]),
+  ]
     .join(' ')
     .split(/\s+/)
     .filter(Boolean).length

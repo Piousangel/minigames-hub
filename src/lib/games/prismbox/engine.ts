@@ -258,8 +258,9 @@ export function createGame(cfg: PrismboxConfig, seed: number): PrismboxState {
   // unwinnable. Re-draw deterministically from the same seed until every atom is
   // reachable — boards that were already fine (retry 0) are unchanged, so daily seeds
   // keep their layout.
+  const playable = (a: Coord[]) => a.length === cfg.atoms && allAtomsHittable(a, cfg.size)
   let atoms = placeAtoms(cfg, mulberry32(seed))
-  for (let retry = 1; retry <= MAX_LAYOUT_RETRIES && !allAtomsHittable(atoms, cfg.size); retry++) {
+  for (let retry = 1; retry <= MAX_LAYOUT_RETRIES && !playable(atoms); retry++) {
     atoms = placeAtoms(cfg, mulberry32((seed ^ Math.imul(retry, 0x9e3779b9)) >>> 0))
   }
   return {

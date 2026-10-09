@@ -7,13 +7,13 @@ export function ContentBody({ sections, tables }: { sections: ContentSection[]; 
       {sections.map((s) => (
         <section key={s.heading} className="space-y-4">
           <h2 className="mt-10 text-xl font-semibold text-fg">{s.heading}</h2>
-          {s.paragraphs.map((p) => (
-            <p key={p.slice(0, 48)}>{p}</p>
+          {s.paragraphs.map((p, i) => (
+            <p key={i}>{p}</p>
           ))}
           {s.list && (
             <ul className="list-disc space-y-2 pl-5">
-              {s.list.map((li) => (
-                <li key={li.slice(0, 48)}>{li}</li>
+              {s.list.map((li, i) => (
+                <li key={i}>{li}</li>
               ))}
             </ul>
           )}

@@ -132,6 +132,19 @@ export function rebootThreshold(state: State): number {
   return (state.prestige + 1) * PRESTIGE_THRESHOLD
 }
 
+/**
+ * Clamp reboot-derived fields to what the scaled gate could have produced: N reboots need
+ * N×1M lifetime, and each reboot adds exactly +1 tap power. Saves inflated by the old
+ * fixed-gate spam bug are pulled back to the real count on load (lifetime is untouched).
+ */
+export function reconcilePrestige(state: State): State {
+  const maxPrestige = Math.floor(Math.max(0, state.lifetime) / PRESTIGE_THRESHOLD)
+  const prestige = Math.min(state.prestige, maxPrestige)
+  const tapPower = Math.min(state.tapPower, 1 + prestige)
+  if (prestige === state.prestige && tapPower === state.tapPower) return state
+  return { ...state, prestige, tapPower }
+}
+
 /** Whether a Reboot is unlocked. */
 export function canPrestige(state: State): boolean {
   return state.lifetime >= rebootThreshold(state)

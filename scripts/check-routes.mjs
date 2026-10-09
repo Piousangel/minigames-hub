@@ -39,9 +39,14 @@ const hubs = [
 // 편집 콘텐츠(공략·기사) 라우트 — src/content/{guides,articles}의 slug 필드에서 추출.
 for (const dir of ['src/content/guides', 'src/content/articles']) {
   if (!existsSync(dir)) continue
-  for (const f of readdirSync(dir)) {
-    const m = readFileSync(`${dir}/${f}`, 'utf8').match(/^\s*slug:\s*'([a-z0-9-]+)',/m)
-    if (m) hubs.push(`guides/${m[1]}`)
+  for (const f of readdirSync(dir).filter((n) => n.endsWith('.ts'))) {
+    const m = readFileSync(`${dir}/${f}`, 'utf8').match(/^\s*slug:\s*['"]([a-z0-9-]+)['"],/m)
+    // 파싱 실패를 조용히 건너뛰면 그 페이지가 빌드에서 빠져도 'OK'가 나온다 — 하드 실패.
+    if (!m) {
+      console.error(`route-check FAILED — ${dir}/${f}에서 slug를 파싱하지 못함`)
+      process.exit(1)
+    }
+    hubs.push(`guides/${m[1]}`)
   }
 }
 for (const h of hubs) if (!has(h)) missing.push(h)

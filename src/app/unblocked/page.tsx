@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { gamePages } from '@/lib/games/registry'
 import { GameCard } from '@/components/GameCard'
-import { siteConfig } from '@/lib/siteConfig'
+import { siteConfig, thinPageRobots } from '@/lib/siteConfig'
 
 // "unblocked games" 랜딩 — 브라우저 게임 최대 검색 의도 중 하나(학교/직장 무설치, DOMAIN §1).
 // 우리 전 게임이 무설치 브라우저 실행 = 정직하게 unblocked. 순수 SSG.
@@ -31,6 +31,7 @@ export const metadata: Metadata = {
   title: { absolute: TITLE },
   description: META_DESC,
   alternates: { canonical: '/unblocked' },
+  robots: thinPageRobots,
   openGraph: { title: TITLE, description: META_DESC, url: '/unblocked', siteName: siteConfig.name, type: 'website' },
   twitter: { card: 'summary_large_image', title: TITLE, description: META_DESC },
 }

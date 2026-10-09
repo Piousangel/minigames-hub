@@ -44,7 +44,7 @@ export default function GuidesHub() {
           <h2 className="mb-4 text-xl font-semibold">Strategy guides</h2>
           <ul className="grid gap-3 sm:grid-cols-2">
             {GUIDES.map((g) => (
-              <Card key={g.slug} href={`/guides/${g.slug}`} title={g.title} description={g.description} meta={`${readingMinutes(g.sections)} min read`} />
+              <Card key={g.slug} href={`/guides/${g.slug}`} title={g.title} description={g.description} meta={`${readingMinutes(g)} min read`} />
             ))}
           </ul>
         </section>
@@ -55,7 +55,7 @@ export default function GuidesHub() {
           <h2 className="mb-4 text-xl font-semibold">Data deep-dives</h2>
           <ul className="grid gap-3 sm:grid-cols-2">
             {data.map((a) => (
-              <Card key={a.slug} href={`/guides/${a.slug}`} title={a.title} description={a.description} meta={`${a.published} · ${readingMinutes(a.sections)} min read`} />
+              <Card key={a.slug} href={`/guides/${a.slug}`} title={a.title} description={a.description} meta={`${a.published} · ${readingMinutes(a)} min read`} />
             ))}
           </ul>
         </section>
@@ -66,7 +66,7 @@ export default function GuidesHub() {
           <h2 className="mb-4 text-xl font-semibold">Designer&apos;s notes</h2>
           <ul className="grid gap-3 sm:grid-cols-2">
             {design.map((a) => (
-              <Card key={a.slug} href={`/guides/${a.slug}`} title={a.title} description={a.description} meta={`${a.published} · ${readingMinutes(a.sections)} min read`} />
+              <Card key={a.slug} href={`/guides/${a.slug}`} title={a.title} description={a.description} meta={`${a.published} · ${readingMinutes(a)} min read`} />
             ))}
           </ul>
         </section>

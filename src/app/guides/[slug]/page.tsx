@@ -48,7 +48,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
     description: entry.description,
     datePublished: date,
     dateModified: date,
-    author: { '@type': 'Person', name: 'Pious Angel' },
+    author: { '@type': 'Person', name: siteConfig.author },
     publisher: { '@type': 'Organization', name: siteConfig.name },
     mainEntityOfPage: `${siteConfig.url}/guides/${slug}`,
   }
@@ -65,7 +65,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
       <h1 className="mb-3 text-3xl font-bold">{entry.title}</h1>
       <p className="mb-2 text-fg-muted">{entry.description}</p>
       <p className="mb-6 text-xs text-fg-muted">
-        By Pious Angel · {c.type === 'guide' ? 'Updated' : 'Published'} {date} · {readingMinutes(entry.sections)} min read
+        By {siteConfig.author} · {c.type === 'guide' ? 'Updated' : 'Published'} {date} · {readingMinutes(entry)} min read
       </p>
       {games.length > 0 && (
         <div className="mb-6 flex flex-wrap gap-2">
