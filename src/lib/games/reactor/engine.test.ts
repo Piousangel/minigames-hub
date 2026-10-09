@@ -327,6 +327,22 @@ describe('fmt', () => {
     expect(fmt(250_000)).toBe('250K')
   })
 
+  it('shows one decimal under 10 so small rates are not "0" (floored, .0 dropped)', () => {
+    expect(fmt(0.1)).toBe('0.1') // Capacitor base rate — used to render "+0"
+    expect(fmt(0.3)).toBe('0.3')
+    expect(fmt(2.3)).toBe('2.3') // float noise (2.3*10 = 22.999…) must not floor to 2.2
+    expect(fmt(9.99)).toBe('9.9') // floors: never shows more charge than you have
+    expect(fmt(5)).toBe('5')
+    expect(fmt(0.04)).toBe('0')
+    expect(fmt(-0.5)).toBe('-0.5')
+  })
+
+  it('keeps integers from 10 up to 1000', () => {
+    expect(fmt(10)).toBe('10')
+    expect(fmt(10.9)).toBe('10')
+    expect(fmt(999.9)).toBe('999')
+  })
+
   it('handles negatives and non-finite input', () => {
     expect(fmt(-1500)).toBe('-1.5K')
     expect(fmt(NaN)).toBe('0')
