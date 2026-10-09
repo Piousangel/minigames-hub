@@ -23,6 +23,7 @@ import {
   type CommentRow,
 } from '../src/lib/comments'
 import { isValidGameSlug } from '../src/lib/slug'
+import { rateLimitPruneCutoff, shouldPruneRateLimits } from '../src/lib/rateLimitPrune'
 
 // 최소 타입(CF 타입 의존 없이) — 번들은 wrangler(esbuild)가 처리.
 interface D1Stmt {
@@ -96,7 +97,18 @@ async function passCooldown(env: Env, key: string, intervalMs: number, now = Dat
   )
     .bind(key, now, intervalMs)
     .run()
-  return (result.meta?.changes ?? 0) > 0
+  const passed = (result.meta?.changes ?? 0) > 0
+  // 테이블이 무한히 자라지 않게 가끔(통과 호출의 ~1%) 하루 넘은 행을 지운다. 그 행들은 어떤
+  // 쿨다운보다도 오래돼 "없는 행"과 판정이 같으므로 UPSERT 의미에 영향 없음. 정리 실패는
+  // 요청 결과와 무관하니 삼킨다.
+  if (passed && shouldPruneRateLimits()) {
+    try {
+      await env.DB.prepare('DELETE FROM comment_rate_limits WHERE last_at < ?').bind(rateLimitPruneCutoff(now)).run()
+    } catch {
+      /* best-effort */
+    }
+  }
+  return passed
 }
 
 async function commentsFor(env: Env, slug: string): Promise<CommentRow[]> {
