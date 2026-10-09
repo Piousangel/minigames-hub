@@ -23,7 +23,7 @@ import {
   type CommentRow,
 } from '../src/lib/comments'
 import { isValidGameSlug } from '../src/lib/slug'
-import { rateLimitPruneCutoff, shouldPruneRateLimits } from '../src/lib/rateLimitPrune'
+import { RATE_LIMIT_PRUNE_BATCH, rateLimitPruneCutoff, shouldPruneRateLimits } from '../src/lib/rateLimitPrune'
 
 // 최소 타입(CF 타입 의존 없이) — 번들은 wrangler(esbuild)가 처리.
 interface D1Stmt {
@@ -89,7 +89,16 @@ const COMMENTS_RECENT_GLOBAL = 100
 // (=쿨다운 통과)"를 판정할 수 있다. 신규 키는 충돌이 없어 무조건 INSERT되므로 changes=1.
 // 테이블 이름은 comment_rate_limits지만 점수 제출('score:<ip>:<game>' 키)도 같이 쓴다 —
 // 새 테이블(=원격 D1 마이그레이션) 없이 배포하려고.
-async function passCooldown(env: Env, key: string, intervalMs: number, now = Date.now()): Promise<boolean> {
+// 응답 뒤에 이어 돌릴 작업 — Workers의 ctx.waitUntil. 정리 DELETE를 사용자 요청 경로에서 뺀다.
+type Defer = (p: Promise<unknown>) => void
+
+async function passCooldown(
+  env: Env,
+  key: string,
+  intervalMs: number,
+  defer: Defer,
+  now = Date.now(),
+): Promise<boolean> {
   const result = await env.DB.prepare(
     'INSERT INTO comment_rate_limits (ip, last_at) VALUES (?,?) ' +
       'ON CONFLICT(ip) DO UPDATE SET last_at = excluded.last_at ' +
@@ -99,14 +108,19 @@ async function passCooldown(env: Env, key: string, intervalMs: number, now = Dat
     .run()
   const passed = (result.meta?.changes ?? 0) > 0
   // 테이블이 무한히 자라지 않게 가끔(통과 호출의 ~1%) 하루 넘은 행을 지운다. 그 행들은 어떤
-  // 쿨다운보다도 오래돼 "없는 행"과 판정이 같으므로 UPSERT 의미에 영향 없음. 정리 실패는
-  // 요청 결과와 무관하니 삼킨다.
+  // 쿨다운보다도 오래돼 "없는 행"과 판정이 같으므로 UPSERT 의미에 영향 없음.
+  // 응답 뒤(waitUntil)에 돌리고, 한 번에 RATE_LIMIT_PRUNE_BATCH행만 지워 첫 정리가 거대한
+  // 단일 DELETE로 D1 한도에 걸리지 않게 한다(남은 행은 다음 정리 때). 실패는 로그만.
   if (passed && shouldPruneRateLimits()) {
-    try {
-      await env.DB.prepare('DELETE FROM comment_rate_limits WHERE last_at < ?').bind(rateLimitPruneCutoff(now)).run()
-    } catch {
-      /* best-effort */
-    }
+    defer(
+      env.DB.prepare(
+        'DELETE FROM comment_rate_limits WHERE rowid IN ' +
+          '(SELECT rowid FROM comment_rate_limits WHERE last_at < ? LIMIT ?)',
+      )
+        .bind(rateLimitPruneCutoff(now), RATE_LIMIT_PRUNE_BATCH)
+        .run()
+        .catch((e: unknown) => console.warn('rate-limit prune failed', e)),
+    )
   }
   return passed
 }
@@ -121,7 +135,8 @@ async function commentsFor(env: Env, slug: string): Promise<CommentRow[]> {
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx?: { waitUntil(p: Promise<unknown>): void }): Promise<Response> {
+    const defer: Defer = (p) => (ctx ? ctx.waitUntil(p) : void p)
     const url = new URL(request.url)
 
     if (url.pathname === '/api/leaderboard' && request.method === 'GET') {
@@ -158,7 +173,7 @@ export default {
       const name = cleanName(body.name)
       // IP+게임당 제출 쿨다운. 예전엔 레이트리밋이 전혀 없어 curl 루프로 보드를 도배할 수 있었다.
       const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown'
-      if (!(await passCooldown(env, scoreRateKey(ip, game), SCORE_RATE_LIMIT_MS))) {
+      if (!(await passCooldown(env, scoreRateKey(ip, game), SCORE_RATE_LIMIT_MS, defer))) {
         return json({ error: 'slow down' }, 429)
       }
       const week = isoWeek(new Date())
@@ -234,7 +249,7 @@ export default {
       // IP당 30초 쿨다운(passCooldown — 원자적 UPSERT, TOCTOU 없음).
       const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown'
       const now = Date.now()
-      if (!(await passCooldown(env, ip, COMMENT_RATE_LIMIT_MS, now))) return json({ error: 'slow down' }, 429)
+      if (!(await passCooldown(env, ip, COMMENT_RATE_LIMIT_MS, defer, now))) return json({ error: 'slow down' }, 429)
 
       await env.DB.prepare(
         'INSERT INTO comments (slug, name, text, created_at) VALUES (?,?,?,?)',

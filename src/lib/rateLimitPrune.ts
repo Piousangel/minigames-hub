@@ -8,6 +8,8 @@
  */
 export const RATE_LIMIT_PRUNE_AGE_MS = 24 * 60 * 60 * 1000
 export const RATE_LIMIT_PRUNE_PROBABILITY = 0.01
+/** 정리 1회에 지우는 최대 행 수 — 오래 쌓인 테이블의 첫 정리가 D1 한도에 걸리지 않게. */
+export const RATE_LIMIT_PRUNE_BATCH = 500
 
 /** 이 시각(ms)보다 last_at이 작은 행은 지워도 된다. */
 export function rateLimitPruneCutoff(now: number): number {

@@ -64,4 +64,19 @@ describe('Game2048 result recording', () => {
     await playLastMove()
     expect(loadStats('2048')).toMatchObject({ plays: 1, wins: 1 })
   })
+
+  it('records the win the moment 2048 appears, even if the board is not locked (New Game from the win overlay)', async () => {
+    opening.board = [
+      [1024, 1024, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ]
+    await playLastMove()
+    expect(loadStats('2048')).toMatchObject({ plays: 1, wins: 1 })
+    // a further move in the same game must not record it again
+    fireEvent.keyDown(window, { key: 'ArrowRight' })
+    await new Promise((r) => setTimeout(r, 50))
+    expect(loadStats('2048').plays).toBe(1)
+  })
 })

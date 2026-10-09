@@ -34,10 +34,13 @@ describe('GameMahjong', () => {
     expect(screen.getByRole('button', { name: /^Shuffle \(/ })).toBeDisabled()
   })
 
-  it('a shuffle is an undo checkpoint — Undo is disabled right after shuffling', async () => {
+  it('Undo can still step back across a shuffle (history kept), without refunding it', async () => {
     render(<GameMahjong storageKey="best:mahjong" />)
     const shuffleBtn = await screen.findByRole('button', { name: `Shuffle (${MAX_SHUFFLES})` })
     fireEvent.click(shuffleBtn)
-    expect(screen.getByRole('button', { name: 'Undo' })).toBeDisabled()
+    const undoBtn = screen.getByRole('button', { name: 'Undo' })
+    expect(undoBtn).not.toBeDisabled()
+    fireEvent.click(undoBtn)
+    expect(screen.getByRole('button', { name: /^Shuffle \(/ }).textContent).toBe(`Shuffle (${MAX_SHUFFLES - 1})`)
   })
 })

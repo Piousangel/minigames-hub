@@ -206,8 +206,8 @@ export function fmt(n: number): string {
     }
   }
   // Under 10, keep one decimal so fractional rates (Capacitor +0.1/s) don't read "0".
-  // Floored like the integer branch (never overstate charge); the epsilon absorbs
-  // float noise (2.3 * 10 === 22.999…).
+  // Floored like the 10–999 branch; the epsilon absorbs float noise (2.3 * 10 === 22.999…).
+  // (The K/M/B branch above rounds with toFixed — unchanged here.)
   if (x < 10) {
     const tenths = Math.floor(x * 10 + 1e-9) / 10
     if (tenths === 0) return '0'

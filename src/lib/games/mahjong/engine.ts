@@ -258,6 +258,15 @@ function statusOf(slots: readonly Slot[], tiles: readonly (Tile | null)[], shuff
 }
 
 /**
+ * `state` with a different shuffle budget and its status recomputed — used by Undo so that
+ * stepping back over a shuffle restores the tiles but never refunds the spent shuffle.
+ */
+export function withShufflesLeft(state: State, shufflesLeft: number): State {
+  if (state.shufflesLeft === shufflesLeft) return state
+  return { ...state, shufflesLeft, status: statusOf(LAYOUT, state.tiles, shufflesLeft) }
+}
+
+/**
  * Build a fresh, guaranteed-solvable deal AND the concrete winning line that
  * proves it. Consumes rng ONLY here (peel choices + tile-pair shuffle). Each
  * peeled slot-pair is assigned a matching tile-pair, so replaying `solution`

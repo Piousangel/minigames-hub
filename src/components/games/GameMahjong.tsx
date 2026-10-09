@@ -13,6 +13,7 @@ import {
   select as selectMove,
   shuffle as shuffleMove,
   mulberry32,
+  withShufflesLeft,
 } from '@/lib/games/mahjong/engine'
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { recordResult } from '@/lib/gameStats'
@@ -130,6 +131,7 @@ export function GameMahjong({ storageKey }: { storageKey: string }) {
 
   const stateRef = useRef<State | null>(null)
   const prevOverRef = useRef(false)
+  const recordedRef = useRef(false) // recordResult already sent for this deal
   const startRef = useRef(0)
   const wrapRef = useRef<HTMLDivElement>(null)
   const slug = storageKey.replace(/^best:/, '')
@@ -201,10 +203,7 @@ export function GameMahjong({ storageKey }: { storageKey: string }) {
         play('error')
         return false
       }
-      // A shuffle is an undo checkpoint: history is cleared so Undo can't step back
-      // across it. Restoring a pre-shuffle state would also restore its shufflesLeft,
-      // refunding the shuffle (→ unlimited shuffles via shuffle/undo loops).
-      setHistory((h) => (cue === 'shuffle' ? [] : [...h, prev]))
+      setHistory((h) => [...h, prev])
       setHint(null)
       commit(next)
 
@@ -217,7 +216,11 @@ export function GameMahjong({ storageKey }: { storageKey: string }) {
           play('lose')
         }
         persistBest(next)
-        recordResult(slug, { won: next.status === 'won' })
+        // Once per deal — Undo after a game-over and replaying must not count the deal again.
+        if (!recordedRef.current) {
+          recordedRef.current = true
+          recordResult(slug, { won: next.status === 'won' })
+        }
         return true
       }
       if (cue === 'shuffle') play('flip')
@@ -230,6 +233,7 @@ export function GameMahjong({ storageKey }: { storageKey: string }) {
 
   const newDeal = useCallback(() => {
     prevOverRef.current = false
+    recordedRef.current = false
     startRef.current = Date.now()
     setHistory([])
     setHint(null)
@@ -240,7 +244,10 @@ export function GameMahjong({ storageKey }: { storageKey: string }) {
   const undo = useCallback(() => {
     setHistory((h) => {
       if (h.length === 0) return h
-      const prev = h[h.length - 1]
+      // Restore the earlier tiles but keep the CURRENT shuffle budget: restoring a
+      // pre-shuffle state's shufflesLeft would refund the shuffle (→ unlimited shuffles).
+      const cur = stateRef.current
+      const prev = cur ? withShufflesLeft(h[h.length - 1], Math.min(h[h.length - 1].shufflesLeft, cur.shufflesLeft)) : h[h.length - 1]
       commit(prev)
       prevOverRef.current = prev.status === 'won' || prev.status === 'lost'
       setHint(null)
