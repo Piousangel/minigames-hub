@@ -3,6 +3,7 @@ import { ACCENT_HEX, OG_BG } from '@/lib/games/accentHex'
 import { DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
 import { gamePages } from '@/lib/games/registry'
 import { siteConfig } from '@/lib/siteConfig'
+import { GameIconSvg } from '@/components/icons/GameIcon'
 
 export const dynamic = 'force-static'
 export const size = { width: 1200, height: 630 }
@@ -41,7 +42,9 @@ export default function OgImage({ params }: { params: { slug: string } }) {
           fontFamily: 'sans-serif',
         }}
       >
-        <div style={{ fontSize: 140, lineHeight: 1 }}>{meta.icon}</div>
+        {/* 이모지(meta.icon) 대신 커스텀 SVG — 이모지는 next/og가 빌드 중 CDN에서 받아와, 110개 중
+            하나만 타임아웃돼도 빌드 전체가 실패했다(Vercel 빌드 ETIMEDOUT, 2026-10-10). */}
+        <GameIconSvg slug={params.slug} size={160} color={accent} />
         <div
           style={{
             fontSize: 96,
