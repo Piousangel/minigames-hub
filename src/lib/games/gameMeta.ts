@@ -156,6 +156,11 @@ export const gameMeta: Record<string, GameMeta> = {
 lagline: { icon: '⏳', accent: 'purple', category: 'Arcade', addedDate: '2026-10-09', controls: ['arrows', 'tap'] },
 recoil: { icon: '🚀', accent: 'cyan', category: 'Skill', addedDate: '2026-10-09', daily: true, controls: ['point', 'drag', 'arrows'] },
 hunch: { icon: '🃏', accent: 'purple', category: 'Puzzle', addedDate: '2026-10-09', daily: true, controls: ['tap', 'arrows'] },
+fizzbeat: { icon: '🥁', accent: 'lime', category: 'Skill', addedDate: '2026-10-10', controls: ['tap', 'arrows'], endless: true },
+siteswap: { icon: '🤹', accent: 'lime', category: 'Skill', addedDate: '2026-10-10', endless: true, controls: ['tap', 'type'] },
+shadowfit: { icon: '🧊', accent: 'cyan', category: 'Puzzle', addedDate: '2026-10-10', endless: true, controls: ['arrows', 'tap', 'drag'] },
+slosh: { icon: '🥛', accent: 'blue', category: 'Skill', addedDate: '2026-10-10', controls: ['arrows', 'tap'] },
+polarity: { icon: '🧲', accent: 'magenta', category: 'Arcade', addedDate: '2026-10-10', controls: ['tap'], endless: true },
 }
 
 export const CATEGORIES: GameCategory[] = ['Puzzle', 'Arcade', 'Classic', 'Skill']

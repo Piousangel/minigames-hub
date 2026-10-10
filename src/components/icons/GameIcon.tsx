@@ -1078,6 +1078,64 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // fizzbeat — 메트로놈 진자 아래 좌/우 두 패드(배수면 치고, 아니면 쉰다)
+  fizzbeat: (
+    <>
+      <path d="M9 3h6l3 10H6z" {...soft} />
+      <path d="M12 12 15 4.5" />
+      <circle cx="15" cy="4.5" r="1" {...solid} />
+      <rect x="3" y="16" width="8" height="5" rx="1.5" {...solid} />
+      <rect x="13" y="16" width="8" height="5" rx="1.5" {...softer} />
+    </>
+  ),
+
+  // siteswap — 손 위로 높이가 다른 포물선 두 개, 낮은 공은 손에, 높은 공은 꼭대기에
+  siteswap: (
+    <>
+      <path d="M4 18c2.5-9 7.5-9 10 0" {...soft} />
+      <path d="M4 18c3-15 13-15 16 0" />
+      <circle cx="12" cy="7" r="2" {...solid} />
+      <circle cx="9" cy="12" r="1.6" {...softer} />
+      <path d="M2.5 19.5q1.5 2 3.5 2t3.5-2" />
+    </>
+  ),
+
+  // shadowfit — 3×3 벽에 뚫린 L자 구멍과, 그 앞에서 굴려 맞추는 큐브 블록
+  shadowfit: (
+    <>
+      <rect x="3" y="3" width="18" height="18" rx="2" {...softer} />
+      <path d="M8 8h4v4h4v4H8z" {...soft} />
+      <rect x="9.5" y="9.5" width="3" height="3" rx="0.6" {...solid} />
+      <path d="M17.5 4.5a3 3 0 0 1 2 2.8M19.5 7.3l.3-1.6M19.5 7.3l-1.5-.6" />
+    </>
+  ),
+
+  // slosh — 레일 위 쟁반 카트에 실린 물잔, 수면이 한쪽으로 기울어 출렁임
+  slosh: (
+    <>
+      <path d="M8 4h8l-1.2 11H9.2z" />
+      <path d="M8.5 9.5l7-1.6-.8 7.1H9.2z" {...soft} />
+      <path d="M4 16.5h16" />
+      <circle cx="7.5" cy="19" r="1.6" {...solid} />
+      <circle cx="16.5" cy="19" r="1.6" {...solid} />
+      <path d="M2 21.5h20" {...softer} />
+    </>
+  ),
+
+  // polarity — 플러스 자석 코어 주위를 휘어 도는 구슬 궤적이 아래 게이트 사이로 빠져나간다
+  polarity: (
+    <>
+      <circle cx="9" cy="8" r="4" {...soft} />
+      <path d="M9 6.5v3M7.5 8h3" />
+      <path d="M17 3c-1.5 3-6 1.5-6 7.5" {...softer} />
+      <path d="M16.5 4.5c2.5 3 1 6.5-2 9" />
+      <circle cx="13.5" cy="15" r="2" {...solid} />
+      <path d="M4 20h5M15 20h5" />
+      <circle cx="9" cy="20" r="1" {...solid} />
+      <circle cx="15" cy="20" r="1" {...solid} />
+    </>
+  ),
+
   // default — 아케이드 조이스틱(알 수 없는 slug 폴백)
   __default: (
     <>
