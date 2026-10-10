@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { challengeQuery, challengeUrl, compareChallenge, parseChallenge } from './challenge'
+import { challengeQuery, challengeUrl, clearChallengeParams, compareChallenge, parseChallenge } from './challenge'
 
 describe('challenge link', () => {
   it('round-trips seed, score and name', () => {
@@ -50,5 +50,11 @@ describe('compareChallenge', () => {
     expect(compareChallenge(500, 500)).toEqual({ kind: 'tie', diff: 0 })
     expect(compareChallenge(1217, 1240)).toEqual({ kind: 'lose', diff: 23, pct: 98 })
     expect(compareChallenge(0, 1240)).toEqual({ kind: 'lose', diff: 1240, pct: 0 })
+  })
+})
+
+describe('clearChallengeParams (no window)', () => {
+  it('is a no-op outside the browser', () => {
+    expect(() => clearChallengeParams()).not.toThrow()
   })
 })

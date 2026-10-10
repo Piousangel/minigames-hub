@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { GameButton } from './GameButton'
 
 export interface StatSpec {
@@ -76,6 +76,29 @@ function MuteButton({ muted, onToggle }: { muted: boolean; onToggle: () => void 
   )
 }
 
+function headerButton(e: MouseEvent<HTMLDivElement>): HTMLElement | null {
+  const b = e.target instanceof Element ? e.target.closest('button') : null
+  return b instanceof HTMLElement && e.currentTarget.contains(b) ? b : null
+}
+
+/**
+ * Header controls must not keep focus after a mouse/touch click: games listen for
+ * Space/Enter on window, and a focused New Game/Mute would swallow the next press
+ * (re-activating the button instead of starting/resuming the run).
+ * - mousedown preventDefault stops the click from moving focus at all (mouse, and touch's
+ *   compat mousedown), so focus stays wherever the game had it;
+ * - a pointer-initiated click (detail > 0) still blurs the button as a fallback for
+ *   browsers that focus anyway. Keyboard activation (detail === 0) keeps focus, so
+ *   Tab + Enter/Space work exactly as before.
+ */
+function preventPointerFocus(e: MouseEvent<HTMLDivElement>) {
+  if (e.button === 0 && headerButton(e)) e.preventDefault()
+}
+
+function blurAfterPointerClick(e: MouseEvent<HTMLDivElement>) {
+  if (e.detail > 0) headerButton(e)?.blur()
+}
+
 /**
  * Reusable game shell: standardized Score/Best header, mute toggle, New Game
  * button, hint line, and a board slot (`children`). Each game only fills the
@@ -107,7 +130,11 @@ export function GameShell({
 }) {
   return (
     <div className={`mx-auto w-full ${maxWidthClassName} select-none`}>
-      <div className="mb-3 flex items-center justify-between gap-2">
+      <div
+        className="mb-3 flex items-center justify-between gap-2"
+        onMouseDown={preventPointerFocus}
+        onClick={blurAfterPointerClick}
+      >
         <div className="flex flex-wrap items-center gap-2 text-sm">
           {stats.map((s) => (
             <Stat key={s.label} {...s} />

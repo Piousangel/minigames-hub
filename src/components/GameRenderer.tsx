@@ -81,6 +81,11 @@ const GameMorseRelay = dynamic(() => import('@/components/games/GameMorseRelay')
 const GameLagline = dynamic(() => import('@/components/games/GameLagline').then((m) => m.GameLagline), { ssr: false, loading: Loading })
 const GameRecoil = dynamic(() => import('@/components/games/GameRecoil').then((m) => m.GameRecoil), { ssr: false, loading: Loading })
 const GameHunch = dynamic(() => import('@/components/games/GameHunch').then((m) => m.GameHunch), { ssr: false, loading: Loading })
+const GameFizzBeat = dynamic(() => import('@/components/games/GameFizzBeat').then((m) => m.GameFizzBeat), { ssr: false, loading: Loading })
+const GameSiteswap = dynamic(() => import('@/components/games/GameSiteswap').then((m) => m.GameSiteswap), { ssr: false, loading: Loading })
+const GameShadowfit = dynamic(() => import('@/components/games/GameShadowfit').then((m) => m.GameShadowfit), { ssr: false, loading: Loading })
+const GameSlosh = dynamic(() => import('@/components/games/GameSlosh').then((m) => m.GameSlosh), { ssr: false, loading: Loading })
+const GamePolarity = dynamic(() => import('@/components/games/GamePolarity').then((m) => m.GamePolarity), { ssr: false, loading: Loading })
 const GamePolytap = dynamic(() => import('@/components/games/GamePolytap').then((m) => m.GamePolytap), { ssr: false, loading: Loading })
 const GameSonar = dynamic(() => import('@/components/games/GameSonar').then((m) => m.GameSonar), { ssr: false, loading: Loading })
 const GameProspector = dynamic(() => import('@/components/games/GameProspector').then((m) => m.GameProspector), { ssr: false, loading: Loading })
@@ -325,6 +330,16 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameRecoil storageKey={`best:${page.slug}`} />
     case 'hunch':
       return <GameHunch storageKey={`best:${page.slug}`} />
+    case 'fizzbeat':
+      return <GameFizzBeat storageKey={`best:${page.slug}`} />
+    case 'siteswap':
+      return <GameSiteswap storageKey={`best:${page.slug}`} />
+    case 'shadowfit':
+      return <GameShadowfit storageKey={`best:${page.slug}`} />
+    case 'slosh':
+      return <GameSlosh storageKey={`best:${page.slug}`} />
+    case 'polarity':
+      return <GamePolarity storageKey={`best:${page.slug}`} />
     default: {
       page satisfies never
       return null

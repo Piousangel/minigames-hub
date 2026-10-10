@@ -1,12 +1,15 @@
 export const meta = {
   name: 'minigames-round',
-  description: '신규 오리지널 게임 3종 기획→심의→구현 + UI/UX 읽기전용 감사 (20 에이전트)',
+  description: '신규 오리지널 게임 N종(args.count, 기본 3) 기획→심의→명세→구현→마감QA·콘텐츠→적대적 리뷰→수정 (+선택 UI/UX 감사)',
   whenToUse: '오리지널 게임 라운드를 돌릴 때. 돌리기 전 EXISTING 상수를 현재 게임 목록으로 갱신할 것 — 낡으면 재탕 아이디어가 나온다. 산출물 배선(registry/GameRenderer/gameMeta/GameIcon/e2e/leaderboard)은 에이전트가 아니라 오케스트레이터가 직접 한다.',
   phases: [
     { title: 'Ideate', detail: '5개 각도에서 오리지널 게임 아이디어 발상' },
     { title: 'Judge', detail: '독창성·중독성·실현성·매력 3인 심의' },
     { title: 'Spec', detail: '승선 3종 설계 명세' },
     { title: 'Build', detail: '엔진+테스트+컴포넌트 구현 (자기 파일만)' },
+    { title: 'Finish', detail: '게임별 마감: 도전 링크 검증·플레이어 QA·페이지 콘텐츠 반환' },
+    { title: 'Review', detail: '게임별 적대적 코드 리뷰(버그만, 근거 필수)' },
+    { title: 'Fix', detail: '리뷰 지적 수정 + 회귀 테스트' },
     { title: 'Audit', detail: 'UI/UX 5개 차원 읽기전용 감사' },
     { title: 'Synthesize', detail: '감사 결과 중복 제거·우선순위' },
   ],
@@ -73,10 +76,17 @@ gridlock(사거리 하나를 4방향 교통이 공유 — 한 번에 한 레인�
 bearing(부호만 알려주는 나침반 추리 보물찾기 — 매 시도가 거리 아닌 방향만 반환, 데일리),
 strata(숨은 3D 도형을 층별 단면으로 보고 재구성 — 데일리),
 bankshot(벽에 튕겨 공을 멈출 자리 맞히기 — 물리가 정지점을 결정, 데일리),
-morse-relay(전신키를 눌렀다 떼는 길이로 모스부호 송신 — 첫 입력으로 속도 보정, 1:1 도전 링크)`
+morse-relay(전신키를 눌렀다 떼는 길이로 모스부호 송신 — 첫 입력으로 속도 보정, 1:1 도전 링크),
+lagline(입력이 3박 뒤에 실행되는 5레인 러너 — 지금이 아니라 3박 뒤 세계를 보고 명령을 쌓음),
+recoil(무마찰 무중력 상자에서 쏠 때마다 반동으로 이동 — 탄 수 제한, 별 5개 수집, 데일리),
+hunch(Eleusis식 숨은 카드 규칙 추리 — 테스트로 증거를 모은 뒤 5연속 판정 예측, 데일리)`
 
 // EXISTING에서 직접 센다. 괄호 안 설명에 쉼표가 있으므로(ricochet, duplex) 먼저 제거해야 한다.
 // 프롬프트에 숫자를 하드코딩하면 라운드마다 어긋나므로, 반드시 이 상수를 주입해 쓸 것.
+// 실행 인자: { count?: 승선 게임 수(기본 3), audit?: UI/UX 감사 트랙 실행 여부(기본 true) }
+const COUNT = Math.max(1, Math.min(8, Number(args?.count) || 3))
+const RUN_AUDIT = args?.audit !== false
+
 const GAME_COUNT = EXISTING.replace(/\([^)]*\)/g, '').split(',').filter((s) => s.trim()).length
 
 const RULES = `
@@ -112,6 +122,11 @@ registry.ts, GameRenderer.tsx, gameMeta.ts, GameIcon.tsx, e2e/smoke.spec.ts, lea
 - **도전 판은 best:<slug>에 저장하지 않는다**(같은 시드 반복으로 리더보드 파밍 방지). 이름은 \`loadPlayerName/savePlayerName\`(@/lib/leaderboard).
 - 공유 성공 후에만 \`sendHit(slug, 'challenge-sent')\`, 도전 판 종료 시 \`sendHit(slug, 'challenge-done')\` (@/lib/hit).
 - **레퍼런스 구현: \`src/components/games/GameMorseRelay.tsx\`** — 도전 배너·결과 카드·공유·Play solo 패턴을 그대로 따른다.
+
+## 결과 기록 (필수)
+- 승/패가 있는 게임: \`recordResult(slug, { won })\` (@/lib/gameStats). **승리 조건이 없는 엔드리스/점수 어택 게임**은
+  \`recordFinish(slug)\`를 쓰고 보고서에 endless=true로 밝혀라(오케스트레이터가 gameMeta에 endless 플래그를 단다).
+  둘을 섞으면 gameStats.consistency.test가 실패한다.
 
 ## 그 외
 - 보드 최상위에 \`data-testid="<key>-board"\` 필수.
@@ -183,6 +198,47 @@ const BUILD_SCHEMA = {
   },
 }
 
+const FINISH_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['key', 'challenge_ok', 'qa_fixes', 'endless', 'tests_pass', 'typecheck_pass', 'registry', 'intro', 'meta', 'icon', 'leaderboard'],
+  properties: {
+    key: { type: 'string' },
+    challenge_ok: { type: 'boolean', description: '도전 링크가 패턴대로 완비됐고 컴포넌트 테스트로 확인했는가' },
+    qa_fixes: { type: 'array', items: { type: 'string' }, description: '고친 실제 문제들(한국어 한 줄씩)' },
+    endless: { type: 'boolean', description: '승리 조건이 없어 recordFinish를 쓰는가' },
+    tests_pass: { type: 'boolean' },
+    typecheck_pass: { type: 'boolean' },
+    registry: { type: 'string' },
+    intro: { type: 'string' },
+    meta: { type: 'string' },
+    icon: { type: 'string' },
+    leaderboard: { type: 'boolean' },
+  },
+}
+
+const REVIEW_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['findings'],
+  properties: {
+    findings: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['file', 'summary', 'failure_scenario', 'fix'],
+        properties: {
+          file: { type: 'string', description: 'path:line' },
+          summary: { type: 'string' },
+          failure_scenario: { type: 'string' },
+          fix: { type: 'string' },
+        },
+      },
+    },
+  },
+}
+
 const AUDIT_SCHEMA = {
   type: 'object',
   additionalProperties: false,
@@ -213,7 +269,8 @@ const ANGLES = [
   { key: 'deduction', brief: '**추론·숨은 정보**: 관찰로 숨은 상태를 좁혀가는 게임. 단 minesweeper·mastermind·quarry·nonogram과 겹치지 말 것.' },
   { key: 'transform', brief: '**공간 변형**: 보드 자체가 접히거나 회전하거나 뒤집히는 게임. 단 overfold(접기)·duplex(거울)·sliding-puzzle과 겹치지 말 것.' },
   { key: 'economy', brief: '**위험·보상 경제**: 얼마나 욕심낼지 계속 판단하는 게임. 단 prospector(더 팔까)·stackpot(정확히 착지)·ticker(탈출 타이밍)와 겹치지 말 것.' },
-  { key: 'rhythm', brief: '**리듬·타이밍·순서**: 박자나 순서가 핵심인 게임. 단 simon·flywheel·ripple·reaction-time과 겹치지 말 것.' },
+  { key: 'rhythm', brief: '**리듬·타이밍·순서**: 박자나 순서가 핵심인 게임. 단 simon·flywheel·ripple·reaction-time·beatline·polytap·lagline과 겹치지 말 것.' },
+  { key: 'language', brief: '**언어·기호·패턴**: 글자·숫자·기호의 패턴을 다루는 게임. 단 word-guess·hangman·word-search·quadle·clusters·equate·typing-test·morse-relay와 겹치지 말 것.' },
 ]
 
 async function trackA() {
@@ -314,7 +371,7 @@ ${catalogue}
     if (usedVerbs.has(verbSig)) continue
     usedVerbs.add(verbSig)
     winners.push({ ...idea, ...r })
-    if (winners.length === 3) break
+    if (winners.length === COUNT) break
   }
   log(`승선: ${winners.map((w) => `${w.key}(${w.total.toFixed(1)})`).join(', ')}`)
   if (winners.length === 0) return { winners: [], builds: [] }
@@ -348,6 +405,8 @@ ${RULES}
 7. **테스트 계획** — 최소 20개. 골든 시나리오 포함
 8. **컴포넌트 구조** — GameShell에 무엇을 넘기고 보드에 무엇을 그리는가
 9. **모션** — reduced-motion에서 무엇이 꺼지는가
+10. **1:1 도전 링크 통합** — RULES의 "1:1 도전 링크 내장" 절을 그대로 반영한 구체 설계: 시드가 판 전체(난이도 포함)를 결정하는 방식, 배너·결과 카드·공유·Play solo, best/스트릭 미반영. \`src/components/games/GameMorseRelay.tsx\`와 \`GameLagline.tsx\`를 읽고 그 패턴을 따른다. **이 절이 없으면 명세는 불합격이다.**
+11. **결과 기록** — 승리 조건 유무와 recordResult/recordFinish 선택
 
 명세는 다음 에이전트가 그대로 구현할 수 있을 만큼 구체적이어야 한다.`,
         { label: `spec:${w.key}`, phase: 'Spec' },
@@ -376,10 +435,68 @@ ${RULES}
 - 위 3개 파일 외 편집(특히 registry.ts, GameRenderer.tsx, gameMeta.ts, GameIcon.tsx, e2e, globals.css, leaderboard.ts)
 - 테스트를 통과시키려고 테스트를 무르게 고치기
 - \`pnpm build\`/\`pnpm run deploy\` 실행
+- **도전 링크(명세 10절) 누락** — \`parseChallenge\`/\`challengeUrl\`/\`compareChallenge\`를 실제로 쓰지 않으면 미완성이다
 
 tests_pass / typecheck_pass 는 **실제 실행 결과**만 보고하라. 안 돌렸으면 false다. 거짓 보고는 배선 단계에서 바로 들통난다.`,
         { label: `build:${w.key}`, phase: 'Build', schema: BUILD_SCHEMA },
       ),
+    // ---- Finish: 도전 링크 검증·플레이어 QA·페이지 콘텐츠 반환 ----
+    (build, w) =>
+      build
+        ? agent(
+            `너는 이 게임의 **마감 담당 시니어 엔지니어 겸 QA**다. 방금 구현된 게임을 출시 품질로 끌어올려라.
+
+## 대상
+${w.name} (key: ${w.key}, 컴포넌트 Game${build.pascal}) — ${w.pitch}
+구현 요약: ${build.summary}
+
+${RULES}
+
+## 편집 범위
+자기 게임 파일만: \`src/lib/games/${w.key}/*\`, \`src/components/games/Game${build.pascal}.tsx\`, \`src/components/games/Game${build.pascal}.test.tsx\`(신규 가능). 다른 게임 마감 에이전트가 동시에 일한다 — 공유 파일·git 상태 변경 금지.
+
+## 할 일
+1. **도전 링크 검증·보완**: \`GameMorseRelay.tsx\`/\`GameLagline.tsx\` 패턴이 빠짐없이 들어갔는지 확인하고 없으면 구현하라 — ?vs= 배너, 모든 재시작이 도전자 시드, Play solo(진행 중 숨김, URL 정리), 결과 카드 승/무/니어미스 %, Rematch, 이름 입력+공유(성공 후에만 challenge-sent), challenge-done, **도전 판은 best/스트릭 미반영**. 시드가 판 전체(난이도 포함)를 결정하는지 검증. 컴포넌트 테스트로 ?vs= 배너·best 미기록을 확인.
+2. **플레이어 QA**: 첫 30초 안내(hint)가 핵심 규칙을 다 말하는가, 터치·키보드 둘 다, ctrl/meta/alt 조합키 무시, 결과 오버레이 버튼이 키보드 Enter로 눌리는가, reduced-motion, 점수는 높을수록 좋은 양의 정수, 일시정지·재시작·자정 넘김 같은 경계에서 오기록·무한 이득이 없는가. 실제 문제를 고쳐라.
+3. **결과 기록**: 승리 조건이 없으면 recordFinish, 있으면 recordResult(won 필수).
+4. \`pnpm vitest run src/lib/games/${w.key} src/components/games/Game${build.pascal}\`, \`pnpm typecheck\`, 수정 파일 eslint를 **실제로 돌려** 통과시켜라.
+5. **페이지 콘텐츠를 반환**(공유 파일에 쓰지 말 것). 전부 엔진 코드 사실 기준, 영어:
+   - registry: src/lib/games/registry.ts의 'lagline' 항목과 똑같은 모양의 TS 객체 리터럴 문자열(앞 들여쓰기 2칸, 끝 쉼표 포함). title ≤ 60자, metaDescription ≤ 160자, howToPlay 4, strategy 4, faq 3("무료인가/다운로드" 상투 FAQ 금지).
+   - intro: 180~220단어 고유 문단(상투구 금지).
+   - meta: gameMeta 한 줄(앞 2칸 들여쓰기, addedDate는 args로 받은 날짜 '${args?.date ?? '2026-10-10'}', endless면 \`endless: true\` 포함, controls는 'tap','arrows','drag','point','type' 중).
+   - icon: src/components/icons/GameIcon.tsx 스타일 JSX 항목(24×24, {...solid}/{...soft}/{...softer}, 앞 2칸 들여쓰기, 한국어 한 줄 주석 포함).
+   - leaderboard: 점수가 양의 정수·높을수록 좋음·같은 시드 반복으로 파밍 불가일 때만 true.`,
+            { label: `finish:${w.key}`, phase: 'Finish', schema: FINISH_SCHEMA },
+          ).then((f) => (f ? { ...f, build } : null))
+        : null,
+    // ---- Review: 적대적 코드 리뷰(버그만) ----
+    (fin, w) =>
+      fin
+        ? agent(
+            `너는 **적대적 코드 리뷰어**다. 신규 게임 ${w.name}(key: ${w.key})의 파일 \`src/lib/games/${w.key}/*\`, \`src/components/games/Game${fin.build.pascal}.tsx\`를 **읽기 전용**으로 리뷰하라. 파일 수정 금지.
+
+찾을 것(실제 버그만, 스타일 트집 금지): 결정론 위반(엔진의 Math.random/Date.now, 프레임 시간 의존 물리), 도전 링크 결함(도전 판이 best/스트릭에 기록, 재시작이 다른 시드, 공유 실패를 sent로 집계), 키보드 가로채기(조합키·오버레이 버튼·입력창), 일시정지/재시작/자정 넘김의 오기록·무한 이득, 점수 파밍, 소프트락(행동 불가 상태), 잘못된 recordResult/recordFinish 선택, 메모리/타이머 누수, 테스트가 실제로 검증하지 않는 거짓 통과.
+각 발견에 file:line, 구체 실패 시나리오, 수정 방향. 확신 없는 건 빼라. 없으면 빈 배열.`,
+            { label: `review:${w.key}`, phase: 'Review', schema: REVIEW_SCHEMA },
+          ).then((r) => ({ ...fin, review: r?.findings ?? [] }))
+        : null,
+    // ---- Fix: 리뷰 지적 수정 ----
+    (rev, w) => {
+      if (!rev) return null
+      if (rev.review.length === 0) return { ...rev, fixReport: 'no findings' }
+      return agent(
+        `너는 ${w.name}(key: ${w.key})의 엔지니어다. 아래 리뷰 지적을 **전부 검토해 실제 버그면 고쳐라**(오탐이면 근거를 대고 건너뛴다). 가능하면 실패하는 회귀 테스트부터 쓴다.
+
+편집 범위: \`src/lib/games/${w.key}/*\`, \`src/components/games/Game${rev.build.pascal}.tsx\`, \`src/components/games/Game${rev.build.pascal}.test.tsx\`만. git 상태 변경 금지.
+
+## 지적
+${rev.review.map((f, i) => `${i + 1}. [${f.file}] ${f.summary}\n   시나리오: ${f.failure_scenario}\n   제안: ${f.fix}`).join('\n')}
+
+끝나면 \`pnpm vitest run src/lib/games/${w.key} src/components/games/Game${rev.build.pascal}\`, \`pnpm typecheck\`, eslint를 실제로 돌려 통과시켜라. 고친 것 때문에 페이지 콘텐츠(규칙 설명)가 틀려졌다면 수정된 registry/intro 문자열을 보고서 끝에 다시 적어라.
+보고(한국어, 짧게): 지적별 처리(수정/오탐)와 테스트, 검증 결과.`,
+        { label: `fix:${w.key}`, phase: 'Fix' },
+      ).then((t) => ({ ...rev, fixReport: t }))
+    },
   )
 
   return { winners, builds: builds.filter(Boolean) }
@@ -460,7 +577,7 @@ ${all.map((f, i) => `### [${i + 1}] ${f.title} (${f.impact})\n파일: ${f.file}\
   return { findings: all, synthesis }
 }
 
-const [a, b] = await parallel([trackA, trackB])
+const [a, b] = await parallel(RUN_AUDIT ? [trackA, trackB] : [trackA])
 
 return {
   games: {

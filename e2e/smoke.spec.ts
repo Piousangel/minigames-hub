@@ -830,6 +830,61 @@ test('hunch 도전 링크: 배너 표시', async ({ page }) => {
   await expect(page.getByText(/Minsu/).first()).toBeVisible()
 })
 
+test('fizzbeat: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/fizzbeat')
+  await expect(page.getByTestId('fizzbeat-board')).toBeVisible()
+})
+
+test('fizzbeat 도전 링크: 배너 표시', async ({ page }) => {
+  await page.goto(`/fizzbeat?${challengeQuery({ seed: 424242, score: 120, name: 'Minsu' })}`)
+  await expect(page.getByTestId('fizzbeat-board')).toBeVisible()
+  await expect(page.getByText(/Minsu/).first()).toBeVisible()
+})
+
+test('siteswap: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/siteswap')
+  await expect(page.getByTestId('siteswap-board')).toBeVisible()
+})
+
+test('siteswap 도전 링크: 배너 표시', async ({ page }) => {
+  await page.goto(`/siteswap?${challengeQuery({ seed: 424242, score: 120, name: 'Minsu' })}`)
+  await expect(page.getByTestId('siteswap-board')).toBeVisible()
+  await expect(page.getByText(/Minsu/).first()).toBeVisible()
+})
+
+test('shadowfit: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/shadowfit')
+  await expect(page.getByTestId('shadowfit-board')).toBeVisible()
+})
+
+test('shadowfit 도전 링크: 배너 표시', async ({ page }) => {
+  await page.goto(`/shadowfit?${challengeQuery({ seed: 424242, score: 120, name: 'Minsu' })}`)
+  await expect(page.getByTestId('shadowfit-board')).toBeVisible()
+  await expect(page.getByText(/Minsu/).first()).toBeVisible()
+})
+
+test('slosh: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/slosh')
+  await expect(page.getByTestId('slosh-board')).toBeVisible()
+})
+
+test('slosh 도전 링크: 배너 표시', async ({ page }) => {
+  await page.goto(`/slosh?${challengeQuery({ seed: 424242, score: 120, name: 'Minsu' })}`)
+  await expect(page.getByTestId('slosh-board')).toBeVisible()
+  await expect(page.getByText(/Minsu/).first()).toBeVisible()
+})
+
+test('polarity: 로드 → 보드 표시', async ({ page }) => {
+  await page.goto('/polarity')
+  await expect(page.getByTestId('polarity-board')).toBeVisible()
+})
+
+test('polarity 도전 링크: 배너 표시', async ({ page }) => {
+  await page.goto(`/polarity?${challengeQuery({ seed: 424242, score: 120, name: 'Minsu' })}`)
+  await expect(page.getByTestId('polarity-board')).toBeVisible()
+  await expect(page.getByText(/Minsu/).first()).toBeVisible()
+})
+
 test('unblocked 랜딩: 로드 + 게임 그리드', async ({ page }) => {
   await page.goto('/unblocked')
   await expect(page.getByRole('heading', { name: 'Unblocked Games', level: 1 })).toBeVisible()

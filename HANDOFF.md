@@ -1,8 +1,24 @@
-# 인계: 도전 링크 + /guides(공략 15·기사 6) + AdSense 저가치 대응 배포 완료 (2026-10-09)
+# 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
-> 갱신: 2026-10-09 · 브랜치: `main` · 배포 완료·검증됨 (quickminigames.site, 게임 102종 + /guides 21편)
+> 갱신: 2026-10-10 · 브랜치: `feat/round18-games` · 게임 110종 + /guides 21편 (라운드18은 브랜치 작업 중 — 배포 전)
 
-## ▶ 2026-10-09 세션 — 도전 링크 + AdSense 저가치 대응 2라운드 (최신, 여기부터)
+## ▶ 2026-10-10 세션 — 게임 라운드18 (최신, 여기부터)
+
+- **신규 5종: FizzBeat · Siteswap · Shadowfit · Slosh · Polarity → 게임 110종.** Slosh만 승패 게임,
+  나머지 4종은 엔드리스(`endless: true` + `recordFinish`). 5종 모두 **도전 링크 내장**(`?vs=` 같은 시드 재현, best 미기록).
+- **공용 정리:** `clearChallengeParams()`를 `src/lib/challenge.ts`로 추출(도전 링크 게임들의 로컬 복사본 대체).
+  `GameShell` 헤더 버튼(New Game/Mute/headerExtra)이 마우스·터치 클릭 후 포커스를 남기지 않음
+  (mousedown preventDefault + 포인터 클릭 시 blur, 키보드 Tab+Enter/Space는 그대로) — 이전엔 클릭 후 Space/Enter가
+  버튼을 다시 눌러 게임 시작·일시정지 해제를 가로챘다. Shadowfit·Siteswap의 R은 진행 중엔 무시(대기/종료에서만 재시작),
+  Slosh 일시정지 카드는 보드 전체를 불투명하게 가림.
+- **`minigames-round` 워크플로 업그레이드**(`.claude/workflows/minigames-round.js`): args `{ count, audit, date }`
+  (승선 수 기본 3, UI/UX 감사 on/off, gameMeta addedDate). Build 뒤에 **Finish**(도전 링크 검증·플레이어 QA·페이지 콘텐츠)
+  → **Review**(게임별 적대적 리뷰, 근거 필수) → **Fix**(수정+회귀 테스트) 단계 추가.
+  ⚠️ 저장된 워크플로 레지스트리가 **옛 사본을 줄 수 있으니 `scriptPath`로 직접 실행**할 것. 돌리기 전 `EXISTING` 갱신.
+
+---
+
+## ▶ 2026-10-09 세션 — 도전 링크 + AdSense 저가치 대응 2라운드
 
 **배포 완료(PR #3·#4·#5, 전부 main squash, quickminigames.site 라이브 검증).**
 - **#3 Morse Relay 1:1 도전 링크**(`src/lib/challenge.ts`) — `?vs=<seed>-<score>-<chk>&n=<name>&ref=share`.

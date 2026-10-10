@@ -117,6 +117,11 @@ export type GamePage = GamePageBase &
     | { game: 'lagline' }
     | { game: 'recoil' }
     | { game: 'hunch' }
+    | { game: 'fizzbeat' }
+    | { game: 'siteswap' }
+    | { game: 'shadowfit' }
+    | { game: 'slosh' }
+    | { game: 'polarity' }
   )
 
 export const gamePages: GamePage[] = [
@@ -3012,6 +3017,136 @@ export const gamePages: GamePage[] = [
       { q: 'How is Hunch scored?', a: 'Each correct prediction is worth 10 points. Cracking a stage adds a base bonus of 300, 500 or 800 points, plus 20 for every test you used under 20. Winning all three stages adds 150 points per life you have left.' },
       { q: 'What kinds of rules are there?', a: 'There are 36 rules, 12 per stage. Stage 1 rules look at one card: its color, suit or rank. Stage 2 rules compare a card with the last accepted card. Stage 3 rules combine two such clues with "and" or "or".' },
       { q: 'What is the difference between Daily and Practice?', a: 'Daily gives everyone the same three rules and deck for the UTC day, keeps a streak and has a shareable result. Practice deals a new rule set every time. Any run that scores can also become a challenge link that replays your exact rules and deck for a friend.' },
+    ],
+  },
+  {
+    slug: 'fizzbeat',
+    game: 'fizzbeat',
+    title: 'Play FizzBeat Online — FizzBuzz Rhythm Reflex Game',
+    h1: 'FizzBeat',
+    metaDescription:
+      'Play FizzBeat free online: FizzBuzz on a metronome. Hit LEFT on one multiple, RIGHT on another, both on both, stay silent on the rest as the tempo climbs.',
+    shortDescription: 'FizzBuzz on a metronome — hit LEFT, RIGHT, both, or nothing on every beat.',
+    howToPlay: [
+      'Press Start or Space. A metronome clicks four times to count you in, then a new number lands on every beat. The chips above the number show the current LEFT and RIGHT divisors.',
+      'If the number is a multiple of the LEFT divisor, hit LEFT (← , F or D, or tap the left pad). If it is a multiple of the RIGHT divisor, hit RIGHT (→ , J or K, or the right pad). If it is a multiple of both, hit both on the same beat.',
+      'If the number is a multiple of neither, press nothing. Pressing a side the number does not want, or not finishing the right answer before the beat window closes, costs one of your 3 lives.',
+      'Every 30 beats a new phase starts with a different divisor pair and a faster tempo, from about 91 BPM up to 188. From phase 3 the count can step by 2, 3 or 7, and from phase 5 it can count down. The run ends when your lives run out.',
+    ],
+    strategy: [
+      'Use the small preview to the right of the big number. It shows the next value as soon as the current beat arrives, so you can work out the answer one beat early.',
+      'Treat silence as an answer. Most numbers are rests, and each correct rest scores and builds your streak just like a hit, so do not tap out of nervousness.',
+      'Protect your streak. Every 10 clean beats raise the multiplier by one, up to ×8 at a streak of 70, while a single mistake resets it to ×1.',
+      'Play each phase clean when you can. Clearing phase N is worth 100 × N points, and that bonus doubles if you lost no lives during the phase.',
+    ],
+    faq: [
+      { q: 'What happens if I press both pads on every beat?', a: 'You lose lives fast. A press on a side the number does not want is judged wrong straight away, and on a plain number any press is wrong. Mashing only works on numbers that are multiples of both divisors.' },
+      { q: 'How exact does my timing need to be?', a: 'Each beat has a window of up to 120 ms on either side at the start, narrowing to 90 ms at the top tempo. For a both-sides number, press both pads anywhere inside that window; they do not need to be simultaneous.' },
+      { q: 'Does a challenge link replay the same numbers?', a: 'Yes. A challenge link carries the run\'s seed, so you get the same divisor pairs, steps, directions and tempo as your friend. Challenge runs do not change your personal best. Press P or Esc to pause (switching tabs pauses automatically). If you pause while a number\'s beat window is already open, that number is judged as you left it; a number whose window had not opened yet costs nothing. Either way a fresh count-in plays before play continues.' },
+    ],
+  },
+  {
+    slug: 'siteswap',
+    game: 'siteswap',
+    title: 'Play Siteswap Online — One-Hand Juggling Rhythm Game',
+    h1: 'Siteswap',
+    metaDescription:
+      'Play Siteswap free online: toss each ball 1 to 5 beats high so no two land on the same beat. Dodge birds, catch new balls and survive the rising tempo.',
+    shortDescription: 'Juggle by numbers — toss each ball 1 to 5 beats high so no two ever land together.',
+    howToPlay: [
+      'When a ball lands in your hand, press 1–5 on the keyboard or tap one of the five buttons under the board to throw it. A throw of h lands exactly h beats later. Your first throw starts the run.',
+      'The row of circles under the hand is the future, one column per beat. Cyan circles are balls already coming down, red birds block a beat, and a magenta +1 ball drops into your hand on its beat.',
+      'The run ends if a throw lands on a beat that already holds a ball, a bird or the incoming ball, or if a beat ends while you are still holding a ball. A press that comes just before an empty-handed beat ends is saved for the next beat.',
+      'Every beat you survive adds one point per ball in play. You start with two balls, a new one joins every 16 to 20 beats up to four, and the tempo rises from 66 BPM by 6 every 16 beats up to 150.',
+    ],
+    strategy: [
+      'Read only columns 1 to 5. Those are the only beats your throw can reach, and the faded columns beyond them tell you what is coming next.',
+      'Keep a steady rhythm when you can. With two balls, throwing 2 every time works; with three, throwing 3 every time works. Then change height only to step around a bird or an incoming ball.',
+      'Leave a high throw available. A 4 or 5 jumps over a crowded stretch, but it also fills a far beat that later throws will have to avoid.',
+      'When the magenta ball appears, keep its beat empty and plan for one more ball. The next throws need to spread out across the whole window.',
+    ],
+    faq: [
+      { q: 'What do the numbers in siteswap mean?', a: 'In juggling notation, each number is how many beats a throw stays in the air. The game shows the heights you threw as your own siteswap pattern, so a run of 3 3 3 is the classic three-ball cascade done with one hand.' },
+      { q: 'Why did throwing a 1 end my first run?', a: 'At the start a second ball is already coming down on the very next beat, so a throw of 1 would land on top of it. Look at the bottom row before your first throw and pick a free column, such as 2.' },
+      { q: 'Is every run survivable?', a: 'Yes. Birds never appear in the first 8 beats and are always at least 5 beats apart, and new balls arrive at least 16 beats apart, so at least one of the five reachable beats is always free while you are holding a ball. Pausing with P or Esc hides the board, and switching tabs pauses automatically.' },
+    ],
+  },
+  {
+    slug: 'shadowfit',
+    game: 'shadowfit',
+    title: 'Play Shadowfit Online — 3D Block Shadow Puzzle Game',
+    h1: 'Shadowfit',
+    metaDescription:
+      'Play Shadowfit free online: roll a 3D block on X, Y and Z until its shadow fills the hole in the oncoming wall. Slam early, match par, and build a streak.',
+    shortDescription: 'Roll a 3D block until its shadow fits the hole in the oncoming wall.',
+    howToPlay: [
+      'A wall with a hole in its 3×3 grid slides toward you while you hold a small block of 3 to 6 cubes. Press Start, Enter, or Space to begin.',
+      'Roll the block 90° at a time: ↓/S and ↑/W turn it around X, →/D and ←/A around Y, Q and E around Z. On touch, swipe the block or tap the six pad buttons. The block never slides sideways, and the amber-dot cube always stays in the center cell.',
+      'The wall shows your shadow live: lime cells fit, dashed cells are hole still to fill, and red cells would crash into solid wall. The shadow must match the hole exactly. When FITS appears, press Space or Slam to send it through early, or let the wall arrive on its own.',
+      'A pass scores (100 + 5 per tick left on the approach bar + 50 for a Perfect) times your streak multiplier: ×2 from 3 passes in a row, ×3 from 6, and ×4 from 9. A crash costs one of 3 lives and resets the streak.',
+    ],
+    strategy: [
+      'Look at the red cells first. A red cell in the top or bottom row usually needs an X roll, a red cell in the left or right column usually needs a Y roll, and Q/E spins the whole shadow in place.',
+      'Count your turns against the Par number. Par is the fewest rotations that solve the wall, and matching it exactly adds 50 points before the multiplier, so think before you start rolling.',
+      'Slam the moment FITS appears. Every tick still on the approach bar is worth 5 points before the multiplier, and the bar turns red with only one second left.',
+      'Protect the streak over single big gains. From the third pass in a row every gain is doubled, so one panicked slam with a red cell showing can cost more than slow play.',
+    ],
+    faq: [
+      { q: 'How does Shadowfit get harder?', a: 'Walls 1 to 3 use 3-cube blocks, walls 4 to 8 use 4, walls 9 to 16 use 5, and every wall after that uses 6. The approach starts at 7 seconds and loses 0.2 seconds per wall down to 1.8 seconds, and the minimum par rises from 1 rotation to 2 on wall 3 and to 3 on wall 11.' },
+      { q: 'Why did my block crash when the shape looked right?', a: 'Position counts, not just shape. The block only rotates around its center cube and can never move sideways, so the shadow has to land on the exact cells of the hole. If any cell is red or any dashed cell is still empty, the block crashes.' },
+      { q: 'What is a Perfect fit?', a: 'A Perfect means you solved the wall in exactly the Par number of rotations, the fewest possible from the starting orientation. It adds 50 points before the streak multiplier. Using more turns still passes, just without the bonus.' },
+    ],
+  },
+  {
+    slug: 'slosh',
+    game: 'slosh',
+    title: 'Play Slosh Online — Carry a Glass of Water Without Spilling',
+    h1: 'Slosh',
+    metaDescription:
+      'Play Slosh free online: roll a cart with a sloshing glass of water along a hilly rail. Brake against the swing, stop in each zone and keep the water in.',
+    shortDescription: 'Roll a cart with a full glass along a hilly rail: brake against the slosh and stop dead in each zone.',
+    howToPlay: [
+      'Hold GAS (→, ↑, D, W or the on-screen button) to roll the cart forward, and hold BRAKE (←, ↓, A, S, Space or the button) to slow down. Let go of both and the cart coasts. If you hold both, BRAKE wins.',
+      'Speeding up throws the water toward the back of the glass, and braking throws it toward the front. The gauge under the scene shows the swing. Water that goes over the rim is lost for good, and if the glass runs dry the run ends.',
+      'Each run has 3 or 4 stations. Come to a full stop within 1 m of a station line to dock. You get up to 500 points for accuracy, plus 400 more if the glass is calm (Calm lamp lit) at the moment you stop. REFILL stations top the glass back up by 15%. If you roll past a station, it scores nothing and you head for the next one.',
+      'The last station is END. Stop there before the time bar runs out to win: you add water kept × 40, half of your remaining ticks, and +1000 if every stop was glass-calm. Rolling past its bumper or running out of time ends the run with only your stop points.',
+    ],
+    strategy: [
+      'Feather the throttle instead of flooring it. Gas is only half as strong as the brake, but a long full-gas push still builds a swing that a hard stop will tip over the rim.',
+      'Read the gauge arrow. Brake while the water is swinging back toward the rear and the two motions cancel. Brake while it is already surging forward and it slops over.',
+      'Hills keep pushing the cart even when you coast: climbs slow you and descents speed you up. Each station sits on a flat stretch from 3 m before it to 2 m after it, so get your speed set before the flat starts.',
+      'Stop a little short and creep in rather than overshoot. A missed stop costs you its points, but rolling past the END bumper turns a finished delivery into a loss.',
+    ],
+    faq: [
+      { q: 'What counts as a glass-calm stop?', a: 'The water has to be nearly level and nearly still at the moment the cart stops inside the zone. The Calm lamp beside the gauge lights when that is true. A calm stop adds 400 points, and making every stop calm, END included, earns a 1000-point Perfect bonus.' },
+      { q: 'Why does braking spill more than accelerating?', a: 'The brake is twice as strong as the gas, so it changes your speed faster and shoves the water forward harder. A sudden stop from top speed is the most common way to lose water. Ease off early and let a short brake tap absorb the last of the swing.' },
+      { q: 'Is the same rail the same every time?', a: 'Each run is generated from a seed that fixes the number of stations, their types, leg lengths, hills and the time limit. A new game rolls a new seed. A challenge link replays the sender\'s exact rail, but challenge runs never count toward your best score.' },
+    ],
+  },
+  {
+    slug: 'polarity',
+    game: 'polarity',
+    title: 'Play Polarity Online — One-Button Magnet Pinball Game',
+    h1: 'Polarity',
+    metaDescription:
+      'Play Polarity free online: one tap flips every magnet between pull and push. Bend a rolling steel ball through gates, dodge spikes and outrun the camera.',
+    shortDescription: 'One tap flips every magnet between pull and push. Bend the ball through gates and away from spikes.',
+    howToPlay: [
+      'A steel ball rolls down an endless board studded with fixed magnets. Tap the board, press Space, Arrow Up/Down, F, J or K, or hit the FLIP button to start.',
+      'Every flip switches all magnets at once between PULL and PUSH; the chip above the board shows the current mode. Cyan (+) magnets follow that mode, magenta (−) magnets do the opposite, and a dotted line previews where a flip would send the ball.',
+      'Cross a gate between its two amber posts to score 10 points times your combo, up to ×8. Rolling past a gate outside the posts resets the combo to zero but keeps your score.',
+      'Touching a red spike ends the run, and so does falling behind the camera, which scrolls down faster the deeper you go. P or Esc pauses, and switching tabs pauses automatically.',
+    ],
+    strategy: [
+      'Watch the dotted preview line before every flip. It traces the next 20 ticks under the opposite polarity, so you can see whether a flip curves you toward the gate or into a spike.',
+      'Flips have a short cooldown: after one, the next can land no sooner than 10 ticks (about a sixth of a second) later. A tap during the cooldown is held and fires the moment it ends, so tap once rather than mashing.',
+      'Protect the combo. Five gates in a row are worth 150 points, and from the eighth straight gate every one pays 80, so swinging wide to thread a gate is usually worth more than playing safe.',
+      'Keep some speed. The scroll starts slow and roughly doubles deeper down, so a ball parked against a pulling magnet will soon be pushed off the top of the screen. Flip to PUSH to break free.',
+    ],
+    faq: [
+      { q: 'Why do some magnets push when I set PULL?', a: 'Those are magenta (−) magnets. They always do the opposite of the cyan (+) ones, so one flip can pull you toward one magnet and push you from another. They start appearing a few sections in, and later you also meet strong magnets with a double ring.' },
+      { q: 'How is the score calculated?', a: 'Each gate you pass is worth 10 points times your current combo, capped at ×8. Missing a gate resets the combo but never takes away points. The distance in metres is shown for interest only and does not add to the score.' },
+      { q: 'Is every run the same?', a: 'No. Each new run uses a new seed that sets the whole board. A challenge link replays the sender\'s exact seed, so both of you face the same magnets, spikes and gates. Challenge runs don\'t count toward your personal best.' },
     ],
   },
 ]
