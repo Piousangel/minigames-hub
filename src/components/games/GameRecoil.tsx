@@ -40,7 +40,7 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordResult } from '@/lib/gameStats'
 import { sendHit } from '@/lib/hit'
 import { MAX_NAME_LEN, loadPlayerName, savePlayerName } from '@/lib/leaderboard'
-import { challengeUrl, compareChallenge, parseChallenge, type Challenge } from '@/lib/challenge'
+import { challengeUrl, clearChallengeParams, compareChallenge, parseChallenge, type Challenge } from '@/lib/challenge'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 type Mode = 'daily' | 'practice'
@@ -96,17 +96,6 @@ function saveDailyTried(seed: number): void {
 /** Daily seed for a UTC 'YYYY-MM-DD' (from todayUTC()). */
 function seedForDay(iso: string): number {
   return dailySeedFor(Number(iso.replace(/-/g, '')))
-}
-
-/** 도전 모드를 끄면 주소창에서 vs/n/ref를 지워, 새로고침해도 일반 판으로 돌아오게 한다. */
-function clearChallengeParams(): void {
-  try {
-    const url = new URL(window.location.href)
-    for (const k of ['vs', 'n', 'ref']) url.searchParams.delete(k)
-    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash)
-  } catch {
-    // ignore
-  }
 }
 
 function freshSeed(): number {

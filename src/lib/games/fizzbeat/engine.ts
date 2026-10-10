@@ -68,9 +68,10 @@ export interface FizzState {
 
 /**
  * `resume` ends a pause (the component freezes the clock; the engine never sees the pause itself).
- * Pausing must not buy thinking time on numbers already on screen, so resume first closes every beat
- * whose number was visible — judged with whatever was pressed so far, exactly as if the clock had run
- * through its window with no further input — then plays a fresh count-in before the first unseen beat.
+ * Pausing must not buy thinking time inside a judging window, so resume first closes the cursor beat
+ * if its window had already opened — judged with whatever was pressed so far, exactly as if the clock
+ * had run through its window with no further input. A beat whose window had not opened is left
+ * unjudged. Either way a fresh count-in then plays before the cursor beat.
  */
 export type FizzAction = { type: 'start' } | { type: 'tick' } | { type: 'press'; side: Side } | { type: 'resume' }
 
@@ -376,32 +377,13 @@ export function reduce(state: FizzState, action: FizzAction): FizzState {
       const j = s.cursor
       const T = beatTick(s.phases, s.phaseStart, j)
       const W = s.phases[phaseOf(j)].window
-      // Mirrors what the board showed: the cursor's number (hidden only during its count-in) and,
-      // once its click has sounded, the next number of the same phase.
-      const shownCurrent = !(hasCountIn(s, j) && s.tick < T - W)
-      const shownNext = s.tick >= T && (j + 1) % PHASE_BEATS !== 0 && j + 1 < MAX_PHASES * PHASE_BEATS
-      const toClose = (shownCurrent ? 1 : 0) + (shownNext ? 1 : 0)
-      let worst: { judged: Judgment; beat: number; last: FizzState['lastJudgment'] } | null = null
-      let phaseChanged = false
-      const costly = (x: Judgment | undefined) => x === 'miss' || x === 'wrong'
-      for (let n = 0; n < toClose; n++) {
-        closeBeat(s)
-        phaseChanged ||= s.events.phaseChanged
-        const kind = s.events.judged
-        if (kind && !costly(worst?.judged)) {
-          worst = { judged: kind, beat: s.events.judgedBeat as number, last: s.lastJudgment }
-        }
-        if (s.status === 'over') break
-      }
-      // Several beats may close in one call: report (and show) the costly one, not a trailing rest.
-      if (worst) {
-        s.events.judged = worst.judged
-        s.events.judgedBeat = worst.beat
-        s.lastJudgment = worst.last
-      }
-      s.events.phaseChanged = phaseChanged
+      // Only a beat whose judging window had already opened is forfeited (judged as left, exactly as
+      // if the clock had run through the rest of its window with no further input). A beat whose
+      // window had not opened yet is not judged at all — the fresh count-in below replaces it. The
+      // next beat's window can never be open at the same time (period >= 2W+2), so at most one closes.
+      if (s.tick >= T - W) closeBeat(s)
       if (s.status === 'over') return s
-      // Fresh count-in from now before the first unseen beat: shift this phase and every later one.
+      // Fresh count-in from now before the cursor beat: shift this phase and every later one.
       const c = s.cursor
       const k = phaseOf(c)
       const delta = s.tick + COUNT_IN * s.phases[k].period - beatTick(s.phases, s.phaseStart, c)

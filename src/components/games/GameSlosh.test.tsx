@@ -140,6 +140,19 @@ describe('GameSlosh keyboard & pause', () => {
     window.history.replaceState(null, '', '/')
   })
 
+  it('R restarts only outside a live run — a stray R mid-run is ignored', () => {
+    render(<GameSlosh storageKey={STORAGE_KEY} />)
+    // ready: R is handled (restart → default prevented)
+    expect(fireEvent.keyDown(window, { key: 'r' })).toBe(false)
+    // start rolling, then R must be left alone
+    fireEvent.keyDown(window, { key: 'ArrowRight' })
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
+    fireEvent.keyUp(window, { key: 'ArrowRight' })
+    expect(fireEvent.keyDown(window, { key: 'r' })).toBe(true)
+  })
+
   it('the hint states the core rules (controls, spill = water loss, zones, time, END bumper)', () => {
     render(<GameSlosh storageKey={STORAGE_KEY} />)
     const hint = screen.getByText(/Hold GAS/, { selector: 'p.text-fg-muted' }).textContent ?? ''
@@ -198,27 +211,36 @@ describe('GameSlosh keyboard & pause', () => {
     expect(screen.queryByText(/Paused/)).not.toBeInTheDocument()
   })
 
-  it('while paused, Space on a focused shell button (New Game) resumes the run instead of activating the button', () => {
+  it('the pause card is opaque and covers the whole board, so a pause cannot be used to plan', () => {
     render(<GameSlosh storageKey={STORAGE_KEY} />)
-    // A shell control outside the game (e.g. GameShell's New Game), focused by a mouse click.
-    const shellBtn = document.createElement('button')
-    shellBtn.textContent = 'New Game'
-    document.body.appendChild(shellBtn)
-    try {
-      shellBtn.focus()
-      fireEvent.keyDown(shellBtn, { key: 'ArrowRight' })
-      advance(600)
-      fireEvent.keyUp(shellBtn, { key: 'ArrowRight' })
-      fireEvent.keyDown(shellBtn, { key: 'p' })
-      expect(screen.getByText(/Paused/)).toBeInTheDocument()
-      const travelled = nextStopMetres()
-      // Space is a BRAKE key: it must be consumed (no button activation) and only resume.
-      expect(fireEvent.keyDown(shellBtn, { key: ' ' })).toBe(false)
-      expect(screen.queryByText(/Paused/)).not.toBeInTheDocument()
-      expect(nextStopMetres()).toBe(travelled) // same run, not restarted
-    } finally {
-      shellBtn.remove()
-    }
+    fireEvent.keyDown(window, { key: 'ArrowRight' })
+    advance(300)
+    fireEvent.keyDown(window, { key: 'p' })
+    const card = screen.getByTestId('pause-card')
+    expect(card.parentElement).toBe(screen.getByTestId('slosh-board'))
+    expect(card).toHaveClass('absolute', 'inset-0', 'bg-surface')
+    expect(card.className).not.toMatch(/\bbg-[\w-]+\/\d+/) // no translucent background
+    fireEvent.keyDown(window, { key: 'p' })
+    expect(screen.queryByTestId('pause-card')).not.toBeInTheDocument()
+  })
+
+  it('after a mouse click on a shell button (Mute) while paused, Space resumes the run', () => {
+    render(<GameSlosh storageKey={STORAGE_KEY} />)
+    fireEvent.keyDown(window, { key: 'ArrowRight' })
+    advance(600)
+    fireEvent.keyUp(window, { key: 'ArrowRight' })
+    fireEvent.keyDown(window, { key: 'p' })
+    expect(screen.getByTestId('pause-card')).toBeInTheDocument()
+    const travelled = nextStopMetres()
+    // A browser click: mousedown (moves focus unless prevented) then click.
+    const mute = screen.getByRole('button', { name: 'Mute sound' })
+    if (fireEvent.mouseDown(mute)) mute.focus()
+    fireEvent.click(mute, { detail: 1 })
+    expect(document.activeElement).not.toBe(mute)
+    const target = document.activeElement ?? document.body
+    expect(fireEvent.keyDown(target, { key: ' ' })).toBe(false)
+    expect(screen.queryByTestId('pause-card')).not.toBeInTheDocument()
+    expect(nextStopMetres()).toBe(travelled) // same run, not restarted
   })
 
   it('on the game-over screen Enter on an overlay button activates the button, not a restart', () => {

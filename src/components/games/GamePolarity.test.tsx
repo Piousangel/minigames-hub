@@ -242,6 +242,19 @@ describe('GamePolarity keyboard', () => {
     expect(screen.getByTestId('game-over')).toBeInTheDocument()
   })
 
+  it('the pause card is opaque and the flip preview is hidden while paused', () => {
+    render(<GamePolarity storageKey={STORAGE_KEY} />)
+    fireEvent.keyDown(window, { key: ' ' })
+    advance(300)
+    expect(screen.getByTestId('polarity-preview')).toBeInTheDocument()
+    fireEvent.keyDown(window, { key: 'p' })
+    const card = screen.getByTestId('pause-card')
+    expect(card.className).toMatch(/(^|\s)bg-bg(\s|$)/) // no /55-style see-through alpha
+    expect(screen.queryByTestId('polarity-preview')).not.toBeInTheDocument()
+    fireEvent.keyDown(window, { key: 'p' })
+    expect(screen.getByTestId('polarity-preview')).toBeInTheDocument()
+  })
+
   it('pause freezes the run and a tap resumes without flipping', () => {
     render(<GamePolarity storageKey={STORAGE_KEY} />)
     fireEvent.keyDown(window, { key: ' ' })

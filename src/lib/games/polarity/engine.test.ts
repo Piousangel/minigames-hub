@@ -15,6 +15,7 @@ import {
   generateChunk,
   magnetForce,
   mulberry32,
+  predictFlipPath,
   predictPath,
   reduce,
   scrollSpeed,
@@ -466,6 +467,72 @@ describe('predictPath', () => {
     expect(path.length).toBeLessThan(200)
     const last = path[path.length - 1]
     expect((last.y - s.spikes[0].y) ** 2).toBeLessThan(((7 + BALL_R) * FP) ** 2)
+  })
+})
+
+describe('predictFlipPath (honest flip preview)', () => {
+  /** A running board with one magnet right next to the ball, so flip timing matters. */
+  function nearMagnet(seed = 9): PolarityState {
+    const base = running(seed, { spikes: [], gates: [] })
+    return { ...base, magnets: [mag(base.ball.x / FP + 30, base.ball.y / FP + 50)] }
+  }
+
+  /** The real trajectory: flip now (if `tap`), then tick `n` times with no further input. */
+  function actual(s: PolarityState, n: number, tap: boolean): { x: number; y: number }[] {
+    let cur = tap ? reduce(s, { type: 'flip' }) : s
+    const out: { x: number; y: number }[] = []
+    for (let i = 0; i < n && cur.status === 'running'; i++) {
+      cur = tick(cur)
+      out.push({ x: cur.ball.x, y: cur.ball.y })
+    }
+    return out
+  }
+
+  /** A state mid-cooldown: flipped at tick 1, then `after` more ticks. */
+  function midCooldown(after: number): PolarityState {
+    let s = tick(reduce(nearMagnet(), { type: 'flip' }))
+    for (let i = 0; i < after; i++) s = tick(s)
+    return s
+  }
+
+  it('a tap during cooldown: preview == the trajectory the flip actually produces', () => {
+    const s = midCooldown(2)
+    expect(s.flipCooldown).toBeGreaterThan(0)
+    expect(s.pendingFlip).toBe(false)
+    const real = actual(s, 20, true)
+    expect(real).toHaveLength(20)
+    expect(predictFlipPath(s, 20)).toEqual(real)
+    // The old immediate-flip simulation drew a path that cannot happen.
+    expect(predictPath(s, 20, (s.polarity === 1 ? -1 : 1) as 1 | -1)).not.toEqual(real)
+  })
+
+  it('a flip already queued: preview == the path that will actually happen (no extra tap)', () => {
+    const s = reduce(midCooldown(4), { type: 'flip' })
+    expect(s.pendingFlip).toBe(true)
+    expect(predictFlipPath(s, 20)).toEqual(actual(s, 20, false))
+  })
+
+  it('cooldown 0: preview == immediate flip', () => {
+    const s = nearMagnet()
+    expect(s.flipCooldown).toBe(0)
+    expect(predictFlipPath(s, 20)).toEqual(actual(s, 20, true))
+    expect(predictFlipPath(s, 20)).toEqual(predictPath(s, 20, -1))
+  })
+
+  it('every cooldown phase matches the real run', () => {
+    for (let after = 0; after <= 10; after++) {
+      const s = midCooldown(after)
+      expect(predictFlipPath(s, 20)).toEqual(actual(s, 20, true))
+    }
+  })
+
+  it('does not mutate state and stops at a spike', () => {
+    const base = running(9, { magnets: [], gates: [] })
+    const s = { ...base, flipCooldown: 5, spikes: [{ id: 999, x: base.ball.x, y: base.ball.y + px(20) }] }
+    const snap = JSON.stringify(s)
+    const path = predictFlipPath(s, 200)
+    expect(JSON.stringify(s)).toBe(snap)
+    expect(path.length).toBeLessThan(200)
   })
 })
 

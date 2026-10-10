@@ -27,7 +27,7 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordResult } from '@/lib/gameStats'
 import { sendHit } from '@/lib/hit'
 import { MAX_NAME_LEN, loadPlayerName, savePlayerName } from '@/lib/leaderboard'
-import { challengeUrl, compareChallenge, parseChallenge, type Challenge } from '@/lib/challenge'
+import { challengeUrl, clearChallengeParams, compareChallenge, parseChallenge, type Challenge } from '@/lib/challenge'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 /** rAF frame delta cap (ms) — at most 5 ticks per frame, no background-tab burst. */
@@ -98,17 +98,6 @@ function saveBest(storageKey: string, score: number): void {
     localStorage.setItem(storageKey, String(score))
   } catch {
     // ignore storage failures (private mode / quota)
-  }
-}
-
-/** 도전 모드를 끄면 주소창에서 vs/n/ref를 지워, 새로고침해도 일반 판으로 돌아오게 한다. */
-function clearChallengeParams(): void {
-  try {
-    const url = new URL(window.location.href)
-    for (const k of ['vs', 'n', 'ref']) url.searchParams.delete(k)
-    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash)
-  } catch {
-    // ignore
   }
 }
 
@@ -401,11 +390,12 @@ export function GameSlosh({ storageKey }: { storageKey: string }) {
       const s = stateRef.current
       if (!s) return
       const key = normKey(e)
-      // Outside a live run, Enter/Space on a focused button (Share, Rematch) belongs to the button.
-      // A paused run is still live: Space is BRAKE and must resume, not click a focused New Game/Mute.
+      // Outside a live run (ready card, pause, game-over overlay) Enter/Space on a focused
+      // button/link belongs to it (Share, Rematch). Mouse/touch clicks on the shell header don't
+      // leave focus behind (GameShell), so a focused button here was reached with the keyboard.
       if (
         (key === 'Enter' || key === ' ') &&
-        s.status !== 'running' &&
+        (s.status !== 'running' || pausedRef.current) &&
         isControlTarget(e.target) &&
         !(e.target instanceof HTMLElement && e.target.closest('[data-slosh-control]'))
       ) {
@@ -432,8 +422,11 @@ export function GameSlosh({ storageKey }: { storageKey: string }) {
           }
           return
         case 'r':
-          e.preventDefault()
-          startNew()
+          // Only outside a live run (ready / over) — a stray R must not wipe a run.
+          if (s.status !== 'running') {
+            e.preventDefault()
+            startNew()
+          }
           return
         case 'Enter':
           if (s.status === 'over') {
@@ -798,13 +791,6 @@ export function GameSlosh({ storageKey }: { storageKey: string }) {
             </div>
           )}
 
-          {paused && !over && (
-            <div className="absolute inset-0 flex items-center justify-center bg-bg/55">
-              <p className="rounded-xl border border-border bg-bg-2/90 px-4 py-2 text-center text-sm font-bold">
-                Paused — press P or tap to resume
-              </p>
-            </div>
-          )}
         </div>
 
         {/* Slosh gauge */}
@@ -851,6 +837,20 @@ export function GameSlosh({ storageKey }: { storageKey: string }) {
             Calm
           </span>
         </div>
+
+        {/* pause card — opaque over the whole board so a pause can't be used to plan
+            (tapping it resumes via the board's pointer-down handler) */}
+        {paused && !over && (
+          <div
+            data-testid="pause-card"
+            className="absolute inset-0 z-[5] flex items-center justify-center rounded-xl bg-surface"
+          >
+            <div className="rounded-xl border border-border bg-bg-2 px-5 py-3 text-center">
+              <p className="text-base font-bold">Paused</p>
+              <p className="text-xs text-fg-muted">Tap, press P, or press GAS/BRAKE to resume</p>
+            </div>
+          </div>
+        )}
 
         <GameOverlay show={over} variant={overlayVariant} title={overlayTitle} testId="game-over">
           {outcome && (

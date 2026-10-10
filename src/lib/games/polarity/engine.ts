@@ -446,6 +446,49 @@ export function predictPath(s: PolarityState, ticks: number, polarity: Sign): { 
   return out
 }
 
+export interface FlipPhase {
+  polarity: Sign
+  pendingFlip: boolean
+  flipCooldown: number
+}
+
+/**
+ * The flip/cooldown half of a tick, shared by `tick` and `predictFlipPath`.
+ * A buffered flip fires on the first tick the cooldown reads 0; otherwise the
+ * cooldown ticks down. Flip at tick T → the earliest next flip is T+10
+ * (FLIP_COOLDOWN = 9 blocked ticks in between).
+ */
+export function advanceFlip(p: FlipPhase): FlipPhase & { flipped: boolean } {
+  if (p.pendingFlip && p.flipCooldown === 0) {
+    return { polarity: p.polarity === 1 ? -1 : 1, pendingFlip: false, flipCooldown: FLIP_COOLDOWN, flipped: true }
+  }
+  return {
+    polarity: p.polarity,
+    pendingFlip: p.pendingFlip,
+    flipCooldown: p.flipCooldown > 0 ? p.flipCooldown - 1 : 0,
+    flipped: false,
+  }
+}
+
+/**
+ * Honest flip preview: the ball path if the player taps now (or, when a flip is
+ * already queued, the path that queued flip will produce). The flip resolves
+ * through `advanceFlip` exactly as in `tick` — after any remaining cooldown — and
+ * no further input is assumed. Stops at (and includes) a spike hit.
+ */
+export function predictFlipPath(s: PolarityState, ticks: number): { x: number; y: number }[] {
+  const out: { x: number; y: number }[] = []
+  let phase: FlipPhase = { polarity: s.polarity, pendingFlip: true, flipCooldown: s.flipCooldown }
+  let b = s.ball
+  for (let i = 0; i < ticks; i++) {
+    phase = advanceFlip(phase)
+    b = stepBall(b, s.magnets, phase.polarity).ball
+    out.push({ x: b.x, y: b.y })
+    if (hitsSpike(b, s.spikes)) break
+  }
+  return out
+}
+
 // ---------------------------------------------------------------------------
 // state machine
 // ---------------------------------------------------------------------------
@@ -486,23 +529,8 @@ export function distanceM(s: PolarityState): number {
 
 function tick(s: PolarityState): PolarityState {
   const t = s.tick + 1
-  let polarity = s.polarity
-  let pendingFlip = s.pendingFlip
-  let flipCooldown = s.flipCooldown
-  let flips = s.flips
-  let flipped = false
-  // A buffered flip fires on the first tick the cooldown reads 0; otherwise the
-  // cooldown ticks down. Flip at tick T → the earliest next flip is T+10
-  // (FLIP_COOLDOWN = 9 blocked ticks in between).
-  if (pendingFlip && flipCooldown === 0) {
-    polarity = polarity === 1 ? -1 : 1
-    flipCooldown = FLIP_COOLDOWN
-    pendingFlip = false
-    flips++
-    flipped = true
-  } else if (flipCooldown > 0) {
-    flipCooldown--
-  }
+  const { polarity, pendingFlip, flipCooldown, flipped } = advanceFlip(s)
+  const flips = flipped ? s.flips + 1 : s.flips
 
   const prevY = s.ball.y
   const step = stepBall(s.ball, s.magnets, polarity)

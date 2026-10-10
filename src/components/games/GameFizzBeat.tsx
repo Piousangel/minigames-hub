@@ -26,7 +26,13 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordFinish } from '@/lib/gameStats'
 import { sendHit } from '@/lib/hit'
 import { MAX_NAME_LEN, loadPlayerName, savePlayerName } from '@/lib/leaderboard'
-import { challengeUrl, compareChallenge, parseChallenge, type Challenge } from '@/lib/challenge'
+import {
+  type Challenge,
+  challengeUrl,
+  clearChallengeParams,
+  compareChallenge,
+  parseChallenge,
+} from '@/lib/challenge'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 /** rAF frame delta cap (ms) — a background-tab catch-up must not fire a burst of beats. */
@@ -55,17 +61,6 @@ function saveBest(storageKey: string, score: number): void {
     localStorage.setItem(storageKey, String(score))
   } catch {
     // ignore storage failures (private mode / quota)
-  }
-}
-
-/** 도전 모드를 끄면 주소창에서 vs/n/ref를 지워, 새로고침해도 일반 판으로 돌아오게 한다. */
-function clearChallengeParams(): void {
-  try {
-    const url = new URL(window.location.href)
-    for (const k of ['vs', 'n', 'ref']) url.searchParams.delete(k)
-    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash)
-  } catch {
-    // ignore
   }
 }
 
@@ -108,7 +103,7 @@ function viewOf(s: FizzState): View {
   const k = phaseOf(beat)
   const p = s.phases[k]
   const T = beatTick(s.phases, s.phaseStart, beat)
-  // Count-in clicks lead up to T: at a phase start, or before the first unseen beat after a resume.
+  // Count-in clicks lead up to T: at a phase start, or before the cursor beat after a resume.
   const d = s.tick - (T - COUNT_IN * p.period)
   const running = s.status === 'running'
   const litDots = running && d >= 0 ? Math.min(COUNT_IN, Math.floor(d / p.period) + 1) : 0
@@ -377,8 +372,9 @@ export function GameFizzBeat({ storageKey }: { storageKey: string }) {
   }, [dispatch])
 
   /**
-   * The clock restarts where pause() froze it, so the engine's resume forfeits every number that was
-   * already on screen and counts in again before the next unseen one — pausing buys no thinking time.
+   * The clock restarts where pause() froze it. The engine's resume forfeits the number whose judging
+   * window was already open (judged as left), never one whose window had not opened, then counts in
+   * again — a pause (P or a hidden tab) buys no thinking time inside a window and costs no free life.
    */
   const resume = useCallback(() => {
     if (!pausedRef.current) return
@@ -578,7 +574,7 @@ export function GameFizzBeat({ storageKey }: { storageKey: string }) {
       newGameLabel={over ? 'Play again' : 'New Game'}
       muted={muted}
       onToggleMute={toggleMuted}
-      hint={`After 4 count-in clicks, judge each number on the beat: multiple of ${rule.a} → LEFT (← / F / D, or tap), multiple of ${rule.b} → RIGHT (→ / J / K), both → both at once, anything else → stay silent. A wrong press or a miss costs one of 3 lives. Every 30 beats the divisors change, and later phases count in steps of 2, 3 or 7 or count down — watch the chips. P / Esc pauses, but the number on screen is forfeited (judged as you left it) and a fresh count-in plays before the next one.`}
+      hint={`After 4 count-in clicks, judge each number on the beat: multiple of ${rule.a} → LEFT (← / F / D, or tap), multiple of ${rule.b} → RIGHT (→ / J / K), both → both at once, anything else → stay silent. A wrong press or a miss costs one of 3 lives. Every 30 beats the divisors change, and later phases count in steps of 2, 3 or 7 or count down — watch the chips. P / Esc pauses (so does switching tabs): a number whose beat window was already open is judged as you left it, and a fresh count-in plays before the next one.`}
       maxWidthClassName="max-w-125"
     >
       {challenge && (
@@ -765,7 +761,7 @@ export function GameFizzBeat({ storageKey }: { storageKey: string }) {
             <GameButton onClick={resume} data-testid="fizzbeat-resume">
               Resume
             </GameButton>
-            <span className="text-xs text-fg-muted">Space / P to resume · the number on screen is forfeited</span>
+            <span className="text-xs text-fg-muted">Space / P to resume · a number already in its beat window is judged as you left it</span>
           </div>
         )}
 

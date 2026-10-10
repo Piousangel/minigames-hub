@@ -25,7 +25,7 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordFinish } from '@/lib/gameStats'
 import { sendHit } from '@/lib/hit'
 import { MAX_NAME_LEN, loadPlayerName, savePlayerName } from '@/lib/leaderboard'
-import { challengeUrl, compareChallenge, parseChallenge, type Challenge } from '@/lib/challenge'
+import { challengeUrl, clearChallengeParams, compareChallenge, parseChallenge, type Challenge } from '@/lib/challenge'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const MAX_FRAME_MS = 100
@@ -77,17 +77,6 @@ function saveBest(storageKey: string, best: number): void {
     localStorage.setItem(storageKey, String(Math.max(0, Math.floor(best))))
   } catch {
     // ignore storage failures
-  }
-}
-
-/** 도전 모드를 끄면 주소창에서 vs/n/ref를 지워, 새로고침해도 일반 판으로 돌아오게 한다. */
-function clearChallengeParams(): void {
-  try {
-    const url = new URL(window.location.href)
-    for (const k of ['vs', 'n', 'ref']) url.searchParams.delete(k)
-    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash)
-  } catch {
-    // ignore
   }
 }
 
@@ -523,8 +512,11 @@ export function GameShadowfit({ storageKey }: { storageKey: string }) {
           }
           return
         case 'r':
-          e.preventDefault()
-          startNew()
+          // Only outside a live run (ready card / game over) — a stray R must not wipe a run.
+          if (!live(s)) {
+            e.preventDefault()
+            startNew()
+          }
           return
       }
     }

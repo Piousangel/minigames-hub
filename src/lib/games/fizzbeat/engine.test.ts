@@ -488,55 +488,85 @@ describe('reduce: resume (pause must not buy thinking time)', () => {
     expect(atBeat.tick).toBe(T(r, 0))
   })
 
-  it('the beat on screen is forfeited: the previewed 3 can no longer be hit', () => {
+  it('a number on screen whose window had not opened is not judged: the count-in replaces it', () => {
     let s = runPerfect(started(), 2)
     expect(beatValue(s.phases, 2)).toBe(3)
     const t2 = T(s, 2)
-    s = tickTo(s, t2 - 30) // "3" is on screen, its window is not open yet
+    s = tickTo(s, t2 - W(s, 2) - 1) // "3" is on screen, its window opens next tick
+    const r = reduce(deepFreeze(s), { type: 'resume' })
+    expect(r.lives).toBe(STARTING_LIVES)
+    expect(r.mistakes).toBe(0)
+    expect(r.streak).toBe(s.streak)
+    expect(r.lastJudgment).toEqual(s.lastJudgment)
+    expect(r.events.judged).toBeNull()
+    expect(r.cursor).toBe(2)
+    // fresh count-in before the same beat
+    expect(r.recountBeat).toBe(2)
+    expect(r.events.click).toBe('count')
+    expect(T(r, 2)).toBe(r.tick + COUNT_IN * 66)
+    // the old window of beat 2 is gone: pressing there is ignored (count-in), not a hit
+    const early = reduce(tickTo(r, t2), { type: 'press', side: 'L' })
+    expect(early.events.ignored).toBe(true)
+    const { s: atBeat, tags } = clicksUntilBeat(r)
+    expect(tags).toEqual(['count', 'count', 'count', 'beat'])
+    // after the count-in "3" is played normally and can be hit
+    const hit = reduce(atBeat, { type: 'press', side: 'L' })
+    expect(hit.events.tap).toBe('L')
+    expect(tickTo(hit, T(r, 2) + W(r, 2) + 1).lastJudgment).toMatchObject({ beat: 2, kind: 'hit' })
+  })
+
+  it('a number whose window had opened is forfeited as left (unpressed → miss)', () => {
+    let s = runPerfect(started(), 2)
+    s = tickTo(s, T(s, 2) - W(s, 2)) // first tick of the "3" window
     const r = reduce(deepFreeze(s), { type: 'resume' })
     expect(r.lives).toBe(STARTING_LIVES - 1)
     expect(r.lastJudgment).toMatchObject({ beat: 2, value: 3, kind: 'miss' })
     expect(r.events.judged).toBe('miss')
-    expect(r.streak).toBe(0)
     expect(r.cursor).toBe(3)
-    // fresh count-in before the first unseen beat (4)
-    expect(r.events.click).toBe('count')
+    expect(r.recountBeat).toBe(3)
     expect(T(r, 3)).toBe(r.tick + COUNT_IN * 66)
-    // the old window of beat 2 is gone: pressing there is ignored, not a hit
-    const late = reduce(tickTo(r, t2), { type: 'press', side: 'L' })
-    expect(late.events.ignored).toBe(true)
-    expect(late.hits).toBe(s.hits)
-    const { tags } = clicksUntilBeat(r)
-    expect(tags).toEqual(['count', 'count', 'count', 'beat'])
   })
 
-  it('inside the window: the current beat keeps what was pressed, the previewed next one is closed unpressed', () => {
+  it('inside the window: the current beat keeps what was pressed; the next number is never judged', () => {
     let s = runPerfect(started(), 2)
     s = tickTo(s, T(s, 2))
     s = reduce(s, { type: 'press', side: 'L' }) // 3 → L, correct
     const before = s.score
-    const r = reduce(s, { type: 'resume' }) // next-number "4" (silent) was also on screen
-    expect(r.cursor).toBe(4)
+    const r = reduce(s, { type: 'resume' }) // next-number "4" was also on screen, but its window never opened
+    expect(r.cursor).toBe(3)
     expect(r.lives).toBe(STARTING_LIVES)
-    expect(r.lastJudgment).toMatchObject({ beat: 3, kind: 'rest' })
+    expect(r.lastJudgment).toMatchObject({ beat: 2, kind: 'hit' })
+    expect(r.events.judged).toBe('hit')
     expect(r.score).toBeGreaterThan(before)
-    expect(T(r, 4)).toBe(r.tick + COUNT_IN * 66)
+    expect(T(r, 3)).toBe(r.tick + COUNT_IN * 66)
   })
 
-  it('a sounding previewed next beat cannot be dodged: it is a miss', () => {
+  it('a silent number in its window resolves as a rest; the sounding next one costs nothing', () => {
     let s = runPerfect(started(), 1)
     s = tickTo(s, T(s, 1)) // "2" (silent) in its window, "3" previewed
     const r = reduce(s, { type: 'resume' })
-    expect(r.cursor).toBe(3)
-    expect(r.lives).toBe(STARTING_LIVES - 1)
+    expect(r.cursor).toBe(2)
+    expect(r.lives).toBe(STARTING_LIVES)
     expect(r.rests).toBe(s.rests + 1)
-    expect(r.events.judged).toBe('miss')
-    expect(r.lastJudgment).toMatchObject({ beat: 2, kind: 'miss' })
+    expect(r.events.judged).toBe('rest')
+    expect(r.lastJudgment).toMatchObject({ beat: 1, kind: 'rest' })
+  })
+
+  it('the window boundary decides, for every tick between two beats', () => {
+    const base = runPerfect(started(), 2) // cursor = beat 2 ("3")
+    const t2 = T(base, 2)
+    const w = W(base, 2)
+    for (let t = base.tick; t <= t2 + w; t++) {
+      const r = reduce(tickTo(base, t), { type: 'resume' })
+      const open = t >= t2 - w
+      expect(r.cursor).toBe(open ? 3 : 2)
+      expect(r.lives).toBe(open ? STARTING_LIVES - 1 : STARTING_LIVES)
+    }
   })
 
   it('forfeiting the last beat of a phase closes the phase and counts in the next one', () => {
     let s = runPerfect(started(), 29)
-    s = tickTo(s, T(s, 29) - 20) // "30" (L+R) on screen
+    s = tickTo(s, T(s, 29) - 5) // "30" (L+R) in its window, unpressed
     const r = reduce(s, { type: 'resume' })
     expect(r.cursor).toBe(30)
     expect(r.events.phaseChanged).toBe(true)
@@ -555,13 +585,13 @@ describe('reduce: resume (pause must not buy thinking time)', () => {
     const r2 = reduce(r, { type: 'resume' })
     expect(r2.cursor).toBe(r.cursor)
     expect(r2.lives).toBe(r.lives)
-    expect(T(r2, 3)).toBe(r2.tick + COUNT_IN * 66)
+    expect(T(r2, 2)).toBe(r2.tick + COUNT_IN * 66)
   })
 
   it('a forfeit that costs the last life ends the run', () => {
     let s = started()
     s = { ...s, lives: 1 }
-    s = tickTo(runPerfect(s, 2), T(s, 2) - 30)
+    s = tickTo(runPerfect(s, 2), T(s, 2) - 5)
     const r = reduce(s, { type: 'resume' })
     expect(r.status).toBe('over')
     expect(r.events.over).toBe(true)

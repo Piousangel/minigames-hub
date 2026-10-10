@@ -3042,7 +3042,7 @@ export const gamePages: GamePage[] = [
     faq: [
       { q: 'What happens if I press both pads on every beat?', a: 'You lose lives fast. A press on a side the number does not want is judged wrong straight away, and on a plain number any press is wrong. Mashing only works on numbers that are multiples of both divisors.' },
       { q: 'How exact does my timing need to be?', a: 'Each beat has a window of up to 120 ms on either side at the start, narrowing to 90 ms at the top tempo. For a both-sides number, press both pads anywhere inside that window; they do not need to be simultaneous.' },
-      { q: 'Does a challenge link replay the same numbers?', a: 'Yes. A challenge link carries the run\'s seed, so you get the same divisor pairs, steps, directions and tempo as your friend. Challenge runs do not change your personal best. Press P or Esc to pause (switching tabs pauses automatically); the number on screen when you pause is judged as you left it, and a fresh count-in plays before the next one.' },
+      { q: 'Does a challenge link replay the same numbers?', a: 'Yes. A challenge link carries the run\'s seed, so you get the same divisor pairs, steps, directions and tempo as your friend. Challenge runs do not change your personal best. Press P or Esc to pause (switching tabs pauses automatically). If you pause while a number\'s beat window is already open, that number is judged as you left it; a number whose window had not opened yet costs nothing. Either way a fresh count-in plays before play continues.' },
     ],
   },
   {

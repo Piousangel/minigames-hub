@@ -12,7 +12,7 @@ import {
   comboMult,
   createGame,
   distanceM,
-  predictPath,
+  predictFlipPath,
   reduce,
   type Gate,
   type Magnet,
@@ -27,7 +27,13 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordFinish } from '@/lib/gameStats'
 import { sendHit } from '@/lib/hit'
 import { MAX_NAME_LEN, loadPlayerName, savePlayerName } from '@/lib/leaderboard'
-import { challengeUrl, compareChallenge, parseChallenge, type Challenge } from '@/lib/challenge'
+import {
+  type Challenge,
+  challengeUrl,
+  clearChallengeParams,
+  compareChallenge,
+  parseChallenge,
+} from '@/lib/challenge'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const TICK_MS = 1000 / 60
@@ -38,6 +44,41 @@ const TRAIL_LEN = 8
 const BUMP_SOUND_GAP = 8
 const PREVIEW_TICKS = 20
 const FIELD_R = 32
+
+type Pt = { x: number; y: number }
+
+/** Fixed-size ring buffer of recent ball positions (px), written once per tick without allocating. */
+interface TrailRing {
+  xs: Float64Array
+  ys: Float64Array
+  head: number // next write slot
+  count: number
+}
+
+const newTrailRing = (): TrailRing => ({
+  xs: new Float64Array(TRAIL_LEN),
+  ys: new Float64Array(TRAIL_LEN),
+  head: 0,
+  count: 0,
+})
+
+function pushTrail(r: TrailRing, x: number, y: number): void {
+  r.xs[r.head] = x
+  r.ys[r.head] = y
+  r.head = (r.head + 1) % TRAIL_LEN
+  if (r.count < TRAIL_LEN) r.count++
+}
+
+/** Oldest → newest snapshot (taken once per committed frame, not per tick). */
+function trailSnapshot(r: TrailRing): Pt[] {
+  const out: Pt[] = []
+  const start = (r.head - r.count + TRAIL_LEN) % TRAIL_LEN
+  for (let i = 0; i < r.count; i++) {
+    const k = (start + i) % TRAIL_LEN
+    out.push({ x: r.xs[k], y: r.ys[k] })
+  }
+  return out
+}
 
 const tint = (v: string, pct: number) => `color-mix(in srgb, var(${v}) ${pct}%, transparent)`
 
@@ -61,17 +102,6 @@ function saveBest(storageKey: string, best: number): void {
     localStorage.setItem(storageKey, String(best))
   } catch {
     // ignore storage failures
-  }
-}
-
-/** 도전 모드를 끄면 주소창에서 vs/n/ref를 지워, 새로고침해도 일반 판으로 돌아오게 한다. */
-function clearChallengeParams(): void {
-  try {
-    const url = new URL(window.location.href)
-    for (const k of ['vs', 'n', 'ref']) url.searchParams.delete(k)
-    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash)
-  } catch {
-    // ignore
   }
 }
 
@@ -128,7 +158,7 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
   const [announce, setAnnounce] = useState('')
   const [shakeKey, setShakeKey] = useState(0)
   const [banner, setBanner] = useState<Banner | null>(null)
-  const [trail, setTrail] = useState<{ x: number; y: number }[]>([])
+  const [trail, setTrail] = useState<Pt[]>([])
   // 1:1 도전(?vs=...) — 있으면 모든 판(재시작 포함)을 도전자와 같은 시드로 시작한다.
   const [challenge, setChallenge] = useState<Challenge | null>(null)
   const challengeRef = useRef<Challenge | null>(null)
@@ -146,6 +176,7 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
   const accRef = useRef(0)
   const bannerSeq = useRef(0)
   const lastBumpTickRef = useRef(-1000)
+  const trailRingRef = useRef<TrailRing>(newTrailRing())
 
   const commit = useCallback((next: PolarityState) => {
     stateRef.current = next
@@ -190,6 +221,7 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
     setNewBest(false)
     setBanner(null)
     setAnnounce('')
+    trailRingRef.current = newTrailRing()
     setTrail([])
     setShareStatus('idle')
     commit(createGame(challengeRef.current?.seed ?? freshSeed()))
@@ -226,6 +258,57 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
     [name, storageKey],
   )
 
+  /** Side effects of one engine tick (sounds, banners, trail). No React state commit here. */
+  const onTicked = useCallback(
+    (prev: PolarityState, next: PolarityState) => {
+      const info = next.lastTick
+      if (!info) return
+      pushTrail(trailRingRef.current, next.ball.x / FP, next.ball.y / FP)
+      if (info.flipped) play('flip')
+      if (info.passed.length) {
+        const multUp = info.mult > comboMult(prev.combo)
+        play(multUp ? 'merge' : 'match')
+        if (multUp) showBanner(`×${info.mult}`, 'var(--neon-lime)')
+        setAnnounce(`Gate! ×${info.mult}`)
+      } else if (info.missed.length) {
+        play('mismatch')
+        if (prev.combo >= 3) showBanner('COMBO LOST', 'var(--neon-red)')
+      }
+      if (info.bumped && next.tick - lastBumpTickRef.current > BUMP_SOUND_GAP && next.lastEvent !== 'dead') {
+        lastBumpTickRef.current = next.tick
+        play('move')
+      }
+    },
+    [play, showBanner],
+  )
+
+  /** Game-over bookkeeping, run once on the transition into 'dead'. */
+  const onDied = useCallback(
+    (next: PolarityState) => {
+      play('lose')
+      setShakeKey((k) => k + 1)
+      const score = next.score
+      const slug = storageKey.replace(/^best:/, '')
+      // 도전 판은 같은 시드를 무한 Rematch할 수 있어(맵 암기) 최고기록에 넣지 않는다.
+      if (!challengeRef.current && score > bestRef.current) {
+        bestRef.current = score
+        setBest(score)
+        saveBest(storageKey, score)
+        setNewBest(true)
+        play('win')
+      }
+      recordFinish(slug)
+      if (challengeRef.current) sendHit(slug, 'challenge-done')
+      setAnnounce(
+        next.deathCause === 'spike'
+          ? `Spiked after ${next.gatesPassed} gates`
+          : `Left behind after ${next.gatesPassed} gates`,
+      )
+    },
+    [play, storageKey],
+  )
+
+  /** Input actions (start / flip) commit immediately; ticks go through the rAF loop below. */
   const dispatch = useCallback(
     (action: PolAction) => {
       const prev = stateRef.current
@@ -233,53 +316,8 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
       const next = reduce(prev, action)
       if (next === prev) return
       commit(next)
-
-      const ev = next.lastEvent
-      const info = next.lastTick
-      if (action.type === 'tick' && info) {
-        setTrail((t) => {
-          const p = { x: next.ball.x / FP, y: next.ball.y / FP }
-          return t.length >= TRAIL_LEN ? [...t.slice(1), p] : [...t, p]
-        })
-        if (info.flipped) play('flip')
-        if (info.passed.length) {
-          const multUp = info.mult > comboMult(prev.combo)
-          play(multUp ? 'merge' : 'match')
-          if (multUp) showBanner(`×${info.mult}`, 'var(--neon-lime)')
-          setAnnounce(`Gate! ×${info.mult}`)
-        } else if (info.missed.length) {
-          play('mismatch')
-          if (prev.combo >= 3) showBanner('COMBO LOST', 'var(--neon-red)')
-        }
-        if (info.bumped && next.tick - lastBumpTickRef.current > BUMP_SOUND_GAP && ev !== 'dead') {
-          lastBumpTickRef.current = next.tick
-          play('move')
-        }
-      }
-
-      if (ev === 'dead' && prev.status !== 'dead') {
-        play('lose')
-        setShakeKey((k) => k + 1)
-        const score = next.score
-        const slug = storageKey.replace(/^best:/, '')
-        // 도전 판은 같은 시드를 무한 Rematch할 수 있어(맵 암기) 최고기록에 넣지 않는다.
-        if (!challengeRef.current && score > bestRef.current) {
-          bestRef.current = score
-          setBest(score)
-          saveBest(storageKey, score)
-          setNewBest(true)
-          play('win')
-        }
-        recordFinish(slug)
-        if (challengeRef.current) sendHit(slug, 'challenge-done')
-        setAnnounce(
-          next.deathCause === 'spike'
-            ? `Spiked after ${next.gatesPassed} gates`
-            : `Left behind after ${next.gatesPassed} gates`,
-        )
-      }
     },
-    [commit, play, showBanner, storageKey],
+    [commit],
   )
 
   /** One flip from any input source. Starts from ready; resumes (without flipping) when paused. */
@@ -293,7 +331,9 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
     dispatch({ type: 'flip' })
   }, [dispatch, setPausedBoth])
 
-  // rAF tick driver: fixed 60 Hz steps from an accumulator.
+  // rAF tick driver: fixed 60 Hz steps from an accumulator, stepped locally and
+  // committed to React once per animation frame (no input can land between two
+  // ticks of the same frame, so this is tick-for-tick identical to per-tick commits).
   useEffect(() => {
     function frame(ts: number) {
       const last = lastTsRef.current || ts
@@ -304,16 +344,24 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
       if (s && s.status === 'running' && !pausedRef.current) {
         accRef.current += dt
         let n = 0
+        let cur = s
         while (accRef.current >= TICK_MS && n < MAX_TICKS_PER_FRAME) {
           accRef.current -= TICK_MS
           n++
-          dispatch({ type: 'tick' })
-          if (stateRef.current?.status !== 'running') {
+          const next = reduce(cur, { type: 'tick' })
+          onTicked(cur, next)
+          if (next.status === 'dead' && cur.status !== 'dead') onDied(next)
+          cur = next
+          if (cur.status !== 'running') {
             accRef.current = 0
             break
           }
         }
         if (n >= MAX_TICKS_PER_FRAME) accRef.current = Math.min(accRef.current, TICK_MS)
+        if (cur !== s) {
+          commit(cur)
+          setTrail(trailSnapshot(trailRingRef.current))
+        }
       } else if (!s || s.status !== 'running') {
         accRef.current = 0
       }
@@ -321,7 +369,7 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
     }
     rafRef.current = requestAnimationFrame(frame)
     return () => cancelAnimationFrame(rafRef.current)
-  }, [dispatch])
+  }, [commit, onDied, onTicked])
 
   // Auto-pause when the tab is hidden.
   useEffect(() => {
@@ -505,6 +553,15 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
     )
   }, [magnets, spikes, gates, reduced])
 
+  // Flip preview: recomputed per committed state (≤ once per frame), not per render.
+  // Hidden while paused so the pause card can't be used to plan flips.
+  const previewPoints = useMemo(() => {
+    if (!state || state.status === 'dead' || paused) return null
+    const path = predictFlipPath(state, PREVIEW_TICKS)
+    if (path.length < 2) return null
+    return [`${state.ball.x / FP},${state.ball.y / FP}`, ...path.map((p) => `${p.x / FP},${p.y / FP}`)].join(' ')
+  }, [state, paused])
+
   if (!state) {
     return (
       <div className="mx-auto w-full max-w-100 select-none">
@@ -524,7 +581,6 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
   const ballGlow = dead ? '--neon-red' : polVar
   const headroom = ballY - camPx
   const danger = dead ? 0 : Math.max(0, Math.min(1, (60 - headroom) / 50))
-  const preview = !dead ? predictPath(state, PREVIEW_TICKS, (polarity === 1 ? -1 : 1) as Sign) : []
   const cooldownFrac = state.flipCooldown / FLIP_COOLDOWN
 
   const hint = ready
@@ -677,10 +733,10 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
               {entityLayer}
 
               {/* flip preview */}
-              {preview.length > 1 && (
+              {previewPoints && (
                 <polyline
                   data-testid="polarity-preview"
-                  points={[`${ballX},${ballY}`, ...preview.map((p) => `${p.x / FP},${p.y / FP}`)].join(' ')}
+                  points={previewPoints}
                   fill="none"
                   stroke={`var(${pull ? '--neon-magenta' : '--neon-cyan'})`}
                   strokeWidth={2}
@@ -776,8 +832,9 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
 
           {/* paused card */}
           {paused && !dead && (
-            <div className="absolute inset-0 flex items-center justify-center bg-bg/55">
-              <div className="rounded-xl border border-border bg-bg-2/90 px-5 py-3 text-center">
+            // Opaque on purpose: pausing must not become a free look to plan flips.
+            <div data-testid="pause-card" className="absolute inset-0 flex items-center justify-center bg-bg">
+              <div className="rounded-xl border border-border bg-bg-2 px-5 py-3 text-center">
                 <p className="text-base font-bold">Paused</p>
                 <p className="text-xs text-fg-muted">Tap or press Space to resume</p>
               </div>

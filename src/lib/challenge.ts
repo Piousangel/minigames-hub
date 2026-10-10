@@ -76,3 +76,15 @@ export function compareChallenge(mine: number, theirs: number): ChallengeOutcome
   if (mine === theirs) return { kind: 'tie', diff: 0 }
   return { kind: 'lose', diff: theirs - mine, pct: Math.floor((mine / theirs) * 100) }
 }
+
+/** 도전 모드를 끄면 주소창에서 vs/n/ref를 지워, 새로고침해도 일반 판으로 돌아오게 한다. */
+export function clearChallengeParams(): void {
+  if (typeof window === 'undefined') return
+  try {
+    const url = new URL(window.location.href)
+    for (const k of ['vs', 'n', 'ref']) url.searchParams.delete(k)
+    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash)
+  } catch {
+    // ignore
+  }
+}

@@ -20,6 +20,7 @@ import { sendHit } from '@/lib/hit'
 import { MAX_NAME_LEN, loadPlayerName, savePlayerName } from '@/lib/leaderboard'
 import {
   challengeUrl,
+  clearChallengeParams,
   compareChallenge,
   parseChallenge,
   type Challenge,
@@ -61,17 +62,6 @@ function saveBest(storageKey: string, score: number): void {
     localStorage.setItem(storageKey, String(score))
   } catch {
     // ignore storage failures (private mode / quota)
-  }
-}
-
-/** 도전 모드를 끄면 주소창에서 vs/n/ref를 지워, 새로고침해도 일반 판으로 돌아오게 한다. */
-function clearChallengeParams(): void {
-  try {
-    const url = new URL(window.location.href)
-    for (const k of ['vs', 'n', 'ref']) url.searchParams.delete(k)
-    window.history.replaceState(window.history.state, '', url.pathname + url.search + url.hash)
-  } catch {
-    // ignore
   }
 }
 

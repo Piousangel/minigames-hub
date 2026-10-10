@@ -164,6 +164,25 @@ describe('GameSiteswap input', () => {
     expect(screen.queryByTestId('game-over')).not.toBeInTheDocument()
   })
 
+  it('R mid-run (or paused) does nothing; after game over it restarts', () => {
+    render(<GameSiteswap storageKey={STORAGE_KEY} />)
+    fireEvent.keyDown(window, { key: '2' })
+    expect(screen.getByTestId('pattern')).toHaveTextContent('Your siteswap: 2')
+    expect(fireEvent.keyDown(window, { key: 'r' })).toBe(true)
+    expect(screen.getByTestId('pattern')).toHaveTextContent('Your siteswap: 2')
+    fireEvent.keyDown(window, { key: 'p' })
+    expect(fireEvent.keyDown(window, { key: 'r' })).toBe(true)
+    expect(screen.getByTestId('pause-card')).toBeInTheDocument()
+    expect(screen.getByTestId('pattern')).toHaveTextContent('Your siteswap: 2')
+    fireEvent.keyDown(window, { key: 'p' })
+
+    runUntilOver()
+    expect(screen.getByTestId('game-over')).toBeInTheDocument()
+    expect(fireEvent.keyDown(window, { key: 'r' })).toBe(false)
+    expect(screen.queryByTestId('game-over')).not.toBeInTheDocument()
+    expect(screen.getByTestId('pattern')).toHaveTextContent('Your siteswap: —')
+  })
+
   it('pausing freezes the score and does not refill the beat', () => {
     render(<GameSiteswap storageKey={STORAGE_KEY} />)
     const beat = beatMs(0)

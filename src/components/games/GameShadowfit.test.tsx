@@ -223,6 +223,44 @@ describe('GameShadowfit keyboard & pause', () => {
     expect(screen.getByTestId('piece').innerHTML).toBe(piece)
   })
 
+  it('Space/Enter on the ready card start the run right after a mouse click on New Game', () => {
+    render(<GameShadowfit storageKey={STORAGE_KEY} />)
+    for (const key of [' ', 'Enter']) {
+      const ng = screen.getByRole('button', { name: 'New Game' })
+      // A browser click: mousedown (moves focus unless prevented) then click.
+      if (fireEvent.mouseDown(ng)) ng.focus()
+      fireEvent.click(ng, { detail: 1 })
+      expect(screen.getByTestId('shadowfit-start')).toBeInTheDocument() // ready card
+      expect(fireEvent.keyDown(document.activeElement ?? document.body, { key })).toBe(false)
+      expect(screen.queryByTestId('shadowfit-start')).not.toBeInTheDocument() // run started
+    }
+  })
+
+  it('R mid-run (or paused) does nothing; on the ready card and game-over it restarts', () => {
+    render(<GameShadowfit storageKey={STORAGE_KEY} />)
+    fireEvent.keyDown(window, { key: 'Enter' })
+    act(() => {
+      vi.advanceTimersByTime(500)
+    })
+    const bar = screen.getByTestId('approach-bar').style.transform
+    expect(fireEvent.keyDown(window, { key: 'r' })).toBe(true)
+    expect(screen.queryByTestId('shadowfit-start')).not.toBeInTheDocument()
+    expect(screen.getByTestId('approach-bar').style.transform).toBe(bar)
+    fireEvent.keyDown(window, { key: 'p' })
+    expect(fireEvent.keyDown(window, { key: 'r' })).toBe(true)
+    expect(screen.getByText('Paused')).toBeInTheDocument()
+    expect(screen.queryByTestId('shadowfit-start')).not.toBeInTheDocument()
+    fireEvent.keyDown(window, { key: 'p' })
+
+    runUntilOver()
+    expect(screen.getByTestId('game-over')).toBeInTheDocument()
+    expect(fireEvent.keyDown(window, { key: 'r' })).toBe(false)
+    expect(screen.queryByTestId('game-over')).not.toBeInTheDocument()
+    expect(screen.getByTestId('shadowfit-start')).toBeInTheDocument()
+    expect(fireEvent.keyDown(window, { key: 'r' })).toBe(false) // ready: rerolls, still ready
+    expect(screen.getByTestId('shadowfit-start')).toBeInTheDocument()
+  })
+
   it('auto-pauses when the tab is hidden', () => {
     render(<GameShadowfit storageKey={STORAGE_KEY} />)
     fireEvent.keyDown(window, { key: 'Enter' })

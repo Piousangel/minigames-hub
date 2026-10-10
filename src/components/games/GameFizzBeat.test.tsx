@@ -250,28 +250,50 @@ describe('GameFizzBeat input & pause', () => {
     expect(screen.getByTestId('game-over')).toHaveTextContent('Lost the count')
   })
 
-  it('pausing on a number already on screen forfeits it: resume cannot be used to think, then hit', () => {
+  it('hiding the tab before the next window opens costs nothing: the count-in replaces that number', () => {
     render(<GameFizzBeat storageKey={STORAGE_KEY} />)
     start()
     // "3" replaces "2" once beat 2's window closes (tick 343) — before its own window opens at 384.
     advance(3600)
     expect(screen.getByTestId('beat-number')).toHaveTextContent('3')
+    const vis = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden')
+    fireEvent(document, new Event('visibilitychange'))
+    vis.mockRestore()
+    expect(screen.getByTestId('paused')).toBeInTheDocument()
+    advance(60_000)
+    fireEvent.click(screen.getByTestId('fizzbeat-resume'))
+    // nothing judged: neither "3" (window not open) nor anything after it
+    expect(screen.getByTestId('lives')).toHaveAttribute('aria-label', 'Lives: 3')
+    expect(screen.queryByText(/✗ 3/)).not.toBeInTheDocument()
+    expect(screen.getByTestId('count-in')).toBeInTheDocument()
+    expect(screen.queryByTestId('beat-number')).not.toBeInTheDocument()
+    // after the fresh count-in "3" is played normally and can be hit
+    advance(2640)
+    fireEvent.pointerDown(screen.getByTestId('pad-left'))
+    advance(300)
+    expect(screen.getByTestId('judgment')).toHaveTextContent('✓ 3')
+    expect(screen.getByTestId('lives')).toHaveAttribute('aria-label', 'Lives: 3')
+  })
+
+  it('pausing (P) inside a number\'s window forfeits it: resume cannot be used to think, then hit', () => {
+    render(<GameFizzBeat storageKey={STORAGE_KEY} />)
+    start()
+    advance(3900) // "3" window is [3840, 4080] ms
     fireEvent.keyDown(window, { code: 'KeyP', key: 'p' })
     advance(60_000) // all the time in the world to work out "3 → LEFT"
     fireEvent.keyDown(window, { code: 'Space', key: ' ' })
     expect(screen.getByTestId('judgment')).toHaveTextContent('✗ 3 wanted L')
     expect(screen.getByTestId('lives')).toHaveAttribute('aria-label', 'Lives: 2')
-    // a fresh count-in plays before the first unseen beat ("4")
+    // a fresh count-in plays before the next beat ("4")
     expect(screen.getByTestId('count-in')).toBeInTheDocument()
     expect(screen.queryByTestId('beat-number')).not.toBeInTheDocument()
-    // tapping LEFT where the old "3" window would have been is not a hit
-    advance(360)
+    // tapping LEFT right away is not a late hit on "3"
     fireEvent.pointerDown(screen.getByTestId('pad-left'))
     advance(300)
     expect(screen.getByTestId('judgment')).not.toHaveTextContent('✓ 3')
     expect(screen.getByTestId('lives')).toHaveAttribute('aria-label', 'Lives: 2')
-    advance(2000)
-    expect(screen.getByTestId('beat-number')).toHaveTextContent(/^(4|5)$/)
+    advance(2400)
+    expect(screen.getByTestId('beat-number')).toHaveTextContent('4')
   })
 
   it('pausing during the count-in costs nothing and restarts the count-in', () => {
