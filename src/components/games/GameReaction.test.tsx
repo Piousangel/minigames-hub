@@ -39,7 +39,7 @@ describe('GameReaction', () => {
     expect(localStorage.getItem(STORAGE_KEY)).toBe('180')
 
     const stats = JSON.parse(localStorage.getItem(statsKey('reaction-time')) ?? '{}')
-    expect(stats).toEqual({ plays: 1, wins: 1 })
+    expect(stats).toEqual({ plays: 1, wins: 0 })
   })
 
   it('does not re-show New best on a slower second attempt, but still records the play', () => {
@@ -52,7 +52,7 @@ describe('GameReaction', () => {
     expect(localStorage.getItem(STORAGE_KEY)).toBe('150') // unchanged — 220ms didn't beat 150ms
 
     const stats = JSON.parse(localStorage.getItem(statsKey('reaction-time')) ?? '{}')
-    expect(stats).toEqual({ plays: 1, wins: 1 }) // recordResult still fires on a non-best round
+    expect(stats).toEqual({ plays: 1, wins: 0 }) // recordResult still fires on a non-best round
   })
 
   it('clicking during the waiting (red) phase fails the attempt as "too soon" without recording a result', () => {

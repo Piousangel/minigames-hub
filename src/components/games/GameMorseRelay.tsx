@@ -172,7 +172,7 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
         }
         saveBest(storageKey, Math.max(bestRef.current, finalState.score))
       }
-      recordResult(storageKey.replace(/^best:/, ''), { won: false })
+      recordResult(storageKey.replace(/^best:/, ''))
       if (challengeRef.current) sendHit(storageKey.replace(/^best:/, ''), 'challenge-done')
     },
     [storageKey],

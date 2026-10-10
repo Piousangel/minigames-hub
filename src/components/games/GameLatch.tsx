@@ -346,7 +346,7 @@ export function GameLatch({ storageKey }: { storageKey: string }) {
           shakeRef.current = 10
           phaseRef.current = 'over'
           setPhase('over')
-          recordResult(storageKey.replace(/^best:/, ''), { won: true })
+          recordResult(storageKey.replace(/^best:/, ''))
         }
 
         // E2E probe (deterministic per frame).

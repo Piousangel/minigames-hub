@@ -1,6 +1,7 @@
 import { currentStreak, loadStreak } from './dailyStreak'
 import { todayUTC } from './dailyDate'
 import { loadPlayedToday } from './today'
+import { isEndless } from './games/gameMeta'
 
 /**
  * 목표(Goals) — "다음에 이룰 것"을 주어 계속 플레이하게 만드는 체류/재방문 장치(DOMAIN §2·§3).
@@ -32,12 +33,17 @@ function distinctPlayed(): number {
   }
 }
 
-function totalWins(): number {
+/**
+ * Champion 목표 값 — 승패가 있는 게임의 승수 합. endless 게임(gameMeta.endless)은 승리
+ * 개념이 없으므로 건너뛴다(예전엔 Snake 등이 매 판 won:true로 기록돼 승수가 부풀었다 —
+ * 그 레거시 값도 여기서 걸러진다).
+ */
+export function totalWins(): number {
   let wins = 0
   try {
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i)
-      if (k && k.startsWith('stats:')) {
+      if (k && k.startsWith('stats:') && !isEndless(k.slice('stats:'.length))) {
         const o = JSON.parse(localStorage.getItem(k) || '{}') as { wins?: number }
         if (typeof o.wins === 'number') wins += o.wins
       }

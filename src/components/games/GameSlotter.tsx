@@ -146,7 +146,7 @@ export function GameSlotter({ storageKey }: { storageKey: string }) {
       }
       setNewBest(beatBest)
       if (beatBest) play('win')
-      recordResult(storageKey.replace(/^best:/, ''), { won: false, bucket: state.streak })
+      recordResult(storageKey.replace(/^best:/, ''), { bucket: state.streak })
     }
     prevOver.current = state.over
   }, [state, best, storageKey, play])

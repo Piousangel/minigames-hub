@@ -230,7 +230,7 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
       }
       setNewBest(beatScore)
       play(beatScore ? 'win' : 'lose')
-      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      recordResult(storageKey.replace(/^best:/, ''))
     }
     prevOver.current = state.over
   }, [state, best, storageKey, play])

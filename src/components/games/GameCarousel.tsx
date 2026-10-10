@@ -150,7 +150,7 @@ export function GameCarousel({ storageKey }: { storageKey: string }) {
       } else {
         newBestRef.current = false
       }
-      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      recordResult(storageKey.replace(/^best:/, ''))
     },
     [storageKey],
   )

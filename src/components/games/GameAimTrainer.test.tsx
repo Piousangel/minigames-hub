@@ -25,7 +25,7 @@ describe('GameAimTrainer', () => {
     }
   }
 
-  it('records a completed run, always as a win, regardless of best', () => {
+  it('records a completed run as a neutral finish (endless: no win), regardless of best', () => {
     render(<GameAimTrainer storageKey={STORAGE_KEY} />)
     completeRun()
 
@@ -33,7 +33,7 @@ describe('GameAimTrainer', () => {
     expect(screen.getByTestId('hits')).toHaveTextContent(String(DEFAULT_TARGET_COUNT))
 
     const stats = JSON.parse(localStorage.getItem(statsKey('aim-trainer')) ?? '{}')
-    expect(stats).toEqual({ plays: 1, wins: 1 })
+    expect(stats).toEqual({ plays: 1, wins: 0 })
   })
 
   it('sets a new best and persists it as a plain number on the first completed run', () => {
@@ -56,6 +56,6 @@ describe('GameAimTrainer', () => {
     expect(localStorage.getItem(STORAGE_KEY)).toBe('999999')
 
     const stats = JSON.parse(localStorage.getItem(statsKey('aim-trainer')) ?? '{}')
-    expect(stats).toEqual({ plays: 1, wins: 1 })
+    expect(stats).toEqual({ plays: 1, wins: 0 })
   })
 })

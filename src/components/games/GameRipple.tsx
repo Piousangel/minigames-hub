@@ -363,7 +363,7 @@ export function GameRipple({ storageKey, seed }: { storageKey: string; seed?: nu
           play(newBestRef.current ? 'win' : 'lose')
           phaseRef.current = 'over'
           setPhase('over')
-          recordResult(storageKey.replace(/^best:/, ''), { won: true })
+          recordResult(storageKey.replace(/^best:/, ''))
         }
       }
 

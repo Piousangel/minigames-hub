@@ -258,7 +258,7 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
         if (ev.over) {
           play('lose')
           setIsBest(s.score > 0 && s.score >= bestRef.current)
-          recordResult(storageKey.replace(/^best:/, ''), { won: true })
+          recordResult(storageKey.replace(/^best:/, ''))
         }
 
         syncHud(s)

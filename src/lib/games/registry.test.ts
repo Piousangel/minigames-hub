@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { gamePages } from './registry'
 import { themes2048 } from './g2048/themes'
+import { gameMeta, isEndless } from './gameMeta'
 
 describe('gamePages 레지스트리', () => {
   it('slug는 유일하고 URL-safe다', () => {
@@ -25,5 +26,11 @@ describe('gamePages 레지스트리', () => {
     for (const t of Object.values(themes2048)) {
       for (const v of required) expect(t.tiles[v], `${t.key}:${v}`).toBeTruthy()
     }
+  })
+  it('gameMeta에서 endless로 표시한 slug는 전부 실제 레지스트리 페이지다', () => {
+    const slugs = new Set(gamePages.map((g) => g.slug))
+    const endless = Object.keys(gameMeta).filter(isEndless)
+    expect(endless.length).toBeGreaterThan(0)
+    for (const s of endless) expect(slugs.has(s), s).toBe(true)
   })
 })

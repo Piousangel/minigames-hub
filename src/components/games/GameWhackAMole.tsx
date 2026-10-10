@@ -150,7 +150,7 @@ export function GameWhackAMole({ storageKey }: { storageKey: string }) {
       } else {
         play('lose')
       }
-      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      recordResult(storageKey.replace(/^best:/, ''))
     }
     prevOver.current = state.over
   }, [state, best, storageKey, play])

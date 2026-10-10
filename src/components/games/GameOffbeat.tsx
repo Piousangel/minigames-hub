@@ -113,9 +113,8 @@ export function GameOffbeat({ storageKey }: { storageKey: string }) {
       const merged = Math.max(prevBest, next.score)
       saveBest(storageKey, merged)
       setBest(merged)
-      // Endless/survival game: no true "win" — a completed run is what counts
-      // (matches flywheel/stackpot/turntile convention for this shape of game).
-      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      // Endless/survival game (gameMeta.endless): recordResult logs a neutral finish.
+      recordResult(storageKey.replace(/^best:/, ''))
     },
     [storageKey],
   )

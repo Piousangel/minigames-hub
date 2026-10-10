@@ -92,7 +92,7 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
         setBest(wpm)
         localStorage.setItem(storageKey, String(wpm))
       }
-      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      recordResult(storageKey.replace(/^best:/, ''))
     }
   }, [finished, wpm, best, play, storageKey])
 

@@ -179,7 +179,7 @@ export function GameSkew({ storageKey }: { storageKey: string }) {
         setNewBest(beat)
         if (beat) registerBest(resolved.score)
         play('lose')
-        recordResult(storageKey.replace(/^best:/, ''), { won: true })
+        recordResult(storageKey.replace(/^best:/, ''))
       }
 
       busyRef.current = false

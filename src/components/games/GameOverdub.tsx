@@ -202,7 +202,7 @@ export function GameOverdub({ storageKey }: { storageKey: string }) {
       const isNew = persistBest(next.score)
       setNewBest(isNew)
       play(isNew ? 'win' : 'lose')
-      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      recordResult(storageKey.replace(/^best:/, ''))
       return
     }
 

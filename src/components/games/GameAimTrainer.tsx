@@ -140,7 +140,7 @@ export function GameAimTrainer({ storageKey }: { storageKey: string }) {
       setResult(res)
       setStatusBoth('done')
       setTarget(null)
-      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      recordResult(storageKey.replace(/^best:/, ''))
       if (bestRef.current === 0 || tps > bestRef.current) {
         bestRef.current = tps
         setBest(tps)

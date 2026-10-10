@@ -276,7 +276,7 @@ export function GameYahtzee({ storageKey }: { storageKey: string }) {
         }
         setBest(total)
       }
-      recordResult(slug, { won: true })
+      recordResult(slug)
     },
     [storageKey, slug],
   )

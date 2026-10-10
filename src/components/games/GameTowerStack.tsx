@@ -251,7 +251,7 @@ export function GameTowerStack({ storageKey }: { storageKey: string }) {
       } else {
         play('lose')
       }
-      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      recordResult(storageKey.replace(/^best:/, ''))
       return
     }
 

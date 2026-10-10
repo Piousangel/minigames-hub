@@ -136,7 +136,7 @@ export function GamePolytap({ storageKey }: { storageKey: string }) {
         setPhase('over')
         setNewBest(newBestRef.current)
         play(newBestRef.current ? 'win' : 'lose')
-        recordResult(storageKey.replace(/^best:/, ''), { won: true })
+        recordResult(storageKey.replace(/^best:/, ''))
       }
     },
     [react, persistBest, play, storageKey],

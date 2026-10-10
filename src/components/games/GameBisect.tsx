@@ -134,7 +134,7 @@ export function GameBisect({ storageKey }: { storageKey: string }) {
         setBest(score)
       }
       saveBest(storageKey, Math.max(bestRef.current, score))
-      recordResult(storageKey.replace(/^best:/, ''), { won: false })
+      recordResult(storageKey.replace(/^best:/, ''))
     },
     [storageKey],
   )

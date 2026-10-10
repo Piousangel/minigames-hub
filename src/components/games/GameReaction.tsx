@@ -102,7 +102,7 @@ export function GameReaction({ storageKey }: { storageKey: string }) {
     } else {
       play('flip')
     }
-    recordResult(storageKey.replace(/^best:/, ''), { won: true })
+    recordResult(storageKey.replace(/^best:/, ''))
   }, [commit, play, storageKey])
 
   // Single entry point for both pointer and keyboard activation.

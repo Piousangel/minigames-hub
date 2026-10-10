@@ -170,7 +170,7 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
       // 이 effect는 위의 best 갱신 effect보다 뒤에 선언돼 있어 플래그가 이미 서 있다.
       setNewBest(newBestRef.current)
       play(newBestRef.current ? 'win' : 'lose')
-      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      recordResult(storageKey.replace(/^best:/, ''))
     }
     prevOver.current = state.over
   }, [state, play, storageKey])

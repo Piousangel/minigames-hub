@@ -189,7 +189,7 @@ export function GameHandful({ storageKey }: { storageKey: string }) {
       }
       if (next.over && !prevOver.current) {
         persistWin(next)
-        recordResult(storageKey.replace(/^best:/, ''), { won: true })
+        recordResult(storageKey.replace(/^best:/, ''))
       }
       prevOver.current = next.over
     },

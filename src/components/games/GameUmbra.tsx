@@ -135,7 +135,7 @@ export function GameUmbra({ storageKey }: { storageKey: string }) {
           setBest(s.score)
           saveBest(storageKey, s.score)
         }
-        recordResult(storageKey.replace(/^best:/, ''), { won: true })
+        recordResult(storageKey.replace(/^best:/, ''))
       }
     },
     [play, pushBadge, storageKey],

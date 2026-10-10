@@ -156,7 +156,7 @@ export function GameCleave({ storageKey }: { storageKey: string }) {
         saveBest(storageKey, top)
         setNewBest(isNew)
         play(isNew ? 'win' : 'lose')
-        recordResult(storageKey.replace(/^best:/, ''), { won: true })
+        recordResult(storageKey.replace(/^best:/, ''))
       }
       prevOver.current = next.phase === 'over'
       if (action.type === 'new' || action.type === 'reset') {

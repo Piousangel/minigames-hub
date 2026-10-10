@@ -280,7 +280,7 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
           flashRef.current = 1
           shakeRef.current = 10
           persistBest(s)
-          recordResult(storageKey.replace(/^best:/, ''), { won: true })
+          recordResult(storageKey.replace(/^best:/, ''))
         }
       }
 

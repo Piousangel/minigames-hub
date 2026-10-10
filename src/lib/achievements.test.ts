@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { goalState, GOALS, nearestGoalHint, type Goal } from './achievements'
+import { goalState, GOALS, nearestGoalHint, totalWins, type Goal } from './achievements'
 
 const g: Goal = { id: 't', label: 't', icon: '⭐', tiers: [5, 15, 30], value: () => 0 }
 
@@ -65,3 +65,32 @@ describe('nearestGoalHint (게임오버 넛지)', () => {
     expect(nearestGoalHint(2)).toBeNull()
   })
 })
+
+describe('totalWins (Champion)', () => {
+  function mockStore(entries: Record<string, string>) {
+    const keys = Object.keys(entries)
+    vi.stubGlobal('localStorage', {
+      length: keys.length,
+      key: (i: number) => keys[i] ?? null,
+      getItem: (k: string) => entries[k] ?? null,
+    })
+  }
+  beforeEach(() => vi.unstubAllGlobals())
+
+  it('승패 게임의 승수만 합산 — endless 게임의 (레거시) wins는 제외', () => {
+    mockStore({
+      'stats:minesweeper': JSON.stringify({ plays: 10, wins: 4 }),
+      'stats:chess': JSON.stringify({ plays: 3, wins: 2 }),
+      'stats:snake': JSON.stringify({ plays: 50, wins: 50 }), // 예전 won:true 관례로 부푼 값
+      'stats:reaction-time': JSON.stringify({ plays: 7, wins: 7 }),
+      'best:minesweeper': '123', // stats: 접두사 아님 → 무시
+    })
+    expect(totalWins()).toBe(6)
+  })
+
+  it('Champion 목표 값이 totalWins다', () => {
+    mockStore({ 'stats:snake': JSON.stringify({ plays: 9, wins: 9 }) })
+    expect(GOALS.find((g) => g.id === 'champion')?.value()).toBe(0)
+  })
+})
+

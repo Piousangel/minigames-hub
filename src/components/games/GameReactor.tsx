@@ -222,7 +222,7 @@ export function GameReactor({ storageKey }: { storageKey: string }) {
     persist(next)
     play('win')
     setConfirmReboot(false)
-    recordResult(storageKey.replace(/^best:/, ''), { won: true })
+    recordResult(storageKey.replace(/^best:/, ''))
   }, [commit, persist, play, storageKey])
 
   // Keyboard: 1-6 buy modules, Space/Enter taps (when not on a control).

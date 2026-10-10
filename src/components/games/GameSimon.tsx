@@ -218,7 +218,7 @@ export function GameSimon({ storageKey }: { storageKey: string }) {
         const isBest = res.state.score > bestBeforeRef.current
         setNewBest(isBest && res.state.score > 0)
         after(180, () => (isBest && res.state.score > 0 ? play('win') : play('lose')))
-        recordResult(storageKey.replace(/^best:/, ''), { won: true })
+        recordResult(storageKey.replace(/^best:/, ''))
         return
       }
 

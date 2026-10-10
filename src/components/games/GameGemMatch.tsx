@@ -204,7 +204,7 @@ export function GameGemMatch({ storageKey }: { storageKey: string }) {
         setNewBest(beat)
         setFinished('over')
         play(beat ? 'win' : 'lose')
-        recordResult(storageKey.replace(/^best:/, ''), { won: true })
+        recordResult(storageKey.replace(/^best:/, ''))
       }
       busyRef.current = false
     },

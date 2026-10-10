@@ -9,7 +9,7 @@
  *   - 일수: 조회 기간(기본 7). 예: node scripts/analytics.mjs 30
  *
  * mg_events 스키마(우리 worker writeDataPoint 기준):
- *   index1=slug, blob1=event(view|pageview|dwell|win|lose|challenge-*), blob2=country, blob3=referrer, blob4=vid,
+ *   index1=slug, blob1=event(view|pageview|dwell|win|lose|finish|challenge-*), blob2=country, blob3=referrer, blob4=vid,
  *   blob5=유입 태그(?ref=, 예: share — 2026-10 추가, 이전 행은 ''), double1=dwell(초)
  */
 
@@ -161,12 +161,12 @@ async function main() {
   console.log(`\n[국가]`)
   console.log(table(geo.data, [{ h: 'country', k: 'country' }, { h: 'n', k: 'n' }]))
 
-  // 5) 완주(win/lose) — 승/패 신호 있는 게임
+  // 5) 완주(win/lose/finish) — recordResult 부르는 게임. endless(승리 조건 없음)는 'finish'
   const wl = await q(
     `SELECT index1 AS game, SUM(_sample_interval) AS finishes
-     FROM mg_events WHERE (blob1='win' OR blob1='lose') AND ${SINCE} GROUP BY game ORDER BY finishes DESC LIMIT 15`,
+     FROM mg_events WHERE blob1 IN ('win','lose','finish') AND ${SINCE} GROUP BY game ORDER BY finishes DESC LIMIT 15`,
   )
-  console.log(`\n[완주 이벤트(win/lose) top]`)
+  console.log(`\n[완주 이벤트(win/lose/finish) top]`)
   console.log(table(wl.data, [{ h: 'game', k: 'game' }, { h: 'finishes', k: 'finishes' }]))
 
   console.log(`\n${'='.repeat(52)}\n해석: plays↑=SEO/유입 잘됨, avg_sec↑=붙잡는 게임(더 만들 것),`)

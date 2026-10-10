@@ -138,7 +138,7 @@ export function GameFuse({ storageKey }: { storageKey: string }) {
         if (e.over) {
           setNewBest(newBestRef.current)
           play(newBestRef.current ? 'win' : 'lose')
-          recordResult(storageKey.replace(/^best:/, ''), { won: true })
+          recordResult(storageKey.replace(/^best:/, ''))
         }
 
         cur = next

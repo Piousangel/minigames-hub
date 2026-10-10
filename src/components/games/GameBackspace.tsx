@@ -331,7 +331,7 @@ export function GameBackspace({ storageKey }: { storageKey: string }) {
               setNewBest(true)
               play('win')
             }
-            recordResult(storageKey.replace(/^best:/, ''), { won: true })
+            recordResult(storageKey.replace(/^best:/, ''))
             break
           }
         }

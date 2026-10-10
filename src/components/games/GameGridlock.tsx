@@ -241,7 +241,7 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
       }
       setNewBest(beatBest)
       if (beatBest) play('win')
-      recordResult(storageKey.replace(/^best:/, ''), { won: false })
+      recordResult(storageKey.replace(/^best:/, ''))
     }
     prevOver.current = state.gameOver
   }, [state, best, storageKey, play])

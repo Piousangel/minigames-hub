@@ -130,7 +130,7 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
 
         if (e.over) {
           setNewBest(newBestRef.current)
-          recordResult(storageKey.replace(/^best:/, ''), { won: true })
+          recordResult(storageKey.replace(/^best:/, ''))
         }
 
         cur = next

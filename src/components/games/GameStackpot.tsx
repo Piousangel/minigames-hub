@@ -138,7 +138,7 @@ export function GameStackpot({ storageKey }: { storageKey: string }) {
       setDayStreak(bumped.streak)
     }
     play(beat ? 'win' : 'lose')
-    recordResult(storageKey.replace(/^best:/, ''), { won: true })
+    recordResult(storageKey.replace(/^best:/, ''))
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state?.over])
 

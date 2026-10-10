@@ -8,10 +8,14 @@
  * best:<slug>(점수)·<streakKey>(데일리 스트릭)는 별도 키라 여기서 안 건드린다.
  */
 import { sendHit } from './hit'
+import { isEndless } from './games/gameMeta'
 
 export interface GameStats {
   plays: number // 완료한 판 수
-  wins: number // 그중 승리 수
+  // 그중 승리 수. endless 게임(gameMeta.endless)은 승리 개념이 없어 새로 쌓이지 않는다 —
+  // 단, 이 변경 전에 won:true로 기록된 레거시 값이 남아 있을 수 있으니 endless 게임의
+  // wins는 읽는 쪽(GameStats 패널·achievements)에서 아예 무시한다.
+  wins: number
   dist?: Record<string, number> // 결과 분포(게임 정의 버킷 → 횟수). 예: Clusters 실수 0~4
 }
 
@@ -41,12 +45,18 @@ export function loadStats(slug: string): GameStats {
 /**
  * 게임오버 1회당 호출. plays++/wins(+승리)/dist[bucket]++. bucket은 게임이 정하는
  * 결과 카테고리(예: Clusters의 실수 개수 0~4). 새 GameStats 반환(호출부 즉시 갱신용).
+ *
+ * endless 게임(gameMeta.endless — 승리 조건 없이 런이 끝나기만 함)은 `won`을 무시하고
+ * 중립 완주로 기록한다: wins 불변, 분석 이벤트는 'finish'. 그래서 endless 게임은
+ * `recordResult(slug)`(또는 bucket만)로 부른다. 승패가 있는 게임은 won을 반드시 넘긴다.
  */
-export function recordResult(slug: string, r: { won: boolean; bucket?: number | string }): GameStats {
+export function recordResult(slug: string, r: { won?: boolean; bucket?: number | string } = {}): GameStats {
+  const endless = isEndless(slug)
+  const won = !endless && r.won === true
   const s = loadStats(slug)
   const next: GameStats = {
     plays: s.plays + 1,
-    wins: s.wins + (r.won ? 1 : 0),
+    wins: s.wins + (won ? 1 : 0),
     ...(s.dist ? { dist: { ...s.dist } } : {}),
   }
   if (r.bucket != null) {
@@ -60,9 +70,10 @@ export function recordResult(slug: string, r: { won: boolean; bucket?: number | 
   } catch {
     // 저장 실패 무시
   }
-  // 승/패 퍼널 비콘(1st-party) — 게임별 완주율 신호. recordResult를 부르는 모든 게임에
-  // per-game 추가 배선 없이 자동 적용. sendHit은 실패를 삼키므로 여기 부작용은 무해.
-  sendHit(slug, r.won ? 'win' : 'lose')
+  // 완주 퍼널 비콘(1st-party) — 게임별 완주율 신호. recordResult를 부르는 모든 게임에
+  // per-game 추가 배선 없이 자동 적용. endless는 승패가 없으니 중립 'finish'.
+  // sendHit은 실패를 삼키므로 여기 부작용은 무해.
+  sendHit(slug, endless ? 'finish' : won ? 'win' : 'lose')
   return next
 }
 

@@ -124,7 +124,7 @@ export function GameNumberMemory({ storageKey }: { storageKey: string }) {
       clearTimers()
       commit(next)
       setShakeKey((k) => k + 1)
-      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      recordResult(storageKey.replace(/^best:/, ''))
       const isBest = next.reached > bestBeforeRef.current && next.reached > 0
       if (isBest) {
         bestRef.current = next.reached
