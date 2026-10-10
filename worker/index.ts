@@ -77,7 +77,10 @@ async function loadPopular(env: Env): Promise<{ value: PopularPayload; ttlMs: nu
       )
       if (res.ok) {
         body = { games: parsePopularRows(await res.json()) }
-        ttlSec = POPULAR_TTL_SEC
+        // 빈 결과를 6시간 굳히면, 토큰 등록 직후·데이터가 막 쌓이기 시작한 때 레일이 반나절
+        // 큐레이션에 묶인다 — 비어 있으면 실패와 같은 짧은 TTL로 곧 다시 본다.
+        ttlSec = body.games.length > 0 ? POPULAR_TTL_SEC : POPULAR_FAIL_TTL_SEC
+        console.log('popular: AE rows', body.games.length)
       } else {
         console.warn('popular: AE query failed', res.status)
       }
@@ -97,7 +100,7 @@ let popularIsolateCache: (() => Promise<PopularPayload>) | null = null
 // 어떤 실패든 { games: [] } 200 — 클라이언트는 큐레이션 순서를 유지한다(페이지를 절대 깨지 않음).
 async function popularResponse(request: Request, env: Env, defer: Defer): Promise<Response> {
   const cache = (globalThis as unknown as { caches?: { default?: EdgeCache } }).caches?.default
-  const key = new Request(new URL('/api/popular?v=1', request.url).toString(), { method: 'GET' })
+  const key = new Request(new URL('/api/popular?v=2', request.url).toString(), { method: 'GET' })
   if (cache) {
     try {
       const hit = await cache.match(key)
