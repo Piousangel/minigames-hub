@@ -24,6 +24,7 @@ import {
 } from '../src/lib/comments'
 import { isValidGameSlug } from '../src/lib/slug'
 import { RATE_LIMIT_PRUNE_BATCH, rateLimitPruneCutoff, shouldPruneRateLimits } from '../src/lib/rateLimitPrune'
+import { buildPopularSql, parsePopularRows, type PopularResponse } from '../src/lib/popular'
 
 // 최소 타입(CF 타입 의존 없이) — 번들은 wrangler(esbuild)가 처리.
 interface D1Stmt {
@@ -41,6 +42,69 @@ interface Env {
   ASSETS: { fetch(req: Request): Promise<Response> }
   DB: D1Database
   ANALYTICS?: AnalyticsEngine
+  /** AE SQL API 읽기용 시크릿(Account Analytics:Read). 없으면 /api/popular는 빈 목록. */
+  CF_ANALYTICS_TOKEN?: string
+  CF_ACCOUNT_ID?: string
+}
+
+// Workers Cache API 최소 타입(caches.default). 로컬/테스트 런타임엔 없을 수 있어 optional 취급.
+interface EdgeCache {
+  match(req: Request): Promise<Response | undefined>
+  put(req: Request, res: Response): Promise<void>
+}
+
+const POPULAR_TTL_SEC = 21_600 // 6시간 — AE는 하루 몇 번만 조회
+const POPULAR_FAIL_TTL_SEC = 300 // 토큰 없음/실패 시 짧게
+
+// 홈 Featured 레일 인기 순위(src/lib/popular.ts). 엣지 캐시로 감싸 AE SQL을 드물게만 친다.
+// 어떤 실패든 { games: [] } 200 — 클라이언트는 큐레이션 순서를 유지한다(페이지를 절대 깨지 않음).
+async function popularResponse(
+  request: Request,
+  env: Env,
+  defer: (p: Promise<unknown>) => void,
+): Promise<Response> {
+  const cache = (globalThis as unknown as { caches?: { default?: EdgeCache } }).caches?.default
+  const key = new Request(new URL('/api/popular?v=1', request.url).toString(), { method: 'GET' })
+  if (cache) {
+    try {
+      const hit = await cache.match(key)
+      if (hit) return hit
+    } catch {
+      // 캐시 장애는 무시하고 원본 조회
+    }
+  }
+
+  let body: PopularResponse = { games: [] }
+  let ttl = POPULAR_FAIL_TTL_SEC
+  if (env.CF_ANALYTICS_TOKEN && env.CF_ACCOUNT_ID) {
+    try {
+      const res = await fetch(
+        `https://api.cloudflare.com/client/v4/accounts/${env.CF_ACCOUNT_ID}/analytics_engine/sql`,
+        {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${env.CF_ANALYTICS_TOKEN}` },
+          body: buildPopularSql(),
+        },
+      )
+      if (res.ok) {
+        body = { games: parsePopularRows(await res.json()), updated: new Date().toISOString() }
+        ttl = POPULAR_TTL_SEC
+      } else {
+        console.warn('popular: AE query failed', res.status)
+      }
+    } catch (e) {
+      console.warn('popular: AE query error', e)
+    }
+  }
+
+  const response = new Response(JSON.stringify(body), {
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      'cache-control': `public, max-age=${ttl}`,
+    },
+  })
+  if (cache) defer(cache.put(key, response.clone()).catch(() => {}))
+  return response
 }
 
 function json(data: unknown, status = 200): Response {
@@ -258,6 +322,10 @@ export default {
         .run()
 
       return json({ comments: await commentsFor(env, game) })
+    }
+
+    if (url.pathname === '/api/popular' && request.method === 'GET') {
+      return popularResponse(request, env, defer)
     }
 
     // 1st-party 분석 비콘: 게임별 조회('view')·체류('dwell', 초)를 Analytics Engine에 기록.

@@ -19,5 +19,8 @@
   // 1st-party 분석: 게임별 조회·체류를 Analytics Engine에 기록(외부 요청·CSP·토큰 불필요).
   // 대시보드에서 mg_events 데이터셋 생성/활성화 완료(2026-07-20) → 바인딩 활성.
   "analytics_engine_datasets": [{ "binding": "ANALYTICS", "dataset": "mg_events" }],
+  // /api/popular(홈 Featured 레일 인기순)가 AE SQL API를 읽을 때 쓰는 계정 id(비밀 아님).
+  // 토큰은 시크릿: `pnpm exec wrangler secret put CF_ANALYTICS_TOKEN` — 없으면 레일은 큐레이션 순서 유지.
+  "vars": { "CF_ACCOUNT_ID": "f9ca01fb346f810310bfb49234926972" },
   "routes": [{ "pattern": "quickminigames.site", "custom_domain": true }]
 }
