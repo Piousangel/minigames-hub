@@ -1,4 +1,5 @@
 import { ImageResponse } from 'next/og'
+import { GameIconSvg } from '@/components/icons/GameIcon'
 import { siteConfig } from '@/lib/siteConfig'
 
 export const dynamic = 'force-static'
@@ -27,7 +28,8 @@ export default function OgImage() {
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-          <div style={{ fontSize: 88 }}>🕹️</div>
+          {/* 이모지 대신 SVG 조이스틱 — 빌드 중 외부 CDN 요청을 없앤다 */}
+          <GameIconSvg slug="__default" size={96} color="#22d3ee" />
           <div style={{ fontSize: 84, fontWeight: 800, color: '#22d3ee' }}>{siteConfig.name}</div>
         </div>
         <div style={{ fontSize: 34, color: '#9494b8', marginTop: 24 }}>

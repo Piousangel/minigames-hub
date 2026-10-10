@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { Children, Fragment, isValidElement, type ReactElement, type ReactNode } from 'react'
 
 /**
  * GameIcon — 사이트 전 게임(87종, 2026-08-05 기준)을 위한 커스텀 네온 라인 아이콘 세트.
@@ -1144,6 +1144,38 @@ const glyphs: Record<string, ReactNode> = {
       <path d="M6 20a3 3 0 0 1 2.5-5h7a3 3 0 0 1 2.5 5z" {...soft} />
     </>
   ),
+}
+
+/**
+ * 아이콘 SVG를 고정 크기·색으로 그린다 — next/og(Satori) OG 이미지용. currentColor는
+ * svg의 color 스타일에서 상속되므로 accent 색만 넘기면 된다. 이모지와 달리 빌드 중
+ * 외부 CDN(twemoji)을 받지 않아, OG 프리렌더가 네트워크에 의존하지 않는다.
+ */
+/** Satori는 React Fragment를 못 그린다(Symbol 변환 에러) — 글리프의 <>…</>를 풀어 자식만 넘긴다. */
+function flattenFragments(node: ReactNode): ReactNode[] {
+  return Children.toArray(node).flatMap((child) =>
+    isValidElement(child) && child.type === Fragment
+      ? flattenFragments((child as ReactElement<{ children?: ReactNode }>).props.children)
+      : [child],
+  )
+}
+
+export function GameIconSvg({ slug, size, color }: { slug: string; size: number; color: string }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={{ color }}
+    >
+      {flattenFragments(glyphs[slug] ?? glyphs.__default)}
+    </svg>
+  )
 }
 
 export function GameIcon({
