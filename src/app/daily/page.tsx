@@ -18,7 +18,7 @@ const INTRO =
 
 const FAQ: { q: string; a: string }[] = [
   { q: 'What is a daily game?', a: 'A daily game gives everyone the same puzzle for that calendar day, generated from the date. You get one board per day per game — solve it, then come back tomorrow for a fresh one.' },
-  { q: 'Do my streaks and stats save?', a: 'Yes, in your browser. Every daily solve extends your day streak, and your win rate, best score and longest streak are kept locally — no account needed.' },
+  { q: 'Do my streaks and stats save?', a: 'Yes, in your browser. Every daily solve extends your day streak, and your best score, longest streak and (for games with a win condition) your win rate are kept locally — no account needed.' },
   { q: 'What happens if I miss a day?', a: 'A streak freeze can bridge a single missed day so your streak survives. You earn one each time your streak reaches a multiple of five days, and you can hold up to two. Miss two days in a row and the streak starts over.' },
   { q: 'Can I share my result without spoiling it?', a: 'Yes. Daily games make a spoiler-free result card — a grid of colored squares that shows how you did without revealing the answer.' },
   { q: 'Is there a new puzzle every day?', a: 'Yes. Each daily game rolls over to a new board at midnight UTC, and a countdown on the home page shows the time until the next one.' },

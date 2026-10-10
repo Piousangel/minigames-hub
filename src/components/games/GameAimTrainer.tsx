@@ -15,7 +15,7 @@ import {
 } from '@/lib/games/aim/engine'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 type Status = 'idle' | 'running' | 'done'
@@ -140,7 +140,7 @@ export function GameAimTrainer({ storageKey }: { storageKey: string }) {
       setResult(res)
       setStatusBoth('done')
       setTarget(null)
-      recordResult(storageKey.replace(/^best:/, ''))
+      recordFinish(storageKey.replace(/^best:/, ''))
       if (bestRef.current === 0 || tps > bestRef.current) {
         bestRef.current = tps
         setBest(tps)

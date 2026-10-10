@@ -7,6 +7,7 @@ import { useGameNav } from '@/components/GameNav'
 import { nearestGoalHint } from '@/lib/achievements'
 import { siteConfig } from '@/lib/siteConfig'
 import { hasLeaderboard } from '@/lib/leaderboard'
+import { isEndless } from '@/lib/games/gameMeta'
 
 /**
  * Shared win/lose overlay: blurred backdrop, entrance animation, optional
@@ -34,8 +35,9 @@ export function GameOverlay({
   // 게임오버 순간, 지금 바로 늘릴 수 있는 목표가 가깝다면 구체적 넛지("1 more win for Champion").
   const [goalHint, setGoalHint] = useState<{ text: string; icon: string } | null>(null)
   useEffect(() => {
-    setGoalHint(show ? nearestGoalHint() : null)
-  }, [show])
+    // endless 게임은 승리가 없으므로 'N more wins' 넛지는 이 판에서 이룰 수 없다 — 제외.
+    setGoalHint(show ? nearestGoalHint(3, { excludeUnits: isEndless(nav.slug) ? ['win'] : [] }) : null)
+  }, [show, nav.slug])
   if (!show) return null
   // 승/패에 따른 네온 색 — 컨테이너 currentColor 로 .neon-box 발광.
   const neon = variant === 'win' ? 'var(--neon-green)' : 'var(--neon-red)'

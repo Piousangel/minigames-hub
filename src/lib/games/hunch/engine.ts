@@ -615,8 +615,11 @@ export function reduce(s0: HunchState, a: HunchAction): HunchState {
       const ruleId = s.stages[s.stageIndex].ruleId
       const acc = judge(ruleId, prevCard(s), card.id)
       const line = place(s.line, card, acc)
+      // Recycle first: if the pile is empty but cancelled probes wait in the discard,
+      // the replacement card must come from the reshuffled pile (hand stays full).
+      const pre = recycle(s)
       let hand: Slot[]
-      let drawPile = s.drawPile
+      let drawPile = pre.drawPile
       if (drawPile.length > 0) {
         hand = s.hand.slice()
         hand[i] = drawPile[0]
@@ -625,7 +628,7 @@ export function reduce(s0: HunchState, a: HunchAction): HunchState {
         hand = [...s.hand.slice(0, i), ...s.hand.slice(i + 1)]
       }
       return settle(recycle({
-        ...s,
+        ...pre,
         line,
         hand,
         drawPile,
@@ -658,7 +661,7 @@ export function reduce(s0: HunchState, a: HunchAction): HunchState {
 
       if (!correct) {
         const lives = s.lives - 1
-        return settle({
+        return settle(recycle({
           ...base,
           lives,
           wrong: s.wrong + 1,
@@ -666,7 +669,7 @@ export function reduce(s0: HunchState, a: HunchAction): HunchState {
           probe: null,
           phase: lives === 0 ? 'lost' : 'test',
           lastEvent: lives === 0 ? 'lose' : 'wrong',
-        })
+        }))
       }
 
       const streak = s.streak + 1

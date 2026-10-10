@@ -13,7 +13,7 @@ import {
 } from '@/lib/games/gemmatch/engine'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // 색 인덱스별 젬 — 색만이 아니라 글리프/모양으로도 구분(색맹 접근성).
@@ -204,7 +204,7 @@ export function GameGemMatch({ storageKey }: { storageKey: string }) {
         setNewBest(beat)
         setFinished('over')
         play(beat ? 'win' : 'lose')
-        recordResult(storageKey.replace(/^best:/, ''))
+        recordFinish(storageKey.replace(/^best:/, ''))
       }
       busyRef.current = false
     },

@@ -22,7 +22,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 interface Particle {
@@ -258,7 +258,7 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
         if (ev.over) {
           play('lose')
           setIsBest(s.score > 0 && s.score >= bestRef.current)
-          recordResult(storageKey.replace(/^best:/, ''))
+          recordFinish(storageKey.replace(/^best:/, ''))
         }
 
         syncHud(s)

@@ -15,7 +15,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const PAD_CLASS: Record<Phase, string> = {
@@ -102,7 +102,7 @@ export function GameReaction({ storageKey }: { storageKey: string }) {
     } else {
       play('flip')
     }
-    recordResult(storageKey.replace(/^best:/, ''))
+    recordFinish(storageKey.replace(/^best:/, ''))
   }, [commit, play, storageKey])
 
   // Single entry point for both pointer and keyboard activation.

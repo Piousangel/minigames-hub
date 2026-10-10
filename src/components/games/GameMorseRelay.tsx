@@ -15,7 +15,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound, type SoundName } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { sendHit } from '@/lib/hit'
 import { MAX_NAME_LEN, loadPlayerName, savePlayerName } from '@/lib/leaderboard'
 import {
@@ -172,7 +172,7 @@ export function GameMorseRelay({ storageKey }: { storageKey: string }) {
         }
         saveBest(storageKey, Math.max(bestRef.current, finalState.score))
       }
-      recordResult(storageKey.replace(/^best:/, ''))
+      recordFinish(storageKey.replace(/^best:/, ''))
       if (challengeRef.current) sendHit(storageKey.replace(/^best:/, ''), 'challenge-done')
     },
     [storageKey],

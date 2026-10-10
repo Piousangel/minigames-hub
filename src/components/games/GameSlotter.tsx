@@ -13,7 +13,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound, type SoundName } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const STEP_MS = 40 // master loop granularity
@@ -146,7 +146,7 @@ export function GameSlotter({ storageKey }: { storageKey: string }) {
       }
       setNewBest(beatBest)
       if (beatBest) play('win')
-      recordResult(storageKey.replace(/^best:/, ''), { bucket: state.streak })
+      recordFinish(storageKey.replace(/^best:/, ''), { bucket: state.streak })
     }
     prevOver.current = state.over
   }, [state, best, storageKey, play])

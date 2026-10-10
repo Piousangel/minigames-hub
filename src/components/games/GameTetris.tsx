@@ -18,7 +18,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // 조각 id(1..7) → 색상. 위쪽 하이라이트 + 아래쪽 그림자로 입체감.
@@ -170,7 +170,7 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
       // 이 effect는 위의 best 갱신 effect보다 뒤에 선언돼 있어 플래그가 이미 서 있다.
       setNewBest(newBestRef.current)
       play(newBestRef.current ? 'win' : 'lose')
-      recordResult(storageKey.replace(/^best:/, ''))
+      recordFinish(storageKey.replace(/^best:/, ''))
     }
     prevOver.current = state.over
   }, [state, play, storageKey])

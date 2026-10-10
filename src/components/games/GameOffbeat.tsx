@@ -15,7 +15,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound, type SoundName } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const RING = 260 // svg viewBox px
@@ -114,7 +114,7 @@ export function GameOffbeat({ storageKey }: { storageKey: string }) {
       saveBest(storageKey, merged)
       setBest(merged)
       // Endless/survival game (gameMeta.endless): recordResult logs a neutral finish.
-      recordResult(storageKey.replace(/^best:/, ''))
+      recordFinish(storageKey.replace(/^best:/, ''))
     },
     [storageKey],
   )

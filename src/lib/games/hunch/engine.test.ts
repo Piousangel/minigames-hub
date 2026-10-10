@@ -719,6 +719,36 @@ describe('challenge seeds & fairness', () => {
     expect(cardCount(s)).toBe(DECK_SIZE)
   })
 
+  it('회귀: a WRONG call on the last pile card also recycles the discard (no false deck-ran-dry loss)', () => {
+    let s = createGame(77)
+    s = reduce(s, { type: 'play', index: 0 })
+    s = reduce(s, { type: 'predict' })
+    s = reduce(s, { type: 'cancelPredict' })
+    s = reduce(s, { type: 'predict' })
+    // the probe on the table is the last card; tests are spent so only predicting can continue
+    s = { ...s, discard: [...s.discard, ...s.drawPile], drawPile: [], tests: MAX_TESTS }
+    const rule = s.stages[s.stageIndex].ruleId
+    s = reduce(s, { type: 'answer', accept: !judge(rule, prevCard(s), s.probe!.id) })
+    expect(s.lastEvent).toBe('wrong')
+    expect(s.phase).toBe('test')
+    expect(s.recycles).toBe(1)
+    expect(canPredict(s)).toBe(true)
+    expect(deckExhausted(s)).toBe(false)
+    expect(cardCount(s)).toBe(DECK_SIZE)
+  })
+
+  it('회귀: playing with an empty pile but a non-empty discard keeps the hand full', () => {
+    let s = createGame(77)
+    s = reduce(s, { type: 'play', index: 0 })
+    const handSize = s.hand.length
+    s = { ...s, discard: [...s.discard, ...s.drawPile], drawPile: [] }
+    s = reduce(s, { type: 'play', index: 0 })
+    expect(s.lastEvent).not.toBe('illegal')
+    expect(s.hand).toHaveLength(handSize)
+    expect(s.recycles).toBe(1)
+    expect(cardCount(s)).toBe(DECK_SIZE)
+  })
+
   it('a correct call that empties pile and discard with no hand/tests left ends the run', () => {
     let s = createGame(77)
     s = reduce(s, { type: 'play', index: 0 })
