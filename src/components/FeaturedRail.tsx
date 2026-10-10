@@ -10,7 +10,9 @@ const SESSION_KEY = 'mg:popular:v1'
 function readSession(): PopularEntry[] | null {
   try {
     const raw = sessionStorage.getItem(SESSION_KEY)
-    return raw ? parsePopularRows({ data: JSON.parse(raw) }) : null
+    if (!raw) return null
+    const games = parsePopularRows({ data: JSON.parse(raw) })
+    return games.length > 0 ? games : null // 빈 값은 미스 취급
   } catch {
     return null
   }
@@ -24,9 +26,33 @@ function writeSession(games: PopularEntry[]): void {
   }
 }
 
+// 모듈 단위 in-flight 공유 — Strict Mode 이중 effect·동시 마운트가 요청을 한 번만 보내게.
+// 성공한 비어있지 않은 결과만 세션에 캐시한다(빈/실패 결과를 캐시하면 세션 내내 재요청을 못 함).
+let inflight: Promise<PopularEntry[]> | null = null
+
+function fetchPopular(): Promise<PopularEntry[]> {
+  inflight ??= fetch('/api/popular')
+    .then((r) => (r.ok ? r.json() : null))
+    .then((body: unknown) => {
+      const games = parsePopularRows({ data: (body as { games?: unknown } | null)?.games })
+      if (games.length > 0) writeSession(games)
+      return games
+    })
+    .catch(() => [] as PopularEntry[])
+    .finally(() => {
+      inflight = null
+    })
+  return inflight
+}
+
+/** 테스트 전용 — 모듈 in-flight 상태 초기화. */
+export function __resetPopularFetchForTest(): void {
+  inflight = null
+}
+
 /**
  * Featured 레일의 클라이언트 부분 — 첫 렌더(SSR 포함)는 큐레이션 순서 그대로, 마운트 후 /api/popular를
- * 한 번 받아(세션 캐시) 같은 개수의 카드를 인기순으로 재배치한다(src/lib/popular.ts rankFeatured).
+ * 한 번 받아(세션 캐시) 같은 카드 집합을 인기순으로 재배치한다(src/lib/popular.ts rankFeatured).
  * 카드 수·크기가 같아 레이아웃 시프트 없음. API가 없거나(정적 e2e) 실패하면 큐레이션 순서 유지.
  */
 export function FeaturedRail({ curated, items }: { curated: string[]; items: BrowseItem[] }) {
@@ -40,14 +66,9 @@ export function FeaturedRail({ curated, items }: { curated: string[]; items: Bro
       return
     }
     let cancelled = false
-    fetch('/api/popular')
-      .then((r) => (r.ok ? r.json() : null))
-      .then((body: unknown) => {
-        const games = parsePopularRows({ data: (body as { games?: unknown } | null)?.games })
-        writeSession(games)
-        if (!cancelled) setPopular(games)
-      })
-      .catch(() => {})
+    void fetchPopular().then((games) => {
+      if (!cancelled) setPopular(games)
+    })
     return () => {
       cancelled = true
     }
@@ -62,17 +83,13 @@ export function FeaturedRail({ curated, items }: { curated: string[]; items: Bro
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {games.map((g) => (
-        <div key={g.slug} className="relative h-full">
-          <GameCard slug={g.slug} title={g.title} description={g.description} />
-          {hot.has(g.slug) && (
-            <span
-              className="pointer-events-none absolute bottom-1.5 right-1.5 z-10 rounded-full border border-neon-amber/50 bg-surface px-1.5 py-0.5 text-[10px] font-semibold text-neon-amber"
-              data-testid="popular-badge"
-            >
-              <span aria-hidden="true">🔥 </span>Popular
-            </span>
-          )}
-        </div>
+        <GameCard
+          key={g.slug}
+          slug={g.slug}
+          title={g.title}
+          description={g.description}
+          badge={hot.has(g.slug) ? 'popular' : undefined}
+        />
       ))}
     </div>
   )

@@ -24,7 +24,7 @@ import {
 } from '../src/lib/comments'
 import { isValidGameSlug } from '../src/lib/slug'
 import { RATE_LIMIT_PRUNE_BATCH, rateLimitPruneCutoff, shouldPruneRateLimits } from '../src/lib/rateLimitPrune'
-import { buildPopularSql, parsePopularRows, type PopularResponse } from '../src/lib/popular'
+import { buildPopularSql, createTtlCache, parsePopularRows, type PopularResponse } from '../src/lib/popular'
 
 // 최소 타입(CF 타입 의존 없이) — 번들은 wrangler(esbuild)가 처리.
 interface D1Stmt {
@@ -56,26 +56,15 @@ interface EdgeCache {
 const POPULAR_TTL_SEC = 21_600 // 6시간 — AE는 하루 몇 번만 조회
 const POPULAR_FAIL_TTL_SEC = 300 // 토큰 없음/실패 시 짧게
 
-// 홈 Featured 레일 인기 순위(src/lib/popular.ts). 엣지 캐시로 감싸 AE SQL을 드물게만 친다.
-// 어떤 실패든 { games: [] } 200 — 클라이언트는 큐레이션 순서를 유지한다(페이지를 절대 깨지 않음).
-async function popularResponse(
-  request: Request,
-  env: Env,
-  defer: (p: Promise<unknown>) => void,
-): Promise<Response> {
-  const cache = (globalThis as unknown as { caches?: { default?: EdgeCache } }).caches?.default
-  const key = new Request(new URL('/api/popular?v=1', request.url).toString(), { method: 'GET' })
-  if (cache) {
-    try {
-      const hit = await cache.match(key)
-      if (hit) return hit
-    } catch {
-      // 캐시 장애는 무시하고 원본 조회
-    }
-  }
+interface PopularPayload {
+  json: string
+  ttlSec: number
+}
 
+// AE SQL 원본 조회. 절대 throw하지 않는다 — 어떤 실패든 { games: [] } + 짧은 TTL.
+async function loadPopular(env: Env): Promise<{ value: PopularPayload; ttlMs: number }> {
   let body: PopularResponse = { games: [] }
-  let ttl = POPULAR_FAIL_TTL_SEC
+  let ttlSec = POPULAR_FAIL_TTL_SEC
   if (env.CF_ANALYTICS_TOKEN && env.CF_ACCOUNT_ID) {
     try {
       const res = await fetch(
@@ -87,8 +76,8 @@ async function popularResponse(
         },
       )
       if (res.ok) {
-        body = { games: parsePopularRows(await res.json()), updated: new Date().toISOString() }
-        ttl = POPULAR_TTL_SEC
+        body = { games: parsePopularRows(await res.json()) }
+        ttlSec = POPULAR_TTL_SEC
       } else {
         console.warn('popular: AE query failed', res.status)
       }
@@ -96,11 +85,34 @@ async function popularResponse(
       console.warn('popular: AE query error', e)
     }
   }
+  return { value: { json: JSON.stringify(body), ttlSec }, ttlMs: ttlSec * 1000 }
+}
 
-  const response = new Response(JSON.stringify(body), {
+// isolate 단위 메모리 캐시 + in-flight 공유(createTtlCache). caches.default가 no-op인 *.workers.dev
+// 에서도 AE 조회를 제한하고, 동시 미스가 몰려도 AE 쿼리는 isolate당 하나. env는 배포 단위로 고정이라
+// 첫 요청의 env를 붙잡아도 안전하다.
+let popularIsolateCache: (() => Promise<PopularPayload>) | null = null
+
+// 홈 Featured 레일 인기 순위(src/lib/popular.ts). 엣지 캐시(커스텀 도메인) → isolate 캐시 → AE SQL.
+// 어떤 실패든 { games: [] } 200 — 클라이언트는 큐레이션 순서를 유지한다(페이지를 절대 깨지 않음).
+async function popularResponse(request: Request, env: Env, defer: Defer): Promise<Response> {
+  const cache = (globalThis as unknown as { caches?: { default?: EdgeCache } }).caches?.default
+  const key = new Request(new URL('/api/popular?v=1', request.url).toString(), { method: 'GET' })
+  if (cache) {
+    try {
+      const hit = await cache.match(key)
+      if (hit) return hit
+    } catch {
+      // 캐시 장애는 무시하고 원본 조회
+    }
+  }
+
+  popularIsolateCache ??= createTtlCache(() => loadPopular(env))
+  const { json: payload, ttlSec } = await popularIsolateCache()
+  const response = new Response(payload, {
     headers: {
       'content-type': 'application/json; charset=utf-8',
-      'cache-control': `public, max-age=${ttl}`,
+      'cache-control': `public, max-age=${ttlSec}`,
     },
   })
   if (cache) defer(cache.put(key, response.clone()).catch(() => {}))

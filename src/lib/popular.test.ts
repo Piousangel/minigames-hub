@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildPopularSql, MIN_PLAYERS, parsePopularRows, rankFeatured } from './popular'
+import { buildPopularSql, createTtlCache, MIN_PLAYERS, parsePopularRows, rankFeatured } from './popular'
 
 const curated = ['solitaire', 'chess', '2048', 'flow', 'unblock']
 const known = new Set([...curated, 'reactor', 'snake', 'beatline'])
@@ -11,6 +11,8 @@ describe('buildPopularSql', () => {
     expect(sql).toContain("blob1 = 'dwell'")
     expect(sql).toContain('double1 >= 15')
     expect(sql).toContain("INTERVAL '14' DAY")
+    expect(sql).toContain("blob4 != ''")
+    expect(sql).toContain("blob4 != 'anon'")
     expect(sql).toContain('GROUP BY slug')
     expect(sql).toContain('LIMIT 200')
     expect(sql).toMatch(/FORMAT JSON$/)
@@ -25,19 +27,18 @@ describe('buildPopularSql', () => {
 })
 
 describe('parsePopularRows', () => {
-  it('문자열 숫자 변환·잘못된 행 제거·내림차순', () => {
+  it('형태만 맞춘다(문자열 숫자 변환·비문자 slug/NaN 제거) — 검증·정렬은 rankFeatured 몫', () => {
     const rows = parsePopularRows({
       data: [
         { slug: 'chess', players: '3' },
         { slug: 'flow', players: 7 },
-        { slug: 'BAD SLUG', players: 9 },
+        { slug: 42, players: 9 },
         { slug: 'x', players: 'nan' },
-        { slug: 'snake', players: 0 },
       ],
     })
     expect(rows).toEqual([
-      { slug: 'flow', players: 7 },
       { slug: 'chess', players: 3 },
+      { slug: 'flow', players: 7 },
     ])
   })
 
@@ -55,12 +56,12 @@ describe('rankFeatured', () => {
     expect(r.popular.size).toBe(0)
   })
 
-  it('기본 임계는 2명', () => {
-    expect(MIN_PLAYERS).toBe(2)
+  it('기본 임계는 3명', () => {
+    expect(MIN_PLAYERS).toBe(3)
   })
 
-  it('1명짜리 봇 스파이크는 무시', () => {
-    const r = rankFeatured(curated, [{ slug: 'reactor', players: 1 }, { slug: 'unblock', players: 1 }], { known })
+  it('1~2명짜리 봇 스파이크는 무시', () => {
+    const r = rankFeatured(curated, [{ slug: 'chess', players: 1 }, { slug: 'unblock', players: 2 }], { known })
     expect(r.order).toEqual(curated)
     expect(r.popular.size).toBe(0)
   })
@@ -71,6 +72,7 @@ describe('rankFeatured', () => {
       [
         { slug: 'flow', players: 3 },
         { slug: 'unblock', players: 5 },
+        { slug: 'chess', players: 2 },
       ],
       { known },
     )
@@ -82,30 +84,26 @@ describe('rankFeatured', () => {
     const r = rankFeatured(
       curated,
       [
-        { slug: 'flow', players: 2 },
-        { slug: 'chess', players: 2 },
+        { slug: 'flow', players: 4 },
+        { slug: 'chess', players: 4 },
       ],
       { known },
     )
     expect(r.order.slice(0, 2)).toEqual(['chess', 'flow'])
   })
 
-  it('큐레이션 밖 인기작이 들어오면 끝쪽 큐레이션이 밀려나고 길이는 고정', () => {
-    const r = rankFeatured(curated, [{ slug: 'snake', players: 4 }], { known })
-    expect(r.order).toEqual(['snake', 'solitaire', 'chess', '2048', 'flow'])
-    expect(r.order).toHaveLength(curated.length)
-  })
-
-  it('동률이면 큐레이션 게임이 큐레이션 밖 게임보다 먼저', () => {
+  it('큐레이션 밖 게임은 아무리 인기여도 들어오지 않는다(조작 방지)', () => {
     const r = rankFeatured(
       curated,
       [
-        { slug: 'snake', players: 3 },
+        { slug: 'snake', players: 99 },
+        { slug: 'reactor', players: 50 },
         { slug: '2048', players: 3 },
       ],
       { known },
     )
-    expect(r.order.slice(0, 2)).toEqual(['2048', 'snake'])
+    expect(r.order).toEqual(['2048', 'solitaire', 'chess', 'flow', 'unblock'])
+    expect([...r.popular]).toEqual(['2048'])
   })
 
   it('레지스트리에 없는 슬러그는 버린다', () => {
@@ -119,15 +117,56 @@ describe('rankFeatured', () => {
     expect(r.order).toEqual(curated)
   })
 
-  it('인기작이 레일보다 많아도 길이 고정', () => {
+  it('결과는 항상 큐레이션의 순열', () => {
     const many = [...known].map((slug, i) => ({ slug, players: 10 + i }))
     const r = rankFeatured(curated, many, { known })
-    expect(r.order).toHaveLength(curated.length)
-    expect(new Set(r.order).size).toBe(curated.length)
+    expect([...r.order].sort()).toEqual([...curated].sort())
+  })
+
+  it('잘못된 형식의 슬러그·중복 행도 안전', () => {
+    const r = rankFeatured(
+      curated,
+      [
+        { slug: 'BAD SLUG', players: 9 },
+        { slug: 'flow', players: 3 },
+        { slug: 'flow', players: 5 },
+      ],
+      { known },
+    )
+    expect(r.order).toEqual(['flow', 'solitaire', 'chess', '2048', 'unblock'])
   })
 
   it('minPlayers 옵션', () => {
-    const r = rankFeatured(curated, [{ slug: 'flow', players: 2 }], { known, minPlayers: 3 })
+    const r = rankFeatured(curated, [{ slug: 'flow', players: 3 }], { known, minPlayers: 4 })
     expect(r.order).toEqual(curated)
+  })
+})
+
+describe('createTtlCache', () => {
+  it('동시 미스는 loader 1회로 합치고, TTL 동안 재사용, 만료 후 재조회', async () => {
+    let now = 1000
+    let calls = 0
+    const get = createTtlCache(async () => {
+      calls++
+      return { value: calls, ttlMs: 100 }
+    }, () => now)
+    const [a, b] = await Promise.all([get(), get()])
+    expect([a, b, calls]).toEqual([1, 1, 1])
+    now = 1099
+    expect(await get()).toBe(1)
+    now = 1100
+    expect(await get()).toBe(2)
+    expect(calls).toBe(2)
+  })
+
+  it('결과별 TTL(실패 짧게)', async () => {
+    let now = 0
+    let n = 0
+    const get = createTtlCache(async () => ({ value: ++n, ttlMs: n === 1 ? 10 : 1000 }), () => now)
+    expect(await get()).toBe(1)
+    now = 10
+    expect(await get()).toBe(2)
+    now = 500
+    expect(await get()).toBe(2)
   })
 })
