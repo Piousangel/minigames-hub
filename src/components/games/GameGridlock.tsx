@@ -14,7 +14,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const STEP_MS = 40 // master loop granularity
@@ -241,7 +241,7 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
       }
       setNewBest(beatBest)
       if (beatBest) play('win')
-      recordResult(storageKey.replace(/^best:/, ''), { won: false })
+      recordFinish(storageKey.replace(/^best:/, ''))
     }
     prevOver.current = state.gameOver
   }, [state, best, storageKey, play])

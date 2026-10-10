@@ -11,7 +11,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // -- Rendering-only geometry (never enters the pure engine) ------------------
@@ -130,7 +130,7 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
 
         if (e.over) {
           setNewBest(newBestRef.current)
-          recordResult(storageKey.replace(/^best:/, ''), { won: true })
+          recordFinish(storageKey.replace(/^best:/, ''))
         }
 
         cur = next

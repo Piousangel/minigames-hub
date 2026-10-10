@@ -16,7 +16,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const SOUND: Record<CleaveEvent, Parameters<ReturnType<typeof useGameSound>['play']>[0] | null> = {
@@ -156,7 +156,7 @@ export function GameCleave({ storageKey }: { storageKey: string }) {
         saveBest(storageKey, top)
         setNewBest(isNew)
         play(isNew ? 'win' : 'lose')
-        recordResult(storageKey.replace(/^best:/, ''), { won: true })
+        recordFinish(storageKey.replace(/^best:/, ''))
       }
       prevOver.current = next.phase === 'over'
       if (action.type === 'new' || action.type === 'reset') {

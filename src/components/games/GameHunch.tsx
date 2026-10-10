@@ -578,11 +578,12 @@ export function GameHunch({ storageKey }: { storageKey: string }) {
     </>
   )
 
-  const liveText = lv
-    ? `${cardName(lv.id)} ${lv.accepted ? 'accepted' : 'rejected'}${
-        lv.via === 'predict' ? (lv.correct ? '. Correct prediction' : '. Wrong prediction') : ''
-      }`
-    : ''
+  const liveText =
+    (lv
+      ? `${cardName(lv.id)} ${lv.accepted ? 'accepted' : 'rejected'}${
+          lv.via === 'predict' ? (lv.correct ? '. Correct prediction' : '. Wrong prediction') : ''
+        }`
+      : '') + (state.reshuffled ? `${lv ? '. ' : ''}Deck reshuffled from the cancelled probes.` : '')
 
   const headerExtra = (
     <>
@@ -783,6 +784,24 @@ export function GameHunch({ storageKey }: { storageKey: string }) {
               )
             })}
           </div>
+
+          {/* 3a. Recycle notice: cancelled probes were shuffled back into the pile */}
+          {state.reshuffled && (
+            <span
+              key={`reshuffle-${state.recycles}`}
+              data-testid="hunch-reshuffled"
+              aria-hidden="true"
+              className="pointer-events-none absolute left-2 top-2 rounded-full border px-3 py-1 text-xs font-bold tracking-wider"
+              style={{
+                color: 'var(--neon-cyan)',
+                borderColor: 'var(--neon-cyan)',
+                background: 'color-mix(in oklab, var(--color-bg, #000) 85%, transparent)',
+                ...anim('hn-badge .9s ease-out both'),
+              }}
+            >
+              ↻ Deck reshuffled
+            </span>
+          )}
 
           {/* 3. Verdict badge */}
           {lv && (

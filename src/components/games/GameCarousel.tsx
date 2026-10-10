@@ -14,7 +14,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound, type SoundName } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 type Difficulty = 'easy' | 'normal' | 'hard'
@@ -150,7 +150,7 @@ export function GameCarousel({ storageKey }: { storageKey: string }) {
       } else {
         newBestRef.current = false
       }
-      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      recordFinish(storageKey.replace(/^best:/, ''))
     },
     [storageKey],
   )

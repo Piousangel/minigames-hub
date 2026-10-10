@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { goalState, GOALS, nearestGoalHint, type Goal } from './achievements'
+import { goalState, GOALS, nearestGoalHint, totalWins, type Goal } from './achievements'
 
 const g: Goal = { id: 't', label: 't', icon: '⭐', tiers: [5, 15, 30], value: () => 0 }
 
@@ -63,5 +63,49 @@ describe('nearestGoalHint (게임오버 넛지)', () => {
   it('maxAway 밖이면 null (전부 0, maxAway 2)', () => {
     mockStore({}) // 전부 0 → 가장 가까운 게 daily-three(3 남음). maxAway 2면 제외 → null.
     expect(nearestGoalHint(2)).toBeNull()
+  })
+})
+
+describe('totalWins (Champion)', () => {
+  function mockStore(entries: Record<string, string>) {
+    const keys = Object.keys(entries)
+    vi.stubGlobal('localStorage', {
+      length: keys.length,
+      key: (i: number) => keys[i] ?? null,
+      getItem: (k: string) => entries[k] ?? null,
+    })
+  }
+  beforeEach(() => vi.unstubAllGlobals())
+
+  it('회귀: 레거시 승수(예전 endless won:true 관례)도 합산 — 이미 달성한 Champion 단계를 되돌리지 않는다', () => {
+    mockStore({
+      'stats:minesweeper': JSON.stringify({ plays: 10, wins: 4 }),
+      'stats:chess': JSON.stringify({ plays: 3, wins: 2 }),
+      'stats:snake': JSON.stringify({ plays: 50, wins: 50 }), // 예전 won:true 관례로 부푼 값
+      'stats:reaction-time': JSON.stringify({ plays: 7, wins: 7 }),
+      'best:minesweeper': '123', // stats: 접두사 아님 → 무시
+    })
+    expect(totalWins()).toBe(63)
+  })
+
+  it('Champion 목표 값이 totalWins다', () => {
+    mockStore({ 'stats:snake': JSON.stringify({ plays: 9, wins: 9 }) })
+    expect(GOALS.find((g) => g.id === 'champion')?.value()).toBe(9)
+  })
+})
+
+describe('nearestGoalHint excludeUnits', () => {
+  beforeEach(() => vi.unstubAllGlobals())
+
+  it('endless 게임 오버레이용: 1승 남은 Champion도 win 단위를 빼면 넛지되지 않는다', () => {
+    const entries: Record<string, string> = { 'stats:chess': JSON.stringify({ plays: 9, wins: 9 }) }
+    const keys = Object.keys(entries)
+    vi.stubGlobal('localStorage', {
+      length: keys.length,
+      key: (i: number) => keys[i] ?? null,
+      getItem: (k: string) => entries[k] ?? null,
+    })
+    expect(nearestGoalHint(1)?.text).toBe('1 more win for Champion')
+    expect(nearestGoalHint(1, { excludeUnits: ['win'] })?.text ?? '').not.toMatch(/win/)
   })
 })

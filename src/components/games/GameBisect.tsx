@@ -15,7 +15,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound, type SoundName } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // UI-only timing constants (the engine itself never sees wall-clock time —
@@ -134,7 +134,7 @@ export function GameBisect({ storageKey }: { storageKey: string }) {
         setBest(score)
       }
       saveBest(storageKey, Math.max(bestRef.current, score))
-      recordResult(storageKey.replace(/^best:/, ''), { won: false })
+      recordFinish(storageKey.replace(/^best:/, ''))
     },
     [storageKey],
   )

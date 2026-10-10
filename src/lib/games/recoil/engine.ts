@@ -2,8 +2,9 @@
  * Recoil — pure engine.
  *
  * A frictionless zero-g box. Every shot fires a round along the aim direction
- * and pushes the ship the opposite way by exactly 1 unit/tick. Shooting is the
- * only way to move, and 12 rounds must collect all 5 stars.
+ * and pushes the ship the opposite way by exactly 1 unit/tick, up to a top speed
+ * of 4 units/tick. Shooting is the only way to move, and 12 rounds must collect
+ * all 5 stars.
  *
  * Fixed-point integer physics (FP = 256): no floats, no trig, no `Math.random`,
  * no `Date`. Randomness enters only through an injected `Rng`, consumed solely
@@ -180,14 +181,20 @@ export function dirFromVector(dx: number, dy: number): Dir | null {
 }
 
 /**
- * Recoil: the ship is pushed opposite to the aim. Pure vector addition — no clamping here — so the
- * documented rule "two exactly-opposite shots cancel out completely" holds in every state, including
- * at top speed. (Clamping the stored velocity, per axis or by magnitude, makes saturation lossy: the
- * second shot of an opposite pair would no longer undo the first.) The stored velocity is bounded by
- * ammo × 256 anyway; the speed limit is applied when moving, see `capVelocity`.
+ * Recoil: the ship is pushed opposite to the aim, then the STORED velocity is clamped to VMAX (by
+ * magnitude, see `capVelocity`). Clamping the stored value — not just the displacement — means there is
+ * never hidden momentum above the cap: at top speed a single braking shot always takes a full unit off.
+ *
+ * Opposite pairs: DIRS has exact antipodes, and every stored velocity is ≤ VMAX, so a shot followed by the
+ * exactly opposite shot restores the previous velocity bit-for-bit whenever the first shot stayed within
+ * the cap (the second then lands on the previous, already-legal velocity and is never clamped). The only
+ * lossy case is a shot pushed *into* the speed limit: its excess is discarded, so the counter-shot that
+ * follows is a real brake rather than a silent refund. That trade-off is the point of this rule — a
+ * one-shot undo memory would keep the pair exact but make that brake invisible again.
+ * Shared by `step` and `predictPath`.
  */
 export function applyImpulse(vx: number, vy: number, d: Dir): { vx: number; vy: number } {
-  return { vx: vx - DIRS[d][0], vy: vy - DIRS[d][1] }
+  return capVelocity(vx - DIRS[d][0], vy - DIRS[d][1])
 }
 
 /** ceil(sqrt(n)) for a non-negative safe integer, exact (Math.sqrt is correctly rounded; we fix ±1). */
@@ -199,11 +206,10 @@ function isqrtCeil(n: number): number {
 }
 
 /**
- * Per-tick displacement for a stored velocity: the velocity itself while |v| ≤ VMAX, otherwise the
- * same direction scaled down to VMAX (both axes together, so diagonals never bend). Integer-only and
- * deterministic: dividing by ceil(|v|) keeps the result's magnitude ≤ VMAX, each axis keeps the sign of
- * the input, and per-axis rounding (trunc) moves the direction by well under a unit.
- * Shared by `step` (via `advance`) and `predictPath`.
+ * Speed limit: the velocity itself while |v| ≤ VMAX, otherwise the same direction scaled down to VMAX
+ * (both axes together, so diagonals never bend). Integer-only and deterministic: dividing by ceil(|v|)
+ * keeps the result's magnitude ≤ VMAX, each axis keeps the sign of the input, and per-axis rounding
+ * (trunc) moves the direction by well under a unit. Applied to the stored velocity by `applyImpulse`.
  */
 export function capVelocity(vx: number, vy: number): { vx: number; vy: number } {
   const m2 = vx * vx + vy * vy
@@ -212,7 +218,11 @@ export function capVelocity(vx: number, vy: number): { vx: number; vy: number } 
   return { vx: Math.trunc((vx * VMAX) / mag), vy: Math.trunc((vy * VMAX) / mag) }
 }
 
-/** One-tick integration (displacement = `capVelocity`) with perfectly elastic axis-separated reflection. */
+/**
+ * One-tick integration with perfectly elastic axis-separated reflection. Stored velocities are always
+ * ≤ VMAX (`applyImpulse` clamps, reflections keep |v|), so the displacement is the velocity itself;
+ * `capVelocity` here is only a guard for hand-built states.
+ */
 export function advance(body: Body, walls: Wall[]): Body & { bounced: boolean } {
   const R = SHIP_R * FP
   const minX = R
@@ -222,7 +232,7 @@ export function advance(body: Body, walls: Wall[]): Body & { bounced: boolean } 
   let { vx, vy } = body
   const { y } = body
   let bounced = false
-  // Move by the capped velocity; reflections flip the stored velocity's sign (|v| is unchanged).
+  // Reflections flip the stored velocity's sign (|v| is unchanged).
   const cap = capVelocity(vx, vy)
 
   // X axis

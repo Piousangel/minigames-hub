@@ -17,7 +17,7 @@ import {
 } from '@/lib/games/zerohour/engine'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const STEP_MS = 100 // master loop granularity
@@ -230,7 +230,7 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
       }
       setNewBest(beatScore)
       play(beatScore ? 'win' : 'lose')
-      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      recordFinish(storageKey.replace(/^best:/, ''))
     }
     prevOver.current = state.over
   }, [state, best, storageKey, play])

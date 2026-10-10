@@ -9,9 +9,11 @@
  * comparing with the previous line card (tier 2), compound rule (tier 3).
  *
  * All functions are pure and total: no timers, no `Date`, NO `Math.random`.
- * Randomness enters only through an injected `Rng`, consumed solely inside
- * `createGame` → `generateStages` (136 draws per stage, 408 total). The reducer,
- * `pickProbe` and `judge` take no rng, so every run is golden-testable.
+ * Randomness enters only through an injected `Rng`, consumed inside
+ * `createGame` → `generateStages` (136 draws per stage, 408 total), plus one
+ * place in the reducer: when the draw pile runs out, the cancelled probes are
+ * reshuffled into a new pile with `mulberry32(recycleSeed(seed, stage, n))`, so
+ * the same seed + same actions still replay the exact run (challenge / daily).
  */
 
 export const STAGES = 3
@@ -94,7 +96,10 @@ export interface HunchState {
   drawPile: Slot[] // remaining deck for the current stage (front = top)
   probe: Slot | null // non-null iff phase === 'predict'
   probeIdx: number // probeTargets index used so far in this stage
-  burned: number // probes discarded by cancelPredict (this stage)
+  burned: number // probes discarded by cancelPredict (this stage, cumulative)
+  discard: Slot[] // cancelled probes awaiting reshuffle (never judged, so never evidence)
+  recycles: number // times the discard was reshuffled into the draw pile (this stage)
+  reshuffled: boolean // true only on the transition that just recycled the pile
   streak: number // 0..5
   tests: number // tests in the current stage
   totalTests: number
@@ -459,6 +464,9 @@ function enterStage(state: HunchState, idx: number): HunchState {
     probe: null,
     probeIdx: 0,
     burned: 0,
+    discard: [],
+    recycles: 0,
+    reshuffled: false,
     streak: 0,
     tests: 0,
   }
@@ -476,6 +484,9 @@ export function createGameFromStages(seed: number, stages: StageSpec[]): HunchSt
     probe: null,
     probeIdx: 0,
     burned: 0,
+    discard: [],
+    recycles: 0,
+    reshuffled: false,
     streak: 0,
     tests: 0,
     totalTests: 0,
@@ -537,6 +548,32 @@ function place(line: LineEntry[], slot: Slot, accepted: boolean): LineEntry[] {
   return [...line.slice(0, -1), { ...last, rejects: [...last.rejects, slot] }]
 }
 
+/** Seed for the n-th (0-based) recycle of a stage: a pure mix of run seed, stage and count. */
+export function recycleSeed(seed: number, stageIndex: number, n: number): number {
+  let h = (seed >>> 0) ^ 0x5bd1e995
+  h = Math.imul(h ^ (h >>> 15), 0x85ebca6b) ^ Math.imul(stageIndex + 1, 0x9e3779b1)
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35) ^ Math.imul(n + 1, 0x27d4eb2f)
+  return (h ^ (h >>> 16)) >>> 0
+}
+
+/**
+ * Recycle rule: once the draw pile is empty, the cancelled probes (the discard)
+ * are shuffled into a fresh pile. Line cards and rejects are evidence and stay
+ * put; hand cards stay in hand. Deterministic via `recycleSeed`.
+ */
+function recycle(s: HunchState): HunchState {
+  if (s.drawPile.length > 0 || s.discard.length === 0) return s
+  const pile = s.discard.slice()
+  const rng = mulberry32(recycleSeed(s.seed, s.stageIndex, s.recycles))
+  for (let i = pile.length - 1; i >= 1; i--) {
+    const j = Math.floor(rng() * (i + 1))
+    const t = pile[i]
+    pile[i] = pile[j]
+    pile[j] = t
+  }
+  return { ...s, drawPile: pile, discard: [], recycles: s.recycles + 1, reshuffled: true }
+}
+
 function illegal(s: HunchState): HunchState {
   return { ...s, lastEvent: 'illegal' }
 }
@@ -544,7 +581,9 @@ function illegal(s: HunchState): HunchState {
 /**
  * Dead-end guard: back in 'test' with no legal play (test cap reached or hand
  * empty) and nothing left to probe → the run ends instead of soft-locking.
- * Only reachable after dozens of probes (cancelled or answered) drain the draw pile.
+ * Cancelled probes are recycled, so the pile only stays empty when every card
+ * has been judged onto the table — dozens of correct calls that never reach a
+ * streak of 5. Kept so the reducer stays total.
  */
 export function isStuck(s: HunchState): boolean {
   return s.phase === 'test' && !canPlay(s) && !canPredict(s)
@@ -554,12 +593,14 @@ function settle(s: HunchState): HunchState {
   return isStuck(s) ? { ...s, phase: 'lost', lastEvent: 'lose' } : s
 }
 
-/** Lost with lives to spare → the stage's deck ran dry (not three wrong calls). */
+/** Lost with lives to spare → every card of the stage was judged and nothing is left to probe. */
 export function deckExhausted(s: HunchState): boolean {
   return s.phase === 'lost' && s.lives > 0
 }
 
-export function reduce(s: HunchState, a: HunchAction): HunchState {
+export function reduce(s0: HunchState, a: HunchAction): HunchState {
+  // The reshuffle announcement lives for exactly one transition.
+  const s = s0.reshuffled ? { ...s0, reshuffled: false } : s0
   switch (a.type) {
     case 'reset':
       return createGameFromStages(s.seed, s.stages)
@@ -574,8 +615,11 @@ export function reduce(s: HunchState, a: HunchAction): HunchState {
       const ruleId = s.stages[s.stageIndex].ruleId
       const acc = judge(ruleId, prevCard(s), card.id)
       const line = place(s.line, card, acc)
+      // Recycle first: if the pile is empty but cancelled probes wait in the discard,
+      // the replacement card must come from the reshuffled pile (hand stays full).
+      const pre = recycle(s)
       let hand: Slot[]
-      let drawPile = s.drawPile
+      let drawPile = pre.drawPile
       if (drawPile.length > 0) {
         hand = s.hand.slice()
         hand[i] = drawPile[0]
@@ -583,8 +627,8 @@ export function reduce(s: HunchState, a: HunchAction): HunchState {
       } else {
         hand = [...s.hand.slice(0, i), ...s.hand.slice(i + 1)]
       }
-      return settle({
-        ...s,
+      return settle(recycle({
+        ...pre,
         line,
         hand,
         drawPile,
@@ -592,7 +636,7 @@ export function reduce(s: HunchState, a: HunchAction): HunchState {
         totalTests: s.totalTests + 1,
         lastEvent: acc ? 'accept' : 'reject',
         lastVerdict: { uid: card.uid, id: card.id, accepted: acc, via: 'test', correct: null },
-      })
+      }))
     }
 
     case 'predict': {
@@ -617,7 +661,7 @@ export function reduce(s: HunchState, a: HunchAction): HunchState {
 
       if (!correct) {
         const lives = s.lives - 1
-        return settle({
+        return settle(recycle({
           ...base,
           lives,
           wrong: s.wrong + 1,
@@ -625,7 +669,7 @@ export function reduce(s: HunchState, a: HunchAction): HunchState {
           probe: null,
           phase: lives === 0 ? 'lost' : 'test',
           lastEvent: lives === 0 ? 'lose' : 'wrong',
-        })
+        }))
       }
 
       const streak = s.streak + 1
@@ -642,20 +686,31 @@ export function reduce(s: HunchState, a: HunchAction): HunchState {
       }
 
       const target = st.probeTargets[probeIdx % PROBE_TARGETS]
-      const next = pickProbe(s.drawPile, st.ruleId, prevCard(base), target)
+      const refilled = recycle(base) // the probe just answered may have been the last pile card
+      const next = pickProbe(refilled.drawPile, st.ruleId, prevCard(base), target)
       if (!next.probe) {
-        // The probe just answered was the last card in the pile. That is not a loss:
+        // Pile and discard both empty (every card is on the table). That is not a loss:
         // drop back to 'test' (hand cards may still be played) and let settle() end
         // the run only if no legal action remains. Leaving predict mode breaks the
         // run of calls, exactly like cancelPredict, so the streak resets to 0.
-        return settle({ ...base, streak: 0, score, probe: null, phase: 'test', lastEvent: 'correct' })
+        return settle({ ...refilled, streak: 0, score, probe: null, phase: 'test', lastEvent: 'correct' })
       }
-      return { ...base, streak, score, probe: next.probe, drawPile: next.drawPile, lastEvent: 'correct' }
+      return { ...refilled, streak, score, probe: next.probe, drawPile: next.drawPile, lastEvent: 'correct' }
     }
 
     case 'cancelPredict': {
       if (s.phase !== 'predict' || !s.probe) return illegal(s)
-      return settle({ ...s, probe: null, burned: s.burned + 1, streak: 0, phase: 'test', lastEvent: 'cancel' })
+      return settle(
+        recycle({
+          ...s,
+          probe: null,
+          discard: [...s.discard, s.probe],
+          burned: s.burned + 1,
+          streak: 0,
+          phase: 'test',
+          lastEvent: 'cancel',
+        }),
+      )
     }
 
     case 'nextStage': {
@@ -669,5 +724,5 @@ export function reduce(s: HunchState, a: HunchAction): HunchState {
 export function cardCount(s: HunchState): number {
   let n = 0
   for (const e of s.line) n += 1 + e.rejects.length
-  return n + s.hand.length + s.drawPile.length + (s.probe ? 1 : 0) + s.burned
+  return n + s.hand.length + s.drawPile.length + (s.probe ? 1 : 0) + s.discard.length
 }

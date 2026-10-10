@@ -22,7 +22,7 @@ import {
   upperTotal,
 } from '@/lib/games/yahtzee/engine'
 import { isTypingTarget } from '@/lib/isTypingTarget'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
@@ -276,7 +276,7 @@ export function GameYahtzee({ storageKey }: { storageKey: string }) {
         }
         setBest(total)
       }
-      recordResult(slug, { won: true })
+      recordFinish(slug)
     },
     [storageKey, slug],
   )

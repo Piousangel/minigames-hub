@@ -19,7 +19,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 import { DailyShareButton } from '@/components/DailyShareButton'
 import { todayUTC } from '@/lib/dailyDate'
@@ -135,7 +135,7 @@ export function GameUmbra({ storageKey }: { storageKey: string }) {
           setBest(s.score)
           saveBest(storageKey, s.score)
         }
-        recordResult(storageKey.replace(/^best:/, ''), { won: true })
+        recordFinish(storageKey.replace(/^best:/, ''))
       }
     },
     [play, pushBadge, storageKey],

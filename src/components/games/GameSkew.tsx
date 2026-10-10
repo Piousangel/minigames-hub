@@ -14,7 +14,7 @@ import {
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { isTypingTarget } from '@/lib/isTypingTarget'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // 색 인덱스별 타일 — 색만이 아니라 글리프로도 구분(색약 접근성). gemmatch의 GEMS 관례를 따른다.
@@ -179,7 +179,7 @@ export function GameSkew({ storageKey }: { storageKey: string }) {
         setNewBest(beat)
         if (beat) registerBest(resolved.score)
         play('lose')
-        recordResult(storageKey.replace(/^best:/, ''), { won: true })
+        recordFinish(storageKey.replace(/^best:/, ''))
       }
 
       busyRef.current = false

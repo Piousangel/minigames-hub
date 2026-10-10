@@ -20,7 +20,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 import { DailyShareButton } from '@/components/DailyShareButton'
 import { todayUTC } from '@/lib/dailyDate'
@@ -136,7 +136,7 @@ export function GamePolytap({ storageKey }: { storageKey: string }) {
         setPhase('over')
         setNewBest(newBestRef.current)
         play(newBestRef.current ? 'win' : 'lose')
-        recordResult(storageKey.replace(/^best:/, ''), { won: true })
+        recordFinish(storageKey.replace(/^best:/, ''))
       }
     },
     [react, persistBest, play, storageKey],

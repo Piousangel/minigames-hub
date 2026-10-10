@@ -21,6 +21,7 @@ function driver(seed = SEED) {
     mirror = reduce(mirror, a)
   }
   return {
+    step,
     get state() {
       return mirror
     },
@@ -133,6 +134,30 @@ describe('GameHunch challenge links', () => {
     expect(d.state.phase).toBe('lost')
     expect(localStorage.getItem(STORAGE_KEY)).toBe('10')
     expect(sendHit).not.toHaveBeenCalledWith('hunch', 'challenge-done')
+  })
+})
+
+describe('GameHunch deck recycle', () => {
+  beforeEach(() => localStorage.clear())
+
+  it('announces "Deck reshuffled" when cancelled probes are recycled, and the stage stays playable', () => {
+    render(<GameHunch storageKey={STORAGE_KEY} />)
+    const now = new Date()
+    const d = driver(now.getUTCFullYear() * 10000 + (now.getUTCMonth() + 1) * 100 + now.getUTCDate())
+    d.testFirstCard()
+    for (let guard = 0; guard < 200 && d.state.recycles === 0; guard++) {
+      d.predict()
+      fireEvent.click(screen.getByRole('button', { name: /Back to testing/ }))
+      d.step({ type: 'cancelPredict' })
+      if (d.state.recycles === 0) expect(screen.queryByTestId('hunch-reshuffled')).not.toBeInTheDocument()
+    }
+    expect(d.state.recycles).toBe(1)
+    expect(screen.getByTestId('hunch-reshuffled')).toHaveTextContent('Deck reshuffled')
+    expect(screen.getByTestId('hunch-predict')).toBeEnabled()
+    d.predict()
+    expect(screen.queryByTestId('hunch-reshuffled')).not.toBeInTheDocument()
+    for (let i = 0; i < 5; i++) d.answer(true)
+    expect(d.state.phase).toBe('stageClear')
   })
 })
 

@@ -68,10 +68,10 @@ export function GameStats({ slug }: { slug: string }) {
   if (!ready || stats.plays === 0) return null
 
   const scoreLabel = LEADERBOARD_GAMES[slug]?.label ?? 'Best'
-  const cells: Array<{ label: string; value: string }> = [
-    { label: 'Played', value: String(stats.plays) },
-    { label: 'Win %', value: String(winRate(stats)) },
-  ]
+  const cells: Array<{ label: string; value: string }> = [{ label: 'Played', value: String(stats.plays) }]
+  // endless 게임은 승리 조건이 없어 Win %가 무의미(레거시 won:true 기록이면 100%로 보임) → 숨김.
+  // 남는 건 Played + Best — 이 게임들의 실제 성과 지표는 최고점이다.
+  if (!meta.endless) cells.push({ label: 'Win %', value: String(winRate(stats)) })
   if (meta.daily) {
     cells.push({ label: 'Streak', value: String(streak) })
     cells.push({ label: 'Max streak', value: String(maxStreak) })

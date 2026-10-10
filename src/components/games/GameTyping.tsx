@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { computeAccuracy, computeWpm, sampleWords } from '@/lib/games/typing/engine'
 import { useGameSound } from '@/lib/sound/useGameSound'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const TEST_SECONDS = 60
@@ -92,7 +92,7 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
         setBest(wpm)
         localStorage.setItem(storageKey, String(wpm))
       }
-      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      recordFinish(storageKey.replace(/^best:/, ''))
     }
   }, [finished, wpm, best, play, storageKey])
 

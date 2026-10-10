@@ -15,7 +15,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound, type SoundName } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const RING = 260 // svg viewBox px
@@ -113,9 +113,8 @@ export function GameOffbeat({ storageKey }: { storageKey: string }) {
       const merged = Math.max(prevBest, next.score)
       saveBest(storageKey, merged)
       setBest(merged)
-      // Endless/survival game: no true "win" — a completed run is what counts
-      // (matches flywheel/stackpot/turntile convention for this shape of game).
-      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      // Endless/survival game (gameMeta.endless): recordResult logs a neutral finish.
+      recordFinish(storageKey.replace(/^best:/, ''))
     },
     [storageKey],
   )

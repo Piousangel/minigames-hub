@@ -13,6 +13,7 @@ import {
   type StageSpec,
   type Tier,
   buildStage,
+  canPredict,
   cardCount,
   cardLabel,
   createGame,
@@ -613,11 +614,11 @@ describe('challenge seeds & fairness', () => {
     }
   })
 
-  it('a drained draw pile ends the run instead of soft-locking', () => {
+  it('with nothing left to recycle, a drained draw pile ends the run instead of soft-locking', () => {
     let s = createGame(77)
     for (let i = 0; i < MAX_TESTS - 1; i++) s = reduce(s, { type: 'play', index: 0 })
-    // burn probes until only the final test can be played
-    s = { ...s, drawPile: [] }
+    // every remaining card judged onto the table (pile and discard empty)
+    s = { ...s, drawPile: [], discard: [] }
     expect(isStuck(s)).toBe(false) // one test left
     s = reduce(s, { type: 'play', index: 0 })
     expect(s.phase).toBe('lost')
@@ -625,7 +626,7 @@ describe('challenge seeds & fairness', () => {
     expect(deckExhausted(s)).toBe(true)
   })
 
-  it('a correct call that empties the draw pile returns to test instead of losing', () => {
+  it('a correct call that empties pile and discard returns to test instead of losing', () => {
     let s = createGame(77)
     s = reduce(s, { type: 'play', index: 0 })
     s = reduce(s, { type: 'predict' })
@@ -645,7 +646,110 @@ describe('challenge seeds & fairness', () => {
     expect(s2.lastEvent).not.toBe('illegal')
   })
 
-  it('a correct call that empties the pile with no hand/tests left ends the run', () => {
+  /** Predict → cancel until the draw pile has been recycled once (each probe draws a card). */
+  function burnUntilRecycle(seed: number): { s: HunchState; script: HunchAction[] } {
+    let s = createGame(seed)
+    const script: HunchAction[] = [{ type: 'play', index: 0 }]
+    s = reduce(s, script[0])
+    for (let guard = 0; guard < 500 && s.recycles === 0; guard++) {
+      for (const a of [{ type: 'predict' }, { type: 'cancelPredict' }] as HunchAction[]) {
+        script.push(a)
+        s = reduce(s, a)
+      }
+    }
+    return { s, script }
+  }
+
+  it('an emptied draw pile is reshuffled from the cancelled probes, so the stage stays clearable', () => {
+    const { s: r } = burnUntilRecycle(77)
+    expect(r.recycles).toBe(1)
+    expect(r.reshuffled).toBe(true) // the UI announces it on exactly this transition
+    expect(r.phase).toBe('test')
+    expect(r.discard).toHaveLength(0)
+    expect(r.drawPile.length).toBeGreaterThan(0)
+    expect(cardCount(r)).toBe(DECK_SIZE)
+    // evidence on the table never comes back: recycled cards are only never-judged probes
+    const onTable = new Set<number>()
+    for (const e of r.line) for (const sl of [e.slot, ...e.rejects]) onTable.add(sl.uid)
+    for (const sl of r.hand) onTable.add(sl.uid)
+    expect(r.drawPile.some((sl) => onTable.has(sl.uid))).toBe(false)
+    expect(new Set(r.drawPile.map((sl) => sl.uid)).size).toBe(r.drawPile.length)
+    expect(canPredict(r)).toBe(true)
+
+    // the next action clears the announcement flag
+    let s = reduce(r, { type: 'predict' })
+    expect(s.reshuffled).toBe(false)
+    const rule = s.stages[s.stageIndex].ruleId
+    for (let guard = 0; guard < 10 && s.phase === 'predict'; guard++) {
+      s = reduce(s, { type: 'answer', accept: judge(rule, prevCard(s), s.probe!.id) })
+    }
+    expect(s.phase).toBe('stageClear')
+    expect(s.lives).toBe(LIVES)
+  })
+
+  it('a recycle is deterministic: same seed + same actions (incl. the recycle) → identical state', () => {
+    const a = burnUntilRecycle(20261009)
+    let b = createGame(20261009)
+    for (const act of a.script) b = reduce(b, act)
+    expect(b).toEqual(a.s)
+    // replaying via reset with the same stages reproduces it too
+    let c = reduce(a.s, { type: 'reset' })
+    for (const act of a.script) c = reduce(c, act)
+    expect(c.drawPile).toEqual(a.s.drawPile)
+  })
+
+  it('a correct call on the last pile card recycles the discard and keeps the streak going', () => {
+    let s = createGame(77)
+    s = reduce(s, { type: 'play', index: 0 })
+    s = reduce(s, { type: 'predict' })
+    s = reduce(s, { type: 'cancelPredict' })
+    s = reduce(s, { type: 'predict' })
+    const rule = s.stages[s.stageIndex].ruleId
+    s = reduce(s, { type: 'answer', accept: judge(rule, prevCard(s), s.probe!.id) })
+    expect(s.streak).toBe(1)
+    // the probe on the table is the last card: the rest of the pile was burned earlier
+    s = { ...s, discard: [...s.discard, ...s.drawPile], drawPile: [] }
+    s = reduce(s, { type: 'answer', accept: judge(rule, prevCard(s), s.probe!.id) })
+    expect(s.lastEvent).toBe('correct')
+    expect(s.phase).toBe('predict')
+    expect(s.streak).toBe(2)
+    expect(s.recycles).toBe(1)
+    expect(s.reshuffled).toBe(true)
+    expect(s.probe).not.toBeNull()
+    expect(cardCount(s)).toBe(DECK_SIZE)
+  })
+
+  it('회귀: a WRONG call on the last pile card also recycles the discard (no false deck-ran-dry loss)', () => {
+    let s = createGame(77)
+    s = reduce(s, { type: 'play', index: 0 })
+    s = reduce(s, { type: 'predict' })
+    s = reduce(s, { type: 'cancelPredict' })
+    s = reduce(s, { type: 'predict' })
+    // the probe on the table is the last card; tests are spent so only predicting can continue
+    s = { ...s, discard: [...s.discard, ...s.drawPile], drawPile: [], tests: MAX_TESTS }
+    const rule = s.stages[s.stageIndex].ruleId
+    s = reduce(s, { type: 'answer', accept: !judge(rule, prevCard(s), s.probe!.id) })
+    expect(s.lastEvent).toBe('wrong')
+    expect(s.phase).toBe('test')
+    expect(s.recycles).toBe(1)
+    expect(canPredict(s)).toBe(true)
+    expect(deckExhausted(s)).toBe(false)
+    expect(cardCount(s)).toBe(DECK_SIZE)
+  })
+
+  it('회귀: playing with an empty pile but a non-empty discard keeps the hand full', () => {
+    let s = createGame(77)
+    s = reduce(s, { type: 'play', index: 0 })
+    const handSize = s.hand.length
+    s = { ...s, discard: [...s.discard, ...s.drawPile], drawPile: [] }
+    s = reduce(s, { type: 'play', index: 0 })
+    expect(s.lastEvent).not.toBe('illegal')
+    expect(s.hand).toHaveLength(handSize)
+    expect(s.recycles).toBe(1)
+    expect(cardCount(s)).toBe(DECK_SIZE)
+  })
+
+  it('a correct call that empties pile and discard with no hand/tests left ends the run', () => {
     let s = createGame(77)
     s = reduce(s, { type: 'play', index: 0 })
     s = reduce(s, { type: 'predict' })

@@ -2972,13 +2972,13 @@ export const gamePages: GamePage[] = [
     shortDescription: 'Shooting is your only thruster — kick yourself through a frictionless box to grab all five stars.',
     howToPlay: [
       'Aim the ship’s gun by pointing with the mouse, touching and dragging on the arena, or with the keys: ←/→ turn 22.5° (hold Shift for 90°), ↑/↓ point straight up or down.',
-      'Fire by releasing the click or tap, or with Space / Enter. Each shot pushes the ship exactly one unit of speed in the opposite direction to your aim — shooting is the only way to move.',
+      'Fire by releasing the click or tap, or with Space / Enter. Each shot pushes the ship one unit of speed in the opposite direction to your aim, up to a top speed — shooting is the only way to move.',
       'There is no friction: you keep drifting until another shot changes your velocity. The outer walls and the purple bars bounce you back with no speed lost. Fly through all five stars to win.',
       'Rounds are limited — 14 on Easy, 12 on Normal, 10 on Hard. With the magazine empty you get 8 seconds of drift to reach the remaining stars, and the run ends at once if your last shot leaves you motionless.',
     ],
     strategy: [
       'Trust the dotted ghost line: it traces the next 45 ticks (about three-quarters of a second) of flight for the direction you are aiming, bounces included.',
-      'To brake, fire in the direction you are already moving — two shots in exactly opposite directions cancel out completely. A slow ship is far easier to steer than a fast one.',
+      'To brake, fire in the direction you are already moving — even at top speed one shot slows you by about a unit (a full unit when your aim lines up with your motion). A shot followed by one in exactly the opposite direction cancels out completely, unless the first only pushed against the speed limit. A slow ship is far easier to steer than a fast one.',
       'Let the walls do the turning. A bounce costs nothing, and any star you collect after a bounce since your last shot is a bank shot worth an extra 50 points.',
       'Spend rounds sparingly: every unused round pays 150 on a win, more than a star, while the time bonus (up to 600) drops 10 points per second. Try to finish at or under the par shown above the arena.',
     ],

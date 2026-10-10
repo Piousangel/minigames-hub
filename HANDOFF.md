@@ -30,6 +30,12 @@ noindex + sitemap 제외 + 홈 Unblocked 링크 숨김. **AdSense 승인 후 fal
 후속: 엔드리스 게임 Win% (`endless` 플래그로 숨기기 — Quarry·Snake·Tetris 등이 종료=won:true),
 Hunch 덱 소진 시 스테이지 클리어 불가(규칙 변경 필요), Recoil 최고속도에서 숨은 운동량(브레이크 체감↓).
 
+**2026-10-10 후속(PR #8):** 엔드리스 게임 35종 `gameMeta.endless` + **`recordFinish(slug)`**(승패 게임은
+`recordResult(slug, { won })` — won 필수). endless는 Win % 숨김·분석 이벤트 `'finish'`(analytics 완주 표 포함).
+**새 게임 추가 시 규칙:** 승리 조건이 없으면 gameMeta에 `endless: true` + recordFinish — `gameStats.consistency.test`가 강제.
+Champion은 레거시 승수 포함(이미 달성한 단계 보존). Hunch 덱 소진 → 취소 카드 재셔플(시드 결정적),
+Recoil 저장 속도 VMAX 클램프(최고속 브레이크 체감). 두 규칙 변경으로 10/9 배포분의 Recoil·Hunch 도전 링크는 재현이 다를 수 있음.
+
 **사용자 과제:** Morse Relay 도전 링크 넣은 커뮤니티 글 게시(초안 `docs/launch/community-post-drafts.md`), 지인 3명에게 도전 링크.
 
 ---

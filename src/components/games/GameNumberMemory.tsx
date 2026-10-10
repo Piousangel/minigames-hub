@@ -10,7 +10,7 @@ import {
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
-import { recordResult } from '@/lib/gameStats'
+import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 // Component-scoped keyframes — globals.css stays untouched.
@@ -124,7 +124,7 @@ export function GameNumberMemory({ storageKey }: { storageKey: string }) {
       clearTimers()
       commit(next)
       setShakeKey((k) => k + 1)
-      recordResult(storageKey.replace(/^best:/, ''), { won: true })
+      recordFinish(storageKey.replace(/^best:/, ''))
       const isBest = next.reached > bestBeforeRef.current && next.reached > 0
       if (isBest) {
         bestRef.current = next.reached

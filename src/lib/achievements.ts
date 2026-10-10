@@ -32,7 +32,12 @@ function distinctPlayed(): number {
   }
 }
 
-function totalWins(): number {
+/**
+ * Champion 목표 값 — 모든 게임의 저장된 승수 합. endless 게임은 이제 recordFinish로만 기록돼
+ * 새 승수가 쌓이지 않는다. 예전(won:true 관례) 시절 승수는 그대로 세어 이미 달성한 Champion
+ * 단계를 되돌리지 않는다 — 레거시 값은 더 늘지 않으니 부풀림은 멈춘다.
+ */
+export function totalWins(): number {
   let wins = 0
   try {
     for (let i = 0; i < localStorage.length; i++) {
@@ -93,10 +98,15 @@ export const GOALS: Goal[] = [
  * 게임오버 넛지: 지금 바로 늘릴 수 있는 목표 중, 다음 티어까지 1~maxAway개 남은 가장 가까운 것을
  * "N more win(s) for Champion" 식으로. 없으면 null. (streak처럼 unit 없는 목표는 제외.)
  */
-export function nearestGoalHint(maxAway = 3): { text: string; icon: string } | null {
+export function nearestGoalHint(
+  maxAway = 3,
+  opts: { excludeUnits?: string[] } = {},
+): { text: string; icon: string } | null {
   let best: { remaining: number; text: string; icon: string } | null = null
   for (const g of GOALS) {
     if (!g.unit) continue
+    // 지금 게임에서 늘릴 수 없는 목표(예: endless 게임의 'win')는 넛지하지 않는다.
+    if (opts.excludeUnits?.includes(g.unit)) continue
     const st = goalState(g, g.value())
     if (st.complete) continue
     const remaining = st.target - st.value
