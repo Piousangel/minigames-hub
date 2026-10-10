@@ -16,11 +16,14 @@ export function GameCard({
   title,
   description,
   favoritable = true,
+  badge,
 }: {
   slug: string
   title: string
   description: string
   favoritable?: boolean
+  /** 추가 코너 뱃지 — 'popular'는 홈 Featured 레일의 인기순 상위(FeaturedRail). */
+  badge?: 'popular'
 }) {
   const meta = gameMeta[slug] ?? DEFAULT_META
   return (
@@ -42,7 +45,18 @@ export function GameCard({
           PLAY ►
         </span>
       </SpotlightCard>
-      <NewBadge slug={slug} />
+      {/* 좌상단 뱃지 줄(NEW·Popular) — 하트(우상단)와 같은 코너 배치 체계, 본문·PLAY 줄은 안 가림 */}
+      <div className="pointer-events-none absolute left-1.5 top-1.5 z-10 flex items-center gap-1">
+        <NewBadge slug={slug} />
+        {badge === 'popular' && (
+          <span
+            className="font-pixel rounded-full border border-neon-amber/50 bg-surface px-1.5 py-0.5 text-[8px] tracking-[0.15em] text-neon-amber"
+            data-testid="popular-badge"
+          >
+            <span aria-hidden="true">🔥 </span>POPULAR
+          </span>
+        )}
+      </div>
       {favoritable && <FavoriteHeart slug={slug} title={title} />}
     </div>
   )
