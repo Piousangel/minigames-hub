@@ -140,12 +140,18 @@ describe('rotateDir / applyImpulse / timeBonus', () => {
     expect(rotateDir(15, 1)).toBe(0)
     expect(rotateDir(3, -20)).toBe(15)
   })
-  it('applyImpulse is pure vector addition — the speed cap lives in capVelocity', () => {
+  it('applyImpulse clamps the stored velocity to VMAX — no hidden momentum past the cap', () => {
     let v = { vx: 0, vy: 0 }
-    for (let i = 0; i < 5; i++) v = applyImpulse(v.vx, v.vy, 8)
-    expect(v).toEqual({ vx: 5 * 256, vy: 0 })
-    expect(capVelocity(v.vx, v.vy)).toEqual({ vx: VMAX, vy: 0 })
+    for (let i = 0; i < 6; i++) v = applyImpulse(v.vx, v.vy, 8)
+    expect(v).toEqual({ vx: VMAX, vy: 0 })
     expect(VMAX).toBe(1024)
+    for (let a = 0; a < 16; a++) {
+      let w = { vx: 0, vy: 0 }
+      for (let i = 0; i < 9; i++) {
+        w = applyImpulse(w.vx, w.vy, a)
+        expect(w.vx * w.vx + w.vy * w.vy).toBeLessThanOrEqual(VMAX * VMAX)
+      }
+    }
   })
   it('capVelocity keeps direction (no per-axis bending) and never exceeds VMAX', () => {
     expect(capVelocity(300, -400)).toEqual({ vx: 300, vy: -400 })
@@ -165,23 +171,74 @@ describe('rotateDir / applyImpulse / timeBonus', () => {
       }
     }
   })
-  it('a pair of opposite shots cancels exactly even past the speed cap', () => {
-    // Saturate along a diagonal, then fire every opposite pair: the momentum must return exactly.
+  it('at top speed, one braking shot visibly slows the ship by a full unit (every direction)', () => {
+    for (let a = 0; a < 16; a++) {
+      const brake = (a + 8) % 16 // fire along the motion
+      let s = L(N, [], [FAR], { ship: [160, 112] })
+      for (let i = 0; i < 6; i++) s = step(s, { fire: a }) // well past top speed
+      const top = Math.hypot(s.vx, s.vy)
+      expect(top).toBeLessThanOrEqual(VMAX)
+      expect(top).toBeGreaterThan(VMAX - 2)
+      s = step(s, { fire: brake })
+      const after = Math.hypot(s.vx, s.vy)
+      expect(top - after).toBeGreaterThanOrEqual(Math.hypot(DIRS[brake][0], DIRS[brake][1]) - 1)
+      // and the ship really moves slower: per-tick displacement drops too
+      const p0 = { x: s.x, y: s.y }
+      s = step(s, null)
+      expect(Math.hypot(s.x - p0.x, s.y - p0.y)).toBeLessThanOrEqual(after + 1)
+    }
+    // exact on an axis: 6 shots right then one brake → 3 units, not 4
+    let s = L(N, [], [FAR], { ship: [160, 112] })
+    for (let i = 0; i < 6; i++) s = step(s, { fire: 8 })
+    s = step(s, { fire: 0 })
+    expect({ vx: s.vx, vy: s.vy }).toEqual({ vx: VMAX - 256, vy: 0 })
+  })
+  it('a shot followed by the exactly opposite shot cancels exactly, including at top speed', () => {
+    // From top speed: brake then re-push returns exactly to top speed.
     for (const sat of [0, 2, 5, 8]) {
       let base = { vx: 0, vy: 0 }
       for (let i = 0; i < 6; i++) base = applyImpulse(base.vx, base.vy, sat)
       for (let a = 0; a < 16; a++) {
         const one = applyImpulse(base.vx, base.vy, a)
-        expect(applyImpulse(one.vx, one.vy, (a + 8) % 16)).toEqual(base)
+        const two = applyImpulse(one.vx, one.vy, (a + 8) % 16)
+        const pushedPastCap = (base.vx - DIRS[a][0]) ** 2 + (base.vy - DIRS[a][1]) ** 2 > VMAX * VMAX
+        if (!pushedPastCap) expect(two).toEqual(base)
+        // a shot pushed into the limit loses its excess, so the following counter-shot is a real brake
+        else expect(two.vx * two.vx + two.vy * two.vy).toBeLessThan(base.vx * base.vx + base.vy * base.vy)
       }
     }
-    // …and through the real step loop, with the ship at top speed.
-    let s = L(N, [], [FAR], { ship: [160, 112] })
-    for (let i = 0; i < 5; i++) s = step(s, { fire: 8 })
-    const before = { vx: s.vx, vy: s.vy }
-    s = step(s, { fire: 1 })
-    s = step(s, { fire: 9 })
-    expect({ vx: s.vx, vy: s.vy }).toEqual(before)
+  })
+  it('fuzz: shot + antipode cancels exactly from random reachable states (fixed seed)', () => {
+    const rng = mulberry32(20261010)
+    let checked = 0
+    for (let game = 0; game < 6; game++) {
+      let s = createGame(DIFFICULTIES.easy, 500 + game)
+      for (let t = 0; t < 2500 && !isOver(s); t++) {
+        const fire = s.phase === 'ready' || rng() < 0.08
+        const a = Math.floor(rng() * 16)
+        if (s.phase === 'flying' && s.ammo >= 2 && rng() < 0.3) {
+          // probe the pair on the current reachable state without disturbing the run
+          const one = applyImpulse(s.vx, s.vy, a)
+          const two = applyImpulse(one.vx, one.vy, (a + 8) % 16)
+          const pushedPastCap = (s.vx - DIRS[a][0]) ** 2 + (s.vy - DIRS[a][1]) ** 2 > VMAX * VMAX
+          if (!pushedPastCap) {
+            expect(two).toEqual({ vx: s.vx, vy: s.vy })
+            // same through the real step loop when no wall flips the velocity during either tick
+            const s1 = step(s, { fire: a })
+            const s2 = step(s1, { fire: (a + 8) % 16 })
+            if (!s1.events.includes('bounce') && !s2.events.includes('bounce') && !isOver(s2)) {
+              expect({ vx: s2.vx, vy: s2.vy }).toEqual({ vx: s.vx, vy: s.vy })
+              // the ghost line shares the impulse code path
+              expect(predictPath(s1, (a + 8) % 16, 1)).toEqual([{ x: s2.x, y: s2.y }])
+            }
+            checked++
+          }
+        }
+        s = step(s, fire ? { fire: a } : null)
+        expect(s.vx * s.vx + s.vy * s.vy).toBeLessThanOrEqual(VMAX * VMAX)
+      }
+    }
+    expect(checked).toBeGreaterThan(200)
   })
   it('timeBonus', () => {
     expect(timeBonus(0)).toBe(600)

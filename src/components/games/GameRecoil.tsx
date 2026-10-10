@@ -12,7 +12,6 @@ import {
   PREVIEW_TICKS,
   STAR_PTS,
   WIN_BONUS,
-  capVelocity,
   createGameForSeed,
   dailySeedFor,
   difficultyOfSeed,
@@ -621,7 +620,6 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
   const previewPts = [`${shipX},${shipY}`, ...preview.map((p) => `${u(p.x)},${u(p.y)}`)].join(' ')
   const trailPts = trailRef.current.map((p) => `${u(p.x)},${u(p.y)}`).join(' ')
   const [adx, ady] = DIRS[s.aim]
-  const shown = capVelocity(s.vx, s.vy) // what the ship actually moves per tick
 
   const outcome = challenge && over ? compareChallenge(s.score, challenge.score) : null
   const challengeTitle = !outcome
@@ -960,8 +958,8 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
                 <line
                   x1={shipX}
                   y1={shipY}
-                  x2={shipX + (shown.vx * 8) / 256}
-                  y2={shipY + (shown.vy * 8) / 256}
+                  x2={shipX + (s.vx * 8) / 256}
+                  y2={shipY + (s.vy * 8) / 256}
                   stroke="var(--neon-lime)"
                   strokeOpacity={0.7}
                   strokeWidth={1.2}

@@ -2978,7 +2978,7 @@ export const gamePages: GamePage[] = [
     ],
     strategy: [
       'Trust the dotted ghost line: it traces the next 45 ticks (about three-quarters of a second) of flight for the direction you are aiming, bounces included.',
-      'To brake, fire in the direction you are already moving — two shots in exactly opposite directions cancel out completely. A slow ship is far easier to steer than a fast one.',
+      'To brake, fire in the direction you are already moving — even at top speed one shot takes off a full unit. A shot followed by one in exactly the opposite direction cancels out completely, unless the first only pushed against the speed limit. A slow ship is far easier to steer than a fast one.',
       'Let the walls do the turning. A bounce costs nothing, and any star you collect after a bounce since your last shot is a bank shot worth an extra 50 points.',
       'Spend rounds sparingly: every unused round pays 150 on a win, more than a star, while the time bonus (up to 600) drops 10 points per second. Try to finish at or under the par shown above the arena.',
     ],
