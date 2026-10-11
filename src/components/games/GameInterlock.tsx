@@ -281,15 +281,18 @@ export function GameInterlock({ storageKey }: { storageKey: string }) {
         case 'ArrowRight':
           rotate('A', -1)
           break
+        // Ring B's slot order (top → upper-right → right → bottom) runs clockwise on
+        // screen, so dir=+1 is clockwise for B (the mirror of ring A). J/L mirror A/D:
+        // J = counter-clockwise, L = clockwise.
         case 'j':
         case 'J':
         case ',':
-          rotate('B', 1)
+          rotate('B', -1)
           break
         case 'l':
         case 'L':
         case '.':
-          rotate('B', -1)
+          rotate('B', 1)
           break
         case 'u':
         case 'U':
@@ -486,8 +489,9 @@ export function GameInterlock({ storageKey }: { storageKey: string }) {
 
           {/* Ring B controls (right) */}
           <div className="flex flex-col justify-center gap-2">
-            {rotateBtn('B', 1, '↺', 'Rotate right ring counter-clockwise', '')}
-            {rotateBtn('B', -1, '↻', 'Rotate right ring clockwise', '')}
+            {/* B's dir=+1 runs clockwise on screen (see RING_B order / POS). */}
+            {rotateBtn('B', -1, '↺', 'Rotate right ring counter-clockwise', '')}
+            {rotateBtn('B', 1, '↻', 'Rotate right ring clockwise', '')}
           </div>
         </div>
 

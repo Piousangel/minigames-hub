@@ -99,9 +99,9 @@ export const MAX_CHAIN_BONUS = 3
 export const TIGHT_MARGIN = 6 // 2 cells of slack => 'tight'
 export const SCHEDULE_LEN = 600
 export const FIRST_SPAWN_TICK = 6
-export const GAP_START = 26
-export const GAP_MIN = 9
-export const GAP_RAMP = 12
+export const GAP_START = 14
+export const GAP_MIN = 7
+export const GAP_RAMP = 10
 export const GAP_JITTER = 5
 export const LEN_START_MIN = 24
 export const LEN_START_MAX = 40
@@ -116,6 +116,13 @@ export const LEN_RAMP = 25
  * far-and-urgent wick genuinely unsalvageable and forces a sacrifice decision.
  * Opening lengths (24..40) are all reachable, so the game teaches before it
  * punishes.
+ *
+ * Spawn pacing: GAP_START must sit well BELOW the opening fuse length (~32), or
+ * every wick is defused before the next appears and the routing decision —
+ * the whole point — never shows up (the old 26-tick gap kept ~1.1 wicks live
+ * for minutes and a greedy bot cruised past 3 min). 14 -> 7 over 70 spawns
+ * keeps ~1.7-2 wicks scheduled live from the opening seconds; the pacing tests
+ * pin both "survivable first 30 s" and "no infinite cruise".
  */
 
 // -- Rng --------------------------------------------------------------------

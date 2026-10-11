@@ -42,13 +42,27 @@ export function GameHangman({ storageKey }: { storageKey: string }) {
   // SSR 불일치 방지: 초기 상태는 클라이언트에서만 생성
   const [state, setState] = useState<GameState | null>(null)
   const [stats, setStats] = useState<Stats>(EMPTY_STATS)
-  const [shakeKey, setShakeKey] = useState(0)
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reducedRef } = useReducedMotion()
 
   const stateRef = useRef<GameState | null>(null)
   const recordedRef = useRef(false)
+  const boardRef = useRef<HTMLDivElement | null>(null)
+
+  /**
+   * Replay the shake on the board wrapper only. Re-keying the wrapper used to remount
+   * the whole board, replaying every drawn body part and revealed letter on each miss.
+   * The class is managed imperatively (React's className never contains it), so a
+   * re-render cannot strip it mid-animation.
+   */
+  const shakeBoard = useCallback(() => {
+    const el = boardRef.current
+    if (!el) return
+    el.classList.remove('anim-shake')
+    void el.offsetWidth // force reflow so the CSS animation restarts
+    el.classList.add('anim-shake')
+  }, [])
 
   const commit = useCallback((s: GameState) => {
     stateRef.current = s
@@ -57,7 +71,7 @@ export function GameHangman({ storageKey }: { storageKey: string }) {
 
   const restart = useCallback(() => {
     recordedRef.current = false
-    setShakeKey(0)
+    boardRef.current?.classList.remove('anim-shake')
     commit(newGame(Math.random))
   }, [commit])
 
@@ -109,11 +123,11 @@ export function GameHangman({ storageKey }: { storageKey: string }) {
         play('match')
       } else {
         play('error')
-        // Skip the shake re-mount entirely when the user prefers reduced motion.
-        if (!reducedRef.current) setShakeKey((k) => k + 1)
+        // Skip the shake entirely when the user prefers reduced motion.
+        if (!reducedRef.current) shakeBoard()
       }
     },
-    [commit, play, recordEnd, reducedRef],
+    [commit, play, recordEnd, reducedRef, shakeBoard],
   )
 
   // Physical keyboard.
@@ -186,11 +200,8 @@ export function GameHangman({ storageKey }: { storageKey: string }) {
       `}</style>
 
       <div
-        className={`anim-board-in mx-auto flex w-full max-w-100 flex-col items-center gap-5 rounded-xl bg-surface p-4 ${
-          shakeKey > 0 ? 'anim-shake' : ''
-        }`}
-        // Re-mount on each wrong guess so the shake replays.
-        key={`board-${shakeKey}`}
+        ref={boardRef}
+        className="anim-board-in mx-auto flex w-full max-w-100 flex-col items-center gap-5 rounded-xl bg-surface p-4"
         data-testid="hangman-board"
       >
         <HangmanFigure misses={state.misses} />

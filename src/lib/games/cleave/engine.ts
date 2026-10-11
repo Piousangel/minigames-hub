@@ -111,7 +111,7 @@ export const BASE_ITEMS = 4
 export const MAX_ITEMS = 9
 export const START_LIVES = 3
 export const BAND_BUCKET = 3
-export const QUOTA_RATIO = 0.5
+export const QUOTA_RATIO = 0.8
 export const MAX_GEN_ATTEMPTS = 8
 export const ROUND_SALT = 0x9e3779b1
 

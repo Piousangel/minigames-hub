@@ -244,10 +244,23 @@ export function GameOverdub({ storageKey }: { storageKey: string }) {
     [doTap],
   )
 
+  // Window-level so Space works the moment the page opens — on the board's own
+  // onKeyDown it needed focus first, and an unfocused Space scrolled the page
+  // instead of stamping (audit 2026-10-10).
   const onKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
+    (e: KeyboardEvent) => {
       if (isTypingTarget(e.target)) return
       if (e.repeat) return // holding Space must not machine-gun taps
+      if (e.metaKey || e.ctrlKey || e.altKey) return // leave Cmd/Ctrl+R etc. to the browser
+      // Space/Enter on another control (New Loop, mute…) must activate THAT control.
+      const t = e.target
+      if (
+        t instanceof Element &&
+        t !== boardRef.current &&
+        t.closest('button, a[href], select, [role="button"]') !== null
+      ) {
+        return
+      }
       switch (e.key) {
         case ' ':
         case 'Spacebar':
@@ -267,6 +280,11 @@ export function GameOverdub({ storageKey }: { storageKey: string }) {
     },
     [doTap, startRun],
   )
+
+  useEffect(() => {
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onKeyDown])
 
   if (!state) {
     return (
@@ -310,7 +328,6 @@ export function GameOverdub({ storageKey }: { storageKey: string }) {
         aria-label="Overdub loop — tap to stamp a note on the playhead step"
         data-testid="overdub-board"
         onPointerDown={onPointerDown}
-        onKeyDown={onKeyDown}
         className="ov-board relative aspect-square w-full overflow-hidden rounded-xl bg-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
         style={{ touchAction: 'manipulation' }}
       >

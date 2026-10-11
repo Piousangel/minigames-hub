@@ -229,6 +229,8 @@ export function GameTicker({ storageKey }: { storageKey: string }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (isTypingTarget(e.target)) return
+      // Cmd/Ctrl+C (copy) etc. must not commit an irreversible bet.
+      if (e.metaKey || e.ctrlKey || e.altKey) return
       if (over) return
       const k = e.key.toLowerCase()
       let choice: Choice | null = null
@@ -273,7 +275,9 @@ export function GameTicker({ storageKey }: { storageKey: string }) {
       }
       setBest(nextBest)
       saveBest(storageKey, nextBest)
-      const win = isNewHigh || (!hadRecord && green)
+      // 'New best!'는 이긴 판(시작 자산 이상)에서만. 첫 판은 bestW가 0이라 isNewHigh가
+      // 항상 true이므로, 손실로 끝난 첫 판이나 손실 기록끼리의 갱신을 축하하지 않는다.
+      const win = green && (isNewHigh || !hadRecord)
       setNewBest(win)
       play(win ? 'win' : 'lose')
       recordResult(storageKey.replace(/^best:/, ''), { won: green })
@@ -445,10 +449,9 @@ export function GameTicker({ storageKey }: { storageKey: string }) {
               tabIndex={cursor === idx ? 0 : -1}
               aria-label={label}
               onFocus={() => setCursor(idx)}
-              onPointerDown={(e) => {
-                e.preventDefault()
-                commitChoice(choice)
-              }}
+              // 되돌릴 수 없는 올인 베팅이라 pointerdown이 아닌 click으로 확정한다 —
+              // 스크롤하려고 버튼 위에 엄지를 올린 것만으로는 확정되지 않는다.
+              onClick={() => commitChoice(choice)}
               className="tk-choice min-h-11 rounded-lg border border-border bg-surface/80 py-2.5 text-base font-extrabold text-fg disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
             >
               {choice}

@@ -168,57 +168,57 @@ describe('schedule / rng', () => {
         {
           "cellPick": 0.04096397617831826,
           "length": 26,
-          "tick": 36,
+          "tick": 24,
         },
         {
           "cellPick": 0.8027570187114179,
           "length": 30,
-          "tick": 62,
+          "tick": 38,
         },
         {
           "cellPick": 0.544306228403002,
           "length": 29,
-          "tick": 88,
+          "tick": 52,
         },
         {
           "cellPick": 0.543442856753245,
           "length": 28,
-          "tick": 118,
+          "tick": 70,
         },
         {
           "cellPick": 0.4964431459084153,
           "length": 25,
-          "tick": 146,
+          "tick": 86,
         },
         {
           "cellPick": 0.8682829476892948,
           "length": 32,
-          "tick": 176,
+          "tick": 104,
         },
         {
           "cellPick": 0.914276140043512,
           "length": 28,
-          "tick": 206,
+          "tick": 122,
         },
         {
           "cellPick": 0.19614544324576855,
           "length": 33,
-          "tick": 235,
+          "tick": 139,
         },
         {
           "cellPick": 0.8869384240824729,
           "length": 40,
-          "tick": 264,
+          "tick": 156,
         },
         {
           "cellPick": 0.17641304130665958,
           "length": 33,
-          "tick": 291,
+          "tick": 170,
         },
         {
           "cellPick": 0.6830607764422894,
           "length": 40,
-          "tick": 318,
+          "tick": 184,
         },
       ]
     `)
@@ -742,24 +742,24 @@ describe('golden + purity', () => {
       wicks: s.wicks,
     }).toMatchInlineSnapshot(`
       {
-        "bestChain": 3,
-        "chain": 3,
-        "lives": 1,
-        "lost": 2,
-        "phase": "playing",
-        "saved": 4,
-        "score": 4,
-        "tick": 200,
+        "bestChain": 1,
+        "chain": 0,
+        "lives": 0,
+        "lost": 3,
+        "phase": "over",
+        "saved": 1,
+        "score": 1,
+        "tick": 82,
         "wicks": [
           {
             "cell": {
-              "x": 4,
-              "y": 4,
+              "x": 2,
+              "y": 2,
             },
-            "id": 7,
-            "remaining": 3,
-            "spawnTick": 175,
-            "total": 28,
+            "id": 5,
+            "remaining": 18,
+            "spawnTick": 73,
+            "total": 27,
           },
         ],
       }
@@ -789,5 +789,47 @@ describe('golden + purity', () => {
     // Ticking repeatedly off the SAME frozen state is pure: same result each time.
     expect(reduce(s, { type: 'tick' })).toEqual(reduce(s, { type: 'tick' }))
     expect(JSON.parse(JSON.stringify(s))).toEqual(snapshot)
+  })
+})
+
+// ===========================================================================
+// Pacing (audit 2026-10-10: one wick at a time for minutes, routing never shows up)
+// ===========================================================================
+
+describe('pacing', () => {
+  /** Perfect-reaction greedy bot: always heads for the most urgent wick it can still save. */
+  function greedyRun(seed: number, maxTicks: number): FuseState {
+    let s = reduce(createGame(seed), { type: 'start' })
+    for (let t = 0; t < maxTicks && s.phase === 'playing'; t++) {
+      const live = s.wicks.filter((w) => reachOf(s.hand, w) !== 'doomed')
+      live.sort((a, b) => a.remaining - b.remaining)
+      const goal = live[0]?.cell
+      const dest = s.hand.path[s.hand.path.length - 1]
+      if (goal && (!dest || dest.x !== goal.x || dest.y !== goal.y)) {
+        s = reduce(s, { type: 'target', cell: goal })
+      }
+      s = reduce(s, { type: 'tick' })
+    }
+    return s
+  }
+
+  it('39. the opening 30 s schedules overlapping wicks (mean scheduled live wicks >= 1.6)', () => {
+    const T = 333 // ~30 s at TICK_MS
+    let total = 0
+    const seeds = 50
+    for (let seed = 1; seed <= seeds; seed++) {
+      const es = generateSchedule(seed).entries
+      let sum = 0
+      for (let t = 1; t <= T; t++) sum += es.filter((e) => e.tick <= t && t < e.tick + e.length).length
+      total += sum / T
+    }
+    expect(total / seeds).toBeGreaterThanOrEqual(1.6)
+  })
+
+  it('40. a perfect greedy bot survives the first 30 s but cannot cruise forever (dies within 3 min)', () => {
+    for (let seed = 1; seed <= 40; seed++) {
+      expect(greedyRun(seed, 333).phase).toBe('playing')
+      expect(greedyRun(seed, 2000).phase).toBe('over')
+    }
   })
 })

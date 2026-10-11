@@ -53,10 +53,37 @@ function loadDaily(): DailyStreak | undefined {
   return undefined
 }
 
+/**
+ * 점수식 버전. v2(2026-10-10): 마진 보너스 상한 100→15로 바꿔 "전부 놓기 = 300 만점"
+ * 익스플로잇을 없앴다(engine.ts MARGIN_BONUS_MAX). 새 식의 최고점은 300에 못 미치므로
+ * 버전 표시가 없는 옛 best는 영영 깰 수 없는 값 — 한 번 폐기한다(daily streak은 유지).
+ */
+const SCORE_VERSION_KEY = 'grasp:scoreVersion'
+const SCORE_VERSION = '2'
+
+/** Drops a pre-v2 best (keeps the daily streak). Returns the save to use. */
+function migrateScoreVersion(storageKey: string, save: GraspSave): GraspSave {
+  try {
+    if (localStorage.getItem(SCORE_VERSION_KEY) === SCORE_VERSION) return save
+    localStorage.removeItem(storageKey)
+    localStorage.setItem(SCORE_VERSION_KEY, SCORE_VERSION)
+    return { ...save, score: 0 }
+  } catch {
+    // storage unavailable -> nothing to migrate
+    return save
+  }
+}
+
 function loadSave(storageKey: string): GraspSave {
+  return migrateScoreVersion(storageKey, loadRawSave(storageKey))
+}
+
+function loadRawSave(storageKey: string): GraspSave {
   try {
     const raw = localStorage.getItem(storageKey)
-    if (!raw) return { score: 0 }
+    // No best yet (or dropped by the score-version migration) — the streak lives
+    // under its own key, so still load it.
+    if (!raw) return { score: 0, daily: loadDaily() }
     const n = Number(raw)
     if (Number.isFinite(n)) return { score: Math.max(0, Math.floor(n)), daily: loadDaily() }
     const o = JSON.parse(raw) as Record<string, unknown>

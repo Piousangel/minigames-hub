@@ -505,9 +505,12 @@ export function reduce(state: HoglineState, action: HoglineAction): HoglineState
     case 'bank': {
       if (state.finished || state.shotsLeft === 0) return { ...state, lastEvent: 'none' }
 
+      // The win is judged on the house alone (state.score === houseScore * SCORE_SCALE);
+      // the unused-shot bonus only sweetens the final score. Counting the bonus toward
+      // the target let a shot-0 bank (6 × 15 = 90) clear every target outright.
+      const won = state.score >= state.target
       const unusedShots = state.shotsLeft
       const score = state.score + unusedShots * BONUS_PER_UNUSED_SHOT
-      const won = score >= state.target
 
       return {
         ...state,

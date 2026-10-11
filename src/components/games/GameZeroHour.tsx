@@ -92,6 +92,14 @@ interface CellFloat {
   gained: number
 }
 
+/** A one-shot crack effect on the cell a tile detonated in (now empty). */
+interface CellCrack {
+  seq: number
+  index: number
+}
+
+const CRACK_MS = 350 // slightly longer than the zh-crack keyframes (.3s)
+
 function seedBoard(): ZeroHourState {
   let s = newGame()
   for (let i = 0; i < INITIAL_TILES; i++) s = spawnTile(s, Math.random)
@@ -110,7 +118,11 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
   const [newBest, setNewBest] = useState(false)
   const [cursor, setCursor] = useState(0)
   const [floats, setFloats] = useState<CellFloat[]>([])
-  const [crackKeys, setCrackKeys] = useState<number[]>(() => Array<number>(CELLS).fill(0))
+  const [cracks, setCracks] = useState<CellCrack[]>([])
+  // Tab hidden mid-run → paused (NOT ended). Resume continues the same run.
+  const [paused, setPaused] = useState(false)
+  const runningRef = useRef(false)
+  runningRef.current = running
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reduced } = useReducedMotion()
@@ -119,6 +131,9 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
   const nextTickAt = useRef(0)
   const nextSpawnAt = useRef(0)
   const floatSeq = useRef(0)
+  const crackSeq = useRef(0)
+  // Time left on each clock when paused, so resuming doesn't skip or bunch ticks.
+  const pausedLeft = useRef<{ tick: number; spawn: number } | null>(null)
   const prevOver = useRef(false)
   const gridRef = useRef<HTMLDivElement | null>(null)
 
@@ -130,19 +145,22 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
     setFloats((f) => [...f, { seq, index, gained }])
   }, [])
 
-  const bumpCrack = useCallback((index: number) => {
-    setCrackKeys((keys) => {
-      const nk = keys.slice()
-      nk[index] += 1
-      return nk
-    })
+  // Crack events are transient: each removes itself after the animation, so a
+  // tile later spawned in that cell never replays it.
+  const pushCrack = useCallback((index: number) => {
+    const seq = ++crackSeq.current
+    setCracks((c) => [...c, { seq, index }])
+    window.setTimeout(() => setCracks((c) => c.filter((x) => x.seq !== seq)), CRACK_MS)
   }, [])
 
   const restart = useCallback(() => {
     setState(seedBoard())
     setRunning(false)
+    setPaused(false)
+    pausedLeft.current = null
     setNewBest(false)
     setFloats([])
+    setCracks([])
     setCursor(0)
     prevOver.current = false
   }, [])
@@ -158,6 +176,9 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
     setState(fresh)
     setNewBest(false)
     setFloats([])
+    setCracks([])
+    setPaused(false)
+    pausedLeft.current = null
     setCursor(emptyCells(fresh).length < CELLS ? fresh.cells.findIndex((c) => c !== null) : 0)
     prevOver.current = false
     const now = performance.now()
@@ -169,6 +190,16 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
   const onNewGame = useCallback(() => {
     start()
   }, [start])
+
+  const resume = useCallback(() => {
+    const left = pausedLeft.current
+    const now = performance.now()
+    nextTickAt.current = now + (left?.tick ?? TICK_INTERVAL_MS)
+    nextSpawnAt.current = now + (left?.spawn ?? 0)
+    pausedLeft.current = null
+    setPaused(false)
+    setRunning(true)
+  }, [])
 
   // Master loop: single deadline-driven interval (RAF-free, testable).
   useEffect(() => {
@@ -186,7 +217,7 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
           const ev = res.event
           if (ev.cracked.length > 0) {
             play('error')
-            for (const idx of ev.cracked) bumpCrack(idx)
+            for (const idx of ev.cracked) pushCrack(idx)
           }
           if (ev.chainEnded && ev.cracked.length === 0) play('mismatch')
           nextTickAt.current += TICK_INTERVAL_MS
@@ -202,12 +233,20 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
       })
     }, STEP_MS)
     return () => clearInterval(id)
-  }, [running, over, play, bumpCrack])
+  }, [running, over, play, pushCrack])
 
-  // Pause when tab is hidden so fuses don't burn in the background.
+  // Pause when tab is hidden so fuses don't burn in the background. The run is
+  // kept; a Resume overlay continues it (Start would deal a fresh board).
   useEffect(() => {
     const onVisibility = () => {
-      if (document.hidden) setRunning(false)
+      if (!document.hidden || !runningRef.current) return
+      const now = performance.now()
+      pausedLeft.current = {
+        tick: Math.max(0, nextTickAt.current - now),
+        spawn: Math.max(0, nextSpawnAt.current - now),
+      }
+      setRunning(false)
+      setPaused(true)
     }
     document.addEventListener('visibilitychange', onVisibility)
     return () => document.removeEventListener('visibilitychange', onVisibility)
@@ -317,8 +356,10 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
   const combo = state?.combo ?? 0
   const longestChain = state?.longestChain ?? 0
 
-  const newGameLabel = running ? 'Restart' : over ? 'Play again' : 'Start'
-  const hint = running
+  const newGameLabel = running || paused ? 'Restart' : over ? 'Play again' : 'Start'
+  const hint = paused
+    ? 'Paused — press Resume to continue this run.'
+    : running
     ? 'Harvest high-value tiles for points — but every number is also its fuse. Chain descending values for a multiplier.'
     : over
       ? 'Three strikes — press Play again.'
@@ -384,6 +425,18 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
                 className="relative aspect-square rounded-lg border border-white/5 bg-black/20"
               >
                 {!reduced &&
+                  cracks
+                    .filter((k) => k.index === i)
+                    .map((k) => (
+                      <span
+                        key={`crack-${k.seq}`}
+                        data-testid="zh-crack"
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 rounded-lg"
+                        style={{ animation: 'zh-crack .3s ease-out both' }}
+                      />
+                    ))}
+                {!reduced &&
                   cellFloats.map((f) => (
                     <span
                       key={f.seq}
@@ -440,18 +493,25 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
                     +{f.gained}
                   </span>
                 ))}
-              {!reduced && crackKeys[i] > 0 && (
-                <span
-                  key={`crack-${crackKeys[i]}`}
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 rounded-lg"
-                  style={{ animation: 'zh-crack .3s ease-out both' }}
-                />
-              )}
             </button>
           )
         })}
       </div>
+
+      {paused && !over && (
+        <div
+          data-testid="zh-paused"
+          role="dialog"
+          aria-label="Paused"
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl bg-bg/80"
+        >
+          <p className="text-2xl font-extrabold text-fg">Paused</p>
+          <p className="text-sm text-fg-muted">Score {score} · fuses are frozen</p>
+          <GameButton onClick={resume} className="px-5 py-2" autoFocus>
+            Resume
+          </GameButton>
+        </div>
+      )}
 
       <GameOverlay
         show={over}

@@ -83,10 +83,125 @@ export function randomSolution(size: number, rng: Rng, density: number): Solutio
   return grid
 }
 
+// ── Line solver (uniqueness check) ─────────────────────────────────────────
+// Line-by-line deduction: for every row/column, enumerate every placement of
+// its runs that agrees with what is already known, and fix the cells on which
+// all placements agree. Repeat until nothing changes. If every cell gets fixed
+// the puzzle has exactly one solution AND a player can reach it by pure logic
+// (no guessing) — which is the bar for a fair nonogram.
+
+/** Known-cell state used by the solver: null = undecided. */
+type Known = Array<boolean | null>
+
+/**
+ * Intersect all placements of `clue` consistent with `known`.
+ * Returns the refined line, or null when no placement fits (contradiction).
+ */
+function solveLine(clue: Clue, known: Known): Known | null {
+  const n = known.length
+  const runs = clue.length === 1 && clue[0] === 0 ? [] : clue
+  // canFill[i][j]: can runs[j..] be placed in cells i..n-1 consistently?
+  const memo = new Map<number, boolean>()
+  const canEmpty = (from: number, to: number) => {
+    for (let k = from; k < to; k++) if (known[k] === true) return false
+    return true
+  }
+  const canRun = (from: number, len: number) => {
+    if (from + len > n) return false
+    for (let k = from; k < from + len; k++) if (known[k] === false) return false
+    return from + len === n || known[from + len] !== true
+  }
+  const fits = (i: number, j: number): boolean => {
+    if (j === runs.length) return canEmpty(i, n)
+    if (i >= n) return false
+    const key = i * 64 + j
+    const hit = memo.get(key)
+    if (hit !== undefined) return hit
+    let ok = false
+    // Option A: cell i is empty, place runs[j..] from i+1.
+    if (known[i] !== true && fits(i + 1, j)) ok = true
+    // Option B: run j starts at i (followed by a gap unless at the edge).
+    if (!ok && canRun(i, runs[j]) && fits(Math.min(n, i + runs[j] + 1), j + 1)) ok = true
+    memo.set(key, ok)
+    return ok
+  }
+  if (!fits(0, 0)) return null
+  const canBeFilled = Array<boolean>(n).fill(false)
+  const canBeEmpty = Array<boolean>(n).fill(false)
+  // Walk every reachable (i, j) state forward, recording what each cell can be.
+  const seen = new Set<number>()
+  const walk = (i: number, j: number) => {
+    const key = i * 64 + j
+    if (seen.has(key)) return
+    seen.add(key)
+    if (j === runs.length) {
+      for (let k = i; k < n; k++) canBeEmpty[k] = true
+      return
+    }
+    if (known[i] !== true && fits(i + 1, j)) {
+      canBeEmpty[i] = true
+      walk(i + 1, j)
+    }
+    const len = runs[j]
+    if (canRun(i, len) && fits(Math.min(n, i + len + 1), j + 1)) {
+      for (let k = i; k < i + len; k++) canBeFilled[k] = true
+      if (i + len < n) canBeEmpty[i + len] = true
+      walk(Math.min(n, i + len + 1), j + 1)
+    }
+  }
+  walk(0, 0)
+  return known.map((v, k) => (v !== null ? v : canBeFilled[k] && !canBeEmpty[k] ? true : !canBeFilled[k] ? false : null))
+}
+
+/**
+ * True when the clues derived from `solution` pin down every cell by line
+ * logic alone — i.e. the puzzle is unique and solvable without guessing.
+ */
+export function isLineSolvable(solution: Solution): boolean {
+  const size = solution.length
+  const { rows, cols } = deriveClues(solution)
+  const grid: Known[] = Array.from({ length: size }, () => Array<boolean | null>(size).fill(null))
+  let changed = true
+  while (changed) {
+    changed = false
+    for (let r = 0; r < size; r++) {
+      const next = solveLine(rows[r], grid[r])
+      if (!next) return false
+      for (let c = 0; c < size; c++) {
+        if (grid[r][c] !== next[c]) {
+          grid[r][c] = next[c]
+          changed = true
+        }
+      }
+    }
+    for (let c = 0; c < size; c++) {
+      const col = grid.map((row) => row[c])
+      const next = solveLine(cols[c], col)
+      if (!next) return false
+      for (let r = 0; r < size; r++) {
+        if (grid[r][c] !== next[r]) {
+          grid[r][c] = next[r]
+          changed = true
+        }
+      }
+    }
+  }
+  return grid.every((row) => row.every((v) => v !== null))
+}
+
+/** Upper bound on regeneration attempts before accepting a picture anyway. */
+const MAX_GEN_ATTEMPTS = 500
+
 /** Create a fresh game: random picture + clues derived from it. */
 export function newGame(rng: Rng, difficulty: Difficulty = 'easy'): NonogramState {
   const size = SIZES[difficulty]
-  const solution = randomSolution(size, rng, DENSITY[difficulty])
+  // Re-roll until the picture is uniquely line-solvable. The cap only guards
+  // against a pathological rng; isSolved checks clues, so even a fallback
+  // picture is always winnable.
+  let solution = randomSolution(size, rng, DENSITY[difficulty])
+  for (let i = 1; i < MAX_GEN_ATTEMPTS && !isLineSolvable(solution); i++) {
+    solution = randomSolution(size, rng, DENSITY[difficulty])
+  }
   const { rows, cols } = deriveClues(solution)
   return {
     size,
@@ -116,17 +231,15 @@ export function toggleCell(state: NonogramState, r: number, c: number): Nonogram
 }
 
 /**
- * True when the filled cells exactly reproduce the solution.
- * X-marks and empty cells are both treated as "not filled" — a marked cell
- * never counts as filled, so marks can never make or break a win.
+ * True when the filled cells satisfy every row and column clue.
+ * Judged against the clues, not the hidden picture: a fill that matches all
+ * clues is a valid answer even if the picture were ambiguous. X-marks and
+ * empty cells are both "not filled", so marks never make or break a win.
  */
 export function isSolved(state: NonogramState): boolean {
-  const { grid, solution, size } = state
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      if ((grid[r][c] === FILLED) !== solution[r][c]) return false
-    }
-  }
+  const { rowClues, colClues, size } = state
+  for (let r = 0; r < size; r++) if (!clueEquals(rowFilledClue(state, r), rowClues[r])) return false
+  for (let c = 0; c < size; c++) if (!clueEquals(colFilledClue(state, c), colClues[c])) return false
   return true
 }
 

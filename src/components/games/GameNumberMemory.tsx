@@ -140,6 +140,8 @@ export function GameNumberMemory({ storageKey }: { storageKey: string }) {
     }
 
     // Correct → advance a level. Live-update best, flash, then reveal the longer number.
+    // `feedback='correct'` takes over the board until reveal() — otherwise the
+    // engine's phase 'show' would re-render the just-answered number for 300ms.
     commit(next)
     setFeedback('correct')
     if (next.reached > bestRef.current) {
@@ -226,12 +228,29 @@ export function GameNumberMemory({ storageKey }: { storageKey: string }) {
         tabIndex={-1}
         data-testid="numbermemory-board"
         aria-label="Number Memory board"
-        className={`anim-board-in relative flex aspect-[4/3] w-full flex-col items-center justify-center gap-4 rounded-xl border border-border bg-surface p-5 outline-none ${flashClass} ${
+        // Fixed 4:3 is too short for the game-over overlay on phones (it spilled over
+        // the stats/header) — drop the ratio and reserve a tall enough box when over.
+        className={`anim-board-in relative flex ${phase === 'over' ? 'min-h-[26rem]' : 'aspect-[4/3]'} w-full flex-col items-center justify-center gap-4 rounded-xl border border-border bg-surface p-5 outline-none ${flashClass} ${
           phase === 'over' ? shakeClass : ''
         }`}
         key={`board-${shakeKey}`}
       >
-        {phase === 'show' && (
+        {phase === 'show' && feedback === 'correct' && (
+          <div
+            data-testid="numbermemory-correct"
+            className="flex flex-col items-center gap-2 text-center"
+            aria-live="polite"
+          >
+            <span className="text-5xl font-extrabold text-green-400" aria-hidden="true">
+              ✓
+            </span>
+            <span className="text-sm font-semibold uppercase tracking-widest text-fg-muted">
+              Correct — level {level}
+            </span>
+          </div>
+        )}
+
+        {phase === 'show' && feedback !== 'correct' && (
           <div className="flex w-full flex-col items-center gap-5">
             <span className="text-xs font-semibold uppercase tracking-widest text-fg-muted">
               Remember this

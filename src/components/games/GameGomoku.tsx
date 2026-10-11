@@ -81,17 +81,15 @@ export function GameGomoku({ storageKey }: { storageKey: string }) {
     (s: State) => {
       if (s.status === 'playing' || recordedRef.current) return
       recordedRef.current = true
-      let humanWon: boolean
-      if (s.status === 'won') {
-        // In 2-player a win is always a local human win; in vs-CPU only if the
-        // winner is the human's colour.
-        humanWon = modeRef.current === 'two' ? true : s.winner === colorRef.current
-        play(humanWon ? 'win' : 'lose')
-        if (humanWon) bumpWins()
-      } else {
-        humanWon = false
-        play('lose')
+      // 2-player is a local hot-seat game: one person can play both sides, so it
+      // never feeds the vs-CPU Wins counter, best:<slug> (leaderboard) or stats.
+      if (modeRef.current === 'two') {
+        play(s.status === 'won' ? 'win' : 'lose')
+        return
       }
+      const humanWon = s.status === 'won' && s.winner === colorRef.current
+      play(humanWon ? 'win' : 'lose')
+      if (humanWon) bumpWins()
       recordResult(slug, { won: humanWon })
     },
     [bumpWins, play, slug],
@@ -173,6 +171,9 @@ export function GameGomoku({ storageKey }: { storageKey: string }) {
 
   const undo = useCallback(() => {
     if (thinkingRef.current) return
+    // A decided game is final: undoing it would let the same win be recorded
+    // again (and again) by replaying the winning move.
+    if (stateRef.current?.status !== 'playing') return
     const hist = historyRef.current
     if (hist.length === 0) return
     let steps = 1
@@ -181,7 +182,6 @@ export function GameGomoku({ storageKey }: { storageKey: string }) {
     const target = hist.length - steps
     if (target < 0) return
     const prev = hist[target]
-    recordedRef.current = false
     commit(prev, hist.slice(0, target))
     clearTimer()
     thinkingRef.current = false
@@ -479,7 +479,7 @@ export function GameGomoku({ storageKey }: { storageKey: string }) {
       </div>
 
       <div className="mt-3 flex justify-center gap-2">
-        <GameButton onClick={undo} disabled={history.length === 0 || thinking} className="px-3 py-1.5 text-sm">
+        <GameButton onClick={undo} disabled={history.length === 0 || thinking || over} className="px-3 py-1.5 text-sm">
           Undo
         </GameButton>
       </div>

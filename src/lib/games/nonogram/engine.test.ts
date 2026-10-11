@@ -8,6 +8,7 @@ import {
   findMistakes,
   hasMistakes,
   isSolved,
+  isLineSolvable,
   lineToClue,
   MARKED,
   newGame,
@@ -229,5 +230,40 @@ describe('randomSolution', () => {
     const b = randomSolution(5, mulberry32(2024), 0.5)
     expect(a).toEqual(b)
     expect(a.some((row) => row.some(Boolean))).toBe(true)
+  })
+})
+
+describe('clue-based win (audit: non-unique boards were unwinnable)', () => {
+  // Two different pictures share the same clues: the classic 2x2 diagonal pair.
+  //   X .      . X
+  //   . X  vs  X .   — rows [1],[1], cols [1],[1] for both.
+  const DIAG: Solution = [
+    [true, false],
+    [false, true],
+  ]
+
+  it('a fill that satisfies every clue wins even if it differs from the hidden picture', () => {
+    let s = stateFromSolution(DIAG)
+    s = setCell(s, 0, 1, FILLED)
+    s = setCell(s, 1, 0, FILLED)
+    expect(isSolved(s)).toBe(true)
+  })
+
+  it('isLineSolvable rejects an ambiguous picture and accepts a unique one', () => {
+    expect(isLineSolvable(DIAG)).toBe(false)
+    expect(isLineSolvable(KNOWN)).toBe(true)
+  })
+
+  it('every generated puzzle is uniquely solvable by line logic', () => {
+    for (let seed = 1; seed <= 60; seed++) {
+      expect(isLineSolvable(newGame(mulberry32(seed), 'easy').solution)).toBe(true)
+    }
+    for (let seed = 1; seed <= 20; seed++) {
+      expect(isLineSolvable(newGame(mulberry32(seed), 'hard').solution)).toBe(true)
+    }
+  })
+
+  it('newGame stays deterministic per seed', () => {
+    expect(newGame(mulberry32(77), 'hard').solution).toEqual(newGame(mulberry32(77), 'hard').solution)
   })
 })

@@ -397,10 +397,16 @@ export function GameCleave({ storageKey }: { storageKey: string }) {
             <div className="absolute inset-y-0 left-1/2 z-10 w-px bg-border" />
             {(['B', 'A'] as const).map((side) => {
               const active = side === 'A' ? lead > 0 : lead < 0
-              const half = side === 'A' ? 'left-1/2' : 'right-1/2'
-              const origin = side === 'A' ? 'left center' : 'right center'
+              // Pile A is the left column, B the right: A's bar occupies the
+              // left half (right edge on the centre line) and grows leftward.
+              const half = side === 'A' ? 'right-1/2' : 'left-1/2'
+              const origin = side === 'A' ? 'right center' : 'left center'
               return (
-                <div key={side} className={`absolute inset-y-0 ${half} w-1/2`}>
+                <div
+                  key={side}
+                  data-testid={`cleave-meter-${side}`}
+                  className={`absolute inset-y-0 ${half} w-1/2`}
+                >
                   <div
                     className={`absolute inset-0 rounded-full ${reduced ? '' : 'transition-transform duration-200'}`}
                     style={{

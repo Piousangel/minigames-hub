@@ -432,6 +432,29 @@ describe('reduce — bank', () => {
     expect(afterBank).toEqual({ ...next, lastEvent: 'none' })
   })
 
+  // Audit 2026-10-10 [bug/S]: banking on shot 0 used to add 6×15 = 90 ≥ target and win outright.
+  it('banking before any throw never wins (bonus does not count toward the target)', () => {
+    for (const diff of ['easy', 'normal', 'hard'] as const) {
+      for (let seed = 1; seed <= 200; seed++) {
+        const next = reduce(createGame(DIFFICULTIES[diff], seed), { type: 'bank' })
+        expect(next.finished).toBe(true)
+        expect(next.won).toBe(false)
+        expect(next.lastEvent).toBe('finish')
+      }
+    }
+  })
+
+  it('banking wins only when the house score already meets the target, and still adds the bonus', () => {
+    const below = reduce(stateWith({ shotsLeft: 3, score: 40, houseScore: 4, target: 44 }), { type: 'bank' })
+    expect(below.won).toBe(false)
+    expect(below.score).toBe(40 + 3 * BONUS_PER_UNUSED_SHOT) // 85 ≥ 44, but the bonus is not house score
+
+    const atTarget = reduce(stateWith({ shotsLeft: 3, score: 50, houseScore: 5, target: 44 }), { type: 'bank' })
+    expect(atTarget.won).toBe(true)
+    expect(atTarget.lastEvent).toBe('win')
+    expect(atTarget.score).toBe(50 + 3 * BONUS_PER_UNUSED_SHOT)
+  })
+
   it('bank with shotsLeft=0 is a no-op', () => {
     const state = stateWith({ shotsLeft: 0 })
     const next = reduce(state, { type: 'bank' })

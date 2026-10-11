@@ -104,6 +104,7 @@ const VIEW_H = SHEET_LENGTH
 const RENDER_FRAMES_TARGET = 90 // ~1.5s at 60fps regardless of ticksUsed
 const AIM_DRAG_PX_PER_ANGLE = 3 // px of horizontal drag per degree of angle
 const AIM_DRAG_PX_FOR_FULL_POWER = 140 // px of vertical drag for power 0->1
+const HACK_HIT_R = 9 // invisible touch target around the hack (sheet units; ≈50px at 280px wide)
 
 /** Un-does the board's outer y-flip so text/labels read upright. */
 function Upright({ x, y, children, ...rest }: { x: number; y: number; children: React.ReactNode } & React.SVGProps<SVGTextElement>) {
@@ -155,6 +156,9 @@ export function GameHogline({ storageKey }: { storageKey: string }) {
   const [best, setBest] = useState(0)
   const [streak, setStreak] = useState(0)
   const [displayPositions, setDisplayPositions] = useState<Record<number, Vec2> | null>(null)
+  // The throw whose rAF playback has finished. The result overlay waits for the final throw
+  // to settle on screen instead of covering it the instant reduce() reports finished.
+  const [settledThrow, setSettledThrow] = useState<HoglineState['lastThrow']>(null)
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reduced, reducedRef } = useReducedMotion()
@@ -165,6 +169,8 @@ export function GameHogline({ storageKey }: { storageKey: string }) {
   const rafRef = useRef<number | null>(null)
   const boardRef = useRef<SVGSVGElement | null>(null)
   const dragRef = useRef<{ startX: number; startY: number; pointerId: number } | null>(null)
+  // Outcome sound (hit / knock-out / finish / win) deferred to the end of the throw playback.
+  const pendingSoundRef = useRef<SoundName | null>(null)
 
   const commit = useCallback((next: HoglineState) => {
     stateRef.current = next
@@ -220,7 +226,19 @@ export function GameHogline({ storageKey }: { storageKey: string }) {
       commit(next)
 
       const sound = SOUND[next.lastEvent]
-      if (sound) play(sound)
+      const willAnimate =
+        next.lastThrow !== prev.lastThrow &&
+        next.lastThrow !== null &&
+        next.lastThrow.frames.length > 1 &&
+        !reducedRef.current
+      pendingSoundRef.current = null
+      if (willAnimate) {
+        // Release cue now; the outcome cue lands when the stones stop moving.
+        play('move')
+        if (sound && sound !== 'move') pendingSoundRef.current = sound
+      } else if (sound) {
+        play(sound)
+      }
 
       // Record the result exactly once, on the false->true finish transition.
       if (next.finished && !prevFinished.current) {
@@ -229,7 +247,7 @@ export function GameHogline({ storageKey }: { storageKey: string }) {
       }
       prevFinished.current = next.finished
     },
-    [commit, play, persistWin, storageKey],
+    [commit, play, persistWin, storageKey, reducedRef],
   )
 
   // -- Throw-frame playback (rAF), skipped entirely under reduced motion --
@@ -253,6 +271,10 @@ export function GameHogline({ storageKey }: { storageKey: string }) {
       if (idx >= thrown.frames.length - 1) {
         rafRef.current = null
         setDisplayPositions(null) // hand back to canonical state.stones positions
+        setSettledThrow(thrown)
+        const pending = pendingSoundRef.current
+        pendingSoundRef.current = null
+        if (pending) play(pending)
         return
       }
       idx += step
@@ -380,6 +402,9 @@ export function GameHogline({ storageKey }: { storageKey: string }) {
   }
 
   const won = state.won
+  const throwSettled =
+    reduced || !state.lastThrow || state.lastThrow.frames.length <= 1 || settledThrow === state.lastThrow
+  const showResult = state.finished && throwSettled
   const canAct = !state.finished && state.shotsLeft > 0
   const angleRad = (state.angle * Math.PI) / 180
   const aimLen = 12 + state.power * 26
@@ -512,7 +537,7 @@ export function GameHogline({ storageKey }: { storageKey: string }) {
               </g>
             )}
 
-            {/* Hack (launch point) — primary drag-to-aim target */}
+            {/* Hack (launch point) — visual ring only; the larger transparent circle below takes input */}
             <circle
               cx={HACK_POS.x}
               cy={HACK_POS.y}
@@ -522,6 +547,15 @@ export function GameHogline({ storageKey }: { storageKey: string }) {
               strokeOpacity={canAct ? 0.7 : 0.25}
               strokeWidth={0.4}
               strokeDasharray="1.2 0.8"
+              pointerEvents="none"
+              aria-hidden="true"
+            />
+            {/* Drag-to-aim hit area — sized for fingers, not for the ring it surrounds */}
+            <circle
+              cx={HACK_POS.x}
+              cy={HACK_POS.y}
+              r={HACK_HIT_R}
+              fill="transparent"
               style={{ cursor: canAct ? 'grab' : 'default', touchAction: 'none' }}
               onPointerDown={onHackPointerDown}
               onPointerMove={onHackPointerMove}
@@ -599,7 +633,7 @@ export function GameHogline({ storageKey }: { storageKey: string }) {
           </GameButton>
         </div>
 
-        <GameOverlay show={state.finished} variant={won ? 'win' : 'lose'} title={won ? 'Target cleared!' : 'End of ends'} testId="you-win">
+        <GameOverlay show={showResult} variant={won ? 'win' : 'lose'} title={won ? 'Target cleared!' : 'End of ends'} testId="you-win">
           <div className="flex flex-col items-center gap-1 text-sm">
             <p>
               Score <span className="font-bold text-accent">{state.score}</span> / Target{' '}

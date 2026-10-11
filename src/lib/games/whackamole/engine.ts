@@ -9,6 +9,22 @@
 export const GRID_SIZE = 3
 export const HOLES = GRID_SIZE * GRID_SIZE // 3x3 = 9
 export const ROUND_MS = 30_000 // 한 라운드 30초
+/**
+ * 빈 구멍을 칠 때마다 잃는 시간(ms). 패널티가 없으면 화면을 보지 않고 9개 구멍을
+ * 연타하는 전략이 반응 플레이와 맞먹는다(engine.test.ts 밸런스 시뮬레이션 참고).
+ * gameIntros: "every wasted tap is time you do not get back".
+ */
+export const MISS_PENALTY_MS = 1_000
+
+/** 라운드 진행도(0→1)에 따른 다음 등장까지의 간격: 880ms → 450ms. */
+export function spawnDelay(progress: number): number {
+  return Math.round(880 - progress * 430)
+}
+
+/** 라운드 진행도(0→1)에 따른 두더지 노출 시간: 1150ms → 650ms. */
+export function moleLife(progress: number): number {
+  return Math.round(1150 - progress * 500)
+}
 
 export type Rng = () => number
 
@@ -80,17 +96,27 @@ export function hideMole(state: WhackState, hole: number): WhackState {
 /**
  * 구멍을 때린다.
  * - 두더지가 있으면: score+1, 두더지 제거, hit=true.
- * - 비어 있으면: misses+1(패널티), hit=false.
+ * - 비어 있으면: misses+1, 남은 시간 -penaltyMs(0 이하면 라운드 종료), hit=false.
  * 게임이 끝났으면 아무 변화 없음.
  */
-export function whack(state: WhackState, hole: number): { state: WhackState; hit: boolean } {
+export function whack(
+  state: WhackState,
+  hole: number,
+  penaltyMs: number = MISS_PENALTY_MS,
+): { state: WhackState; hit: boolean } {
   if (state.over || hole < 0 || hole >= state.moles.length) return { state, hit: false }
   if (state.moles[hole]) {
     const moles = state.moles.slice()
     moles[hole] = false
     return { state: { ...state, moles, score: state.score + 1 }, hit: true }
   }
-  return { state: { ...state, misses: state.misses + 1 }, hit: false }
+  return { state: tickTime({ ...state, misses: state.misses + 1 }, penaltyMs), hit: false }
+}
+
+/** 적중률(0..1). 아직 한 번도 치지 않았으면 null. */
+export function accuracy(state: WhackState): number | null {
+  const swings = state.score + state.misses
+  return swings === 0 ? null : state.score / swings
 }
 
 /**

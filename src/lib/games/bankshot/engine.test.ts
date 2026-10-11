@@ -9,6 +9,7 @@ import {
   MAX_TICKS,
   PRECISION_RADIUS,
   SHOT_BONUS_MAX,
+  SHOT_SLACK,
   TARGET_R,
   UNDO_POOL,
   WIN_BONUS,
@@ -21,6 +22,7 @@ import {
   reduce,
   scoreOnMiss,
   scoreOnWin,
+  shotLimit,
   simulateShot,
   stepAxis,
   type BankshotConfig,
@@ -502,6 +504,7 @@ function baseState(overrides: Partial<BankshotState> = {}): BankshotState {
     shots: 0,
     score: 0,
     won: false,
+    lost: false,
     lastShot: null,
     lastEvent: 'none',
     undoStack: [],
@@ -631,7 +634,7 @@ describe('reduce -- undo', () => {
   })
 
   it('is a no-op when undosLeft is exhausted', () => {
-    const dirty = baseState({ undosLeft: 0, undoStack: [{ shots: 0, score: 0, won: false, lastShot: null }] })
+    const dirty = baseState({ undosLeft: 0, undoStack: [{ shots: 0, score: 0, won: false, lost: false, lastShot: null }] })
     const out = reduce(dirty, { type: 'undo' })
     expect(out.lastEvent).toBe('none')
     expect(out.undoStack.length).toBe(1)
@@ -673,5 +676,74 @@ describe('reduce -- reset / new', () => {
     expect(out.level).not.toEqual(g.level)
     expect(out.shots).toBe(0)
     expect(out.undosLeft).toBe(UNDO_POOL)
+  })
+})
+
+// -- Shot limit (audit 2026-10-10: no fail state, infinite retries always won) --
+
+describe('shot limit', () => {
+  const cfg: BankshotConfig = { minWalls: 0, maxWalls: 0, wallMinLen: 50 * FP, wallMaxLen: 60 * FP, par: 3 }
+  function missingRun() {
+    let s = createGame(cfg, 42, { x: 30 * FP, y: 210 * FP })
+    s = reduce(s, { type: 'setAngle', deg: 0 })
+    return reduce(s, { type: 'setPower', power: 50 }) // known deterministic miss (see golden miss)
+  }
+
+  it('the limit is par + SHOT_SLACK (3)', () => {
+    expect(SHOT_SLACK).toBe(3)
+    expect(shotLimit(3)).toBe(6)
+    expect(shotLimit(BANKSHOT_DIFFICULTIES.hard.par)).toBe(10)
+  })
+
+  it('missing on the last allowed shot ends the board as a loss', () => {
+    let s = missingRun()
+    for (let i = 0; i < shotLimit(3) - 1; i++) {
+      s = reduce(s, { type: 'fire' })
+      expect(s.lost).toBe(false)
+    }
+    s = reduce(s, { type: 'fire' })
+    expect(s.shots).toBe(6)
+    expect(s.lost).toBe(true)
+    expect(s.won).toBe(false)
+    expect(s.lastEvent).toBe('lose')
+  })
+
+  it('no more shots (and no more miss-precision score farming) after the loss; undo cannot revive it', () => {
+    let s = missingRun()
+    for (let i = 0; i < shotLimit(3); i++) s = reduce(s, { type: 'fire' })
+    const score = s.score
+    const again = reduce(s, { type: 'fire' })
+    expect(again.lastEvent).toBe('illegal')
+    expect(again.shots).toBe(6)
+    expect(again.score).toBe(score)
+    const undone = reduce(s, { type: 'undo' })
+    expect(undone.lost).toBe(true)
+    expect(undone.shots).toBe(6)
+  })
+
+  it('a win on the last allowed shot still counts', () => {
+    let s = baseState({ shots: shotLimit(3) - 1 })
+    s = reduce(s, { type: 'setPower', power: 0 })
+    s = reduce(s, { type: 'fire' })
+    expect(s.won).toBe(true)
+    expect(s.lost).toBe(false)
+  })
+
+  it('brute-force retrying no longer always wins: a blind sweep of random shots mostly fails the daily board', () => {
+    // Before: unlimited shots, so any policy eventually won (100%).
+    let wins = 0
+    const trials = 200
+    for (let seed = 0; seed < trials; seed++) {
+      const rng = mulberry32(seed + 7)
+      let s = createGame(DAILY_CONFIG, 20260000 + seed, LAUNCH_POINT.normal)
+      while (!s.won && !s.lost) {
+        s = reduce(s, { type: 'setAngle', deg: Math.floor(rng() * 360) })
+        s = reduce(s, { type: 'setPower', power: Math.floor(rng() * 101) })
+        s = reduce(s, { type: 'fire' })
+      }
+      if (s.won) wins++
+      expect(s.shots).toBeLessThanOrEqual(shotLimit(DAILY_CONFIG.par))
+    }
+    expect(wins / trials).toBeLessThan(0.5)
   })
 })

@@ -2,12 +2,16 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
+  accuracy,
   GRID_SIZE,
   HOLES,
   hideMole,
+  MISS_PENALTY_MS,
+  moleLife,
   newGame,
   popMole,
   ROUND_MS,
+  spawnDelay,
   tickTime,
   whack,
   type WhackState,
@@ -19,18 +23,14 @@ import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const TICK_MS = 80
 
-// 라운드가 진행될수록(progress 0→1) 두더지가 더 자주, 더 짧게 등장한다.
-function spawnDelay(progress: number) {
-  return Math.round(880 - progress * 430) // 880ms → 450ms
-}
-function moleLife(progress: number) {
-  return Math.round(1150 - progress * 500) // 1150ms → 650ms
-}
-
 interface HoleHit {
   id: number
   hole: number
+  /** 'hit' = +1, 'miss' = 헛스윙 시간 패널티 표시. */
+  kind: 'hit' | 'miss'
 }
+
+const MISS_PENALTY_S = MISS_PENALTY_MS / 1000
 
 export function GameWhackAMole({ storageKey }: { storageKey: string }) {
   // SSR 불일치 방지: 초기 상태는 클라이언트에서만 생성
@@ -70,21 +70,30 @@ export function GameWhackAMole({ storageKey }: { storageKey: string }) {
     setBest(Number.isFinite(stored) ? stored : 0)
   }, [restart, storageKey])
 
+  /**
+   * 셸 버튼(Start / Restart / Resume / Play again) 하나가 모두 이 함수를 부른다.
+   * - 진행 중(Restart)·끝난 판·첫 판: 항상 새 라운드(newGame)로 시작한다.
+   * - 일시정지(탭 전환) 뒤 Resume: 판을 그대로 잇되, 올라와 있던 두더지에 새 마감 시간을 준다.
+   *   예전에는 진행 중 Restart도 이 경로를 타서 점수·시간이 이어졌고, deadlines만 0으로
+   *   지워져 올라와 있던 두더지가 영구히 고정됐다.
+   */
   const start = useCallback(() => {
-    setState((s) => {
-      if (!s) return s
-      // 이미 끝난 라운드에서 Start를 누르면 새 라운드로.
-      return s.over ? newGame() : s
-    })
-    setNewBest(false)
-    setFloats([])
-    deadlines.current = Array<number>(HOLES).fill(0)
-    prevOver.current = false
     const now = performance.now()
+    const resume = !running && state !== null && !state.over && state.timeLeft < ROUND_MS
+    if (resume) {
+      const life = moleLife(1 - state.timeLeft / ROUND_MS)
+      deadlines.current = state.moles.map((up) => (up ? now + life : 0))
+    } else {
+      setState(newGame())
+      setNewBest(false)
+      setFloats([])
+      deadlines.current = Array<number>(HOLES).fill(0)
+      prevOver.current = false
+    }
     lastTick.current = now
     nextSpawnAt.current = now + 300
     setRunning(true)
-  }, [])
+  }, [running, state])
 
   // 메인 루프: 시간 진행 + 두더지 자동 숨김 + 등장 스케줄링
   useEffect(() => {
@@ -99,9 +108,12 @@ export function GameWhackAMole({ storageKey }: { storageKey: string }) {
         let next = tickTime(s, dt)
         if (next.over) return next
 
-        // 수명이 다한 두더지 내리기
+        // 수명이 다한 두더지 내리기. 마감 시간이 없는 두더지(어떤 경로로든 생기면)는
+        // 영구히 남지 않도록 지금부터 수명을 새로 준다.
+        const lifeNow = moleLife(1 - next.timeLeft / ROUND_MS)
         for (let h = 0; h < HOLES; h++) {
-          if (next.moles[h] && deadlines.current[h] && now >= deadlines.current[h]) {
+          if (next.moles[h] && !deadlines.current[h]) deadlines.current[h] = now + lifeNow
+          if (next.moles[h] && now >= deadlines.current[h]) {
             next = hideMole(next, h)
             deadlines.current[h] = 0
           }
@@ -170,9 +182,11 @@ export function GameWhackAMole({ storageKey }: { storageKey: string }) {
             return nk
           })
           const id = ++floatSeq.current
-          setFloats((f) => [...f, { id, hole }])
+          setFloats((f) => [...f, { id, hole, kind: 'hit' }])
         } else {
           play('error')
+          const id = ++floatSeq.current
+          setFloats((f) => [...f, { id, hole, kind: 'miss' }])
         }
         return res.state
       })
@@ -183,12 +197,22 @@ export function GameWhackAMole({ storageKey }: { storageKey: string }) {
   const secondsLeft = state ? Math.ceil(state.timeLeft / 1000) : Math.round(ROUND_MS / 1000)
   const timerPct = state ? Math.max(0, (state.timeLeft / ROUND_MS) * 100) : 100
   const score = state?.score ?? 0
+  const misses = state?.misses ?? 0
+  const acc = state ? accuracy(state) : null
+  const paused = !running && !over && state !== null && state.timeLeft < ROUND_MS
 
-  const hint = running ? 'Whack the moles before they duck!' : over ? 'Round over — press Start to play again.' : 'Press Start, then tap the moles.'
+  const hint = running
+    ? `Whack the moles before they duck! Empty holes cost ${MISS_PENALTY_S}s.`
+    : over
+      ? 'Round over — press Start to play again.'
+      : paused
+        ? 'Paused — press Resume to continue.'
+        : `Press Start, then tap the moles. Missing an empty hole costs ${MISS_PENALTY_S}s.`
 
   const stats = [
     { label: 'Score', value: score, testId: 'score', float: true },
     { label: 'Time', value: secondsLeft },
+    { label: 'Misses', value: misses },
     { label: 'Best', value: best },
   ]
 
@@ -262,10 +286,10 @@ export function GameWhackAMole({ storageKey }: { storageKey: string }) {
                   key={f.id}
                   aria-hidden="true"
                   onAnimationEnd={() => setFloats((cur) => cur.filter((x) => x.id !== f.id))}
-                  className="pointer-events-none absolute top-1 z-[2] text-sm font-extrabold text-accent"
+                  className={`pointer-events-none absolute top-1 z-[2] text-sm font-extrabold ${f.kind === 'hit' ? 'text-accent' : 'text-neon-red'}`}
                   style={reduced ? { display: 'none' } : { animation: 'wam-float .6s ease-out forwards' }}
                 >
-                  +1
+                  {f.kind === 'hit' ? '+1' : `−${MISS_PENALTY_S}s`}
                 </span>
               ))}
             </button>
@@ -280,6 +304,10 @@ export function GameWhackAMole({ storageKey }: { storageKey: string }) {
         testId="game-over"
       >
         <p className="text-fg-muted">Score: {score}</p>
+        <p className="text-sm text-fg-muted" data-testid="whack-accuracy">
+          Misses: {misses}
+          {acc !== null && ` · Accuracy ${Math.round(acc * 100)}%`}
+        </p>
         <GameButton onClick={start} className="px-4 py-2">
           Play again
         </GameButton>
@@ -297,7 +325,7 @@ export function GameWhackAMole({ storageKey }: { storageKey: string }) {
     <GameShell
       stats={stats}
       onNewGame={start}
-      newGameLabel={running ? 'Restart' : over ? 'Play again' : 'Start'}
+      newGameLabel={running ? 'Restart' : over ? 'Play again' : paused ? 'Resume' : 'Start'}
       muted={muted}
       onToggleMute={toggleMuted}
       hint={hint}

@@ -192,22 +192,26 @@ export function GameFuse({ storageKey }: { storageKey: string }) {
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (isTypingTarget(e.target)) return
       const n = COLS * ROWS
+      // Roving focus: DOM focus moves ONLY in response to an arrow key pressed
+      // inside the board. Never from an effect on state — the 90 ms tick loop
+      // would yank focus back from New Game / mute every frame.
+      const moveTo = (i: number) => {
+        e.preventDefault()
+        setFocus(i)
+        cellRefs.current[i]?.focus()
+      }
       switch (e.key) {
         case 'ArrowLeft':
-          e.preventDefault()
-          setFocus((f) => (f - 1 + n) % n)
+          moveTo((focus - 1 + n) % n)
           break
         case 'ArrowRight':
-          e.preventDefault()
-          setFocus((f) => (f + 1) % n)
+          moveTo((focus + 1) % n)
           break
         case 'ArrowUp':
-          e.preventDefault()
-          setFocus((f) => (f - COLS + n) % n)
+          moveTo((focus - COLS + n) % n)
           break
         case 'ArrowDown':
-          e.preventDefault()
-          setFocus((f) => (f + COLS) % n)
+          moveTo((focus + COLS) % n)
           break
         case 'Enter':
         case ' ':
@@ -220,11 +224,6 @@ export function GameFuse({ storageKey }: { storageKey: string }) {
     },
     [focus, tap],
   )
-
-  useEffect(() => {
-    if (!state) return
-    cellRefs.current[focus]?.focus()
-  }, [focus, state])
 
   if (!state) {
     return (

@@ -24,6 +24,16 @@ const CX = RING / 2
 const CY = RING / 2
 const CIRCUMFERENCE = 2 * Math.PI * R
 const COMBO_BADGE_MIN = 5
+/**
+ * The engine is tick-based (START_GAP 48 → MIN_GAP 14 ticks). Ticks run on a fixed
+ * 60Hz clock decoupled from the display refresh rate, so a 120Hz screen no longer
+ * doubles the tempo and halves the ms judging window.
+ */
+const TICK_MS = 1000 / 60
+/** Clamp a single frame's elapsed time (tab switch / long stall) so the run never fast-forwards. */
+const MAX_FRAME_MS = 100
+
+type Phase = 'ready' | 'playing'
 
 /** Every hit/fail outcome maps to one of the repo's fixed 10 SoundName values. */
 const OUTCOME_SOUND: Record<Outcome, SoundName> = {
@@ -90,6 +100,7 @@ export function GameOffbeat({ storageKey }: { storageKey: string }) {
   const [flashes, setFlashes] = useState<Flash[]>([])
   const [badges, setBadges] = useState<ComboBadge[]>([])
   const [pulseBeat, setPulseBeat] = useState(0)
+  const [phase, setPhase] = useState<Phase>('ready')
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reduced } = useReducedMotion()
@@ -100,6 +111,9 @@ export function GameOffbeat({ storageKey }: { storageKey: string }) {
   const flashSeq = useRef(0)
   const badgeSeq = useRef(0)
   const rafRef = useRef(0)
+  const phaseRef = useRef<Phase>('ready')
+  const lastFrameRef = useRef<number | null>(null)
+  const accRef = useRef(0)
 
   const commit = useCallback((next: OffbeatState) => {
     stateRef.current = next
@@ -144,29 +158,45 @@ export function GameOffbeat({ storageKey }: { storageKey: string }) {
     [play, persistOver],
   )
 
-  // ---- rAF loop: exactly one step() per frame while alive; halts on over. ----
-  const loopStep = useCallback(() => {
-    const cur = stateRef.current
-    if (!cur || cur.over) return // no further scheduling — explicit halt on game over
-    const next = step(cur)
-    commit(next)
-    handleEvents(next)
-    rafRef.current = requestAnimationFrame(loopStep)
-  }, [commit, handleEvents])
+  // ---- rAF loop: fixed 60Hz accumulator — step() once per elapsed TICK_MS; halts on over. ----
+  const loopStep = useCallback(
+    (now: number) => {
+      const cur = stateRef.current
+      if (!cur || cur.over) return // no further scheduling — explicit halt on game over
+      const last = lastFrameRef.current
+      lastFrameRef.current = now
+      if (last !== null) accRef.current += Math.min(MAX_FRAME_MS, Math.max(0, now - last))
+      let next = cur
+      while (accRef.current >= TICK_MS && !next.over) {
+        accRef.current -= TICK_MS
+        next = step(next)
+        handleEvents(next)
+      }
+      if (next !== cur) commit(next)
+      if (next.over) return
+      rafRef.current = requestAnimationFrame(loopStep)
+    },
+    [commit, handleEvents],
+  )
 
   const startLoop = useCallback(() => {
     cancelAnimationFrame(rafRef.current)
+    lastFrameRef.current = null
+    accRef.current = 0
     rafRef.current = requestAnimationFrame(loopStep)
   }, [loopStep])
 
+  /** Fresh run parked in 'ready': nothing ticks (and nothing can be lost) until the first tap. */
   const startGame = useCallback(() => {
+    cancelAnimationFrame(rafRef.current)
     prevOverRef.current = false
+    phaseRef.current = 'ready'
+    setPhase('ready')
     setFlashes([])
     setBadges([])
     setPulseBeat(0)
     commit(newGame(freshSeed()))
-    startLoop()
-  }, [commit, startLoop])
+  }, [commit])
 
   // Init (client only, SSR-safe) + hydrate best.
   useEffect(() => {
@@ -179,10 +209,17 @@ export function GameOffbeat({ storageKey }: { storageKey: string }) {
   const doTap = useCallback(() => {
     const cur = stateRef.current
     if (!cur) return
+    if (phaseRef.current === 'ready') {
+      // The starting tap only starts the clock — it is not judged.
+      phaseRef.current = 'playing'
+      setPhase('playing')
+      startLoop()
+      return
+    }
     const next = tap(cur)
     commit(next)
     handleEvents(next)
-  }, [commit, handleEvents])
+  }, [commit, handleEvents, startLoop])
 
   // Keyboard: Space/Enter to tap, R for a fresh run.
   useEffect(() => {
@@ -224,7 +261,9 @@ export function GameOffbeat({ storageKey }: { storageKey: string }) {
 
   const hint = state.over
     ? 'Missed the beat too many times — press New Game to try again.'
-    : "Don't tap the beat — tap exactly halfway between two pulses, the silent gap."
+    : phase === 'ready'
+      ? "Tap the ring (or press Space) to start. Then don't tap the beat — tap halfway between two pulses."
+      : "Don't tap the beat — tap exactly halfway between two pulses, the silent gap."
 
   return (
     <GameShell
@@ -290,7 +329,7 @@ export function GameOffbeat({ storageKey }: { storageKey: string }) {
             />
           </svg>
           <span className="pointer-events-none absolute text-center text-sm font-bold text-fg-muted">
-            {state.over ? 'Game over' : 'Tap the silence'}
+            {state.over ? 'Game over' : phase === 'ready' ? 'Tap to start' : 'Tap the silence'}
           </span>
         </button>
 

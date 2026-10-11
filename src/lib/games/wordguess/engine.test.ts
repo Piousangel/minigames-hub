@@ -8,6 +8,7 @@ import {
   isValidGuess,
   mulberry32,
   newGame,
+  restoreGame,
   scoreGuess,
   submitGuess,
   type GameState,
@@ -219,5 +220,28 @@ describe('submitGuess', () => {
   it('ignores further guesses once the game is over', () => {
     const won = submitGuess(start('crane'), 'crane')
     expect(submitGuess(won, 'slate')).toBe(won)
+  })
+})
+
+describe('restoreGame — replaying saved daily guesses', () => {
+  const base = (): GameState => ({ answer: 'crane', guesses: [], status: 'playing' })
+
+  it('replays saved words into the same state submitGuess would produce', () => {
+    let live = base()
+    for (const w of ['slate', 'crane']) live = submitGuess(live, w)
+    expect(restoreGame(base(), ['slate', 'crane'])).toEqual(live)
+    expect(restoreGame(base(), ['slate', 'crane'])!.status).toBe('won')
+  })
+
+  it('an empty list restores the fresh board', () => {
+    expect(restoreGame(base(), [])).toEqual(base())
+  })
+
+  it('rejects corrupt saves (invalid word, too many guesses, words after the game ended)', () => {
+    expect(restoreGame(base(), ['zzzzz'])).toBeNull()
+    expect(restoreGame(base(), ['crane', 'slate'])).toBeNull() // guess after a win
+    const wrong = Array.from({ length: MAX_GUESSES + 1 }, () => 'slate')
+    expect(restoreGame(base(), wrong)).toBeNull()
+    expect(restoreGame(base(), [42 as unknown as string])).toBeNull()
   })
 })

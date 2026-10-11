@@ -49,14 +49,18 @@ export const START_RPM = 40
 export const MIN_RPM = 30
 export const PERFECT_RPM_DELTA = 2
 export const GOOD_RPM_DELTA = 0
-export const MISTIME_RPM_DELTA = -3
+// Mild: an in-zone but off-beat tap is a nudge down, not a slide to MIN_RPM.
+export const MISTIME_RPM_DELTA = -1
 export const LIVES = 3
 export const ARC_START = 0.24
 export const ARC_FLOOR = 0.09
 export const ARC_NARROW = 0.9
 export const HITS_PER_NARROW = 8
-export const PERFECT_FRAC = 0.05
-export const GOOD_FRAC = 0.15
+// Fractions of the full arc width. At 40rpm/ARC_START this is ±54ms perfect
+// and ±126ms good (was ±18ms / ±54ms, which made most players decay to
+// MIN_RPM). Windows still shrink in ms as rpm rises, so the ceiling is skill.
+export const PERFECT_FRAC = 0.15
+export const GOOD_FRAC = 0.35
 export const NORMAL_SPACING = 1.0
 export const FLUTTER_SPACING = 0.5
 export const FLUTTER_MIN_GAP = 20

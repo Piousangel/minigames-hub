@@ -63,6 +63,28 @@ const SOUND: Record<StrataEvent, SoundName | null> = {
   lose: 'lose',
 }
 
+/**
+ * UTC date of the first finished daily (win OR loss). A loss reveals the full answer, so any
+ * later finish of the same daily seed is a replay: it never touches the streak, best or stats.
+ */
+const DAILY_DONE_KEY = 'strata:daily-done'
+
+function loadDailyDone(): string | null {
+  try {
+    return localStorage.getItem(DAILY_DONE_KEY)
+  } catch {
+    return null
+  }
+}
+
+function saveDailyDone(date: string): void {
+  try {
+    localStorage.setItem(DAILY_DONE_KEY, date)
+  } catch {
+    // ignore storage failures
+  }
+}
+
 function dailySeed(d: Date): number {
   return d.getUTCFullYear() * 10000 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate()
 }
@@ -140,6 +162,8 @@ export function GameStrata({ storageKey }: { storageKey: string }) {
   const [streak, setStreak] = useState(0)
   const [guessFocus, setGuessFocus] = useState({ row: 0, col: 0 })
   const [shakeSeq, setShakeSeq] = useState(0)
+  // True when the finished board was a repeat of an already-finished daily (doesn't count).
+  const [dailyReplay, setDailyReplay] = useState(false)
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reduced } = useReducedMotion()
@@ -183,6 +207,15 @@ export function GameStrata({ storageKey }: { storageKey: string }) {
 
   const persistEnd = useCallback(
     (next: StrataState) => {
+      if (modeRef.current === 'daily') {
+        const today = todayUTC()
+        if (loadDailyDone() === today) {
+          setDailyReplay(true)
+          return
+        }
+        saveDailyDone(today)
+      }
+      setDailyReplay(false)
       const save = loadSave(storageKey)
       prevBestRef.current = save.score
       let nextSave: StrataSave = { ...save, score: Math.max(save.score, next.score) }
@@ -594,9 +627,14 @@ export function GameStrata({ storageKey }: { storageKey: string }) {
                 Streak <span className="font-bold text-accent">{streak}</span>
               </p>
             )}
+            {mode === 'daily' && dailyReplay && (
+              <p className="text-xs text-fg-muted" data-testid="daily-replay-note">
+                Replay — today&apos;s daily already counted, so this doesn&apos;t change your streak or best.
+              </p>
+            )}
           </div>
           <div className="flex flex-wrap justify-center gap-2">
-            {mode === 'daily' && (
+            {mode === 'daily' && !dailyReplay && (
               <DailyShareButton
                 payload={() => {
                   const grade = gradeRatio(state.score, prevBestRef.current, state.score > prevBestRef.current)

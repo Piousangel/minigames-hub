@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  DAILY_SCRAMBLE,
   DEPTH_UNIT,
   DIFFICULTIES,
   N,
@@ -360,9 +361,54 @@ describe('isSolved strictness', () => {
 })
 
 describe('difficulties', () => {
-  it('exposes easy/normal/hard scramble depths', () => {
-    expect(DIFFICULTIES.easy.scramble).toBe(12)
-    expect(DIFFICULTIES.normal.scramble).toBe(20)
-    expect(DIFFICULTIES.hard.scramble).toBe(30)
+  it('exposes easy/normal/hard scramble depths (easy 3–5, daily/normal 8–12)', () => {
+    expect(DIFFICULTIES.easy.scramble).toBe(4)
+    expect(DIFFICULTIES.normal.scramble).toBe(10)
+    expect(DIFFICULTIES.hard.scramble).toBe(16)
+    expect(DAILY_SCRAMBLE).toBe(DIFFICULTIES.normal.scramble)
+  })
+})
+
+describe('difficulty curve (BFS-verified optimal solve length)', () => {
+  // BFS from SOLVED to depth 10 (rotations are invertible, so distance from SOLVED
+  // = optimal moves to solve). Regression guard for the audit finding that 12/20
+  // reverse rotations produced an effectively full, humanly unplannable shuffle.
+  const MOVES: [RingId, 1 | -1][] = [['A', 1], ['A', -1], ['B', 1], ['B', -1]]
+  const dist = new Map<string, number>([[SOLVED.join(','), 0]])
+  let frontier: Color[][] = [SOLVED.slice()]
+  for (let d = 1; d <= 10; d++) {
+    const next: Color[][] = []
+    for (const c of frontier) {
+      for (const [r, dir] of MOVES) {
+        const n = rotateCells(c, r, dir)
+        const k = n.join(',')
+        if (!dist.has(k)) {
+          dist.set(k, d)
+          next.push(n)
+        }
+      }
+    }
+    frontier = next
+  }
+  const optimal = (cells: Color[]) => dist.get(cells.join(',')) ?? Infinity
+
+  it('easy boards always need 3–5 moves', () => {
+    for (let seed = 0; seed < 200; seed++) {
+      const d = optimal(createGame(seed * 7919 + 1, DIFFICULTIES.easy.scramble).cells)
+      expect(d).toBeGreaterThanOrEqual(3)
+      expect(d).toBeLessThanOrEqual(5)
+    }
+  })
+
+  it('daily boards are solvable within par and mostly need 8–10 moves', () => {
+    let inBand = 0
+    const total = 200
+    for (let i = 0; i < total; i++) {
+      const seed = 20260101 + i // dailySeed() shape: YYYYMMDD
+      const d = optimal(createGame(seed, DAILY_SCRAMBLE).cells)
+      expect(d).toBeLessThanOrEqual(DAILY_SCRAMBLE)
+      if (d >= 8) inBand++
+    }
+    expect(inBand / total).toBeGreaterThanOrEqual(0.75)
   })
 })

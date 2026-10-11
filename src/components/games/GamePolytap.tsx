@@ -384,67 +384,114 @@ export function GamePolytap({ storageKey }: { storageKey: string }) {
       hint={hint}
       maxWidthClassName="max-w-150"
     >
-      <div
-        role="group"
-        aria-label="Polytap board"
-        className="relative overflow-hidden rounded-xl bg-surface p-4"
-        style={{
-          ...(reduced ? undefined : { animation: 'pt-board-in .3s ease-out both' }),
-          boxShadow: flash > 0 ? `inset 0 0 0 2px var(--neon-red)` : undefined,
-        }}
-        data-testid="polytap-board"
-      >
-        <div className="relative flex flex-col gap-2">
-          {renderLane('f')}
-          {renderLane('j')}
+      {/* Overlay host: board + pads. The game-over card is taller than the two
+          lanes, so it must NOT live inside an overflow-hidden board (it was
+          clipping the title and the leaderboard link). */}
+      <div className={`relative ${phase === 'over' ? 'min-h-112' : ''}`}>
+        <div
+          role="group"
+          aria-label="Polytap board"
+          className="relative rounded-xl bg-surface p-4"
+          style={{
+            ...(reduced ? undefined : { animation: 'pt-board-in .3s ease-out both' }),
+            boxShadow: flash > 0 ? `inset 0 0 0 2px var(--neon-red)` : undefined,
+          }}
+          data-testid="polytap-board"
+        >
+          {/* Clip the collision beams to the lanes (the board itself no longer clips). */}
+          <div className="relative flex flex-col gap-2 overflow-hidden">
+            {renderLane('f')}
+            {renderLane('j')}
 
-          {/* Collision beams — the landmark that makes the pattern readable. */}
-          {confluenceTicks.map((t) => (
+            {/* Collision beams — the landmark that makes the pattern readable. */}
+            {confluenceTicks.map((t) => (
+              <div
+                key={t}
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0"
+                style={{ transform: `translate3d(${xPct(t, tickView)}%, 0, 0)` }}
+              >
+                <span className="pt-beam" />
+              </div>
+            ))}
+          </div>
+
+          {/* Cycle progress — scaleX only, never width. */}
+          <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-bg-2">
             <div
-              key={t}
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0"
-              style={{ transform: `translate3d(${xPct(t, tickView)}%, 0, 0)` }}
+              className="h-full origin-left rounded-full"
+              style={{
+                background: 'var(--neon-amber)',
+                transform: `scaleX(${prog.total > 0 ? prog.done / prog.total : 0})`,
+                transition: reduced ? undefined : 'transform .25s ease-out',
+              }}
+            />
+          </div>
+          <p className="mt-1 text-center text-xs text-fg-muted">
+            Cycle {Math.min(prog.done + 1, prog.total)} / {prog.total} · next collision in{' '}
+            {cycleBeats} beats
+          </p>
+
+          {lockBadge && (
+            <span
+              key={lockBadge.seq}
+              data-testid="lock-badge"
+              aria-hidden="true"
+              onAnimationEnd={() => setLockBadge(null)}
+              className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full border px-3 py-1 text-sm font-bold"
+              style={{
+                color: 'var(--neon-amber)',
+                borderColor: 'color-mix(in srgb, var(--neon-amber) 60%, transparent)',
+                background: 'color-mix(in srgb, var(--neon-amber) 15%, transparent)',
+                ...(reduced ? undefined : { animation: 'pt-badge .9s ease-out both' }),
+              }}
             >
-              <span className="pt-beam" />
+              LOCK ×{lockBadge.n}
+            </span>
+          )}
+
+
+          {phase === 'idle' && (
+            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl bg-bg/70">
+              <p className="text-lg font-bold">Two clocks. One pair of hands.</p>
+              <GameButton onClick={start}>Start</GameButton>
             </div>
-          ))}
+          )}
         </div>
 
-        {/* Cycle progress — scaleX only, never width. */}
-        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-bg-2">
-          <div
-            aria-hidden="true"
-            className="h-full origin-left rounded-full"
-            style={{
-              background: 'var(--neon-amber)',
-              transform: `scaleX(${prog.total > 0 ? prog.done / prog.total : 0})`,
-              transition: reduced ? undefined : 'transform .25s ease-out',
-            }}
-          />
+        {/* Tap pads */}
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          {(['f', 'j'] as ClockKey[]).map((key) => {
+            const meta = LANE[key]
+            const clock = key === 'f' ? fClock : jClock
+            return (
+              <button
+                key={key}
+                type="button"
+                data-testid={`pad-${key}`}
+                tabIndex={-1}
+                aria-label={`Tap ${meta.name} — every ${clock ? clock.periodBeats : 3} beats`}
+                onPointerDown={(e) => {
+                  e.preventDefault()
+                  doTap(key)
+                }}
+                disabled={!clock}
+                className="btn-press flex min-h-22 flex-col items-center justify-center rounded-xl border-2 font-bold disabled:opacity-30"
+                style={{
+                  touchAction: 'manipulation',
+                  minWidth: 88,
+                  borderColor: `color-mix(in srgb, ${meta.color} 55%, transparent)`,
+                  background: `color-mix(in srgb, ${meta.color} 12%, transparent)`,
+                  color: meta.color,
+                }}
+              >
+                <span className="text-2xl">{meta.label}</span>
+                <span className="text-xs opacity-80">×{clock ? clock.periodBeats : '—'} beats</span>
+              </button>
+            )
+          })}
         </div>
-        <p className="mt-1 text-center text-xs text-fg-muted">
-          Cycle {Math.min(prog.done + 1, prog.total)} / {prog.total} · next collision in{' '}
-          {cycleBeats} beats
-        </p>
-
-        {lockBadge && (
-          <span
-            key={lockBadge.seq}
-            data-testid="lock-badge"
-            aria-hidden="true"
-            onAnimationEnd={() => setLockBadge(null)}
-            className="pointer-events-none absolute left-1/2 top-3 -translate-x-1/2 rounded-full border px-3 py-1 text-sm font-bold"
-            style={{
-              color: 'var(--neon-amber)',
-              borderColor: 'color-mix(in srgb, var(--neon-amber) 60%, transparent)',
-              background: 'color-mix(in srgb, var(--neon-amber) 15%, transparent)',
-              ...(reduced ? undefined : { animation: 'pt-badge .9s ease-out both' }),
-            }}
-          >
-            LOCK ×{lockBadge.n}
-          </span>
-        )}
 
         <GameOverlay
           show={phase === 'over'}
@@ -493,46 +540,6 @@ export function GamePolytap({ storageKey }: { storageKey: string }) {
             <GameButton onClick={start}>Play again</GameButton>
           </div>
         </GameOverlay>
-
-        {phase === 'idle' && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl bg-bg/70">
-            <p className="text-lg font-bold">Two clocks. One pair of hands.</p>
-            <GameButton onClick={start}>Start</GameButton>
-          </div>
-        )}
-      </div>
-
-      {/* Tap pads */}
-      <div className="mt-3 grid grid-cols-2 gap-3">
-        {(['f', 'j'] as ClockKey[]).map((key) => {
-          const meta = LANE[key]
-          const clock = key === 'f' ? fClock : jClock
-          return (
-            <button
-              key={key}
-              type="button"
-              data-testid={`pad-${key}`}
-              tabIndex={-1}
-              aria-label={`Tap ${meta.name} — every ${clock ? clock.periodBeats : 3} beats`}
-              onPointerDown={(e) => {
-                e.preventDefault()
-                doTap(key)
-              }}
-              disabled={!clock}
-              className="btn-press flex min-h-22 flex-col items-center justify-center rounded-xl border-2 font-bold disabled:opacity-30"
-              style={{
-                touchAction: 'manipulation',
-                minWidth: 88,
-                borderColor: `color-mix(in srgb, ${meta.color} 55%, transparent)`,
-                background: `color-mix(in srgb, ${meta.color} 12%, transparent)`,
-                color: meta.color,
-              }}
-            >
-              <span className="text-2xl">{meta.label}</span>
-              <span className="text-xs opacity-80">×{clock ? clock.periodBeats : '—'} beats</span>
-            </button>
-          )
-        })}
       </div>
 
       <style>{`

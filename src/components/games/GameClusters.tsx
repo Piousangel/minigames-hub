@@ -40,7 +40,13 @@ const RESULT_SOUND: Record<LastResult, Parameters<ReturnType<typeof useGameSound
   correct: 'match',
   wrong: 'mismatch',
   'one-away': 'mismatch',
+  'already-guessed': 'error',
 }
+
+/** How long the revealed answers stay uncovered before the loss overlay. */
+const LOSS_REVEAL_MS = 1600
+/** Stagger between the revealed groups sliding in, one after another. */
+const REVEAL_STAGGER_MS = 250
 
 function freshSeed(): number {
   return (Date.now() ^ (Math.random() * 2 ** 31)) >>> 0
@@ -66,6 +72,7 @@ export function GameClusters({ storageKey }: { storageKey: string }) {
   const [streak, setStreak] = useState(0)
   const [focus, setFocus] = useState(0)
   const [flash, setFlash] = useState<LastResult>('none')
+  const [lossOverlay, setLossOverlay] = useState(false)
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reduced } = useReducedMotion()
@@ -224,6 +231,17 @@ export function GameClusters({ storageKey }: { storageKey: string }) {
     [dispatch, focus, startBoard],
   )
 
+  // On a loss, let the revealed answers be read before the overlay covers them.
+  const status = state?.status
+  useEffect(() => {
+    if (status !== 'lost') {
+      setLossOverlay(false)
+      return
+    }
+    const t = setTimeout(() => setLossOverlay(true), LOSS_REVEAL_MS)
+    return () => clearTimeout(t)
+  }, [status, state?.seed])
+
   // Keep DOM focus synced to the roving index.
   useEffect(() => {
     if (!state) return
@@ -261,11 +279,13 @@ export function GameClusters({ storageKey }: { storageKey: string }) {
   const over = won || lost
   const canSubmit = state.selected.length === GROUP_SIZE && !over
   const score = scoreOf(state)
+  // After a loss, the groups the player never found are laid out as answers.
+  const missed = lost ? state.groups.filter((g) => !state.solved.includes(g)) : []
 
   const hint = over
     ? won
       ? 'Solved! You found all four groups.'
-      : 'Out of guesses — the groups are revealed below.'
+      : 'Out of guesses — the groups you missed are revealed on the board.'
     : 'Find four groups of four. Select 4 items you think share a category, then Submit.'
 
   const headerExtra = (
@@ -342,10 +362,27 @@ export function GameClusters({ storageKey }: { storageKey: string }) {
               </span>
             </div>
           ))}
+          {missed.map((g, i) => (
+            <div
+              key={g.name}
+              data-testid="revealed-group"
+              className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed px-3 py-2 text-center"
+              style={{
+                borderColor: TIER_COLOR[g.tier],
+                color: TIER_COLOR[g.tier],
+                animation: reduced ? undefined : `cl-lock .3s ease-out ${i * REVEAL_STAGGER_MS}ms both`,
+              }}
+            >
+              <span className="text-sm font-extrabold uppercase tracking-wide">{g.name}</span>
+              <span className="text-xs font-semibold uppercase opacity-80">
+                {g.items.join(' · ')}
+              </span>
+            </div>
+          ))}
         </div>
 
-        {/* Unsolved tiles: 4-wide grid */}
-        {state.tiles.length > 0 && (
+        {/* Unsolved tiles: 4-wide grid (replaced by the answers once lost) */}
+        {state.tiles.length > 0 && !lost && (
           <div
             className={`mt-2 grid grid-cols-4 gap-1.5 sm:gap-2 ${
               flash !== 'none' && flash !== 'correct' && !reduced ? 'cl-shake' : ''
@@ -392,6 +429,11 @@ export function GameClusters({ storageKey }: { storageKey: string }) {
           {!over && flash === 'wrong' && (
             <span className="font-semibold text-neon-red">Not a group</span>
           )}
+          {!over && flash === 'already-guessed' && (
+            <span data-testid="already-guessed" className="font-semibold text-fg-muted">
+              Already guessed
+            </span>
+          )}
         </div>
 
         {/* Controls */}
@@ -418,7 +460,7 @@ export function GameClusters({ storageKey }: { storageKey: string }) {
         )}
 
         <GameOverlay
-          show={over}
+          show={won || lossOverlay}
           variant={won ? 'win' : 'lose'}
           title={won ? 'Clustered!' : 'Out of guesses'}
           testId="game-over"

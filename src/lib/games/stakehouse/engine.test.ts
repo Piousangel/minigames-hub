@@ -9,14 +9,17 @@ import {
   POT_SIZE,
   ROUNDS,
   STARTING_BANKROLL,
+  TARGET_BANKROLL,
   canBetPot,
   canCommit,
   computeRound,
   createGame,
+  floorToken,
   hotZonePots,
   isBusted,
   isWon,
   mulberry32,
+  nextGemChance,
   payoutMultiplier,
   reduce,
   remainingCount,
@@ -326,16 +329,37 @@ describe('reducer: commit', () => {
     expect(noopBet.pendingBets).toEqual(busted.pendingBets)
   })
 
-  it('12 consecutive 0-bet commits complete the game with bankroll untouched', () => {
+  // Audit 2026-10-10 (engine.ts:141): sitting out all 12 rounds used to be a
+  // guaranteed 'House closed!' win. It must now be a loss ('missed').
+  it('12 consecutive 0-bet commits end the run below target — NOT a win', () => {
     let s = createGame(4)
     for (let i = 0; i < ROUNDS; i++) {
       s = reduce(s, { type: 'commit' })
     }
-    expect(s.phase).toBe('complete')
+    expect(s.phase).toBe('missed')
     expect(s.round).toBe(ROUNDS)
     expect(s.bankroll).toBe(STARTING_BANKROLL)
     for (const p of s.pots) expect(p.tokens.length).toBe(0)
-    expect(s.lastEvent).toBe('complete')
+    expect(s.lastEvent).toBe('missed')
+    expect(isWon(s)).toBe(false)
+  })
+
+  it('finishing the last round at/above TARGET_BANKROLL is a win', () => {
+    // One round left; pot 0 pops a gem at 2.0x.
+    const base = createGame(4)
+    const pots: Pot[] = [
+      { tokens: ['gem'], initialGems: 6, initialSize: POT_SIZE },
+      { tokens: ['dud'], initialGems: 6, initialSize: POT_SIZE },
+      { tokens: ['dud'], initialGems: 6, initialSize: POT_SIZE },
+      { tokens: ['dud'], initialGems: 6, initialSize: POT_SIZE },
+    ]
+    const s: StakehouseState = { ...base, pots, round: ROUNDS - 1, bankroll: TARGET_BANKROLL }
+    const done = reduce(s, { type: 'commit' })
+    expect(done.phase).toBe('complete')
+    expect(isWon(done)).toBe(true)
+    const short = reduce({ ...s, bankroll: TARGET_BANKROLL - 1 }, { type: 'commit' })
+    expect(short.phase).toBe('missed')
+    expect(isWon(short)).toBe(false)
   })
 })
 
@@ -433,5 +457,102 @@ describe('remainingGems / remainingCount', () => {
 describe('constants sanity', () => {
   it('JACKPOT_MULT is at least HOT_ZONE_MULT', () => {
     expect(JACKPOT_MULT).toBeGreaterThanOrEqual(HOT_ZONE_MULT)
+  })
+})
+
+describe('floor token (visible information edge)', () => {
+  const pot = (tokens: ('gem' | 'dud')[]): Pot => ({ tokens, initialGems: 0, initialSize: POT_SIZE })
+
+  it('floorToken is the bottom (last-drawn) token', () => {
+    expect(floorToken(pot(['dud', 'gem', 'gem']))).toBe('dud')
+    expect(floorToken(pot(['gem', 'dud']))).toBe('gem')
+    expect(floorToken(pot([]))).toBeNull()
+  })
+
+  it('nextGemChance excludes the face-up floor from the draw pool', () => {
+    // 2 gems / 4 left, floor dud → next pop is from {gem, gem, dud}.
+    expect(nextGemChance(pot(['dud', 'gem', 'gem', 'dud']))).toBeCloseTo(2 / 3)
+    // floor gem → next pop is from {gem, dud, dud}.
+    expect(nextGemChance(pot(['gem', 'gem', 'dud', 'dud']))).toBeCloseTo(1 / 3)
+    expect(nextGemChance(pot(['gem']))).toBe(1)
+  })
+
+  it('a dud floor makes the label multiplier +EV; a gem floor makes it −EV', () => {
+    const dudFloor = pot(['dud', 'gem', 'gem', 'gem', 'gem', 'gem', 'gem', 'dud', 'dud', 'dud', 'dud', 'dud'])
+    const gemFloor = pot(['gem', 'gem', 'gem', 'gem', 'gem', 'gem', 'dud', 'dud', 'dud', 'dud', 'dud', 'dud'])
+    expect(nextGemChance(dudFloor)! * payoutMultiplier(dudFloor)!).toBeGreaterThan(1)
+    expect(nextGemChance(gemFloor)! * payoutMultiplier(gemFloor)!).toBeLessThan(1)
+  })
+})
+
+// -- policy simulation: no dominant strategy -----------------------------------
+// Audit 2026-10-10: "every bet is −EV, so never betting is optimal and wins".
+// These bounds are the regression net: passive/naive play must lose, and
+// reading the floor tokens must be what wins.
+
+type Policy = (s: StakehouseState) => number[]
+
+function simulate(policy: Policy, seeds: number): { winRate: number; meanBankroll: number } {
+  let wins = 0
+  let sum = 0
+  for (let k = 0; k < seeds; k++) {
+    let s = createGame(k * 7919 + 1)
+    while (s.phase === 'betting') {
+      const bets = policy(s)
+      for (let i = 0; i < POT_COUNT; i++) s = reduce(s, { type: 'setBet', pot: i, amount: bets[i] })
+      s = reduce(s, { type: 'commit' })
+    }
+    if (isWon(s)) wins++
+    sum += s.bankroll
+  }
+  return { winRate: wins / seeds, meanBankroll: sum / seeds }
+}
+
+const SIM_SEEDS = 1500
+const sitOut: Policy = () => [0, 0, 0, 0]
+const spreadTen: Policy = (s) => s.pots.map((p) => (canBetPot(p) ? Math.min(10, Math.floor(s.bankroll / 4)) : 0))
+const hotAllIn: Policy = (s) => {
+  let best = -1
+  let bestM = 0
+  s.pots.forEach((p, i) => {
+    const m = payoutMultiplier(p)
+    if (m !== null && m > bestM) {
+      bestM = m
+      best = i
+    }
+  })
+  return s.pots.map((_, i) => (i === best ? s.bankroll : 0))
+}
+const oneChipEach: Policy = (s) => s.pots.map((p) => (canBetPot(p) ? 1 : 0))
+/** Kelly-sized bets on jars whose floor-adjusted odds beat the label. */
+const floorKelly: Policy = (s) => {
+  let left = s.bankroll
+  return s.pots.map((p) => {
+    const m = payoutMultiplier(p)
+    const q = nextGemChance(p)
+    if (m === null || q === null || m <= 1) return 0
+    const f = (q * m - 1) / (m - 1)
+    if (f <= 0) return 0
+    const amt = Math.min(left, Math.floor((s.bankroll * f) / BET_STEP) * BET_STEP)
+    left -= amt
+    return amt
+  })
+}
+
+describe('policy simulation', () => {
+  it('sitting out every round never wins', () => {
+    expect(simulate(sitOut, 200).winRate).toBe(0)
+  })
+  it('label-only strategies lose (≤ 20% win, mean bankroll below start)', () => {
+    for (const p of [spreadTen, hotAllIn, oneChipEach]) {
+      const r = simulate(p, SIM_SEEDS)
+      expect(r.winRate).toBeLessThanOrEqual(0.2)
+      expect(r.meanBankroll).toBeLessThan(STARTING_BANKROLL)
+    }
+  })
+  it('reading the floor tokens wins most runs', () => {
+    const r = simulate(floorKelly, SIM_SEEDS)
+    expect(r.winRate).toBeGreaterThanOrEqual(0.6)
+    expect(r.meanBankroll).toBeGreaterThan(TARGET_BANKROLL)
   })
 })

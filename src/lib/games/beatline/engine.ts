@@ -32,6 +32,13 @@ export const STAGE_CLEAR_BONUS_UNIT = 200 // stage n clear bonus = UNIT * (stage
 export const FULL_COMBO_BONUS = 500 // extra if that stage had zero misses
 export const WIN_BONUS = 2500 // extra on clearing the final stage (run win)
 
+/**
+ * Every stage's first note lands on the judgement line no earlier than this tick
+ * (1.5s at TICK_MS=10) — i.e. one full on-screen travel, so a note is always seen
+ * entering at the top before it must be hit, and nothing can be missed at stage start.
+ */
+export const LEAD_IN_TICKS = 150
+
 export const MAX_GEN_SLOT_MULT = 40 // generateChart safety cap: slot attempts <= noteCount * this
 
 export type Rng = () => number // returns a float in [0,1)
@@ -162,7 +169,7 @@ export function generateChart(stage: StageConfig, lanes: number, rng: Rng): Char
   const maxSlots = stage.noteCount * MAX_GEN_SLOT_MULT
   let slot = 0
   while (notes.length < stage.noteCount && slot < maxSlots) {
-    const tick = (slot + 1) * slotTicks
+    const tick = LEAD_IN_TICKS + slot * slotTicks
     const spawnRoll = rng()
     if (spawnRoll < stage.density) {
       const laneRoll = rng()

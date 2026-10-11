@@ -10,6 +10,7 @@ import {
   LAUNCH_POINT,
   TARGET_R,
   createGame,
+  shotLimit,
   reduce,
   type BankshotAction,
   type BankshotState,
@@ -78,6 +79,7 @@ const SOUND: Record<ShotEvent, SoundName | null> = {
   win: 'win',
   // Restrained, not punishing -- a shot that simply didn't land.
   miss: 'mismatch',
+  lose: 'lose',
   illegal: 'error',
   undo: 'move',
 }
@@ -96,6 +98,24 @@ const ANIM_DURATION_MS = 1300 // fixed wall-clock duration for replaying a preco
 const GHOST_LIMIT = 3
 const GHOST_OPACITIES = [0.12, 0.2, 0.32] // oldest -> newest (length == GHOST_LIMIT)
 const DRAG_WU_PER_POWER = 1.4 // world-units of drag per power unit
+/**
+ * Invisible drag handle radius around the launch point (world units). The visible
+ * ring is r=1.6 and the ball r=6 used to sit on top of it, so drag-aim never fired;
+ * this hit circle is drawn LAST (on top) and the ball ignores pointer events.
+ * The launch point is guaranteed wall-free within LAUNCH_SAFE_RADIUS (30), so 22 is safe.
+ */
+export const AIM_HANDLE_R = 22
+
+/**
+ * Index into a precomputed path for animation progress `p`. Clamped on BOTH ends:
+ * a rAF timestamp can predate the effect's performance.now() t0, making p negative,
+ * and path[-1] (undefined) used to crash the whole page.
+ */
+export function pathIndexFor(progress: number, pathLength: number): number {
+  if (pathLength <= 0) return 0
+  const p = Math.max(0, Math.min(1, Number.isFinite(progress) ? progress : 1))
+  return Math.max(0, Math.min(pathLength - 1, Math.floor(p * (pathLength - 1))))
+}
 
 /** Engine fixed-point (FP=1000) -> world-unit, for rendering (viewBox is in world-units). */
 function wu(v: number): number {
@@ -133,6 +153,7 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
   const stateRef = useRef<BankshotState | null>(null)
   const modeRef = useRef<Mode>('daily')
   const prevWonRef = useRef(false)
+  const prevLostRef = useRef(false)
   const animatedShotRef = useRef<ShotResult | null>(null)
   const rafRef = useRef<number | null>(null)
   const svgRef = useRef<SVGSVGElement | null>(null)
@@ -170,9 +191,11 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
       if (sound) play(sound)
 
       if (next.won && !prevWonRef.current) persistWin(next)
+      if (next.lost && !prevLostRef.current) recordResult(storageKey.replace(/^best:/, ''), { won: false })
       prevWonRef.current = next.won
+      prevLostRef.current = next.lost
     },
-    [commit, play, persistWin],
+    [commit, play, persistWin, storageKey],
   )
 
   // Init board + hydrate save (client only).
@@ -182,6 +205,7 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
     setStreak(currentStreak(save.daily))
     const g = createGame(DAILY_CONFIG, dailySeed(new Date()), LAUNCH_POINT.normal)
     prevWonRef.current = false
+    prevLostRef.current = false
     animatedShotRef.current = null
     setGhosts([])
     setAnimShot(null)
@@ -198,6 +222,7 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
           ? createGame(DAILY_CONFIG, dailySeed(new Date()), LAUNCH_POINT.normal)
           : createGame(BANKSHOT_DIFFICULTIES[diff], freshSeed(), LAUNCH_POINT[diff])
       prevWonRef.current = false
+      prevLostRef.current = false
       animatedShotRef.current = null
       setGhosts([])
       setAnimShot(null)
@@ -213,7 +238,7 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
   // deliberately excluded (its reverted lastShot snaps in immediately).
   useEffect(() => {
     if (!state) return
-    if (state.lastEvent !== 'win' && state.lastEvent !== 'miss') return
+    if (state.lastEvent !== 'win' && state.lastEvent !== 'miss' && state.lastEvent !== 'lose') return
     const shot = state.lastShot
     if (!shot || shot === animatedShotRef.current) return
     animatedShotRef.current = shot
@@ -251,7 +276,8 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
     if (animShot === null || animProgress >= 1) return
     const t0 = performance.now()
     const frame = (t: number) => {
-      const p = Math.min(1, (t - t0) / ANIM_DURATION_MS)
+      // rAF's timestamp can be earlier than t0 (taken in the effect) -> clamp at 0 too.
+      const p = Math.max(0, Math.min(1, (t - t0) / ANIM_DURATION_MS))
       setAnimProgress(p)
       if (p < 1) rafRef.current = requestAnimationFrame(frame)
       else rafRef.current = null
@@ -299,7 +325,7 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
         case ' ':
         case 'Enter':
           e.preventDefault()
-          if (!s.won) dispatch({ type: 'fire' })
+          if (!s.won && !s.lost) dispatch({ type: 'fire' })
           break
         case 'u':
         case 'U':
@@ -322,7 +348,7 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
     (clientX: number, clientY: number) => {
       const svg = svgRef.current
       const s = stateRef.current
-      if (!svg || !s || s.won) return
+      if (!svg || !s || s.won || s.lost) return
       const pt = svg.createSVGPoint()
       pt.x = clientX
       pt.y = clientY
@@ -341,16 +367,18 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
     [dispatch],
   )
 
-  const onLaunchPointerDown = useCallback(
-    (e: React.PointerEvent<SVGCircleElement>) => {
-      const s = stateRef.current
-      if (!s || s.won) return
+  const onLaunchPointerDown = useCallback((e: React.PointerEvent<SVGCircleElement>) => {
+    const s = stateRef.current
+    if (!s || s.won || s.lost) return
+    try {
       ;(e.target as Element).setPointerCapture(e.pointerId)
-      dragRef.current = { pointerId: e.pointerId }
-      updateAimFromPointer(e.clientX, e.clientY)
-    },
-    [updateAimFromPointer],
-  )
+    } catch {
+      // capture unsupported (e.g. synthetic pointer) — moves still arrive while over the handle
+    }
+    dragRef.current = { pointerId: e.pointerId }
+    // Aim updates on MOVE only: a plain tap on the (now large) handle must not
+    // clobber the current angle/power with a near-zero drag vector.
+  }, [])
   const onLaunchPointerMove = useCallback(
     (e: React.PointerEvent<SVGCircleElement>) => {
       if (!dragRef.current || dragRef.current.pointerId !== e.pointerId) return
@@ -395,19 +423,23 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
   }
 
   const won = state.won
-  const canAct = !won
+  const lost = state.lost
+  const limit = shotLimit(state.config.par)
+  const canAct = !won && !lost
   const animating = animShot !== null && animProgress < 1 && !reduced
   const canUndo = state.undosLeft > 0 && state.undoStack.length > 0
 
   const launchWU = wuPt(state.level.launch)
   const displayPath = animShot?.path ?? null
-  const pathIdx = displayPath ? Math.min(displayPath.length - 1, Math.floor(animProgress * (displayPath.length - 1))) : 0
-  const ballFP = displayPath ? displayPath[pathIdx] : state.level.launch
+  const pathIdx = displayPath ? pathIndexFor(animProgress, displayPath.length) : 0
+  const ballFP = (displayPath ? displayPath[pathIdx] : undefined) ?? state.level.launch
   const ballWU = wuPt(ballFP)
 
   const hint = won
     ? 'Sunk it! Locked into the target.'
-    : 'Drag from the ball, or use the steppers, to aim + set power, then Fire. Walls bounce the ball -- use the cushions.'
+    : lost
+      ? `Out of shots — ${limit} shots per board. Try again.`
+      : `Drag from the launch ring (or use the steppers) to aim + set power, then Fire. ${limit} shots per board -- use the cushions.`
 
   const headerExtra = (
     <>
@@ -451,13 +483,13 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
   return (
     <GameShell
       stats={[
-        { label: 'Shots', value: state.shots, testId: 'shots' },
+        { label: 'Shots', value: `${state.shots}/${limit}`, testId: 'shots' },
         { label: 'Par', value: state.config.par },
         { label: 'Best', value: best, testId: 'score', float: true },
       ]}
       headerExtra={headerExtra}
       onNewGame={onNewGame}
-      newGameLabel={won ? 'Play again' : mode === 'daily' ? 'Replay Daily' : 'New Board'}
+      newGameLabel={won || lost ? 'Play again' : mode === 'daily' ? 'Replay Daily' : 'New Board'}
       muted={muted}
       onToggleMute={toggleMuted}
       hint={hint}
@@ -478,7 +510,7 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
           className="mx-auto block w-full max-w-175 touch-none"
           style={{ aspectRatio: `${BOARD_W / FP}/${BOARD_H / FP}`, background: 'var(--bg-2)' }}
           role="img"
-          aria-label={`Bankshot board, shot ${state.shots}, par ${state.config.par}`}
+          aria-label={`Bankshot board, shot ${state.shots} of ${limit}, par ${state.config.par}`}
         >
           {/* Ghost trails from earlier shots this board */}
           {ghosts.map((p, i) => (
@@ -536,7 +568,7 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
           <circle cx={wu(state.level.target.x)} cy={wu(state.level.target.y)} r={0.6} fill="var(--neon-lime)" />
 
           {/* Aim line + launch point (drag target) */}
-          {!won && (
+          {canAct && (
             <line
               x1={launchWU.x}
               y1={launchWU.y}
@@ -556,24 +588,39 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
             r={1.6}
             fill="none"
             stroke="var(--neon-cyan)"
-            strokeOpacity={won ? 0.35 : 0.9}
+            strokeOpacity={canAct ? 0.9 : 0.35}
             strokeWidth={0.35}
             strokeDasharray="0.6 0.5"
-            style={{ cursor: won ? 'default' : 'grab', touchAction: 'none' }}
-            onPointerDown={onLaunchPointerDown}
-            onPointerMove={onLaunchPointerMove}
-            onPointerUp={onLaunchPointerUp}
-            onPointerCancel={onLaunchPointerUp}
+            pointerEvents="none"
+            aria-hidden="true"
           />
 
-          {/* Ball */}
+          {/* Ball (never intercepts the drag handle underneath) */}
           <circle
             data-testid="ball"
             cx={ballWU.x}
             cy={ballWU.y}
             r={wu(6 * FP)}
             fill={won ? 'var(--neon-lime)' : 'var(--neon-amber)'}
+            pointerEvents="none"
           />
+
+          {/* Drag-to-aim hit area: transparent, larger than the ball, drawn last so it's on top. */}
+          {canAct && (
+            <circle
+              data-testid="aim-handle"
+              cx={launchWU.x}
+              cy={launchWU.y}
+              r={AIM_HANDLE_R}
+              fill="transparent"
+              pointerEvents="all"
+              style={{ cursor: 'grab', touchAction: 'none' }}
+              onPointerDown={onLaunchPointerDown}
+              onPointerMove={onLaunchPointerMove}
+              onPointerUp={onLaunchPointerUp}
+              onPointerCancel={onLaunchPointerUp}
+            />
+          )}
         </svg>
 
         {/* Steppers: precision fallback for touch/keyboard-shy players */}
@@ -676,6 +723,17 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
             )}
             <GameButton onClick={onNewGame}>Play again</GameButton>
           </div>
+        </GameOverlay>
+
+        <GameOverlay show={lost && !animating} variant="lose" title="Out of shots" testId="game-over">
+          <div className="flex flex-col items-center gap-1 text-sm">
+            <p>
+              Shots <span className="font-bold text-accent">{state.shots}</span> / {limit} (par{' '}
+              {state.config.par})
+            </p>
+            <p className="text-fg-muted">Each board allows par + 3 shots.</p>
+          </div>
+          <GameButton onClick={onNewGame}>Try again</GameButton>
         </GameOverlay>
 
         <style>{`

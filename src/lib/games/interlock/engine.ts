@@ -51,13 +51,20 @@ export const DEPTH_UNIT = 20 // depth bonus per scramble step
 export const UNDO_POOL = 5
 export const MAX_GEN_ATTEMPTS = 30
 
+/**
+ * Scramble depths. 12/20/30 turned out to be an effectively full Hungarian-rings
+ * shuffle — far beyond what a person can plan through, so `par` was only a loose
+ * upper bound. Measured with a BFS over seeds (see engine.test.ts "difficulty
+ * curve"): 4 reverse rotations need exactly 4 moves to undo, 10 need 8–10 in
+ * ~90% of boards. Hard stays deep for experts.
+ */
 export const DIFFICULTIES = {
-  easy: { scramble: 12 },
-  normal: { scramble: 20 },
-  hard: { scramble: 30 },
+  easy: { scramble: 4 },
+  normal: { scramble: 10 },
+  hard: { scramble: 16 },
 } satisfies Record<'easy' | 'normal' | 'hard', { scramble: number }>
 
-export const DAILY_SCRAMBLE = 20 // = normal
+export const DAILY_SCRAMBLE = 10 // = normal
 
 export interface RotateOutcome {
   cells: Color[] // full array after rotation (input untouched)

@@ -7,13 +7,16 @@ import {
   center,
   FLUTTER_MIN_GAP,
   FLUTTER_SPACING,
+  GOOD_FRAC,
   gradeOffset,
   hueForRpm,
   inWindow,
   LIVES,
   MAX_DT,
   MIN_RPM,
+  MISTIME_RPM_DELTA,
   NORMAL_SPACING,
+  PERFECT_FRAC,
   newGame,
   offsetTurns,
   omega,
@@ -69,16 +72,17 @@ describe('gradeOffset', () => {
   const arc = 0.2
   it('grades perfect / good / mistime bands at boundaries', () => {
     expect(gradeOffset(0, arc)).toBe('perfect')
-    expect(gradeOffset(0.05 * arc, arc)).toBe('perfect') // exactly ±5%
-    expect(gradeOffset(0.05 * arc + 1e-9, arc)).toBe('good')
-    expect(gradeOffset(0.15 * arc, arc)).toBe('good') // exactly ±15%
-    expect(gradeOffset(0.15 * arc + 1e-9, arc)).toBe('late')
-    expect(gradeOffset(0.4 * arc, arc)).toBe('late')
+    expect(gradeOffset(PERFECT_FRAC * arc, arc)).toBe('perfect') // exactly ±PERFECT_FRAC
+    expect(gradeOffset(PERFECT_FRAC * arc + 1e-9, arc)).toBe('good')
+    expect(gradeOffset(GOOD_FRAC * arc, arc)).toBe('good') // exactly ±GOOD_FRAC
+    expect(gradeOffset(GOOD_FRAC * arc + 1e-9, arc)).toBe('late')
+    expect(gradeOffset(0.45 * arc, arc)).toBe('late')
   })
   it('sign selects early vs late and is symmetric in band', () => {
-    expect(gradeOffset(-0.3 * arc, arc)).toBe('early')
-    expect(gradeOffset(0.3 * arc, arc)).toBe('late')
-    expect(gradeOffset(-0.1 * arc, arc)).toBe(gradeOffset(0.1 * arc, arc))
+    expect(gradeOffset(-0.45 * arc, arc)).toBe('early')
+    expect(gradeOffset(0.45 * arc, arc)).toBe('late')
+    const mid = ((PERFECT_FRAC + GOOD_FRAC) / 2) * arc
+    expect(gradeOffset(-mid, arc)).toBe(gradeOffset(mid, arc))
   })
 })
 
@@ -96,7 +100,7 @@ describe('tap grading', () => {
   })
 
   it('good → rpm unchanged, status hit, perfects unchanged', () => {
-    const s = atOffset(newGame(), 0.1 * ARC_START) // inside good band
+    const s = atOffset(newGame(), ((PERFECT_FRAC + GOOD_FRAC) / 2) * ARC_START) // inside good band
     const r = tap(s)
     expect(r.events.grade).toBe('good')
     expect(r.rpm).toBe(START_RPM)
@@ -104,14 +108,17 @@ describe('tap grading', () => {
     expect(r.perfects).toBe(0)
   })
 
-  it('early/late in-window → -3 rpm, floored at MIN_RPM', () => {
-    const base = { ...newGame(), rpm: MIN_RPM + 1 }
-    const s = atOffset(base, 0.3 * ARC_START) // mistime (late)
+  it('early/late in-window → MISTIME_RPM_DELTA, floored at MIN_RPM', () => {
+    const late = tap(atOffset(newGame(), 0.45 * ARC_START))
+    expect(late.events.grade).toBe('late')
+    expect(late.rpm).toBe(START_RPM + MISTIME_RPM_DELTA)
+    const base = { ...newGame(), rpm: MIN_RPM }
+    const s = atOffset(base, 0.45 * ARC_START) // mistime (late)
     const r = tap(s)
     expect(r.events.grade).toBe('late')
-    expect(r.rpm).toBe(MIN_RPM) // 31 - 3 clamped to 30
+    expect(r.rpm).toBe(MIN_RPM) // clamped to floor
     // A second mistime from a floor state never dips below the floor.
-    const s2 = atOffset({ ...r, status: 'pending' }, -0.3 * ARC_START)
+    const s2 = atOffset({ ...r, status: 'pending' }, -0.45 * ARC_START)
     const r2 = tap(s2)
     expect(r2.events.grade).toBe('early')
     expect(r2.rpm).toBe(MIN_RPM)
@@ -305,5 +312,62 @@ describe('hueForRpm', () => {
     expect(hueForRpm(999)).toBeCloseTo(20) // above range clamps to orange
     expect(hueForRpm(130)).toBeGreaterThan(hueForRpm(200))
     expect(hueForRpm(60)).toBeGreaterThan(hueForRpm(130))
+  })
+})
+
+/**
+ * Simulated human: taps every beat with a Gaussian timing error of `sigmaMs`
+ * around the zone center. Returns the run's final and peak rpm after `beats`
+ * beats (or earlier game over). Pure: drives only tap()/step().
+ */
+function simulateRun(seed: number, sigmaMs: number, beats: number): { rpm: number; peak: number; over: boolean } {
+  const rand = mulberry32(seed)
+  const gauss = () => {
+    const u = Math.max(1e-12, rand())
+    const v = rand()
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v)
+  }
+  const flutterRng = mulberry32(seed ^ 0x9e3779b9)
+  let s = newGame()
+  for (let b = 0; b < beats && !s.over; b++) {
+    const errTurns = (gauss() * sigmaMs * omega(s.rpm)) / 1000
+    s = tap(atOffset(s, errTurns))
+    // Jump past this beat's exit; the next step resolves it.
+    s = step({ ...s, phase: center(s) + arcHalf(s) + 1e-6 }, 1e-6, flutterRng)
+  }
+  return { rpm: s.rpm, peak: s.peakRpm, over: s.over }
+}
+
+describe('timing windows are humane (audit: ±18ms perfect made rpm decay to MIN_RPM)', () => {
+  it('a decent player (σ=45ms) speeds the wheel up instead of sinking to MIN_RPM', () => {
+    const N = 300
+    let finalSum = 0
+    let peakSum = 0
+    for (let seed = 1; seed <= N; seed++) {
+      const r = simulateRun(seed, 45, 60)
+      finalSum += r.rpm
+      peakSum += r.peak
+    }
+    const meanFinal = finalSum / N
+    const meanPeak = peakSum / N
+    expect(meanFinal).toBeGreaterThan(START_RPM + 10)
+    expect(meanPeak).toBeGreaterThan(START_RPM + 15)
+  })
+
+  it('a sloppy player (σ=110ms) does not run away — skill still matters', () => {
+    const N = 300
+    let finalSum = 0
+    for (let seed = 1; seed <= N; seed++) finalSum += simulateRun(seed, 110, 60).rpm
+    const sloppy = finalSum / N
+    let goodSum = 0
+    for (let seed = 1; seed <= N; seed++) goodSum += simulateRun(seed, 30, 60).rpm
+    const sharp = goodSum / N
+    expect(sharp).toBeGreaterThan(sloppy + 15)
+  })
+
+  it('at 40rpm the perfect window is at least ±45ms and good at least ±100ms', () => {
+    const msPerTurn = 1000 / omega(START_RPM)
+    expect(PERFECT_FRAC * ARC_START * msPerTurn).toBeGreaterThanOrEqual(45)
+    expect(GOOD_FRAC * ARC_START * msPerTurn).toBeGreaterThanOrEqual(100)
   })
 })

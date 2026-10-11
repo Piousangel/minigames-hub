@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   dailySeed,
   fold,
+  hasJam,
   JAM,
   legalCreases,
   mulberry32,
@@ -555,6 +556,9 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
             onKeyDown={onBoardKeyDown}
           >
             {board.cells.map((value, i) => {
+              // Pips are sized from the cell's SHORTER side (the board box is square, so
+              // cellH/cellW = w/h) and kept square: a circle on a 4×2 board, not a pill.
+              const pipWidth = `${60 * Math.min(1, board.w / board.h)}%`
               const r = Math.floor(i / board.w)
               const c = i % board.w
               const isJam = value === JAM
@@ -584,8 +588,10 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
                   {isPip && (
                     <span
                       aria-hidden="true"
-                      className="h-3/5 w-3/5 rounded-full"
+                      className="aspect-square rounded-full"
+                      data-testid="overfold-pip"
                       style={{
+                        width: pipWidth,
                         background: COLORS[value % COLORS.length],
                         boxShadow: seal
                           ? '0 0 12px rgba(74,222,128,0.9)'
@@ -679,7 +685,15 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
         <GameOverlay
           show={won || lost}
           variant={won ? 'win' : 'lose'}
-          title={won ? 'Sealed!' : state.board.w === 1 && state.board.h === 1 ? 'Folded to nothing' : 'Out of folds'}
+          title={
+            won
+              ? 'Sealed!'
+              : hasJam(state.board)
+                ? 'Jammed!'
+                : state.board.w === 1 && state.board.h === 1
+                  ? 'Folded to nothing'
+                  : 'Out of folds'
+          }
           testId="game-over"
         >
           {won ? (
@@ -723,10 +737,20 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
             </>
           ) : (
             <>
+              {hasJam(state.board) && (
+                <p className="text-sm text-fg-muted" data-testid="jam-reason">
+                  Two different colours jammed — a jam can never be cleared.
+                </p>
+              )}
               <p className="text-sm text-fg-muted">
                 Score <span className="font-bold text-accent">{state.score}</span>
               </p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap justify-center gap-2">
+                {state.unfoldsLeft > 0 && state.history.length > 0 && (
+                  <GameButton onClick={doUndo} variant="ghost" className="px-4 py-2">
+                    Unfold ({state.unfoldsLeft})
+                  </GameButton>
+                )}
                 <GameButton onClick={retryBoard} variant="ghost" className="px-4 py-2">
                   Retry board
                 </GameButton>

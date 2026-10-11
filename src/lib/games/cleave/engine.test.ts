@@ -146,8 +146,10 @@ describe('determinism', () => {
   })
 
   it('plays a scripted game to a golden score/lives/round', () => {
-    // Every commit below is a genuine two-pile split, so this pins five `next`
-    // transitions and six scored rounds — not the illegal path.
+    // Every commit below is a genuine two-pile split, so this pins three `next`
+    // transitions and four scored rounds — not the illegal path. This loose,
+    // unoptimised script met every quota back when QUOTA_RATIO was 0.5; at 0.8
+    // it misses three quotas in a row and the run ends on round 4.
     const script: CleaveAction[] = [
       { type: 'toggle', item: 0 },
       { type: 'toggle', item: 3 },
@@ -163,12 +165,6 @@ describe('determinism', () => {
       { type: 'assign', item: 4, pile: 'B' },
       { type: 'toggle', item: 1 },
       { type: 'commit' },
-      { type: 'next' },
-      { type: 'toggle', item: 2 },
-      { type: 'toggle', item: 4 },
-      { type: 'commit' },
-      { type: 'next' },
-      { type: 'commit' },
     ]
     let s = createGame(1234)
     const banked: number[] = []
@@ -177,13 +173,14 @@ describe('determinism', () => {
       expect(s.lastEvent).not.toBe('illegal')
       if (a.type === 'commit') banked.push(s.lastResult!.myKept)
     }
-    expect(banked).toEqual([8, 7, 11, 9, 8, 14])
+    expect(banked).toEqual([8, 7, 11, 9])
     // score is exactly the sum of what was kept — no bonus smuggles luck in.
     expect(s.score).toBe(banked.reduce((a, b) => a + b, 0))
+    expect(s.phase).toBe('over')
     expect({ score: s.score, lives: s.lives, round: s.round }).toEqual({
-      score: 57,
-      lives: 3, // the quota was met every round
-      round: 6,
+      score: 35,
+      lives: 0, // rounds 2-4 each fell short of the quota
+      round: 4,
     })
   })
 
@@ -383,10 +380,10 @@ describe('reducer', () => {
 
   it('spends a life on a quota miss but still banks the round, and ends at zero', () => {
     // {3} | {0,1,2}: rival takes the fat magenta pile, leaving my 1 — below the
-    // quota of ceil(0.5 * 8) = 4.
+    // quota of ceil(0.8 * 8) = 7.
     const bad: Pile[] = ['B', 'B', 'B', 'A']
     let s = stateWith(WORKSHEET, bad)
-    expect(s.board.quota).toBe(4)
+    expect(s.board.quota).toBe(7)
 
     s = reduce(s, { type: 'commit' })
     expect(s.lastResult!.myKept).toBe(1)
@@ -440,5 +437,39 @@ describe('reducer', () => {
     }
     expect(maxValue(1)).toBe(6)
     expect(itemCount(1)).toBe(4)
+  })
+})
+
+describe('quota pressure (audit 2026-10-10: QUOTA_RATIO 0.5 was toothless)', () => {
+  // The "lazy" line: never touch a single item and press Cleave on the default
+  // alternating split. At QUOTA_RATIO 0.5 that met the quota ~89% of the time,
+  // so a run that never thought about the split survived ~25 rounds.
+  function lazyRunLength(seed: number): number {
+    let s = createGame(seed)
+    let rounds = 0
+    while (s.phase !== 'over' && rounds < 200) {
+      s = reduce(s, { type: 'commit' })
+      rounds++
+      if (s.phase === 'reveal') s = reduce(s, { type: 'next' })
+    }
+    return rounds
+  }
+
+  it('punishes committing the untouched default split', () => {
+    let total = 0
+    const runs = 200
+    for (let seed = 1; seed <= runs; seed++) total += lazyRunLength(seed * 2654435761)
+    // Three lives must not carry a no-thought player deep into the run.
+    expect(total / runs).toBeLessThan(8)
+  })
+
+  it('still keeps every quota reachable without luck', () => {
+    expect(QUOTA_RATIO).toBeLessThanOrEqual(1)
+    for (let seed = 1; seed <= 50; seed++) {
+      for (let round = 1; round <= 12; round++) {
+        const b = generateBoard(round, roundRng(seed, round))
+        expect(b.quota).toBeLessThanOrEqual(b.bestGuaranteed)
+      }
+    }
   })
 })

@@ -5,12 +5,13 @@ import {
   addCharge,
   CAPACITY,
   CELLS,
+  clearTarget,
   COLS,
   mulberry32,
   newGame,
   nextBoard,
+  retryBoard as retryBoardState,
   ROWS,
-  TAP_BUDGET,
   type CascadeResult,
   type GameState,
   type Mode,
@@ -139,7 +140,7 @@ export function GameOverload({ storageKey }: { storageKey: string }) {
     (s: GameState) => {
       const key = String(s.seed)
       const prev = boardsRef.current[key]
-      const tapsUsed = TAP_BUDGET - s.tapsLeft
+      const tapsUsed = s.boardStartTaps - s.tapsLeft
       const record: BoardRecord = {
         best: Math.max(prev?.best ?? 0, s.score),
         fewestTaps: s.cleared
@@ -296,10 +297,22 @@ export function GameOverload({ storageKey }: { storageKey: string }) {
 
   const newRun = useCallback(() => startRun(mode, randomSeed()), [mode, startRun])
 
+  // Replays the board just lost — same seed AND level, score/taps restored to
+  // where the board began (startRun would rebuild a level-1 board).
   const retryBoard = useCallback(() => {
     const s = stateRef.current
-    startRun(mode, s ? s.seed : randomSeed())
-  }, [mode, startRun])
+    if (!s) return
+    clearTimers()
+    lockedRef.current = false
+    setCombo(0)
+    setChainBanner(null)
+    setFlash({ set: [], key: 0 })
+    setShake(0)
+    const again = retryBoardState(s)
+    setDisplay(again.charges.slice())
+    commit(again)
+    refreshBoardRecord(again.seed)
+  }, [clearTimers, commit, refreshBoardRecord])
 
   const advance = useCallback(() => {
     const s = stateRef.current
@@ -322,8 +335,8 @@ export function GameOverload({ storageKey }: { storageKey: string }) {
   const hint = (() => {
     const base =
       mode === 'puzzle'
-        ? 'Tap cells to charge them — a cell hits capacity, overloads, and chains across the board. Sweep the whole grid for a Perfect Storm.'
-        : 'Endless: each Perfect Storm refills taps and reseeds a denser board. Chase the high score.'
+        ? 'Tap cells to charge them — a cell hits capacity, overloads, and chains across the board. Set off the Storm count of overloads in ONE tap for a Perfect Storm; each board raises the bar.'
+        : 'Endless: hit the Storm count of overloads in one tap to refill taps and reach the next round. Chase the high score.'
     if (boardRecord && boardRecord.best > 0) {
       const ft =
         boardRecord.fewestTaps < Number.MAX_SAFE_INTEGER
@@ -361,6 +374,7 @@ export function GameOverload({ storageKey }: { storageKey: string }) {
     { label: 'Score', value: state ? state.score : 0, testId: 'score', float: true },
     { label: 'Best', value: best, testId: 'best' },
     { label: 'Taps', value: state ? state.tapsLeft : 0, testId: 'taps' },
+    { label: 'Storm', value: clearTarget(state ? state.level : 1), testId: 'storm' },
     ...(mode === 'endless' ? [{ label: 'Round', value: state ? state.level : 1, testId: 'round' }] : []),
   ]
 

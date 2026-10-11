@@ -32,8 +32,13 @@ interface Stack {
 }
 
 // Filled chess glyphs for BOTH colours (crisp, unmistakable shapes); colour +
-// outline distinguish white from black on the neon board.
-const GLYPH: Record<number, string> = { 1: '♟', 2: '♞', 3: '♝', 4: '♜', 5: '♛', 6: '♚' }
+// outline distinguish white from black on the neon board. Each glyph carries U+FE0E
+// (text presentation) and a symbol-font stack so it never falls back to a colour emoji.
+// The pawn is the exception: U+265F is an Emoji codepoint, and colour-emoji fonts paint it
+// black whatever the CSS colour (White's pawns looked like Black's), so it is drawn as SVG.
+const TEXT_VS = '\uFE0E'
+const GLYPH: Record<number, string> = { 2: '♞', 3: '♝', 4: '♜', 5: '♛', 6: '♚' }
+const SYMBOL_FONT = '"Segoe UI Symbol", "Apple Symbols", "Noto Sans Symbols 2", "DejaVu Sans", "Arial Unicode MS", serif'
 const PROMO_ORDER = [5, 4, 3, 2] as const // Q R B N
 const PROMO_NAME: Record<number, string> = { 5: 'Queen', 4: 'Rook', 3: 'Bishop', 2: 'Knight' }
 
@@ -46,6 +51,38 @@ const BLACK_PIECE: React.CSSProperties = {
   color: '#0b1120',
   WebkitTextStroke: '0.7px rgba(255,255,255,0.7)',
   textShadow: '0 0 2px rgba(255,255,255,0.55)',
+}
+
+const PAWN_FILL = { w: '#f1f5f9', b: '#0b1120' } as const
+const PAWN_STROKE = { w: 'rgba(0,0,0,0.7)', b: 'rgba(255,255,255,0.7)' } as const
+
+/** One chess piece (type 1..6) for the board, captured bars and promotion picker. */
+function Piece({ type, white }: { type: number; white: boolean }) {
+  if (type === 1) {
+    const c = white ? 'w' : 'b'
+    return (
+      <svg
+        data-piece="pawn"
+        viewBox="0 0 45 45"
+        width="1em"
+        height="1em"
+        aria-hidden="true"
+        fill={PAWN_FILL[c]}
+        stroke={PAWN_STROKE[c]}
+        strokeWidth={1.5}
+        strokeLinejoin="round"
+        style={{
+          filter: white ? 'drop-shadow(0 1px 1.5px rgba(0,0,0,0.85))' : 'drop-shadow(0 0 1.5px rgba(255,255,255,0.55))',
+        }}
+      >
+        <path d="M15 37.5C15 31 18.6 27 20 22.5h5c1.4 4.5 5 8.5 5 15z" />
+        <rect x="17.5" y="19" width="10" height="3.5" rx="1.75" />
+        <circle cx="22.5" cy="13.5" r="5" />
+        <rect x="11.5" y="36" width="22" height="4" rx="1.5" />
+      </svg>
+    )
+  }
+  return <span style={{ ...(white ? WHITE_PIECE : BLACK_PIECE), fontFamily: SYMBOL_FONT }}>{GLYPH[type] + TEXT_VS}</span>
 }
 
 const CPU_DELAY = 380
@@ -339,6 +376,10 @@ export function GameChess({ storageKey }: { storageKey: string }) {
     return -1
   }, [current])
 
+  // The move that produced the position on screen (human or CPU) — highlighted so a CPU reply
+  // landing after its delay is visible. Undo pops it with the stack.
+  const lastMove = stack && stack.moves.length > 0 ? stack.moves[stack.moves.length - 1] : null
+
   const captured = current ? capturedPieces(current.board) : { white: [], black: [] }
   const balance = current ? materialBalance(current.board) : 0
 
@@ -430,13 +471,10 @@ export function GameChess({ storageKey }: { storageKey: string }) {
 
   const capBar = (side: 'white' | 'black') => {
     const glyphs = captured[side] // pieces of this colour that were captured
-    const style = side === 'white' ? WHITE_PIECE : BLACK_PIECE
     return (
       <div className="flex min-h-5 items-center gap-0.5 text-lg leading-none" aria-hidden="true">
         {glyphs.map((t, i) => (
-          <span key={i} style={style}>
-            {GLYPH[t]}
-          </span>
+          <Piece key={i} type={t} white={side === 'white'} />
         ))}
       </div>
     )
@@ -479,6 +517,7 @@ export function GameChess({ storageKey }: { storageKey: string }) {
               const isDest = destTargets.has(square)
               const isCheck = square === checkedKingSq
               const isPickable = movableFrom.has(square)
+              const lastRole = lastMove ? (square === lastMove.from ? 'from' : square === lastMove.to ? 'to' : null) : null
 
               const squareBg = light
                 ? 'bg-neon-cyan/12'
@@ -495,12 +534,16 @@ export function GameChess({ storageKey }: { storageKey: string }) {
                   key={`${r}-${c}`}
                   role="gridcell"
                   aria-label={label}
+                  data-last-move={lastRole ?? undefined}
                   disabled={!clickable && !isSel}
                   onClick={() => onSquare(square)}
                   className={`relative aspect-square w-full ${squareBg} transition-colors disabled:cursor-default ${
                     clickable ? 'cursor-pointer hover:brightness-125' : ''
                   } ${isCheck ? 'ring-2 ring-inset ring-red-500' : ''} focus-visible:z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neon-cyan`}
                 >
+                  {lastRole && (
+                    <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-yellow-300/30" />
+                  )}
                   {isSel && (
                     <span aria-hidden="true" className="pointer-events-none absolute inset-0 bg-neon-cyan/25 ring-2 ring-inset ring-neon-cyan" />
                   )}
@@ -516,9 +559,8 @@ export function GameChess({ storageKey }: { storageKey: string }) {
                     <span
                       aria-hidden="true"
                       className="absolute inset-0 flex items-center justify-center text-[min(9vw,2.3rem)] leading-none"
-                      style={piece > 0 ? WHITE_PIECE : BLACK_PIECE}
                     >
-                      {GLYPH[Math.abs(piece)]}
+                      <Piece type={Math.abs(piece)} white={piece > 0} />
                     </span>
                   )}
                   {/* file / rank coordinate hints on the edge squares */}
@@ -571,7 +613,7 @@ export function GameChess({ storageKey }: { storageKey: string }) {
                       aria-label={`Promote to ${PROMO_NAME[t]}`}
                       className="btn-press flex h-12 w-12 items-center justify-center rounded-lg bg-bg text-3xl leading-none ring-1 ring-border hover:ring-neon-cyan"
                     >
-                      <span style={current.turn === 'w' ? WHITE_PIECE : BLACK_PIECE}>{GLYPH[t]}</span>
+                      <Piece type={t} white={current.turn === 'w'} />
                     </button>
                   )
                 })}

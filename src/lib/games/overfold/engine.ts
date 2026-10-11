@@ -115,8 +115,17 @@ export function pipCount(board: Board): number {
   return n
 }
 
+/** True when the paper holds at least one JAM. Jams are permanent (no fold removes one). */
+export function hasJam(board: Board): boolean {
+  return board.cells.some((c) => c === JAM)
+}
+
+/**
+ * A board is cleared only when every pair has SEALED: no pips left AND no jam.
+ * (A jam also deletes pips, so "zero pips" alone let random folding win ~100%.)
+ */
 export function isWon(board: Board): boolean {
-  return pipCount(board) === 0
+  return pipCount(board) === 0 && !hasJam(board)
 }
 
 export function inBounds(board: Board, axis: Axis, index: number): boolean {
@@ -323,7 +332,9 @@ export function fold(state: GameState, move: FoldMove): { state: GameState; prev
   if (isWon(board)) {
     won = true
     if (foldsUsed <= state.par) score += PAR_BONUS
-  } else if ((board.w === 1 && board.h === 1) || foldsUsed >= state.foldBudget) {
+  } else if (hasJam(board) || (board.w === 1 && board.h === 1) || foldsUsed >= state.foldBudget) {
+    // A jam can never be cleared, so the board is unwinnable from here: end the run
+    // immediately (an Unfold still rewinds it, since undo clears `lost`).
     lost = true
   }
 

@@ -70,7 +70,7 @@ function VehicleBox({ v, lane, state, reduced }: { v: Vehicle; lane: Lane; state
       data-testid="gridlock-vehicle"
       data-state={dataState}
       aria-hidden="true"
-      className={`gl-car flex h-9 w-9 items-center justify-center rounded-md border text-base ${
+      className={`gl-car gl-cell flex items-center justify-center rounded-md border ${
         !reduced && dataState === 'urgent' ? 'gl-pulse' : ''
       }`}
     >
@@ -87,7 +87,7 @@ function CenterCell({ state, reduced }: { state: GridlockState; reduced: boolean
       aria-hidden="true"
       data-occupied={state.occupant ? true : undefined}
       data-crash={crashed || undefined}
-      className={`gl-center flex h-9 w-9 items-center justify-center rounded-md border text-base ${
+      className={`gl-center gl-cell flex items-center justify-center rounded-md border ${
         !reduced && crashed ? 'gl-pulse' : ''
       }`}
     >
@@ -129,10 +129,10 @@ function LaneSlot({
       data-testid={`gridlock-lane-${lane}`}
       data-active={isActive || undefined}
       data-fail={isFailLane || undefined}
-      className={`gl-track flex items-center gap-1 rounded-lg border p-1 ${vertical ? 'flex-col' : 'flex-row'}`}
+      className={`gl-track flex items-center gap-0.5 rounded-lg border p-1 ${vertical ? 'flex-col' : 'flex-row'}`}
     >
       {cells.map((d) => (
-        <div key={d} className="flex h-9 w-9 items-center justify-center">
+        <div key={d} className="gl-cell flex items-center justify-center">
           {v && v.distance === d ? (
             <VehicleBox v={v} lane={lane} state={state} reduced={reduced} />
           ) : (
@@ -144,7 +144,7 @@ function LaneSlot({
   )
 
   return (
-    <div className={`flex items-center gap-1 ${vertical ? 'flex-col' : 'flex-row'}`}>
+    <div className={`flex items-center gap-0.5 ${vertical ? 'flex-col' : 'flex-row'}`}>
       {labelFirst ? (
         <>
           {label}
@@ -163,7 +163,9 @@ function LaneSlot({
 export function GameGridlock({ storageKey }: { storageKey: string }) {
   // SSR safety: build the game only on the client (freshSeed touches Date/Math.random).
   const [state, setState] = useState<GridlockState | null>(null)
-  const [running, setRunning] = useState(false)
+  // 'ready' = waiting for the first input (the clock doesn't run yet),
+  // 'paused' = tab was hidden mid-run; resumes on the next input.
+  const [phase, setPhase] = useState<'ready' | 'running' | 'paused'>('ready')
   const [best, setBest] = useState(0)
   const [newBest, setNewBest] = useState(false)
 
@@ -174,14 +176,28 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
   const prevOver = useRef(false)
 
   const over = state?.gameOver ?? false
+  const running = phase === 'running'
+  // Live mirrors for the window-level listeners (visibility/keyboard) so they
+  // never read a stale first-render closure.
+  const phaseRef = useRef(phase)
+  phaseRef.current = phase
+  const overRef = useRef(over)
+  overRef.current = over
 
   const start = useCallback(() => {
     const g = createGame(DEFAULT_CONFIG, freshSeed())
     setState(g)
     setNewBest(false)
     prevOver.current = false
+    setPhase('ready')
+  }, [])
+
+  // First input after a fresh game / pause starts the clock from "now".
+  const resume = useCallback(() => {
+    if (overRef.current || phaseRef.current === 'running') return
     nextTickAt.current = performance.now() + TICK_INTERVAL_MS
-    setRunning(true)
+    phaseRef.current = 'running'
+    setPhase('running')
   }, [])
 
   // Init + load best (client only).
@@ -214,18 +230,19 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
     return () => clearInterval(id)
   }, [running, over, play])
 
-  // Pause when tab is hidden so the deadline doesn't burn in the background.
+  // Pause when the tab is hidden so the deadline doesn't burn in the
+  // background. Reads phase via ref (a [] closure over `state` used to stay
+  // null forever, so the game never resumed). Coming back shows a Paused
+  // overlay; the next lane input / Resume restarts the clock.
   useEffect(() => {
     const onVisibility = () => {
-      if (document.hidden) setRunning(false)
-      else if (state && !state.gameOver) {
-        nextTickAt.current = performance.now() + TICK_INTERVAL_MS
-        setRunning(true)
+      if (document.hidden && phaseRef.current === 'running' && !overRef.current) {
+        phaseRef.current = 'paused'
+        setPhase('paused')
       }
     }
     document.addEventListener('visibilitychange', onVisibility)
     return () => document.removeEventListener('visibilitychange', onVisibility)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Game-over effect: persist best + stats (sound already fired for
@@ -233,7 +250,6 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
   useEffect(() => {
     if (!state) return
     if (state.gameOver && !prevOver.current) {
-      setRunning(false)
       const beatBest = state.score > best
       if (beatBest) {
         setBest(state.score)
@@ -248,6 +264,7 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
 
   const setLane = useCallback(
     (lane: Lane) => {
+      resume()
       setState((s) => {
         if (!s) return s
         const next = reduce(s, { type: 'setLane', lane })
@@ -255,11 +272,12 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
         return next
       })
     },
-    [play],
+    [play, resume],
   )
 
   const onKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
+    (e: KeyboardEvent) => {
+      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return
       if (isTypingTarget(e.target)) return
       switch (e.key) {
         case 'ArrowUp':
@@ -296,6 +314,13 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
     [setLane, start],
   )
 
+  // Window-level keys: the hint promises Arrows/WASD work right away, even
+  // before the board has focus (page load leaves focus on <body>).
+  useEffect(() => {
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onKeyDown])
+
   if (!state) {
     return (
       <div className="mx-auto w-full max-w-125 select-none">
@@ -307,7 +332,9 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
 
   const hint = state.gameOver
     ? 'Game over — press Play again.'
-    : 'Arrows/WASD pick the green lane. Cars waiting at the stop line turn amber, then red — switch to them before they time out.'
+    : phase === 'ready'
+      ? 'Press an arrow key / WASD or tap a lane to start. Cars waiting at the stop line turn amber, then red — switch to them before they time out.'
+      : 'Arrows/WASD pick the green lane. Cars waiting at the stop line turn amber, then red — switch to them before they time out.'
 
   const failText =
     state.failCause === 'crash'
@@ -330,7 +357,7 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
       maxWidthClassName="max-w-125"
     >
       <div
-        className="relative rounded-xl bg-surface p-4"
+        className="relative rounded-xl bg-surface p-2 sm:p-4"
         data-testid="gridlock-board"
         style={reduced ? undefined : { animation: 'gl-board-in .3s ease-out both' }}
       >
@@ -338,8 +365,7 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
           role="group"
           aria-label="Gridlock intersection"
           tabIndex={0}
-          onKeyDown={onKeyDown}
-          className="gl-grid mx-auto grid w-fit grid-cols-3 grid-rows-3 place-items-center gap-2 rounded-lg p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+          className="gl-grid mx-auto grid w-fit grid-cols-3 grid-rows-3 place-items-center gap-1 rounded-lg p-1 sm:gap-2 sm:p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
         >
           <div aria-hidden="true" />
           <LaneSlot lane="N" state={state} reduced={reduced} onSetLane={setLane} />
@@ -354,6 +380,27 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
           <div aria-hidden="true" />
         </div>
 
+        {!state.gameOver && phase !== 'running' && (
+          <div
+            data-testid={phase === 'paused' ? 'gridlock-paused' : 'gridlock-ready'}
+            className="pointer-events-none absolute inset-x-0 top-1 flex justify-center"
+          >
+            {phase === 'paused' ? (
+              <button
+                type="button"
+                onClick={resume}
+                className="pointer-events-auto rounded-full border border-neon-amber/60 bg-bg-2/90 px-3 py-1 text-xs font-bold text-neon-amber"
+              >
+                Paused — tap to resume
+              </button>
+            ) : (
+              <span className="rounded-full border border-neon-green/50 bg-bg-2/90 px-3 py-1 text-xs font-bold text-neon-green">
+                Press an arrow or tap a lane to start
+              </span>
+            )}
+          </div>
+        )}
+
         <GameOverlay show={state.gameOver} variant={newBest ? 'win' : 'lose'} title={newBest ? 'New best!' : 'Gridlock!'} testId="game-over">
           <div className="flex flex-col items-center gap-1 text-sm">
             <p>
@@ -367,6 +414,14 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
         <style>{`
           @keyframes gl-board-in { from { opacity: 0; transform: scale(.98) } to { opacity: 1; transform: none } }
           @keyframes gl-pulse { 0%, 100% { opacity: 1 } 50% { opacity: .4 } }
+          .gl-grid {
+            /* 390px: 11 cells + chrome (~7.6rem) must fit in ~358px. */
+            --gl-cell: clamp(1.125rem, calc((100vw - 10rem) / 11), 2rem);
+          }
+          .gl-cell {
+            width: var(--gl-cell); height: var(--gl-cell);
+            font-size: calc(var(--gl-cell) * 0.45);
+          }
           .gl-track {
             background: rgba(255,255,255,0.03);
             border-color: var(--border, rgba(255,255,255,0.14));
@@ -384,7 +439,7 @@ export function GameGridlock({ storageKey }: { storageKey: string }) {
           .gl-track:disabled { cursor: default; }
           .gl-label {
             display: flex; align-items: center; justify-content: center;
-            width: 1.25rem; height: 1.25rem; font-size: .65rem; font-weight: 800;
+            width: 1rem; height: 1rem; font-size: .65rem; font-weight: 800;
             color: var(--fg-muted, #9ca3af);
           }
           .gl-label-active { color: var(--neon-green); }

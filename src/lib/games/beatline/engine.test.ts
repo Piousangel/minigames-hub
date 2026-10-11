@@ -6,6 +6,7 @@ import {
   GOOD_POINTS,
   GOOD_WINDOW_TICKS,
   LANES,
+  LEAD_IN_TICKS,
   MIN_GAP_TICKS,
   MIN_LANE_GAP_TICKS,
   MULTIPLIER_CAP,
@@ -564,6 +565,31 @@ describe('golden regression: flawless full run on DEFAULT_CONFIG seed 1', () => 
     expect(s.score).toBe(188000)
     expect(s.bestCombo).toBe(expectedTotalNotes)
     expect(s.perfects).toBe(expectedTotalNotes)
+    expect(s.misses).toBe(0)
+  })
+})
+
+// -- Lead-in (audit 2026-10-10: notes reached the line 310ms after load) ------
+
+describe('lead-in', () => {
+  it('LEAD_IN_TICKS covers a full on-screen travel (>= 150 ticks = 1.5s)', () => {
+    expect(LEAD_IN_TICKS).toBeGreaterThanOrEqual(150)
+  })
+
+  it('every stage of every seed starts its first note no earlier than LEAD_IN_TICKS', () => {
+    for (let seed = 0; seed < 200; seed++) {
+      const g = createGame(DEFAULT_CONFIG, seed)
+      for (const chart of g.stageCharts) {
+        expect(chart.length).toBeGreaterThan(0)
+        expect(chart[0].tick).toBeGreaterThanOrEqual(LEAD_IN_TICKS)
+      }
+    }
+  })
+
+  it('no life is lost before the first note can be judged', () => {
+    const g = createGame(DEFAULT_CONFIG, 20261010)
+    const s = advanceTick(g, LEAD_IN_TICKS)
+    expect(s.lives).toBe(STARTING_LIVES)
     expect(s.misses).toBe(0)
   })
 })

@@ -33,7 +33,16 @@ export interface GraspConfig {
 }
 
 export const CLEAR_BONUS = 200 // fixed bonus for clearing (reaching the end of the deck)
-export const MARGIN_BONUS_MAX = 100 // max bonus for the unspent gauge margin at clear time
+/**
+ * Max bonus for the unspent gauge margin at clear time. Each grasp costs
+ * MARGIN_BONUS_MAX * gaugeStep / gaugeMax of it — 2.55 / 1.95 / 1.5 points on
+ * Easy / Normal / Hard. That must stay BELOW the card values worth grasping:
+ * at the old value (100) every grasp cost 17/13/10, more than the best card
+ * (5/6/7), so releasing every card scored the maximum (300). Now low cards
+ * (1–2) still aren't worth the margin, high cards are, and the budget of
+ * grasps before the cap is what forces the choice.
+ */
+export const MARGIN_BONUS_MAX = 15
 
 export const DIFFICULTIES = {
   easy: { deckSize: 20, valueMax: 5, copiesPerValue: 4, gaugeStep: 17, gaugeMax: 100 },

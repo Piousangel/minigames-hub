@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   DEFAULT_CONFIG,
+  LEAD_IN_TICKS,
   TICK_MS,
   createGame,
   reduce,
@@ -30,8 +31,11 @@ interface BeatlineSave {
 /** Daily-streak-only key. best:<slug> stays a bare number (weekly leaderboard reads it via Number()). */
 const DAILY_KEY = 'beatline:daily'
 
-/** Ticks of lead time a note is visible before the judgement line (~1.5s at TICK_MS=10). */
-const TRAVEL_TICKS = 150
+/**
+ * Ticks of lead time a note is visible before the judgement line (~1.5s at TICK_MS=10).
+ * Equal to the engine's LEAD_IN_TICKS so a stage's first note always enters from the top.
+ */
+const TRAVEL_TICKS = LEAD_IN_TICKS
 /** Ticks over which a freshly-spawned note fades in from opacity 0. */
 const FADE_IN_TICKS = 15
 /** rAF frame delta cap (ms) — background-tab catch-up shouldn't nuke several lives at once. */
@@ -39,7 +43,23 @@ const MAX_FRAME_MS = 250
 
 const TRACK_HEIGHT = 360
 const JUDGEMENT_LINE_Y = TRACK_HEIGHT - 40
+const JUDGEMENT_LINE_HEIGHT = 3
 const NOTE_HEIGHT = 26
+/** ms per count of the 3-2-1 count-in shown before the chart starts moving. */
+const COUNT_STEP_MS = 700
+
+/**
+ * Top edge (px) of a note `remaining` ticks before its hit tick. The note's CENTRE
+ * sits on the judgement line's centre at remaining=0, so "note on the line" looks
+ * exactly like the Perfect moment (previously the note's top edge touched the line,
+ * which made players press ~54ms early and fall out of the ±50ms Perfect window).
+ */
+export function noteTopY(remaining: number): number {
+  const lineCenter = JUDGEMENT_LINE_Y + JUDGEMENT_LINE_HEIGHT / 2
+  return lineCenter - NOTE_HEIGHT / 2 - (remaining / TRAVEL_TICKS) * TRACK_HEIGHT
+}
+
+type Phase = 'ready' | 'countdown' | 'running'
 
 const LANE_KEYS = ['d', 'f', 'j', 'k'] as const
 
@@ -117,6 +137,12 @@ export function GameBeatline({ storageKey }: { storageKey: string }) {
   const [streak, setStreak] = useState(0)
   const [popups, setPopups] = useState<Popup[]>([])
   const [missFlashes, setMissFlashes] = useState<number[]>([])
+  // Start gate: the chart doesn't move until the player taps/presses to start and a
+  // 3-2-1 count-in finishes (audit: notes used to fall — and cost lives — on load).
+  const [phase, setPhaseState] = useState<Phase>('ready')
+  const [count, setCount] = useState(3)
+  const phaseRef = useRef<Phase>('ready')
+  const countTimers = useRef<ReturnType<typeof setTimeout>[]>([])
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reduced } = useReducedMotion()
@@ -132,6 +158,44 @@ export function GameBeatline({ storageKey }: { storageKey: string }) {
   const lastTsRef = useRef(0)
   const accRef = useRef(0)
   const nextTickRef = useRef(0)
+
+  const setPhase = useCallback((p: Phase) => {
+    phaseRef.current = p
+    setPhaseState(p)
+  }, [])
+
+  const clearCountdown = useCallback(() => {
+    for (const t of countTimers.current) clearTimeout(t)
+    countTimers.current = []
+  }, [])
+
+  /** Back to the start gate (new run, replay, mode switch). */
+  const toReady = useCallback(() => {
+    clearCountdown()
+    setCount(3)
+    setPhase('ready')
+  }, [clearCountdown, setPhase])
+
+  const beginCountdown = useCallback(() => {
+    if (phaseRef.current !== 'ready') return
+    setPhase('countdown')
+    setCount(3)
+    for (let i = 1; i <= 3; i++) {
+      countTimers.current.push(
+        setTimeout(() => {
+          if (i < 3) {
+            setCount(3 - i)
+            return
+          }
+          lastTsRef.current = 0
+          accRef.current = 0
+          setPhase('running')
+        }, i * COUNT_STEP_MS),
+      )
+    }
+  }, [setPhase])
+
+  useEffect(() => clearCountdown, [clearCountdown])
 
   const commit = useCallback((next: BeatlineState) => {
     stateRef.current = next
@@ -196,6 +260,7 @@ export function GameBeatline({ storageKey }: { storageKey: string }) {
     lastTsRef.current = 0
     accRef.current = 0
     commit(g)
+    toReady()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storageKey])
 
@@ -210,14 +275,21 @@ export function GameBeatline({ storageKey }: { storageKey: string }) {
       setPopups([])
       setMissFlashes([])
       commit(g)
+      toReady()
     },
-    [commit],
+    [commit, toReady],
   )
 
   const onNewGame = useCallback(() => {
-    if (mode === 'daily') dispatch({ type: 'reset' })
-    else startRun('practice')
-  }, [mode, dispatch, startRun])
+    if (mode === 'daily') {
+      prevWon.current = false
+      prevLost.current = false
+      setPopups([])
+      setMissFlashes([])
+      dispatch({ type: 'reset' })
+      toReady()
+    } else startRun('practice')
+  }, [mode, dispatch, startRun, toReady])
 
   const switchMode = useCallback(
     (m: Mode) => {
@@ -236,7 +308,7 @@ export function GameBeatline({ storageKey }: { storageKey: string }) {
       if (dt > MAX_FRAME_MS) dt = MAX_FRAME_MS
 
       const s = stateRef.current
-      const paused = !s || s.won || s.lost || s.stageCleared
+      const paused = !s || s.won || s.lost || s.stageCleared || phaseRef.current !== 'running'
       if (!paused) {
         accRef.current += dt
         let target = nextTickRef.current
@@ -258,9 +330,15 @@ export function GameBeatline({ storageKey }: { storageKey: string }) {
 
   const press = useCallback(
     (lane: number) => {
+      // Before the chart runs a lane press starts the count-in instead of costing a life.
+      if (phaseRef.current === 'ready') {
+        beginCountdown()
+        return
+      }
+      if (phaseRef.current !== 'running') return
       dispatch({ type: 'press', lane })
     },
-    [dispatch],
+    [dispatch, beginCountdown],
   )
 
   const continueStage = useCallback(() => {
@@ -282,6 +360,11 @@ export function GameBeatline({ storageKey }: { storageKey: string }) {
         return
       }
       if (key === ' ' || key === 'spacebar' || key === 'enter') {
+        if (phaseRef.current === 'ready' && !s.won && !s.lost) {
+          e.preventDefault()
+          beginCountdown()
+          return
+        }
         if (s.stageCleared) {
           e.preventDefault()
           continueStage()
@@ -293,7 +376,7 @@ export function GameBeatline({ storageKey }: { storageKey: string }) {
         onNewGame()
       }
     },
-    [press, continueStage, onNewGame],
+    [press, continueStage, onNewGame, beginCountdown],
   )
 
   useEffect(() => {
@@ -320,7 +403,9 @@ export function GameBeatline({ storageKey }: { storageKey: string }) {
       ? 'Run over — hit New Game to try again.'
       : state.stageCleared
         ? 'Stage clear! Press to continue.'
-        : 'Press D, F, J, K to hit the falling notes on the judgement line.'
+        : phase === 'ready'
+          ? 'Tap a lane or press Space to start. Then hit D, F, J, K as notes cross the line.'
+          : 'Press D, F, J, K to hit the falling notes on the judgement line.'
 
   const headerExtra = (
     <>
@@ -391,13 +476,13 @@ export function GameBeatline({ storageKey }: { storageKey: string }) {
                 <div
                   aria-hidden="true"
                   className="absolute inset-x-0"
-                  style={{ top: JUDGEMENT_LINE_Y, height: 3, background: 'var(--neon-cyan)', opacity: 0.8 }}
+                  style={{ top: JUDGEMENT_LINE_Y, height: JUDGEMENT_LINE_HEIGHT, background: 'var(--neon-cyan)', opacity: 0.8 }}
                 />
 
                 {/* falling notes */}
                 {laneNotes.map((n) => {
                   const remaining = n.tick - state.tick
-                  const y = JUDGEMENT_LINE_Y - (remaining / TRAVEL_TICKS) * TRACK_HEIGHT
+                  const y = noteTopY(remaining)
                   const opacity = reduced ? 1 : Math.min(1, (TRAVEL_TICKS - remaining) / FADE_IN_TICKS)
                   return (
                     <div
@@ -447,6 +532,28 @@ export function GameBeatline({ storageKey }: { storageKey: string }) {
             )
           })}
         </div>
+
+        {phase === 'ready' && !won && !lost && (
+          <button
+            type="button"
+            data-testid="beatline-start"
+            onPointerDown={beginCountdown}
+            className="btn-press absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 rounded-xl bg-bg/60 text-lg font-bold text-accent backdrop-blur-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset"
+          >
+            <span>Tap to start</span>
+            <span className="text-xs font-semibold text-fg-muted">or press Space</span>
+          </button>
+        )}
+
+        {phase === 'countdown' && (
+          <div
+            aria-live="assertive"
+            data-testid="beatline-countdown"
+            className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-bg/40 text-6xl font-black text-accent"
+          >
+            {count}
+          </div>
+        )}
 
         {state.stageCleared && !won && (
           <button

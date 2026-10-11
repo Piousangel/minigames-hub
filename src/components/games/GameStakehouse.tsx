@@ -5,8 +5,10 @@ import {
   BET_STEP,
   JACKPOT_MULT,
   ROUNDS,
+  TARGET_BANKROLL,
   canCommit,
   createGame,
+  floorToken,
   hotZonePots,
   payoutMultiplier,
   reduce,
@@ -56,6 +58,7 @@ const SOUND: Record<StakehouseEvent, Parameters<ReturnType<typeof useGameSound>[
   jackpot: 'win',
   busted: 'lose',
   complete: 'win',
+  missed: 'lose',
 }
 
 function loadBest(storageKey: string): number {
@@ -78,7 +81,9 @@ function potAriaLabel(pot: Pot, index: number): string {
   const left = remainingCount(pot)
   const mult = payoutMultiplier(pot)
   const payout = mult === null ? 'dead, cannot win' : `${mult.toFixed(2)}x payout`
-  return `Pot ${index + 1}: ${gems} gem${gems === 1 ? '' : 's'}, ${left} left, ${payout}`
+  const floor = floorToken(pot)
+  const floorText = floor === null ? '' : `, floor token ${floor}`
+  return `Pot ${index + 1}: ${gems} gem${gems === 1 ? '' : 's'}, ${left} left, ${payout}${floorText}`
 }
 
 interface JackpotBadge {
@@ -127,6 +132,7 @@ function PotCard({
   const splitPct = (1 - gemFrac) * 100
   const canStep = !disabled && !dead
   const budgetLeft = bankroll - otherBets - bet
+  const floor = floorToken(pot)
 
   return (
     <div
@@ -169,6 +175,29 @@ function PotCard({
       <p className="text-center text-xs text-fg-muted">
         <span className="font-bold text-fg">{gems}</span> gem{gems === 1 ? '' : 's'} /{' '}
         <span className="font-bold text-fg">{total}</span> left
+      </p>
+
+      {/* Face-up floor token (drawn last). The label multiplier ignores it — a
+          dud floor means the next pop is likelier a gem than the label prices. */}
+      <p
+        data-testid="pot-floor"
+        data-floor={floor ?? 'none'}
+        className="flex h-5 items-center gap-1 text-xs text-fg-muted"
+      >
+        {floor === null ? (
+          <span>empty</span>
+        ) : (
+          <>
+            Floor
+            <span
+              aria-hidden="true"
+              className={`inline-block h-3 w-3 rounded-full border ${
+                floor === 'gem' ? 'border-neon-lime bg-neon-lime' : 'border-neon-red bg-neon-red'
+              }`}
+            />
+            <span className={`font-bold ${floor === 'gem' ? 'text-neon-lime' : 'text-neon-red'}`}>{floor}</span>
+          </>
+        )}
       </p>
 
       <div className="flex items-center gap-1.5">
@@ -323,16 +352,22 @@ export function GameStakehouse({ storageKey }: { storageKey: string }) {
       const s = stateRef.current
       if (!s) return
       const n = s.pots.length
+      // DOM focus moves ONLY here (keyboard navigation) — never from an effect,
+      // so loading the board or clicking +/Commit doesn't yank focus to a pot.
+      const moveFocus = (to: number) => {
+        setFocus(to)
+        cardRefs.current[to]?.focus()
+      }
       switch (e.key) {
         case 'ArrowLeft':
         case 'ArrowUp':
           e.preventDefault()
-          setFocus((f) => (f - 1 + n) % n)
+          moveFocus((focus - 1 + n) % n)
           break
         case 'ArrowRight':
         case 'ArrowDown':
           e.preventDefault()
-          setFocus((f) => (f + 1) % n)
+          moveFocus((focus + 1) % n)
           break
         case '+':
         case '=':
@@ -372,11 +407,6 @@ export function GameStakehouse({ storageKey }: { storageKey: string }) {
     [focus, setBet, allIn, clearBets, doCommit, startBoard],
   )
 
-  useEffect(() => {
-    if (!state) return
-    cardRefs.current[focus]?.focus()
-  }, [focus, state])
-
   if (!state) {
     return (
       <div className="mx-auto w-full max-w-160 select-none">
@@ -388,22 +418,26 @@ export function GameStakehouse({ storageKey }: { storageKey: string }) {
 
   const busted = state.phase === 'busted'
   const won = state.phase === 'complete'
-  const terminal = busted || won
+  const missed = state.phase === 'missed'
+  const terminal = busted || won || missed
   const totalPending = state.pendingBets.reduce((a, b) => a + b, 0)
   const hotFlags = hotZonePots(state)
   const lastRound = state.history[state.history.length - 1] ?? null
 
   const hint = won
-    ? `Ran the full ${ROUNDS} rounds — cash out with ${state.bankroll} chips.`
+    ? `Beat the house — cashed out ${state.bankroll} chips (target ${TARGET_BANKROLL}).`
     : busted
       ? 'Busted — New Board to try again.'
-      : 'Split your chips across the jars and Commit — payout tracks the gems still left, live.'
+      : missed
+        ? `Finished with ${state.bankroll} — short of the ${TARGET_BANKROLL}-chip target.`
+        : `Reach ${TARGET_BANKROLL} chips by round ${ROUNDS}. Odds ignore each jar's face-up floor token — a dud floor tilts the next draw your way.`
 
   return (
     <GameShell
       stats={[
         { label: 'Bankroll', value: state.bankroll, testId: 'bankroll', float: true },
         { label: 'Round', value: state.round },
+        { label: 'Target', value: TARGET_BANKROLL },
         { label: 'Best', value: best, testId: 'score' },
       ]}
       onNewGame={startBoard}
@@ -482,13 +516,14 @@ export function GameStakehouse({ storageKey }: { storageKey: string }) {
 
         <GameOverlay
           show={terminal}
-          variant={busted ? 'lose' : 'win'}
-          title={busted ? 'Busted!' : 'House closed!'}
-          testId={busted ? 'game-over' : 'you-win'}
+          variant={won ? 'win' : 'lose'}
+          title={won ? 'Beat the house!' : busted ? 'Busted!' : 'House closed — target missed'}
+          testId={won ? 'you-win' : 'game-over'}
         >
           <div className="flex flex-col items-center gap-1 text-sm">
             <p>
-              Final bankroll <span className="font-bold text-accent">{state.bankroll}</span>
+              Final bankroll <span className="font-bold text-accent">{state.bankroll}</span> / target{' '}
+              {TARGET_BANKROLL}
             </p>
             <p>
               Survived <span className="font-bold text-accent">{state.round}</span> / {ROUNDS} rounds

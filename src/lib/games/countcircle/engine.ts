@@ -255,16 +255,16 @@ export function reduce(state: CountcircleState, action: CountcircleAction): Coun
       if (state.phase !== 'playing') {
         return { ...state, events: { ...emptyEvents(), illegal: true } }
       }
+      // survivors[] holds PHYSICAL seat ids (ascending = circle order), which the
+      // renderer draws at fixed angles. The player and the neighbor trade seats,
+      // but the other occupants are anonymous, so only playerIdx changes — the
+      // array is never reordered. (Swapping ids here used to leave the player
+      // ring frozen while the target ring jumped seats: audit 2026-10-10.)
       const n = state.survivors.length
       const delta = action.dir === 'left' ? -1 : 1
       const otherIdx = ((state.playerIdx + delta) % n + n) % n
-      const newSurvivors = state.survivors.slice()
-      const tmp = newSurvivors[state.playerIdx]
-      newSurvivors[state.playerIdx] = newSurvivors[otherIdx]
-      newSurvivors[otherIdx] = tmp
       return {
         ...state,
-        survivors: newSurvivors,
         playerIdx: otherIdx,
         events: { ...emptyEvents(), moved: true },
       }

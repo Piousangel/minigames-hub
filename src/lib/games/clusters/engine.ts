@@ -4,9 +4,10 @@
  * A "Connections"-style daily grouping puzzle. 16 items sit in a 4×4 grid and
  * secretly form 4 groups of 4. The player selects exactly 4 items and submits:
  * if the four are a whole group, that group locks in (revealed with its name and
- * difficulty tier). A wrong guess costs a life; when a wrong guess holds exactly
- * 3 of a single group the player is told "One away". Four mistakes = loss; all
- * four groups found = win.
+ * difficulty tier). A wrong guess costs a life and keeps the selection; when a
+ * wrong guess holds exactly 3 of a single group the player is told "One away".
+ * Resubmitting a combination that already failed is refused without a charge.
+ * Four mistakes = loss; all four groups found = win.
  *
  * Purity: every function here is pure and total. No timers, no `Date`, and NO
  * `Math.random`. Randomness enters ONLY through an injected `Rng`, and is
@@ -113,7 +114,7 @@ export const BANK: readonly Group[] = [
 
 // -- State -------------------------------------------------------------------
 
-export type LastResult = 'none' | 'correct' | 'wrong' | 'one-away'
+export type LastResult = 'none' | 'correct' | 'wrong' | 'one-away' | 'already-guessed'
 export type Status = 'playing' | 'won' | 'lost'
 
 export interface ClustersState {
@@ -125,6 +126,8 @@ export interface ClustersState {
   lives: number // mistakes remaining; starts at LIVES_START
   status: Status
   guessRows: Tier[][] // one row per submitted guess (tiers of the 4 items) — share grid
+  /** Canonical keys (see guessKey) of wrong guesses already charged a life. */
+  wrongGuesses: string[]
   lastResult: LastResult
 }
 
@@ -196,6 +199,7 @@ export function generateGame(rng: Rng, seed = 0): ClustersState {
     lives: LIVES_START,
     status: 'playing',
     guessRows: [],
+    wrongGuesses: [],
     lastResult: 'none',
   }
 }
@@ -209,6 +213,11 @@ export function createGame(seed: number): ClustersState {
 /** The group (among the four answers) an item belongs to, or undefined. */
 export function groupOfItem(state: ClustersState, item: string): Group | undefined {
   return state.groups.find((g) => g.items.includes(item))
+}
+
+/** Order-independent identity of a 4-item guess. */
+export function guessKey(items: readonly string[]): string {
+  return [...items].sort().join('|')
 }
 
 /** Deterministic left-rotation of the remaining tiles (rng-free "shuffle"). */
@@ -257,6 +266,10 @@ export function reduce(state: ClustersState, action: ClustersAction): ClustersSt
       if (state.status !== 'playing') return state
       if (state.selected.length !== GROUP_SIZE) return { ...state, lastResult: 'none' }
 
+      // The exact same four already failed: say so, keep the selection, no charge.
+      const key = guessKey(state.selected)
+      if (state.wrongGuesses.includes(key)) return { ...state, lastResult: 'already-guessed' }
+
       // How many of the selected items fall into each group?
       const counts = new Map<string, number>()
       const tiers: Tier[] = []
@@ -288,15 +301,17 @@ export function reduce(state: ClustersState, action: ClustersAction): ClustersSt
       }
 
       // Wrong — lose a life. "One away" iff exactly 3 share a single group.
+      // The selection stays put so a "one away" is fixed by swapping one tile.
       const maxInOne = Math.max(...counts.values())
       const lives = state.lives - 1
       const status: Status = lives <= 0 ? 'lost' : 'playing'
       return {
         ...state,
-        selected: [],
+        selected: status === 'playing' ? state.selected : [],
         lives,
         status,
         guessRows: [...state.guessRows, tiers],
+        wrongGuesses: [...state.wrongGuesses, key],
         lastResult: maxInOne === 3 ? 'one-away' : 'wrong',
       }
     }
