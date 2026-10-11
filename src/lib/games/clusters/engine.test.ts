@@ -23,12 +23,27 @@ import {
 /** Submit a full group by name, from any state where its 4 items are on the board. */
 function solveGroupByName(state: ClustersState, name: string): ClustersState {
   const g = state.groups.find((x) => x.name === name)!
-  let s = state
+  // A wrong guess leaves its selection in place, so start from a clean slate.
+  let s = reduce(state, { type: 'deselect' })
   for (const item of g.items) s = reduce(s, { type: 'select', item })
   return reduce(s, { type: 'submit' })
 }
 
 const SEED = 12345
+
+/** Four DISTINCT wrong guesses for SEED (a repeated guess no longer costs a life). */
+const DISTINCT_WRONG: string[][] = [
+  ['Fork', 'Knife', 'Africa', 'Asia'],
+  ['Fork', 'Knife', 'Tango', 'Waltz'],
+  ['Fork', 'Knife', 'Lysine', 'Glycine'],
+  ['Africa', 'Asia', 'Tango', 'Waltz'],
+]
+
+function submitGuess(state: ClustersState, items: string[]): ClustersState {
+  let s = reduce(state, { type: 'deselect' })
+  for (const item of items) s = reduce(s, { type: 'select', item })
+  return reduce(s, { type: 'submit' })
+}
 
 describe('mulberry32', () => {
   it('is deterministic for a fixed seed', () => {
@@ -284,11 +299,7 @@ describe('submit', () => {
     const s = createGame(SEED)
     let n = s
     // lose all four lives with wrong guesses
-    const wrong = ['Fork', 'Knife', 'Africa', 'Asia']
-    for (let i = 0; i < 4; i++) {
-      for (const it of wrong) n = reduce(n, { type: 'select', item: it })
-      n = reduce(n, { type: 'submit' })
-    }
+    for (const wrong of DISTINCT_WRONG) n = submitGuess(n, wrong)
     expect(n.status).toBe('lost')
     const after = reduce(n, { type: 'select', item: 'Fork' })
     expect(after.selected).toEqual([])
@@ -307,11 +318,7 @@ describe('win / lose', () => {
 
   it('four mistakes loses', () => {
     let s = createGame(SEED)
-    const wrong = ['Fork', 'Knife', 'Africa', 'Asia']
-    for (let i = 0; i < 4; i++) {
-      for (const it of wrong) s = reduce(s, { type: 'select', item: it })
-      s = reduce(s, { type: 'submit' })
-    }
+    for (const wrong of DISTINCT_WRONG) s = submitGuess(s, wrong)
     expect(s.status).toBe('lost')
     expect(s.lives).toBe(0)
     expect(mistakes(s)).toBe(4)
@@ -429,5 +436,43 @@ describe('helpers', () => {
     expect(g).toHaveLength(4)
     const items = g.flatMap((x) => x.items)
     expect(new Set(items).size).toBe(16)
+  })
+})
+
+describe('wrong-guess ergonomics (audit 2026-10-10)', () => {
+  it('keeps the selection after a wrong guess so "one away" means swap one tile', () => {
+    let s = createGame(SEED)
+    for (const it of ['Fork', 'Knife', 'Plate', 'Africa']) s = reduce(s, { type: 'select', item: it })
+    s = reduce(s, { type: 'submit' })
+    expect(s.lastResult).toBe('one-away')
+    expect(s.selected).toEqual(['Fork', 'Knife', 'Plate', 'Africa'])
+    // swap the stray tile and resubmit
+    s = reduce(s, { type: 'select', item: 'Africa' })
+    s = reduce(s, { type: 'select', item: 'Spoon' })
+    s = reduce(s, { type: 'submit' })
+    expect(s.lastResult).toBe('correct')
+    expect(s.selected).toEqual([])
+    expect(s.lives).toBe(LIVES_START - 1)
+  })
+
+  it('does not charge a life for resubmitting an already-tried combination', () => {
+    let s = createGame(SEED)
+    s = submitGuess(s, ['Fork', 'Knife', 'Africa', 'Asia'])
+    expect(s.lives).toBe(LIVES_START - 1)
+    // same four, in a different order
+    s = submitGuess(s, ['Asia', 'Africa', 'Knife', 'Fork'])
+    expect(s.lastResult).toBe('already-guessed')
+    expect(s.lives).toBe(LIVES_START - 1)
+    expect(s.guessRows).toHaveLength(1)
+    expect(s.selected).toHaveLength(4)
+  })
+
+  it('a fresh board has no remembered guesses and reset forgets them', () => {
+    let s = createGame(SEED)
+    s = submitGuess(s, ['Fork', 'Knife', 'Africa', 'Asia'])
+    const r = reduce(s, { type: 'reset' })
+    const again = submitGuess(r, ['Fork', 'Knife', 'Africa', 'Asia'])
+    expect(again.lastResult).toBe('wrong')
+    expect(again.lives).toBe(LIVES_START - 1)
   })
 })

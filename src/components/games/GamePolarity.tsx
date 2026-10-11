@@ -437,8 +437,12 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
           }
           return
         case 'r':
-          e.preventDefault()
-          startNew()
+          // Only outside a live run (ready / dead) — R sits next to the flip key F, so a stray R
+          // must not wipe a run (a paused run is still live).
+          if (s.status !== 'running') {
+            e.preventDefault()
+            startNew()
+          }
           return
         case 'Enter':
           // Enter on the focused FLIP button flips (its native click is suppressed there).

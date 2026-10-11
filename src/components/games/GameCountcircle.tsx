@@ -42,6 +42,39 @@ function seatDiameter(total: number): number {
   return 3.4
 }
 
+type EngineDir = 'left' | 'right'
+type ScreenDir = 'left' | 'right' | 'up' | 'down'
+
+/**
+ * Maps screen directions to engine moves for the player's CURRENT seat.
+ * Engine 'left' = previous array index (counter-clockwise), 'right' = next
+ * (clockwise). At the bottom of the ring clockwise points screen-left, so a
+ * fixed key→engine mapping would send ← to the right. Instead ← / → go to the
+ * neighbor that is further left / right on screen (↑ / ↓ likewise by height),
+ * which keeps the arrow labels on the buttons truthful anywhere on the ring.
+ */
+function screenMoves(
+  ccwSeatId: number,
+  cwSeatId: number,
+  total: number,
+): Record<ScreenDir, EngineDir> {
+  const ccw = seatOffset(ccwSeatId, total)
+  const cw = seatOffset(cwSeatId, total)
+  const EPS = 0.01
+  const left: EngineDir = cw.x < ccw.x - EPS ? 'right' : 'left'
+  const up: EngineDir = cw.y < ccw.y - EPS ? 'right' : 'left'
+  const flip = (d: EngineDir): EngineDir => (d === 'left' ? 'right' : 'left')
+  return { left, right: flip(left), up, down: flip(up) }
+}
+
+const DIR_GLYPH: Record<ScreenDir, string> = { left: '←', right: '→', up: '↑', down: '↓' }
+const DIR_LABEL: Record<ScreenDir, string> = {
+  left: 'Move left',
+  right: 'Move right',
+  up: 'Move up',
+  down: 'Move down',
+}
+
 function freshSeed(): number {
   return (Date.now() ^ (Math.random() * 2 ** 31)) >>> 0
 }
@@ -166,7 +199,7 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
 
   /** One tap/keypress starts AND commits the move — no wasted input. */
   const step = useCallback(
-    (dir: 'left' | 'right') => {
+    (dir: EngineDir) => {
       const s = stateRef.current
       if (!s || s.phase === 'over') return
       let next = s
@@ -178,6 +211,19 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
     [commit, play],
   )
 
+  /** Screen direction → engine move, resolved against the latest state. */
+  const stepScreen = useCallback(
+    (dir: ScreenDir) => {
+      const s = stateRef.current
+      if (!s) return
+      const n = s.survivors.length
+      const p = s.playerIdx
+      const moves = screenMoves(s.survivors[(p - 1 + n) % n], s.survivors[(p + 1) % n], s.seats)
+      step(moves[dir])
+    },
+    [step],
+  )
+
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
       if (isTypingTarget(e.target)) return
@@ -186,17 +232,29 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
         case 'a':
         case 'A':
           e.preventDefault()
-          step('left')
+          stepScreen('left')
           break
         case 'ArrowRight':
         case 'd':
         case 'D':
           e.preventDefault()
-          step('right')
+          stepScreen('right')
+          break
+        case 'ArrowUp':
+        case 'w':
+        case 'W':
+          e.preventDefault()
+          stepScreen('up')
+          break
+        case 'ArrowDown':
+        case 's':
+        case 'S':
+          e.preventDefault()
+          stepScreen('down')
           break
       }
     },
-    [step],
+    [stepScreen],
   )
 
   if (!state) {
@@ -213,9 +271,22 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
   const n = survivors.length
   const leftIdx = ((playerIdx - 1) % n + n) % n
   const rightIdx = (playerIdx + 1) % n
-  const leftSeatId = survivors[leftIdx]
-  const rightSeatId = survivors[rightIdx]
+  const ccwSeatId = survivors[leftIdx]
+  const cwSeatId = survivors[rightIdx]
   const playerSeatId = survivors[playerIdx]
+  const moves = screenMoves(ccwSeatId, cwSeatId, seats)
+  /**
+   * Label the two neighbors along whichever screen axis separates them more:
+   * at the bottom/top of the ring that's ← / →, at the sides it's ↑ / ↓ (two
+   * seats stacked vertically can't truthfully be "left" and "right").
+   */
+  const ccwOff = seatOffset(ccwSeatId, seats)
+  const cwOff = seatOffset(cwSeatId, seats)
+  const vertical = Math.abs(cwOff.y - ccwOff.y) > Math.abs(cwOff.x - ccwOff.x) + 0.01
+  const [firstDir, secondDir]: [ScreenDir, ScreenDir] = vertical ? ['up', 'down'] : ['left', 'right']
+  /** Seat ids the first (←/↑) and second (→/↓) screen direction actually move to. */
+  const firstSeatId = moves[firstDir] === 'left' ? ccwSeatId : cwSeatId
+  const secondSeatId = moves[secondDir] === 'left' ? ccwSeatId : cwSeatId
   const targetSeatId = phase === 'playing' ? survivors[target] : null
   const danger = isDanger(state)
   const pct = state.windowTicksTotal > 0 ? state.windowTicks / state.windowTicksTotal : 0
@@ -224,7 +295,7 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
     phase === 'over'
       ? 'Eliminated. Press New Game to try again.'
       : phase === 'idle'
-        ? 'Press ← / → (or tap a side seat) to step around the circle before the count reaches you.'
+        ? 'Press the arrow keys (or tap a marked seat) to step around the circle before the count reaches you.'
         : danger
           ? "That's your seat — move now!"
           : 'Watch the pulsing ring — it marks the seat the count is heading for.'
@@ -257,7 +328,8 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
         >
           {Array.from({ length: seats }, (_, seatId) => {
             const alive = survivorSet.has(seatId)
-            const isButton = phase !== 'over' && (seatId === leftSeatId || seatId === rightSeatId)
+            const isButton = phase !== 'over' && (seatId === firstSeatId || seatId === secondSeatId)
+            const isPlayer = phase !== 'over' && seatId === playerSeatId
             const size = seatDiameter(seats)
             const style: React.CSSProperties = {
               width: `${size}cqw`,
@@ -276,29 +348,45 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
               )
             }
             if (isButton) {
-              const dir = seatId === leftSeatId ? 'left' : 'right'
+              // With 2 survivors both neighbors are the same seat — both keys go there.
+              const both = firstSeatId === secondSeatId
+              const dir: ScreenDir = seatId === firstSeatId ? firstDir : secondDir
+              const engineDir = moves[dir]
+              const glyph = both ? (vertical ? '↕' : '↔') : DIR_GLYPH[dir]
               return (
                 <button
                   key={seatId}
                   type="button"
-                  aria-label={dir === 'left' ? 'Move left' : 'Move right'}
-                  onClick={() => step(dir)}
-                  className="absolute left-0 top-0 rounded-full border-2 border-border bg-surface/90 transition-colors hover:border-neon-cyan/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                  data-seat={seatId}
+                  aria-label={DIR_LABEL[dir]}
+                  onClick={() => step(engineDir)}
+                  // Transparent hit area: at least 44px to tap, but the visible
+                  // seat inside keeps the same size as every other seat so the
+                  // ring stays symmetric.
+                  className="group absolute left-0 top-0 flex items-center justify-center rounded-full bg-transparent focus-visible:outline-none"
                   style={{
                     ...style,
-                    // Seats shrink well under 44px once the circle grows past ~20 —
-                    // keep the tap target floor even as the visual dot stays small.
                     width: `max(${size}cqw, 44px)`,
                     height: `max(${size}cqw, 44px)`,
                   }}
-                />
+                >
+                  <span
+                    aria-hidden="true"
+                    className="flex items-center justify-center rounded-full border-2 border-neon-cyan/60 bg-surface/90 font-bold leading-none text-neon-cyan transition-colors group-hover:border-neon-cyan group-focus-visible:ring-2 group-focus-visible:ring-neon-cyan group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-bg"
+                    style={{ width: `${size}cqw`, height: `${size}cqw`, fontSize: `max(${size * 0.55}cqw, 10px)` }}
+                  >
+                    {glyph}
+                  </span>
+                </button>
               )
             }
             return (
               <span
                 key={seatId}
                 aria-hidden="true"
-                className="absolute left-0 top-0 rounded-full border-2 border-border bg-surface/70"
+                className={`absolute left-0 top-0 rounded-full border-2 ${
+                  isPlayer ? 'border-neon-cyan bg-neon-cyan' : 'border-border bg-surface/70'
+                }`}
                 style={style}
               />
             )
@@ -308,6 +396,8 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
           {phase !== 'over' && playerSeatId !== undefined && (
             <span
               aria-hidden="true"
+              data-testid="player-seat"
+              data-seat={playerSeatId}
               className="pointer-events-none absolute left-0 top-0 rounded-full"
               style={{
                 width: `${seatDiameter(seats) + 2.2}cqw`,

@@ -162,7 +162,15 @@ export interface State {
   status: Status
   moves: number
   chain: number // consecutive clears since the last draw (0 after a draw)
+  chainBonus: number // banked chain points (never decreases; see `score`)
 }
+
+/**
+ * Chain bonus per clear: the k-th card of a chain (k = 1, 2, …) banks
+ * CHAIN_STEP × (k − 1), so a chain of n is worth CHAIN_STEP × n(n−1)/2 on top of
+ * the flat 100/card — "longer chains score much higher" (registry tips/FAQ).
+ */
+export const CHAIN_STEP = 20
 
 // -- Deal --------------------------------------------------------------------
 
@@ -184,7 +192,7 @@ export function deal(rng: Rng): State {
   waste[0].faceUp = true
   const stock = deck.slice(TABLEAU_SIZE + 1)
   for (const c of stock) c.faceUp = false
-  return { tableau, stock, waste, status: 'playing', moves: 0, chain: 0 }
+  return { tableau, stock, waste, status: 'playing', moves: 0, chain: 0, chainBonus: 0 }
 }
 
 export function createGame(seed: number): State {
@@ -288,6 +296,7 @@ export function playCard(state: State, i: number): State {
     waste,
     moves: state.moves + 1,
     chain: state.chain + 1,
+    chainBonus: state.chainBonus + CHAIN_STEP * state.chain,
   }
   return { ...next, status: settledStatus(next) }
 }
@@ -311,13 +320,12 @@ export function drawStock(state: State): State {
 // -- Scoring -----------------------------------------------------------------
 
 /**
- * Higher = better, always a non-negative integer, monotonic as tableau cards
- * are cleared: 100 per cleared card, plus a completion bonus on a win. The
- * chain is a live display stat (it resets on a draw) so it is intentionally NOT
- * folded into the persisted score, which must stay monotonic for the best-score
- * leaderboard.
+ * Higher = better, always a non-negative integer, monotonic over a run:
+ * 100 per cleared card + the banked chain bonus (`chainBonus`, which only ever
+ * grows — a draw resets the live `chain` but never claws points back) + a
+ * completion bonus on a win.
  */
 export function score(state: State): number {
-  const base = clearedCount(state) * 100
+  const base = clearedCount(state) * 100 + (state.chainBonus ?? 0)
   return state.status === 'won' ? base + 500 : base
 }

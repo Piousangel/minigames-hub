@@ -172,6 +172,34 @@ describe('GamePolarity keyboard', () => {
     expect(screen.getByTestId('polarity-state')).toHaveAttribute('data-polarity', 'push')
   })
 
+  it('R restarts only outside a live run — a stray R mid-run (or while paused) is ignored', () => {
+    render(<GamePolarity storageKey={STORAGE_KEY} />)
+    // ready: R is handled (restart → default prevented)
+    expect(fireEvent.keyDown(window, { key: 'r' })).toBe(false)
+    fireEvent.keyDown(window, { key: ' ' })
+    advance(300)
+    expect(screen.queryByText('Tap or press Space to start')).not.toBeInTheDocument()
+    // mid-run: R is left alone and the run survives
+    expect(fireEvent.keyDown(window, { key: 'r' })).toBe(true)
+    advance(50)
+    expect(screen.queryByText('Tap or press Space to start')).not.toBeInTheDocument()
+    // paused (still a live run): R is still ignored
+    fireEvent.keyDown(window, { key: 'p' })
+    expect(fireEvent.keyDown(window, { key: 'r' })).toBe(true)
+    expect(screen.getByTestId('pause-card')).toBeInTheDocument()
+  })
+
+  it('R after game over starts a new run', () => {
+    const { seed } = quickSeed()
+    pinSeed(seed)
+    render(<GamePolarity storageKey={STORAGE_KEY} />)
+    fireEvent.keyDown(window, { key: ' ' })
+    runUntilOver()
+    expect(screen.getByTestId('game-over')).toBeInTheDocument()
+    expect(fireEvent.keyDown(document.body, { key: 'r' })).toBe(false)
+    expect(screen.queryByTestId('game-over')).not.toBeInTheDocument()
+  })
+
   it('Space starts the run even when the header New Run button kept focus', () => {
     render(<GamePolarity storageKey={STORAGE_KEY} />)
     const header = screen.getByRole('button', { name: 'New Run' })

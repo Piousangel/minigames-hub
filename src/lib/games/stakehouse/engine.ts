@@ -8,6 +8,17 @@
  * many gems remain vs. how many tokens remain in that jar — no house trickery,
  * the odds are exactly what's on the label.
  *
+ * THE EDGE (2026-10-10 audit fix): the label multiplier is trimmed below fair
+ * (HOUSE_EDGE), so on counts alone every bet is −EV and "never bet" used to be
+ * optimal (and a guaranteed win). Two changes make the game a game:
+ *  1. Each jar's FLOOR token — the bottom one, drawn last — sits face-up and is
+ *     visible to the player, but the house prices the jar on counts alone. A
+ *     dud on the floor means the next pop comes from a richer pool
+ *     (gems / (left−1)), which turns the jar +EV whenever duds < 10; a gem on
+ *     the floor makes the jar strictly worse than its label.
+ *  2. Completing the run is a WIN only at TARGET_BANKROLL or above; finishing
+ *     short is phase 'missed'. Sitting out every round now loses.
+ *
  * Randomness is consumed ONLY inside `createGame` (jar composition + shuffle).
  * `computeRound` and `reduce` never touch the injected `Rng` — round
  * resolution is a pure pop off an already-shuffled array, which is what makes
@@ -24,6 +35,7 @@ export const HOUSE_EDGE = 0.9 // payout-multiplier shrink factor, see payoutMult
 export const BET_STEP = 5 // stepper click increment
 export const HOT_ZONE_MULT = 3.0 // multiplier at/above which a jar is visually "hot"
 export const JACKPOT_MULT = 5.0 // multiplier at/above which a win is a jackpot event
+export const TARGET_BANKROLL = 150 // finish all ROUNDS at/above this to win (STARTING_BANKROLL alone loses)
 
 export type Rng = () => number // [0,1)
 
@@ -35,7 +47,7 @@ export interface Pot {
   initialSize: number // === POT_SIZE (immutable)
 }
 
-export type Phase = 'betting' | 'busted' | 'complete'
+export type Phase = 'betting' | 'busted' | 'complete' | 'missed' // missed = all rounds played, below TARGET_BANKROLL
 
 export interface RoundResult {
   round: number // 1-based, the round that was just settled
@@ -56,7 +68,8 @@ export type StakehouseEvent =
   | 'even' // commit: totalWinnings === totalBet (incl. 0-bet rounds)
   | 'jackpot' // commit: a winning jar had multiplier >= JACKPOT_MULT (takes priority over win/lose/even)
   | 'busted' // commit transitioned phase to 'busted'
-  | 'complete' // commit transitioned phase to 'complete'
+  | 'complete' // commit transitioned phase to 'complete' (target reached)
+  | 'missed' // commit transitioned phase to 'missed' (all rounds, below target)
 
 export interface StakehouseState {
   seed: number
@@ -145,6 +158,27 @@ export function payoutMultiplier(pot: Pot): number | null {
   const fair = total / gems
   const raw = 1 + (fair - 1) * HOUSE_EDGE
   return Math.round(raw * 100) / 100
+}
+
+/**
+ * The jar's face-up floor token (the bottom one, popped last), or null when
+ * the jar is empty. Public information — the label multiplier ignores it.
+ */
+export function floorToken(pot: Pot): Token | null {
+  return pot.tokens.length ? pot.tokens[0] : null
+}
+
+/**
+ * True chance that the NEXT pop is a gem, using the visible floor token
+ * (what the label multiplier ignores). null when the jar is empty.
+ */
+export function nextGemChance(pot: Pot): number | null {
+  const total = remainingCount(pot)
+  if (total === 0) return null
+  const gems = remainingGems(pot)
+  if (total === 1) return gems
+  const floorGem = floorToken(pot) === 'gem' ? 1 : 0
+  return (gems - floorGem) / (total - 1)
 }
 
 export function canBetPot(pot: Pot): boolean {
@@ -259,7 +293,7 @@ export function reduce(state: StakehouseState, action: StakehouseAction): Stakeh
 
       let phase: Phase
       if (bankrollAfter === 0) phase = 'busted'
-      else if (round === ROUNDS) phase = 'complete'
+      else if (round === ROUNDS) phase = bankrollAfter >= TARGET_BANKROLL ? 'complete' : 'missed'
       else phase = 'betting'
 
       let lastEvent: StakehouseEvent
@@ -267,6 +301,8 @@ export function reduce(state: StakehouseState, action: StakehouseAction): Stakeh
         lastEvent = 'busted'
       } else if (phase === 'complete') {
         lastEvent = 'complete'
+      } else if (phase === 'missed') {
+        lastEvent = 'missed'
       } else {
         const jackpot = outcome.winnings.some(
           (w, i) => w > 0 && (outcome.multipliers[i] ?? 0) >= JACKPOT_MULT,
@@ -300,6 +336,11 @@ export function reduce(state: StakehouseState, action: StakehouseAction): Stakeh
 
 export function isWon(state: StakehouseState): boolean {
   return state.phase === 'complete'
+}
+
+/** The run is over (busted, or all rounds played whether or not the target was hit). */
+export function isOver(state: StakehouseState): boolean {
+  return state.phase !== 'betting'
 }
 
 export function isBusted(state: StakehouseState): boolean {

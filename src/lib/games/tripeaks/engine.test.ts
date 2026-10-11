@@ -3,6 +3,7 @@ import {
   type Card,
   type State,
   type Suit,
+  CHAIN_STEP,
   COVER,
   COVERS,
   TABLEAU_SIZE,
@@ -44,6 +45,7 @@ function mkState(over: Partial<State> = {}): State {
     status: 'playing',
     moves: 0,
     chain: 0,
+    chainBonus: 0,
     ...over,
   }
 }
@@ -414,6 +416,43 @@ describe('score', () => {
     const won = mkState({ status: 'won' }) // 28 cleared
     expect(score(won)).toBe(28 * 100 + 500)
     expect(score(won)).toBeGreaterThan(28 * 100)
+  })
+  // registry.ts promises "longer chains score much higher" (tips + FAQ). The
+  // chain bonus is banked per clear so the score stays monotonic.
+  it('banks a chain bonus that grows with chain length', () => {
+    // Bottom row 18..22 = 6,7,8,9,10; waste top 5 → five consecutive clears.
+    const t = Array.from({ length: TABLEAU_SIZE }, () => null as Card | null)
+    ;[6, 7, 8, 9, 10].forEach((r, k) => (t[18 + k] = c(r, 'S')))
+    t[0] = c(1, 'H', false) // keep the board unwon
+    let s = mkState({ tableau: t, waste: [c(5, 'H')], stock: [c(2, 'C', false)] })
+    const scores: number[] = [score(s)]
+    for (let k = 0; k < 5; k++) {
+      s = playCard(s, 18 + k)
+      scores.push(score(s))
+    }
+    const gains = scores.slice(1).map((v, k) => v - scores[k])
+    // Each successive clear in a chain is worth strictly more than the last.
+    for (let k = 1; k < gains.length; k++) expect(gains[k]).toBeGreaterThan(gains[k - 1])
+    expect(s.chainBonus).toBe(CHAIN_STEP * (0 + 1 + 2 + 3 + 4))
+    expect(scores[5] - scores[0]).toBe(5 * 100 + CHAIN_STEP * 10)
+  })
+  it('a draw resets the chain but never lowers the banked score', () => {
+    const t = Array.from({ length: TABLEAU_SIZE }, () => null as Card | null)
+    t[18] = c(6, 'S')
+    t[19] = c(7, 'S')
+    t[0] = c(1, 'H', false)
+    let s = mkState({ tableau: t, waste: [c(5, 'H')], stock: [c(12, 'C', false)] })
+    s = playCard(s, 18)
+    s = playCard(s, 19)
+    const before = score(s)
+    s = drawStock(s)
+    expect(s.chain).toBe(0)
+    expect(score(s)).toBe(before)
+  })
+  it('one long chain outscores the same clears split by draws', () => {
+    const long = mkState({ tableau: Array(TABLEAU_SIZE).fill(null), chainBonus: CHAIN_STEP * 45 })
+    const split = mkState({ tableau: Array(TABLEAU_SIZE).fill(null), chainBonus: CHAIN_STEP * 20 })
+    expect(score(long)).toBeGreaterThan(score(split))
   })
   it('clearedCount counts removed slots', () => {
     const t = Array.from({ length: TABLEAU_SIZE }, () => null as Card | null)

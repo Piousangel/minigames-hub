@@ -9,7 +9,7 @@
  *
  * Pattern: follows flywheel's continuous-tick shape (`step()` / `tap()` two
  * pure entry points + an `events` snapshot), not decant's single `reduce`,
- * because Offbeat is "always-flowing pulse + 1 tick/frame + input any time" —
+ * because Offbeat is "always-flowing pulse + 1 tick per fixed 60Hz step + input any time" —
  * much closer to flywheel's timing-governor shape than to a turn-based
  * reducer.
  *
@@ -170,7 +170,11 @@ export function newGame(seed: number, horizon: number = SCHEDULE_HORIZON): Offbe
   }
 }
 
-/** Advance exactly one tick. The component's contract: call once per rAF frame. */
+/**
+ * Advance exactly one tick. The component's contract: call once per fixed 60Hz
+ * tick (accumulator in GameOffbeat), never once per display frame — otherwise a
+ * 120Hz screen doubles the tempo and halves the judging window in ms.
+ */
 export function step(state: OffbeatState): OffbeatState {
   if (state.over) return { ...state, events: NO_EVENTS }
 

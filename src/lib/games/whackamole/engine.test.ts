@@ -1,14 +1,18 @@
 import { describe, expect, it } from 'vitest'
 import {
+  accuracy,
   activateHole,
   emptyHoles,
   GRID_SIZE,
   HOLES,
   hideMole,
+  MISS_PENALTY_MS,
+  moleLife,
   newGame,
   pickHole,
   popMole,
   ROUND_MS,
+  spawnDelay,
   tickTime,
   whack,
   type WhackState,
@@ -149,5 +153,114 @@ describe('tickTime', () => {
   it('over 상태에서는 시간이 더 줄지 않는다', () => {
     const s = S({ over: true, timeLeft: 0 })
     expect(tickTime(s, 1000)).toBe(s)
+  })
+})
+
+describe('헛스윙 패널티 (registry/gameIntros: 빈 구멍 연타는 시간을 잃는다)', () => {
+  it('빈 구멍을 때리면 MISS_PENALTY_MS만큼 시간이 줄어든다', () => {
+    const { state } = whack(S({ timeLeft: 10_000 }), 0)
+    expect(state.misses).toBe(1)
+    expect(state.timeLeft).toBe(10_000 - MISS_PENALTY_MS)
+    expect(state.over).toBe(false)
+  })
+
+  it('패널티로 시간이 바닥나면 라운드가 끝난다', () => {
+    const { state } = whack(S({ timeLeft: MISS_PENALTY_MS - 1, moles: [true, ...Array<boolean>(HOLES - 1).fill(false)] }), 4)
+    expect(state.timeLeft).toBe(0)
+    expect(state.over).toBe(true)
+    expect(state.moles.some(Boolean)).toBe(false)
+  })
+
+  it('적중은 시간을 깎지 않는다', () => {
+    const { state } = whack(S({ timeLeft: 10_000, moles: [true, ...Array<boolean>(HOLES - 1).fill(false)] }), 0)
+    expect(state.timeLeft).toBe(10_000)
+  })
+
+  it('accuracy = 적중 / (적중 + 헛스윙), 스윙이 없으면 null', () => {
+    expect(accuracy(S())).toBeNull()
+    expect(accuracy(S({ score: 3, misses: 1 }))).toBe(0.75)
+  })
+})
+
+/**
+ * 컴포넌트와 같은 스케줄(spawnDelay/moleLife, 80ms 틱)로 한 라운드를 결정적으로 돌린다.
+ * policy는 매 틱 (상태, 두더지가 올라온 뒤 경과 ms) → 때릴 구멍 목록을 돌려준다.
+ */
+function simulate(
+  policy: (s: WhackState, upFor: number[], t: number) => number[],
+  seed: number,
+  penaltyMs = MISS_PENALTY_MS,
+): WhackState {
+  let a = seed >>> 0
+  const rng = () => {
+    a = (a + 0x6d2b79f5) >>> 0
+    let t = a
+    t = Math.imul(t ^ (t >>> 15), t | 1)
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61)
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+  const TICK = 80
+  let s = newGame()
+  const deadlines = Array<number>(HOLES).fill(0)
+  const poppedAt = Array<number>(HOLES).fill(0)
+  let nextSpawn = 300
+  for (let t = TICK; !s.over && t < 120_000; t += TICK) {
+    s = tickTime(s, TICK)
+    if (s.over) break
+    for (let h = 0; h < HOLES; h++) {
+      if (s.moles[h] && t >= deadlines[h]) s = hideMole(s, h)
+    }
+    const progress = 1 - s.timeLeft / ROUND_MS
+    if (t >= nextSpawn) {
+      const popped = popMole(s, rng)
+      for (let h = 0; h < HOLES; h++) {
+        if (popped.moles[h] && !s.moles[h]) {
+          deadlines[h] = t + moleLife(progress)
+          poppedAt[h] = t
+        }
+      }
+      s = popped
+      nextSpawn = t + spawnDelay(progress)
+    }
+    const upFor = s.moles.map((up, h) => (up ? t - poppedAt[h] : -1))
+    for (const h of policy(s, upFor, t)) {
+      s = whack(s, h, penaltyMs).state
+      if (s.over) break
+    }
+  }
+  return s
+}
+
+/** 화면을 보지 않고 9개 구멍을 차례로 연타한다(80ms마다 1번 — 초당 12.5회). */
+const masher = () => {
+  let i = 0
+  return () => [i++ % HOLES]
+}
+/** 두더지가 올라오고 350ms 뒤(평균적인 반응 속도)에 그 구멍만 친다. */
+const reactive = () => (_s: WhackState, upFor: number[]) =>
+  upFor.flatMap((ms, h) => (ms >= 350 ? [h] : []))
+
+describe('밸런스: 연타는 지배 전략이 아니다', () => {
+  const SEEDS = Array.from({ length: 200 }, (_, i) => i + 1)
+  const avg = (f: (seed: number) => number) => SEEDS.reduce((acc, sd) => acc + f(sd), 0) / SEEDS.length
+
+  it('(근거) 패널티가 없으면 연타가 반응 플레이와 맞먹는다 — 감사 지적 재현', () => {
+    const mash = avg((sd) => simulate(masher(), sd, 0).score)
+    const react = avg((sd) => simulate(reactive(), sd, 0).score)
+    expect(mash).toBeGreaterThanOrEqual(react * 0.85)
+  })
+
+  it('패널티가 있으면 연타 점수는 반응 플레이의 절반에도 못 미친다', () => {
+    const mash = avg((sd) => simulate(masher(), sd).score)
+    const react = avg((sd) => simulate(reactive(), sd).score)
+    expect(react).toBeGreaterThan(15)
+    expect(mash).toBeLessThan(react * 0.5)
+  })
+
+  it('반응 플레이는 헛스윙이 없어 30초를 다 쓴다', () => {
+    for (const sd of SEEDS.slice(0, 20)) {
+      const s = simulate(reactive(), sd)
+      expect(s.misses).toBe(0)
+    }
   })
 })

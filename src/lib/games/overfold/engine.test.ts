@@ -405,3 +405,70 @@ describe('generateBoard — snapshot across seeds', () => {
     expect(shape(7, 6)).toMatchSnapshot()
   })
 })
+
+describe('jams are a failure, not a shortcut (audit 2026-10-10)', () => {
+  function fresh(b: Board, par: number): GameState {
+    return {
+      board: b,
+      par,
+      foldsUsed: 0,
+      foldBudget: par + FOLD_SLACK,
+      unfoldsLeft: UNFOLD_POOL,
+      score: 0,
+      seed: 1,
+      mode: 'random',
+      level: 1,
+      solution: [],
+      history: [],
+      won: false,
+      lost: false,
+    }
+  }
+
+  it('isWon is false when a JAM remains even with zero pips', () => {
+    expect(isWon(board(1, 1, [JAM]))).toBe(false)
+    expect(isWon(board(2, 1, [EMPTY, JAM]))).toBe(false)
+    expect(isWon(board(1, 1, [EMPTY]))).toBe(true)
+  })
+
+  it('clearing pips by jamming them is a loss, and undo can recover', () => {
+    const s = fresh(board(2, 1, [1, 2]), 1)
+    const { state } = fold(s, { axis: 'v', index: 1, prefer: 'low' })
+    expect(pipCount(state.board)).toBe(0)
+    expect(state.won).toBe(false)
+    expect(state.lost).toBe(true)
+    const back = undo(state)
+    expect(back.lost).toBe(false)
+    expect(back.board.cells).toEqual([1, 2])
+  })
+
+  it('a jam formed early ends the run immediately (it can never be removed)', () => {
+    // 3x1: folding col 0 onto col 1 jams 1 vs 2, a pip pair (3,3)… still remains elsewhere.
+    const s = fresh(board(4, 1, [1, 2, 3, 3]), 3)
+    const { state } = fold(s, { axis: 'v', index: 1, prefer: 'low' })
+    expect(state.board.cells).toContain(JAM)
+    expect(state.lost).toBe(true)
+  })
+
+  it('random folding no longer clears boards (win rate ≪ old 99.75%)', () => {
+    let wins = 0
+    let runs = 0
+    for (let seed = 0; seed < 100; seed++) {
+      for (let level = 1; level <= 10; level++) {
+        const pick = mulberry32(seed * 1000 + level)
+        let s = newGame(mulberry32(seed), 'random', seed, level)
+        let guard = 0
+        while (!s.won && !s.lost && guard++ < 50) {
+          const cs = legalCreases(s.board)
+          const c = cs[Math.floor(pick() * cs.length)]
+          s = fold(s, { axis: c.axis, index: c.index, prefer: pick() < 0.5 ? 'low' : 'high' }).state
+        }
+        runs++
+        if (s.won) wins++
+      }
+    }
+    // Every generated solution path is jam-free, so the par replay must still win (covered above);
+    // but blind folding should now fail the large majority of the time.
+    expect(wins / runs).toBeLessThan(0.35)
+  })
+})

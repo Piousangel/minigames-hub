@@ -432,7 +432,7 @@ export const gamePages: GamePage[] = [
       'Type any valid 5-letter word and press Enter to make a guess.',
       'Green means a letter is correct and in the right spot; yellow means it is in the word but a different spot; gray means it is not in the word.',
       'Use the colour clues — mirrored on the on-screen keyboard — to narrow down the answer.',
-      'You have six guesses to find the word. A new word is picked every game.',
+      'You have six guesses to find the word. Daily mode has one word per day for everyone (one attempt, it resumes if you leave); Practice deals a fresh random word every game.',
     ],
     strategy: [
       'Open with a word rich in common vowels and consonants (like "crane" or "slate") to light up as many clues as possible.',
@@ -444,7 +444,7 @@ export const gamePages: GamePage[] = [
     faq: [
       { q: 'How many guesses do I get?', a: 'Six. Each guess must be a valid five-letter word, and the colour clues tell you how close you are.' },
       { q: 'How do I play on mobile?', a: 'Tap the on-screen keyboard to type your guess and press Enter. Everything works by touch.' },
-      { q: 'Is there a new word each time?', a: 'Yes. Every game picks a fresh hidden word, so you can play as many rounds as you like.' },
+      { q: 'Is there a new word each time?', a: 'The Daily word changes once a day and can be played once. Practice mode picks a fresh hidden word every game, so you can play as many rounds as you like.' },
     ],
   },
   {
@@ -595,6 +595,7 @@ export const gamePages: GamePage[] = [
       'Moles pop up from the holes at random — click or tap them to score.',
       'Each mole only stays up for a moment, so be quick.',
       'The game speeds up as time runs out. Score as many hits as you can.',
+      'Whacking an empty hole costs you 1 second.',
     ],
     strategy: [
       'Keep your cursor or finger near the centre so you can reach any hole fast.',
@@ -604,7 +605,7 @@ export const gamePages: GamePage[] = [
       'As the pace ramps up near the end, focus on clean hits over frantic tapping.',
     ],
     faq: [
-      { q: 'How long is a round?', a: 'Thirty seconds. Score as many mole hits as you can before the timer runs out.' },
+      { q: 'How long is a round?', a: 'Thirty seconds, minus 1 second for every empty hole you whack. Score as many mole hits as you can before the timer runs out.' },
       { q: 'How do I play on mobile?', a: 'Just tap the moles as they pop up. The whole game works by touch.' },
       { q: 'Does it save my best score?', a: 'Yes. Your best score is stored in your browser between games on the same device.' },
     ],
@@ -1193,12 +1194,12 @@ export const gamePages: GamePage[] = [
       'Look for cells already near capacity next to other near-full cells — one tap can start a rolling chain.',
       'Centre cells reach more neighbours, so a well-placed centre overload spreads furthest.',
       'Set up a cascade rather than spending taps one at a time; the combo multiplier rewards big chains.',
-      'Aim to clear the whole board in a run for the Perfect Storm bonus.',
+      'Set off the Storm count of overloads (36 on board 1, rising each board) in ONE tap for the Perfect Storm bonus.',
       'Spend your last taps to trigger the biggest possible single cascade.',
     ],
     faq: [
       { q: 'What happens when a cell overloads?', a: 'It resets to zero and sends one charge to each orthogonal neighbour at once; any neighbour that reaches capacity then overloads too, chaining across the board.' },
-      { q: 'How many taps do I get?', a: 'Puzzle mode gives you 12 taps per board, and a Perfect Storm pays 500 points plus 50 for every tap you still have. Endless mode starts you with 10 taps and adds 5 more after each Perfect Storm.' },
+      { q: 'How many taps do I get?', a: 'Puzzle mode gives you 9 taps on the first boards, dropping to 7 on later boards, and a Perfect Storm pays 500 points plus 50 for every tap you still have. Endless mode starts you with 10 taps and adds 5 more after each Perfect Storm.' },
       { q: 'How do I score high?', a: 'Trigger long cascades — each overload in a single chain raises the combo multiplier, so one perfect tap can sweep the grid.' },
     ],
   },
@@ -1349,12 +1350,12 @@ export const gamePages: GamePage[] = [
       'The paper grid holds colored pips, each colour in a matching pair.',
       'Tap a crease between two rows or columns to fold the smaller flap over the rest.',
       'Where a pip lands on a matching pip, both seal and score; several seals in one fold combo.',
-      'Different colours colliding jam a cell permanently. The board is solved when no pips remain — sealed or jammed.',
+      'Different colours colliding jam a cell permanently — and a jam ends the board (Unfold to take it back). The board is solved only when every pair has sealed.',
     ],
     strategy: [
       'Every fold shrinks the paper permanently, so plan the order — the board only gets smaller.',
       'Line up matching pips to land on each other, and try to seal several in a single fold.',
-      'Avoid folding different colours onto each other; a jam blocks that cell for good.',
+      'Avoid folding different colours onto each other; a jam can never be cleared, so it ends the board unless you Unfold it.',
       'Use Unfold sparingly to recover from a bad fold — you get only three per board.',
       'Every board is solvable within its par fold count; chase a cleaner solve each retry.',
     ],
@@ -2537,18 +2538,19 @@ export const gamePages: GamePage[] = [
       'Each of the four jars starts full of gem and dud tokens, and you can see exactly how many of each remain at all times.',
       'Before each round, spread your bankroll across as many jars as you like — the smaller the share of gems left in a jar, the higher its payout multiplier.',
       "Commit the round and all four jars draw one token at once, whether you bet on them or not: a gem pays your stake at that jar's multiplier, a dud takes your bet.",
-      'Survive 12 rounds with bankroll left to complete the run — hit zero and the run ends.',
+      'Finish all 12 rounds with at least 150 chips to beat the house — end below that and the run is lost, hit zero and it ends early.',
+      "Each jar's bottom token — the last one it will draw — sits face-up. The payout ignores it: a dud on the floor means the next draw is likelier a gem than the label suggests.",
     ],
     strategy: [
-      'A jar with a low share of gems pays big because it will usually miss — multipliers are set slightly below fair odds, so no jar is free money.',
+      'Multipliers are set slightly below fair odds on the counts alone — your edge is the face-up floor token. Back jars with a dud on the floor, avoid jars with a gem there.',
       'Spreading bets across jars smooths your variance; going all-in on one jar is higher risk for a higher single payout.',
       'Watch the odds shift every round — a jar that looked safe early can turn into the best, or worst, bet later.',
-      'Sitting a round out with no bet is always valid — sometimes the best move is to wait for better odds.',
+      'Sitting a round out is valid, but sitting out the whole run can never reach the 150-chip target.',
     ],
     faq: [
       { q: 'How do you play Stakehouse?', a: 'Split your bankroll across four jars before each round. When you commit, all four jars draw one token — on the jars you bet on, a gem pays out and a dud costs you the bet.' },
-      { q: 'How do I know the odds?', a: 'Every jar shows its exact remaining gem and dud count, and its payout multiplier is always visible before you bet. Multipliers come from those counts, trimmed slightly below a fair payout.' },
-      { q: 'What happens if I lose all my bankroll?', a: 'Hitting zero bankroll ends the run immediately. Survive all 12 rounds with bankroll remaining to complete it.' },
+      { q: 'How do I know the odds?', a: 'Every jar shows its exact remaining gem and dud count, and its payout multiplier is always visible before you bet. Multipliers come from those counts, trimmed slightly below a fair payout. The one thing the multiplier ignores is each jar\'s face-up floor token.' },
+      { q: 'What happens if I lose all my bankroll?', a: 'Hitting zero bankroll ends the run immediately. Finish all 12 rounds with at least 150 chips to win; finishing below that counts as a loss.' },
     ],
   },
   {
@@ -2612,7 +2614,7 @@ export const gamePages: GamePage[] = [
       'Play Offbeat free online — an inverted rhythm game where you tap the silent gap between beats, not the beat itself. Survive as the pulse speeds up. No download, no sign-up.',
     shortDescription: 'Tap the silence between the beats, not the beats.',
     howToPlay: [
-      'A steady pulse fires and speeds up every cycle — watch the ring fill between each pulse.',
+      'Tap the ring or press Space to start. A steady pulse then fires and speeds up every cycle — watch the ring fill between each pulse.',
       'Tap exactly halfway between two pulses, the silent gap — not on the pulse itself.',
       'Tapping on a pulse, too early, too late, or missing a pulse entirely costs one of your three lives.',
       'A close tap scores Good, a dead-centre tap scores Perfect and builds your combo. The run ends when you run out of lives.',
@@ -2641,7 +2643,7 @@ export const gamePages: GamePage[] = [
       'Set your throw power and angle, then release — your stone slides and slows down under friction as it travels up the sheet.',
       'Stones bounce off each other realistically, so a well-placed throw can knock obstacle stones out of the house or into position.',
       'Your score is the house count — if your stone is closest to the button, each of your stones closer than the nearest obstacle stone scores 1–3 points by ring.',
-      'Use all your shots, or bank early for a bonus on any you skip. Reach the target score to win.',
+      'Use all your shots, or bank early for a bonus on any you skip. Win by reaching the target with your house count alone — the bank bonus adds to your score but never counts toward it.',
     ],
     strategy: [
       'A stone deep in the house is safer than one on the edge — closer beats farther when counting control of the centre.',
@@ -2902,6 +2904,7 @@ export const gamePages: GamePage[] = [
       'The ball bounces off the board edges and any walls in its path, slowing down every tick under rolling friction.',
       'Watch where it comes to rest — landing inside the target circle wins the board.',
       'Not happy with a shot? Undo it (a limited number of times) and try a different angle or power.',
+      'You have par + 3 shots per board — run out without sinking it and the board is lost.',
     ],
     strategy: [
       'Think in bounces, not straight lines — a wall in the way is often the fastest path to the target, not an obstacle to avoid.',
@@ -2911,7 +2914,7 @@ export const gamePages: GamePage[] = [
     ],
     faq: [
       { q: 'How do you play Bankshot?', a: 'Drag from the launch point to set angle and power (or use the steppers / keyboard), then fire. The ball bounces off walls and slows under friction until it stops.' },
-      { q: 'What happens if I miss?', a: 'You can undo a limited number of shots to retry, or just fire again — there is no shot limit, only a cap on undos.' },
+      { q: 'What happens if I miss?', a: 'Fire again, or undo a limited number of shots. Each board allows par + 3 shots; miss with the last one and the board is lost.' },
       { q: 'Can I play a fresh puzzle every day?', a: 'Yes — Daily mode gives everyone the same seeded board each day, with a streak counter for playing on consecutive days. Practice mode gives you a fresh random board at any difficulty.' },
     ],
   },

@@ -28,6 +28,40 @@ type Difficulty = 'easy' | 'normal' | 'hard'
 
 /** Streak lives under its own key — best:<slug> holds a plain number for the leaderboard. */
 const DAILY_KEY = 'bearing:daily'
+/**
+ * UTC date of the last daily board that reached an end (won OR lost). Only the first
+ * finish of the day counts toward streak/best — a loss reveals the target, so a retry
+ * (or a replay after a win) on the same seed is practice, not a record.
+ */
+const DAILY_DONE_KEY = 'bearing:daily-done'
+
+function loadDailyDone(): string | null {
+  try {
+    return localStorage.getItem(DAILY_DONE_KEY)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Has the daily board dealt on `boardDate` already been finished? Saves from before
+ * DAILY_DONE_KEY existed only know about a win through the streak's lastDate, so fall
+ * back to that while the key is absent (once written, the key is authoritative — the
+ * streak date can run a day ahead when a board is finished after UTC midnight).
+ */
+function isDailyDone(boardDate: string): boolean {
+  const done = loadDailyDone()
+  if (done !== null) return done >= boardDate
+  return loadStreak(DAILY_KEY)?.lastDate === boardDate
+}
+
+function saveDailyDone(date: string): void {
+  try {
+    localStorage.setItem(DAILY_DONE_KEY, date)
+  } catch {
+    // ignore storage failures
+  }
+}
 
 /** Practice-only fresh seed. Impure by design — never used for the daily board. */
 function freshSeed(): number {
@@ -83,12 +117,17 @@ export function GameBearing({ storageKey }: { storageKey: string }) {
   const [best, setBest] = useState(0)
   const [isBest, setIsBest] = useState(false)
   const [streak, setStreak] = useState(0)
+  /** True while playing a daily board that was already finished today (not counted). */
+  const [dailyReplay, setDailyReplay] = useState(false)
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reduced } = useReducedMotion()
 
   const stateRef = useRef<BearingState | null>(null)
   const modeRef = useRef<Mode>('daily')
+  /** UTC date whose seed built the current daily board — a board started before midnight
+   *  and finished after it still belongs to the day it was dealt. */
+  const boardDateRef = useRef('')
   const prevOver = useRef(false)
   const cellRefs = useRef<(HTMLButtonElement | null)[]>([])
 
@@ -102,7 +141,10 @@ export function GameBearing({ storageKey }: { storageKey: string }) {
     setBest(loadBest(storageKey))
     setStreak(currentStreak(loadStreak(DAILY_KEY)))
     modeRef.current = 'daily'
-    const g = createGame(DAILY_CONFIG, engineDailySeed(todayUTC()))
+    const today = todayUTC()
+    boardDateRef.current = today
+    setDailyReplay(isDailyDone(today))
+    const g = createGame(DAILY_CONFIG, engineDailySeed(today))
     prevOver.current = false
     commit(g)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -111,9 +153,12 @@ export function GameBearing({ storageKey }: { storageKey: string }) {
   const startBoard = useCallback(
     (nextMode: Mode, diff: Difficulty) => {
       modeRef.current = nextMode
+      const today = todayUTC()
+      if (nextMode === 'daily') boardDateRef.current = today
+      setDailyReplay(nextMode === 'daily' && isDailyDone(today))
       const g =
         nextMode === 'daily'
-          ? createGame(DAILY_CONFIG, engineDailySeed(todayUTC()))
+          ? createGame(DAILY_CONFIG, engineDailySeed(today))
           : createGame(DIFFICULTIES[diff], freshSeed())
       prevOver.current = false
       setIsBest(false)
@@ -124,6 +169,17 @@ export function GameBearing({ storageKey }: { storageKey: string }) {
 
   const persistOver = useCallback(
     (next: BearingState) => {
+      if (modeRef.current === 'daily') {
+        const boardDate = boardDateRef.current
+        if (isDailyDone(boardDate)) {
+          // Already finished today's daily — this run is practice: no best, no streak, and
+          // no Win% entry (after a loss the target was revealed, so the retry is a sure win).
+          setDailyReplay(true)
+          setIsBest(false)
+          return
+        }
+        saveDailyDone(boardDate)
+      }
       const prevBest = loadBest(storageKey)
       const beatBest = next.score > 0 && next.score > prevBest
       setIsBest(beatBest)
@@ -207,9 +263,9 @@ export function GameBearing({ storageKey }: { storageKey: string }) {
   }, [state])
 
   const onNewGame = useCallback(() => {
-    if (mode === 'daily') dispatch({ type: 'reset' })
-    else startBoard('practice', difficulty)
-  }, [mode, difficulty, dispatch, startBoard])
+    // Daily replays go through startBoard so the "already finished today" flag refreshes.
+    startBoard(mode, difficulty)
+  }, [mode, difficulty, startBoard])
 
   const switchMode = useCallback(
     (m: Mode) => {
@@ -252,7 +308,9 @@ export function GameBearing({ storageKey }: { storageKey: string }) {
     ? 'Found it!'
     : lost
       ? `Out of shovels — it was at row ${state.target.y + 1}, col ${state.target.x + 1}.`
-      : 'Dig anywhere — the compass tells you which way to go, never how far.'
+      : dailyReplay && mode === 'daily'
+        ? "Today's daily is done — this replay is practice and won't count."
+        : 'Dig anywhere — the compass tells you which way to go, never how far.'
 
   const headerExtra = (
     <>
@@ -388,14 +446,17 @@ export function GameBearing({ storageKey }: { storageKey: string }) {
               Digs <span className="font-bold text-accent">{state.digsUsed}</span> / Par{' '}
               <span className="font-bold text-accent">{state.par}</span>
             </p>
-            {mode === 'daily' && (
+            {mode === 'daily' && dailyReplay && (
+              <p className="text-fg-muted">Replay — not counted toward streak, best or stats.</p>
+            )}
+            {mode === 'daily' && !dailyReplay && (
               <p>
                 Streak <span className="font-bold text-accent">{streak}</span>
               </p>
             )}
           </div>
           <div className="flex flex-wrap justify-center gap-2">
-            {mode === 'daily' && (
+            {mode === 'daily' && !dailyReplay && (
               <DailyShareButton
                 payload={() => {
                   const used = state.digsUsed

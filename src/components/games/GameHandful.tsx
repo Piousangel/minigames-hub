@@ -51,10 +51,30 @@ function loadDaily(): DailyStreak | undefined {
   return undefined
 }
 
+/**
+ * Scoring v2 (g² hand value + size-proportional combo). Bests recorded under v1
+ * came from the "always grab 1" exploit (~368 avg vs ~50 now) and could never
+ * be beaten again, so a v1 best is dropped once. The daily streak is kept.
+ */
+const SCORING_KEY = 'handful:scoring'
+const SCORING_VERSION = '2'
+
+function migrateScoring(storageKey: string): void {
+  try {
+    if (localStorage.getItem(SCORING_KEY) === SCORING_VERSION) return
+    localStorage.removeItem(storageKey)
+    localStorage.setItem(SCORING_KEY, SCORING_VERSION)
+  } catch {
+    // ignore storage failures
+  }
+}
+
 function loadSave(storageKey: string): HandfulSave {
+  migrateScoring(storageKey)
   try {
     const raw = localStorage.getItem(storageKey)
-    if (!raw) return { score: 0 }
+    // No best yet (or dropped by migrateScoring) — the streak lives in its own key.
+    if (!raw) return { score: 0, daily: loadDaily() }
     const n = Number(raw)
     if (Number.isFinite(n)) return { score: Math.max(0, Math.floor(n)), daily: loadDaily() }
     const o = JSON.parse(raw) as Record<string, unknown>

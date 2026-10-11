@@ -13,6 +13,7 @@ import {
   mulberry32,
   reduce,
   tallyValueCounts,
+  type Decision,
   type GraspConfig,
   type GraspState,
 } from './engine'
@@ -141,7 +142,7 @@ describe('golden scenario B — same seed=1, always release', () => {
       cursor: 20,
       over: true,
       cleared: true,
-      score: 300,
+      score: 215, // CLEAR_BONUS 200 + full margin MARGIN_BONUS_MAX 15
       lastEvent: 'cleared',
     })
   })
@@ -292,6 +293,69 @@ describe('currentCard', () => {
 describe('CLEAR_BONUS / MARGIN_BONUS_MAX constants sanity', () => {
   it('are the documented values', () => {
     expect(CLEAR_BONUS).toBe(200)
-    expect(MARGIN_BONUS_MAX).toBe(100)
+    expect(MARGIN_BONUS_MAX).toBe(15)
+  })
+})
+
+// -- Balance regression (audit 2026-10-10: "release everything" scored the max) --
+//
+// The per-grasp margin-bonus loss (MARGIN_BONUS_MAX * gaugeStep / gaugeMax) used
+// to be 17/13/10 on Easy/Normal/Hard — larger than the best card (5/6/7) — so
+// every grasp lowered the final score and releasing all cards (300) dominated.
+
+describe('balance: releasing everything is not the dominant strategy', () => {
+  type Policy = (s: GraspState) => Decision
+
+  /** Grasps still affordable without capping (the last card may take the capping grasp). */
+  const affordable = (s: GraspState) =>
+    maxGrasps(s.config) - 1 - s.graspCount + (s.cursor === s.deck.length - 1 ? 1 : 0)
+
+  const releaseAll: Policy = () => 'release'
+  /** Grasp only top-value cards while it cannot cap. */
+  const topOnly: Policy = (s) =>
+    affordable(s) > 0 && currentCard(s) === s.config.valueMax ? 'grasp' : 'release'
+  /** Count-aware: grasp a card if fewer strictly-better cards remain than affordable grasps. */
+  const counting: Policy = (s) => {
+    const v = currentCard(s)!
+    const left = affordable(s)
+    if (left <= 0 || v <= 2) return 'release'
+    let better = 0
+    for (let x = v + 1; x <= s.config.valueMax; x++) better += s.valueCounts[x - 1]
+    return better < left ? 'grasp' : 'release'
+  }
+
+  const play = (cfg: GraspConfig, seed: number, p: Policy) => {
+    let s = createGame(cfg, seed)
+    while (!s.over) s = reduce(s, { type: 'decide', decision: p(s) })
+    return s.score
+  }
+
+  it('a single grasp of the best card always beats releasing it (margin loss < card value)', () => {
+    for (const cfg of Object.values(DIFFICULTIES)) {
+      const worstLoss = Math.ceil((MARGIN_BONUS_MAX * cfg.gaugeStep) / cfg.gaugeMax)
+      expect(worstLoss).toBeLessThan(cfg.valueMax)
+    }
+  })
+
+  it('grasping only top cards beats releasing everything on every seed', () => {
+    for (const cfg of Object.values(DIFFICULTIES)) {
+      for (let seed = 0; seed < 300; seed++) {
+        expect(play(cfg, seed, topOnly)).toBeGreaterThan(play(cfg, seed, releaseAll))
+      }
+    }
+  })
+
+  it('a count-aware player out-scores release-all by a clear margin on average', () => {
+    for (const cfg of Object.values(DIFFICULTIES)) {
+      let smart = 0
+      let passive = 0
+      const n = 500
+      for (let i = 0; i < n; i++) {
+        const seed = (i * 2654435761) >>> 0
+        smart += play(cfg, seed, counting)
+        passive += play(cfg, seed, releaseAll)
+      }
+      expect(smart / n - passive / n).toBeGreaterThan(8)
+    }
   })
 })

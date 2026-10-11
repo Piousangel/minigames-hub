@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import {
-  COMBO_UNIT,
   DIFFICULTIES,
+  START_SIZE,
+  comboBonus,
   type HandfulConfig,
   type HandfulState,
   type Item,
@@ -79,9 +80,9 @@ describe('handValue', () => {
   it('matches triangular numbers', () => {
     expect(handValue(0)).toBe(0)
     expect(handValue(1)).toBe(1)
-    expect(handValue(2)).toBe(3)
-    expect(handValue(3)).toBe(6)
-    expect(handValue(4)).toBe(10)
+    expect(handValue(2)).toBe(4)
+    expect(handValue(3)).toBe(9)
+    expect(handValue(4)).toBe(16)
   })
 
   it('is strictly increasing and integral over 1..8', () => {
@@ -159,7 +160,11 @@ describe('createGame', () => {
     expect(s.lastEvent).toBe('none')
     expect(s.ripeLeft).toBe(CFG.ripe)
     expect(s.rottenLeft).toBe(CFG.rotten)
-    expect(s.size).toBe(Math.min(CFG.maxGrab, CFG.ripe + CFG.rotten))
+    // Starts small (not maxGrab): mashing GRAB from the default is no longer
+    // the worst possible strategy.
+    expect(s.size).toBe(START_SIZE)
+    expect(START_SIZE).toBeGreaterThanOrEqual(2)
+    expect(START_SIZE).toBeLessThanOrEqual(3)
   })
 })
 
@@ -208,8 +213,8 @@ describe('reduce — grab clean', () => {
     let s = stateWith([1, 1, 1, 1, 1, 1], { size: 3 })
     s = reduce(s, { type: 'grab' })
     expect(s.lastGrab?.clean).toBe(true)
-    expect(s.lastGrab?.gained).toBe(6) // handValue(3)
-    expect(s.score).toBe(6)
+    expect(s.lastGrab?.gained).toBe(9) // handValue(3)
+    expect(s.score).toBe(9)
     expect(s.combo).toBe(1)
     expect(s.cursor).toBe(3)
     expect(s.ripeLeft).toBe(3)
@@ -234,16 +239,22 @@ describe('reduce — grab spoiled', () => {
 })
 
 describe('reduce — combo bonus', () => {
-  it('second consecutive clean grab adds COMBO_UNIT*(combo-1)', () => {
-    let s = stateWith([1, 1, 1, 1], { size: 2 })
-    s = reduce(s, { type: 'grab' }) // combo 1, gained handValue(2)=3
+  it('combo bonus scales with the handful (+25% of its value per streak step)', () => {
+    expect(comboBonus(4, 1)).toBe(0)
+    expect(comboBonus(4, 2)).toBe(4) // 16 * 1/4
+    expect(comboBonus(4, 3)).toBe(8)
+    expect(comboBonus(1, 2)).toBe(0) // floor(1/4): singles barely build combo value
+    expect(comboBonus(1, 5)).toBe(1)
+    let s = stateWith([1, 1, 1, 1, 1, 1, 1, 1], { size: 4 })
+    s = reduce(s, { type: 'grab' }) // combo 1, gained handValue(4)=16
     expect(s.combo).toBe(1)
     expect(s.lastGrab?.comboBonus).toBe(0)
-    s = reduce(s, { type: 'setSize', size: 2 })
-    s = reduce(s, { type: 'grab' }) // combo 2, bonus 5
+    expect(s.lastGrab?.gained).toBe(16)
+    s = reduce(s, { type: 'setSize', size: 4 })
+    s = reduce(s, { type: 'grab' }) // combo 2, bonus 4
     expect(s.combo).toBe(2)
-    expect(s.lastGrab?.comboBonus).toBe(COMBO_UNIT * (2 - 1))
-    expect(s.lastGrab?.gained).toBe(handValueLocal(2) + COMBO_UNIT)
+    expect(s.lastGrab?.comboBonus).toBe(4)
+    expect(s.lastGrab?.gained).toBe(handValueLocal(4) + 4)
   })
 
   it('resets and re-accumulates after a spoiled grab', () => {
@@ -261,7 +272,7 @@ describe('reduce — combo bonus', () => {
 })
 
 function handValueLocal(g: number): number {
-  return (g * (g + 1)) / 2
+  return g * g
 }
 
 describe('reduce — bestCombo / biggestClean tracking', () => {
@@ -301,10 +312,10 @@ describe('GOLDEN — fixed order + scripted grabs', () => {
     const order: Item[] = [1, 1, 0, 1, 1, 1, 0, 1] // ripe6, rotten2
     let s = stateWith(order)
 
-    // grab2 -> [1,1] clean, +3, combo1, cursor2
+    // grab2 -> [1,1] clean, +4, combo1, cursor2
     s = reduce(s, { type: 'setSize', size: 2 })
     s = reduce(s, { type: 'grab' })
-    expect(s.score).toBe(3)
+    expect(s.score).toBe(4)
     expect(s.cursor).toBe(2)
     expect(s.combo).toBe(1)
     expect(s.lastGrab?.clean).toBe(true)
@@ -313,7 +324,7 @@ describe('GOLDEN — fixed order + scripted grabs', () => {
     // grab2 -> [0,1] spoiled, +0, combo0, cursor4
     s = reduce(s, { type: 'setSize', size: 2 })
     s = reduce(s, { type: 'grab' })
-    expect(s.score).toBe(3)
+    expect(s.score).toBe(4)
     expect(s.cursor).toBe(4)
     expect(s.combo).toBe(0)
     expect(s.lastGrab?.clean).toBe(false)
@@ -322,7 +333,7 @@ describe('GOLDEN — fixed order + scripted grabs', () => {
     // grab3 -> [1,1,0] spoiled, +0, combo0, cursor7
     s = reduce(s, { type: 'setSize', size: 3 })
     s = reduce(s, { type: 'grab' })
-    expect(s.score).toBe(3)
+    expect(s.score).toBe(4)
     expect(s.cursor).toBe(7)
     expect(s.combo).toBe(0)
     expect(s.lastGrab?.clean).toBe(false)
@@ -331,7 +342,7 @@ describe('GOLDEN — fixed order + scripted grabs', () => {
     // grab1 -> [1] clean, +1, combo1, cursor8, over
     s = reduce(s, { type: 'setSize', size: 1 })
     s = reduce(s, { type: 'grab' })
-    expect(s.score).toBe(4)
+    expect(s.score).toBe(5)
     expect(s.cursor).toBe(8)
     expect(s.combo).toBe(1)
     expect(s.lastGrab?.clean).toBe(true)
@@ -439,4 +450,55 @@ describe('determinism end-to-end', () => {
     expect(a.bestCombo).toBe(b.bestCombo)
     expect(a.biggestClean).toBe(b.biggestClean)
   })
+})
+
+/** Play a whole basket with a sizing policy; returns the final score. */
+function playPolicy(cfg: HandfulConfig, seed: number, policy: (s: HandfulState) => number): number {
+  let s = createGame(cfg, seed)
+  let guard = 0
+  while (!s.over && guard++ < 200) {
+    s = reduce(s, { type: 'setSize', size: policy(s) })
+    s = reduce(s, { type: 'grab' })
+  }
+  return s.score
+}
+
+function meanScore(cfg: HandfulConfig, policy: (s: HandfulState) => number, n = 2000): number {
+  let total = 0
+  for (let seed = 1; seed <= n; seed++) total += playPolicy(cfg, seed, policy)
+  return total / n
+}
+
+/** Odds-aware player: maximise expected points per item at the current odds. */
+const oddsAware = (s: HandfulState) => {
+  let bestG = 1
+  let bestRate = -1
+  for (let g = 1; g <= maxGrabNow(s); g++) {
+    const v = cleanOdds(s.ripeLeft, s.rottenLeft, g) * (handValue(g) + comboBonus(g, s.combo + 1))
+    if (v / g > bestRate) {
+      bestRate = v / g
+      bestG = g
+    }
+  }
+  return bestG
+}
+
+describe('balance — no fixed-size dominant strategy (audit: always-1 averaged 368 vs 8-at-once 18.6)', () => {
+  for (const key of ['easy', 'normal', 'hard'] as const) {
+    it(`${key}: always-1 is not optimal, the best fixed size is mid-sized, and reading the odds beats every fixed size`, () => {
+      const cfg = DIFFICULTIES[key]
+      const fixed: number[] = []
+      for (let g = 1; g <= cfg.maxGrab; g++) fixed.push(meanScore(cfg, () => g))
+      const bestFixed = Math.max(...fixed)
+      const argBest = fixed.indexOf(bestFixed) + 1
+      // Singles must lose clearly to the best fixed size.
+      expect(fixed[0]).toBeLessThan(bestFixed * 0.9)
+      // Greedy max-size is also bad.
+      expect(fixed[cfg.maxGrab - 1]).toBeLessThan(bestFixed * 0.9)
+      expect(argBest).toBeGreaterThanOrEqual(2)
+      expect(argBest).toBeLessThanOrEqual(5)
+      // Skill (tracking the public composition) beats any blind fixed size.
+      expect(meanScore(cfg, oddsAware)).toBeGreaterThan(bestFixed)
+    })
+  }
 })

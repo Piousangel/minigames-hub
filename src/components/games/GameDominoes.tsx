@@ -29,8 +29,9 @@ const CPU_DELAY_REDUCED = 220
 interface WinRecord {
   w: number // human (player 0) wins in vs-CPU
   l: number // computer wins / block-losses in vs-CPU
+  d: number // blocked ties (equal pips) in vs-CPU — neither a win nor a loss
 }
-const EMPTY_RECORD: WinRecord = { w: 0, l: 0 }
+const EMPTY_RECORD: WinRecord = { w: 0, l: 0, d: 0 }
 
 // Pip positions in a 3×3 grid (row-major cells 0..8) for each face value 0..6.
 const PIP_CELLS: readonly number[][] = [
@@ -70,7 +71,7 @@ function DominoTile({ a, b, orient }: { a: number; b: number; orient: 'h' | 'v' 
       : 'h-px self-stretch bg-neon-cyan/30'
   return (
     <div
-      className={`flex ${flex} items-stretch rounded-md border border-neon-cyan/40 bg-bg-2/90 shadow-[0_0_8px_rgba(34,211,238,0.15),inset_0_0_6px_rgba(0,0,0,0.5)]`}
+      className={`flex h-full w-full ${flex} items-stretch rounded-md border border-neon-cyan/40 bg-bg-2/90 shadow-[0_0_8px_rgba(34,211,238,0.15),inset_0_0_6px_rgba(0,0,0,0.5)]`}
     >
       <div className={orient === 'h' ? 'h-full' : 'w-full'} style={{ aspectRatio: '1 / 1' }}>
         <PipFace value={a} />
@@ -151,18 +152,26 @@ export function GameDominoes({ storageKey }: { storageKey: string }) {
       if (s.status === 'playing') return false
       if (modeRef.current === 'cpu') {
         const humanWon = s.winner === 0
-        if (humanWon) {
+        if (s.winner === null) {
+          // Blocked with equal pips: a draw, not a loss.
+          sfx('flip')
+          bumpRecord('d')
+        } else if (humanWon) {
           sfx('win')
           bumpRecord('w')
         } else {
           sfx('lose')
           bumpRecord('l')
         }
-        // 개인 기록: 사람(0) 승리만 won:true. 무승부/블록패는 won:false.
-        recordResult(storageKey.replace(/^best:/, ''), { won: humanWon })
+        // 개인 기록: 사람(0) 승리만 won:true. 무승부는 패배 카운터(l)엔 안 넣고 판수만 센다.
+        recordResult(storageKey.replace(/^best:/, ''), {
+          won: humanWon,
+          bucket: s.winner === null ? 'draw' : undefined,
+          outcome: s.winner === null ? 'draw' : undefined,
+        })
       } else {
-        // 2P: no single "human" — just play the fanfare, no record.
-        sfx('win')
+        // 2P: no single "human" — just play the fanfare (neutral cue on a blocked tie), no record.
+        sfx(s.winner === null ? 'flip' : 'win')
       }
       return true
     },
@@ -347,7 +356,11 @@ export function GameDominoes({ storageKey }: { storageKey: string }) {
       const raw = localStorage.getItem(storageKey)
       if (raw) {
         const parsed = JSON.parse(raw) as Partial<WinRecord>
-        const loaded: WinRecord = { w: Number(parsed.w) || 0, l: Number(parsed.l) || 0 }
+        const loaded: WinRecord = {
+          w: Number(parsed.w) || 0,
+          l: Number(parsed.l) || 0,
+          d: Number(parsed.d) || 0,
+        }
         recordRef.current = loaded
         setRecord(loaded)
       }
@@ -495,11 +508,13 @@ export function GameDominoes({ storageKey }: { storageKey: string }) {
 
   const won = over && state.status === 'won'
   const humanResult =
-    mode === 'cpu'
-      ? state.winner === 0
-        ? 'win'
-        : 'lose'
-      : 'win' // 2P: neutral fanfare, treat as celebratory
+    state.winner === null
+      ? 'draw' // blocked tie — neutral in both modes
+      : mode === 'cpu'
+        ? state.winner === 0
+          ? 'win'
+          : 'lose'
+        : 'win' // 2P: neutral fanfare, treat as celebratory
   const resultTitle =
     state.winner === null
       ? "It's a draw"
@@ -556,7 +571,7 @@ export function GameDominoes({ storageKey }: { storageKey: string }) {
                   )}
                   <div className="flex shrink-0 items-center gap-1">
                     {state.line.map((t, i) => (
-                      <div key={`${t[0]}-${t[1]}-${i}`} className="h-8 shrink-0">
+                      <div key={`${t[0]}-${t[1]}-${i}`} className="h-8 w-16 shrink-0" data-testid="line-tile">
                         <DominoTile a={t[0]} b={t[1]} orient="h" />
                       </div>
                     ))}
@@ -669,11 +684,21 @@ export function GameDominoes({ storageKey }: { storageKey: string }) {
           testId="dominoes-result-win"
         >
           <p className="text-sm text-fg-muted">
-            {state.winner === null
-              ? `${handPips(state.hands[0])} vs ${handPips(state.hands[1])} pips`
-              : state.status === 'blocked'
-                ? 'Blocked — fewer pips wins.'
-                : 'Hand emptied.'}
+            {state.status === 'blocked' ? 'Blocked — fewer pips wins.' : 'Hand emptied.'}
+          </p>
+          <GameButton onClick={restart} className="px-4 py-2">
+            New Game
+          </GameButton>
+        </GameOverlay>
+
+        <GameOverlay
+          show={over && humanResult === 'draw'}
+          variant="draw"
+          title={resultTitle}
+          testId="dominoes-result-draw"
+        >
+          <p className="text-sm text-fg-muted">
+            Blocked — {handPips(state.hands[0])} vs {handPips(state.hands[1])} pips, dead even.
           </p>
           <GameButton onClick={restart} className="px-4 py-2">
             New Game

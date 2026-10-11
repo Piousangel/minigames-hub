@@ -306,3 +306,20 @@ export function submitGuess(state: GameState, guess: string): GameState {
     status: won ? 'won' : lost ? 'lost' : 'playing',
   }
 }
+
+/**
+ * Rebuild a board from saved guess words (e.g. today's persisted daily) by replaying them
+ * through `submitGuess`. Returns null when the save cannot be a real game of this board —
+ * a non-string / illegal word, or a guess after the game already ended — so the caller can
+ * discard it instead of showing a corrupt board.
+ */
+export function restoreGame(fresh: GameState, words: readonly string[]): GameState | null {
+  let s = fresh
+  for (const w of words) {
+    if (typeof w !== 'string') return null
+    const next = submitGuess(s, w)
+    if (next === s) return null
+    s = next
+  }
+  return s
+}

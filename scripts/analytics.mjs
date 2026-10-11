@@ -161,12 +161,12 @@ async function main() {
   console.log(`\n[국가]`)
   console.log(table(geo.data, [{ h: 'country', k: 'country' }, { h: 'n', k: 'n' }]))
 
-  // 5) 완주(win/lose/finish) — recordResult 부르는 게임. endless(승리 조건 없음)는 'finish'
+  // 5) 완주(win/lose/draw/finish) — recordResult 부르는 게임. endless(승리 조건 없음)는 'finish'
   const wl = await q(
     `SELECT index1 AS game, SUM(_sample_interval) AS finishes
-     FROM mg_events WHERE blob1 IN ('win','lose','finish') AND ${SINCE} GROUP BY game ORDER BY finishes DESC LIMIT 15`,
+     FROM mg_events WHERE blob1 IN ('win','lose','draw','finish') AND ${SINCE} GROUP BY game ORDER BY finishes DESC LIMIT 15`,
   )
-  console.log(`\n[완주 이벤트(win/lose/finish) top]`)
+  console.log(`\n[완주 이벤트(win/lose/draw/finish) top]`)
   console.log(table(wl.data, [{ h: 'game', k: 'game' }, { h: 'finishes', k: 'finishes' }]))
 
   console.log(`\n${'='.repeat(52)}\n해석: plays↑=SEO/유입 잘됨, avg_sec↑=붙잡는 게임(더 만들 것),`)

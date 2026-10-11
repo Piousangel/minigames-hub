@@ -66,30 +66,47 @@ const MNC_STYLE = `
   100% { transform: translateY(-4px) scale(0.96); opacity: 0; }
 }`
 
-// Small neon pips. For crowded pits (>8) we show a bold number instead so the
-// count stays instantly readable on a phone.
-function Stones({ count, tone }: { count: number; tone: 'you' | 'cpu' }) {
+// Pip limits: a phone pit (~36px) only holds a 2x2 cluster of 7px pips inside its
+// circle; a desktop pit (~55px+) holds two rows of four. Past the limit we show a
+// bold number so the count never spills outside the pit and stays readable.
+const PIPS_MAX_MOBILE = 4
+const PIPS_MAX = 8
+
+// Small neon pips, or a number for crowded pits.
+export function Stones({ count, tone }: { count: number; tone: 'you' | 'cpu' }) {
   const dot = tone === 'you' ? 'bg-neon-cyan' : 'bg-neon-magenta'
   if (count === 0) return null
-  if (count > 8) {
+  const numberClass = `text-lg font-extrabold leading-none ${tone === 'you' ? 'text-neon-cyan' : 'text-neon-magenta'} drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]`
+  if (count > PIPS_MAX) {
     return (
-      <span
-        className={`text-lg font-extrabold leading-none ${tone === 'you' ? 'text-neon-cyan' : 'text-neon-magenta'} drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)]`}
-      >
+      <span data-stone-count className={numberClass}>
         {count}
       </span>
     )
   }
+  // Between the phone and desktop limits: number below sm, pips from sm up.
+  const mobileNumber = count > PIPS_MAX_MOBILE
   return (
-    <span className="flex max-w-[80%] flex-wrap content-center items-center justify-center gap-[3px]">
-      {Array.from({ length: count }, (_, i) => (
-        <span
-          key={i}
-          className={`h-[7px] w-[7px] rounded-full ${dot} shadow-[0_0_5px_currentColor]`}
-          style={{ color: tone === 'you' ? 'var(--neon-cyan)' : 'var(--neon-magenta)' }}
-        />
-      ))}
-    </span>
+    <>
+      {mobileNumber && (
+        <span data-stone-count className={`${numberClass} sm:hidden`}>
+          {count}
+        </span>
+      )}
+      <span
+        data-stone-pips
+        className={`${mobileNumber ? 'hidden sm:flex' : 'flex'} max-w-[80%] flex-wrap content-center items-center justify-center gap-[3px]`}
+      >
+        {Array.from({ length: count }, (_, i) => (
+          <span
+            key={i}
+            data-stone
+            className={`h-[7px] w-[7px] rounded-full ${dot} shadow-[0_0_5px_currentColor]`}
+            style={{ color: tone === 'you' ? 'var(--neon-cyan)' : 'var(--neon-magenta)' }}
+          />
+        ))}
+      </span>
+    </>
   )
 }
 
@@ -483,7 +500,9 @@ export function GameMancala({ storageKey }: { storageKey: string }) {
           key={i}
           onClick={() => onPit(i)}
           aria-label={label}
-          className={`${base} cursor-pointer hover:brightness-125 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neon-cyan`}
+          // Rounded buttons are hit-tested on the circle only; the square ::after adds the
+          // corners plus half the grid gap, so a ~37px phone pit taps like a ~41px cell.
+          className={`${base} cursor-pointer after:absolute after:-inset-0.5 after:content-[''] hover:brightness-125 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neon-cyan`}
           style={{
             ...(capStyle ?? {}),
             ...(reduced ? {} : { animation: capStyle ? capStyle.animation : 'mnc-pick 1.8s ease-in-out infinite' }),
@@ -507,7 +526,7 @@ export function GameMancala({ storageKey }: { storageKey: string }) {
     const isTurn = turn === who && !over
     return (
       <div
-        className={`flex w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border-2 py-3 sm:w-16 ${
+        className={`flex w-11 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border-2 py-3 sm:w-16 ${
           tone === 'you'
             ? 'border-neon-cyan/70 bg-neon-cyan/10'
             : 'border-neon-magenta/60 bg-neon-magenta/10'
@@ -517,7 +536,9 @@ export function GameMancala({ storageKey }: { storageKey: string }) {
         <span
           className={`text-[11px] font-bold uppercase tracking-wide ${tone === 'you' ? 'text-neon-cyan' : 'text-neon-magenta'}`}
         >
-          {who === HUMAN ? youName : foeName}
+          {/* Narrow phone store: 'P1'/'P2' instead of 'Player 1'/'Player 2'. */}
+          <span className="sm:hidden">{mode === 'two' ? (who === HUMAN ? 'P1' : 'P2') : who === HUMAN ? youName : foeName}</span>
+          <span className="hidden sm:inline">{who === HUMAN ? youName : foeName}</span>
         </span>
         <span
           data-testid={who === HUMAN ? 'mancala-you-store' : 'mancala-cpu-store'}
@@ -588,12 +609,15 @@ export function GameMancala({ storageKey }: { storageKey: string }) {
         )}
       </div>
 
-      <div className="anim-board-in select-none">
+      {/* `relative` anchors GameOverlay (absolute inset-0) to the board; when the game
+          ends the wrapper grows so the result card fits instead of spilling over the
+          difficulty buttons / stat cards on a short phone board. */}
+      <div className={`anim-board-in relative select-none ${over ? 'min-h-80' : ''}`}>
         <div
           data-testid="mancala-board"
           role="group"
           aria-label="Mancala board"
-          className="flex items-stretch gap-2 rounded-2xl border border-border bg-bg-2/70 p-2 shadow-[inset_0_0_20px_rgba(0,0,0,0.45)] sm:gap-3 sm:p-3"
+          className="flex items-stretch gap-1.5 rounded-2xl border border-border bg-bg-2/70 p-1.5 shadow-[inset_0_0_20px_rgba(0,0,0,0.45)] sm:gap-3 sm:p-3"
         >
           {/* Opponent store sits on the left (counterclockwise flow). */}
           <Store who={CPU} />
@@ -603,7 +627,7 @@ export function GameMancala({ storageKey }: { storageKey: string }) {
             <div className="mb-1 flex items-center px-1 text-[11px] font-semibold text-neon-magenta/70">
               <span aria-hidden="true">◂ {foeName} sows this way</span>
             </div>
-            <div className="grid grid-cols-6 gap-1.5 sm:gap-2">
+            <div className="grid grid-cols-6 gap-1 sm:gap-2">
               {TOP_ROW.map(renderPit)}
               {BOTTOM_ROW.map(renderPit)}
             </div>

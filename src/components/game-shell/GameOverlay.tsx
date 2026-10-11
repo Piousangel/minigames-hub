@@ -10,8 +10,9 @@ import { hasLeaderboard } from '@/lib/leaderboard'
 import { isEndless } from '@/lib/games/gameMeta'
 
 /**
- * Shared win/lose overlay: blurred backdrop, entrance animation, optional
+ * Shared win/lose/draw overlay: blurred backdrop, entrance animation, optional
  * confetti on win. Fills its positioned parent (`absolute inset-0`).
+ * `draw` is a neutral card (no green/red, no win confetti) for tied results.
  *
  * `testId` and any accessibility wiring are supplied by the caller so existing
  * e2e selectors (`game-over`, `you-win`, …) are preserved per game.
@@ -24,7 +25,7 @@ export function GameOverlay({
   testId,
 }: {
   show: boolean
-  variant: 'win' | 'lose'
+  variant: 'win' | 'lose' | 'draw'
   title: string
   children?: ReactNode
   testId?: string
@@ -39,8 +40,8 @@ export function GameOverlay({
     setGoalHint(show ? nearestGoalHint(3, { excludeUnits: isEndless(nav.slug) ? ['win'] : [] }) : null)
   }, [show, nav.slug])
   if (!show) return null
-  // 승/패에 따른 네온 색 — 컨테이너 currentColor 로 .neon-box 발광.
-  const neon = variant === 'win' ? 'var(--neon-green)' : 'var(--neon-red)'
+  // 승/패/무에 따른 색 — 컨테이너 currentColor 로 .neon-box 발광. 무승부는 중립(본문색).
+  const neon = variant === 'win' ? 'var(--neon-green)' : variant === 'lose' ? 'var(--neon-red)' : 'var(--fg-muted)'
   // 세션 연속 플레이(RUN) 게임화: 손실회피로 "한 판 더"를 유도(방문당 플레이 수↑).
   const run = nav.runCount
   const runMilestone = run >= 3 && (run === 3 || run === 5 || run === 10 || run === 20 || run % 25 === 0)

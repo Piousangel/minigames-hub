@@ -344,12 +344,17 @@ describe('round clear', () => {
 // -- 18/19. move mechanics ------------------------------------------------------
 
 describe("reduce 'move'", () => {
-  it('swaps the player with the left neighbor and updates playerIdx', () => {
+  // Audit 2026-10-10 (engine.ts:262): move used to swap seat ids inside
+  // survivors[], but the renderer draws each seat id at a FIXED angle — so the
+  // player ring never moved and the target ring / neighbor buttons jumped to the
+  // wrong seats. Seat ids are physical seats: a move only changes playerIdx.
+  it('moves the player into the left neighbor seat (survivors = fixed physical seats)', () => {
     const survivors = [10, 11, 12, 13, 14]
     const s = bare({ survivors, playerIdx: 2, target: 4, k: 2, windowTicks: 5, dangerAtStart: false })
     const next = reduce(s, { type: 'move', dir: 'left' })
-    expect(next.survivors[1]).toBe(12) // was at playerIdx
-    expect(next.survivors[2]).toBe(11) // was at otherIdx
+    expect(next.survivors).toEqual([10, 11, 12, 13, 14]) // seats never reorder
+    expect(next.survivors[next.playerIdx]).toBe(11) // player now sits in seat 11
+    expect(next.survivors[next.target]).toBe(14) // the targeted seat is unchanged
     expect(next.playerIdx).toBe(1)
     expect(next.events.moved).toBe(true)
     // window fields untouched
@@ -359,13 +364,25 @@ describe("reduce 'move'", () => {
     expect(next.dangerAtStart).toBe(false)
   })
 
-  it('swaps the player with the right neighbor and updates playerIdx', () => {
+  it('moves the player into the right neighbor seat', () => {
     const survivors = [10, 11, 12, 13, 14]
     const s = bare({ survivors, playerIdx: 2, target: 4, k: 2, windowTicks: 5, dangerAtStart: false })
     const next = reduce(s, { type: 'move', dir: 'right' })
-    expect(next.survivors[2]).toBe(13)
-    expect(next.survivors[3]).toBe(12)
+    expect(next.survivors).toEqual(survivors)
+    expect(next.survivors[next.playerIdx]).toBe(13)
     expect(next.playerIdx).toBe(3)
+  })
+
+  it('two moves right put the player two physical seats over (and the seat ids stay sorted)', () => {
+    const survivors = [0, 1, 2, 3, 4, 5, 6, 7]
+    let s = bare({ survivors, playerIdx: 4, target: 0, k: 1, windowTicks: 9 })
+    s = reduce(s, { type: 'move', dir: 'right' })
+    s = reduce(s, { type: 'move', dir: 'right' })
+    expect(s.survivors[s.playerIdx]).toBe(6)
+    // Neighbors of the player's seat are the physically adjacent seats.
+    const n = s.survivors.length
+    expect(s.survivors[(s.playerIdx - 1 + n) % n]).toBe(5)
+    expect(s.survivors[(s.playerIdx + 1) % n]).toBe(7)
   })
 
   it('wraps around the circle at both boundaries', () => {
@@ -472,6 +489,8 @@ describe('invariant fuzzing', () => {
       expect(s.playerIdx).toBeGreaterThanOrEqual(0)
       expect(s.playerIdx).toBeLessThan(s.survivors.length)
       expect(s.survivors[s.playerIdx]).toBeDefined()
+      // Seat ids are physical seats in circle order: always strictly ascending.
+      for (let j = 1; j < s.survivors.length; j++) expect(s.survivors[j]).toBeGreaterThan(s.survivors[j - 1])
       expect(s.score).toBeGreaterThanOrEqual(maxScore)
       maxScore = s.score
       expect(s.round).toBe(s.roundsCleared + 1)

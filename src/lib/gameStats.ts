@@ -69,12 +69,17 @@ function persistResult(slug: string, won: boolean, bucket: number | string | und
  * endless 게임(gameMeta.endless)은 recordFinish를 쓴다. 실수로 여기로 오면 won을 무시하고
  * 중립 완주로 기록한다(승수 부풀림 방지 안전망 — 일치 여부는 gameStats.consistency.test가 지킨다).
  */
-export function recordResult(slug: string, r: { won: boolean; bucket?: number | string }): GameStats {
+export function recordResult(
+  slug: string,
+  r: { won: boolean; bucket?: number | string; outcome?: 'draw' },
+): GameStats {
   const endless = isEndless(slug)
-  const won = !endless && r.won
+  const draw = !endless && r.outcome === 'draw'
+  // 무승부는 승리가 아니다(wins 불변, plays만 +1) — 분석 이벤트만 'lose' 대신 중립 'draw'.
+  const won = !endless && !draw && r.won
   const next = persistResult(slug, won, r.bucket)
   // 완주 퍼널 비콘(1st-party) — 게임별 완주율 신호. sendHit은 실패를 삼키므로 부작용 무해.
-  sendHit(slug, endless ? 'finish' : won ? 'win' : 'lose')
+  sendHit(slug, endless ? 'finish' : draw ? 'draw' : won ? 'win' : 'lose')
   return next
 }
 

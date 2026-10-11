@@ -304,13 +304,20 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
     }
   }, [startDaily, startLevel])
 
+  // No wrap-around, and no entering a pack that is still locked (◀ on Level 1
+  // used to jump straight into the locked final pack).
+  const canGoTo = useCallback(
+    (index: number) =>
+      index >= 0 && index < levelCount && isPackUnlocked(PACKS.indexOf(packOf(index)), solvedSet),
+    [solvedSet],
+  )
+
   const gotoLevel = useCallback(
     (index: number) => {
-      const n = levelCount
-      const idx = ((index % n) + n) % n
-      startLevel(idx)
+      if (!canGoTo(index)) return
+      startLevel(index)
     },
-    [startLevel],
+    [canGoTo, startLevel],
   )
 
   const nextLevel = useCallback(() => {
@@ -407,7 +414,8 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
                 type="button"
                 aria-label="Previous level"
                 onClick={() => gotoLevel(s.levelIndex - 1)}
-                className="btn-press rounded-lg border border-border bg-surface/80 px-2 py-1.5 text-sm hover:border-neon-cyan/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan"
+                disabled={!canGoTo(s.levelIndex - 1)}
+                className="btn-press disabled:cursor-not-allowed disabled:opacity-40 rounded-lg border border-border bg-surface/80 px-2 py-1.5 text-sm hover:border-neon-cyan/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan"
               >
                 <span aria-hidden="true">◀</span>
               </button>
@@ -415,7 +423,8 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
                 type="button"
                 aria-label="Next level"
                 onClick={() => gotoLevel(s.levelIndex + 1)}
-                className="btn-press rounded-lg border border-border bg-surface/80 px-2 py-1.5 text-sm hover:border-neon-cyan/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan"
+                disabled={!canGoTo(s.levelIndex + 1)}
+                className="btn-press disabled:cursor-not-allowed disabled:opacity-40 rounded-lg border border-border bg-surface/80 px-2 py-1.5 text-sm hover:border-neon-cyan/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan"
               >
                 <span aria-hidden="true">▶</span>
               </button>

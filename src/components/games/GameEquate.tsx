@@ -50,7 +50,9 @@ const KEY_STATE: Record<TileState, string> = {
 const EMOJI: Record<TileState, string> = { green: '🟩', purple: '🟪', grey: '⬛' }
 
 // Keypad layout: digits over operators; Enter/Backspace flank the operator row.
-const PAD_ROWS = ['0123456789'.split(''), '+-*/='.split('')] as const
+// Digits split 5 + 5: ten 44px keys in one row need 476px and overflowed a 390px phone.
+const DIGIT_ROWS = ['12345'.split(''), '67890'.split('')] as const
+const OP_ROW = '+-*/='.split('')
 
 function freshSeed(): number {
   return (Date.now() ^ (Math.random() * 2 ** 31)) >>> 0
@@ -395,20 +397,22 @@ export function GameEquate({ storageKey }: { storageKey: string }) {
 
       {/* On-screen keypad */}
       <div className="mx-auto flex w-full max-w-[28rem] flex-col gap-1.5" data-testid="equate-keypad">
-        <div className="flex justify-center gap-1">
-          {PAD_ROWS[0].map((sym) => (
-            <KeyButton
-              key={sym}
-              label={sym}
-              stateClass={keyMap.get(sym) ? KEY_STATE[keyMap.get(sym)!] : undefined}
-              onClick={() => typeSymbol(sym)}
-              testId={`equate-key-${sym}`}
-            />
-          ))}
-        </div>
+        {DIGIT_ROWS.map((digits, r) => (
+          <div key={r} className="flex justify-center gap-1">
+            {digits.map((sym) => (
+              <KeyButton
+                key={sym}
+                label={sym}
+                stateClass={keyMap.get(sym) ? KEY_STATE[keyMap.get(sym)!] : undefined}
+                onClick={() => typeSymbol(sym)}
+                testId={`equate-key-${sym}`}
+              />
+            ))}
+          </div>
+        ))}
         <div className="flex justify-center gap-1">
           <KeyButton label="Enter" wide onClick={handleSubmit} testId="equate-key-enter" />
-          {PAD_ROWS[1].map((sym) => (
+          {OP_ROW.map((sym) => (
             <KeyButton
               key={sym}
               label={sym}

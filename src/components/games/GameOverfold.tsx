@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   dailySeed,
   fold,
+  hasJam,
   JAM,
   legalCreases,
   mulberry32,
@@ -74,6 +75,17 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
   const lockedRef = useRef(false)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
   const creaseElRef = useRef<(HTMLDivElement | null)[]>([])
+  // One stats result per board. A loss that can still be Unfolded (a jam now ends the
+  // board instantly) stays 'pending' and is only recorded if the player leaves the
+  // board without recovering — otherwise jam → Unfold → solve counted a loss AND a win.
+  const outcomeRef = useRef<'none' | 'pendingLoss' | 'recorded'>('none')
+  const slug = storageKey.replace(/^best:/, '')
+
+  /** Records a deferred loss (if any) before the board is replaced or the game unmounts. */
+  const flushPendingLoss = useCallback(() => {
+    if (outcomeRef.current === 'pendingLoss') recordResult(slug, { won: false })
+    outcomeRef.current = 'none'
+  }, [slug])
 
   const clearTimers = useCallback(() => {
     for (const t of timersRef.current) clearTimeout(t)
@@ -105,6 +117,7 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
 
   const startRun = useCallback(
     (nextMode: Mode, seed: number, level: number) => {
+      flushPendingLoss()
       clearTimers()
       lockedRef.current = false
       setBanner(null)
@@ -115,7 +128,7 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
       refreshPreview(fresh, 0, 'low')
       refreshDailyRecord(seed)
     },
-    [clearTimers, commit, refreshDailyRecord, refreshPreview],
+    [clearTimers, commit, flushPendingLoss, refreshDailyRecord, refreshPreview],
   )
 
   // Client-only bootstrap.
@@ -140,7 +153,10 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
     const seed = initialMode === 'daily' ? dailySeed(todayISO()) : randomSeed()
     startRun(initialMode, seed, 1)
 
-    return clearTimers
+    return () => {
+      clearTimers()
+      flushPendingLoss()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storageKey])
 
@@ -195,10 +211,16 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
       persistBest(next.score)
       if (next.won || next.lost) {
         persistDaily(next)
-        recordResult(storageKey.replace(/^best:/, ''), { won: next.won })
+        if (outcomeRef.current === 'recorded') return
+        if (next.lost && next.unfoldsLeft > 0 && next.history.length > 0) {
+          outcomeRef.current = 'pendingLoss' // still recoverable via Unfold
+          return
+        }
+        outcomeRef.current = 'recorded'
+        recordResult(slug, { won: next.won })
       }
     },
-    [persistBest, persistDaily, storageKey],
+    [persistBest, persistDaily, slug],
   )
 
   const commitFold = useCallback(
@@ -361,6 +383,7 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
   const advance = useCallback(() => {
     const s = stateRef.current
     if (!s) return
+    outcomeRef.current = 'none' // next board (only reachable after a recorded win)
     clearTimers()
     lockedRef.current = false
     setBanner(null)
@@ -555,6 +578,9 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
             onKeyDown={onBoardKeyDown}
           >
             {board.cells.map((value, i) => {
+              // Pips are sized from the cell's SHORTER side (the board box is square, so
+              // cellH/cellW = w/h) and kept square: a circle on a 4×2 board, not a pill.
+              const pipWidth = `${60 * Math.min(1, board.w / board.h)}%`
               const r = Math.floor(i / board.w)
               const c = i % board.w
               const isJam = value === JAM
@@ -584,8 +610,10 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
                   {isPip && (
                     <span
                       aria-hidden="true"
-                      className="h-3/5 w-3/5 rounded-full"
+                      className="aspect-square rounded-full"
+                      data-testid="overfold-pip"
                       style={{
+                        width: pipWidth,
                         background: COLORS[value % COLORS.length],
                         boxShadow: seal
                           ? '0 0 12px rgba(74,222,128,0.9)'
@@ -679,7 +707,15 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
         <GameOverlay
           show={won || lost}
           variant={won ? 'win' : 'lose'}
-          title={won ? 'Sealed!' : state.board.w === 1 && state.board.h === 1 ? 'Folded to nothing' : 'Out of folds'}
+          title={
+            won
+              ? 'Sealed!'
+              : hasJam(state.board)
+                ? 'Jammed!'
+                : state.board.w === 1 && state.board.h === 1
+                  ? 'Folded to nothing'
+                  : 'Out of folds'
+          }
           testId="game-over"
         >
           {won ? (
@@ -723,10 +759,20 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
             </>
           ) : (
             <>
+              {hasJam(state.board) && (
+                <p className="text-sm text-fg-muted" data-testid="jam-reason">
+                  Two different colours jammed — a jam can never be cleared.
+                </p>
+              )}
               <p className="text-sm text-fg-muted">
                 Score <span className="font-bold text-accent">{state.score}</span>
               </p>
-              <div className="flex gap-2">
+              <div className="flex flex-wrap justify-center gap-2">
+                {state.unfoldsLeft > 0 && state.history.length > 0 && (
+                  <GameButton onClick={doUndo} variant="ghost" className="px-4 py-2">
+                    Unfold ({state.unfoldsLeft})
+                  </GameButton>
+                )}
                 <GameButton onClick={retryBoard} variant="ghost" className="px-4 py-2">
                   Retry board
                 </GameButton>

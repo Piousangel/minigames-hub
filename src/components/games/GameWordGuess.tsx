@@ -8,6 +8,7 @@ import {
   isValidGuess,
   mulberry32,
   newGame,
+  restoreGame,
   submitGuess,
   type GameState,
   type LetterState,
@@ -49,6 +50,39 @@ function readStats(key: string): Stats {
     }
   } catch {
     return EMPTY_STATS
+  }
+}
+
+/**
+ * Today's daily board, persisted so a reload / Practice round-trip resumes it and a finished
+ * daily stays finished (no "replay until you win" for the streak). `recorded` marks that the
+ * result was counted in stats — a daily finished mid-reveal (reload before the flip ends) is
+ * counted on the next restore instead of being lost or counted twice.
+ */
+interface DailyRecord {
+  date: string
+  answer: string
+  guesses: string[]
+  recorded: boolean
+}
+
+function readDaily(key: string, date: string, answer: string): DailyRecord | null {
+  try {
+    const raw = localStorage.getItem(key)
+    if (!raw) return null
+    const p = JSON.parse(raw) as Partial<DailyRecord>
+    if (p.date !== date || p.answer !== answer || !Array.isArray(p.guesses)) return null
+    return { date, answer, guesses: p.guesses as string[], recorded: p.recorded === true }
+  } catch {
+    return null
+  }
+}
+
+function writeDaily(key: string, rec: DailyRecord) {
+  try {
+    localStorage.setItem(key, JSON.stringify(rec))
+  } catch {
+    /* storage may be unavailable — the daily simply won't resume */
   }
 }
 
@@ -103,11 +137,17 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
   const modeRef = useRef<Mode>('daily')
   const revealingRef = useRef(false)
   const timers = useRef<number[]>([])
+  // Records a board that ended on the guess still being revealed. Run (silently) if the board is
+  // replaced mid-reveal, so leaving via Practice / New Game can't dodge a loss.
+  const pendingFinishRef = useRef<(() => void) | null>(null)
 
   // Separate key from `storageKey` (which stays the existing {wins,streak} JSON
   // blob) so the new daily streak never collides with a returning player's
   // existing practice-mode record.
   const streakKey = `${storageKey}:streak`
+  const dailyKey = `${storageKey}:daily`
+  // The UTC date of the daily board on screen (a board opened before midnight saves under its own day).
+  const dailyDateRef = useRef('')
 
   const commitState = useCallback((s: GameState) => {
     stateRef.current = s
@@ -122,41 +162,6 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
     timers.current.forEach((t) => window.clearTimeout(t))
     timers.current = []
   }, [])
-
-  const startBoard = useCallback(
-    (nextMode: Mode) => {
-      modeRef.current = nextMode
-      clearTimers()
-      revealingRef.current = false
-      setRevealing(false)
-      setRevealRow(-1)
-      setShakeKey(0)
-      commitGuess('')
-      commitState(nextMode === 'daily' ? newGame(mulberry32(dailySeed(todayUTC()))) : newGame(Math.random))
-    },
-    [clearTimers, commitGuess, commitState],
-  )
-
-  const restart = useCallback(() => {
-    startBoard(modeRef.current)
-  }, [startBoard])
-
-  const switchMode = useCallback(
-    (m: Mode) => {
-      if (m === mode) return
-      setMode(m)
-      startBoard(m)
-    },
-    [mode, startBoard],
-  )
-
-  useEffect(() => {
-    startBoard('daily')
-    setStats(readStats(storageKey))
-    setStreak(currentStreak(loadStreak(streakKey)))
-    return () => clearTimers()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storageKey])
 
   const recordEnd = useCallback(
     (won: boolean) => {
@@ -180,6 +185,76 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
     [storageKey, streakKey],
   )
 
+  // Counts a finished board in stats (wins/streak + day streak + per-game stats panel).
+  const recordOutcome = useCallback(
+    (done: GameState) => {
+      recordEnd(done.status === 'won')
+      // 개인 기록: 완료 판수/승수 + 사용한 추측 수 분포 누적 → 스탯 패널이 읽는다.
+      // (storageKey에는 {wins,streak} JSON이 들어가지만 recordResult는 별도 stats: 키에 쓴다.)
+      recordResult(storageKey.replace(/^best:/, ''), {
+        won: done.status === 'won',
+        bucket: done.guesses.length,
+      })
+    },
+    [recordEnd, storageKey],
+  )
+
+  const startBoard = useCallback(
+    (nextMode: Mode) => {
+      const pending = pendingFinishRef.current
+      pendingFinishRef.current = null
+      clearTimers()
+      pending?.()
+      modeRef.current = nextMode
+      revealingRef.current = false
+      setRevealing(false)
+      setRevealRow(-1)
+      setShakeKey(0)
+      commitGuess('')
+      if (nextMode !== 'daily') {
+        commitState(newGame(Math.random))
+        return
+      }
+      const date = todayUTC()
+      dailyDateRef.current = date
+      const fresh = newGame(mulberry32(dailySeed(date)))
+      const rec = readDaily(dailyKey, date, fresh.answer)
+      const restored = rec ? restoreGame(fresh, rec.guesses) : null
+      const board = restored ?? fresh
+      if (rec && restored && board.status !== 'playing' && !rec.recorded) {
+        recordOutcome(board)
+        writeDaily(dailyKey, { ...rec, recorded: true })
+      }
+      commitState(board)
+    },
+    [clearTimers, commitGuess, commitState, dailyKey, recordOutcome],
+  )
+
+  const switchMode = useCallback(
+    (m: Mode) => {
+      if (m === modeRef.current) return
+      setMode(m)
+      startBoard(m)
+    },
+    [startBoard],
+  )
+
+  // The daily is one attempt per day (it resumes, it never resets), so "new game" from the
+  // daily leads to Practice; in Practice it deals a fresh random word.
+  const restart = useCallback(() => {
+    if (modeRef.current === 'daily') switchMode('practice')
+    else startBoard('practice')
+  }, [startBoard, switchMode])
+
+  useEffect(() => {
+    // Stats first: restoring a daily that finished mid-reveal records it on top of these.
+    setStats(readStats(storageKey))
+    setStreak(currentStreak(loadStreak(streakKey)))
+    startBoard('daily')
+    return () => clearTimers()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey])
+
   const handleSubmit = useCallback(() => {
     const s = stateRef.current
     if (!s || s.status !== 'playing' || revealingRef.current) return
@@ -194,26 +269,29 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
 
     const next = submitGuess(s, word)
     const row = next.guesses.length - 1
+    const daily = modeRef.current === 'daily'
+    const saveDaily = (recorded: boolean) =>
+      writeDaily(dailyKey, {
+        date: dailyDateRef.current,
+        answer: next.answer,
+        guesses: next.guesses.map((g) => g.word),
+        recorded,
+      })
+    // Persist before the reveal so a reload mid-flip still resumes (and later records) this guess.
+    if (daily) saveDaily(false)
     commitState(next)
     commitGuess('')
     setRevealRow(row)
 
+    const recordBoardEnd = () => {
+      recordOutcome(next)
+      if (daily) saveDaily(true)
+    }
     const finishEnd = () => {
-      if (next.status === 'won') {
-        play('win')
-        recordEnd(true)
-      } else if (next.status === 'lost') {
-        play('lose')
-        recordEnd(false)
-      }
-      if (next.status !== 'playing') {
-        // 개인 기록: 완료 판수/승수 + 사용한 추측 수 분포 누적 → 스탯 패널이 읽는다.
-        // (storageKey에는 {wins,streak} JSON이 들어가지만 recordResult는 별도 stats: 키에 쓴다.)
-        recordResult(storageKey.replace(/^best:/, ''), {
-          won: next.status === 'won',
-          bucket: next.guesses.length,
-        })
-      }
+      pendingFinishRef.current = null
+      if (next.status === 'playing') return
+      play(next.status === 'won' ? 'win' : 'lose')
+      recordBoardEnd()
     }
 
     if (reducedRef.current) {
@@ -221,6 +299,7 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
       finishEnd()
       return
     }
+    if (next.status !== 'playing') pendingFinishRef.current = recordBoardEnd
 
     revealingRef.current = true
     setRevealing(true)
@@ -235,7 +314,7 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
         finishEnd()
       }, total),
     )
-  }, [commitGuess, commitState, play, recordEnd, reducedRef, storageKey])
+  }, [commitGuess, commitState, dailyKey, play, recordOutcome, reducedRef])
 
   const typeLetter = useCallback(
     (letter: string) => {
@@ -329,7 +408,7 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
       ]}
       headerExtra={headerExtra}
       onNewGame={restart}
-      newGameLabel={mode === 'daily' ? 'Replay Daily' : 'New Game'}
+      newGameLabel={mode === 'daily' ? 'Practice' : 'New Game'}
       muted={muted}
       onToggleMute={toggleMuted}
       hint={hint}
@@ -461,7 +540,7 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
             />
           )}
           <GameButton onClick={restart} className="px-4 py-2">
-            {mode === 'daily' ? 'Replay Daily' : 'New Game'}
+            {mode === 'daily' ? 'Play Practice' : 'New Game'}
           </GameButton>
         </div>
       </GameOverlay>
@@ -475,8 +554,9 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
         <p className="text-fg-muted">
           The word was <span className="font-bold uppercase tracking-wide text-fg">{state.answer}</span>
         </p>
+        {mode === 'daily' && <p className="text-sm text-fg-muted">New daily word tomorrow.</p>}
         <GameButton onClick={restart} className="px-4 py-2">
-          {mode === 'daily' ? 'Replay Daily' : 'Try again'}
+          {mode === 'daily' ? 'Play Practice' : 'Try again'}
         </GameButton>
       </GameOverlay>
     </GameShell>

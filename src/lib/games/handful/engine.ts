@@ -4,8 +4,15 @@
  * A basket holds N ripe (1) and K rotten (0) items. The whole composition is
  * public; only the draw ORDER is hidden behind the seed. Each turn the single
  * decision is how big a handful (`size`) to grab. handValue(g) is superlinear
- * (triangular), so bigger grabs score more — but a single rotten item in the
- * grab spoils the WHOLE handful to zero. Turn-based, no timer, no losing.
+ * (g²), so bigger grabs score more — but a single rotten item in the grab
+ * spoils the WHOLE handful to zero. Clean streaks multiply the handful's own
+ * value (+25% per streak step), so the combo rewards brave clean grabs rather
+ * than safe singles. Turn-based, no timer, no losing.
+ *
+ * Balance (see engine.test.ts "balance"): the old flat combo bonus
+ * (+5·(combo-1)) dwarfed a triangular hand value, so "always grab 1" averaged
+ * ~368 vs ~18 for 8-at-once. Now singles and max-size both lose to mid sizes,
+ * and an odds-aware player beats every fixed size.
  *
  * All functions here are pure and total: no timers, no `Date`, and NO
  * `Math.random`. Randomness enters ONLY through an injected `Rng`, consumed
@@ -17,8 +24,13 @@
 export type Rng = () => number // returns a float in [0,1)
 export type Item = 0 | 1 // 1 = ripe, 0 = rotten
 
-export const COMBO_UNIT = 5 // per-streak clean bonus unit
+// Combo bonus = floor(handValue(g) · (combo-1) / COMBO_DIVISOR): +25% of the
+// handful's value per consecutive clean grab beyond the first.
+export const COMBO_DIVISOR = 4
 export const DEFAULT_MAX_GRAB = 8
+// Default handful size on a fresh basket (was maxGrab, which made mashing GRAB
+// the worst possible first impression).
+export const START_SIZE = 3
 
 export interface HandfulConfig {
   ripe: number // N ripe items (>0)
@@ -87,10 +99,16 @@ export function mulberry32(seed: number): Rng {
 
 // -- Pure primitives --------------------------------------------------------
 
-/** Triangular bulk reward: g*(g+1)/2. Always an integer, >= g for g >= 1. */
+/** Superlinear bulk reward: g². Always an integer, >= g for g >= 1. */
 export function handValue(g: number): number {
   if (g <= 0) return 0
-  return (g * (g + 1)) / 2
+  return g * g
+}
+
+/** Streak bonus for a clean handful of size g that makes the streak `combo`. */
+export function comboBonus(g: number, combo: number): number {
+  if (g <= 0 || combo < 2) return 0
+  return Math.floor((handValue(g) * (combo - 1)) / COMBO_DIVISOR)
 }
 
 /**
@@ -180,7 +198,7 @@ export function createGame(cfg: HandfulConfig, seed: number): HandfulState {
     lastGrab: null,
     lastEvent: 'none',
   }
-  base.size = clampSize(base, cfg.maxGrab)
+  base.size = clampSize(base, START_SIZE)
   return base
 }
 
@@ -210,15 +228,15 @@ export function reduce(state: HandfulState, action: HandfulAction): HandfulState
       const { drawn, ripe, rotten, clean } = computeGrab(state.order, state.cursor, g)
 
       let combo = state.combo
-      let comboBonus = 0
+      let bonus = 0
       let gained = 0
       if (clean) {
         combo = state.combo + 1
-        comboBonus = combo >= 2 ? COMBO_UNIT * (combo - 1) : 0
-        gained = handValue(drawn.length) + comboBonus
+        bonus = comboBonus(drawn.length, combo)
+        gained = handValue(drawn.length) + bonus
       } else {
         combo = 0
-        comboBonus = 0
+        bonus = 0
         gained = 0
       }
 
@@ -233,7 +251,7 @@ export function reduce(state: HandfulState, action: HandfulAction): HandfulState
         rotten,
         clean,
         gained,
-        comboBonus,
+        comboBonus: bonus,
         drawn,
       }
 

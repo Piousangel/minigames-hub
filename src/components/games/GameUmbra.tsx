@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   LANES,
-  TRACK,
   isVisible,
   mulberry32,
   newGame,
@@ -16,6 +15,7 @@ import {
   type Rng,
   type UmbraState,
 } from '@/lib/games/umbra/engine'
+import { trackCss } from '@/lib/games/umbra/layout'
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
@@ -238,11 +238,25 @@ export function GameUmbra({ storageKey }: { storageKey: string }) {
   )
 
   const onKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLDivElement>) => {
+    (e: KeyboardEvent) => {
       if (isTypingTarget(e.target)) return
+      // Window-level now: never hijack browser shortcuts (Cmd/Ctrl+R reload, +S/+D/+A).
+      if (e.metaKey || e.ctrlKey || e.altKey) return
       const g = gameRef.current
       if (!g) return
       const k = e.key.toLowerCase()
+      // Keys are window-wide, so outside a live run Enter/Space on a focused button or link
+      // (Mute, New Run, Share, Play again) must activate it, not start or tap the run.
+      // Lanes are excluded: their keyboard input is the game's.
+      if (
+        (k === ' ' || k === 'enter') &&
+        g.phase !== 'running' &&
+        e.target instanceof HTMLElement &&
+        e.target.closest('button, a[href]') &&
+        !e.target.closest('[data-testid="lane"]')
+      ) {
+        return
+      }
 
       if (k === 'r') {
         e.preventDefault()
@@ -270,6 +284,13 @@ export function GameUmbra({ storageKey }: { storageKey: string }) {
     },
     [beginRun, doTap, newRun, pump],
   )
+
+  // Keys live on window, not the board: clicking Start unmounts the button and drops
+  // focus to <body>, where a board-scoped onKeyDown would never see 1/2/3.
+  useEffect(() => {
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [onKeyDown])
 
   if (!state) {
     return (
@@ -331,7 +352,6 @@ export function GameUmbra({ storageKey }: { storageKey: string }) {
         data-testid="umbra-board"
         role="group"
         aria-label="Umbra board"
-        onKeyDown={onKeyDown}
         tabIndex={0}
         className="relative rounded-xl bg-surface p-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan"
         style={reduced ? undefined : { animation: 'um-board-in .3s ease-out both' }}
@@ -340,8 +360,9 @@ export function GameUmbra({ storageKey }: { storageKey: string }) {
           {Array.from({ length: LANES }, (_, lane) => {
             const m = state.marbles.find((x) => x.lane === lane)
             const lit = m !== undefined && isVisible(m, tick)
-            const x = m ? (m.vx * (tick - m.spawnTick) * 100) / TRACK : 0
-            const trailPct = m ? (m.vx * TRAIL_TICKS * 100) / TRACK : 0
+            // Engine units; trackCss maps x = TRACK onto the exit-marker line (not the lane edge).
+            const posX = m ? m.vx * (tick - m.spawnTick) : 0
+            const trailX = m ? m.vx * TRAIL_TICKS : 0
             const flash = flashes[lane]
             return (
               <button
@@ -353,7 +374,7 @@ export function GameUmbra({ storageKey }: { storageKey: string }) {
                   e.preventDefault()
                   doTap(lane)
                 }}
-                // The container owns the keyboard. Swallow Space/Enter here so
+                // The window key handler owns the keyboard. Swallow Space/Enter here so
                 // the button never synthesizes a second click on top of it.
                 onKeyDown={(e) => {
                   if (e.key === ' ' || e.key === 'Enter') e.preventDefault()
@@ -365,7 +386,7 @@ export function GameUmbra({ storageKey }: { storageKey: string }) {
                   aria-hidden="true"
                   className="absolute inset-y-0 left-0"
                   style={{
-                    width: `${(revealX * 100) / TRACK}%`,
+                    width: trackCss(revealX, '100%'),
                     background:
                       'linear-gradient(90deg, color-mix(in srgb, var(--neon-cyan) 22%, transparent), transparent)',
                   }}
@@ -411,8 +432,8 @@ export function GameUmbra({ storageKey }: { storageKey: string }) {
                         style={{
                           // cqw, not %: a % in `transform` resolves against the
                           // element's own width, not the lane's.
-                          width: `${trailPct}cqw`,
-                          transform: `translateX(${x - trailPct}cqw) translateY(-50%)`,
+                          width: trackCss(trailX),
+                          transform: `translateX(${trackCss(posX - trailX)}) translateY(-50%)`,
                           background:
                             'linear-gradient(90deg, transparent, color-mix(in srgb, var(--neon-cyan) 70%, transparent))',
                         }}
@@ -422,7 +443,7 @@ export function GameUmbra({ storageKey }: { storageKey: string }) {
                       aria-hidden="true"
                       className="um-marble pointer-events-none absolute top-1/2 left-0 h-3.5 w-3.5 rounded-full"
                       style={{
-                        transform: `translateX(${x}cqw) translate(-50%, -50%)`,
+                        transform: `translateX(${trackCss(posX)}) translate(-50%, -50%)`,
                         background: 'var(--neon-cyan)',
                       }}
                     />
@@ -434,7 +455,7 @@ export function GameUmbra({ storageKey }: { storageKey: string }) {
                         className="pointer-events-none absolute top-1 left-0 text-xs font-bold tabular-nums"
                         style={{
                           color: 'var(--neon-cyan)',
-                          transform: `translateX(${x}cqw) translateX(-50%)`,
+                          transform: `translateX(${trackCss(posX)}) translateX(-50%)`,
                         }}
                       >
                         {m.vx}

@@ -5,7 +5,7 @@
  * point; it reflects off board edges and rectangular walls (axis-separated
  * collision) and slows every tick under rolling friction until it comes to
  * rest. Win = the resting position lands inside the target circle (not just
- * "passing through" it).
+ * "passing through" it). Loss = missing on the last of `par + SHOT_SLACK` shots.
  *
  * One shot = one complete deterministic simulation, computed in full at
  * `fire()` time via `simulateShot`. The component only replays the returned
@@ -57,7 +57,7 @@ export interface ShotResult {
   won: boolean // did the resting position land inside the target radius?
 }
 
-export type ShotEvent = 'none' | 'win' | 'miss' | 'illegal' | 'undo'
+export type ShotEvent = 'none' | 'win' | 'miss' | 'lose' | 'illegal' | 'undo'
 
 export interface BankshotState {
   config: BankshotConfig
@@ -68,6 +68,7 @@ export interface BankshotState {
   shots: number // shots fired on this board
   score: number // monotonic non-decreasing except on undo
   won: boolean
+  lost: boolean // out of shots (shots reached shotLimit(par) without sinking it)
   lastShot: ShotResult | null
   lastEvent: ShotEvent
   undoStack: UndoEntry[]
@@ -78,6 +79,7 @@ export interface UndoEntry {
   shots: number
   score: number
   won: boolean
+  lost: boolean
   lastShot: ShotResult | null
 }
 
@@ -122,6 +124,14 @@ export const PRECISION_BONUS_MAX = 30
 export const PRECISION_RADIUS = 60 * FP
 
 export const UNDO_POOL = 3
+
+/** Shots allowed beyond par before the board is lost (audit: no fail state = guaranteed win). */
+export const SHOT_SLACK = 3
+
+/** Hard shot cap for a board: missing on this shot loses it. */
+export function shotLimit(par: number): number {
+  return par + SHOT_SLACK
+}
 
 export const BANKSHOT_DIFFICULTIES = {
   easy: { minWalls: 2, maxWalls: 3, wallMinLen: 50 * FP, wallMaxLen: 120 * FP, par: 3 },
@@ -434,6 +444,7 @@ export function createGame(cfg: BankshotConfig, seed: number, launch: { x: numbe
     shots: 0,
     score: 0,
     won: false,
+    lost: false,
     lastShot: null,
     lastEvent: 'none',
     undoStack: [],
@@ -444,7 +455,7 @@ export function createGame(cfg: BankshotConfig, seed: number, launch: { x: numbe
 // -- Reducer ----------------------------------------------------------------
 
 function snapshot(state: BankshotState): UndoEntry {
-  return { shots: state.shots, score: state.score, won: state.won, lastShot: state.lastShot }
+  return { shots: state.shots, score: state.score, won: state.won, lost: state.lost, lastShot: state.lastShot }
 }
 
 export function reduce(state: BankshotState, action: BankshotAction): BankshotState {
@@ -456,7 +467,7 @@ export function reduce(state: BankshotState, action: BankshotAction): BankshotSt
       return { ...state, power: clamp(Math.round(action.power), 0, 100), lastEvent: 'none' }
 
     case 'fire': {
-      if (state.won) return { ...state, lastEvent: 'illegal' }
+      if (state.won || state.lost) return { ...state, lastEvent: 'illegal' }
 
       const speed = powerToSpeed(state.power)
       const { vx, vy } = angleToVelocity(state.aimDeg, speed)
@@ -468,6 +479,7 @@ export function reduce(state: BankshotState, action: BankshotAction): BankshotSt
 
       let score: number
       let won: boolean
+      let lost = false
       let event: ShotEvent
       if (result.won) {
         score = state.score + scoreOnWin(shots, state.config.par)
@@ -476,7 +488,8 @@ export function reduce(state: BankshotState, action: BankshotAction): BankshotSt
       } else {
         score = state.score + scoreOnMiss(result.closestApproach)
         won = false
-        event = 'miss'
+        lost = shots >= shotLimit(state.config.par)
+        event = lost ? 'lose' : 'miss'
       }
 
       return {
@@ -484,6 +497,7 @@ export function reduce(state: BankshotState, action: BankshotAction): BankshotSt
         shots,
         score,
         won,
+        lost,
         lastShot: result,
         lastEvent: event,
         undoStack,
@@ -491,7 +505,8 @@ export function reduce(state: BankshotState, action: BankshotAction): BankshotSt
     }
 
     case 'undo': {
-      if (state.undosLeft <= 0 || state.undoStack.length === 0) {
+      // A lost board is final: undo can't buy back shots past the limit.
+      if (state.lost || state.undosLeft <= 0 || state.undoStack.length === 0) {
         return { ...state, lastEvent: 'none' }
       }
       const [head, ...rest] = state.undoStack
@@ -500,6 +515,7 @@ export function reduce(state: BankshotState, action: BankshotAction): BankshotSt
         shots: head.shots,
         score: head.score,
         won: head.won,
+        lost: head.lost,
         lastShot: head.lastShot,
         undoStack: rest,
         undosLeft: state.undosLeft - 1,

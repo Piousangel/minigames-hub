@@ -69,6 +69,9 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
   const [difficulty, setDifficulty] = useState<Difficulty>('easy')
   const [genKey, setGenKey] = useState(0)
   const [best, setBest] = useState<BestTimes>({})
+  // On-demand answer check (no live mistake counter — that leaked the answer).
+  const [checks, setChecks] = useState(0)
+  const [wrongCells, setWrongCells] = useState<ReadonlySet<string>>(() => new Set())
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reducedRef } = useReducedMotion()
@@ -106,6 +109,8 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
       setSolved(false)
       setElapsed(0)
       setHover(null)
+      setChecks(0)
+      setWrongCells(new Set())
     }, 0)
     return () => {
       cancelled = true
@@ -144,6 +149,8 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
       if (s.grid[r][c] === value) return
       const next = setCell(s, r, c, value)
       commit(next)
+      // Any edit makes the last Check result stale — hide it.
+      setWrongCells((prev) => (prev.size === 0 ? prev : new Set()))
 
       if (value === FILLED) {
         play('move')
@@ -219,7 +226,15 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
     }
   }, [])
 
-  const mistakeCount = useMemo(() => (state ? findMistakes(state).length : 0), [state])
+  // Reveal wrong fills only when the player explicitly asks (each use is counted).
+  const checkAnswer = useCallback(() => {
+    const s = stateRef.current
+    if (!s || solvedRef.current) return
+    const wrong = findMistakes(s)
+    setChecks((n) => n + 1)
+    setWrongCells(new Set(wrong.map(([r, c]) => `${r},${c}`)))
+    play(wrong.length > 0 ? 'flip' : 'flag')
+  }, [play])
 
   // Which row/column clues are satisfied by the current fills (for dimming).
   const rowDone = useMemo(() => {
@@ -286,10 +301,10 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
 
   const hint =
     mode === 'fill'
-      ? 'The numbers on each row and column are the lengths of filled runs — read them, then tap or drag to paint. Switch to Mark to X out blanks.'
+      ? 'The numbers on each row and column are the lengths of filled runs — read them, then tap or drag to paint. Switch to Mark to X out blanks; Check highlights wrong fills.'
       : 'Mark mode: tap or drag to X out cells you know are blank.'
 
-  const stats = [{ label: 'Mistakes', value: mistakeCount, testId: 'mistakes' }]
+  const stats = [{ label: 'Checks', value: checks, testId: 'checks' }]
 
   const boardWidth = difficulty === 'hard' ? 'max-w-[34rem]' : 'max-w-[22rem]'
 
@@ -371,7 +386,20 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
             ✕ Mark
           </button>
         </div>
+        <GameButton
+          variant="ghost"
+          onClick={checkAnswer}
+          disabled={solved}
+          data-testid="nonogram-check"
+          className="ml-2"
+          title="Highlight wrong fills (counts as a check)"
+        >
+          Check
+        </GameButton>
       </div>
+      <p className="sr-only" aria-live="polite" data-testid="check-result">
+        {checks > 0 && !solved ? (wrongCells.size > 0 ? `${wrongCells.size} wrong fill${wrongCells.size === 1 ? '' : 's'}` : '') : ''}
+      </p>
 
       <div
         ref={boardRef}
@@ -434,8 +462,9 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
                 const rSep = (c + 1) % 5 === 0 && c !== size - 1 ? 'border-r-2 border-r-white/25' : 'border-r border-r-white/10'
                 const bSep = (r + 1) % 5 === 0 && r !== size - 1 ? 'border-b-2 border-b-white/25' : 'border-b border-b-white/10'
 
+                const isWrong = wrongCells.has(`${r},${c}`)
                 let bg = 'bg-white/[0.03]'
-                if (v === FILLED) bg = 'bg-accent'
+                if (v === FILLED) bg = isWrong ? 'bg-red-500/80' : 'bg-accent'
                 else if (inHoverLine) bg = 'bg-accent/10'
 
                 return (
@@ -447,6 +476,7 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
                     data-c={c}
                     data-testid="nonogram-cell"
                     data-value={v === FILLED ? 'filled' : v === MARKED ? 'marked' : 'empty'}
+                    data-wrong={isWrong ? 'true' : undefined}
                     aria-label={`row ${r + 1}, column ${c + 1}: ${v === FILLED ? 'filled' : v === MARKED ? 'marked' : 'empty'}`}
                     onPointerDown={(e) => onCellPointerDown(e, r, c)}
                     onPointerEnter={() => setHover({ r, c })}
@@ -468,6 +498,9 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
         <GameOverlay show={solved} variant="win" title="Solved!" testId="you-win">
           <p className="text-lg font-semibold text-fg">
             {DIFF_LABEL[state.difficulty]} · {fmtTime(elapsed)}
+          </p>
+          <p className="text-sm text-fg-muted" data-testid="checks-used">
+            {checks === 0 ? 'No checks used' : `${checks} check${checks === 1 ? '' : 's'} used`}
           </p>
           <GameButton onClick={startNewGame} className="px-4 py-2">
             New Game

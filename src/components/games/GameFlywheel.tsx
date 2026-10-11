@@ -8,11 +8,14 @@ import {
   MAX_DT,
   mulberry32,
   newGame,
+  offsetTurns,
   omega,
   PERFECT_FRAC,
+  START_RPM,
   step,
   tap,
   type FlywheelState,
+  type Grade,
   type Rng,
 } from '@/lib/games/flywheel/engine'
 import { isTypingTarget } from '@/lib/isTypingTarget'
@@ -22,6 +25,23 @@ import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 type Phase = 'idle' | 'playing' | 'over'
+type Feedback = Grade | 'whiff'
+
+// Visible tap verdict so timing can be corrected without sound.
+const FEEDBACK_TEXT: Record<Feedback, string> = {
+  perfect: 'PERFECT',
+  good: 'GOOD',
+  early: 'EARLY',
+  late: 'LATE',
+  whiff: 'TOO EARLY',
+}
+const FEEDBACK_CLASS: Record<Feedback, string> = {
+  perfect: 'text-neon-green',
+  good: 'text-neon-cyan',
+  early: 'text-neon-amber',
+  late: 'text-neon-amber',
+  whiff: 'text-neon-red',
+}
 
 const FIELD = 400
 const TAU = Math.PI * 2
@@ -34,6 +54,9 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
   const [lives, setLives] = useState(newGame().lives)
   const [phase, setPhase] = useState<Phase>('idle')
   const [ready, setReady] = useState(false)
+  // This run's peak (shown on game over — `best` is the all-time record).
+  const [runPeak, setRunPeak] = useState(0)
+  const [feedback, setFeedback] = useState<{ kind: Feedback; n: number } | null>(null)
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reducedRef } = useReducedMotion()
@@ -56,6 +79,9 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
   const ringPulseRef = useRef(0) // perfect ring (1 → 0)
   const telegraphRef = useRef(0) // flutter pre-flash (1 → 0)
   const numPulseRef = useRef(0) // center number pop (1 → 0)
+  const tickRef = useRef(0) // last-tap offset tick fade (1 → 0)
+  const tickOffsetRef = useRef(0) // last-tap offset in turns (<0 early, >0 late)
+  const tickColorRef = useRef('#fff')
 
   const mutedRef = useRef(muted)
   useEffect(() => {
@@ -159,6 +185,21 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
     drawMarker(theta)
     if (g.isFlutter) drawMarker(theta + Math.PI)
 
+    // 6b) Offset tick: where on the rim the last tap actually landed.
+    if (tickRef.current > 0) {
+      const ta = top + tickOffsetRef.current * TAU
+      ctx.save()
+      ctx.globalAlpha = tickRef.current
+      ctx.strokeStyle = tickColorRef.current
+      ctx.lineWidth = 4
+      ctx.lineCap = 'round'
+      ctx.beginPath()
+      ctx.moveTo(cx + Math.cos(ta) * (R - 16), cy + Math.sin(ta) * (R - 16))
+      ctx.lineTo(cx + Math.cos(ta) * (R + 16), cy + Math.sin(ta) * (R + 16))
+      ctx.stroke()
+      ctx.restore()
+    }
+
     // 7) Perfect ring expanding from the top.
     if (!reduced && ringPulseRef.current > 0) {
       const rp = ringPulseRef.current
@@ -223,9 +264,20 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
       if (phaseRef.current === 'playing' && g && !g.over) {
         if (tapQueuedRef.current) {
           tapQueuedRef.current = false
+          const tapOffset = offsetTurns(g)
           const tapped = tap(g)
           gameRef.current = tapped
           const ev = tapped.events
+          const fb: Feedback | null = ev.grade ?? (ev.whiff ? 'whiff' : null)
+          if (fb) {
+            setFeedback((prev) => ({ kind: fb, n: (prev?.n ?? 0) + 1 }))
+            if (fb !== 'whiff') {
+              tickOffsetRef.current = tapOffset
+              tickRef.current = 1
+              tickColorRef.current =
+                fb === 'perfect' ? '#34e39b' : fb === 'good' ? '#22d3ee' : '#fbbf24'
+            }
+          }
           if (ev.grade === 'perfect') {
             play('match')
             ringPulseRef.current = 1
@@ -263,8 +315,9 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
           bestRef.current = Math.round(s.peakRpm)
           setBest(bestRef.current)
           // over 시점엔 bestRef가 이미 peak와 같아져 비교가 무의미하다. 경신이 실제로
-          // 일어나는 여기서 플래그를 세운다.
-          newBestRef.current = true
+          // 일어나는 여기서 플래그를 세운다. 시작 RPM 그대로(한 번도 가속 못 함)는
+          // 첫 판이라도 'New best'가 아니다.
+          if (Math.round(s.peakRpm) > START_RPM) newBestRef.current = true
         }
 
         // Advance the decorative ghost at best-rpm pace.
@@ -275,6 +328,7 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
         if (s.over) {
           phaseRef.current = 'over'
           setPhase('over')
+          setRunPeak(Math.round(s.peakRpm))
           setNewBest(newBestRef.current)
           play(newBestRef.current ? 'win' : 'lose')
           flashRef.current = 1
@@ -291,6 +345,7 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
       if (telegraphRef.current > 0)
         telegraphRef.current = Math.max(0, telegraphRef.current - dt * 1.5)
       if (numPulseRef.current > 0) numPulseRef.current = Math.max(0, numPulseRef.current - dt * 5)
+      if (tickRef.current > 0) tickRef.current = Math.max(0, tickRef.current - dt * 1.5)
 
       draw()
       rafRef.current = requestAnimationFrame(frame)
@@ -332,6 +387,8 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
     ringPulseRef.current = 0
     telegraphRef.current = 0
     numPulseRef.current = 0
+    tickRef.current = 0
+    setFeedback(null)
     ghostAngleRef.current = 0
     lastTsRef.current = 0
     rngRef.current = mulberry32(1)
@@ -438,13 +495,28 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
           style={{ touchAction: 'none' }}
           aria-label="Flywheel game board — tap or press Space on the beat"
         />
+        <div aria-live="polite" className="pointer-events-none absolute inset-x-0 top-[22%] flex justify-center">
+          {feedback && phase === 'playing' && (
+            <span
+              key={feedback.n}
+              data-testid="flywheel-grade"
+              data-grade={feedback.kind}
+              className={`anim-float rounded-full bg-bg/60 px-3 py-0.5 text-sm font-extrabold tracking-widest ${FEEDBACK_CLASS[feedback.kind]}`}
+            >
+              {FEEDBACK_TEXT[feedback.kind]}
+            </span>
+          )}
+        </div>
         <GameOverlay
           show={phase === 'over'}
           variant={newBest ? 'win' : 'lose'}
           title={newBest ? 'New best!' : 'Wheel stalled'}
           testId="game-over"
         >
-          <p className="text-fg-muted">Peak RPM: {best}</p>
+          <p className="text-fg-muted" data-testid="flywheel-run-peak">
+            Peak RPM: <span className="font-bold text-fg">{runPeak}</span>
+          </p>
+          {!newBest && best > 0 && <p className="text-xs text-fg-muted">Best: {best}</p>}
           <GameButton onClick={restart} className="px-4 py-2">
             Try again
           </GameButton>

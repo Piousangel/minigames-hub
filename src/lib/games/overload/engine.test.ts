@@ -6,6 +6,9 @@ import {
   capacityOf,
   CELLS,
   CLEAR_TARGET,
+  clearTarget,
+  puzzleTapBudget,
+  retryBoard,
   COLS,
   endlessDensity,
   ENDLESS_REFILL,
@@ -38,6 +41,8 @@ function stateOf(charges: number[], overrides: Partial<GameState> = {}): GameSta
     seed: 1,
     cleared: false,
     over: false,
+    boardStartScore: 0,
+    boardStartTaps: TAP_BUDGET,
     ...overrides,
   }
 }
@@ -193,7 +198,9 @@ describe('perfect storm (board-spanning chain)', () => {
 
 describe('golden seed (locks the deterministic pipeline)', () => {
   it('mulberry32(12345) + seedBoard + tap 30 → fixed chain, score, board', () => {
-    const board = seedBoard(mulberry32(12345), puzzleDensity(1))
+    // Literal density (the original level-1 value) so this test locks the
+    // seedBoard + cascade pipeline independently of difficulty tuning.
+    const board = seedBoard(mulberry32(12345), 0.45)
     expect(board).toEqual([
       0, 2, 1, 2, 2, 0, 2, 2, 3, 1, 3, 2, 1, 0, 3, 3, 0, 2, 2, 3, 3, 3, 3, 2, 2, 2, 0, 3, 3, 0, 1,
       2, 2, 2, 1, 0,
@@ -320,10 +327,13 @@ describe('game lifecycle', () => {
   })
 
   it('density formulas scale and clamp', () => {
-    expect(puzzleDensity(1)).toBeCloseTo(0.45)
-    expect(puzzleDensity(100)).toBeCloseTo(0.85) // clamped
-    expect(endlessDensity(1)).toBeCloseTo(0.4)
-    expect(endlessDensity(100)).toBeCloseTo(0.9) // clamped
+    // Puzzle density FALLS with level (audit 2026-10-10: it used to rise, so
+    // later boards were nearly pre-detonated and trivially easy).
+    expect(puzzleDensity(1)).toBeCloseTo(0.32)
+    expect(puzzleDensity(2)).toBeLessThan(puzzleDensity(1))
+    expect(puzzleDensity(100)).toBeCloseTo(0.2) // clamped floor
+    expect(endlessDensity(1)).toBeCloseTo(0.36)
+    expect(endlessDensity(100)).toBeCloseTo(0.2) // clamped floor
     expect(ROWS * COLS).toBe(CELLS)
   })
 })
@@ -334,3 +344,136 @@ function withTap(board: number[], index: number): number[] {
   c[index] += 1
   return c
 }
+
+describe('retryBoard (audit 2026-10-10: Retry rebuilt a level-1 board)', () => {
+  it('regenerates the SAME board at the SAME level and restores score/taps from board start', () => {
+    const seed0 = 11
+    let st = newGame(mulberry32(seed0), 'puzzle', seed0)
+    // Pretend we cleared board 1 with a score, then advanced to level 3.
+    st = { ...st, score: 900, cleared: true }
+    st = nextBoard(st, mulberry32(22), 22)
+    st = { ...st, score: 1400, cleared: true }
+    st = nextBoard(st, mulberry32(33), 33)
+    expect(st.level).toBe(3)
+    const original = st.charges.slice()
+    expect(st.boardStartScore).toBe(1400)
+    expect(st.boardStartTaps).toBe(puzzleTapBudget(3))
+
+    // Burn every tap on a non-critical-ish cell until the run ends.
+    let s = st
+    while (!s.over && !s.cleared) s = addCharge(s, 0).state
+    const lost = s.cleared ? { ...s, cleared: false, over: true } : s
+
+    const retried = retryBoard(lost)
+    expect(retried.charges).toEqual(original)
+    expect(retried.level).toBe(3)
+    expect(retried.seed).toBe(33)
+    expect(retried.score).toBe(1400)
+    expect(retried.tapsLeft).toBe(puzzleTapBudget(3))
+    expect(retried.over).toBe(false)
+    expect(retried.cleared).toBe(false)
+  })
+
+  it('works for a level-1 board and for endless', () => {
+    const p = newGame(mulberry32(5), 'puzzle', 5)
+    expect(retryBoard({ ...p, over: true, tapsLeft: 0, score: 70 })).toEqual(p)
+    const e = nextBoard({ ...newGame(mulberry32(6), 'endless', 6), tapsLeft: 2, score: 300 }, mulberry32(7), 7)
+    const r = retryBoard({ ...e, over: true, tapsLeft: 0, score: 999 })
+    expect(r.charges).toEqual(e.charges)
+    expect(r.tapsLeft).toBe(e.tapsLeft)
+    expect(r.score).toBe(300)
+  })
+})
+
+describe('difficulty curve (audit 2026-10-10: greedy/random play cleared ~every board)', () => {
+  const SEEDS = 120
+  function tapOnce(charges: number[], i: number) {
+    const c = charges.slice()
+    c[i] += 1
+    return resolveCascade(c)
+  }
+  /** Fraction of boards at `level` where some single first tap is already a Perfect Storm. */
+  function firstTapStormRate(level: number): number {
+    let hit = 0
+    for (let s = 1; s <= SEEDS; s++) {
+      const b = seedBoard(mulberry32(s * 7919 + level), puzzleDensity(level))
+      let best = 0
+      for (let i = 0; i < CELLS; i++) best = Math.max(best, tapOnce(b, i).chainLength)
+      if (best >= clearTarget(level)) hit++
+    }
+    return hit / SEEDS
+  }
+  /** Win rate of a uniformly random tapper with the real level budget. */
+  function randomWinRate(level: number): number {
+    let wins = 0
+    for (let s = 1; s <= SEEDS; s++) {
+      const rng = mulberry32(s * 31 + level * 1000)
+      let st: GameState = {
+        ...newGame(mulberry32(s), 'puzzle', s),
+        level,
+        charges: seedBoard(mulberry32(s * 7919 + level), puzzleDensity(level)),
+        tapsLeft: puzzleTapBudget(level),
+      }
+      while (!st.over && !st.cleared) st = addCharge(st, Math.floor(rng() * CELLS)).state
+      if (st.cleared) wins++
+    }
+    return wins / SEEDS
+  }
+
+  it('Perfect Storm target and tap budget tighten with level', () => {
+    expect(clearTarget(1)).toBe(CLEAR_TARGET)
+    expect(clearTarget(2)).toBeGreaterThan(clearTarget(1))
+    expect(puzzleTapBudget(1)).toBe(TAP_BUDGET)
+    expect(puzzleTapBudget(9)).toBeLessThan(puzzleTapBudget(1))
+  })
+
+  it('a one-tap storm is the exception, and rarer on later levels', () => {
+    // Before the fix: ~59% at L1, ~93% at L4, 100% at L9.
+    expect(firstTapStormRate(1)).toBeLessThan(0.35)
+    expect(firstTapStormRate(4)).toBeLessThan(0.15)
+    expect(firstTapStormRate(9)).toBeLessThan(0.06)
+  })
+
+  it('random tapping no longer clears boards, and gets worse as levels rise', () => {
+    // Before the fix: random play cleared ~85% at L1 and ~99-100% from L4 on.
+    const l1 = randomWinRate(1)
+    const l4 = randomWinRate(4)
+    const l9 = randomWinRate(9)
+    expect(l1).toBeLessThan(0.5)
+    expect(l4).toBeLessThan(l1 + 0.05)
+    expect(l9).toBeLessThan(0.15)
+  })
+})
+
+describe('endless terminates (audit 2026-10-10 follow-on: density used to climb to 0.9)', () => {
+  it('a greedy max-chain player still runs out of taps within a bounded number of rounds', () => {
+    let maxRound = 0
+    for (let s = 1; s <= 40; s++) {
+      let st = newGame(mulberry32(s), 'endless', s)
+      let guard = 0
+      while (!st.over && guard++ < 2000) {
+        if (st.cleared) {
+          const seed = s * 100 + st.level
+          st = nextBoard(st, mulberry32(seed), seed)
+          continue
+        }
+        let idx = 0
+        let bestChain = -1
+        for (let i = 0; i < CELLS; i++) {
+          const c = st.charges.slice()
+          c[i] += 1
+          const len = resolveCascade(c).chainLength
+          if (len > bestChain) {
+            bestChain = len
+            idx = i
+          }
+        }
+        st = addCharge(st, idx).state
+      }
+      expect(st.over).toBe(true)
+      maxRound = Math.max(maxRound, st.level)
+    }
+    // Before: greedy play reached round ~1500 (guard) — the run never ended.
+    expect(maxRound).toBeLessThan(20)
+  })
+})

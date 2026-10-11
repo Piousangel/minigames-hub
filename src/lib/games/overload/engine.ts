@@ -10,7 +10,7 @@ export const COLS = 6
 export const CELLS = 36 // ROWS * COLS
 
 export const BASE_SCORE = 10 // score per overload before multiplier
-export const TAP_BUDGET = 12 // puzzle-mode taps per board
+export const TAP_BUDGET = 9 // puzzle-mode taps on board 1 (see puzzleTapBudget)
 export const ENDLESS_START_TAPS = 10 // endless starting pool
 export const ENDLESS_REFILL = 5 // taps granted on each Perfect Storm in endless
 export const PERFECT_STORM_BONUS = 500
@@ -31,7 +31,26 @@ export const MAX_STEPS = 200 // hard cascade cap — guarantees termination
 // board's worth). This preserves the concept ("one tap unravels the whole
 // board"), the scoring/bonus structure, and the "find THE perfect tap / fewest
 // taps" loop, while being reachable and cleanly testable.
-export const CLEAR_TARGET = CELLS // overloads in one tap that count as a Perfect Storm
+export const CLEAR_TARGET = CELLS // board-1 overloads in one tap that count as a Perfect Storm
+
+// -- Difficulty curve ---------------------------------------------------------
+// Taps only ever ADD charge (a cascade conserves it), so any board drifts
+// toward supercritical as you play. The original curve made each level's
+// board denser with a fixed target and 12 taps, so difficulty ran BACKWARDS:
+// random tapping cleared ~85% of level-1 boards and ~100% from level 4 on,
+// and most boards had a one-tap storm (audit 2026-10-10). Now, per level, the
+// board gets sparser, the storm target grows, and the tap budget shrinks.
+// Locked by the 'difficulty curve' simulation tests in engine.test.ts.
+
+/** Overloads a single tap must reach for a Perfect Storm on board `level`. */
+export function clearTarget(level: number): number {
+  return CLEAR_TARGET + 9 * Math.min(Math.max(0, level - 1), 6) // 36 → 90
+}
+
+/** Puzzle-mode taps for board `level`. */
+export function puzzleTapBudget(level: number): number {
+  return Math.max(7, TAP_BUDGET - Math.floor(Math.max(0, level - 1) / 3)) // 9 → 7
+}
 
 export type Rng = () => number // returns [0,1)
 export type Mode = 'puzzle' | 'endless'
@@ -62,6 +81,8 @@ export interface GameState {
   seed: number // seed used to generate THIS board (for per-board best keying)
   cleared: boolean // Perfect Storm achieved on the current board
   over: boolean // run ended: tapsLeft hit 0 without clearing
+  boardStartScore: number // score when THIS board began (retryBoard restores it)
+  boardStartTaps: number // tapsLeft when THIS board began (retry + taps-used record)
 }
 
 // ---------------------------------------------------------------------------
@@ -118,11 +139,13 @@ export function mulberry32(seed: number): Rng {
 
 /** Density in [0,1]: probability a cell is seeded critical (capacity-1). */
 export function puzzleDensity(level: number): number {
-  return Math.min(0.85, 0.45 + 0.05 * (level - 1))
+  return Math.max(0.2, 0.32 - 0.015 * (level - 1))
 }
 
+// Endless used to climb to 0.9 density: every later board stormed on any tap,
+// so a greedy player never ran out of taps (the run was effectively infinite).
 export function endlessDensity(round: number): number {
-  return Math.min(0.9, 0.4 + 0.06 * (round - 1))
+  return Math.max(0.2, 0.36 - 0.02 * (round - 1))
 }
 
 /**
@@ -248,7 +271,7 @@ export function addCharge(
   const tapsLeft = state.tapsLeft - 1
   let score = state.score + result.scoreDelta
   // Perfect Storm — a board-spanning chain (see CLEAR_TARGET note above).
-  const cleared = result.chainLength >= CLEAR_TARGET
+  const cleared = result.chainLength >= clearTarget(state.level)
   let over = false
 
   if (cleared) {
@@ -268,31 +291,56 @@ export function addCharge(
   return { state: next, result }
 }
 
+function densityFor(mode: Mode, level: number): number {
+  return mode === 'puzzle' ? puzzleDensity(level) : endlessDensity(level)
+}
+
 /** Fresh run. seed stored on state for per-board best keying. */
 export function newGame(rng: Rng, mode: Mode, seed: number): GameState {
-  const density = mode === 'puzzle' ? puzzleDensity(1) : endlessDensity(1)
+  const tapsLeft = mode === 'puzzle' ? puzzleTapBudget(1) : ENDLESS_START_TAPS
   return {
-    charges: seedBoard(rng, density),
-    tapsLeft: mode === 'puzzle' ? TAP_BUDGET : ENDLESS_START_TAPS,
+    charges: seedBoard(rng, densityFor(mode, 1)),
+    tapsLeft,
     score: 0,
     mode,
     level: 1,
     seed,
     cleared: false,
     over: false,
+    boardStartScore: 0,
+    boardStartTaps: tapsLeft,
   }
 }
 
-/** Advance to the next (denser) board after a Perfect Storm. Carries score. */
+/** Advance to the next board after a Perfect Storm. Carries score. */
 export function nextBoard(state: GameState, rng: Rng, seed: number): GameState {
   const level = state.level + 1
-  const density = state.mode === 'puzzle' ? puzzleDensity(level) : endlessDensity(level)
+  const tapsLeft = state.mode === 'puzzle' ? puzzleTapBudget(level) : state.tapsLeft + ENDLESS_REFILL
   return {
     ...state,
-    charges: seedBoard(rng, density),
+    charges: seedBoard(rng, densityFor(state.mode, level)),
     level,
     seed,
-    tapsLeft: state.mode === 'puzzle' ? TAP_BUDGET : state.tapsLeft + ENDLESS_REFILL,
+    tapsLeft,
+    cleared: false,
+    over: false,
+    boardStartScore: state.score,
+    boardStartTaps: tapsLeft,
+  }
+}
+
+/**
+ * Replay the CURRENT board from its start: same seed, same level density, and
+ * the score/taps it began with. Boards are always generated as
+ * seedBoard(mulberry32(seed), density(level)) — newGame/nextBoard callers pass
+ * mulberry32(seed) — so this reproduces the exact board the player lost on.
+ */
+export function retryBoard(state: GameState): GameState {
+  return {
+    ...state,
+    charges: seedBoard(mulberry32(state.seed), densityFor(state.mode, state.level)),
+    score: state.boardStartScore,
+    tapsLeft: state.boardStartTaps,
     cleared: false,
     over: false,
   }
