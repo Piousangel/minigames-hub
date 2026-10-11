@@ -245,6 +245,18 @@ export function GameUmbra({ storageKey }: { storageKey: string }) {
       const g = gameRef.current
       if (!g) return
       const k = e.key.toLowerCase()
+      // Keys are window-wide, so outside a live run Enter/Space on a focused button or link
+      // (Mute, New Run, Share, Play again) must activate it, not start or tap the run.
+      // Lanes are excluded: their keyboard input is the game's.
+      if (
+        (k === ' ' || k === 'enter') &&
+        g.phase !== 'running' &&
+        e.target instanceof HTMLElement &&
+        e.target.closest('button, a[href]') &&
+        !e.target.closest('[data-testid="lane"]')
+      ) {
+        return
+      }
 
       if (k === 'r') {
         e.preventDefault()
@@ -362,7 +374,7 @@ export function GameUmbra({ storageKey }: { storageKey: string }) {
                   e.preventDefault()
                   doTap(lane)
                 }}
-                // The container owns the keyboard. Swallow Space/Enter here so
+                // The window key handler owns the keyboard. Swallow Space/Enter here so
                 // the button never synthesizes a second click on top of it.
                 onKeyDown={(e) => {
                   if (e.key === ' ' || e.key === 'Enter') e.preventDefault()

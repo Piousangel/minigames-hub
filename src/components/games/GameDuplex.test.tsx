@@ -8,7 +8,7 @@ const mirror = () => screen.getByTestId('duplex-mirror').textContent ?? ''
 const prev = () => screen.getByRole('button', { name: 'Previous level' })
 const next = () => screen.getByRole('button', { name: 'Next level' })
 
-describe('GameDuplex level navigation respects pack locks (audit 2026-10-10)', () => {
+describe('GameDuplex level navigation respects pack locks (audit 2026-10-10)', { timeout: 20_000 }, () => {
   beforeEach(() => localStorage.clear())
   afterEach(() => vi.restoreAllMocks())
 

@@ -4,6 +4,11 @@ import type { State } from '@/lib/games/dominoes/engine'
 
 vi.mock('@/lib/hit', () => ({ sendHit: vi.fn() }))
 
+const playSpy = vi.fn()
+vi.mock('@/lib/sound/useGameSound', () => ({
+  useGameSound: () => ({ play: playSpy, muted: false, toggleMuted: vi.fn() }),
+}))
+
 // Lets a test swap in a hand-built deal; null = the real shuffled deal.
 let rigged: State | null = null
 vi.mock('@/lib/games/dominoes/engine', async (importOriginal) => {
@@ -38,6 +43,7 @@ describe('GameDominoes', () => {
   beforeEach(() => {
     localStorage.clear()
     rigged = null
+    playSpy.mockClear()
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
   })
 
@@ -61,6 +67,21 @@ describe('GameDominoes', () => {
     expect(record.l ?? 0).toBe(0)
     expect(record.w ?? 0).toBe(0)
     expect(record.d).toBe(1)
+  })
+
+  // The neutral draw card must not be paired with the victory fanfare in 2-Player mode either.
+  it('a blocked tie in 2-Player shows the draw card without the win fanfare', () => {
+    rigged = BLOCKED_TIE
+    render(<GameDominoes storageKey={STORAGE_KEY} />)
+    fireEvent.click(screen.getByRole('button', { name: '2-Player' }))
+    fireEvent.click(screen.getByTestId('dominoes-pass'))
+    fireEvent.click(screen.getByRole('button', { name: 'Reveal my hand' }))
+    playSpy.mockClear()
+    fireEvent.click(screen.getByTestId('dominoes-pass'))
+
+    expect(screen.getByTestId('dominoes-result-draw')).toBeInTheDocument()
+    expect(screen.queryByTestId('dominoes-result-win')).not.toBeInTheDocument()
+    expect(playSpy).not.toHaveBeenCalledWith('win')
   })
 
   // Audit 2026-10-10 [bug/S]: line tiles collapsed to 3×2px because the tile had no height.

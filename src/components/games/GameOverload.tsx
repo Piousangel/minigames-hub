@@ -51,6 +51,11 @@ export function GameOverload({ storageKey }: { storageKey: string }) {
   const [popIndex, setPopIndex] = useState(-1)
   const [cursor, setCursor] = useState(0)
   const [boardRecord, setBoardRecord] = useState<BoardRecord | null>(null)
+  // Set once a run uses Retry board. Retry restores the board's starting score,
+  // so a retried run has unlimited continues — it must not raise best:overload
+  // (the leaderboard score). Cleared by any fresh run.
+  const [practice, setPractice] = useState(false)
+  const practiceRef = useRef(false)
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reducedRef } = useReducedMotion()
@@ -91,6 +96,8 @@ export function GameOverload({ storageKey }: { storageKey: string }) {
       setFlash({ set: [], key: 0 })
       setShake(0)
       setCursor(0)
+      practiceRef.current = false
+      setPractice(false)
       const fresh = newGame(mulberry32(seed), nextMode, seed)
       setDisplay(fresh.charges.slice())
       commit(fresh)
@@ -123,6 +130,7 @@ export function GameOverload({ storageKey }: { storageKey: string }) {
 
   const persistBest = useCallback(
     (score: number) => {
+      if (practiceRef.current) return
       if (score > bestRef.current) {
         bestRef.current = score
         setBest(score)
@@ -308,6 +316,8 @@ export function GameOverload({ storageKey }: { storageKey: string }) {
     setChainBanner(null)
     setFlash({ set: [], key: 0 })
     setShake(0)
+    practiceRef.current = true
+    setPractice(true)
     const again = retryBoardState(s)
     setDisplay(again.charges.slice())
     commit(again)
@@ -333,6 +343,7 @@ export function GameOverload({ storageKey }: { storageKey: string }) {
   // --- Rendering ------------------------------------------------------------
 
   const hint = (() => {
+    const practiceNote = practice ? '  Practice run (board retried) — Best is not updated until a New Game.' : ''
     const base =
       mode === 'puzzle'
         ? 'Tap cells to charge them — a cell hits capacity, overloads, and chains across the board. Set off the Storm count of overloads in ONE tap for a Perfect Storm; each board raises the bar.'
@@ -342,9 +353,9 @@ export function GameOverload({ storageKey }: { storageKey: string }) {
         boardRecord.fewestTaps < Number.MAX_SAFE_INTEGER
           ? ` · Fewest taps: ${boardRecord.fewestTaps}`
           : ''
-      return `${base}  (Board best: ${boardRecord.best}${ft})`
+      return `${base}  (Board best: ${boardRecord.best}${ft})${practiceNote}`
     }
-    return base
+    return base + practiceNote
   })()
 
   const modeToggle = (

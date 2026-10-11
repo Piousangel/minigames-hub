@@ -8,7 +8,7 @@ const STORAGE_KEY = 'best:countcircle'
 function playerSeat(): number {
   return Number(screen.getByTestId('player-seat').getAttribute('data-seat'))
 }
-function buttonSeat(name: 'Move left' | 'Move right'): number {
+function buttonSeat(name: 'Move left' | 'Move right' | 'Move up' | 'Move down'): number {
   return Number(screen.getByRole('button', { name }).getAttribute('data-seat'))
 }
 /** Circular distance between two seat ids on a START_SEATS ring. */
@@ -34,9 +34,29 @@ describe('GameCountcircle', () => {
     fireEvent.keyDown(ring, { key: 'ArrowRight' })
     const now = playerSeat()
     expect(ringDist(now, start)).toBe(2)
-    expect(ringDist(buttonSeat('Move left'), now)).toBe(1)
-    expect(ringDist(buttonSeat('Move right'), now)).toBe(1)
-    expect(buttonSeat('Move left')).not.toBe(buttonSeat('Move right'))
+    const neighbors = screen.getAllByRole('button', { name: /^Move / }).map((b) => Number(b.getAttribute('data-seat')))
+    expect(neighbors).toHaveLength(2)
+    for (const seat of neighbors) expect(ringDist(seat, now)).toBe(1)
+    expect(neighbors[0]).not.toBe(neighbors[1])
+  })
+
+  // QA 2026-10-11: at the side of the ring (3 o'clock) the two neighbors sit
+  // above/below each other, so ← / → glyphs on them were meaningless — the
+  // labels must switch to ↑ / ↓ and match what the ↑ / ↓ keys do.
+  it('labels side-of-ring neighbors ↑ / ↓ and the keys agree with the labels', async () => {
+    render(<GameCountcircle storageKey={STORAGE_KEY} />)
+    const ring = await screen.findByRole('group', { name: 'Countcircle board' })
+    fireEvent.keyDown(ring, { key: 'ArrowRight' })
+    fireEvent.keyDown(ring, { key: 'ArrowRight' })
+    // 8 seats, clockwise from the top: seat 2 is 3 o'clock, seat 1 above it, seat 3 below.
+    expect(playerSeat()).toBe(START_SEATS / 4)
+    expect(screen.queryByRole('button', { name: 'Move left' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Move up' })).toHaveTextContent('↑')
+    expect(screen.getByRole('button', { name: 'Move down' })).toHaveTextContent('↓')
+    expect(buttonSeat('Move up')).toBe(START_SEATS / 4 - 1)
+    expect(buttonSeat('Move down')).toBe(START_SEATS / 4 + 1)
+    fireEvent.keyDown(ring, { key: 'ArrowUp' })
+    expect(playerSeat()).toBe(START_SEATS / 4 - 1)
   })
 
   it('"Move left" is the neighbor on the screen-left side (player starts at the bottom)', async () => {

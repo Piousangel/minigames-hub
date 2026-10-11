@@ -1,15 +1,23 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
+import { createGame } from '@/lib/games/overdub/engine'
 import { GameOverdub } from './GameOverdub'
 
 const STORAGE_KEY = 'best:overdub'
 const notes = () => screen.queryAllByTestId('note').length
 
-describe('GameOverdub keyboard (audit 2026-10-10: Space only worked with the board focused)', () => {
+describe('GameOverdub keyboard (audit 2026-10-10: Space only worked with the board focused)', { timeout: 20_000 }, () => {
   beforeEach(() => {
     localStorage.clear()
     // Freeze the playhead so the tap lands deterministically.
     vi.spyOn(window, 'requestAnimationFrame').mockImplementation(() => 0)
+    // Pin the loop seed (Date.now() ^ Math.random()) to one whose step 0 — where
+    // the frozen playhead sits — is empty. Unpinned, a ghost landed there ~1 run
+    // in 8: the Space tap then hit a note (game over) and "+1 note" flaked.
+    let seed = 1
+    while (createGame(seed).notes[0]) seed++
+    vi.spyOn(Date, 'now').mockReturnValue(seed)
+    vi.spyOn(Math, 'random').mockReturnValue(0)
   })
   afterEach(() => vi.restoreAllMocks())
 

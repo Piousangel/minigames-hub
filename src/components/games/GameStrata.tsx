@@ -64,8 +64,10 @@ const SOUND: Record<StrataEvent, SoundName | null> = {
 }
 
 /**
- * UTC date of the first finished daily (win OR loss). A loss reveals the full answer, so any
- * later finish of the same daily seed is a replay: it never touches the streak, best or stats.
+ * Seed of the last daily board that was finished (win OR loss). A loss reveals the full answer,
+ * so any later finish of the same daily seed is a replay: it never touches the streak, best or
+ * stats. Keyed by the board's seed, not the finish date, so finishing yesterday's board after
+ * UTC midnight can't burn today's daily.
  */
 const DAILY_DONE_KEY = 'strata:daily-done'
 
@@ -77,9 +79,9 @@ function loadDailyDone(): string | null {
   }
 }
 
-function saveDailyDone(date: string): void {
+function saveDailyDone(seed: string): void {
   try {
-    localStorage.setItem(DAILY_DONE_KEY, date)
+    localStorage.setItem(DAILY_DONE_KEY, seed)
   } catch {
     // ignore storage failures
   }
@@ -208,12 +210,12 @@ export function GameStrata({ storageKey }: { storageKey: string }) {
   const persistEnd = useCallback(
     (next: StrataState) => {
       if (modeRef.current === 'daily') {
-        const today = todayUTC()
-        if (loadDailyDone() === today) {
+        const boardSeed = String(next.seed)
+        if (loadDailyDone() === boardSeed) {
           setDailyReplay(true)
           return
         }
-        saveDailyDone(today)
+        saveDailyDone(boardSeed)
       }
       setDailyReplay(false)
       const save = loadSave(storageKey)

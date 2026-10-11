@@ -488,6 +488,8 @@ export function GameBeatline({ storageKey }: { storageKey: string }) {
                     <div
                       key={`${lane}-${n.tick}`}
                       aria-hidden="true"
+                      data-testid="beatline-note"
+                      data-remaining={remaining}
                       className="absolute left-1 right-1 rounded-md"
                       style={{
                         top: 0,

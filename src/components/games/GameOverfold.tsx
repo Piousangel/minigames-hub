@@ -75,6 +75,17 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
   const lockedRef = useRef(false)
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
   const creaseElRef = useRef<(HTMLDivElement | null)[]>([])
+  // One stats result per board. A loss that can still be Unfolded (a jam now ends the
+  // board instantly) stays 'pending' and is only recorded if the player leaves the
+  // board without recovering — otherwise jam → Unfold → solve counted a loss AND a win.
+  const outcomeRef = useRef<'none' | 'pendingLoss' | 'recorded'>('none')
+  const slug = storageKey.replace(/^best:/, '')
+
+  /** Records a deferred loss (if any) before the board is replaced or the game unmounts. */
+  const flushPendingLoss = useCallback(() => {
+    if (outcomeRef.current === 'pendingLoss') recordResult(slug, { won: false })
+    outcomeRef.current = 'none'
+  }, [slug])
 
   const clearTimers = useCallback(() => {
     for (const t of timersRef.current) clearTimeout(t)
@@ -106,6 +117,7 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
 
   const startRun = useCallback(
     (nextMode: Mode, seed: number, level: number) => {
+      flushPendingLoss()
       clearTimers()
       lockedRef.current = false
       setBanner(null)
@@ -116,7 +128,7 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
       refreshPreview(fresh, 0, 'low')
       refreshDailyRecord(seed)
     },
-    [clearTimers, commit, refreshDailyRecord, refreshPreview],
+    [clearTimers, commit, flushPendingLoss, refreshDailyRecord, refreshPreview],
   )
 
   // Client-only bootstrap.
@@ -141,7 +153,10 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
     const seed = initialMode === 'daily' ? dailySeed(todayISO()) : randomSeed()
     startRun(initialMode, seed, 1)
 
-    return clearTimers
+    return () => {
+      clearTimers()
+      flushPendingLoss()
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [storageKey])
 
@@ -196,10 +211,16 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
       persistBest(next.score)
       if (next.won || next.lost) {
         persistDaily(next)
-        recordResult(storageKey.replace(/^best:/, ''), { won: next.won })
+        if (outcomeRef.current === 'recorded') return
+        if (next.lost && next.unfoldsLeft > 0 && next.history.length > 0) {
+          outcomeRef.current = 'pendingLoss' // still recoverable via Unfold
+          return
+        }
+        outcomeRef.current = 'recorded'
+        recordResult(slug, { won: next.won })
       }
     },
-    [persistBest, persistDaily, storageKey],
+    [persistBest, persistDaily, slug],
   )
 
   const commitFold = useCallback(
@@ -362,6 +383,7 @@ export function GameOverfold({ storageKey }: { storageKey: string }) {
   const advance = useCallback(() => {
     const s = stateRef.current
     if (!s) return
+    outcomeRef.current = 'none' // next board (only reachable after a recorded win)
     clearTimers()
     lockedRef.current = false
     setBanner(null)

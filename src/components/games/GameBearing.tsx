@@ -43,6 +43,18 @@ function loadDailyDone(): string | null {
   }
 }
 
+/**
+ * Has the daily board dealt on `boardDate` already been finished? Saves from before
+ * DAILY_DONE_KEY existed only know about a win through the streak's lastDate, so fall
+ * back to that while the key is absent (once written, the key is authoritative — the
+ * streak date can run a day ahead when a board is finished after UTC midnight).
+ */
+function isDailyDone(boardDate: string): boolean {
+  const done = loadDailyDone()
+  if (done !== null) return done >= boardDate
+  return loadStreak(DAILY_KEY)?.lastDate === boardDate
+}
+
 function saveDailyDone(date: string): void {
   try {
     localStorage.setItem(DAILY_DONE_KEY, date)
@@ -131,7 +143,7 @@ export function GameBearing({ storageKey }: { storageKey: string }) {
     modeRef.current = 'daily'
     const today = todayUTC()
     boardDateRef.current = today
-    setDailyReplay(loadDailyDone() === today)
+    setDailyReplay(isDailyDone(today))
     const g = createGame(DAILY_CONFIG, engineDailySeed(today))
     prevOver.current = false
     commit(g)
@@ -143,7 +155,7 @@ export function GameBearing({ storageKey }: { storageKey: string }) {
       modeRef.current = nextMode
       const today = todayUTC()
       if (nextMode === 'daily') boardDateRef.current = today
-      setDailyReplay(nextMode === 'daily' && loadDailyDone() === today)
+      setDailyReplay(nextMode === 'daily' && isDailyDone(today))
       const g =
         nextMode === 'daily'
           ? createGame(DAILY_CONFIG, engineDailySeed(today))
@@ -159,12 +171,11 @@ export function GameBearing({ storageKey }: { storageKey: string }) {
     (next: BearingState) => {
       if (modeRef.current === 'daily') {
         const boardDate = boardDateRef.current
-        const done = loadDailyDone()
-        if (done !== null && done >= boardDate) {
-          // Already finished today's daily — this run is practice: no best, no streak.
+        if (isDailyDone(boardDate)) {
+          // Already finished today's daily — this run is practice: no best, no streak, and
+          // no Win% entry (after a loss the target was revealed, so the retry is a sure win).
           setDailyReplay(true)
           setIsBest(false)
-          recordResult(storageKey.replace(/^best:/, ''), { won: next.status === 'won' })
           return
         }
         saveDailyDone(boardDate)
@@ -436,7 +447,7 @@ export function GameBearing({ storageKey }: { storageKey: string }) {
               <span className="font-bold text-accent">{state.par}</span>
             </p>
             {mode === 'daily' && dailyReplay && (
-              <p className="text-fg-muted">Replay — not counted toward streak or best.</p>
+              <p className="text-fg-muted">Replay — not counted toward streak, best or stats.</p>
             )}
             {mode === 'daily' && !dailyReplay && (
               <p>

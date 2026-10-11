@@ -4,6 +4,9 @@ import { GameNumberMemory } from './GameNumberMemory'
 
 const STORAGE_KEY = 'best:number-memory'
 
+// Fake-timer render loops are cheap but slow under heavy CI/dev load.
+const TEST_TIMEOUT_MS = 20_000
+
 describe('GameNumberMemory', () => {
   beforeEach(() => {
     localStorage.clear()
@@ -45,7 +48,7 @@ describe('GameNumberMemory', () => {
       vi.advanceTimersByTime(200)
     })
     expect(screen.getByTestId('numbermemory-number')).toHaveTextContent('10')
-  })
+  }, TEST_TIMEOUT_MS)
 
   it('gives the board room for the game-over overlay (no fixed 4:3 box when over)', () => {
     startAndWaitForInput()
@@ -55,5 +58,5 @@ describe('GameNumberMemory', () => {
     const board = screen.getByTestId('numbermemory-board')
     expect(board.className).not.toMatch(/aspect-\[4\/3\]/)
     expect(board.className).toMatch(/min-h-\[/)
-  })
+  }, TEST_TIMEOUT_MS)
 })

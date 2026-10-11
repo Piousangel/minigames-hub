@@ -93,10 +93,35 @@ function saveAll(storageKey: string, save: InterlockSave): void {
   }
 }
 
+/**
+ * 점수식 버전. v2(2026-10-10): 스크램블 깊이 12/20/30 → 4/10/16(engine.ts DIFFICULTIES).
+ * 깊이 보너스(scramble × DEPTH_UNIT)가 같이 줄어 새 최고점(≈1820)으로는 옛 Normal/Hard
+ * 기록을 영영 못 넘긴다 — 버전 표시가 없는 옛 best는 한 번 폐기한다(daily streak은 유지).
+ */
+const SCORE_VERSION_KEY = 'interlock:scoreVersion'
+const SCORE_VERSION = '2'
+
 function loadSave(storageKey: string): InterlockSave {
+  // Normalize first (a legacy JSON save carries the streak inside the best key and
+  // loadRawSave moves it to DAILY_KEY), then drop the pre-v2 best.
+  const save = loadRawSave(storageKey)
+  try {
+    if (localStorage.getItem(SCORE_VERSION_KEY) === SCORE_VERSION) return save
+    localStorage.removeItem(storageKey)
+    localStorage.setItem(SCORE_VERSION_KEY, SCORE_VERSION)
+    return { ...save, score: 0 }
+  } catch {
+    // storage unavailable -> nothing to migrate
+    return save
+  }
+}
+
+function loadRawSave(storageKey: string): InterlockSave {
   try {
     const raw = localStorage.getItem(storageKey)
-    if (!raw) return { score: 0 }
+    // No best yet (or dropped by the score-version migration) — the streak lives
+    // under its own key, so still load it.
+    if (!raw) return { score: 0, daily: loadDaily() }
     const n = Number(raw)
     if (Number.isFinite(n)) return { score: Math.max(0, Math.floor(n)), daily: loadDaily() }
     // 레거시 JSON 마이그레이션

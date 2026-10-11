@@ -63,3 +63,37 @@ describe('GameInterlock rotate controls match on-screen direction', () => {
     expect(ring('Right')).toEqual(shiftBackward(b1))
   })
 })
+
+// 2026-10-10 감사 후속: 스크램블 깊이를 12/20/30 → 4/10/16으로 낮추면서 깊이 보너스
+// (scramble × DEPTH_UNIT)도 줄었다. 새 식의 최고점(Hard 16수 최적해 ≈ 1820)으로는 옛
+// Normal/Hard 기록(≈1900~2100)을 영영 못 넘기므로, 버전 표시가 없는 옛 best는 폐기한다.
+describe('GameInterlock best-score migration after the scramble-depth rebalance', () => {
+  const VERSION_KEY = 'interlock:scoreVersion'
+  beforeEach(() => localStorage.clear())
+
+  it('discards a legacy (pre-rebalance) best but keeps the daily streak', async () => {
+    localStorage.setItem(STORAGE_KEY, '2050')
+    localStorage.setItem('interlock:daily', JSON.stringify({ lastDate: '2026-10-09', streak: 4 }))
+    render(<GameInterlock storageKey={STORAGE_KEY} />)
+    await screen.findByTestId('interlock-board')
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+    expect(localStorage.getItem(VERSION_KEY)).toBe('2')
+    expect(JSON.parse(localStorage.getItem('interlock:daily') ?? '{}').streak).toBe(4)
+  })
+
+  it('keeps the streak of a legacy JSON save (daily embedded in the best key)', async () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ score: 2050, daily: { lastDate: '2026-10-09', streak: 6 } }))
+    render(<GameInterlock storageKey={STORAGE_KEY} />)
+    await screen.findByTestId('interlock-board')
+    expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+    expect(JSON.parse(localStorage.getItem('interlock:daily') ?? '{}').streak).toBe(6)
+  })
+
+  it('keeps a best recorded under the current score version', async () => {
+    localStorage.setItem(STORAGE_KEY, '1700')
+    localStorage.setItem(VERSION_KEY, '2')
+    render(<GameInterlock storageKey={STORAGE_KEY} />)
+    await screen.findByTestId('interlock-board')
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('1700')
+  })
+})

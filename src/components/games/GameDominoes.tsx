@@ -166,8 +166,8 @@ export function GameDominoes({ storageKey }: { storageKey: string }) {
         // 개인 기록: 사람(0) 승리만 won:true. 무승부는 패배 카운터(l)엔 안 넣고 판수만 센다.
         recordResult(storageKey.replace(/^best:/, ''), { won: humanWon, bucket: s.winner === null ? 'draw' : undefined })
       } else {
-        // 2P: no single "human" — just play the fanfare, no record.
-        sfx('win')
+        // 2P: no single "human" — just play the fanfare (neutral cue on a blocked tie), no record.
+        sfx(s.winner === null ? 'flip' : 'win')
       }
       return true
     },

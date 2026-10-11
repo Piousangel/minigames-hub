@@ -4,7 +4,9 @@ import { GameHandful } from './GameHandful'
 
 const STORAGE_KEY = 'best:handful'
 
-describe('GameHandful — scoring v2 migration', () => {
+// Cold first render (module import + jsdom) can exceed the 5s default under a
+// loaded parallel run; give the suite headroom so it doesn't flake.
+describe('GameHandful — scoring v2 migration', { timeout: 20000 }, () => {
   beforeEach(() => {
     localStorage.clear()
   })

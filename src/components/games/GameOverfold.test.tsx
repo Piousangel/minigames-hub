@@ -1,14 +1,32 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent, act, within } from '@testing-library/react'
 import { GameOverfold } from './GameOverfold'
-import { todayUTC } from '@/lib/dailyDate'
 import { dailySeed, legalCreases, mulberry32, newGame, previewFold } from '@/lib/games/overfold/engine'
+
+// Pin "today" so the daily board is fixed: 2026-01-02 is a 2×4 board (par 3, solution
+// h2 → h1 → v1, all low-side) where crease h3 jams two different colours. Without the
+// pin the jam test silently passed on days whose board had no single jamming fold.
+const FIXED_DAY = '2026-01-02'
+vi.mock('@/lib/dailyDate', () => ({ todayUTC: () => FIXED_DAY }))
 
 const STORAGE_KEY = 'best:overfold'
 
 function dailyState() {
-  const seed = dailySeed(todayUTC())
+  const seed = dailySeed(FIXED_DAY)
   return newGame(mulberry32(seed), 'daily', seed, 1)
+}
+
+function clickCrease(axis: string, index: number) {
+  const el = document.querySelector<HTMLElement>(
+    `[data-testid="overfold-crease"][data-axis="${axis}"][data-index="${index}"]`,
+  )
+  expect(el).not.toBeNull()
+  fireEvent.click(el!)
+}
+
+function stats(): { plays: number; wins: number } {
+  const raw = JSON.parse(localStorage.getItem('stats:overfold') ?? 'null') as { plays?: number; wins?: number } | null
+  return { plays: raw?.plays ?? 0, wins: raw?.wins ?? 0 }
 }
 
 async function settle() {
@@ -36,11 +54,8 @@ describe('GameOverfold — audit 2026-10-10', () => {
         if (pv.jamsFormed > 0 && (isTie ? pref === 'low' : true)) target = cr
       }
     }
-    if (!target) return // today's board has no single jamming fold — nothing to assert
-    const el = document.querySelector<HTMLElement>(
-      `[data-testid="overfold-crease"][data-axis="${target.axis}"][data-index="${target.index}"]`,
-    )
-    fireEvent.click(el!)
+    expect(target).not.toBeNull() // the pinned board must offer a jamming fold
+    clickCrease(target!.axis, target!.index)
     await settle()
     const over = await screen.findByTestId('game-over')
     expect(over).toHaveTextContent('Jammed!')
@@ -62,5 +77,33 @@ describe('GameOverfold — audit 2026-10-10', () => {
       expect(p.className).not.toMatch(/\bh-3\/5\b/)
       expect(p.style.width).toBe(`${60 * Math.min(1, s.board.w / s.board.h)}%`)
     }
+  })
+
+  it('a jam rewound with Unfold and then solved records ONE win — not a loss plus a win', async () => {
+    render(<GameOverfold storageKey={STORAGE_KEY} />)
+    await screen.findByTestId('overfold-board')
+    clickCrease('h', 3) // jams
+    await settle()
+    const over = await screen.findByTestId('game-over')
+    expect(over).toHaveTextContent('Jammed!')
+    fireEvent.click(within(over).getByRole('button', { name: /Unfold/ }))
+    await settle()
+    for (const m of dailyState().solution) {
+      clickCrease(m.axis, m.index)
+      await settle()
+    }
+    expect(await screen.findByTestId('game-over')).toHaveTextContent('Sealed!')
+    expect(stats()).toEqual({ plays: 1, wins: 1 })
+  })
+
+  it('a jam that is abandoned (Retry board) is recorded as exactly one loss', async () => {
+    render(<GameOverfold storageKey={STORAGE_KEY} />)
+    await screen.findByTestId('overfold-board')
+    clickCrease('h', 3)
+    await settle()
+    const over = await screen.findByTestId('game-over')
+    fireEvent.click(within(over).getByRole('button', { name: /Retry board/ }))
+    await settle()
+    expect(stats()).toEqual({ plays: 1, wins: 0 })
   })
 })

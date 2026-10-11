@@ -18,12 +18,17 @@ vi.mock('@/lib/games/gomoku/engine', async (importOriginal) => {
   }
 })
 
-const cell = (r: number, c: number) =>
-  screen.getByRole('button', { name: new RegExp(`^Row ${r}, column ${c},`) })
+// A direct attribute lookup: getByRole over 225 board buttons is slow enough
+// to time out on a loaded machine.
+const cell = (r: number, c: number) => {
+  const el = document.querySelector<HTMLButtonElement>(`button[aria-label^="Row ${r}, column ${c},"]`)
+  if (!el) throw new Error(`no cell ${r},${c}`)
+  return el
+}
 
 const wins = () => screen.getByTestId('gomoku-wins').textContent
 
-describe('GameGomoku record integrity', () => {
+describe('GameGomoku record integrity', { timeout: 20000 }, () => {
   beforeEach(() => {
     localStorage.clear()
   })

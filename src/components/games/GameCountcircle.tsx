@@ -67,6 +67,14 @@ function screenMoves(
   return { left, right: flip(left), up, down: flip(up) }
 }
 
+const DIR_GLYPH: Record<ScreenDir, string> = { left: '←', right: '→', up: '↑', down: '↓' }
+const DIR_LABEL: Record<ScreenDir, string> = {
+  left: 'Move left',
+  right: 'Move right',
+  up: 'Move up',
+  down: 'Move down',
+}
+
 function freshSeed(): number {
   return (Date.now() ^ (Math.random() * 2 ** 31)) >>> 0
 }
@@ -267,9 +275,18 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
   const cwSeatId = survivors[rightIdx]
   const playerSeatId = survivors[playerIdx]
   const moves = screenMoves(ccwSeatId, cwSeatId, seats)
-  /** Screen-left / screen-right neighbor seat ids (what ← / → actually do). */
-  const leftSeatId = moves.left === 'left' ? ccwSeatId : cwSeatId
-  const rightSeatId = moves.right === 'left' ? ccwSeatId : cwSeatId
+  /**
+   * Label the two neighbors along whichever screen axis separates them more:
+   * at the bottom/top of the ring that's ← / →, at the sides it's ↑ / ↓ (two
+   * seats stacked vertically can't truthfully be "left" and "right").
+   */
+  const ccwOff = seatOffset(ccwSeatId, seats)
+  const cwOff = seatOffset(cwSeatId, seats)
+  const vertical = Math.abs(cwOff.y - ccwOff.y) > Math.abs(cwOff.x - ccwOff.x) + 0.01
+  const [firstDir, secondDir]: [ScreenDir, ScreenDir] = vertical ? ['up', 'down'] : ['left', 'right']
+  /** Seat ids the first (←/↑) and second (→/↓) screen direction actually move to. */
+  const firstSeatId = moves[firstDir] === 'left' ? ccwSeatId : cwSeatId
+  const secondSeatId = moves[secondDir] === 'left' ? ccwSeatId : cwSeatId
   const targetSeatId = phase === 'playing' ? survivors[target] : null
   const danger = isDanger(state)
   const pct = state.windowTicksTotal > 0 ? state.windowTicks / state.windowTicksTotal : 0
@@ -278,7 +295,7 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
     phase === 'over'
       ? 'Eliminated. Press New Game to try again.'
       : phase === 'idle'
-        ? 'Press ← / → (or tap a side seat) to step around the circle before the count reaches you.'
+        ? 'Press the arrow keys (or tap a marked seat) to step around the circle before the count reaches you.'
         : danger
           ? "That's your seat — move now!"
           : 'Watch the pulsing ring — it marks the seat the count is heading for.'
@@ -311,7 +328,7 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
         >
           {Array.from({ length: seats }, (_, seatId) => {
             const alive = survivorSet.has(seatId)
-            const isButton = phase !== 'over' && (seatId === leftSeatId || seatId === rightSeatId)
+            const isButton = phase !== 'over' && (seatId === firstSeatId || seatId === secondSeatId)
             const isPlayer = phase !== 'over' && seatId === playerSeatId
             const size = seatDiameter(seats)
             const style: React.CSSProperties = {
@@ -331,17 +348,17 @@ export function GameCountcircle({ storageKey }: { storageKey: string }) {
               )
             }
             if (isButton) {
-              // With 2 survivors both neighbors are the same seat — ← and → both go there.
-              const both = leftSeatId === rightSeatId
-              const dir: 'left' | 'right' = seatId === leftSeatId ? 'left' : 'right'
+              // With 2 survivors both neighbors are the same seat — both keys go there.
+              const both = firstSeatId === secondSeatId
+              const dir: ScreenDir = seatId === firstSeatId ? firstDir : secondDir
               const engineDir = moves[dir]
-              const glyph = both ? '↔' : dir === 'left' ? '←' : '→'
+              const glyph = both ? (vertical ? '↕' : '↔') : DIR_GLYPH[dir]
               return (
                 <button
                   key={seatId}
                   type="button"
                   data-seat={seatId}
-                  aria-label={dir === 'left' ? 'Move left' : 'Move right'}
+                  aria-label={DIR_LABEL[dir]}
                   onClick={() => step(engineDir)}
                   // Transparent hit area: at least 44px to tap, but the visible
                   // seat inside keeps the same size as every other seat so the

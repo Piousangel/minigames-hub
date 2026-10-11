@@ -107,6 +107,8 @@ describe('GameBankshot — audit 2026-10-10', () => {
     expect(screen.getByTestId('shots')).toHaveTextContent(`${limit}/${limit}`)
     expect(await screen.findByTestId('game-over')).toHaveTextContent('Out of shots')
     expect(screen.getByTestId('fire')).toBeDisabled()
+    // a lost board is final in the engine, so the Undo button must not look usable
+    expect(screen.getByTestId('undo')).toBeDisabled()
     fireEvent.keyDown(board, { key: ' ' })
     expect(screen.getByTestId('shots')).toHaveTextContent(`${limit}/${limit}`)
     const stats = JSON.parse(localStorage.getItem('stats:bankshot') ?? 'null')

@@ -129,7 +129,8 @@ describe('GameWordGuess daily integrity', () => {
     act(() => {
       vi.advanceTimersByTime(3000)
     })
-    expect(localStorage.getItem(STORAGE_KEY)).toBeNull()
+    // Counted at the switch (the cancelled reveal is flushed), not deferred to a return visit.
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual({ wins: 1, streak: 1 })
     fireEvent.click(screen.getByRole('button', { name: 'daily' }))
     expect(screen.getByTestId('wordguess-win')).toBeInTheDocument()
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual({ wins: 1, streak: 1 })
@@ -137,6 +138,38 @@ describe('GameWordGuess daily integrity', () => {
     fireEvent.click(screen.getByRole('button', { name: 'practice' }))
     fireEvent.click(screen.getByRole('button', { name: 'daily' }))
     expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual({ wins: 1, streak: 1 })
+  })
+
+  it('leaving a lost daily mid-reveal (to Practice, never returning) still records the loss', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ wins: 3, streak: 3 }))
+    render(<GameWordGuess storageKey={STORAGE_KEY} />)
+    const words = wrongWords(6)
+    for (const w of words.slice(0, 5)) type(w)
+    for (const ch of words[5]) fireEvent.keyDown(window, { key: ch })
+    fireEvent.keyDown(window, { key: 'Enter' })
+    fireEvent.click(screen.getByRole('button', { name: 'Practice' })) // mid-reveal of the losing guess
+    act(() => {
+      vi.advanceTimersByTime(3000)
+    })
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual({ wins: 3, streak: 0 })
+    expect(JSON.parse(localStorage.getItem(`${STORAGE_KEY}:daily`)!).recorded).toBe(true)
+  })
+
+  it('a practice loss cut short by New Game mid-reveal still resets the streak', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ wins: 2, streak: 2 }))
+    render(<GameWordGuess storageKey={STORAGE_KEY} />)
+    vi.spyOn(Math, 'random').mockReturnValue(0)
+    const answer = newGame(() => 0).answer
+    fireEvent.click(screen.getByRole('button', { name: 'practice' }))
+    const words = [...VALID_GUESSES].filter((w) => w !== answer).slice(0, 6)
+    for (const w of words.slice(0, 5)) type(w)
+    for (const ch of words[5]) fireEvent.keyDown(window, { key: ch })
+    fireEvent.keyDown(window, { key: 'Enter' })
+    fireEvent.click(screen.getByRole('button', { name: 'New Game' })) // mid-reveal of the losing guess
+    act(() => {
+      vi.advanceTimersByTime(3000)
+    })
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY)!)).toEqual({ wins: 2, streak: 0 })
   })
 
   it("yesterday's save is ignored (fresh board today)", () => {

@@ -58,6 +58,33 @@ describe('GameBearing daily integrity', () => {
     expect(screen.getByTestId('you-win')).toHaveTextContent(/not counted/i)
   })
 
+  it('a retry after a revealed daily loss does not inflate Win% stats', () => {
+    render(<GameBearing storageKey={STORAGE_KEY} />)
+    loseDaily()
+    const afterLoss = JSON.parse(localStorage.getItem('stats:bearing') ?? 'null')
+    expect(afterLoss).toMatchObject({ plays: 1, wins: 0 })
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'Retry' })[0])
+    const t = dailyTarget()
+    fireEvent.click(cellAt(t.x, t.y))
+
+    expect(screen.getByTestId('you-win')).toBeInTheDocument()
+    expect(JSON.parse(localStorage.getItem('stats:bearing') ?? 'null')).toMatchObject({ plays: 1, wins: 0 })
+  })
+
+  it('a daily won before the daily-done key existed (streak dated today) is still a replay', () => {
+    // Pre-deploy save: today's win is recorded only in the streak, with a low best.
+    localStorage.setItem('bearing:daily', JSON.stringify({ lastDate: todayUTC(), streak: 3 }))
+    localStorage.setItem(STORAGE_KEY, '1')
+    render(<GameBearing storageKey={STORAGE_KEY} />)
+    const t = dailyTarget()
+    fireEvent.click(cellAt(t.x, t.y))
+
+    expect(screen.getByTestId('you-win')).toHaveTextContent(/not counted/i)
+    expect(localStorage.getItem(STORAGE_KEY)).toBe('1')
+    expect(localStorage.getItem('stats:bearing')).toBeNull()
+  })
+
   it('replaying an already-won daily cannot raise best', () => {
     render(<GameBearing storageKey={STORAGE_KEY} />)
     const t = dailyTarget()

@@ -12,6 +12,18 @@ describe('GameMancala layout', () => {
     const wrapper = screen.getByTestId('mancala-board').parentElement as HTMLElement
     expect(wrapper.className.split(/\s+/)).toContain('relative')
   })
+
+  it('pickable pits extend their hit area to the full square cell plus the grid gap', async () => {
+    render(<GameMancala storageKey="best:mancala" />)
+    const pits = await screen.findAllByRole('button', { name: /tap to sow/ })
+    expect(pits).toHaveLength(6)
+    for (const pit of pits) {
+      // A rounded button is hit-tested on its circle only; the square ::after covers
+      // the corners and half of the 4px phone gap so the tap target is ~41px, not ~30px.
+      expect(pit.className).toMatch(/\bafter:absolute\b/)
+      expect(pit.className).toMatch(/\bafter:-inset-0\.5\b/)
+    }
+  })
 })
 
 describe('Mancala Stones', () => {

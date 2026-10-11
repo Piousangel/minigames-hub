@@ -137,6 +137,9 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
   const modeRef = useRef<Mode>('daily')
   const revealingRef = useRef(false)
   const timers = useRef<number[]>([])
+  // Records a board that ended on the guess still being revealed. Run (silently) if the board is
+  // replaced mid-reveal, so leaving via Practice / New Game can't dodge a loss.
+  const pendingFinishRef = useRef<(() => void) | null>(null)
 
   // Separate key from `storageKey` (which stays the existing {wins,streak} JSON
   // blob) so the new daily streak never collides with a returning player's
@@ -198,8 +201,11 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
 
   const startBoard = useCallback(
     (nextMode: Mode) => {
-      modeRef.current = nextMode
+      const pending = pendingFinishRef.current
+      pendingFinishRef.current = null
       clearTimers()
+      pending?.()
+      modeRef.current = nextMode
       revealingRef.current = false
       setRevealing(false)
       setRevealRow(-1)
@@ -277,11 +283,15 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
     commitGuess('')
     setRevealRow(row)
 
-    const finishEnd = () => {
-      if (next.status === 'playing') return
-      play(next.status === 'won' ? 'win' : 'lose')
+    const recordFinish = () => {
       recordOutcome(next)
       if (daily) saveDaily(true)
+    }
+    const finishEnd = () => {
+      pendingFinishRef.current = null
+      if (next.status === 'playing') return
+      play(next.status === 'won' ? 'win' : 'lose')
+      recordFinish()
     }
 
     if (reducedRef.current) {
@@ -289,6 +299,7 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
       finishEnd()
       return
     }
+    if (next.status !== 'playing') pendingFinishRef.current = recordFinish
 
     revealingRef.current = true
     setRevealing(true)

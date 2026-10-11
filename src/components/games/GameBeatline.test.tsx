@@ -67,6 +67,20 @@ describe('GameBeatline — audit 2026-10-10', () => {
     expect(screen.getByTestId('beatline-countdown')).toBeInTheDocument()
   })
 
+  it('rendered notes are positioned with noteTopY (centre on the line at the hit tick)', async () => {
+    render(<GameBeatline storageKey={STORAGE_KEY} />)
+    fireEvent.keyDown(window, { key: ' ' })
+    await act(async () => {
+      vi.advanceTimersByTime(2100 + 600) // count-in, then ~0.6s of chart
+    })
+    const notes = screen.getAllByTestId('beatline-note')
+    expect(notes.length).toBeGreaterThan(0)
+    for (const n of notes) {
+      const remaining = Number(n.getAttribute('data-remaining'))
+      expect(n.style.transform).toBe(`translateY(${noteTopY(remaining)}px)`)
+    }
+  })
+
   it('note centre sits on the judgement line centre at the hit tick', () => {
     const NOTE_HEIGHT = 26
     const lineCenter = 360 - 40 + 3 / 2

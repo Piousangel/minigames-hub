@@ -45,6 +45,27 @@ describe('GameUmbra', () => {
     expect(screen.queryAllByTestId('judgement')).toHaveLength(0)
   })
 
+  it('Enter/Space on a focused shell button before the run keeps its own action (window keys must not hijack it)', () => {
+    render(<GameUmbra storageKey="best:umbra" />)
+    const mute = screen.getByRole('button', { name: 'Mute sound' })
+    mute.focus()
+    // Not prevented → the browser still activates the focused button natively.
+    expect(fireEvent.keyDown(mute, { key: 'Enter' })).toBe(true)
+    expect(fireEvent.keyDown(mute, { key: ' ' })).toBe(true)
+    // …and the run did not start behind the player's back.
+    expect(screen.getByTestId('umbra-start')).toBeInTheDocument()
+  })
+
+  it('a lane key with focus on a lane button still taps during a run', () => {
+    render(<GameUmbra storageKey="best:umbra" />)
+    fireEvent.click(screen.getByRole('button', { name: 'Start' }))
+    advance(1000)
+    const lane = screen.getAllByTestId('lane')[0]
+    lane.focus()
+    for (const key of ['1', '2', '3']) expect(fireEvent.keyDown(lane, { key })).toBe(false)
+    expect(screen.queryAllByTestId('judgement').length).toBeGreaterThan(0)
+  })
+
   it('renders the marble on a track that ends at the visible exit-marker line', () => {
     render(<GameUmbra storageKey="best:umbra" />)
     fireEvent.click(screen.getByRole('button', { name: 'Start' }))

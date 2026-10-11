@@ -427,7 +427,7 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
   const limit = shotLimit(state.config.par)
   const canAct = !won && !lost
   const animating = animShot !== null && animProgress < 1 && !reduced
-  const canUndo = state.undosLeft > 0 && state.undoStack.length > 0
+  const canUndo = !lost && state.undosLeft > 0 && state.undoStack.length > 0
 
   const launchWU = wuPt(state.level.launch)
   const displayPath = animShot?.path ?? null

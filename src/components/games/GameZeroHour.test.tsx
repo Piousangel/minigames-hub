@@ -37,6 +37,9 @@ function score() {
   return Number(screen.getByTestId('score').textContent?.replace(/\D/g, '') ?? '0')
 }
 
+// Fake-timer render loops are cheap but slow under heavy CI/dev load.
+const TEST_TIMEOUT_MS = 20_000
+
 describe('GameZeroHour', () => {
   beforeEach(() => {
     localStorage.clear()
@@ -74,7 +77,7 @@ describe('GameZeroHour', () => {
     expect(score()).toBe(banked)
     fireEvent.pointerDown(screen.getAllByTestId('zh-tile')[0])
     expect(score()).toBeGreaterThan(banked)
-  })
+  }, TEST_TIMEOUT_MS)
 
   it('plays the crack effect on the emptied cell, never on a tile spawned there later', () => {
     render(<GameZeroHour storageKey="best:zero-hour" />)
@@ -91,5 +94,5 @@ describe('GameZeroHour', () => {
     // Effects are transient — none linger once the board settles.
     advance(1000)
     expect(screen.queryAllByTestId('zh-crack')).toHaveLength(0)
-  })
+  }, TEST_TIMEOUT_MS)
 })

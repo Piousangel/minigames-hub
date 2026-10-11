@@ -500,7 +500,9 @@ export function GameMancala({ storageKey }: { storageKey: string }) {
           key={i}
           onClick={() => onPit(i)}
           aria-label={label}
-          className={`${base} cursor-pointer hover:brightness-125 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neon-cyan`}
+          // Rounded buttons are hit-tested on the circle only; the square ::after adds the
+          // corners plus half the grid gap, so a ~37px phone pit taps like a ~41px cell.
+          className={`${base} cursor-pointer after:absolute after:-inset-0.5 after:content-[''] hover:brightness-125 focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-neon-cyan`}
           style={{
             ...(capStyle ?? {}),
             ...(reduced ? {} : { animation: capStyle ? capStyle.animation : 'mnc-pick 1.8s ease-in-out infinite' }),

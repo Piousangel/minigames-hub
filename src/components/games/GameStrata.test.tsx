@@ -28,7 +28,8 @@ function solveDaily() {
   fireEvent.click(screen.getByTestId('submit-guess'))
 }
 
-describe('GameStrata daily integrity', () => {
+// solveDaily clicks ~60 cells × 3 renders; give headroom when the suite runs under load.
+describe('GameStrata daily integrity', { timeout: 20_000 }, () => {
   beforeEach(() => {
     localStorage.clear()
   })
@@ -57,6 +58,26 @@ describe('GameStrata daily integrity', () => {
     expect(localStorage.getItem('strata:daily')).toBeNull()
     expect(Number(localStorage.getItem(STORAGE_KEY) ?? 0)).toBe(bestAfterLoss)
     expect(screen.getByTestId('score')).toHaveTextContent(String(bestAfterLoss))
+  })
+
+  // Finishing yesterday's board after UTC midnight must not burn today's daily.
+  it("finishing yesterday's daily after midnight does not mark today's daily as done", () => {
+    vi.useFakeTimers({ toFake: ['Date'] })
+    try {
+      vi.setSystemTime(new Date('2026-10-10T23:59:00Z'))
+      const { unmount } = render(<GameStrata storageKey={STORAGE_KEY} />)
+      vi.setSystemTime(new Date('2026-10-11T00:01:00Z'))
+      fireEvent.click(screen.getByRole('button', { name: 'Give Up' }))
+      expect(screen.getByTestId('game-over')).toBeInTheDocument()
+      unmount()
+
+      render(<GameStrata storageKey={STORAGE_KEY} />)
+      solveDaily()
+      expect(within(screen.getByTestId('you-win')).queryByTestId('daily-replay-note')).not.toBeInTheDocument()
+      expect(JSON.parse(localStorage.getItem('strata:daily') ?? 'null')?.streak).toBe(1)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('a second daily win the same day does not count either', () => {
