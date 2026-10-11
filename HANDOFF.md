@@ -1,6 +1,31 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
-> 갱신: 2026-10-10 · 브랜치: `feat/round18-games` · 게임 110종 + /guides 21편 (라운드18은 브랜치 작업 중 — 배포 전)
+> 갱신: 2026-10-12 · 브랜치: `main` · 배포 완료·검증됨 (quickminigames.site, 게임 110종 + /guides 21편)
+
+## ▶ 2026-10-10~12 — 품질 감사 + 버그 배치 1 (최신, 여기부터)
+
+**역할 분담(사용자 결정):** 유통은 사용자, Claude는 게임 품질·제작만. 유통 제안을 다시 꺼내지 말 것.
+
+**품질 감사(109개 게임, 코드+Playwright 실제 플레이, 6축×5점):** `docs/audits/2026-10-10-quality-audit.md`.
+평균 17.7/30, 약한 축은 depth(2.46)·curve(2.61). 상위: Recoil·Lagline·Hunch·FizzBeat·Unblock.
+
+**버그 배치 1(배포 완료):** 36개 게임 66항목(bug 전부 + major/S), 그룹별 수정→독립 검증.
+- 큰 것: Overfold jam 승리 익스플로잇, Bankshot 크래시·조준 불가·샷 상한, Beatline/Offbeat 시작 게이트,
+  Hogline 즉시 Bank 승리, Strata/Bearing/Word-guess 데일리 재도전 기록 조작, Gomoku Undo 승수 무한 등.
+- **Stakehouse 밸런스 변경:** 승리 = 12라운드 후 150칩 이상(+floor 토큰). 재조정하면 registry/intro/objectives 문구도 같이.
+- 무승부: `GameOverlay variant='draw'` + `recordResult(slug, { won:false, outcome:'draw' })`(Dominoes 적용, 비콘 'draw').
+
+**⏭ 다음(감사 보고서 2~5장):**
+1. 공통 기반: 데일리 `dailyResult`(하루 첫 완료만 기록) · 결과 오버레이 지연(`revealDelayMs`) · 시작 대기/탭 전환 일시정지 공용 훅 ·
+   포커스 강탈 9종 · New best 판정 헬퍼 · 무승부 기록을 tic-tac-toe/connect-four/reversi로 확산.
+2. 하위 게임 재설계(depth/curve): Overfold·Beatline(음악/패턴 차트)·Strata(조회 수 제한·3D 프리뷰)·Stakehouse.
+3. 도전 링크 확산: 91종 가능 — 데일리·퍼즐 우선.
+4. 신작: `minigames-round` 워크플로(scriptPath로 실행, args {count, audit, date}).
+
+**운영 메모:** Vercel이 레포에 연결돼 push마다 별도 빌드(실사이트는 Cloudflare). 인기순 토큰 `CF_ANALYTICS_TOKEN`은
+값이 빈 채로 등록돼 있음 → 사용자 터미널(Claude Code 밖)에서 `wrangler secret put` 재등록 필요.
+
+---
 
 ## ▶ 2026-10-10 세션 — 게임 라운드18 (최신, 여기부터)
 
