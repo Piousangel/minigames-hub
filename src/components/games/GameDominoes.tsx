@@ -164,7 +164,11 @@ export function GameDominoes({ storageKey }: { storageKey: string }) {
           bumpRecord('l')
         }
         // 개인 기록: 사람(0) 승리만 won:true. 무승부는 패배 카운터(l)엔 안 넣고 판수만 센다.
-        recordResult(storageKey.replace(/^best:/, ''), { won: humanWon, bucket: s.winner === null ? 'draw' : undefined })
+        recordResult(storageKey.replace(/^best:/, ''), {
+          won: humanWon,
+          bucket: s.winner === null ? 'draw' : undefined,
+          outcome: s.winner === null ? 'draw' : undefined,
+        })
       } else {
         // 2P: no single "human" — just play the fanfare (neutral cue on a blocked tie), no record.
         sfx(s.winner === null ? 'flip' : 'win')
@@ -687,25 +691,19 @@ export function GameDominoes({ storageKey }: { storageKey: string }) {
           </GameButton>
         </GameOverlay>
 
-        {/* Draw: neutral card (GameOverlay only has win/lose variants — red "lose" misreports a tie). */}
-        {over && humanResult === 'draw' && (
-          <div
-            data-testid="dominoes-result-draw"
-            role="alertdialog"
-            aria-label={resultTitle}
-            className="anim-backdrop-in absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl bg-bg/75"
-          >
-            <div className="anim-overlay-in flex flex-col items-center gap-4 rounded-2xl border border-border bg-bg-2/85 px-8 py-6 text-center">
-              <p className="text-3xl font-extrabold tracking-tight text-fg">{resultTitle}</p>
-              <p className="text-sm text-fg-muted">
-                Blocked — {handPips(state.hands[0])} vs {handPips(state.hands[1])} pips, dead even.
-              </p>
-              <GameButton onClick={restart} className="px-4 py-2">
-                New Game
-              </GameButton>
-            </div>
-          </div>
-        )}
+        <GameOverlay
+          show={over && humanResult === 'draw'}
+          variant="draw"
+          title={resultTitle}
+          testId="dominoes-result-draw"
+        >
+          <p className="text-sm text-fg-muted">
+            Blocked — {handPips(state.hands[0])} vs {handPips(state.hands[1])} pips, dead even.
+          </p>
+          <GameButton onClick={restart} className="px-4 py-2">
+            New Game
+          </GameButton>
+        </GameOverlay>
 
         <GameOverlay
           show={over && humanResult === 'lose'}

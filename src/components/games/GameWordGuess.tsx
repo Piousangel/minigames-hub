@@ -283,7 +283,7 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
     commitGuess('')
     setRevealRow(row)
 
-    const recordFinish = () => {
+    const recordBoardEnd = () => {
       recordOutcome(next)
       if (daily) saveDaily(true)
     }
@@ -291,7 +291,7 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
       pendingFinishRef.current = null
       if (next.status === 'playing') return
       play(next.status === 'won' ? 'win' : 'lose')
-      recordFinish()
+      recordBoardEnd()
     }
 
     if (reducedRef.current) {
@@ -299,7 +299,7 @@ export function GameWordGuess({ storageKey }: { storageKey: string }) {
       finishEnd()
       return
     }
-    if (next.status !== 'playing') pendingFinishRef.current = recordFinish
+    if (next.status !== 'playing') pendingFinishRef.current = recordBoardEnd
 
     revealingRef.current = true
     setRevealing(true)

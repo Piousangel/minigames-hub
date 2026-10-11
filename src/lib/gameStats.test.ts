@@ -80,5 +80,11 @@ describe('gameStats', () => {
       expect(loadStats('minesweeper')).toEqual({ plays: 2, wins: 1 })
       expect(vi.mocked(sendHit).mock.calls.map((c) => c[1])).toEqual(['win', 'lose'])
     })
+
+    it("outcome 'draw'는 승수 불변·판수만 +1, 이벤트는 중립 draw", () => {
+      recordResult('dominoes', { won: false, bucket: 'draw', outcome: 'draw' })
+      expect(loadStats('dominoes')).toEqual({ plays: 1, wins: 0, dist: { draw: 1 } })
+      expect(vi.mocked(sendHit).mock.calls.map((c) => c[1])).toEqual(['draw'])
+    })
   })
 })
