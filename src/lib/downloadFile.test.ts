@@ -10,7 +10,11 @@ afterEach(() => {
 
 describe('downloadTextFile', () => {
   it('clicks a temporary download link with the given filename and mime type', () => {
-    const createObjectURL = vi.fn(() => 'blob:fake')
+    const createdBlobs: Blob[] = []
+    const createObjectURL = vi.fn((blob: Blob) => {
+      createdBlobs.push(blob)
+      return 'blob:fake'
+    })
     const revokeObjectURL = vi.fn()
     Object.assign(URL, { createObjectURL, revokeObjectURL })
     const clickedFilenames: string[] = []
@@ -24,8 +28,7 @@ describe('downloadTextFile', () => {
 
     expect(succeeded).toBe(true)
     expect(clickedFilenames).toEqual(['quickminigames-daily.ics'])
-    const blob = createObjectURL.mock.calls[0][0] as unknown as Blob
-    expect(blob.type).toBe('text/calendar')
+    expect(createdBlobs[0].type).toBe('text/calendar')
     // 일부 브라우저는 클릭 직후 해제하면 저장이 취소되므로 지연 해제한다.
     expect(revokeObjectURL).not.toHaveBeenCalled()
     vi.advanceTimersByTime(1000)

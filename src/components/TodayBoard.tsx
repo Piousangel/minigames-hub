@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { GameCard } from '@/components/GameCard'
+import { SpotlightReveal } from '@/components/SpotlightReveal'
 import type { BrowseItem } from '@/components/GameBrowser'
 import {
   currentStreak,
@@ -140,6 +141,9 @@ export function TodayBoard({ items }: { items: BrowseItem[] }) {
           </p>
         </div>
       </div>
+
+      {/* 어제 예고한 스포트라이트 공개 */}
+      <SpotlightReveal items={items} />
 
       {/* 오늘의 픽 */}
       {pickItems.length > 0 && (
