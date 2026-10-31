@@ -1,10 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useGameNav } from '@/components/GameNav'
 import { DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
 import { todayUTC } from '@/lib/dailyDate'
-import { formatCountdown, msUntilNextUTCDay, nextDayUTC } from '@/lib/dailyStreak'
+import { msUntilNextUTCDay, nextDayUTC } from '@/lib/dailyStreak'
 import { spotlightFor } from '@/lib/spotlight'
 import { markTeaserSeen } from '@/lib/spotlightSeen'
 import { buildDailyIcs } from '@/lib/dailyIcs'
@@ -17,34 +17,44 @@ const REMINDER_FILENAME = 'quickminigames-daily.ics'
 const REMINDER_UID = 'daily-reminder@quickminigames.site'
 const REMINDER_SUMMARY = "Today's daily puzzles are live"
 const REMINDER_DESCRIPTION = 'New daily boards just unlocked on Quick MiniGames.'
+// 자정 직후에 확실히 새 날짜가 읽히도록 두는 여유.
+const ROLLOVER_MARGIN_MILLISECONDS = 50
 
-type SaveStatus = 'idle' | 'saved' | 'failed'
+type SaveStatus = 'idle' | 'started' | 'failed'
 
 /**
- * 게임오버의 "내일의 스포트라이트" 예고 — 이름·아이콘은 숨기고 카테고리와 열리기까지의 시간만 보여 준다.
+ * "내일의 스포트라이트" 예고 — 이름·아이콘은 숨기고 카테고리와 열리는 시각만 보여 준다.
  * 버튼은 매일 00:00 UTC에 반복되는 .ics 일정을 내려받게 한다(사이트는 알림 권한을 요청하지 않는다).
  * 클라이언트 전용·하이드레이션 안전: 마운트 전에는 렌더하지 않는다.
+ * 남은 시간 카운트다운은 같은 DailyDock의 "Next daily"와 겹쳐서 두지 않는다. 매초 틱 대신
+ * 다음 UTC 자정에 한 번만 날짜를 갱신한다.
  */
 export function SpotlightTeaser() {
   const { slug: currentSlug } = useGameNav()
-  const [clock, setClock] = useState<{ nowMilliseconds: number; today: string } | null>(null)
+  const [today, setToday] = useState<string | null>(null)
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
 
   useEffect(() => {
-    const tick = () => setClock({ nowMilliseconds: Date.now(), today: todayUTC() })
-    tick()
-    const timerId = setInterval(tick, 1000)
-    return () => clearInterval(timerId)
+    setToday(todayUTC())
   }, [])
 
-  const tomorrowDate = clock ? nextDayUTC(clock.today) : null
-  const spotlightSlug = tomorrowDate ? spotlightFor(tomorrowDate) : null
+  useEffect(() => {
+    if (!today) return
+    const timerId = setTimeout(
+      () => setToday(todayUTC()),
+      msUntilNextUTCDay(Date.now()) + ROLLOVER_MARGIN_MILLISECONDS,
+    )
+    return () => clearTimeout(timerId)
+  }, [today])
+
+  const tomorrowDate = useMemo(() => (today ? nextDayUTC(today) : null), [today])
+  const spotlightSlug = useMemo(() => (tomorrowDate ? spotlightFor(tomorrowDate) : null), [tomorrowDate])
 
   useEffect(() => {
     if (tomorrowDate && spotlightSlug) markTeaserSeen(tomorrowDate)
   }, [tomorrowDate, spotlightSlug])
 
-  if (!clock || !spotlightSlug) return null
+  if (!spotlightSlug) return null
 
   const category = (gameMeta[spotlightSlug] ?? DEFAULT_META).category
 
@@ -56,9 +66,9 @@ export function SpotlightTeaser() {
       url: `${siteConfig.url}/daily`,
       nowMilliseconds: Date.now(),
     })
-    const saved = downloadTextFile(REMINDER_FILENAME, 'text/calendar', calendar)
-    if (saved) sendHit(currentSlug || 'site', 'spotlight_ics')
-    setSaveStatus(saved ? 'saved' : 'failed')
+    const started = downloadTextFile(REMINDER_FILENAME, 'text/calendar', calendar)
+    if (started) sendHit(currentSlug || 'site', 'spotlight_ics')
+    setSaveStatus(started ? 'started' : 'failed')
   }
 
   return (
@@ -73,10 +83,7 @@ export function SpotlightTeaser() {
         <div className="min-w-0 flex-1 text-xs">
           <p className="text-[10px] font-semibold tracking-[0.15em] text-neon-amber">TOMORROW&apos;S SPOTLIGHT</p>
           <p className="text-fg-muted">
-            <span className="font-semibold text-fg">??? · {category}</span> ·{' '}
-            <span className="tabular-nums text-neon-cyan" data-testid="spotlight-countdown">
-              {formatCountdown(msUntilNextUTCDay(clock.nowMilliseconds))}
-            </span>
+            <span className="font-semibold text-fg">??? · {category}</span> · opens 00:00 UTC
           </p>
         </div>
         <button
@@ -92,8 +99,8 @@ export function SpotlightTeaser() {
       </div>
       {saveStatus !== 'idle' && (
         <p aria-live="polite" data-testid="spotlight-ics-status" className="mt-1 text-[11px] text-fg-muted">
-          {saveStatus === 'saved'
-            ? 'Saved — open the file to add a daily 00:00 UTC reminder to your calendar.'
+          {saveStatus === 'started'
+            ? 'Download started — open the file to add a daily 00:00 UTC reminder to your calendar.'
             : "Couldn't save the file in this browser."}
         </p>
       )}

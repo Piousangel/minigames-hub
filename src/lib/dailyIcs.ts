@@ -67,6 +67,8 @@ export function buildDailyIcs(input: DailyIcsInput): string {
     'CALSCALE:GREGORIAN',
     'BEGIN:VEVENT',
     `UID:${input.uid}`,
+    // 같은 UID를 다시 내려받을 때 캘린더가 "갱신"으로 받아들이도록 날마다 커지는 번호를 둔다.
+    `SEQUENCE:${Math.floor(input.nowMilliseconds / MILLISECONDS_PER_DAY)}`,
     `DTSTAMP:${formatIcsUtc(input.nowMilliseconds)}`,
     `DTSTART:${formatIcsUtc(nextUtcMidnightMilliseconds(input.nowMilliseconds))}`,
     'DURATION:PT15M',

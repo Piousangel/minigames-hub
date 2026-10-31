@@ -30,7 +30,7 @@ Free online mini games. Next.js static export (`output: 'export'`) on Cloudflare
 계정 없이 짧은 게임을 즐기는 방문자는 "내일 다시 올 이유"가 약합니다. 사이트에는 스트릭·일일 퀘스트가 있지만 사이트가 사용자를 **먼저 불러오는 수단**이 없습니다.
 
 ### 핵심 동작 (사용 흐름 하나)
-1. 게임 페이지 하단 `DailyDock`에 "TOMORROW'S SPOTLIGHT" 카드가 보입니다(게임 이름은 숨기고 카테고리와 열리기까지 남은 시간만).
+1. 게임 페이지 하단 `DailyDock`에 "TOMORROW'S SPOTLIGHT" 카드가 보입니다(게임 이름은 숨기고 카테고리와 열리는 시각 00:00 UTC만).
 2. "Remind me" → 매일 00:00 UTC(한국 09:00)에 반복되는 `.ics` 파일이 내려받아지고, 사용자의 캘린더 앱이 알려 줍니다. 사이트는 알림 권한을 요청하지 않습니다.
 3. 다음 날 홈 상단에 어제 예고된 게임이 "TODAY'S SPOTLIGHT"로 공개됩니다(어제 예고를 봤으면 "Teased yesterday", 오늘 열어 봤으면 "Opened today ✓").
 
@@ -64,6 +64,7 @@ Free online mini games. Next.js static export (`output: 'export'`) on Cloudflare
 
 ### 확인하지 못한 것 / 남은 일
 - 실제 재방문율 변화(측정 기간·트래픽 부족), 사용자의 알림 수락률.
+- Google Calendar는 가져온 파일의 알림(VALARM)을 무시하고 자체 기본 알림을 쓸 수 있어, 00:00 UTC에 팝업이 안 뜰 수 있습니다(미확인).
 - 각 캘린더 앱(Google/Apple/Outlook)에서 `.ics`를 가져와 반복 알림이 뜨는지는 확인하지 못했습니다(헤드리스 환경, 사용자 캘린더를 건드리지 않기 위해). 파일 형식은 단위 테스트로만 검증했습니다.
 - iOS Safari의 파일 다운로드 동작.
 - "Teased yesterday"는 "그 날 게임 페이지가 열렸다"는 뜻이다(카드가 실제로 화면에 보였는지는 추적하지 않음).

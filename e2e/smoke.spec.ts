@@ -913,7 +913,7 @@ test('스포트라이트: 게임 페이지에서 예고 카드가 보이고 .ics
   const calendar = readFileSync(await download.path(), 'utf-8')
   expect(calendar).toContain('BEGIN:VCALENDAR')
   expect(calendar).toContain('RRULE:FREQ=DAILY')
-  await expect(page.getByTestId('spotlight-ics-status')).toContainText('Saved')
+  await expect(page.getByTestId('spotlight-ics-status')).toContainText('Download started')
 })
 
 test('스포트라이트: 홈에서 오늘의 스포트라이트가 공개된다', async ({ page }) => {

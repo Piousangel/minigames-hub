@@ -85,6 +85,13 @@ describe('buildDailyIcs', () => {
     expect(calendar).toContain('URL:https://quickminigames.site/daily\r\n')
   })
 
+  it('carries a SEQUENCE so a re-downloaded file updates the same event instead of being ignored', () => {
+    const dayNumber = Math.floor(Date.UTC(2026, 9, 31, 12) / 86_400_000)
+    expect(buildDailyIcs(input)).toContain(`SEQUENCE:${dayNumber}\r\n`)
+    const nextDayInput = { ...input, nowMilliseconds: Date.UTC(2026, 10, 1, 12) }
+    expect(buildDailyIcs(nextDayInput)).toContain(`SEQUENCE:${dayNumber + 1}\r\n`)
+  })
+
   it('alerts at the start time with a display alarm', () => {
     const calendar = buildDailyIcs(input)
     expect(calendar).toContain('BEGIN:VALARM\r\n')

@@ -41,26 +41,25 @@ afterEach(() => {
 })
 
 describe('SpotlightTeaser', () => {
-  it("shows tomorrow's category and a countdown, without naming the game", () => {
+  it("shows tomorrow's category and when it opens, without naming the game", () => {
     const { container } = renderTeaser()
     const slug = realSpotlightFor('2026-11-01') as string
     const gameTitle = gamePages.find((page) => page.slug === slug)!.h1
 
     expect(screen.getByTestId('spotlight-teaser')).toHaveTextContent("TOMORROW'S SPOTLIGHT")
     expect(screen.getByTestId('spotlight-teaser')).toHaveTextContent(gameMeta[slug].category)
-    expect(screen.getByTestId('spotlight-countdown')).toHaveTextContent('12:00:00')
+    expect(screen.getByTestId('spotlight-teaser')).toHaveTextContent('00:00 UTC')
     // 스포일러 없음: 이름·slug·링크가 DOM에 없다.
     expect(container.textContent).not.toContain(gameTitle)
     expect(container.textContent).not.toContain(slug)
     expect(container.querySelector(`[href*="/${slug}"]`)).toBeNull()
   })
 
-  it('ticks the countdown every second', () => {
+  it('does not run a per-second interval (it only waits for the next UTC midnight)', () => {
+    const setIntervalSpy = vi.spyOn(globalThis, 'setInterval')
     renderTeaser()
-    act(() => {
-      vi.advanceTimersByTime(1000)
-    })
-    expect(screen.getByTestId('spotlight-countdown')).toHaveTextContent('11:59:59')
+    expect(setIntervalSpy).not.toHaveBeenCalled()
+    setIntervalSpy.mockRestore()
   })
 
   it('remembers that tomorrow was teased', () => {
@@ -79,7 +78,7 @@ describe('SpotlightTeaser', () => {
     expect(content).toContain('RRULE:FREQ=DAILY')
     expect(content).toContain('DTSTART:20261101T000000Z')
     expect(sendHit).toHaveBeenCalledWith('snake', 'spotlight_ics')
-    expect(screen.getByTestId('spotlight-ics-status')).toHaveTextContent(/saved/i)
+    expect(screen.getByTestId('spotlight-ics-status')).toHaveTextContent(/download started/i)
   })
 
   it('explains the failure instead of throwing when the file cannot be saved', () => {
@@ -101,7 +100,7 @@ describe('SpotlightTeaser', () => {
     })
 
     expect(wasTeasedFor('2026-11-02')).toBe(true)
-    expect(screen.getByTestId('spotlight-countdown')).toHaveTextContent('23:59:59')
+    expect(screen.getByTestId('spotlight-teaser')).toHaveTextContent('00:00 UTC')
   })
 
   it('renders nothing when there is no spotlight game', () => {
