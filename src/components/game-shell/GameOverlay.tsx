@@ -4,7 +4,6 @@ import { useEffect, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { Confetti } from './Confetti'
 import { useGameNav } from '@/components/GameNav'
-import { SpotlightTeaser } from '@/components/SpotlightTeaser'
 import { nearestGoalHint } from '@/lib/achievements'
 import { siteConfig } from '@/lib/siteConfig'
 import { hasLeaderboard } from '@/lib/leaderboard'
@@ -88,8 +87,6 @@ export function GameOverlay({
             <span>Next: {nav.nextTitle}</span>
           </Link>
         )}
-        {/* 내일의 스포트라이트 예고 + 캘린더 알림(.ics) — 이탈 지점에서 다시 올 이유를 준다. */}
-        <SpotlightTeaser />
         {/* 리더보드 발견 유도: 페이지 하단(NextUp/GameStats/DailyDock 다음)에 묻혀 있어
             스크롤로는 잘 안 보임 — 게임오버 순간 바로 점프시켜 존재를 알린다(참여율↑). */}
         {hasLeaderboard(nav.slug) && (

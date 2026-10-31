@@ -64,37 +64,39 @@ export function SpotlightTeaser() {
   return (
     <div
       data-testid="spotlight-teaser"
-      className="w-full max-w-xs rounded-lg border border-dashed border-border bg-surface/60 px-3 py-2 text-left"
+      className="w-full max-w-xs rounded-lg border border-dashed border-border bg-surface/60 px-3 py-1.5 text-left"
     >
-      <p className="text-[10px] font-semibold tracking-[0.15em] text-neon-amber">TOMORROW&apos;S SPOTLIGHT</p>
-      <div className="mt-1 flex items-center gap-3">
-        <span aria-hidden="true" className="select-none text-2xl blur-[2px]">
+      <div className="flex items-center gap-2">
+        <span aria-hidden="true" className="select-none text-xl blur-[2px]">
           🎁
         </span>
-        <div className="text-xs text-fg-muted">
-          <p className="text-sm font-semibold text-fg">??? · {category}</p>
-          <p>
-            Unlocks in{' '}
+        <div className="min-w-0 flex-1 text-xs">
+          <p className="text-[10px] font-semibold tracking-[0.15em] text-neon-amber">TOMORROW&apos;S SPOTLIGHT</p>
+          <p className="text-fg-muted">
+            <span className="font-semibold text-fg">??? · {category}</span> ·{' '}
             <span className="tabular-nums text-neon-cyan" data-testid="spotlight-countdown">
               {formatCountdown(msUntilNextUTCDay(clock.nowMilliseconds))}
             </span>
           </p>
         </div>
+        <button
+          type="button"
+          onClick={saveReminder}
+          data-testid="spotlight-ics"
+          aria-label="Remind me when it opens (adds a daily calendar reminder)"
+          className="inline-flex shrink-0 items-center gap-1 rounded-md border border-neon-cyan/50 bg-surface px-2 py-1 text-xs font-semibold text-neon-cyan transition-colors hover:bg-neon-cyan/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+        >
+          <span aria-hidden="true">🔔</span>
+          <span>Remind me</span>
+        </button>
       </div>
-      <button
-        type="button"
-        onClick={saveReminder}
-        data-testid="spotlight-ics"
-        className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-neon-cyan/50 bg-surface px-3 py-1.5 text-xs font-semibold text-neon-cyan transition-colors hover:bg-neon-cyan/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-      >
-        <span aria-hidden="true">🔔</span>
-        <span>Remind me when it opens</span>
-      </button>
-      <p aria-live="polite" data-testid="spotlight-ics-status" className="mt-1 text-[11px] text-fg-muted">
-        {saveStatus === 'saved' &&
-          'Saved — open the file to add a daily 00:00 UTC reminder to your calendar.'}
-        {saveStatus === 'failed' && "Couldn't save the file in this browser."}
-      </p>
+      {saveStatus !== 'idle' && (
+        <p aria-live="polite" data-testid="spotlight-ics-status" className="mt-1 text-[11px] text-fg-muted">
+          {saveStatus === 'saved'
+            ? 'Saved — open the file to add a daily 00:00 UTC reminder to your calendar.'
+            : "Couldn't save the file in this browser."}
+        </p>
+      )}
     </div>
   )
 }
