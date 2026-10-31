@@ -1,6 +1,17 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
-> 갱신: 2026-10-12 · 브랜치: `main` · 배포 완료·검증됨 (quickminigames.site, 게임 110종 + /guides 21편)
+> 갱신: 2026-10-31 (스포트라이트 브랜치 섹션 추가) · 이전 갱신: 2026-10-12 · 브랜치: `main` · 배포 완료·검증됨 (quickminigames.site, 게임 110종 + /guides 21편)
+
+## ▶ 2026-10-31 — 내일의 스포트라이트 예고 + .ics 알림 (브랜치 `feature/tomorrow-spotlight`, 미병합)
+
+**한 줄:** 재방문 트리거. 게임 페이지 `DailyDock`에 "TOMORROW'S SPOTLIGHT" 예고(카테고리만)와 매일 00:00 UTC 반복 `.ics` 다운로드, 다음 날 홈 `TodayBoard`에서 공개. 클라이언트 전용(서버·워커·헤더 무변경).
+**정본:** 설계 `docs/superpowers/specs/2026-10-31-tomorrow-spotlight-design.md`, 계획 `docs/superpowers/plans/2026-10-31-tomorrow-spotlight.md`, README "이번 과제 범위".
+**구조:** `src/lib/spotlight.ts`(날짜 선정, 데일리 28종 N일 주기) · `dailyIcs.ts` · `downloadFile.ts` · `spotlightSeen.ts`(최근 3개 날짜) · `useTodayUTC.ts`(자정 롤오버 훅) · `SpotlightTeaser.tsx` · `SpotlightReveal.tsx`. (`SpotlightCard.tsx`는 예전 호버 글로우 카드로 무관.)
+**함정:** 예고 카드를 게임오버 오버레이에 넣으면 모바일(390px)에서 보드를 넘쳐 `DailyDock`으로 옮김. 데일리 게임 추가 시 순열이 바뀌어 하루 불일치(알려진 한계). 저장소 전체 vitest에는 이 작업과 무관한 기존 실패 ~34건(5초 타임아웃·Unblock·FizzBeat, base 커밋에서도 실패).
+**미확인:** 실제 캘린더 앱 가져오기(Google은 VALARM 무시 가능), iOS Safari 다운로드, 재방문 효과(가설, 측정 불가).
+**⏭ 다음:** PR → 병합 → `pnpm run deploy` → `/`·게임 페이지 확인(롤백 `wrangler rollback`). 과제 제출 전 README AI 활용 절 구체화·제출용 파일 정리.
+
+---
 
 ## ▶ 2026-10-10~12 — 품질 감사 + 버그 배치 1 (최신, 여기부터)
 
