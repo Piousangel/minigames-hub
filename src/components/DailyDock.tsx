@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { SpotlightTeaser } from '@/components/SpotlightTeaser'
 import {
   currentStreak,
   formatCountdown,
@@ -113,6 +114,12 @@ export function DailyDock() {
           </Link>
         )}
       </p>
+
+      {/* 내일의 스포트라이트 예고 + 캘린더 알림(.ics). 게임오버 오버레이는 게임마다 내용 높이가 달라
+          카드를 더하면 보드 밖으로 넘칠 수 있어 보드 아래 이곳에 둔다. */}
+      <div className="mt-3">
+        <SpotlightTeaser />
+      </div>
     </section>
   )
 }

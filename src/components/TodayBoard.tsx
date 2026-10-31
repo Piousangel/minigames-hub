@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { GameCard } from '@/components/GameCard'
+import { SpotlightReveal } from '@/components/SpotlightReveal'
+import { spotlightFor } from '@/lib/spotlight'
 import type { BrowseItem } from '@/components/GameBrowser'
 import {
   currentStreak,
@@ -38,7 +40,9 @@ export function TodayBoard({ items }: { items: BrowseItem[] }) {
     setFreezes(s?.freezes ?? 0)
     setDoneToday(s?.lastDate === today)
     setPlayedCount(loadPlayedToday(today).length)
-    setPicks(pickDailyPicks(today))
+    // 스포트라이트와 같은 게임이 "오늘의 픽"에 또 나오지 않게 뺀다.
+    const spotlightSlug = spotlightFor(today)
+    setPicks(pickDailyPicks(today, QUEST_TARGET, spotlightSlug ? [spotlightSlug] : []))
     setReady(true)
   }, [])
 
@@ -140,6 +144,9 @@ export function TodayBoard({ items }: { items: BrowseItem[] }) {
           </p>
         </div>
       </div>
+
+      {/* 어제 예고한 스포트라이트 공개 */}
+      <SpotlightReveal items={items} />
 
       {/* 오늘의 픽 */}
       {pickItems.length > 0 && (

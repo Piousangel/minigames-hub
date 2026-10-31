@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import {
   prevDayUTC,
+  nextDayUTC,
   bumpStreak,
   currentStreak,
   loadStreak,
@@ -134,5 +135,14 @@ describe('currentStreak', () => {
   })
   it('is 0 when 2+ days were missed even with a freeze', () => {
     expect(currentStreak({ lastDate: '2026-07-15', streak: 7, freezes: 2 }, '2026-07-18')).toBe(0)
+  })
+})
+
+describe('nextDayUTC', () => {
+  it('rolls over month ends, year ends and leap days', () => {
+    expect(nextDayUTC('2026-10-31')).toBe('2026-11-01')
+    expect(nextDayUTC('2026-12-31')).toBe('2027-01-01')
+    expect(nextDayUTC('2028-02-28')).toBe('2028-02-29')
+    expect(nextDayUTC('2028-02-29')).toBe('2028-03-01')
   })
 })

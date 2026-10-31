@@ -39,7 +39,7 @@ export function markPlayed(date: string, slug: string): void {
 
 // -- 오늘의 픽 (날짜 시드 결정론 추첨) --
 
-function hashSeed(s: string): number {
+export function hashSeed(s: string): number {
   let h = 0x811c9dc5
   for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i)
@@ -48,7 +48,7 @@ function hashSeed(s: string): number {
   return h >>> 0
 }
 
-function mulberry32(seed: number): () => number {
+export function mulberry32(seed: number): () => number {
   let a = seed >>> 0
   return () => {
     a = (a + 0x6d2b79f5) | 0
@@ -62,8 +62,8 @@ function mulberry32(seed: number): () => number {
  * 날짜(YYYY-MM-DD) 기준 distinct N개 게임 slug를 결정론 추첨. 순수 — 모든 브라우저 동일,
  * 매일 회전(롱테일 게임 노출). date를 주입받아 테스트 가능.
  */
-export function pickDailyPicks(date: string, n = QUEST_TARGET): string[] {
-  const pool = gamePages.map((g) => g.slug)
+export function pickDailyPicks(date: string, n = QUEST_TARGET, excludedSlugs: readonly string[] = []): string[] {
+  const pool = gamePages.map((g) => g.slug).filter((slug) => !excludedSlugs.includes(slug))
   const rng = mulberry32(hashSeed(date))
   const out: string[] = []
   for (let i = 0; i < n && pool.length > 0; i++) {

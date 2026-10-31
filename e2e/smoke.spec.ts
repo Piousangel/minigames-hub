@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test'
+import { readFileSync } from 'node:fs'
 import { challengeQuery } from '../src/lib/challenge'
 
 test('홈에서 게임 카드로 이동할 수 있다', async ({ page }) => {
@@ -896,4 +897,27 @@ test('daily 허브: 로드 + 데일리 게임 그리드', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Free Daily Puzzle Games', level: 1 })).toBeVisible()
   // 데일리 게임 카드가 여러 개(Clusters/Quadle 등)
   await expect(page.locator('main a[href^="/"]:has(h3)').first()).toBeVisible()
+})
+
+test('스포트라이트: 게임 페이지에서 예고 카드가 보이고 .ics를 내려받는다', async ({ page }) => {
+  await page.goto('/snake')
+  await expect(page.getByTestId('snake-board')).toBeVisible()
+
+  // 예고 카드는 게임 페이지 하단 DailyDock에 처음부터 있다(게임오버와 무관).
+  await expect(page.getByTestId('spotlight-teaser')).toBeVisible()
+  const downloadPromise = page.waitForEvent('download')
+  await page.getByTestId('spotlight-ics').click()
+  const download = await downloadPromise
+
+  expect(download.suggestedFilename()).toBe('quickminigames-daily.ics')
+  const calendar = readFileSync(await download.path(), 'utf-8')
+  expect(calendar).toContain('BEGIN:VCALENDAR')
+  expect(calendar).toContain('RRULE:FREQ=DAILY')
+  await expect(page.getByTestId('spotlight-ics-status')).toContainText('Download started')
+})
+
+test('스포트라이트: 홈에서 오늘의 스포트라이트가 공개된다', async ({ page }) => {
+  await page.goto('/')
+  await expect(page.getByTestId('spotlight-reveal')).toBeVisible()
+  await expect(page.getByTestId('spotlight-reveal')).toContainText("TODAY'S SPOTLIGHT")
 })
