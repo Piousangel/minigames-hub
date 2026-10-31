@@ -899,12 +899,11 @@ test('daily 허브: 로드 + 데일리 게임 그리드', async ({ page }) => {
   await expect(page.locator('main a[href^="/"]:has(h3)').first()).toBeVisible()
 })
 
-test('스포트라이트: 게임 종료 후 예고 카드가 보이고 .ics를 내려받는다', async ({ page }) => {
+test('스포트라이트: 게임 페이지에서 예고 카드가 보이고 .ics를 내려받는다', async ({ page }) => {
   await page.goto('/snake')
   await expect(page.getByTestId('snake-board')).toBeVisible()
-  await page.keyboard.press('ArrowRight') // 벽 충돌 게임오버(위 snake 테스트와 동일)
-  await expect(page.getByTestId('game-over')).toBeVisible({ timeout: 10_000 })
 
+  // 예고 카드는 게임 페이지 하단 DailyDock에 처음부터 있다(게임오버와 무관).
   await expect(page.getByTestId('spotlight-teaser')).toBeVisible()
   const downloadPromise = page.waitForEvent('download')
   await page.getByTestId('spotlight-ics').click()
