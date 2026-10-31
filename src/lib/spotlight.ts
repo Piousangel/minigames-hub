@@ -1,6 +1,7 @@
 import { gamePages } from '@/lib/games/registry'
 import { gameMeta } from '@/lib/games/gameMeta'
 import { hashSeed, mulberry32 } from '@/lib/today'
+import { MILLISECONDS_PER_DAY } from '@/lib/dailyStreak'
 
 /**
  * "내일의 스포트라이트" 선정 — 날짜만으로 하루 한 게임을 고르는 순수 함수들.
@@ -11,8 +12,6 @@ import { hashSeed, mulberry32 } from '@/lib/today'
  * 같은 게임이 이어지면 새 순열의 첫째·둘째를 맞바꾼다(N ≥ 3 에서만 보장).
  * 알려진 한계: 풀 크기가 바뀌면(데일리 게임 추가) 그날부터 순열이 달라진다.
  */
-
-const MILLISECONDS_PER_DAY = 86_400_000
 
 /** 'YYYY-MM-DD'(UTC) → 1970-01-01부터의 일수. 형식이 틀리거나 없는 날짜면 null. */
 export function dayNumberUTC(date: string): number | null {

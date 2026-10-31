@@ -38,6 +38,7 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers()
+  vi.unstubAllGlobals()
 })
 
 describe('SpotlightTeaser', () => {
@@ -62,6 +63,47 @@ describe('SpotlightTeaser', () => {
     setIntervalSpy.mockRestore()
   })
 
+  it('keeps the status live region mounted (empty) before any click so screen readers announce later updates', () => {
+    renderTeaser()
+    const status = screen.getByTestId('spotlight-ics-status')
+    expect(status).toHaveAttribute('aria-live', 'polite')
+    expect(status).toBeEmptyDOMElement()
+  })
+
+  it('reads the hidden game as a mystery instead of question marks, and shows the local opening time', () => {
+    renderTeaser()
+    expect(screen.getByText('Mystery game')).toBeInTheDocument()
+    expect(screen.getByTestId('spotlight-teaser')).toHaveTextContent(/00:00 UTC \(\d{1,2}:\d{2} your time\)/)
+  })
+
+  it('labels the button by what it does', () => {
+    renderTeaser()
+    expect(screen.getByTestId('spotlight-ics')).toHaveTextContent('Add to calendar')
+  })
+
+  it('only records the teaser as seen once the card is actually on screen', () => {
+    let notifyVisibility: IntersectionObserverCallback = () => {}
+    const disconnect = vi.fn()
+    class FakeIntersectionObserver {
+      constructor(callback: IntersectionObserverCallback) {
+        notifyVisibility = callback
+      }
+      observe() {}
+      disconnect = disconnect
+    }
+    vi.stubGlobal('IntersectionObserver', FakeIntersectionObserver)
+
+    renderTeaser()
+    expect(wasTeasedFor('2026-11-01')).toBe(false)
+
+    act(() => {
+      notifyVisibility([{ isIntersecting: true } as IntersectionObserverEntry], {} as IntersectionObserver)
+    })
+
+    expect(wasTeasedFor('2026-11-01')).toBe(true)
+    expect(disconnect).toHaveBeenCalled()
+  })
+
   it('remembers that tomorrow was teased', () => {
     renderTeaser()
     expect(wasTeasedFor('2026-11-01')).toBe(true)
@@ -77,7 +119,7 @@ describe('SpotlightTeaser', () => {
     expect(mimeType).toBe('text/calendar')
     expect(content).toContain('RRULE:FREQ=DAILY')
     expect(content).toContain('DTSTART:20261101T000000Z')
-    expect(sendHit).toHaveBeenCalledWith('snake', 'spotlight_ics')
+    expect(sendHit).toHaveBeenCalledWith('snake', 'spotlight_ics_click')
     expect(screen.getByTestId('spotlight-ics-status')).toHaveTextContent(/download started/i)
   })
 

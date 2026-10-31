@@ -20,6 +20,9 @@ export interface DailyStreak {
 const FREEZE_MAX = 2
 const FREEZE_EVERY = 5 // 스트릭이 5의 배수에 닿을 때마다 +1
 
+/** 하루의 밀리초. 날짜 경계를 다루는 모듈이 같은 상수를 쓴다. */
+export const MILLISECONDS_PER_DAY = 86_400_000
+
 /** 'YYYY-MM-DD'(UTC)의 하루 전. 문자열 산술이 아니라 UTC Date로 정확히. */
 export function prevDayUTC(isoDate: string): string {
   const d = new Date(isoDate + 'T00:00:00Z')
@@ -126,9 +129,8 @@ export function saveStreak(key: string, s: DailyStreak): void {
  * DOMAIN §3 — Wordle의 '아침 의식')용. nowMs를 주입받아 순수·테스트 가능.
  */
 export function msUntilNextUTCDay(nowMs: number): number {
-  const DAY = 86_400_000
-  const rem = nowMs % DAY
-  return rem === 0 ? 0 : DAY - rem
+  const rem = nowMs % MILLISECONDS_PER_DAY
+  return rem === 0 ? 0 : MILLISECONDS_PER_DAY - rem
 }
 
 /** ms → 'HH:MM:SS'(음수/NaN은 00:00:00). 카운트다운 표시용. */

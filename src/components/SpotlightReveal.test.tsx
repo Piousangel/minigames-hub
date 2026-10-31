@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import { SpotlightReveal } from './SpotlightReveal'
 import type { BrowseItem } from '@/components/GameBrowser'
 import { spotlightFor } from '@/lib/spotlight'
@@ -58,6 +58,19 @@ describe('SpotlightReveal', () => {
     markPlayed(TODAY, spotlightSlug)
     render(<SpotlightReveal items={[makeItem(spotlightSlug)]} />)
     expect(screen.getByTestId('spotlight-opened')).toHaveTextContent('Opened today')
+  })
+
+  it('switches to the next spotlight when UTC midnight passes with the page left open', () => {
+    vi.setSystemTime(new Date(`${TODAY}T23:59:58Z`))
+    const tomorrowSlug = realSpotlightFor('2026-11-02') as string
+    render(<SpotlightReveal items={[makeItem(spotlightSlug), makeItem(tomorrowSlug)]} />)
+    expect(screen.getByTestId('spotlight-reveal')).toHaveTextContent(`Title of ${spotlightSlug}`)
+
+    act(() => {
+      vi.advanceTimersByTime(3000)
+    })
+
+    expect(screen.getByTestId('spotlight-reveal')).toHaveTextContent(`Title of ${tomorrowSlug}`)
   })
 
   it('renders nothing when the spotlight game is not in the browse list', () => {

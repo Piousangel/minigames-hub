@@ -3,7 +3,8 @@
  * 전부 순수 함수: 현재 시각은 `nowMilliseconds`로 주입받는다.
  */
 
-const MILLISECONDS_PER_DAY = 86_400_000
+import { MILLISECONDS_PER_DAY } from '@/lib/dailyStreak'
+
 const MAXIMUM_LINE_OCTETS = 75
 const textEncoder = new TextEncoder()
 
