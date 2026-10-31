@@ -39,7 +39,7 @@ export function markPlayed(date: string, slug: string): void {
 
 // -- 오늘의 픽 (날짜 시드 결정론 추첨) --
 
-function hashSeed(s: string): number {
+export function hashSeed(s: string): number {
   let h = 0x811c9dc5
   for (let i = 0; i < s.length; i++) {
     h ^= s.charCodeAt(i)
@@ -48,7 +48,7 @@ function hashSeed(s: string): number {
   return h >>> 0
 }
 
-function mulberry32(seed: number): () => number {
+export function mulberry32(seed: number): () => number {
   let a = seed >>> 0
   return () => {
     a = (a + 0x6d2b79f5) | 0

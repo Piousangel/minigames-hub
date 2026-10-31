@@ -27,6 +27,13 @@ export function prevDayUTC(isoDate: string): string {
   return d.toISOString().slice(0, 10)
 }
 
+/** 'YYYY-MM-DD'(UTC)의 하루 뒤. prevDayUTC와 같은 방식. */
+export function nextDayUTC(isoDate: string): string {
+  const d = new Date(isoDate + 'T00:00:00Z')
+  d.setUTCDate(d.getUTCDate() + 1)
+  return d.toISOString().slice(0, 10)
+}
+
 /** from→to 사이 UTC 일수(to가 나중). 파싱 실패 시 Infinity. */
 export function daysBetweenUTC(from: string, to: string): number {
   const a = Date.parse(from + 'T00:00:00Z')
