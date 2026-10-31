@@ -63,3 +63,28 @@ describe('GameOverlay — leaderboard discovery nudge', () => {
     expect(screen.queryByTestId('overlay-leaderboard')).not.toBeInTheDocument()
   })
 })
+
+describe('GameOverlay — tomorrow spotlight teaser', () => {
+  beforeEach(() => {
+    sessionStorage.clear()
+    localStorage.clear()
+  })
+
+  it.each(['win', 'lose', 'draw'] as const)('shows the teaser on a %s result', (variant) => {
+    render(
+      <GameNavProvider slug="snake">
+        <GameOverlay show variant={variant} title="Result" testId="game-over" />
+      </GameNavProvider>,
+    )
+    expect(screen.getByTestId('spotlight-teaser')).toBeInTheDocument()
+  })
+
+  it('shows nothing while the overlay is hidden', () => {
+    render(
+      <GameNavProvider slug="snake">
+        <GameOverlay show={false} variant="lose" title="Game over" testId="game-over" />
+      </GameNavProvider>,
+    )
+    expect(screen.queryByTestId('spotlight-teaser')).not.toBeInTheDocument()
+  })
+})
