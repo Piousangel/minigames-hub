@@ -123,6 +123,18 @@ describe('SpotlightTeaser', () => {
     expect(screen.getByTestId('spotlight-ics-status')).toHaveTextContent(/download started/i)
   })
 
+  it('survives rapid repeated clicks: every click saves the file but the analytics hit is sent once', () => {
+    renderTeaser()
+    const button = screen.getByTestId('spotlight-ics')
+    fireEvent.click(button)
+    fireEvent.click(button)
+    fireEvent.click(button)
+
+    expect(downloadTextFile).toHaveBeenCalledTimes(3)
+    expect(sendHit).toHaveBeenCalledTimes(1)
+    expect(screen.getByTestId('spotlight-ics-status')).toHaveTextContent(/download started/i)
+  })
+
   it('explains the failure instead of throwing when the file cannot be saved', () => {
     vi.mocked(downloadTextFile).mockReturnValue(false)
     renderTeaser()

@@ -40,6 +40,8 @@ export function SpotlightTeaser() {
   const today = useTodayUTC()
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const rootRef = useRef<HTMLDivElement>(null)
+  // 연타해도 클릭 지표가 부풀지 않게 마운트당 한 번만 보낸다(파일 저장은 클릭마다 한다).
+  const hitSentRef = useRef(false)
 
   const tomorrowDate = useMemo(() => (today ? nextDayUTC(today) : null), [today])
   const spotlightSlug = useMemo(() => (tomorrowDate ? spotlightFor(tomorrowDate) : null), [tomorrowDate])
@@ -77,7 +79,10 @@ export function SpotlightTeaser() {
     })
     const started = downloadTextFile(REMINDER_FILENAME, 'text/calendar', calendar)
     // 클릭이 던지지 않았다는 뜻일 뿐 실제 저장 여부는 알 수 없어서 이벤트 이름도 click으로 둔다.
-    if (started) sendHit(currentSlug || 'site', 'spotlight_ics_click')
+    if (started && !hitSentRef.current) {
+      hitSentRef.current = true
+      sendHit(currentSlug || 'site', 'spotlight_ics_click')
+    }
     setSaveStatus(started ? 'started' : 'failed')
   }
 
