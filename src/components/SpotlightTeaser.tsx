@@ -40,8 +40,11 @@ export function SpotlightTeaser() {
   const today = useTodayUTC()
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const rootRef = useRef<HTMLDivElement>(null)
+  // 연타해도 클릭 지표가 부풀지 않게 마운트당 한 번만 보낸다(파일 저장은 클릭마다 한다).
+  const hitSentRef = useRef(false)
 
   const tomorrowDate = useMemo(() => (today ? nextDayUTC(today) : null), [today])
+  const openingTimeLocal = useMemo(() => (tomorrowDate ? localOpeningTime(tomorrowDate) : ''), [tomorrowDate])
   const spotlightSlug = useMemo(() => (tomorrowDate ? spotlightFor(tomorrowDate) : null), [tomorrowDate])
 
   // 카드가 실제로 화면에 보였을 때만 "예고를 봤다"고 기록한다(보드 아래라 스크롤 안 하면 안 보인다).
@@ -77,7 +80,10 @@ export function SpotlightTeaser() {
     })
     const started = downloadTextFile(REMINDER_FILENAME, 'text/calendar', calendar)
     // 클릭이 던지지 않았다는 뜻일 뿐 실제 저장 여부는 알 수 없어서 이벤트 이름도 click으로 둔다.
-    if (started) sendHit(currentSlug || 'site', 'spotlight_ics_click')
+    if (started && !hitSentRef.current) {
+      hitSentRef.current = true
+      sendHit(currentSlug || 'site', 'spotlight_ics_click')
+    }
     setSaveStatus(started ? 'started' : 'failed')
   }
 
@@ -98,7 +104,7 @@ export function SpotlightTeaser() {
               <span aria-hidden="true">???</span>
               <span className="sr-only">Mystery game</span> · {category}
             </span>{' '}
-            · opens 00:00 UTC ({localOpeningTime(tomorrowDate)} your time)
+            · opens 00:00 UTC ({openingTimeLocal} your time)
           </p>
         </div>
         <button
@@ -113,7 +119,7 @@ export function SpotlightTeaser() {
         </button>
       </div>
       {/* 라이브 리전은 항상 마운트해 두고 문구만 바꾼다(비어 있다가 채워질 때 스크린리더가 읽는다). */}
-      <p aria-live="polite" data-testid="spotlight-ics-status" className="mt-1 text-xs text-fg-muted empty:hidden">
+      <p aria-live="polite" data-testid="spotlight-ics-status" className="text-xs text-fg-muted [&:not(:empty)]:mt-1">
         {saveStatus === 'started' &&
           'Download started — open the file to add a daily 00:00 UTC reminder to your calendar.'}
         {saveStatus === 'failed' && "Couldn't save the file in this browser."}

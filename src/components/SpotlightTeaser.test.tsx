@@ -68,12 +68,29 @@ describe('SpotlightTeaser', () => {
     const status = screen.getByTestId('spotlight-ics-status')
     expect(status).toHaveAttribute('aria-live', 'polite')
     expect(status).toBeEmptyDOMElement()
+    // display:none인 빈 리전은 접근성 트리에 없어서 첫 메시지가 읽히지 않는다.
+    expect(status.className).not.toMatch(/hidden/)
   })
 
   it('reads the hidden game as a mystery instead of question marks, and shows the local opening time', () => {
     renderTeaser()
     expect(screen.getByText('Mystery game')).toBeInTheDocument()
     expect(screen.getByTestId('spotlight-teaser')).toHaveTextContent(/00:00 UTC \(\d{1,2}:\d{2} your time\)/)
+  })
+
+  it('does not rebuild the local-time formatter when the parent re-renders', () => {
+    const toLocaleTimeSpy = vi.spyOn(Date.prototype, 'toLocaleTimeString')
+    const { rerender } = renderTeaser()
+    const callsAfterMount = toLocaleTimeSpy.mock.calls.length
+    for (let i = 0; i < 5; i++) {
+      rerender(
+        <GameNavProvider slug="snake">
+          <SpotlightTeaser />
+        </GameNavProvider>,
+      )
+    }
+    expect(toLocaleTimeSpy.mock.calls.length).toBe(callsAfterMount)
+    toLocaleTimeSpy.mockRestore()
   })
 
   it('labels the button by what it does', () => {
@@ -120,6 +137,18 @@ describe('SpotlightTeaser', () => {
     expect(content).toContain('RRULE:FREQ=DAILY')
     expect(content).toContain('DTSTART:20261101T000000Z')
     expect(sendHit).toHaveBeenCalledWith('snake', 'spotlight_ics_click')
+    expect(screen.getByTestId('spotlight-ics-status')).toHaveTextContent(/download started/i)
+  })
+
+  it('survives rapid repeated clicks: every click saves the file but the analytics hit is sent once', () => {
+    renderTeaser()
+    const button = screen.getByTestId('spotlight-ics')
+    fireEvent.click(button)
+    fireEvent.click(button)
+    fireEvent.click(button)
+
+    expect(downloadTextFile).toHaveBeenCalledTimes(3)
+    expect(sendHit).toHaveBeenCalledTimes(1)
     expect(screen.getByTestId('spotlight-ics-status')).toHaveTextContent(/download started/i)
   })
 

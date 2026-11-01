@@ -1,5 +1,7 @@
 # 내일의 스포트라이트 예고 + 캘린더 알림 Implementation Plan
 
+> **구현 후 변경(2026-10-31):** 예고 카드는 게임오버 오버레이가 아니라 `DailyDock`에 붙였다(390px에서 오버레이가 넘침 — Task 6 판단). 카운트다운은 뺐고 버튼 문구는 "Add to calendar"다. 아래 본문은 작업 당시 계획이다.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 게임오버에서 "내일의 스포트라이트"를 예고하고 `.ics` 반복 알림을 내려받게 하며, 다음 날 홈에서 그 게임을 공개한다.

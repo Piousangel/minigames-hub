@@ -13,7 +13,7 @@ import {
   msUntilNextUTCDay,
   nextMilestone,
 } from '@/lib/dailyStreak'
-import { todayUTC } from '@/lib/dailyDate'
+import { useTodayUTC } from '@/lib/useTodayUTC'
 import { loadPlayedToday, pickDailyPicks, QUEST_TARGET } from '@/lib/today'
 
 /**
@@ -33,8 +33,11 @@ export function TodayBoard({ items }: { items: BrowseItem[] }) {
   const [picks, setPicks] = useState<string[]>([])
   const [countdown, setCountdown] = useState('')
 
+  const today = useTodayUTC()
+
+  // 탭을 열어 둔 채 UTC 자정을 넘기면 스트릭·퀘스트·오늘의 픽을 새 날짜로 다시 계산한다.
   useEffect(() => {
-    const today = todayUTC()
+    if (!today) return
     const s = loadStreak('site:streak')
     setStreak(currentStreak(s, today))
     setFreezes(s?.freezes ?? 0)
@@ -44,7 +47,7 @@ export function TodayBoard({ items }: { items: BrowseItem[] }) {
     const spotlightSlug = spotlightFor(today)
     setPicks(pickDailyPicks(today, QUEST_TARGET, spotlightSlug ? [spotlightSlug] : []))
     setReady(true)
-  }, [])
+  }, [today])
 
   // '다음 데일리까지 HH:MM:SS' — 클라이언트 전용 초 단위 틱(하이드레이션 후에만).
   useEffect(() => {

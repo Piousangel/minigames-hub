@@ -31,7 +31,7 @@ Free online mini games. Next.js static export (`output: 'export'`) on Cloudflare
 
 ### 핵심 동작 (사용 흐름 하나)
 1. 게임 페이지 하단 `DailyDock`에 "TOMORROW'S SPOTLIGHT" 카드가 보입니다(게임 이름은 숨기고 카테고리와 열리는 시각 00:00 UTC만).
-2. "Remind me" → 매일 00:00 UTC(한국 09:00)에 반복되는 `.ics` 파일이 내려받아지고, 사용자의 캘린더 앱이 알려 줍니다. 사이트는 알림 권한을 요청하지 않습니다.
+2. "Add to calendar" → 매일 00:00 UTC(한국 09:00)에 반복되는 `.ics` 파일이 내려받아지고, 사용자의 캘린더 앱이 알려 줍니다. 사이트는 알림 권한을 요청하지 않습니다.
 3. 다음 날 홈 상단에 어제 예고된 게임이 "TODAY'S SPOTLIGHT"로 공개됩니다(어제 예고를 봤으면 "Teased yesterday", 오늘 열어 봤으면 "Opened today ✓").
 
 ### 이번 범위와 이유
@@ -42,7 +42,7 @@ Free online mini games. Next.js static export (`output: 'export'`) on Cloudflare
 - 이 기능은 "재방문이 늘 것"이라는 **가설**입니다. 하루 방문자가 1~3명 수준이라 이 과제 안에서 효과를 측정할 수 없습니다.
 
 ### 이번 범위 (커밋 기준) / 기존 것
-- **이번 범위:** `git log --oneline 674fa78..HEAD` (스포트라이트 관련 커밋). 평가자는 `git diff 674fa78..HEAD`로 바로 볼 수 있습니다.
+- **이번 범위:** PR #14(기능)와 PR #15(리뷰 반영·수정). main에는 squash로 들어가 있어서, 작업 순서는 원본 브랜치 `origin/feature/tomorrow-spotlight`에서 보입니다(`git log --oneline 674fa78..origin/feature/tomorrow-spotlight`). 설계·계획 문서 커밋(`9e41095`)이 첫 구현 커밋(`e910690`)보다 앞섭니다. 설계는 대화로 먼저 정한 뒤 문서로 커밋했습니다.
 - **기존(이번에 만들지 않은 것):** 게임 110종, 데일리 모드·스트릭, 일일 퀘스트, 공유 카드, 품질 감사 보고서 등 — 이전 작업이며 대부분 AI를 활용해 만들었습니다. 이번 범위와 구분됩니다.
 - 참고: `src/components/SpotlightCard.tsx`는 예전부터 있던 호버 글로우 카드로 이번 기능과 **무관**합니다(이름만 비슷).
 
@@ -55,13 +55,14 @@ Free online mini games. Next.js static export (`output: 'export'`) on Cloudflare
 | 테스트 | 각 파일의 `*.test.ts(x)`, `e2e/smoke.spec.ts`의 스포트라이트 2건 |
 
 ### 실행 방법
-- 요구: Node 22, pnpm. 설치 `pnpm install` → 개발 서버 `pnpm dev` → http://localhost:3000
+- 요구: Node 22, pnpm 9 이상(`corepack enable`). `.env`나 계정 설정 없이 동작합니다. 설치 `pnpm install` → 개발 서버 `pnpm dev` → http://localhost:3000
 - 확인 경로: 아무 게임 페이지(예: `/snake`)를 열고 스크롤하면 하단 `DailyDock` 안에 "TOMORROW'S SPOTLIGHT" 카드와 "Add to calendar" 버튼이 있습니다. 클릭하면 `quickminigames-daily.ics`가 내려받아집니다. 홈(`/`)에는 "TODAY'S SPOTLIGHT" 카드가 있습니다.
 - 날짜를 바꿔 보려면 브라우저 개발자 도구에서 시스템 시간을 바꾸거나, 테스트(`pnpm vitest run src/lib/spotlight.test.ts`)의 날짜 주입을 사용합니다.
-- 테스트: `pnpm vitest run <파일>`, e2e `pnpm exec playwright test`(정적 빌드 후 서빙).
+- 이번 범위 테스트만 돌리기: `pnpm vitest run src/lib/spotlight.test.ts src/lib/dailyIcs.test.ts src/lib/downloadFile.test.ts src/lib/spotlightSeen.test.ts src/lib/useTodayUTC.test.tsx src/components/SpotlightTeaser.test.tsx src/components/SpotlightReveal.test.tsx src/components/TodayBoard.test.tsx src/components/DailyDock.test.tsx` (전체 `pnpm test`에는 아래 기존 실패가 섞여 있습니다.)
+- e2e: `pnpm exec playwright test`(정적 빌드 후 서빙, 네트워크 필요).
 
 ### AI 활용 (대표 작업)
-> AI가 한 일과 내가 확인·결정한 일을 구분해 적었습니다. 면접에서 직접 설명할 수 있도록 본인 표현으로 다듬어 주세요.
+> AI(Claude Code)가 한 일과 내가 확인·결정한 일을 구분해 적었습니다.
 
 | 작업 | AI에 준 입력 | AI 결과 | 확인·수정한 것 |
 |---|---|---|---|
@@ -69,7 +70,7 @@ Free online mini games. Next.js static export (`output: 'export'`) on Cloudflare
 | `.ics` 생성 | RFC 5545 요구(CRLF, 75옥텟 접기, 이스케이프) | 순수 함수 + 테스트 | 한글(멀티바이트)이 접힘 지점에서 깨지는지 테스트로 확인 |
 | 카드 위치 | 설계상 게임오버 오버레이 | 구현은 그대로 동작 | 390px에서 직접 측정해 보드를 넘치는 걸 확인하고 `DailyDock`으로 이동 |
 | 전체 리뷰 | 코드·UX·배포·과제 적합성 리뷰 요청 | 자정 롤오버 불일치, 카드 중복, 접근성, 예고 기록 덮어쓰기 등 지적 | 지적마다 실패하는 테스트를 먼저 쓰고 수정. 틀린 지적(`SpotlightCard` 누락, 실패 5건)은 코드로 확인해 기각 |
-- 구현 방식: 실패하는 테스트 → 최소 구현 → 작업 단위 커밋(AI와 함께 진행, 모든 커밋을 내가 검토).
+- 구현 방식: 실패하는 테스트를 먼저 쓰고 실패를 확인한 뒤 최소 구현(실패 확인은 작업 중 로컬에서 했고, 커밋 이력에는 테스트와 구현이 같은 커밋에 들어 있습니다). AI와 함께 진행했고 커밋에 `Co-Authored-By`가 남아 있습니다.
 
 ### 확인한 것 (조건 / 기대 / 실제)
 | 조건 | 기대 | 실제 | 방법 |
@@ -83,7 +84,8 @@ Free online mini games. Next.js static export (`output: 'export'`) on Cloudflare
 | localStorage 불가/손상 | 예외 없음 | 예외 없음 | 단위·컴포넌트 테스트 |
 | 다운로드 API 없음 | 예외 없이 실패 안내 | 안내 표시 | 단위·컴포넌트 테스트 |
 | `.ics` 특수문자·한글·긴 줄 | 유효한 형식 유지 | 유지 | 단위 테스트 |
-| 예고 기록이 다음 날 덮임 | 어제 예고 배지 유지 | 최초 구현은 사라짐(버그) → 최근 3개 저장으로 수정 | 회귀 테스트 RED→GREEN |
+| 예고 기록이 다음 날 덮임 | 어제 예고 배지 유지 | 최초 구현은 사라짐(버그) → 최근 3개 저장으로 수정 | 회귀 테스트(작업 중 실패 확인 후 통과) |
+| 다운로드 버튼 연타 | 클릭마다 저장하되 분석 이벤트는 한 번만 | 최초 구현은 3번 전송(버그) → 마운트당 1회로 수정 | 컴포넌트 테스트(작업 중 실패 확인 후 통과) |
 | 실제 파일 다운로드 | `.ics` 내려받아짐 | 내려받아짐(`RRULE:FREQ=DAILY` 포함) | e2e(Chromium) |
 | 저장소 전체 | 이 작업의 테스트 통과 | 이 작업 테스트 전부 통과, e2e 142개 중 141개 통과 | 전체 실행 |
 
@@ -91,10 +93,12 @@ Free online mini games. Next.js static export (`output: 'export'`) on Cloudflare
 - 전체 vitest에는 기존 실패 34건이 있습니다(5초 시간 초과 등, base 커밋 `674fa78`에서도 같은 파일이 실패). e2e의 pinwheel 키보드 테스트는 전체 실행 중 1회 실패했고 단독 실행에서는 통과했습니다(이 작업과 무관한 불안정으로 판단).
 
 ### 확인하지 못한 것 / 남은 일
-- 다운로드 버튼 연타(반복 조작)와 실제 기기에서의 동작은 확인하지 않았습니다.
+- 실제 기기(모바일)에서의 동작은 확인하지 않았습니다.
 - 실제 재방문율 변화(측정 기간·트래픽 부족), 사용자의 알림 수락률.
 - Google Calendar는 가져온 파일의 알림(VALARM)을 무시하고 자체 기본 알림을 쓸 수 있어, 00:00 UTC에 팝업이 안 뜰 수 있습니다(미확인).
 - 각 캘린더 앱(Google/Apple/Outlook)에서 `.ics`를 가져와 반복 알림이 뜨는지 확인하지 못했습니다(개인 캘린더를 건드리지 않기 위해). 형식은 단위 테스트로만 검증했습니다.
 - iOS Safari의 파일 다운로드 동작.
+- 카카오톡·인스타그램 등 인앱 브라우저는 blob 다운로드를 조용히 무시할 수 있어, 이 경우에도 "Download started"가 표시될 수 있습니다(저장 여부를 코드로 알 수 없음). 이벤트 이름을 `spotlight_ics_click`으로 둔 이유이기도 합니다.
+- 홈의 "Opened today ✓"는 다른 탭에서 게임을 열었을 때 새로고침 전까지 갱신되지 않습니다(알려진 한계).
 - 데일리 게임이 추가돼 풀 크기가 바뀌면 그날부터 순열이 달라져 "어제 예고한 게임"과 오늘 공개가 어긋날 수 있습니다(알려진 한계).
 - "Teased yesterday"는 "예고 카드가 화면에 보였다"는 뜻입니다(스크롤해서 보인 경우에만 기록).
