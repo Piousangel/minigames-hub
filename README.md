@@ -97,5 +97,7 @@ Free online mini games. Next.js static export (`output: 'export'`) on Cloudflare
 - Google Calendar는 가져온 파일의 알림(VALARM)을 무시하고 자체 기본 알림을 쓸 수 있어, 00:00 UTC에 팝업이 안 뜰 수 있습니다(미확인).
 - 각 캘린더 앱(Google/Apple/Outlook)에서 `.ics`를 가져와 반복 알림이 뜨는지 확인하지 못했습니다(개인 캘린더를 건드리지 않기 위해). 형식은 단위 테스트로만 검증했습니다.
 - iOS Safari의 파일 다운로드 동작.
+- 카카오톡·인스타그램 등 인앱 브라우저는 blob 다운로드를 조용히 무시할 수 있어, 이 경우에도 "Download started"가 표시될 수 있습니다(저장 여부를 코드로 알 수 없음). 이벤트 이름을 `spotlight_ics_click`으로 둔 이유이기도 합니다.
+- 홈의 "Opened today ✓"는 다른 탭에서 게임을 열었을 때 새로고침 전까지 갱신되지 않습니다(알려진 한계).
 - 데일리 게임이 추가돼 풀 크기가 바뀌면 그날부터 순열이 달라져 "어제 예고한 게임"과 오늘 공개가 어긋날 수 있습니다(알려진 한계).
 - "Teased yesterday"는 "예고 카드가 화면에 보였다"는 뜻입니다(스크롤해서 보인 경우에만 기록).

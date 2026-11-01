@@ -32,6 +32,8 @@ describe('downloadTextFile', () => {
     // 일부 브라우저는 클릭 직후 해제하면 저장이 취소되므로 지연 해제한다.
     expect(revokeObjectURL).not.toHaveBeenCalled()
     vi.advanceTimersByTime(1000)
+    expect(revokeObjectURL).not.toHaveBeenCalled() // iOS·Safari는 클릭 뒤에도 blob을 늦게 읽는다
+    vi.advanceTimersByTime(40_000)
     expect(revokeObjectURL).toHaveBeenCalledWith('blob:fake')
     vi.useRealTimers()
   })
@@ -39,6 +41,22 @@ describe('downloadTextFile', () => {
   it('returns false instead of throwing when object URLs are unsupported', () => {
     expect(() => downloadTextFile('a.ics', 'text/calendar', 'x')).not.toThrow()
     expect(downloadTextFile('a.ics', 'text/calendar', 'x')).toBe(false)
+  })
+
+  it('removes the temporary link and revokes the URL even when click() throws', () => {
+    const revokeObjectURL = vi.fn()
+    Object.assign(URL, { createObjectURL: () => 'blob:fake', revokeObjectURL })
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {
+      throw new Error('blocked')
+    })
+    vi.useFakeTimers()
+
+    expect(downloadTextFile('a.ics', 'text/calendar', 'x')).toBe(false)
+
+    expect(document.querySelector('a[download]')).toBeNull()
+    vi.advanceTimersByTime(40_000)
+    expect(revokeObjectURL).toHaveBeenCalledWith('blob:fake')
+    vi.useRealTimers()
   })
 
   it('returns false when creating the object URL throws', () => {
