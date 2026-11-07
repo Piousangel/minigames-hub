@@ -42,7 +42,7 @@ Free online mini games. Next.js static export (`output: 'export'`) on Cloudflare
 - 이 기능은 "재방문이 늘 것"이라는 **가설**입니다. 하루 방문자가 1~3명 수준이라 이 과제 안에서 효과를 측정할 수 없습니다.
 
 ### 이번 범위 (커밋 기준) / 기존 것
-- **이번 범위:** PR #14(기능)와 PR #15(리뷰 반영·수정). main에는 squash로 들어가 있어서, 작업 순서는 원본 브랜치 `origin/feature/tomorrow-spotlight`에서 보입니다(`git log --oneline 674fa78..origin/feature/tomorrow-spotlight`). 설계·계획 문서 커밋(`9e41095`)이 첫 구현 커밋(`e910690`)보다 앞섭니다. 설계는 대화로 먼저 정한 뒤 문서로 커밋했습니다.
+- **이번 범위:** PR #14(기능)와 PR #15(리뷰 반영·수정). main에는 squash로 들어가 있어서, 작업 순서는 PR #14의 원본 커밋에서 보입니다. 원본 브랜치는 병합 후 삭제돼서, GitHub PR #14의 Commits 탭을 보거나 `git fetch origin pull/14/head:feature/tomorrow-spotlight` 후 `git log --oneline 674fa78..feature/tomorrow-spotlight`로 확인합니다(리뷰 반영 PR #15는 `origin/fix/spotlight-repeat-click`). 설계·계획 문서 커밋(`9e41095`)이 첫 구현 커밋(`e910690`)보다 앞섭니다. 설계는 대화로 먼저 정한 뒤 문서로 커밋했습니다.
 - **기존(이번에 만들지 않은 것):** 게임 110종, 데일리 모드·스트릭, 일일 퀘스트, 공유 카드, 품질 감사 보고서 등 — 이전 작업이며 대부분 AI를 활용해 만들었습니다. 이번 범위와 구분됩니다.
 - 참고: `src/components/SpotlightCard.tsx`는 예전부터 있던 호버 글로우 카드로 이번 기능과 **무관**합니다(이름만 비슷).
 
