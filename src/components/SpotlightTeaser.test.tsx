@@ -140,6 +140,18 @@ describe('SpotlightTeaser', () => {
     expect(screen.getByTestId('spotlight-ics-status')).toHaveTextContent(/download started/i)
   })
 
+  it('tags the calendar link with ref=ics so returns from the reminder are measurable', async () => {
+    const { entryTag } = await vi.importActual<typeof import('@/lib/hit')>('@/lib/hit')
+    renderTeaser()
+    fireEvent.click(screen.getByTestId('spotlight-ics'))
+
+    const content = vi.mocked(downloadTextFile).mock.calls[0][2]
+    const url = content.match(/^URL:(.+)$/m)?.[1].trim()
+    expect(url).toBe('https://quickminigames.site/daily?ref=ics')
+    // 사이트의 유입 태그 파서가 이 값을 그대로 읽는지(태그 형식 규칙과 어긋나지 않는지) 확인한다.
+    expect(entryTag(new URL(url!).search)).toBe('ics')
+  })
+
   it('survives rapid repeated clicks: every click saves the file but the analytics hit is sent once', () => {
     renderTeaser()
     const button = screen.getByTestId('spotlight-ics')
