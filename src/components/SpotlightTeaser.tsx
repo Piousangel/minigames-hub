@@ -17,6 +17,9 @@ const REMINDER_FILENAME = 'quickminigames-daily.ics'
 const REMINDER_UID = 'daily-reminder@quickminigames.site'
 const REMINDER_SUMMARY = "Today's daily puzzles are live"
 const REMINDER_DESCRIPTION = 'New daily boards just unlocked on Quick MiniGames.'
+// 캘린더 알림에서 들어온 방문을 구분하는 유입 태그. 기존 `?ref=` 계측(hit.ts entryTag)이
+// 진입 pageview에 tag=ics로 실어 보내므로, "클릭(spotlight_ics_click) → 실제 재방문" 퍼널을 잴 수 있다.
+const REMINDER_URL = `${siteConfig.url}/daily?ref=ics`
 
 type SaveStatus = 'idle' | 'started' | 'failed'
 
@@ -75,7 +78,7 @@ export function SpotlightTeaser() {
       uid: REMINDER_UID,
       summary: REMINDER_SUMMARY,
       description: REMINDER_DESCRIPTION,
-      url: `${siteConfig.url}/daily`,
+      url: REMINDER_URL,
       nowMilliseconds: Date.now(),
     })
     const started = downloadTextFile(REMINDER_FILENAME, 'text/calendar', calendar)
