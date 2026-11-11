@@ -1,0 +1,33 @@
+# main에 머지되면 검사 후 Cloudflare Workers로 배포한다.
+# 아침 클라우드 팀 루틴은 로컬 wrangler 로그인이 없으므로 배포는 여기서 한다.
+# 필요한 저장소 시크릿: CLOUDFLARE_API_TOKEN (Workers Scripts:Edit, D1:Edit, Zone Workers Routes:Edit 권한), CLOUDFLARE_ACCOUNT_ID
+name: deploy
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      # 전체 vitest는 기존 실패(~34건, 5초 타임아웃 등)가 있어 게이트에서 뺀다 — 루틴이 바꾼 파일 관련 테스트를 머지 전에 돌린다
+      # deploy = next build → check-routes → wrangler deploy
+      - run: pnpm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

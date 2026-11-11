@@ -1,0 +1,43 @@
+# 매일 05:30 KST — 아침 회의(06:00 클라우드 루틴) 자료로 지표를 뽑아 docs/daily/metrics/<KST날짜>.md 로 커밋한다.
+# 필요 시크릿: CLOUDFLARE_API_TOKEN(D1 Read · Account Analytics Read · Zone Read · Zone Analytics Read 포함), CLOUDFLARE_ACCOUNT_ID
+name: metrics
+on:
+  schedule:
+    - cron: '30 20 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: metrics
+jobs:
+  metrics:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: 지표 수집
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          d=$(TZ=Asia/Seoul date +%F)
+          mkdir -p docs/daily/metrics
+          node scripts/daily-metrics.mjs > "docs/daily/metrics/$d.md"
+          cat "docs/daily/metrics/$d.md"
+      - name: 커밋
+        run: |
+          git config user.name "minigames-metrics[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/daily/metrics
+          git diff --cached --quiet || git commit -m "chore(metrics): $(TZ=Asia/Seoul date +%F) 지표"
+          git push
