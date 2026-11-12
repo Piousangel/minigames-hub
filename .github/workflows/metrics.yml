@@ -1,9 +1,11 @@
-# 매일 05:30 KST — 아침 회의(06:00 클라우드 루틴) 자료로 지표를 뽑아 docs/daily/metrics/<KST날짜>.md 로 커밋한다.
-# 필요 시크릿: CLOUDFLARE_API_TOKEN(D1 Read · Account Analytics Read · Zone Read · Zone Analytics Read 포함), CLOUDFLARE_ACCOUNT_ID
+# 매일 새벽(04:07·05:17 KST) — 아침 회의(06:00 클라우드 루틴) 자료로 지표를 뽑아 docs/daily/metrics/<KST날짜>.md 로 커밋한다.
+# 필요 시크릿: CLOUDFLARE_API_TOKEN(D1 Edit(쿼리 API가 Edit 요구) · Account Analytics Read · Zone Read · Zone Analytics Read 포함), CLOUDFLARE_ACCOUNT_ID
 name: metrics
 on:
+  # GitHub 예약 실행은 지연·누락이 잦다(11-13 05:30 실행이 아예 안 뜸). 두 번 걸어 하나는 06시 전에 끝나게 한다.
   schedule:
-    - cron: '30 20 * * *'
+    - cron: '7 19 * * *'   # 04:07 KST
+    - cron: '17 20 * * *'  # 05:17 KST (같은 날 파일을 최신으로 덮어씀)
   workflow_dispatch:
 permissions:
   contents: write

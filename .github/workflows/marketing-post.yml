@@ -1,0 +1,43 @@
+# 마케팅 게시: 아침 팀이 PR로 넣은 docs/marketing/queue/*.json 을 main 머지 후 실제 채널에 올린다.
+# 자격증명은 저장소 시크릿에만 둔다(에이전트 샌드박스에는 없음). 없는 채널은 skipped로 원장에 남는다.
+# 시크릿: BLUESKY_HANDLE·BLUESKY_APP_PASSWORD / X_API_KEY·X_API_SECRET·X_ACCESS_TOKEN·X_ACCESS_SECRET /
+#         REDDIT_CLIENT_ID·REDDIT_CLIENT_SECRET·REDDIT_USERNAME·REDDIT_PASSWORD
+name: marketing-post
+on:
+  push:
+    branches: [main]
+    paths: ['docs/marketing/queue/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: marketing-post
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: 게시
+        env:
+          BLUESKY_HANDLE: ${{ secrets.BLUESKY_HANDLE }}
+          BLUESKY_APP_PASSWORD: ${{ secrets.BLUESKY_APP_PASSWORD }}
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          REDDIT_USERNAME: ${{ secrets.REDDIT_USERNAME }}
+          REDDIT_PASSWORD: ${{ secrets.REDDIT_PASSWORD }}
+        run: node scripts/post-social.mjs
+      - name: 원장 커밋
+        run: |
+          git config user.name "marketing-bot[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/marketing/posted.json 2>/dev/null || true
+          git diff --cached --quiet || git commit -m "chore(marketing): 게시 기록 $(TZ=Asia/Seoul date +%F)"
+          git pull --rebase -q && git push
