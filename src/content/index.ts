@@ -15,6 +15,7 @@ import { guide as guideQuarry } from './guides/quarry'
 import { article as connectFourFirstPlayerVsOurAi } from './articles/connect-four-first-player-vs-our-ai'
 import { article as wordGuessBestOpeningWords } from './articles/word-guess-best-opening-words'
 import { article as yahtzee300000GamesThreeStrategies } from './articles/yahtzee-300000-games-three-strategies'
+import { guide as guideBattleship } from './guides/battleship'
 import { guide as guideBisect } from './guides/bisect'
 import { guide as guideClusters } from './guides/clusters'
 import { guide as guideOverfold } from './guides/overfold'
@@ -38,6 +39,7 @@ export const GUIDES: GameGuide[] = [
   guideOverfold,
   guidePrismbox,
   guideTetris,
+  guideBattleship,
 ]
 
 export const ARTICLES: Article[] = [
