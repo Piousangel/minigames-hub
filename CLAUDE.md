@@ -29,6 +29,7 @@
 
 ## 매일 아침 팀 운영
 06:00 KST 클라우드 루틴이 회의(docs/team/meetings) → 리뷰 → 반영(PR·머지) → 메일 보고. 05:30 Actions가 지표를 docs/daily/metrics에 커밋. 결정은 DECISIONS.md, 백로그 docs/daily/backlog.md, 운영 방식은 sandlab 저장소 docs/ops/playbook.md.
+**아침 팀은 회의 전에 [docs/team/OPERATING.md](./docs/team/OPERATING.md)를 반드시 읽고 따른다** (어제 회고, 첫 화면 상시 안건, 방향 문서·주간 회고, 마케팅 실제 게시 큐).
 
 ## Testing
 
