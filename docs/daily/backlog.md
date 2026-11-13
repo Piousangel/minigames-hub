@@ -24,5 +24,5 @@
 8. Vercel 연결 해제(실사이트는 Cloudflare, push마다 불필요 빌드)
 9. `CF_ANALYTICS_TOKEN` Worker 시크릿 빈 값 → 재등록(홈 인기순 레일)
 10. 지표 수집 D1 실패: 원인은 토큰에 D1 권한 없음(확인). 사용자가 토큰 Account 정책에 D1 Edit 추가 예정
-11. 매니페스트 `/icon.svg` 404(모든 페이지 콘솔 에러)
-12. 홈 배지 "100 free games — newest: Bearing" vs 마키 "110 GAMES" 불일치
+11. ~~매니페스트 icon.svg 404~~ 11-14 해결
+12. ~~홈 배지 숫자 불일치~~ 11-14 해결(레지스트리 계산)

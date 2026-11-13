@@ -57,14 +57,14 @@ export default function Home() {
         <p className="mx-auto max-w-xl text-sm leading-relaxed text-fg-muted sm:text-base">
           {siteConfig.description}
         </p>
-        {/* 100종 달성 마일스톤 — 최신작(Bearing)으로 유도하는 소프트 CTA 겸 공지 */}
+        {/* 게임 수 배지 — 레지스트리에서 계산(하드코딩 금지: 마퀴와 숫자가 어긋났었다) */}
         <div className="mt-5 flex justify-center">
           <Link
-            href="/bearing"
+            href="/collections"
             className="btn-press inline-flex items-center gap-2 rounded-full border border-neon-lime/40 bg-neon-lime/10 px-4 py-1.5 text-xs font-semibold text-neon-lime transition-colors hover:bg-neon-lime/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-lime focus-visible:ring-offset-2 focus-visible:ring-offset-bg sm:text-sm"
           >
             <span aria-hidden="true">🎉</span>
-            100 free games and counting — newest: Bearing
+            {gamePages.length} free games and counting — browse collections
           </Link>
         </div>
         {/* 1차 CTA — "즉시 플레이"를 실제 버튼으로. 콜드 방문자를 바로 게임에 진입시켜 활성화. */}
