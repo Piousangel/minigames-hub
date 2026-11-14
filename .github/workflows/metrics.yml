@@ -1,11 +1,13 @@
-# 매일 새벽(04:07·05:17 KST) — 아침 회의(06:00 클라우드 루틴) 자료로 지표를 뽑아 docs/daily/metrics/<KST날짜>.md 로 커밋한다.
+# 아침 회의(06:00 클라우드 루틴) 자료. 파일 이름 = 이 지표를 쓸 회의 날짜(KST 06시 기준) → docs/daily/metrics/<날짜>.md
 # 필요 시크릿: CLOUDFLARE_API_TOKEN(D1 Edit(쿼리 API가 Edit 요구) · Account Analytics Read · Zone Read · Zone Analytics Read 포함), CLOUDFLARE_ACCOUNT_ID
 name: metrics
 on:
-  # GitHub 예약 실행은 지연·누락이 잦다(11-13 05:30 실행이 아예 안 뜸). 두 번 걸어 하나는 06시 전에 끝나게 한다.
+  # GitHub 예약 실행은 3~5시간씩 늦는다(11-14·15 실측: 04:07 예약이 07:57·09:19에 실행). 전날 밤부터
+  # 세 번 걸어, 하나만 제때 돌아도 회의 전에 파일이 있게 한다. 늦게 돈 실행은 다음 회의용 파일이 된다.
   schedule:
+    - cron: '17 12 * * *'  # 21:17 KST
+    - cron: '17 16 * * *'  # 01:17 KST
     - cron: '7 19 * * *'   # 04:07 KST
-    - cron: '17 20 * * *'  # 05:17 KST (같은 날 파일을 최신으로 덮어씀)
   workflow_dispatch:
 permissions:
   contents: write
@@ -32,14 +34,27 @@ jobs:
           CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CF_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          d=$(TZ=Asia/Seoul date +%F)
+          # 회의 날짜 = (KST 현재 + 18시간)의 날짜. 06:00 KST 이전 실행은 오늘 회의용, 이후는 내일 회의용.
+          d=$(TZ=Asia/Seoul date -d '+18 hours' +%F)
+          echo "MEETING_DATE=$d" >> "$GITHUB_ENV"
           mkdir -p docs/daily/metrics
-          node scripts/daily-metrics.mjs > "docs/daily/metrics/$d.md"
-          cat "docs/daily/metrics/$d.md"
+          {
+            echo "_수집: $(TZ=Asia/Seoul date '+%F %H:%M') KST_"
+            node scripts/daily-metrics.mjs
+          } > "docs/daily/metrics/$d.md"
+      - name: 마케팅 게시 성과
+        continue-on-error: true
+        env:
+          REDDIT_CLIENT_ID: ${{ secrets.REDDIT_CLIENT_ID }}
+          REDDIT_CLIENT_SECRET: ${{ secrets.REDDIT_CLIENT_SECRET }}
+          X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
+        run: |
+          node scripts/marketing-stats.mjs >> "docs/daily/metrics/$MEETING_DATE.md"
+          cat "docs/daily/metrics/$MEETING_DATE.md"
       - name: 커밋
         run: |
           git config user.name "minigames-metrics[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add docs/daily/metrics
-          git diff --cached --quiet || git commit -m "chore(metrics): $(TZ=Asia/Seoul date +%F) 지표"
-          git push
+          git diff --cached --quiet || git commit -m "chore(metrics): $MEETING_DATE 회의용 지표"
+          git pull --rebase -q && git push
