@@ -173,3 +173,23 @@ export interface ScoreRow {
   name: string
   score: number
 }
+
+const SUBMITTED_KEY = (slug: string) => `submitted:${slug}`
+
+/** 이 게임에서 마지막으로 제출한 점수(새로고침 후 중복 제출 방지). 없으면 0 */
+export function loadSubmittedScore(slug: string): number {
+  try {
+    const n = Number(localStorage.getItem(SUBMITTED_KEY(slug)))
+    return Number.isFinite(n) && n > 0 ? n : 0
+  } catch {
+    return 0
+  }
+}
+
+export function saveSubmittedScore(slug: string, score: number): void {
+  try {
+    localStorage.setItem(SUBMITTED_KEY(slug), String(score))
+  } catch {
+    /* 저장 불가 무시 */
+  }
+}

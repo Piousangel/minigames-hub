@@ -6,6 +6,8 @@ import {
   MAX_NAME_LEN,
   SCORE_SCALE,
   loadPlayerName,
+  loadSubmittedScore,
+  saveSubmittedScore,
   savePlayerName,
   type ScoreRow,
 } from '@/lib/leaderboard'
@@ -53,12 +55,13 @@ export function Leaderboard({ slug }: { slug: string }) {
   useEffect(() => {
     load()
     setName(loadPlayerName())
-    submittedRef.current = 0 // 새 게임(slug) 진입 시 제출 허용 초기화
+    // 새로고침해도 같은 기록을 다시 제출(중복 행)하지 않도록 마지막 제출 점수를 복원
+    submittedRef.current = loadSubmittedScore(slug)
     const readBest = () => {
       const raw = Number(localStorage.getItem(`best:${slug}`))
       const v = Number.isFinite(raw) && raw > 0 ? Math.floor(raw * scale) : 0
       setBest((prev) => (prev === v ? prev : v))
-      if (v > submittedRef.current) setSubmitted(false) // 기록을 갱신했을 때만 다시 제출 가능
+      setSubmitted(v <= submittedRef.current && v > 0) // 기록을 갱신했을 때만 다시 제출 가능
     }
     readBest()
     const id = setInterval(readBest, 1000)
@@ -81,6 +84,7 @@ export function Leaderboard({ slug }: { slug: string }) {
       setWeek(data.week)
       setSubmitted(true)
       submittedRef.current = best // 이 점수는 제출됨 — 더 높은 기록이 나와야 재제출 허용
+      saveSubmittedScore(slug, best)
       savePlayerName(name)
     } catch {
       /* 무시 */
