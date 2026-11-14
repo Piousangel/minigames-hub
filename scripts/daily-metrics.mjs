@@ -114,6 +114,12 @@ try {
        WHERE timestamp > NOW() - INTERVAL '7' DAY AND blob3 != '' GROUP BY ref ORDER BY n DESC LIMIT 5`,
     )
     console.log(`유입 경로 상위: ${refs.map((r) => `${r.ref}=${r.n}`).join(' · ') || '없음'}`)
+    // 우리가 뿌린 링크의 ?ref= 태그(마케팅 게시는 ref=<채널>) — 마케터 성과 확인용.
+    const tags = await ae(
+      `SELECT blob5 AS tag, SUM(_sample_interval) AS n FROM ${AE_DATASET}
+       WHERE timestamp > NOW() - INTERVAL '7' DAY AND blob5 != '' GROUP BY tag ORDER BY n DESC LIMIT 10`,
+    )
+    console.log(`유입 태그(?ref=, 7일): ${tags.map((r) => `${r.tag}=${r.n}`).join(' · ') || '없음'}`)
   }
 } catch (e) {
   console.log(`\nAE: 실패 (${one(e.message)})`)

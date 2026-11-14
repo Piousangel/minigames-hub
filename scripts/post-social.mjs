@@ -10,7 +10,7 @@
 //   { "channel": "reddit", "subreddit": "battleship", "title": "...", "text": "...", "url": "https://..." }
 // ] }
 //
-// 안전장치: 오늘·어제 날짜 파일만, 채널당 하루 1건, 이미 posted 된 항목은 다시 안 올림,
+// 안전장치: 오늘·어제 날짜 파일만, 채널당 하루 1건, 같은 채널·같은 URL은 14일 안에 다시 안 올림, 이미 posted 된 항목은 다시 안 올림,
 // url이 있으면 200이 될 때까지(배포 완료) 기다린 뒤 게시. 자격증명 없는 채널은 skipped로 기록.
 // 결과는 docs/marketing/posted.json(원장)에 남는다. DRY_RUN=1 이면 게시하지 않고 출력만.
 import { createHmac, randomBytes } from 'node:crypto'
@@ -26,6 +26,19 @@ const kstDate = (offsetDays = 0) =>
   new Date(Date.now() + 9 * 3600e3 - offsetDays * 86400e3).toISOString().slice(0, 10)
 
 const LIMITS = { bluesky: 300, x: 280, reddit: 40000 }
+const DEDUPE_DAYS = 14
+
+// 유입 측정용: 게시 링크에 ?ref=<채널> 을 붙인다(사이트가 ref 태그를 AE에 기록 → 지표 파일에서 채널별 유입 확인).
+function tagUrl(url, channel) {
+  if (!url) return url
+  try {
+    const u = new URL(url)
+    if (!u.searchParams.has('ref')) u.searchParams.set('ref', channel)
+    return u.toString()
+  } catch {
+    return url
+  }
+}
 
 function withUrl(text, url, channel) {
   if (!url || text.includes(url)) return text
@@ -80,7 +93,7 @@ const adapters = {
       })
       const j = await r.json()
       if (!r.ok) throw new Error(`bluesky: ${r.status} ${JSON.stringify(j).slice(0, 200)}`)
-      return `https://bsky.app/profile/${env.BLUESKY_HANDLE}/post/${j.uri.split('/').pop()}`
+      return { link: `https://bsky.app/profile/${env.BLUESKY_HANDLE}/post/${j.uri.split('/').pop()}`, ref: j.uri }
     },
   },
 
@@ -109,7 +122,7 @@ const adapters = {
       })
       const j = await r.json()
       if (!r.ok) throw new Error(`x: ${r.status} ${JSON.stringify(j).slice(0, 200)}`)
-      return `https://x.com/i/web/status/${j.data.id}`
+      return { link: `https://x.com/i/web/status/${j.data.id}`, ref: j.data.id }
     },
   },
 
@@ -144,7 +157,7 @@ const adapters = {
       const j = await r.json()
       const errs = j?.json?.errors
       if (!r.ok || (errs && errs.length)) throw new Error(`reddit: ${r.status} ${JSON.stringify(errs ?? j).slice(0, 200)}`)
-      return j.json.data.url
+      return { link: j.json.data.url, ref: j.json.data.name }
     },
   },
 }
@@ -165,8 +178,16 @@ for (const f of files.sort()) {
     const id = `${date}#${i}`
     if (done.has(id)) continue
     const a = adapters[p.channel]
-    const entry = { id, date: kstDate(), channel: p.channel, at: new Date().toISOString() }
+    const plainUrl = p.url
+    p.url = tagUrl(p.url, p.channel)
+    const entry = { id, date: kstDate(), channel: p.channel, at: new Date().toISOString(), url: plainUrl }
+    const recentDup =
+      plainUrl &&
+      ledger.some(
+        (e) => e.status === 'posted' && e.channel === p.channel && e.url === plainUrl && Date.now() - Date.parse(e.at) < DEDUPE_DAYS * 86400e3,
+      )
     if (!a) entry.status = 'skipped-unknown-channel'
+    else if (recentDup) entry.status = 'skipped-recent-duplicate'
     else if (postedToday.has(p.channel)) entry.status = 'skipped-daily-limit'
     else if (!a.ready()) entry.status = 'skipped-no-credentials'
     else if (DRY) entry.status = 'dry-run'
@@ -174,7 +195,9 @@ for (const f of files.sort()) {
       if (p.url && !(await waitFor200(p.url))) entry.status = 'skipped-url-not-live'
       else {
         try {
-          entry.link = await a.post(p)
+          const r = await a.post(p)
+          entry.link = r.link
+          entry.ref = r.ref
           entry.status = 'posted'
           postedToday.add(p.channel)
         } catch (e) {
