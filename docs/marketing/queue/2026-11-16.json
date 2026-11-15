@@ -1,0 +1,4 @@
+{ "posts": [
+  { "channel": "bluesky", "text": "Battleship에서 CPU를 이기는 법: 엔진 시뮬레이션으로 쓴 배치·탐색 공략을 정리했어요. 무료, 설치 없이 바로 플레이.", "url": "https://quickminigames.site/guides/battleship" },
+  { "channel": "x", "text": "Battleship 공략: 엔진·CPU 시뮬레이션 결과로 정리한 배치와 탐색 전략. 무료로 바로 해볼 수 있어요.", "url": "https://quickminigames.site/guides/battleship" }
+] }

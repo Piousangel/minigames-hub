@@ -1,5 +1,6 @@
 'use client'
 
+import { sendHit } from '@/lib/hit'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   LEADERBOARD_GAMES,
@@ -85,6 +86,7 @@ export function Leaderboard({ slug }: { slug: string }) {
       setSubmitted(true)
       submittedRef.current = best // 이 점수는 제출됨 — 더 높은 기록이 나와야 재제출 허용
       saveSubmittedScore(slug, best)
+      sendHit(slug, 'lb_submit') // 리더보드 참여 계측(backlog 0번 큰 기능의 기준선)
       savePlayerName(name)
     } catch {
       /* 무시 */
