@@ -169,9 +169,9 @@ const adapters = {
   // Threads(Meta 공식 API). 본인 계정을 앱의 Threads 테스터로 넣으면 앱 검수 없이 본인 계정에 게시할 수 있다.
   // 토큰은 60일 장기 토큰이다. 실행할 때마다 갱신을 시도하고, 남은 기간은 지표 파일에 경고로 나온다(marketing-stats).
   threads: {
-    ready: () => env.THREADS_ACCESS_TOKEN && env.THREADS_USER_ID,
+    ready: () => !!env.THREADS_ACCESS_TOKEN, // THREADS_USER_ID 없으면 'me'
     async post(p) {
-      const base = `https://graph.threads.net/v1.0/${env.THREADS_USER_ID}`
+      const base = `https://graph.threads.net/v1.0/${env.THREADS_USER_ID || 'me'}`
       const text = withUrl(p.text, p.url, 'threads')
       const params = new URLSearchParams({ media_type: 'TEXT', text, access_token: env.THREADS_ACCESS_TOKEN })
       if (p.url) params.set('link_attachment', p.url) // 링크 미리보기 카드
