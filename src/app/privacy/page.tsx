@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <ProsePage title="Privacy Policy">
-      <p>Last updated: October 9, 2026</p>
+      <p>Last updated: November 16, 2026</p>
       <p>
         This page describes, in plain language, what {siteConfig.name} stores and sends when you use
         it. The site has no accounts, no sign-in and no contact forms, so the list is short.
@@ -68,7 +68,9 @@ export default function PrivacyPage() {
       <p>
         If you want a leaderboard name or comment you posted removed, get in touch through the{' '}
         <Link href="/contact" className="text-accent">contact page</Link> and say which page and
-        what it said. Submitted names, scores or comments may also be removed at our discretion.
+        what it said. Submitted names, scores or comments may also be removed at our discretion. How
+        comments are moderated is described in the{' '}
+        <Link href="/terms" className="text-accent">terms of use</Link>.
       </p>
 
       <h2>Cookies and advertising</h2>

@@ -39,9 +39,9 @@ const HUBS: Record<string, Hub> = {
     h1: 'Free Arcade Games',
     title: 'Free Arcade Games — Play Online Unblocked, No Download',
     metaDescription:
-      'Play free arcade games online — snake, tetris, breakout, flappy, space shooter and more retro action. No download, no sign-up, unblocked in your browser.',
+      'Play free arcade games online — snake, falling blocks, breakout, flappy, space shooter and more retro action. No download, no sign-up, unblocked in your browser.',
     intro:
-      'Fast, free arcade games that load instantly in your browser — no download, no sign-up, unblocked anywhere. Chase a high score in snake, tetris, breakout, flappy and a whole shelf of original neon arcade games, all playable on phone or desktop. Beat your best, then push for the weekly leaderboard.',
+      'Fast, free arcade games that load instantly in your browser — no download, no sign-up, unblocked anywhere. Chase a high score in snake, falling blocks, breakout, flappy and a whole shelf of original neon arcade games, all playable on phone or desktop. Beat your best, then push for the weekly leaderboard.',
     faq: [
       { q: 'Are these arcade games free?', a: 'Yes. Every game is free to play in the browser with no download and no account.' },
       { q: 'Do they work on mobile?', a: 'Yes. The arcade games support touch controls and work on phones and tablets as well as desktop.' },

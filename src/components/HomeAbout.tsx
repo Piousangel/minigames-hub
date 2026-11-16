@@ -36,11 +36,11 @@ export function HomeAbout() {
           <Link href="/category/arcade" className="text-accent hover:underline">
             Arcade games
           </Link>{' '}
-          such as Snake, Tetris and Breakout are about quick reflexes and chasing a high score.{' '}
+          such as Snake, Falling Blocks and Breakout are about quick reflexes and chasing a high score.{' '}
           <Link href="/category/classic" className="text-accent hover:underline">
             Classic games
           </Link>{' '}
-          bring the tabletop home — the full Solitaire family, Chess, Checkers, Mancala and Yahtzee,
+          bring the tabletop home — the full Solitaire family, Chess, Checkers, Mancala and Yacht Dice,
           played against the computer or a friend. And{' '}
           <Link href="/category/skill" className="text-accent hover:underline">
             skill games

@@ -42,6 +42,6 @@
 1. **데이터 공략을 늘린다**(sandlab식, 이미 검증된 형식): /guides/2048(8,200판 시뮬)처럼 직접 만든 게임·상위 트래픽 게임에 '이 사이트만 쓸 수 있는' 공략. 게임 페이지 위쪽에 공략 링크
 2. **홈 정비**: title을 설명형으로("Quick MiniGames — 110 free browser games, daily puzzles & tested strategy guides"), WebSite·Organization JSON-LD, 전체 게임 목록은 카테고리로 옮겨 HTML 100KB 이하(첫 화면 실험과 함께)
 3. **주제 허브 1~2개만 색인 허용**: 예) '매일 퍼즐', '타이밍 게임'. 설명문을 넣고 noindex를 풀어 내부 링크 축을 만든다(`siteConfig.thinPagesNoindex`를 페이지별로). /unblocked는 계속 noindex
-4. **얇은 게임 페이지 정리**: rock-paper-scissors(357단어), number-memory, aim-trainer, hangman, pong 등은 보강하거나 noindex + sitemap 제외(`src/app/sitemap.ts`)
+4. ~~얇은 게임 페이지 정리~~ 11-16 하위 5개 보강(rps·number-memory·aim-trainer·hangman·pong → 462~522단어). 다음 하위: word-search 356 · maze 362 · whack-a-mole 364 · tower-stack 368 · connect-four 369 (docs/adsense/2026-11-16-readiness.md)
 5. **제목·설명 반복 패턴 제거**: "Free, No Download"·"Free vs Computer" 꼬리를 걷고, 그 게임만의 특징을 앞에 둔다
 6. Search Console 색인 보고서(미색인 사유)는 오너가 캡처해 주면 2·4번 우선순위를 정한다

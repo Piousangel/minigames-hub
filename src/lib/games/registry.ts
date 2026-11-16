@@ -342,28 +342,28 @@ export const gamePages: GamePage[] = [
   {
     slug: 'tetris',
     game: 'tetris',
-    title: 'Play Tetris Online — Free Classic Block Puzzle',
-    h1: 'Tetris',
+    title: 'Play Falling Blocks Online — Free Classic Line-Clearing Puzzle',
+    h1: 'Falling Blocks',
     metaDescription:
-      'Play Tetris online for free. Slide, rotate, and drop falling blocks to clear lines in this classic block puzzle. No download, works on desktop and mobile.',
+      'Play Falling Blocks online for free. Slide, rotate, and drop falling blocks to clear lines in this classic block puzzle. No download, works on desktop and mobile.',
     shortDescription: 'Stack and clear the falling blocks.',
     howToPlay: [
       'Move the falling piece left or right with the arrow keys (or the on-screen buttons on mobile).',
       'Press up to rotate the piece and down to soft-drop it faster; press space to hard-drop it instantly.',
       'Fill a full horizontal row and it clears, keeping your stack low.',
-      'Clear four rows at once with the I-piece for a "Tetris" and a big bonus. The game ends when the stack reaches the top.',
+      'Clear four rows at once with the I-piece for a "Quad" and a big bonus. The game ends when the stack reaches the top.',
     ],
     strategy: [
       'Keep your stack flat and low — a bumpy surface leaves gaps you cannot fill later.',
-      'Leave one column empty on the side and feed it I-pieces to score Tetrises (four-line clears) for maximum points.',
+      'Leave one column empty on the side and feed it I-pieces to score Quads (four-line clears) for maximum points.',
       'Use the ghost outline and next-piece preview to plan two moves ahead, not just the current piece.',
       'Rotate against the wall — pieces kick away from the edge, so you can squeeze into tight spots.',
       'The gravity speeds up every ten lines, so bank clears early while the pace is still slow.',
     ],
     faq: [
       { q: 'Are the pieces completely random?', a: 'Not quite. Pieces are dealt from a shuffled bag of all seven shapes, so every shape appears exactly once in each set of seven. That means an I-piece never waits more than 12 other pieces.' },
-      { q: 'How do I play Tetris on mobile?', a: 'On-screen buttons let you move, rotate, soft-drop, and hard-drop with your thumbs. Everything works by touch.' },
-      { q: 'What is a "Tetris"?', a: 'Clearing four lines at once with a single vertical I-piece. It is the highest-scoring single move in the game.' },
+      { q: 'How do I play Falling Blocks on mobile?', a: 'On-screen buttons let you move, rotate, soft-drop, and hard-drop with your thumbs. Everything works by touch.' },
+      { q: 'What is a "Quad"?', a: 'Clearing four lines at once with a single vertical I-piece. It is the highest-scoring single move in the game.' },
     ],
   },
   {
@@ -548,10 +548,13 @@ export const gamePages: GamePage[] = [
       'Use the category hint and revealed letters to guess likely word shapes.',
       'Look for common endings (-ING, -ED, -TION) once you have a few letters.',
       'Save risky letters until you are confident — every wrong guess costs you.',
+      'In this game’s own word list, E appears in 60% of the words, A in 52%, R in 49% and O in 40% — so E, A, R and O are the strongest openers here, ahead of T and S.',
+      'Count the blanks: most words are five or six letters long, and none is shorter than four or longer than nine, which narrows the shapes you need to consider.',
     ],
     faq: [
       { q: 'How many wrong guesses do I get?', a: 'Six. Each wrong letter adds a part to the drawing, and the game ends when it is complete.' },
       { q: 'Are there hints?', a: 'Yes. Every word comes with a category hint (like animals or food) to help you start.' },
+      { q: 'How many words and categories are there?', a: '288 common English words (no proper nouns) across 11 categories: Animal, Food, Job, Nature, Household, Travel, Sport, Music, Clothing, Color and Body. Animal and Food are the largest, with about 50 words each.' },
       { q: 'Does it save my streak?', a: 'Yes. Your wins and streak are stored in your browser between games on the same device.' },
     ],
   },
@@ -630,9 +633,13 @@ export const gamePages: GamePage[] = [
       'Accuracy matters as much as speed — wild clicking tanks your score.',
       'Use a comfortable, consistent grip or steady finger for repeatable aim.',
       'Warm up with a few runs; your targets-per-second usually climbs as you settle in.',
+      'Targets never spawn in the outer 8% of the play area, so you never need to chase the very edge — keep your hand loose around the middle.',
+      'A miss does not end the run or move the target; it only lowers accuracy while the clock keeps running. If you miss, re-aim calmly instead of spraying clicks.',
     ],
     faq: [
       { q: 'What does Aim Trainer measure?', a: 'Your click speed and accuracy: total time for 30 targets, your hit accuracy percentage, and targets cleared per second.' },
+      { q: 'Which number is my best score?', a: 'Targets per second — 30 divided by your total time. It is the one figure saved as your best, so a fast run with a few misses can still beat a slower perfect one.' },
+      { q: 'How big are the targets?', a: 'Each target scales with your screen between 2.5rem and 3.5rem across (roughly 40 to 56 pixels), and only one is on screen at a time. The next appears at a random spot the moment you hit the current one.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap the targets instead of clicking; the play area is fully touch-friendly.' },
       { q: 'What counts as a miss?', a: "Clicking anywhere that isn't a target counts as a miss and lowers your accuracy percentage — the target itself doesn't disappear until you hit it." },
     ],
@@ -679,15 +686,18 @@ export const gamePages: GamePage[] = [
       'Your wins, losses, and draws are tallied as you play.',
     ],
     strategy: [
-      'People (and simple bots) rarely play truly randomly — look for patterns and exploit them.',
-      'After a loss, many players switch to what would have beaten your last move; anticipate it.',
-      'Do not fall into repeating the same throw; mix it up so you stay unpredictable.',
-      'Against a random computer the odds are even, so focus on long-run consistency and streaks.',
+      'Know your opponent first: this computer draws rock, paper and scissors with equal one-in-three odds every round and never looks at your history, so no pattern of yours can be punished and no pattern of its can be exploited.',
+      'That makes every throw a fair one-third win, one-third draw, one-third loss — over a hundred rounds your tally should land near 33 of each, and a big lead or deficit is mostly variance.',
+      'Against people it is different. Players rarely act randomly: after a loss many switch to whatever would have beaten their last throw, and after a win many repeat it. Practise reading that here, then use it at the table.',
+      'Do not fall into repeating the same throw against a human; mix it up so you stay unpredictable.',
+      'Use first-to-3 or first-to-5 matches when you want a result that means something — a single round is pure chance.',
     ],
     faq: [
-      { q: 'Is the computer random?', a: 'The computer picks its move at random each round, so every game is a fair coin-flip of skill and luck.' },
+      { q: 'Is the computer random?', a: 'Yes. Each round it picks one of the three moves with equal probability, independently of everything you have played before, so every round is a fair one-in-three win.' },
       { q: 'Can I play a match?', a: 'Yes. Play endlessly or set a first-to-3 or first-to-5 match to crown a winner.' },
       { q: "What's the win condition in a match?", a: "In a first-to-3 or first-to-5 match, the first player to reach that many wins takes the match; ties don't count toward the total." },
+      { q: 'How rare is a win streak?', a: 'Because each round is an independent one-in-three win, three wins in a row happen about 3.7% of the time (1 in 27) and five in a row about 0.4% (1 in 243). The streak counter appears once you reach two.' },
+      { q: 'Are my results saved?', a: 'Your all-time wins, losses and draws are stored in this browser on this device and survive a page reload. Starting a new match resets only the match score, not the all-time tally.' },
     ],
   },
   {
@@ -710,10 +720,14 @@ export const gamePages: GamePage[] = [
       'Watch the ball’s angle off the walls to predict where it will arrive.',
       'On Hard, vary your return angles so the computer cannot settle into a rhythm.',
       'Stay calm as rallies speed up — small adjustments beat big lunges.',
+      'Long rallies favour you: the ball gains 4% speed on every paddle hit and tops out after about 16 hits, while the computer paddle’s speed never changes. A fast ball hit off your paddle’s edge moves up or down faster than even the Hard paddle can follow.',
+      'The computer chases where the ball is now, not where it will land. Returns that bounce off the top or bottom wall late in their flight make it reverse direction and arrive late.',
     ],
     faq: [
       { q: 'How do I control my paddle?', a: 'Move the mouse or your finger up and down over the play area, or use the up and down arrow keys.' },
       { q: 'How do I win?', a: 'Be the first to reach seven points. You score whenever the computer fails to return the ball.' },
+      { q: 'How does the bounce angle work?', a: 'It depends only on where the ball meets your paddle. The centre sends it back flat; the further toward an end you hit, the steeper the return, up to 55 degrees at the very tip.' },
+      { q: 'What is the difference between Easy and Hard?', a: 'Only the computer paddle’s tracking speed: on Hard it moves about 65% faster than on Easy. The ball physics, speed-up and seven-point target are the same on both.' },
       { q: 'Does it save my record?', a: 'Yes. Your win count is stored in your browser and persists between games on the same device.' },
     ],
   },
@@ -801,10 +815,10 @@ export const gamePages: GamePage[] = [
   {
     slug: 'nonogram',
     game: 'nonogram',
-    title: 'Play Nonogram Online — Free Picross Logic Puzzle',
+    title: 'Play Nonogram Online — Free Picture Logic Puzzle',
     h1: 'Nonogram',
     metaDescription:
-      'Play Nonogram (Picross) online for free. Use the row and column number clues to fill the grid and reveal a hidden picture. Easy and hard sizes. No download, on mobile.',
+      'Play Nonogram online for free. Use the row and column number clues to fill the grid and reveal a hidden picture. Easy and hard sizes. No download, on mobile.',
     shortDescription: 'Solve the picture from number clues.',
     howToPlay: [
       'Numbers along each row and column tell you the runs of filled cells in order.',
@@ -980,11 +994,15 @@ export const gamePages: GamePage[] = [
       'Find a rhythm or pattern in the digits to make them stick.',
       'Do not second-guess; your first recall is usually the most accurate.',
       'Stay relaxed — stress shrinks your working memory more than the extra digit does.',
+      'Use the whole viewing window. The display time grows by only 0.3 seconds per digit, so from about level 8 onward you have less than half a second per digit — spend it grouping, not re-reading the first few digits.',
+      'Type the number back in the same groups you memorised it in; it is easy to drop or swap a digit in the middle of a long run.',
     ],
     faq: [
       { q: 'What is a good number memory span?', a: 'Most people can hold about 7 digits. Reaching 10 or more is a strong result.' },
-      { q: 'How long is the number shown?', a: 'A few seconds, scaling slightly with length, then it hides and you type it from memory.' },
+      { q: 'How long is the number shown?', a: 'One second plus 0.3 seconds per digit: 1.3 seconds at level 1, 4 seconds at level 10, and capped at 6 seconds from level 17 onward. A shrinking bar under the number shows the time left.' },
       { q: 'What happens after a wrong answer?', a: 'The run ends immediately — the level you reached (the number of digits you correctly recalled) is your score for that run.' },
+      { q: 'Can the number start with a zero?', a: 'No. The first digit is always 1 to 9 so the number you see always has exactly as many digits as the level; every later digit can be anything from 0 to 9.' },
+      { q: 'Does the answer have to match exactly?', a: 'Yes. Your entry must match every digit in order. One wrong, missing or extra digit counts as a miss and ends the run.' },
     ],
   },
   {
@@ -1017,10 +1035,10 @@ export const gamePages: GamePage[] = [
   {
     slug: 'reversi',
     game: 'reversi',
-    title: 'Play Reversi (Othello) Online — Free vs Computer',
+    title: 'Play Reversi Online — Free Disc-Flipping Game vs Computer',
     h1: 'Reversi',
     metaDescription:
-      'Play Reversi (Othello) online for free against the computer. Flank your opponent’s discs to flip them and own the most of the 8x8 board. Easy and Hard AI. No download.',
+      'Play Reversi online for free against the computer. Flank your opponent’s discs to flip them and own the most of the 8x8 board. Easy and Hard AI. No download.',
     shortDescription: 'Flip discs, own the board.',
     howToPlay: [
       'Place a disc so it traps a line of the computer’s discs between your new disc and another of yours.',
@@ -2277,7 +2295,7 @@ export const gamePages: GamePage[] = [
   {
     slug: 'flow',
     game: 'flow',
-    title: 'Play Flow Free Online — Connect the Dots Pipe Puzzle',
+    title: 'Play Flow Online — Free Connect the Dots Pipe Puzzle',
     h1: 'Flow',
     metaDescription:
       'Play Flow free online — connect each pair of coloured dots with a pipe and fill the whole grid without crossing. 26 hand-made levels from 5×5 to 7×7. No download, no sign-up.',
@@ -2305,7 +2323,7 @@ export const gamePages: GamePage[] = [
   {
     slug: 'unblock',
     game: 'unblock',
-    title: 'Play Unblock Online — Free Sliding Block Puzzle (Rush Hour)',
+    title: 'Play Unblock Online — Free Sliding Block Escape Puzzle',
     h1: 'Unblock',
     metaDescription:
       'Play Unblock free online — slide the blocking cars out of the way and drive the red block out through the exit. 27 hand-made levels from easy to expert. No download, no sign-up.',
@@ -2333,10 +2351,10 @@ export const gamePages: GamePage[] = [
   {
     slug: 'yahtzee',
     game: 'yahtzee',
-    title: 'Play Yahtzee Online — Free Dice Game, No App or Sign-Up',
-    h1: 'Yahtzee',
+    title: 'Play Yacht Dice Online — Free 5-Dice Scorecard Game, No App or Sign-Up',
+    h1: 'Yacht Dice',
     metaDescription:
-      'Play Yahtzee free online — roll five dice, hold the ones you want and fill all 13 scoring boxes for the highest total. Live score previews, upper bonus, Yahtzee bonus. No download, no sign-up.',
+      'Play Yacht Dice free online — roll five dice, hold the ones you want and fill all 13 scoring boxes for the highest total. Live score previews, upper bonus, five-of-a-kind bonus. No download, no sign-up.',
     shortDescription: 'Roll the dice, fill the scorecard.',
     howToPlay: [
       'Roll all five dice, then tap any dice to HOLD them and re-roll the rest — up to three rolls per turn.',
@@ -2348,11 +2366,11 @@ export const gamePages: GamePage[] = [
       'Chase the upper bonus early — banking three or more of each number from Ones to Sixes hits 63 and adds 35.',
       'Keep the Chance box in reserve for a wasted roll instead of zeroing a big category.',
       'Hold toward a Large Straight (40) or Full House (25) only when a couple of dice already fit — do not force it.',
-      'Score a rubbish roll into Ones or Twos rather than throwing away Yahtzee, Large Straight or Four of a Kind.',
-      'Once you have scored a 50 Yahtzee, every extra five-of-a-kind is worth a +100 bonus — hold for it if you are close.',
+      'Score a rubbish roll into Ones or Twos rather than throwing away Yacht, Large Straight or Four of a Kind.',
+      'Once you have scored a 50-point Yacht, every extra five-of-a-kind is worth a +100 bonus — hold for it if you are close.',
     ],
     faq: [
-      { q: 'How do you score a Yahtzee?', a: 'Roll five dice of the same number and bank it in the Yahtzee box for 50 points. Each extra Yahtzee after that adds a +100 bonus.' },
+      { q: 'How do you score a Yacht?', a: 'Roll five dice of the same number and bank it in the Yacht box for 50 points. Each extra five-of-a-kind after that adds a +100 bonus.' },
       { q: 'How many rolls do I get per turn?', a: 'Up to three rolls in total: the first roll of all five dice, then up to two re-rolls of whichever dice you have not held, before you must score.' },
       { q: 'What is the upper bonus?', a: 'If the six upper boxes (Ones through Sixes) add up to 63 or more, you get a +35 bonus — roughly three of each number.' },
       { q: 'Does it work on mobile?', a: 'Yes. Tap dice to hold and tap a row to score. The dice and scorecard scale to fit phones and tablets.' },
