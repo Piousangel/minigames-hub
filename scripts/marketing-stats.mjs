@@ -47,6 +47,12 @@ const stats = {
     if (!d) throw new Error('not found')
     return `점수 ${d.score} · 댓글 ${d.num_comments}${d.removed_by_category ? ` · 삭제됨(${d.removed_by_category})` : ''}`
   },
+  async threads(e) {
+    if (!env.THREADS_ACCESS_TOKEN) throw new Error('THREADS_ACCESS_TOKEN 없음')
+    const j = await getJson(`https://graph.threads.net/v1.0/${e.ref}/insights?metric=views,likes,replies,reposts&access_token=${env.THREADS_ACCESS_TOKEN}`)
+    const v = Object.fromEntries((j.data ?? []).map((m) => [m.name, m.values?.[0]?.value ?? m.total_value?.value ?? 0]))
+    return `조회${v.views ?? '?'} ♥${v.likes ?? 0} ↻${v.reposts ?? 0} 💬${v.replies ?? 0}`
+  },
   async x(e) {
     if (!env.X_BEARER_TOKEN) throw new Error('X_BEARER_TOKEN 없음')
     const j = await getJson(`https://api.x.com/2/tweets?ids=${e.ref}&tweet.fields=public_metrics`, {
@@ -72,6 +78,16 @@ if (posted.length === 0) {
       r = `조회 실패(${String(err.message).slice(0, 60)})`
     }
     console.log(`| ${e.date} | ${e.channel} | ${e.link} | ${r} |`)
+  }
+}
+// Threads 토큰 수명 점검: 60일 장기 토큰. 갱신 엔드포인트로 연장을 시도하고(남은 기간이 24시간 이상일 때만 가능), 결과를 알린다.
+if (env.THREADS_ACCESS_TOKEN) {
+  try {
+    const r = await getJson(`https://graph.threads.net/refresh_access_token?grant_type=th_refresh_token&access_token=${env.THREADS_ACCESS_TOKEN}`)
+    const days = Math.floor((r.expires_in ?? 0) / 86400)
+    console.log(`\nThreads 토큰: 갱신 성공, 남은 기간 약 ${days}일${r.access_token && r.access_token !== env.THREADS_ACCESS_TOKEN ? ' (새 토큰이 발급됨 — 시크릿 교체 필요할 수 있음)' : ''}`)
+  } catch (err) {
+    console.log(`\n⚠️ Threads 토큰: 갱신 실패(${String(err.message).slice(0, 60)}) — 만료됐을 수 있다. 사람이 새 토큰을 발급해 시크릿을 교체해야 한다.`)
   }
 }
 if (skipped.length) {

@@ -7,6 +7,7 @@
 // { "posts": [
 //   { "channel": "bluesky", "text": "...", "url": "https://...", "lang": "en" },   // 링크 카드(미리보기 이미지)가 자동으로 붙는다
 //   { "channel": "x", "text": "...", "url": "https://..." },
+//   { "channel": "threads", "text": "한국어 글(500자 이내)", "url": "https://..." },   // 링크 미리보기 자동
 //   { "channel": "reddit", "subreddit": "battleship", "title": "...", "text": "...", "url": "https://..." }
 // ] }
 //
@@ -25,7 +26,7 @@ const env = process.env
 const kstDate = (offsetDays = 0) =>
   new Date(Date.now() + 9 * 3600e3 - offsetDays * 86400e3).toISOString().slice(0, 10)
 
-const LIMITS = { bluesky: 300, x: 280, reddit: 40000 }
+const LIMITS = { bluesky: 300, x: 280, reddit: 40000, threads: 500 }
 const DEDUPE_DAYS = 14
 
 // 유입 측정용: 게시 링크에 ?ref=<채널> 을 붙인다(사이트가 ref 태그를 AE에 기록 → 지표 파일에서 채널별 유입 확인).
@@ -162,6 +163,30 @@ const adapters = {
       const j = await r.json()
       if (!r.ok) throw new Error(`x: ${r.status} ${JSON.stringify(j).slice(0, 200)}`)
       return { link: `https://x.com/i/web/status/${j.data.id}`, ref: j.data.id }
+    },
+  },
+
+  // Threads(Meta 공식 API). 본인 계정을 앱의 Threads 테스터로 넣으면 앱 검수 없이 본인 계정에 게시할 수 있다.
+  // 토큰은 60일 장기 토큰이다. 실행할 때마다 갱신을 시도하고, 남은 기간은 지표 파일에 경고로 나온다(marketing-stats).
+  threads: {
+    ready: () => env.THREADS_ACCESS_TOKEN && env.THREADS_USER_ID,
+    async post(p) {
+      const base = `https://graph.threads.net/v1.0/${env.THREADS_USER_ID}`
+      const text = withUrl(p.text, p.url, 'threads')
+      const params = new URLSearchParams({ media_type: 'TEXT', text, access_token: env.THREADS_ACCESS_TOKEN })
+      if (p.url) params.set('link_attachment', p.url) // 링크 미리보기 카드
+      const c = await fetch(`${base}/threads`, { method: 'POST', body: params })
+      const cj = await c.json()
+      if (!c.ok || !cj.id) throw new Error(`threads container: ${c.status} ${JSON.stringify(cj).slice(0, 200)}`)
+      await new Promise((r) => setTimeout(r, 5000)) // 컨테이너 처리 대기(문서 권장)
+      const pub = await fetch(`${base}/threads_publish`, {
+        method: 'POST',
+        body: new URLSearchParams({ creation_id: cj.id, access_token: env.THREADS_ACCESS_TOKEN }),
+      })
+      const pj = await pub.json()
+      if (!pub.ok || !pj.id) throw new Error(`threads publish: ${pub.status} ${JSON.stringify(pj).slice(0, 200)}`)
+      const meta = await (await fetch(`https://graph.threads.net/v1.0/${pj.id}?fields=permalink&access_token=${env.THREADS_ACCESS_TOKEN}`)).json().catch(() => ({}))
+      return { link: meta.permalink ?? `https://www.threads.com/`, ref: pj.id }
     },
   },
 
