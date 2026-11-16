@@ -19,7 +19,7 @@ export default function ContactPage() {
       </p>
       <p>
         The best way to reach me is by email at{' '}
-        <a href="mailto:yyh7654@gmail.com" className="text-accent">yyh7654@gmail.com</a>. I read
+        <a href="mailto:hello@quickminigames.site" className="text-accent">hello@quickminigames.site</a>. I read
         everything and reply as soon as I can, usually within a couple of days.
       </p>
 
