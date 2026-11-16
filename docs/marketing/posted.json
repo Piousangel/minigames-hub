@@ -11,10 +11,28 @@
   },
   {
     "id": "2026-11-16#1",
-    "date": "2026-11-16",
+    "date": "2026-11-17",
     "channel": "x",
-    "at": "2026-11-15T21:10:51.308Z",
+    "at": "2026-11-16T21:12:26.735Z",
     "url": "https://quickminigames.site/guides/battleship",
+    "status": "skipped-no-credentials"
+  },
+  {
+    "id": "2026-11-17#0",
+    "date": "2026-11-17",
+    "channel": "bluesky",
+    "at": "2026-11-16T21:12:24.173Z",
+    "url": "https://quickminigames.site/guides/2048",
+    "link": "https://bsky.app/profile/piousangel.bsky.social/post/3n2hgy32c272v",
+    "ref": "at://did:plc:5jko3o5kkgiskomb3ntwp4kt/app.bsky.feed.post/3n2hgy32c272v",
+    "status": "posted"
+  },
+  {
+    "id": "2026-11-17#1",
+    "date": "2026-11-17",
+    "channel": "threads",
+    "at": "2026-11-16T21:12:26.735Z",
+    "url": "https://quickminigames.site/guides/2048",
     "status": "skipped-no-credentials"
   }
 ]
