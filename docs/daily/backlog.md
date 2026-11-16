@@ -36,3 +36,12 @@
 
 ## 소형 (11-16 마케팅 점검에서 발견)
 - **공략·레벨(게임) 페이지에 og:image가 없다**(/guides/*). SNS·카톡 공유 미리보기가 비고, Bluesky 카드는 사이트 대표 이미지로 대신 나간다. 페이지별 OG 이미지(제목+스크린샷)를 정적 생성한다. 공유 클릭률과 SEO에 영향이 있다.
+
+## SEO (11-16 조사: sandlab 대비 검색 성과가 약한 이유)
+원인 요약: ① 경쟁 검색어(2048·chess 등)에서 Poki·CrazyGames와 정면 승부 ② 직접 만든 게임 약 60개는 검색 수요 없음 ③ 110개 게임 페이지가 같은 틀(JSON-LD·제목 패턴 반복) ④ 허브 페이지 전부 noindex라 카테고리 검색어를 받을 곳이 없음 ⑤ 홈 제목이 브랜드명뿐, JSON-LD 없음, HTML 334KB.
+1. **데이터 공략을 늘린다**(sandlab식, 이미 검증된 형식): /guides/2048(8,200판 시뮬)처럼 직접 만든 게임·상위 트래픽 게임에 '이 사이트만 쓸 수 있는' 공략. 게임 페이지 위쪽에 공략 링크
+2. **홈 정비**: title을 설명형으로("Quick MiniGames — 110 free browser games, daily puzzles & tested strategy guides"), WebSite·Organization JSON-LD, 전체 게임 목록은 카테고리로 옮겨 HTML 100KB 이하(첫 화면 실험과 함께)
+3. **주제 허브 1~2개만 색인 허용**: 예) '매일 퍼즐', '타이밍 게임'. 설명문을 넣고 noindex를 풀어 내부 링크 축을 만든다(`siteConfig.thinPagesNoindex`를 페이지별로). /unblocked는 계속 noindex
+4. **얇은 게임 페이지 정리**: rock-paper-scissors(357단어), number-memory, aim-trainer, hangman, pong 등은 보강하거나 noindex + sitemap 제외(`src/app/sitemap.ts`)
+5. **제목·설명 반복 패턴 제거**: "Free, No Download"·"Free vs Computer" 꼬리를 걷고, 그 게임만의 특징을 앞에 둔다
+6. Search Console 색인 보고서(미색인 사유)는 오너가 캡처해 주면 2·4번 우선순위를 정한다
