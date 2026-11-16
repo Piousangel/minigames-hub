@@ -5,7 +5,7 @@
 //
 // 큐 파일 형식:
 // { "posts": [
-//   { "channel": "bluesky", "text": "...", "url": "https://..." },
+//   { "channel": "bluesky", "text": "...", "url": "https://...", "lang": "en" },   // 링크 카드(미리보기 이미지)가 자동으로 붙는다
 //   { "channel": "x", "text": "...", "url": "https://..." },
 //   { "channel": "reddit", "subreddit": "battleship", "title": "...", "text": "...", "url": "https://..." }
 // ] }
@@ -61,6 +61,41 @@ async function waitFor200(url) {
   return false
 }
 
+// Bluesky 링크 카드: 페이지의 og:title·og:description·og:image를 읽어 external embed로 붙인다(미리보기 이미지가 있으면 반응이 크게 오른다).
+async function blueskyCard(url, jwt) {
+  try {
+    const html = await (await fetch(url, { redirect: 'follow' })).text()
+    const meta = (prop) =>
+      html.match(new RegExp(`<meta[^>]+(?:property|name)=["']${prop}["'][^>]+content=["']([^"']*)["']`, 'i'))?.[1] ??
+      html.match(new RegExp(`<meta[^>]+content=["']([^"']*)["'][^>]+(?:property|name)=["']${prop}["']`, 'i'))?.[1]
+    const title = meta('og:title') ?? html.match(/<title>([^<]*)<\/title>/i)?.[1] ?? url
+    const external = { uri: url, title: title.slice(0, 300), description: (meta('og:description') ?? '').slice(0, 1000) }
+    let img = meta('og:image')
+    if (!img) {
+      // 페이지에 og:image가 없으면 사이트 대표 이미지로 대신한다(공략·레벨 페이지에 아직 없음 — 백로그)
+      const home = await (await fetch(new URL('/', url))).text()
+      img = home.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']*)["']/i)?.[1] ?? home.match(/<meta[^>]+content=["']([^"']*)["'][^>]+property=["']og:image["']/i)?.[1]
+    }
+    if (img) {
+      const r = await fetch(new URL(img, url))
+      const type = r.headers.get('content-type') ?? 'image/png'
+      const buf = Buffer.from(await r.arrayBuffer())
+      if (r.ok && buf.length < 950_000) {
+        const up = await fetch('https://bsky.social/xrpc/com.atproto.repo.uploadBlob', {
+          method: 'POST',
+          headers: { 'content-type': type, authorization: `Bearer ${jwt}` },
+          body: buf,
+        })
+        const uj = await up.json()
+        if (uj.blob) external.thumb = uj.blob
+      }
+    }
+    return { $type: 'app.bsky.embed.external', external }
+  } catch {
+    return null // 카드 실패는 게시를 막지 않는다
+  }
+}
+
 // ---- 채널 어댑터 ----
 const adapters = {
   bluesky: {
@@ -75,7 +110,11 @@ const adapters = {
       ).json()
       if (!s.accessJwt) throw new Error(`bluesky login: ${JSON.stringify(s).slice(0, 200)}`)
       const text = withUrl(p.text, p.url, 'bluesky')
-      const record = { $type: 'app.bsky.feed.post', text, createdAt: new Date().toISOString() }
+      const record = { $type: 'app.bsky.feed.post', text, createdAt: new Date().toISOString(), langs: [p.lang ?? 'en'] }
+      if (p.url) {
+        const card = await blueskyCard(p.url, s.accessJwt)
+        if (card) record.embed = card
+      }
       if (p.url && text.includes(p.url)) {
         const enc = new TextEncoder()
         const start = enc.encode(text.slice(0, text.indexOf(p.url))).length
@@ -170,7 +209,8 @@ const allowedDates = new Set([kstDate(), kstDate(1)])
 
 const files = existsSync(QUEUE_DIR) ? readdirSync(QUEUE_DIR).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)) : []
 let changed = false
-for (const f of files.sort()) {
+// 최신 날짜 먼저: 오늘 큐가 우선이고, 어제 남은 항목은 같은 채널의 오늘 몫이 없을 때만 나간다.
+for (const f of files.sort().reverse()) {
   const date = f.slice(0, 10)
   if (!allowedDates.has(date)) continue
   const { posts = [] } = JSON.parse(readFileSync(join(QUEUE_DIR, f), 'utf8'))
