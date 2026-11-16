@@ -8,6 +8,7 @@ import { nearestGoalHint } from '@/lib/achievements'
 import { siteConfig } from '@/lib/siteConfig'
 import { hasLeaderboard } from '@/lib/leaderboard'
 import { isEndless } from '@/lib/games/gameMeta'
+import { OverlayScoreSubmit } from './OverlayScoreSubmit'
 
 /**
  * Shared win/lose/draw overlay: blurred backdrop, entrance animation, optional
@@ -87,6 +88,7 @@ export function GameOverlay({
             <span>Next: {nav.nextTitle}</span>
           </Link>
         )}
+        {hasLeaderboard(nav.slug) && <OverlayScoreSubmit slug={nav.slug} show={show} />}
         {/* 리더보드 발견 유도: 페이지 하단(NextUp/GameStats/DailyDock 다음)에 묻혀 있어
             스크롤로는 잘 안 보임 — 게임오버 순간 바로 점프시켜 존재를 알린다(참여율↑). */}
         {hasLeaderboard(nav.slug) && (

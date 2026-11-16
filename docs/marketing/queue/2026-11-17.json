@@ -1,0 +1,4 @@
+{ "posts": [
+  { "channel": "bluesky", "lang": "en", "text": "I simulated 8,200 games of 2048. Corner and snake rules never once reached the 2048 tile; adding one step of lookahead did it in 76% of games. Full numbers, free to play in the browser. #webgames #puzzle", "url": "https://quickminigames.site/guides/2048" },
+  { "channel": "threads", "text": "2048을 8,200판 시뮬레이션해 봤어요. 구석 규칙·뱀 모양 같은 어림 전략은 6,000판에서 2048 타일이 한 번도 안 나왔고, 한 수 앞만 내다보니 76%가 2048에 도달했어요. 표로 정리한 결과는 링크에. #2048", "url": "https://quickminigames.site/guides/2048" }
+] }
