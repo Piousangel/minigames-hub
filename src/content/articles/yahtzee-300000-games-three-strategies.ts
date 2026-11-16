@@ -2,9 +2,9 @@ import type { Article } from '../types'
 
 export const article: Article = {
   slug: 'yahtzee-300000-games-three-strategies',
-  title: 'I Played 300,000 Games of Yahtzee With Three Bots. Here Is What Actually Scores.',
+  title: 'I Played 300,000 Games of Yacht Dice With Three Bots. Here Is What Actually Scores.',
   description:
-    'Three Yahtzee bots, 100,000 games each, run on my own dice engine: rerolling is worth ~48 points, chasing straights ~58 more. Full numbers inside.',
+    'Three Yacht Dice bots, 100,000 games each, run on my own dice engine: rerolling is worth ~48 points, chasing straights ~58 more. Full numbers inside.',
   published: '2026-10-09',
   kind: 'data',
   relatedGames: ['yahtzee'],
@@ -12,15 +12,15 @@ export const article: Article = {
     {
       heading: 'Why I did this',
       paragraphs: [
-        'Most Yahtzee advice is either folklore ("always go for the upper bonus") or the output of a mathematically optimal solver that no human can follow at the table. I wanted something in between: simple, explainable strategies a person could actually use, measured on the exact rules my Yahtzee game uses.',
-        'So I took the scoring engine that runs my Yahtzee page, wrote three small bots on top of it, and let each one play 100,000 complete games. Every dice roll came from the same seeded random number generator the game itself uses, driven by my internal simulation script with fixed seeds, so the numbers are stable from run to run.',
+        'Most advice for five-dice scorecard games is either folklore ("always go for the upper bonus") or the output of a mathematically optimal solver that no human can follow at the table. I wanted something in between: simple, explainable strategies a person could actually use, measured on the exact rules my Yacht Dice game uses.',
+        'So I took the scoring engine that runs my Yacht Dice page, wrote three small bots on top of it, and let each one play 100,000 complete games. Every dice roll came from the same seeded random number generator the game itself uses, driven by my internal simulation script with fixed seeds, so the numbers are stable from run to run.',
       ],
     },
     {
       heading: 'The rules these numbers apply to',
       paragraphs: [
-        'The Yahtzee game here follows the standard 13-box scorecard: six upper boxes (ones through sixes), a +35 bonus once the upper boxes add up to 63, and seven lower boxes. Three of a Kind, Four of a Kind and Chance score the sum of all dice; Full House is 25, Small Straight 30, Large Straight 40, and Yahtzee 50. A second Yahtzee scored while the Yahtzee box already holds 50 earns a +100 bonus.',
-        'Two details matter for comparing with other sites. First, my engine does not count five of a kind as a Full House. Second, there is no "joker" rule that lets an extra Yahtzee be used as a straight. Both make Yahtzees slightly less flexible than in some house rules, so scores elsewhere may differ a little.',
+        'The Yacht Dice game here follows the standard 13-box scorecard: six upper boxes (ones through sixes), a +35 bonus once the upper boxes add up to 63, and seven lower boxes. Three of a Kind, Four of a Kind and Chance score the sum of all dice; Full House is 25, Small Straight 30, Large Straight 40, and Yacht 50. A second Yacht scored while the Yacht box already holds 50 earns a +100 bonus.',
+        'Two details matter for comparing with other sites. First, my engine does not count five of a kind as a Full House. Second, there is no "joker" rule that lets an extra Yacht be used as a straight. Both make Yachts slightly less flexible than in some house rules, so scores elsewhere may differ a little.',
       ],
     },
     {
@@ -31,7 +31,7 @@ export const article: Article = {
       list: [
         'One roll, best box: rolls once per turn, never rerolls, and writes the result into whichever open box scores the most right now. This is the "no strategy at all" baseline.',
         'Chase of-a-kind: uses all three rolls, always keeping every die that shows the most common face (ties go to the higher face), then takes whichever open box scores the most.',
-        'Situational heuristic: stops early when it already has a Yahtzee, Large Straight or (once Yahtzee is filled) a Full House; holds a run of three or more consecutive faces when a straight box is still open and it has no pair worth keeping; otherwise chases the most common face. When choosing a box, it compares each score against a rough "par" for that box, and adds 35 points of value if a box would push the upper section over 63.',
+        'Situational heuristic: stops early when it already has a Yacht, Large Straight or (once Yacht is filled) a Full House; holds a run of three or more consecutive faces when a straight box is still open and it has no pair worth keeping; otherwise chases the most common face. When choosing a box, it compares each score against a rough "par" for that box, and adds 35 points of value if a box would push the upper section over 63.',
       ],
     },
     {
@@ -45,8 +45,8 @@ export const article: Article = {
     {
       heading: 'Where the points come from',
       paragraphs: [
-        'The box-by-box averages tell the real story. The of-a-kind chaser is very good at the boxes it is built for: it filled the Yahtzee box with 50 in 45.6% of games and averaged 22.8 points there, the highest of the three bots. But it almost never makes a Large Straight (0.2% of games, an average of 0.1 points) and its Small Straight average is only 7.4. Between the two straight boxes it averages 7.5 points against the situational bot\'s 63.1, giving up about 55 points of straights in exchange for a few extra Yahtzees.',
-        'The situational bot gives a little of that Yahtzee rate back (39.8% of games) but scores the Large Straight in 83.7% of games and averages 29.6 in Small Straight. Straights are fixed-value boxes worth 30 and 40 points, and with three rolls they are much easier to complete than most players assume, as long as you are willing to break up a pair to go for them.',
+        'The box-by-box averages tell the real story. The of-a-kind chaser is very good at the boxes it is built for: it filled the Yacht box with 50 in 45.6% of games and averaged 22.8 points there, the highest of the three bots. But it almost never makes a Large Straight (0.2% of games, an average of 0.1 points) and its Small Straight average is only 7.4. Between the two straight boxes it averages 7.5 points against the situational bot\'s 63.1, giving up about 55 points of straights in exchange for a few extra Yachts.',
+        'The situational bot gives a little of that Yacht rate back (39.8% of games) but scores the Large Straight in 83.7% of games and averages 29.6 in Small Straight. Straights are fixed-value boxes worth 30 and 40 points, and with three rolls they are much easier to complete than most players assume, as long as you are willing to break up a pair to go for them.',
         'Full House improves steadily with skill: 34.4% of games for the one-roll bot, 65.6% for the chaser, 70.4% for the situational bot. Zeroed-out boxes fall in the same order, from an average of 4.12 per game to 3.66 and then 2.37.',
       ],
     },
@@ -78,7 +78,7 @@ export const article: Article = {
   ],
   tables: [
     {
-      caption: 'Final scores, 100,000 games per bot on my Yahtzee engine',
+      caption: 'Final scores, 100,000 games per bot on my Yacht Dice engine',
       columns: ['Bot', 'Mean', 'Std. dev.', '10th pct', 'Median', '90th pct', 'Best game', 'Score ≥ 200', 'Score ≥ 300'],
       rows: [
         ['One roll, best box', '111.3', '28.6', '76', '109', '150', '248', '0.1%', '0.0%'],
@@ -88,7 +88,7 @@ export const article: Article = {
     },
     {
       caption: 'How often each bot filled key boxes (share of 100,000 games)',
-      columns: ['Bot', 'Upper bonus', 'Yahtzee (50)', 'Large Straight', 'Full House', 'Zero boxes per game'],
+      columns: ['Bot', 'Upper bonus', 'Yacht (50)', 'Large Straight', 'Full House', 'Zero boxes per game'],
       rows: [
         ['One roll, best box', '0.0%', '1.0%', '31.3%', '34.4%', '4.12'],
         ['Chase of-a-kind', '2.6%', '45.6%', '0.2%', '65.6%', '3.66'],
@@ -110,7 +110,7 @@ export const article: Article = {
         ['Full House', '8.6', '16.4', '17.6'],
         ['Small Straight', '23.7', '7.4', '29.6'],
         ['Large Straight', '12.5', '0.1', '33.5'],
-        ['Yahtzee', '0.5', '22.8', '19.9'],
+        ['Yacht', '0.5', '22.8', '19.9'],
         ['Chance', '17.5', '18.9', '21.3'],
       ],
     },

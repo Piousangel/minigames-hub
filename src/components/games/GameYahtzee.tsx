@@ -41,7 +41,7 @@ const CATEGORY_LABEL: Record<Category, string> = {
   fullHouse: 'Full House',
   smallStraight: 'Sm. Straight',
   largeStraight: 'Lg. Straight',
-  yahtzee: 'YAHTZEE',
+  yahtzee: 'YACHT',
   chance: 'Chance',
 }
 
@@ -413,7 +413,7 @@ export function GameYahtzee({ storageKey }: { storageKey: string }) {
     >
       <div
         role="group"
-        aria-label="Yahtzee board"
+        aria-label="Yacht Dice board"
         tabIndex={0}
         onKeyDown={onKeyDown}
         className="relative rounded-xl bg-surface p-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
@@ -560,7 +560,7 @@ export function GameYahtzee({ storageKey }: { storageKey: string }) {
                 background: 'rgba(10,12,20,0.85)',
               }}
             >
-              YAHTZEE!
+              YACHT!
             </span>
           </div>
         )}
@@ -574,7 +574,7 @@ export function GameYahtzee({ storageKey }: { storageKey: string }) {
               Upper {upper} {bonus > 0 && <span className="text-neon-lime">(+{bonus})</span>} · Lower{' '}
               {LOWER_CATEGORIES.reduce((a, c) => a + (state.scores[c] ?? 0), 0)}
               {state.yahtzeeBonus > 0 && (
-                <span className="text-neon-lime"> · Yahtzee +{state.yahtzeeBonus}</span>
+                <span className="text-neon-lime"> · Yacht +{state.yahtzeeBonus}</span>
               )}
             </p>
             <p>

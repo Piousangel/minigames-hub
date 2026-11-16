@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <ProsePage title="Terms of Use">
-      <p>Last updated: October 9, 2026</p>
+      <p>Last updated: November 16, 2026</p>
       <p>
         These terms explain how {siteConfig.name} may be used. By using the site, you agree to them.
       </p>
@@ -43,17 +43,40 @@ export default function TermsPage() {
         notice.
       </p>
 
+      <h2>How comments are moderated</h2>
+      <p>
+        Comments appear as soon as they are posted; there is no account system and no pre-approval
+        queue. To keep them on topic, the server applies automatic limits to every comment: text is
+        capped at 240 characters, anything containing a web link (in the name or the text) is
+        rejected, the same connection can post at most once every 30 seconds, and a hidden form
+        field filters out most automated spam. Comments that break the rules above are deleted when
+        we find them or when someone reports them. To report a comment, email the address on the{' '}
+        <Link href="/contact" className="text-accent">contact page</Link> with the game page and
+        the text of the comment.
+      </p>
+
       <h2>Content</h2>
       <p>
         The games, text and graphics on this site are original work created for it. Some games are
         versions of traditional or widely known game concepts (such as solitaire, sliding-tile puzzles
-        or chess); no trademarks, artwork or code belonging to other games or companies are used.
+        or chess); no artwork or code belonging to other games or companies is used, and games are
+        named with generic or original titles. Where a page mentions another product by name, it is
+        only to describe the kind of game, and no affiliation or endorsement is implied. If you
+        believe something on the site infringes your rights, please tell us through the{' '}
+        <Link href="/contact" className="text-accent">contact page</Link> and we will review it
+        promptly.
       </p>
 
       <h2>Advertising and links</h2>
       <p>
         The site may show ads from third-party networks such as Google AdSense, and may link to other
         websites. We are not responsible for the content of ads or external sites.
+      </p>
+      <p>
+        Where ads appear, they are placed only in the page content around the game — for example
+        below the rules and FAQ — and never inside a game board or play area, on top of game
+        controls, or in pop-ups that interrupt play. Ads are not placed in a way that encourages
+        accidental clicks, and we never ask anyone to click on them.
       </p>
 
       <h2>Changes</h2>

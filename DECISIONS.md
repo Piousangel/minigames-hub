@@ -15,3 +15,9 @@
 - 맥락: 오너는 퀄리티 좋고 독창적인 게임을 계속 출시하길 원한다. 첫 화면을 핵심으로 본다. 더 잘 만들 수 있다면 서버를 붙여도 된다고 했다.
 - 선택: 팀이 신작 파이프라인(기획·품질·검증·출시 묶음)을 정해 운영한다. 서버 추가는 비용·장애 설계·기록 조건으로 허용한다. 역할에 게임 디자이너·플레이테스터·그로스를 추가한다.
 - 상세: docs/team/owner-direction-2026-11-16.md
+
+## 2026-11-16 상표 이름은 표기만 바꾸고 slug는 유지 (AdSense 재검토 준비)
+- 맥락: AdSense 재검토 전 점검에서 원작 상표명을 그대로 쓰는 게임이 나왔다(docs/adsense/2026-11-16-readiness.md).
+- 선택: 권리 행사가 잦은 특정 상품명 2개는 표기를 바꿨다(Tetris → Falling Blocks, Yahtzee → Yacht Dice). 제목에 붙어 있던 Flow Free·Rush Hour·Picross·Othello는 제목과 메타에서 뺐다. URL slug와 저장·리더보드 키는 그대로 둔다.
+- 보류(오너 결정): Hasbro·Atari 계열 이름 6개(connect-four, battleship, mastermind, simon, breakout, pong). 검색 유입 손실과 위험을 비교해 정한다.
+- 얇은 게임 페이지는 noindex 대신 엔진 사실로 보강했다(하위 5개, 300단어 미만 0개).

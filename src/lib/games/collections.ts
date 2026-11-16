@@ -134,7 +134,7 @@ export const COLLECTIONS: Record<string, Collection> = {
     h1: 'Games Like Snake',
     title: 'Games Like Snake — Free Retro Arcade High-Score Games',
     metaDescription:
-      'Loved Snake? Play free games like it — fast retro arcade games where one more run always beats your high score. Tetris, breakout, space shooter and more, in your browser, no download.',
+      'Loved Snake? Play free games like it — fast retro arcade games where one more run always beats your high score. falling blocks, breakout, space shooter and more, in your browser, no download.',
     intro:
       'Snake is the phone-era classic that taught a generation the one-more-go reflex: a simple rule, a rising high score, and a run that ends the instant you get greedy. If that twitchy, keep-going arcade feeling is what you are chasing, this shelf is built for it. These are fast, free browser games where a single mistake ends the run and the only goal is to beat the number you got last time — dodge, stack, blast and pop your way up the board. Stack falling blocks into clean rows, break every brick, shoot down waves in space, or thread a bird through gaps that keep coming. None of them need a download or an account, they load in a second, and your best score is saved right in the browser so there is always a target on your back. Several also feed a weekly online leaderboard if you want to see how your reflexes stack up against everyone else. Pick a cabinet below and start a run.',
     games: ['snake', 'tetris', 'breakout', 'space-shooter', 'flappy', 'pong', 'bubble-shooter'],
@@ -224,7 +224,7 @@ export const COLLECTIONS: Record<string, Collection> = {
     h1: 'Free Family Games',
     title: 'Free Family Games Online — Classic Tabletop Games, No App',
     metaDescription:
-      'Play free family games online — the classic tabletop games everyone knows: Yahtzee, Mancala, dominoes, connect four, checkers and chess. Simple rules, quick rounds, in your browser, no download or sign-up.',
+      'Play free family games online — the classic tabletop games everyone knows: Yacht Dice, Mancala, dominoes, connect four, checkers and chess. Simple rules, quick rounds, in your browser, no download or sign-up.',
     intro:
       'These are the games that come out at the kitchen table — the ones with rules simple enough for a kid and enough bite to keep a grown-up hooked. This collection gathers the timeless tabletop classics in one place, no box to dig out and no pieces to lose down the sofa. Roll for a full house in Yahtzee, sow and capture your way around a Mancala board, match the ends in dominoes, drop discs to connect four, jump for a double in checkers, or settle it over a game of chess. They are the kind of games that turn ten spare minutes into a proper round, whether you are passing a phone back and forth on a car trip or playing the computer while you wait. Every one is free, loads instantly in the browser with nothing to install, keeps your record or best score locally, and scales cleanly to a phone, tablet or laptop. Pick a game below and deal everyone in.',
     games: ['yahtzee', 'mancala', 'battleship', 'dominoes', 'connect-four', 'checkers', 'chess', 'gomoku', 'jigsaw'],

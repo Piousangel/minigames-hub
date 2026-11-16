@@ -10,7 +10,7 @@ import { siteConfig, thinPageRobots } from '@/lib/siteConfig'
 const H1 = 'Unblocked Games'
 const TITLE = 'Unblocked Games — Free to Play Online, No Download at School or Work'
 const META_DESC =
-  'Play unblocked games free online — no download, no install, no sign-up. Classics like 2048, Snake, Solitaire, Chess and Tetris run right in your browser, so they work at school or work.'
+  'Play unblocked games free online — no download, no install, no sign-up. Classics like 2048, Snake, Solitaire, Chess and Falling Blocks run right in your browser, so they work at school or work.'
 
 // 큐레이션: 누구나 아는 클래식 + 우리 대표작(전부 registry에 존재 확인됨).
 const FEATURED = [
@@ -81,7 +81,7 @@ export default function UnblockedPage() {
         Free unblocked games that load instantly in your browser — no download, no install, no
         sign-up. Everything here is just a web page, so there is no app to block: pick a game and it
         starts right away on a phone, Chromebook, tablet or desktop. From the classics everyone knows —
-        2048, Snake, Tetris, Minesweeper, Solitaire and Chess — to daily puzzles and original neon
+        2048, Snake, Falling Blocks, Minesweeper, Solitaire and Chess — to daily puzzles and original neon
         arcade games, there is always something quick to play. Your best scores and daily streaks
         save right in your browser, and many games have a weekly leaderboard, so there is a reason to
         come back. Browse the favourites below, or dig into the full library by category.

@@ -2,15 +2,15 @@ import type { GameGuide } from '../types'
 
 export const guide: GameGuide = {
   slug: 'tetris',
-  title: 'Tetris Strategy Guide: The 7-Bag, the Speed Curve and Why Tetrises Pay 7.5x',
+  title: 'Falling Blocks Strategy Guide: The 7-Bag, the Speed Curve and Why Quads Pay 7.5x',
   description:
-    'How this Tetris really works: a strict 7-bag randomizer, I-piece droughts capped at 12, gravity that bottoms out at level 13, and the exact score table.',
+    'How this Falling Blocks game really works: a strict 7-bag randomizer, I-piece droughts capped at 12, gravity that bottoms out at level 13, and the exact score table.',
   updated: '2026-10-09',
   sections: [
     {
       heading: 'What this guide is based on',
       paragraphs: [
-        'Every rule below was read out of the game code that runs on this page, and every percentage comes from a simulation that drives that same code. The simulation is my internal script and uses fixed random seeds, so its numbers are stable from run to run. Where this version differs from other Tetris games you may have played, the difference is called out, because habits learned elsewhere can quietly cost you here.',
+        'Every rule below was read out of the game code that runs on this page, and every percentage comes from a simulation that drives that same code. The simulation is my internal script and uses fixed random seeds, so its numbers are stable from run to run. Where this version differs from other falling-block games you may have played, the difference is called out, because habits learned elsewhere can quietly cost you here.',
         'The short version: the piece order is far less random than it looks, the speed curve has a hard floor, scoring rewards one kind of clear above everything else, and there is no lock delay to save a late slide. Each of those facts changes how you should play.',
       ],
     },
