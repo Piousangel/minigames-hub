@@ -15,14 +15,17 @@ describe('ShareButtons', () => {
   beforeEach(() => vi.mocked(sendHit).mockClear())
   afterEach(() => vi.restoreAllMocks())
 
-  it('Threads·Facebook은 채널 ref가 붙은 URL로 새 창을 열고 클릭을 계측한다', () => {
+  it('Threads·Facebook은 채널 ref가 붙은 진짜 링크(새 탭)이고 클릭을 계측한다', () => {
     setNav(undefined)
-    const open = vi.spyOn(window, 'open').mockReturnValue(null)
     render(<ShareButtons slug="snake" title="Snake" description="eat" />)
-    fireEvent.click(screen.getByTestId('share-threads'))
-    fireEvent.click(screen.getByTestId('share-facebook'))
-    expect(decodeURIComponent(String(open.mock.calls[0][0]))).toContain('/snake?ref=share-threads')
-    expect(decodeURIComponent(String(open.mock.calls[1][0]))).toContain('/snake?ref=share-facebook')
+    const t = screen.getByTestId('share-threads') as HTMLAnchorElement
+    const f = screen.getByTestId('share-facebook') as HTMLAnchorElement
+    expect(decodeURIComponent(t.href)).toContain('/snake?ref=share-threads')
+    expect(decodeURIComponent(f.href)).toContain('/snake?ref=share-facebook')
+    expect(t.target).toBe('_blank')
+    expect(t.rel).toContain('noopener')
+    fireEvent.click(t)
+    fireEvent.click(f)
     expect(sendHit).toHaveBeenCalledWith('snake', 'share_threads')
     expect(sendHit).toHaveBeenCalledWith('snake', 'share_facebook')
   })
@@ -45,5 +48,19 @@ describe('ShareButtons', () => {
     expect(write).not.toHaveBeenCalled()
     await act(async () => fireEvent.click(screen.getByTestId('share-instagram')))
     expect(write).toHaveBeenCalledTimes(1)
+  })
+
+  it('클립보드 API가 거부돼도 execCommand 폴백으로 복사하고, 둘 다 막히면 링크를 화면에 보여 준다', async () => {
+    const write = vi.fn().mockRejectedValue(new Error('denied'))
+    setNav(undefined, write)
+    const exec = vi.fn().mockReturnValueOnce(true).mockReturnValueOnce(false)
+    ;(document as unknown as { execCommand: unknown }).execCommand = exec
+    render(<ShareButtons slug="snake" title="Snake" />)
+    await act(async () => fireEvent.click(screen.getByTestId('share-copy')))
+    expect(exec).toHaveBeenCalledWith('copy')
+    expect(screen.queryByTestId('share-manual')).toBeNull()
+    await act(async () => fireEvent.click(screen.getByTestId('share-copy')))
+    const input = screen.getByTestId('share-manual') as HTMLInputElement
+    expect(input.value).toBe('https://quickminigames.site/snake?ref=share-copy')
   })
 })
