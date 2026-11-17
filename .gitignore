@@ -12,3 +12,6 @@ scratch-*
 
 # 에이전트 git worktree(레포 사본)
 .claude/worktrees/
+
+# Toss 앱 빌드 산출물(실수로 커밋돼 CI 린트가 깨졌던 적 있음)
+toss/dist/
