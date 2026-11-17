@@ -34,6 +34,16 @@ function hole0GoesDown(ms: number): boolean {
   return false
 }
 
+/** 탭은 조작 구역(PlayZone)이 받고 좌표로 칸을 찾는다. jsdom은 레이아웃이 없으니 칸 rect를 흉내 낸다. */
+function tapCell(el: HTMLElement) {
+  const all = Array.from(document.querySelectorAll<HTMLElement>('[data-cell]'))
+  all.forEach((c, k) => {
+    c.getBoundingClientRect = () => ({ left: k * 10, right: k * 10 + 10, top: 0, bottom: 10, width: 10, height: 10, x: k * 10, y: 0, toJSON: () => ({}) }) as DOMRect
+  })
+  const k = all.indexOf(el)
+  fireEvent.pointerDown(document.querySelector('[data-play-zone]') as HTMLElement, { clientX: k * 10 + 5, clientY: 5 })
+}
+
 describe('GameWhackAMole', () => {
   beforeEach(() => {
     localStorage.clear()
@@ -50,7 +60,7 @@ describe('GameWhackAMole', () => {
     render(<GameWhackAMole storageKey="best:whack-a-mole" />)
     fireEvent.click(shellButton('Start'))
     untilHole0Up()
-    fireEvent.pointerDown(holes()[0])
+    tapCell(holes()[0])
     expect(screen.getByTestId('score')).toHaveTextContent('1')
     advance(3000)
     expect(Number(statValue('Time'))).toBeLessThan(28)
@@ -87,7 +97,7 @@ describe('GameWhackAMole', () => {
     render(<GameWhackAMole storageKey="best:whack-a-mole" />)
     fireEvent.click(shellButton('Start'))
     expect(statValue('Time')).toBe('30')
-    fireEvent.pointerDown(holes()[8])
+    tapCell(holes()[8])
     expect(statValue('Misses')).toBe('1')
     expect(statValue('Time')).toBe('29')
   })

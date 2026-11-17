@@ -1,5 +1,6 @@
 'use client'
 
+import { PlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   arcHalf,
@@ -440,7 +441,7 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
   }, [doTap])
 
   const onPointerDown = useCallback(
-    (e: React.PointerEvent<HTMLCanvasElement>) => {
+    (e: React.PointerEvent<HTMLElement>) => {
       e.preventDefault()
       doTap()
     },
@@ -485,16 +486,17 @@ export function GameFlywheel({ storageKey }: { storageKey: string }) {
     >
       <div
         ref={wrapRef}
-        className="anim-board-in relative aspect-square w-full touch-none overflow-hidden rounded-xl bg-surface"
+        className="anim-board-in relative aspect-square w-full overflow-hidden rounded-xl bg-surface"
       >
         <canvas
           ref={canvasRef}
           data-testid="flywheel-board"
-          onPointerDown={onPointerDown}
           className="block h-full w-full cursor-pointer"
-          style={{ touchAction: 'none' }}
+          style={{ touchAction: 'pan-y' }}
           aria-label="Flywheel game board — tap or press Space on the beat"
         />
+        {/* 조작 구역: 위·아래 12%는 페이지 스크롤 띠(탭 입력 무시). */}
+        <PlayZone className="cursor-pointer" onPointerDown={onPointerDown} />
         <div aria-live="polite" className="pointer-events-none absolute inset-x-0 top-[22%] flex justify-center">
           {feedback && phase === 'playing' && (
             <span

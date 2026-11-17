@@ -1,5 +1,6 @@
 'use client'
 
+import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   BALL_R,
@@ -466,6 +467,8 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
 
   const onBoardPointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
+      // 위·아래 스크롤 띠에서 시작한 터치는 게임 입력이 아니다.
+      if (!inPlayZone(e)) return
       const s = stateRef.current
       if (!s || s.status === 'dead') return
       // Taps on overlay controls (none while alive, but be safe) keep their own behaviour.
@@ -679,7 +682,6 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
         aria-label="Polarity board"
         onPointerDown={onBoardPointerDown}
         className="relative select-none rounded-xl bg-surface p-2"
-        style={{ touchAction: 'none' }}
       >
         <div
           key={shakeKey}
@@ -845,6 +847,9 @@ export function GamePolarity({ storageKey }: { storageKey: string }) {
             </div>
           )}
         </div>
+
+        {/* 조작 구역: 위·아래 15%는 페이지 스크롤 띠(보드가 세로로 커서 필수). */}
+        <PlayZone top={0.15} bottom={0.15} />
 
         <GameOverlay show={dead} variant={overlayVariant} title={overlayTitle} testId="game-over">
           {outcome && (

@@ -1,5 +1,7 @@
 'use client'
 
+import { PlayZone } from '@/components/game-shell/PlayZone'
+import { hitCell } from '@/components/game-shell/hitCell'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   CELLS,
@@ -405,12 +407,13 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
         )}
       </div>
 
+      <div className="relative">
       <div
         ref={gridRef}
         role="grid"
         aria-label="Zero Hour board"
         onKeyDown={onKeyDown}
-        className="grid touch-none gap-2"
+        className="grid gap-2"
         style={{ gridTemplateColumns: `repeat(${GRID}, minmax(0, 1fr))` }}
         data-testid="zero-hour-board"
       >
@@ -466,10 +469,7 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
               role="gridcell"
               tabIndex={isCursor ? 0 : -1}
               aria-label={label}
-              onPointerDown={(e) => {
-                e.preventDefault()
-                onHarvest(i)
-              }}
+              data-cell={i}
               onFocus={() => setCursor(i)}
               className="zh-tile relative flex aspect-square items-center justify-center rounded-lg text-[clamp(1.1rem,6vw,1.9rem)] font-extrabold tabular-nums focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
               style={reduced ? undefined : { animation: 'zh-spawn .22s ease-out both' }}
@@ -496,6 +496,16 @@ export function GameZeroHour({ storageKey }: { storageKey: string }) {
             </button>
           )
         })}
+      </div>
+      {/* 조작 구역: 위·아래 12%는 페이지 스크롤 띠(탭 입력 무시). 좌표로 타일을 찾는다. */}
+      <PlayZone
+        className="cursor-pointer"
+        onPointerDown={(e) => {
+          e.preventDefault()
+          const i = hitCell(e, gridRef.current)
+          if (i >= 0) onHarvest(i)
+        }}
+      />
       </div>
 
       {paused && !over && (

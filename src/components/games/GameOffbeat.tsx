@@ -1,5 +1,6 @@
 'use client'
 
+import { PlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   LIVES,
@@ -289,12 +290,8 @@ export function GameOffbeat({ storageKey }: { storageKey: string }) {
           type="button"
           data-testid="pulse-ring"
           aria-label="Tap on the offbeat — the silent midpoint between pulses"
-          onPointerDown={(e) => {
-            e.preventDefault()
-            doTap()
-          }}
           disabled={state.over}
-          className="mx-auto flex touch-none items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+          className="mx-auto flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
           style={{ width: '100%', maxWidth: RING, aspectRatio: '1 / 1' }}
         >
           <svg viewBox={`0 0 ${RING} ${RING}`} className="h-full w-full" aria-hidden="true">
@@ -332,6 +329,16 @@ export function GameOffbeat({ storageKey }: { storageKey: string }) {
             {state.over ? 'Game over' : phase === 'ready' ? 'Tap to start' : 'Tap the silence'}
           </span>
         </button>
+        {/* 조작 구역: 위·아래 12%는 페이지 스크롤 띠(탭 입력 무시). 종료 후엔 비활성(버튼 disabled와 동일). */}
+        {!state.over && (
+          <PlayZone
+            className="cursor-pointer"
+            onPointerDown={(e) => {
+              e.preventDefault()
+              doTap()
+            }}
+          />
+        )}
 
         {flashes.map((f) => (
           <div

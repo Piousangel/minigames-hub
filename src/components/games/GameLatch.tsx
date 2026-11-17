@@ -1,5 +1,6 @@
 'use client'
 
+import { PlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   BOB_R,
@@ -472,7 +473,7 @@ export function GameLatch({ storageKey }: { storageKey: string }) {
   }, [beginIfIdle])
 
   const onPointerDown = useCallback(
-    (e: React.PointerEvent<HTMLCanvasElement>) => {
+    (e: React.PointerEvent<HTMLElement>) => {
       e.preventDefault()
       if (phaseRef.current === 'over') return
       e.currentTarget.setPointerCapture?.(e.pointerId)
@@ -508,18 +509,22 @@ export function GameLatch({ storageKey }: { storageKey: string }) {
     >
       <div
         ref={wrapRef}
-        className="anim-board-in relative aspect-square w-full touch-none overflow-hidden rounded-xl bg-surface"
+        className="anim-board-in relative aspect-square w-full overflow-hidden rounded-xl bg-surface"
       >
         <canvas
           ref={canvasRef}
           data-testid="latch-board"
+          className="block h-full w-full cursor-pointer"
+          style={{ touchAction: 'pan-y' }}
+          aria-label="Latch game board — hold to swing, release to launch"
+        />
+        {/* 조작 구역: 위·아래 12%는 페이지 스크롤 띠(홀드 입력 무시). 홀드는 가운데에서만 시작된다. */}
+        <PlayZone
+          className="cursor-pointer"
           onPointerDown={onPointerDown}
           onPointerUp={releaseHold}
           onPointerCancel={releaseHold}
           onPointerLeave={releaseHold}
-          className="block h-full w-full cursor-pointer touch-none"
-          style={{ touchAction: 'none' }}
-          aria-label="Latch game board — hold to swing, release to launch"
         />
         <div data-testid="latch-status" className="sr-only" aria-hidden="true">
           {probe}

@@ -1,5 +1,6 @@
 'use client'
 
+import { PlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   drop,
@@ -341,7 +342,7 @@ export function GameTowerStack({ storageKey }: { storageKey: string }) {
   }, [doDrop])
 
   const onPointerDown = useCallback(
-    (e: React.PointerEvent<HTMLCanvasElement>) => {
+    (e: React.PointerEvent<HTMLElement>) => {
       e.preventDefault()
       doDrop()
     },
@@ -367,17 +368,18 @@ export function GameTowerStack({ storageKey }: { storageKey: string }) {
     >
       <div
         ref={wrapRef}
-        className="anim-board-in relative mx-auto w-full touch-none overflow-hidden rounded-xl bg-surface"
+        className="anim-board-in relative mx-auto w-full overflow-hidden rounded-xl bg-surface"
         style={{ aspectRatio: `${FIELD_W} / ${VIEW_H}` }}
       >
         <canvas
           ref={canvasRef}
           data-testid="stack-board"
-          onPointerDown={onPointerDown}
           className="block h-full w-full cursor-pointer"
-          style={{ touchAction: 'none' }}
+          style={{ touchAction: 'pan-y' }}
           aria-label="Tower Stack board — tap or press Space to drop the moving block"
         />
+        {/* 조작 구역: 보드가 세로로 커서 위·아래 15%는 페이지 스크롤 띠(탭 입력 무시). */}
+        <PlayZone top={0.15} bottom={0.15} className="cursor-pointer" onPointerDown={onPointerDown} />
         <GameOverlay
           show={phase === 'over'}
           variant={newBest ? 'win' : 'lose'}

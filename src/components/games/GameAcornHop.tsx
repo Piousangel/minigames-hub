@@ -1,5 +1,6 @@
 'use client'
 
+import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   AMMO_MAX,
@@ -576,14 +577,18 @@ export function GameAcornHop({ storageKey }: { storageKey: string }) {
         tabIndex={0}
         onKeyDown={onKeyDown}
         onPointerDown={(e) => {
+          if (!inPlayZone(e)) return // 위·아래 스크롤 띠에서 시작한 터치는 게임 입력이 아니다
           if (e.pointerType === 'mouse' && e.button !== 0) return
           wrapRef.current?.focus({ preventScroll: true })
           tap(sideFromEvent(e.clientX))
         }}
-        className="relative touch-none overflow-hidden rounded-2xl border-[4px] border-[#5b3a1e] bg-[#1d1b4a] shadow-[0_5px_0_#3a2410] outline-none focus-visible:ring-2 focus-visible:ring-[#ffc933]"
+        className="relative overflow-hidden rounded-2xl border-[4px] border-[#5b3a1e] bg-[#1d1b4a] shadow-[0_5px_0_#3a2410] outline-none focus-visible:ring-2 focus-visible:ring-[#ffc933]"
         style={{ aspectRatio: `${W} / ${VIEW_H}` }}
       >
         <canvas ref={canvasRef} className="block h-full w-full" aria-hidden="true" />
+
+        {/* 조작 구역: 위·아래 15%는 페이지 스크롤 띠(보드가 세로로 커서 필수). 핸들러는 보드 div에 두고 inPlayZone으로 거른다. */}
+        <PlayZone top={0.15} bottom={0.15} className="cursor-pointer" />
 
         {/* 도토리 나무판 HUD: 높이·도토리 주머니·별. 탄이 1발 이하면 테두리가 붉게 깜빡인다. */}
         <div

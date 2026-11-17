@@ -1,5 +1,7 @@
 'use client'
 
+import { PlayZone } from '@/components/game-shell/PlayZone'
+import { hitCell } from '@/components/game-shell/hitCell'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   accuracy,
@@ -47,6 +49,7 @@ export function GameWhackAMole({ storageKey }: { storageKey: string }) {
 
   // 타이머가 참조하는 최신 값들(재구독 없이 읽기 위한 ref)
   const lastTick = useRef(0)
+  const gridRef = useRef<HTMLDivElement | null>(null)
   const nextSpawnAt = useRef(0)
   const deadlines = useRef<number[]>(Array<number>(HOLES).fill(0))
   const floatSeq = useRef(0)
@@ -232,8 +235,10 @@ export function GameWhackAMole({ storageKey }: { storageKey: string }) {
         />
       </div>
 
+      <div className="relative">
       <div
-        className="grid touch-none gap-3"
+        ref={gridRef}
+        className="grid gap-3"
         style={{ gridTemplateColumns: `repeat(${GRID_SIZE}, minmax(0, 1fr))` }}
         data-testid="whack-board"
       >
@@ -245,11 +250,8 @@ export function GameWhackAMole({ storageKey }: { storageKey: string }) {
               key={i}
               type="button"
               data-testid="whack-hole"
+              data-cell={i}
               aria-label={up ? 'Mole up — whack it' : 'Empty hole'}
-              onPointerDown={(e) => {
-                e.preventDefault()
-                hit(i)
-              }}
               className="btn-press relative flex aspect-square items-end justify-center overflow-hidden rounded-full bg-gradient-to-b from-stone-800/60 to-stone-900/80 shadow-inner"
             >
               {/* 흙더미 앞턱 */}
@@ -295,6 +297,16 @@ export function GameWhackAMole({ storageKey }: { storageKey: string }) {
             </button>
           )
         })}
+      </div>
+      {/* 조작 구역: 위·아래 12%는 페이지 스크롤 띠(탭 입력 무시). 좌표로 구멍을 찾는다. */}
+      <PlayZone
+        className="cursor-pointer"
+        onPointerDown={(e) => {
+          e.preventDefault()
+          const i = hitCell(e, gridRef.current)
+          if (i >= 0) hit(i)
+        }}
+      />
       </div>
 
       <GameOverlay

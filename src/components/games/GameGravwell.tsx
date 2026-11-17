@@ -483,7 +483,7 @@ export function GameGravwell({ storageKey }: { storageKey: string }) {
         <svg
           ref={svgRef}
           viewBox={`0 0 ${cfg.worldW} ${cfg.worldH}`}
-          className="mx-auto block w-full max-w-175 touch-none"
+          className="mx-auto block w-full max-w-175"
           style={{ aspectRatio: `${cfg.worldW}/${cfg.worldH}` }}
           role="img"
           aria-label={`Gravwell board, ${state.planets.length} planets, shot ${state.attemptsUsed} of ${cfg.maxAttempts}`}
