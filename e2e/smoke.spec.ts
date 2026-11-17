@@ -645,6 +645,18 @@ test('홈: Daily 필터가 Daily 모드 게임만 보여준다', async ({ page }
   )
 })
 
+test('홈: 최신 출시 카드가 히어로 바로 아래 최상단에 있고 게임으로 이동한다', async ({ page }) => {
+  await page.goto('/')
+  const card = page.getByTestId('latest-release')
+  await expect(card).toBeVisible()
+  // 첫 화면 근처: 카드 상단이 뷰포트 높이 안에 들어온다(모바일 포함 — Marquee·Featured보다 위).
+  const box = await card.boundingBox()
+  const marquee = await page.locator('main nav[aria-label="Explore games"]').boundingBox()
+  expect(box!.y).toBeLessThan(marquee!.y)
+  await page.getByTestId('latest-release-link').click()
+  await expect(page).not.toHaveURL(/\/$/)
+})
+
 test('leaderboards: 허브 페이지 로드', async ({ page }) => {
   await page.goto('/leaderboards')
   await expect(page.getByRole('heading', { name: 'Leaderboards', level: 1 })).toBeVisible()

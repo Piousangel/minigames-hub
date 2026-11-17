@@ -38,6 +38,8 @@ export interface GameMeta {
   daily?: true
   /** 추가된 날짜 'YYYY-MM-DD'(UTC). 최근이면 홈 'New games' 행 + NEW 뱃지(자동 만료). */
   addedDate?: string
+  /** 홈 최상단 '최신 출시' 카드용 커버(16:9, public/ 아래 경로). 없으면 아이콘 그라데이션 카드. 새 게임은 Gemini로 만들어 넣는다(docs/team/GEMINI.md). */
+  cover?: string
   /** 엄선(Featured) — 잘 만든/찾는 게임. 홈 최상단 Featured 레일 + 추천 가중. 첫인상=체류. */
   featured?: true
   /** 주 조작 방식(최대 2개, 우선순위 순). ObjectiveBanner가 아이콘으로 표시. */
@@ -154,7 +156,7 @@ export const gameMeta: Record<string, GameMeta> = {
   bankshot: { icon: '🎱', accent: 'green', category: 'Puzzle', addedDate: '2026-08-19', daily: true, controls: ['drag', 'arrows'] },
   'morse-relay': { icon: '📡', accent: 'red', category: 'Skill', addedDate: '2026-08-19', controls: ['tap'], endless: true },
 lagline: { icon: '⏳', accent: 'purple', category: 'Arcade', addedDate: '2026-10-09', controls: ['arrows', 'tap'] },
-'acorn-hop': { icon: '🐿️', accent: 'amber', category: 'Arcade', addedDate: '2026-11-17', daily: true, controls: ['tap', 'arrows'], endless: true },
+'acorn-hop': { icon: '🐿️', accent: 'amber', category: 'Arcade', addedDate: '2026-11-17', cover: '/art/acorn-hop-cover.webp', daily: true, controls: ['tap', 'arrows'], endless: true },
 recoil: { icon: '🚀', accent: 'cyan', category: 'Skill', addedDate: '2026-10-09', daily: true, controls: ['point', 'drag', 'arrows'] },
 hunch: { icon: '🃏', accent: 'purple', category: 'Puzzle', addedDate: '2026-10-09', daily: true, controls: ['tap', 'arrows'] },
 fizzbeat: { icon: '🥁', accent: 'lime', category: 'Skill', addedDate: '2026-10-10', controls: ['tap', 'arrows'], endless: true },

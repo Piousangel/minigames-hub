@@ -8,6 +8,7 @@ import { GameBrowser, type BrowseItem } from '@/components/GameBrowser'
 import { Achievements } from '@/components/Achievements'
 import { FeaturedGames } from '@/components/FeaturedGames'
 import { HeroPlayButton } from '@/components/HeroPlayButton'
+import { LatestRelease } from '@/components/LatestRelease'
 import { HomeAbout } from '@/components/HomeAbout'
 import { Marquee } from '@/components/Marquee'
 import { MyGames } from '@/components/MyGames'
@@ -72,6 +73,9 @@ export default function Home() {
           <HeroPlayButton />
         </div>
       </section>
+
+      {/* ===== 최신 출시 — 가장 최근에 추가된 게임을 히어로 바로 아래 최상단에(addedDate 자동) ===== */}
+      <LatestRelease />
 
       {/* ===== 아케이드 마퀴 티커 ===== */}
       <Marquee />

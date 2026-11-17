@@ -24,3 +24,20 @@ export function newSlugs(nowMs: number): string[] {
     .sort((a, b) => ((b[1].addedDate ?? '') < (a[1].addedDate ?? '') ? -1 : 1))
     .map(([slug]) => slug)
 }
+
+/**
+ * 홈 최상단 '최신 출시' 슬롯의 게임: addedDate가 가장 늦은 게임(동률이면 gameMeta에서 나중에 선언된 쪽).
+ * 만료 없이 항상 하나를 보여 줘서(서버 렌더, 레이아웃 흔들림 없음) 새 게임을 내면 자동으로 최상단에 오른다.
+ */
+export function latestSlug(meta: Record<string, { addedDate?: string }> = gameMeta): string | null {
+  let best: string | null = null
+  let bestDate = ''
+  for (const [slug, m] of Object.entries(meta)) {
+    if (!m.addedDate) continue
+    if (m.addedDate >= bestDate) {
+      best = slug
+      bestDate = m.addedDate
+    }
+  }
+  return best
+}
