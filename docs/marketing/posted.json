@@ -13,7 +13,7 @@
     "id": "2026-11-16#1",
     "date": "2026-11-17",
     "channel": "x",
-    "at": "2026-11-16T21:12:26.735Z",
+    "at": "2026-11-17T03:00:15.743Z",
     "url": "https://quickminigames.site/guides/battleship",
     "status": "skipped-no-credentials"
   },
@@ -31,8 +31,9 @@
     "id": "2026-11-17#1",
     "date": "2026-11-17",
     "channel": "threads",
-    "at": "2026-11-16T21:12:26.735Z",
-    "url": "https://quickminigames.site/guides/2048",
-    "status": "skipped-no-credentials"
+    "at": "2026-11-17T03:00:15.022Z",
+    "url": "https://quickminigames.site/acorn-hop",
+    "status": "error",
+    "error": "threads carousel item: 400 {\"error\":{\"message\":\"Invalid OAuth access token - Cannot parse access token\",\"type\":\"OAuthException\",\"code\":190,\"fbtrace_id\":\"AZiHIpqjPKbjjtZlF6T2URE\"}}"
   }
 ]
