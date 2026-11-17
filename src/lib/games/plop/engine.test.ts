@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  D_MAX_FRAC, EDGE_SLACK, HALFW_MIN, MIN_GAP, PING_MS, RMAX, WIND_MAX, dailySeedFor, ensureIslands, flightDuration, flightPos,
+  D_MAX_FRAC, HALFW_MIN, SINK_START_MS, MIN_GAP, PING_MS, RMAX, WIND_MAX, dailySeedFor, ensureIslands, flightDuration, flightPos,
   halfWOf, inputLocked, newGame, nextIsland, powerAt, press, previewPoints, rangeAt, rangeMax, release, startIsland, tick, tintOf, cancelCharge,
 } from './engine'
 
@@ -189,17 +189,18 @@ describe('가라앉는 섬', () => {
     const st = newGame(12)
     toIsland5(st)
     expect(st.cur).toBe(4)
-    expect(st.sinkLeftMs).toBeGreaterThan(3900)
-    tick(st, 3000)
+    expect(st.sinkLeftMs).toBeGreaterThan(SINK_START_MS - 100)
+    const left = st.sinkLeftMs
+    tick(st, left - 100)
     expect(st.phase).toBe('ready')
-    tick(st, 2000)
+    tick(st, 200)
     expect(st.phase).toBe('over')
     expect(st.endReason).toBe('sunk')
   })
   it('충전 중에는 타이머가 멈춘다', () => {
     const st = newGame(12)
     toIsland5(st)
-    tick(st, 3000)
+    tick(st, 1000)
     const left = st.sinkLeftMs
     press(st, st.clock)
     tick(st, 10_000)
