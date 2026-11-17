@@ -167,6 +167,20 @@ export function GameWordSearch({ storageKey }: { storageKey: string }) {
     [cellFromPoint, updateSelection],
   )
 
+  // 스크롤이 시작되면 브라우저가 pointercancel을 보낸다 — 선택을 확정하지 않고 취소한다.
+  const cancelDrag = useCallback((e: React.PointerEvent) => {
+    if (!draggingRef.current) return
+    draggingRef.current = false
+    try {
+      boardRef.current?.releasePointerCapture(e.pointerId)
+    } catch {
+      /* ignore */
+    }
+    anchorRef.current = null
+    setSelection([])
+    lastPlayedLenRef.current = 0
+  }, [])
+
   const endDrag = useCallback(
     (e: React.PointerEvent) => {
       if (!draggingRef.current) return
@@ -311,8 +325,8 @@ export function GameWordSearch({ storageKey }: { storageKey: string }) {
         aria-label="Word search board"
         onPointerMove={onBoardPointerMove}
         onPointerUp={endDrag}
-        onPointerCancel={endDrag}
-        className={`anim-board-in relative mx-auto grid w-full touch-none select-none rounded-xl border-2 border-white/25 bg-surface p-1.5 ${
+        onPointerCancel={cancelDrag}
+        className={`anim-board-in relative mx-auto grid w-full select-none rounded-xl border-2 border-white/25 bg-surface p-1.5 ${
           solved && !reducedRef.current ? 'ws-solved-flash' : ''
         }`}
         style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
@@ -325,7 +339,8 @@ export function GameWordSearch({ storageKey }: { storageKey: string }) {
             const isPopped = popCells.has(key)
 
             let bg = 'bg-white/[0.03] text-fg'
-            const style: React.CSSProperties = {}
+            // 위·아래 끝 줄은 세로 스크롤 띠(가로 드래그로 그 줄의 단어는 그대로 고를 수 있다). 나머지 칸은 드래그를 게임이 받는다.
+            const style: React.CSSProperties = { touchAction: r === 0 || r === size - 1 ? 'pan-y' : 'none' }
             if (inSelection) {
               bg = 'text-stone-900 font-bold'
               style.background = 'var(--accent, #fbbf24)'

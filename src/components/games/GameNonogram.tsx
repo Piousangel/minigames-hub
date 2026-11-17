@@ -82,6 +82,7 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
   const solvedRef = useRef(false)
   const startRef = useRef(0)
   const draggingRef = useRef(false)
+  const pendingRef = useRef<{ r: number; c: number; value: Cell } | null>(null)
   const dragValueRef = useRef<Cell>(EMPTY)
   const boardRef = useRef<HTMLDivElement | null>(null)
 
@@ -190,11 +191,18 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
       const value = actionValue(s.grid[r][c])
       dragValueRef.current = value
       draggingRef.current = true
+      pendingRef.current = null
       // Capture on the board so we keep receiving move/up (incl. touch).
       try {
         boardRef.current?.setPointerCapture(e.pointerId)
       } catch {
         /* setPointerCapture can throw on some browsers — drag still works via move */
+      }
+      // 위·아래 끝 줄은 세로 스크롤 띠(touch-action: pan-y)라 스크롤이 시작되면 pointercancel이 온다.
+      // 그 줄에서 시작한 터치 입력은 탭(pointerup)이나 다른 칸으로의 이동이 확인된 뒤에 칠해서, 스크롤하다 칸이 칠해지지 않게 한다.
+      if (e.pointerType === 'touch' && (r === 0 || r === s.size - 1)) {
+        pendingRef.current = { r, c, value }
+        return
       }
       paintCell(r, c, value)
     },
@@ -212,12 +220,20 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
       const c = Number(cell.dataset.c)
       if (Number.isNaN(r) || Number.isNaN(c)) return
       setHover({ r, c })
+      const pending = pendingRef.current
+      if (pending) {
+        if (pending.r === r && pending.c === c) return // 아직 시작 칸 위 — 탭인지 드래그인지 미정
+        pendingRef.current = null
+        paintCell(pending.r, pending.c, pending.value)
+      }
       paintCell(r, c, dragValueRef.current)
     },
     [paintCell],
   )
 
-  const endDrag = useCallback((e: React.PointerEvent) => {
+  // 스크롤이 시작되면 브라우저가 pointercancel을 보낸다 — 보류 중이던 칠하기를 버린다.
+  const cancelDrag = useCallback((e: React.PointerEvent) => {
+    pendingRef.current = null
     draggingRef.current = false
     try {
       boardRef.current?.releasePointerCapture(e.pointerId)
@@ -225,6 +241,18 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
       /* ignore */
     }
   }, [])
+
+  const endDrag = useCallback((e: React.PointerEvent) => {
+    const pending = pendingRef.current
+    pendingRef.current = null
+    if (pending && draggingRef.current) paintCell(pending.r, pending.c, pending.value)
+    draggingRef.current = false
+    try {
+      boardRef.current?.releasePointerCapture(e.pointerId)
+    } catch {
+      /* ignore */
+    }
+  }, [paintCell])
 
   // Reveal wrong fills only when the player explicitly asks (each use is counted).
   const checkAnswer = useCallback(() => {
@@ -408,9 +436,9 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
         aria-label="Nonogram board"
         onPointerMove={onBoardPointerMove}
         onPointerUp={endDrag}
-        onPointerCancel={endDrag}
+        onPointerCancel={cancelDrag}
         onPointerLeave={() => setHover(null)}
-        className={`anim-board-in relative mx-auto grid w-full touch-none select-none rounded-xl border-2 border-white/25 bg-surface p-1 ${solved && !reducedRef.current ? 'nono-solved-flash' : ''}`}
+        className={`anim-board-in relative mx-auto grid w-full select-none rounded-xl border-2 border-white/25 bg-surface p-1 ${solved && !reducedRef.current ? 'nono-solved-flash' : ''}`}
         style={{ gridTemplateColumns, gridTemplateRows }}
       >
         {/* Corner spacer */}
@@ -479,6 +507,7 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
                     data-wrong={isWrong ? 'true' : undefined}
                     aria-label={`row ${r + 1}, column ${c + 1}: ${v === FILLED ? 'filled' : v === MARKED ? 'marked' : 'empty'}`}
                     onPointerDown={(e) => onCellPointerDown(e, r, c)}
+                    style={{ touchAction: r === 0 || r === size - 1 ? 'pan-y' : 'none' }}
                     onPointerEnter={() => setHover({ r, c })}
                     className={`relative flex aspect-square items-center justify-center text-sm outline-none ${rSep} ${bSep} ${bg}`}
                   >

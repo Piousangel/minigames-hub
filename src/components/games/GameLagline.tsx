@@ -115,7 +115,7 @@ export function GameLagline({ storageKey }: { storageKey: string }) {
   const lastTsRef = useRef(0)
   const accRef = useRef(0)
   const scrollRef = useRef<HTMLDivElement | null>(null)
-  const pointerRef = useRef<{ x: number; y: number } | null>(null)
+  const pointerRef = useRef<{ x: number; y: number; inField: boolean } | null>(null)
   const bannerSeq = useRef(0)
 
   const commit = useCallback((next: LagState) => {
@@ -384,7 +384,10 @@ export function GameLagline({ storageKey }: { storageKey: string }) {
   }, [sendCmd, setPausedBoth, startNew])
 
   const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    pointerRef.current = { x: e.clientX, y: e.clientY }
+    // 필드에서 시작한 제스처만 스와이프로 본다. 큐·패딩에서 시작하면 탭(시작/재개)만 인정한다.
+    const t = e.target
+    const inField = t instanceof Element && t.closest('[data-lagline-field]') !== null
+    pointerRef.current = { x: e.clientX, y: e.clientY, inField }
   }, [])
 
   const onPointerUp = useCallback(
@@ -396,6 +399,7 @@ export function GameLagline({ storageKey }: { storageKey: string }) {
       const dx = e.clientX - start.x
       const dy = e.clientY - start.y
       if (Math.max(Math.abs(dx), Math.abs(dy)) >= SWIPE_PX) {
+        if (!start.inField) return // 큐·패딩에서 시작한 드래그는 입력이 아니다
         if (Math.abs(dx) >= Math.abs(dy)) sendCmd(dx < 0 ? 'left' : 'right')
         else sendCmd(dy < 0 ? 'jump' : 'stay')
         return
@@ -524,7 +528,6 @@ export function GameLagline({ storageKey }: { storageKey: string }) {
         }}
         className="relative rounded-xl bg-surface p-3 outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan"
         style={{
-          touchAction: 'none',
           animation: !reduced && shakeKey > 0 ? 'lg-hit .38s ease-out both' : undefined,
         }}
       >
@@ -588,8 +591,9 @@ export function GameLagline({ storageKey }: { storageKey: string }) {
 
         {/* Field */}
         <div
+          data-lagline-field=""
           className="relative overflow-hidden rounded-lg"
-          style={{ height: fieldH, background: 'rgba(0,0,0,.18)' }}
+          style={{ height: fieldH, background: 'rgba(0,0,0,.18)', touchAction: 'none' }}
         >
           {/* lane separators */}
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 grid grid-cols-5">

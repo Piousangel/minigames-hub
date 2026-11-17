@@ -23,6 +23,7 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 
 type Phase = 'idle' | 'playing' | 'over'
 
@@ -465,21 +466,23 @@ export function GameBackspace({ storageKey }: { storageKey: string }) {
 
   // ---- Board pointers (lane taps + 2-finger rewind) ----
   const onBoardPointerDown = useCallback(
-    (e: React.PointerEvent<HTMLCanvasElement>) => {
+    (e: React.PointerEvent<HTMLElement>) => {
+      // 터치는 가운데 조작 구역에서 시작한 손가락만 입력이다(위·아래 가장자리는 페이지 스크롤 띠라 탭을 무시). 마우스는 어디서든 동작.
+      if (e.pointerType === 'touch' && !inPlayZone(e)) return
       e.preventDefault()
       if (phaseRef.current === 'over') return
       boardPointersRef.current.add(e.pointerId)
       startIfIdle()
       // Only the first finger taps a lane; extra fingers are for scrubbing.
       if (boardPointersRef.current.size === 1) {
-        const rect = e.currentTarget.getBoundingClientRect()
+        const rect = (canvasRef.current ?? e.currentTarget).getBoundingClientRect()
         const mid = rect.left + rect.width / 2
         pendingMoveRef.current = e.clientX < mid ? -1 : 1
       }
     },
     [startIfIdle],
   )
-  const onBoardPointerEnd = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+  const onBoardPointerEnd = useCallback((e: React.PointerEvent<HTMLElement>) => {
     boardPointersRef.current.delete(e.pointerId)
   }, [])
 
@@ -518,7 +521,7 @@ export function GameBackspace({ storageKey }: { storageKey: string }) {
     >
       <div
         ref={wrapRef}
-        className="anim-board-in relative aspect-[5/7] w-full touch-none overflow-hidden rounded-xl bg-surface"
+        className="anim-board-in relative aspect-[5/7] w-full overflow-hidden rounded-xl bg-surface"
       >
         <canvas
           ref={canvasRef}
@@ -528,8 +531,17 @@ export function GameBackspace({ storageKey }: { storageKey: string }) {
           onPointerCancel={onBoardPointerEnd}
           onPointerLeave={onBoardPointerEnd}
           className="block w-full cursor-pointer"
-          style={{ touchAction: 'none' }}
           aria-label="Backspace game board — arrow keys or tap to change lanes, hold Space to rewind"
+        />
+        {/* 조작 구역: 두 손가락 되감기가 있어 가운데는 touch-action none을 유지하고, 위 10%·아래 14%만 페이지 스크롤 띠로 비운다(탭 무시). 좌표는 canvasRef rect. */}
+        <PlayZone
+          top={0.1}
+          bottom={0.14}
+          className="cursor-pointer"
+          onPointerDown={onBoardPointerDown}
+          onPointerUp={onBoardPointerEnd}
+          onPointerCancel={onBoardPointerEnd}
+          onPointerLeave={onBoardPointerEnd}
         />
         <button
           type="button"
@@ -539,7 +551,7 @@ export function GameBackspace({ storageKey }: { storageKey: string }) {
           onPointerLeave={onButtonUp}
           aria-label="Hold to rewind time"
           className="btn-press absolute bottom-3 left-1/2 -translate-x-1/2 touch-none rounded-full border border-neon-cyan/60 bg-surface/85 px-6 py-2.5 text-sm font-bold text-neon-cyan shadow-[0_0_14px_rgba(56,189,248,0.4)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan"
-          style={{ touchAction: 'none' }}
+          style={{ touchAction: 'none', zIndex: 4 }}
         >
           ⌫ BACKSPACE
         </button>
