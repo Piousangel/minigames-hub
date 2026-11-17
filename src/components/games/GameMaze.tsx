@@ -1,5 +1,6 @@
 'use client'
 
+import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   canMove,
@@ -173,6 +174,10 @@ export function GameMaze({ storageKey }: { storageKey: string }) {
   }, [doMove])
 
   const onTouchStart = (e: React.TouchEvent) => {
+    if (!inPlayZone(e)) {
+      touchStart.current = null // 가장자리 스크롤 띠에서 시작한 터치는 게임 입력이 아니다
+      return
+    }
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   }
   const onTouchEnd = (e: React.TouchEvent) => {
@@ -245,7 +250,7 @@ export function GameMaze({ storageKey }: { storageKey: string }) {
       {diffSelector(false)}
 
       <div
-        className="anim-board-in relative grid aspect-square w-full touch-none rounded-xl bg-surface p-2"
+        className="anim-board-in relative grid aspect-square w-full rounded-xl bg-surface p-2"
         style={{ gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))` }}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
@@ -253,6 +258,7 @@ export function GameMaze({ storageKey }: { storageKey: string }) {
         role="grid"
         aria-label={`Maze, ${size} by ${size}`}
       >
+        <PlayZone />
         {Array.from({ length: size * size }, (_, i) => {
           const row = Math.floor(i / size)
           const col = i % size

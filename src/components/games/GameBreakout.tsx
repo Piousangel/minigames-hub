@@ -1,5 +1,6 @@
 'use client'
 
+import { PlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   BALL_R,
@@ -300,7 +301,7 @@ export function GameBreakout({ storageKey }: { storageKey: string }) {
   }, [])
 
   // ---- 포인터(마우스/터치)로 패들 조작 ----
-  const onPointerMove = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+  const onPointerMove = useCallback((e: React.PointerEvent<HTMLElement>) => {
     const g = gameRef.current
     const canvas = canvasRef.current
     if (!g || !canvas) return
@@ -356,16 +357,19 @@ export function GameBreakout({ storageKey }: { storageKey: string }) {
     >
       <div
         ref={wrapRef}
-        className="anim-board-in relative aspect-square w-full touch-none overflow-hidden rounded-xl bg-surface"
+        className="anim-board-in relative aspect-square w-full overflow-hidden rounded-xl bg-surface"
       >
         <canvas
           ref={canvasRef}
           data-testid="breakout-board"
+          className="block h-full w-full cursor-pointer"
+          style={{ touchAction: 'pan-y' }}
+          aria-label="Breakout game board"
+        />
+        {/* 조작 구역: 위 12%는 페이지 스크롤 띠(패들·기체는 아래쪽이라 아래 띠는 두지 않는다). 핸들러는 여기서 받고 좌표는 canvasRef rect로 계산한다. */}
+        <PlayZone top={0.12} bottom={0} className="cursor-pointer"
           onPointerMove={onPointerMove}
           onPointerDown={onPointerDown}
-          className="block h-full w-full cursor-pointer"
-          style={{ touchAction: 'none' }}
-          aria-label="Breakout game board"
         />
         <GameOverlay show={phase === 'won'} variant="win" title="You cleared it!" testId="game-over">
           <p className="text-fg-muted">Score: {hud.score}</p>

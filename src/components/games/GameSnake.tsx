@@ -1,5 +1,6 @@
 'use client'
 
+import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { changeDir, GRID, newSnakeGame, tick, type Dir, type SnakeState } from '@/lib/games/snake/engine'
 import { isTypingTarget } from '@/lib/isTypingTarget'
@@ -103,6 +104,10 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
   }, [steer])
 
   const onTouchStart = (e: React.TouchEvent) => {
+    if (!inPlayZone(e)) {
+      touchStart.current = null // 가장자리 스크롤 띠에서 시작한 터치는 게임 입력이 아니다
+      return
+    }
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   }
   // touchmove로 손을 떼기 전에 반응한다(실시간 게임이라 지연이 치명적). null 리셋은
@@ -155,12 +160,13 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
       hint={hint}
     >
       <div
-        className="anim-board-in relative grid aspect-square touch-none gap-px rounded-xl bg-surface p-2"
+        className="anim-board-in relative grid aspect-square gap-px rounded-xl bg-surface p-2"
         style={{ gridTemplateColumns: `repeat(${GRID}, minmax(0, 1fr))` }}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         data-testid="snake-board"
       >
+        <PlayZone />
         {Array.from({ length: GRID * GRID }, (_, i) => {
           const x = i % GRID
           const y = Math.floor(i / GRID)

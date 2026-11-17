@@ -1,5 +1,6 @@
 'use client'
 
+import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   PACKS,
@@ -351,6 +352,10 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
   }, [doMove, undo, restart])
 
   const onTouchStart = (e: React.TouchEvent) => {
+    if (!inPlayZone(e)) {
+      touchStart.current = null // 가장자리 스크롤 띠에서 시작한 터치는 게임 입력이 아니다
+      return
+    }
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   }
   const onTouchEnd = (e: React.TouchEvent) => {
@@ -371,6 +376,7 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
     return (
       <div className="mx-auto w-full max-w-100 select-none">
         <div className="aspect-square w-full rounded-xl bg-surface p-2" data-testid="duplex-board" />
+        <PlayZone />
         <p className="mt-3 text-center text-sm text-fg-muted">{hint}</p>
       </div>
     )
@@ -453,7 +459,7 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
       <style>{keyframes}</style>
       <div
         key={flipKey}
-        className={`anim-board-in relative w-full touch-none rounded-xl bg-surface p-2 ${
+        className={`anim-board-in relative w-full rounded-xl bg-surface p-2 ${
           !reducedRef.current ? 'dux-flip' : ''
         }`}
         onTouchStart={onTouchStart}

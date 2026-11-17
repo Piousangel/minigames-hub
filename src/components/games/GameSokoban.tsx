@@ -1,5 +1,6 @@
 'use client'
 
+import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   isSolved,
@@ -191,6 +192,10 @@ export function GameSokoban({ storageKey }: { storageKey: string }) {
   }, [doMove, undo])
 
   const onTouchStart = (e: React.TouchEvent) => {
+    if (!inPlayZone(e)) {
+      touchStart.current = null // 가장자리 스크롤 띠에서 시작한 터치는 게임 입력이 아니다
+      return
+    }
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   }
   const onTouchEnd = (e: React.TouchEvent) => {
@@ -260,11 +265,12 @@ export function GameSokoban({ storageKey }: { storageKey: string }) {
     >
       <style>{keyframes}</style>
       <div
-        className="anim-board-in relative w-full touch-none rounded-xl bg-surface p-2"
+        className="anim-board-in relative w-full rounded-xl bg-surface p-2"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
         data-testid="sokoban-board"
       >
+        <PlayZone />
         <div
           className="grid w-full gap-px overflow-hidden rounded-lg"
           style={{ gridTemplateColumns: `repeat(${state.width}, minmax(0, 1fr))` }}

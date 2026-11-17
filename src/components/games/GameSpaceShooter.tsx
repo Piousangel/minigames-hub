@@ -1,5 +1,6 @@
 'use client'
 
+import { PlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   BULLET_H,
@@ -352,7 +353,7 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
   }, [])
 
   const onPointerDown = useCallback(
-    (e: React.PointerEvent<HTMLCanvasElement>) => {
+    (e: React.PointerEvent<HTMLElement>) => {
       const g = gameRef.current
       if (!g || g.over) return
       pointerRef.current = { active: true, x: pointerX(e.clientX) }
@@ -363,7 +364,7 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
   )
 
   const onPointerMove = useCallback(
-    (e: React.PointerEvent<HTMLCanvasElement>) => {
+    (e: React.PointerEvent<HTMLElement>) => {
       if (!pointerRef.current.active) return
       pointerRef.current.x = pointerX(e.clientX)
     },
@@ -416,18 +417,24 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
     >
       <div
         ref={wrapRef}
-        className="anim-board-in relative aspect-square w-full touch-none overflow-hidden rounded-xl bg-surface"
+        className="anim-board-in relative aspect-square w-full overflow-hidden rounded-xl bg-surface"
       >
         <canvas
           ref={canvasRef}
           data-testid="space-board"
+          className="block h-full w-full cursor-pointer"
+          style={{ touchAction: 'pan-y' }}
+          aria-label="Space Shooter game board"
+        />
+        {/* 조작 구역: 위 12%는 페이지 스크롤 띠(기체는 아래쪽이라 아래 띠는 두지 않는다). 좌표는 canvasRef rect로 계산한다. */}
+        <PlayZone
+          top={0.12}
+          bottom={0}
+          className="cursor-pointer"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={endPointer}
           onPointerCancel={endPointer}
-          className="block h-full w-full cursor-pointer"
-          style={{ touchAction: 'none' }}
-          aria-label="Space Shooter game board"
         />
         <GameOverlay
           show={phase === 'over'}
