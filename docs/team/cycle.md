@@ -10,6 +10,8 @@
 
 - **사이트(축 B) 11-17 16시**: 실험 E1(홈 PLAY NOW 오리지널화) 출시. 라운드: 리서치1(포털 접근 불가로 약함)→v1→리서치2(반증 못 찾음)→v2→독립 리뷰→수정. 다음 세션: 포털 리서치 보충, 11-24 판정, 연결고리 #3(다음 게임 개선)·#4(스트릭 정의).
 
+- **20시 11-17 확인**: 오늘 출시 = 홈 PLAY NOW 오리지널화(#82, E1), 모바일 보드 스크롤 리뉴얼 1차·2차 a·b(#79·#83·#84, 30종). deploy.yml #63~68 전부 success. 라이브 curl은 프록시 차단(000)이라 직접 확인 불가. 열린 PR은 #44(toss-recoil, 오래됨, 미접촉). 홍보: 리뉴얼 문안 Bluesky 11-18 큐(Threads는 11-18 게임 홍보 휴식 규칙대로 제외).
+
 ## 리뉴얼 큐(축 C)
 - **`docs/team/renewal-queue.md`** (11-17 재검증): 감사 bug 42건은 모두 수정됨, major 133건 중 **102건 남음**, 공용 기반(`useGameLoop`·`useRovingFocus`·`dailyResult` 등) 미구현. **먼저 할 5개**: ① 시작 게이트·일시정지 훅 + tetris·space-shooter·pong·flappy ② solitaire 계열 점수·표시 정직화 ③ 무승부 기록·오버레이 지연(connect-four 등) ④ 지배 전략 게임(strata·ticker·ripple) ⑤ 포커스 강탈 7종. 하루 사이클 배치 R0~R14.
 
