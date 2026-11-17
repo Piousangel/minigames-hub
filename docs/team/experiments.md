@@ -7,3 +7,4 @@
 - 지표: `hero_play` 건수, 도착 게임의 이후 win/lose/finish 도달 비율, 7일 방문당 view 수.
 - 판정일: 2026-11-24(연장 상한 12-01). 코호트: 도착 게임 `tag=hero`. 규칙: n<30이면 보류(12-01에도 n<30이면 방향 유지·종료), 도착 게임 이탈이 view 대비 현저히 높으면 해당 게임을 풀에서 제외.
 - 스펙: specs/2026-11-17-hero-play-originals.md. 롤백: HeroPlayButton PICKS 복원.
+- **E1 판정 보정(11-18)**: 16시에 게임 페이지 '다음 게임 추천'(specs/2026-11-18-next-game-rail.md)이 출시되면 `?ref=next` 도착 view가 생긴다. E1의 '방문당 view 수'에서 `tag=next` view는 제외한다.

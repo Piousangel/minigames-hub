@@ -1,0 +1,6 @@
+[
+  { "url": "https://quickminigames.site/2048", "file": "01-2048.png", "width": 390, "height": 844, "waitMs": 1500, "fullPage": false },
+  { "url": "https://quickminigames.site/snake", "file": "02-snake.png", "width": 390, "height": 844, "waitMs": 1500, "fullPage": false },
+  { "url": "https://quickminigames.site/flappy", "file": "03-flappy.png", "width": 390, "height": 844, "waitMs": 1500, "fullPage": false },
+  { "url": "https://quickminigames.site/plop-landing", "file": "04-plop.png", "width": 390, "height": 844, "waitMs": 1500, "fullPage": false }
+]
