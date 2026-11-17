@@ -24,6 +24,26 @@
           "alt": "Acorn Hop 결과 카드: 올라간 높이를 미터로 보여 주는 화면"
         }
       ]
+    },
+    {
+      "channel": "threads",
+      "text": "낮에 다람쥐 올렸는데 게임 하나 더 올렸어 🫧\nPlop Landing은 젤리를 꾹 눌렀다 놓으면 뿅 날아가서 다음 섬에 앉는 게임이야\n바람 불면 점선까지 휘고, 다섯 번째 섬부터는 가만히 있으면 섬이 가라앉아서 은근 손에 땀나\n설치 없이 바로 되니까 한 판 하고 몇 섬까지 갔는지 알려줘~\n#미니게임",
+      "url": "https://quickminigames.site/plop-landing",
+      "ownerApprovedExtra": "오너 승인 2026-11-17 뿅 착지 Threads (채널 하루 1건 제한 예외, 21시 예정이 22시대로 지연)",
+      "images": [
+        {
+          "path": "docs/marketing/images/plop-landing/perfect.jpg",
+          "alt": "별을 안고 웃는 젤리 캐릭터 말랑이가 섬에 착지하고 Perfect +3 점수가 떠 있는 장면"
+        },
+        {
+          "path": "docs/marketing/images/plop-landing/charge.jpg",
+          "alt": "젤리가 눌려 있고 둘레의 노란 게이지 링이 차오르며 다음 섬으로 휘어지는 점선이 보이는 장면"
+        },
+        {
+          "path": "docs/marketing/images/plop-landing/wind.jpg",
+          "alt": "섬 위 노란 꽃 옆에서 깃발이 바람에 휘날리고 젤리가 건너편 섬에서 기다리는 장면"
+        }
+      ]
     }
   ]
 }
