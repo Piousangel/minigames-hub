@@ -141,7 +141,7 @@ export function GameSliding({ storageKey }: { storageKey: string }) {
       hint={hint}
     >
       <div
-        className="anim-board-in relative aspect-square w-full touch-none rounded-xl bg-surface p-2"
+        className="anim-board-in relative aspect-square w-full rounded-xl bg-surface p-2"
         data-testid="sliding-board"
       >
         {/* Background grid — the empty slots (depth) */}

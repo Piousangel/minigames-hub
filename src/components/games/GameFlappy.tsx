@@ -1,5 +1,6 @@
 'use client'
 
+import { PlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   BIRD_R,
@@ -300,7 +301,7 @@ export function GameFlappy({ storageKey }: { storageKey: string }) {
   }, [doFlap])
 
   const onPointerDown = useCallback(
-    (e: React.PointerEvent<HTMLCanvasElement>) => {
+    (e: React.PointerEvent<HTMLElement>) => {
       e.preventDefault()
       doFlap()
     },
@@ -328,15 +329,18 @@ export function GameFlappy({ storageKey }: { storageKey: string }) {
     >
       <div
         ref={wrapRef}
-        className="anim-board-in relative aspect-square w-full touch-none overflow-hidden rounded-xl bg-surface"
+        className="anim-board-in relative aspect-square w-full overflow-hidden rounded-xl bg-surface"
       >
         <canvas
           ref={canvasRef}
           data-testid="flappy-board"
-          onPointerDown={onPointerDown}
           className="block h-full w-full cursor-pointer"
-          style={{ touchAction: 'none' }}
+          style={{ touchAction: 'pan-y' }}
           aria-label="Flappy game board — tap or press Space to flap"
+        />
+        {/* 조작 구역: 위 12%는 페이지 스크롤 띠(패들·기체는 아래쪽이라 아래 띠는 두지 않는다). 핸들러는 여기서 받고 좌표는 canvasRef rect로 계산한다. */}
+        <PlayZone top={0.12} bottom={0} className="cursor-pointer"
+          onPointerDown={onPointerDown}
         />
         <GameOverlay
           show={phase === 'over'}

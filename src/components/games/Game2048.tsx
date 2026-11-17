@@ -1,5 +1,6 @@
 'use client'
 
+import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { applyMove, move, newGame, type Direction, type GameState } from '@/lib/games/g2048/engine'
 import type { Theme2048 } from '@/lib/games/g2048/themes'
@@ -218,6 +219,10 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   }, [doMove])
 
   const onTouchStart = (e: React.TouchEvent) => {
+    if (!inPlayZone(e)) {
+      touchStart.current = null // 가장자리 스크롤 띠에서 시작한 터치는 게임 입력이 아니다
+      return
+    }
     touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY }
   }
   const onTouchEnd = (e: React.TouchEvent) => {
@@ -272,11 +277,12 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
       hint={hint}
     >
       <div
-        className="anim-board-in relative aspect-square w-full touch-none rounded-xl bg-surface p-2"
+        className="anim-board-in relative aspect-square w-full rounded-xl bg-surface p-2"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
         data-testid="board"
       >
+        <PlayZone />
         {/* Background grid — the empty slots (depth) */}
         <div className="grid h-full w-full grid-cols-4 gap-2">
           {Array.from({ length: 16 }, (_, i) => (
