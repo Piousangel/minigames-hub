@@ -1,0 +1,32 @@
+# Gemini 에셋 생성. 팀이 docs/design/asset-requests/*.json 요청을 PR로 올려 main에 머지하면 여기서 생성하고 결과를 main에 커밋한다.
+# 시크릿: GEMINI_API_KEY (없으면 건너뜀). 월 예산은 scripts/gen-assets.py 의 MAX_PER_MONTH.
+name: gen-assets
+on:
+  push:
+    branches: [main]
+    paths: ['docs/design/asset-requests/**']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: gen-assets
+jobs:
+  gen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -q pillow numpy
+      - name: 생성
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python3 scripts/gen-assets.py
+      - name: 결과 커밋
+        run: |
+          git config user.name "art-bot[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A public/art docs/design
+          git diff --cached --quiet || (git commit -m "chore(art): Gemini 에셋 생성 $(TZ=Asia/Seoul date +%F)" && git pull --rebase -q && git push)
