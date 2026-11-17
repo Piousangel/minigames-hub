@@ -12,6 +12,8 @@
 
 - **20시 11-17 확인**: 오늘 출시 = 홈 PLAY NOW 오리지널화(#82, E1), 모바일 보드 스크롤 리뉴얼 1차·2차 a·b(#79·#83·#84, 30종). deploy.yml #63~68 전부 success. 라이브 curl은 프록시 차단(000)이라 직접 확인 불가. 열린 PR은 #44(toss-recoil, 오래됨, 미접촉). 홍보: 리뉴얼 문안 Bluesky 11-18 큐(Threads는 11-18 게임 홍보 휴식 규칙대로 제외).
 
+- **11-18 06시 계획**: 오늘 출시 계획은 meetings/2026-11-18.md. 10시 R1(리서치1+v1 완료: specs/2026-11-18-r1-arcade-gate.md → 리서치 2부터), 13시 뿅 착지 램프 보정+B Day 1 게이트, 16시 다음 게임 추천(리서치1+v1 완료: specs/2026-11-18-next-game-rail.md → 리서치 2부터). 수요일 블로그 초안은 docs/marketing/blog/2026-11-18-touch-action-scroll-trap/.
+
 ## 리뉴얼 큐(축 C)
 - **`docs/team/renewal-queue.md`** (11-17 재검증): 감사 bug 42건은 모두 수정됨, major 133건 중 **102건 남음**, 공용 기반(`useGameLoop`·`useRovingFocus`·`dailyResult` 등) 미구현. **먼저 할 5개**: ① 시작 게이트·일시정지 훅 + tetris·space-shooter·pong·flappy ② solitaire 계열 점수·표시 정직화 ③ 무승부 기록·오버레이 지연(connect-four 등) ④ 지배 전략 게임(strata·ticker·ripple) ⑤ 포커스 강탈 7종. 하루 사이클 배치 R0~R14.
 
