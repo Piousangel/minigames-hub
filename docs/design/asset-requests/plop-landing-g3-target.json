@@ -1,0 +1,10 @@
+[
+  {"id": "plop-target-sunset-a", "model": "gemini-3-pro-image", "aspect": "9:16", "size": 1024,
+   "refs": ["docs/design/plop-landing/direction/mallang-idle.webp"],
+   "out": "docs/design/plop-landing/direction/target-sunset-a.webp",
+   "prompt": "Target mockup of a cozy casual mobile game screen, portrait 9:16, a mobile-game production-quality 'storybook sunset lagoon'. The jelly character from the reference image (keep its exact look) stands on the left 20% of the screen on a round grassy floating islet, squashed slightly as if charging a jump. A dotted arc curves toward a larger islet in the middle-right that has a small pink flower target at its center. A tiny cloth wind flag on the far islet. Calm sea at the bottom with soft ripples, warm sunset sky (peach #ffb88a to lavender #b9a6e8), cream #fff3dc highlights, deep teal #2f6f73 water, leaf green #7cc26a, pink #ff8fb1 flower. Thick uniform dark-brown outline #5b3a1e, soft cel shading, plump friendly shapes. A thin circular charging ring gauge near the character. Empty top area for UI. NO text, NO letters, NO numbers, NO watermark. Do not imitate any existing game."},
+  {"id": "plop-target-sunset-b", "model": "gemini-3-pro-image", "aspect": "9:16", "size": 1024,
+   "refs": ["docs/design/plop-landing/direction/mallang-idle.webp"],
+   "out": "docs/design/plop-landing/direction/target-sunset-b.webp",
+   "prompt": "Alternative target mockup for the same game, portrait 9:16: flatter, bolder shapes. Same jelly character from the reference image on a small stone-and-moss islet at left, mid-air jump arc toward a wider islet at right with a pink flower at its center, a sinking islet in the distance shown with a thin circular timer ring around its edge. Dusk palette: warm orange sky gradient #ff9a62 to #7e6bc4, cream clouds, dark teal sea #24565c, moss green #7cc26a. Thick dark-brown outline #5b3a1e, soft cel shading, large calm shapes with low contrast background and high contrast islands. Empty top area for UI. NO text, NO letters, NO numbers, NO watermark. Do not imitate any existing game."}
+]
