@@ -25,8 +25,8 @@ describe('생성', () => {
       expect(o.some((x) => x.kind === 'bramble' || x.kind === 'storm')).toBe(false)
     }
   })
-  it('3밴드마다 도토리가 보장된다(탄이 영영 끊기지 않게)', () => {
-    for (const seed of [1, 5, 42]) for (const b of [3, 6, 9, 12]) expect(bandObjects(seed, b).some((x) => x.kind === 'acorn')).toBe(true)
+  it('2밴드마다 도토리가 보장된다(탄이 영영 끊기지 않게)', () => {
+    for (const seed of [1, 5, 42]) for (const b of [2, 4, 6, 8, 10, 12]) expect(bandObjects(seed, b).some((x) => x.kind === 'acorn')).toBe(true)
   })
   it('초반 밴드(1~2)에는 위험물이 없다', () => {
     for (const seed of [1, 2, 3]) for (const b of [1, 2]) expect(bandObjects(seed, b).some((x) => x.kind === 'bramble' || x.kind === 'storm')).toBe(false)
@@ -94,7 +94,7 @@ describe('종료와 보상', () => {
   })
   it('도토리를 먹으면 탄이 채워진다(상한 AMMO_MAX)', () => {
     const seed = 5
-    const b = 3
+    const b = 4 // 짝수 밴드는 도토리 보장
     const acorn = bandObjects(seed, b).find((o) => o.kind === 'acorn')!
     const s0 = createGame(seed)
     const s: HopState = { ...s0, phase: 'flying', grounded: false, x: acorn.x, y: acorn.y, minY: acorn.y, ammo: 1, vy: 0 }

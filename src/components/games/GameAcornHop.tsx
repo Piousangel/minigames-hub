@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
+  AMMO_MAX,
   ISLAND_W,
   VIEW_H,
   W,
@@ -593,9 +594,9 @@ export function GameAcornHop({ storageKey }: { storageKey: string }) {
             {m} m
           </span>
           <span className="flex items-center gap-px" aria-label={`${s.ammo} acorns left`} role="img" data-testid="acornhop-ammo">
-            {Array.from({ length: 8 }, (_, i) => (
+            {Array.from({ length: AMMO_MAX }, (_, i) => (
               // eslint-disable-next-line @next/next/no-img-element
-              <img key={i} src="/art/acorn.webp" alt="" width={19} height={19} draggable={false} style={i < s.ammo ? undefined : { filter: 'brightness(0)', opacity: 0.38 }} />
+              <img key={i} src="/art/acorn.webp" alt="" width={18} height={18} draggable={false} style={i < s.ammo ? undefined : { filter: 'brightness(0)', opacity: 0.38 }} />
             ))}
           </span>
           <span className="min-w-12 text-right text-lg font-bold tabular-nums">★ {s.stars}</span>

@@ -812,9 +812,9 @@ test('lagline 도전 링크: 배너 표시', async ({ page }) => {
 test('acorn-hop: 로드 → 보드 표시 → 탭하면 탄이 줄고 위로 올라간다', async ({ page }) => {
   await page.goto('/acorn-hop')
   await expect(page.getByTestId('acornhop-board')).toBeVisible()
-  await expect(page.getByTestId('acornhop-ammo')).toHaveAttribute('aria-label', '6 acorns left')
+  await expect(page.getByTestId('acornhop-ammo')).toHaveAttribute('aria-label', '8 acorns left')
   await page.getByTestId('acornhop-board').click({ position: { x: 240, y: 300 } })
-  await expect(page.getByTestId('acornhop-ammo')).toHaveAttribute('aria-label', '5 acorns left')
+  await expect(page.getByTestId('acornhop-ammo')).toHaveAttribute('aria-label', '7 acorns left')
 })
 
 test('recoil: 로드 → 보드 표시', async ({ page }) => {
