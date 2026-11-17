@@ -28,13 +28,35 @@ export function StrokeSampler() {
     return () => ro.disconnect()
   }, [])
 
+  // 그리는 동안 페이지가 스크롤·당겨 새로고침 되지 않게 잠근다. touch-action 만으로 안 막히는 브라우저
+  // (인앱 브라우저·일부 삼성 인터넷)를 위해 passive:false 리스너로 기본 동작도 취소한다.
+  const lockScroll = useCallback((on: boolean) => {
+    const root = document.documentElement
+    root.style.overflow = on ? 'hidden' : ''
+    root.style.overscrollBehavior = on ? 'none' : ''
+  }, [])
+  useEffect(() => {
+    const c = canvas.current
+    if (!c) return
+    const stop = (e: TouchEvent) => e.cancelable && e.preventDefault()
+    c.addEventListener('touchstart', stop, { passive: false })
+    c.addEventListener('touchmove', stop, { passive: false })
+    return () => {
+      c.removeEventListener('touchstart', stop)
+      c.removeEventListener('touchmove', stop)
+      lockScroll(false)
+    }
+  }, [lockScroll])
+
   const draw = useCallback(() => {
     const c = canvas.current
     if (!c) return
     const dpr = window.devicePixelRatio || 1
     const h = Math.round(w * ASPECT)
-    c.width = Math.round(w * dpr)
-    c.height = Math.round(h * dpr)
+    const bw = Math.round(w * dpr)
+    const bh = Math.round(h * dpr)
+    if (c.width !== bw) c.width = bw
+    if (c.height !== bh) c.height = bh
     const g = c.getContext('2d')
     if (!g) return
     g.setTransform(dpr, 0, 0, dpr, 0, 0)
@@ -78,6 +100,7 @@ export function StrokeSampler() {
   const onDown = (e: React.PointerEvent) => {
     if (finished) return
     e.currentTarget.setPointerCapture(e.pointerId)
+    lockScroll(true)
     cur.current = [pos(e)]
     draw()
   }
@@ -90,6 +113,7 @@ export function StrokeSampler() {
     draw()
   }
   const onUp = (e: React.PointerEvent) => {
+    lockScroll(false)
     const s = cur.current
     cur.current = []
     if (s.length < 5) return draw() // 탭·너무 짧은 획은 무시
@@ -99,6 +123,7 @@ export function StrokeSampler() {
     setIdx((i) => i + 1)
   }
   const onCancel = () => {
+    lockScroll(false)
     cur.current = [] // 취소는 취소: 획을 저장하지 않는다
     draw()
   }
@@ -138,10 +163,10 @@ export function StrokeSampler() {
   const t = targets[Math.min(idx, targets.length - 1)]
   return (
     <div ref={wrap} className="mx-auto w-full max-w-[380px]">
-      <p className="mb-1 text-center text-sm text-fg-muted">
+      <p className="mb-1 min-h-5 text-center text-sm text-fg-muted">
         {finished ? '20개 완료!' : `${idx + 1} / ${targets.length} · ${t.label}`}
       </p>
-      <p className="mb-2 text-center text-xs text-fg-muted">초록 점에서 시작해 점선을 따라 빨간 점까지, 한 번에 그어 주세요. 평소 게임하듯 편한 속도로.</p>
+      <p className="mb-2 min-h-8 text-center text-xs text-fg-muted">초록 점에서 시작해 점선을 따라 빨간 점까지, 한 번에 그어 주세요. 평소 게임하듯 편한 속도로.</p>
       <canvas
         ref={canvas}
         style={{ width: w, height: Math.round(w * ASPECT), touchAction: 'none' }}
@@ -158,11 +183,10 @@ export function StrokeSampler() {
         </button>
         <span className="text-xs text-fg-muted">{done.length}획 기록</span>
       </div>
-      {summary && (
-        <p className="mt-3 text-xs text-fg-muted" data-testid="stroke-summary">
-          중앙 오차 {summary.med.toFixed(1)}px · 시작 오차 평균 {summary.startErr.toFixed(1)}px · 끝 {summary.endErr.toFixed(1)}px · 속도 {Math.round(summary.speed)}px/s
-        </p>
-      )}
+      <p className="mt-3 min-h-[2.5rem] text-xs text-fg-muted" data-testid="stroke-summary">
+        {summary &&
+          `중앙 오차 ${summary.med.toFixed(1)}px · 시작 오차 평균 ${summary.startErr.toFixed(1)}px · 끝 ${summary.endErr.toFixed(1)}px · 속도 ${Math.round(summary.speed)}px/s`}
+      </p>
       {finished && (
         <div className="mt-4">
           <button type="button" className="w-full rounded-lg bg-accent px-4 py-3 font-semibold text-black" onClick={copy}>
