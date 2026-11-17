@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { isNew, latestSlug, NEW_WINDOW_DAYS } from './newGames'
+import { isNew, latestSlug, latestSlugs, NEW_WINDOW_DAYS } from './newGames'
 
 const now = Date.parse('2026-07-20T12:00:00Z')
 
@@ -32,5 +32,25 @@ describe('latestSlug', () => {
   })
   it('실제 gameMeta에서 항상 하나를 돌려준다', () => {
     expect(latestSlug()).toBeTruthy()
+  })
+})
+
+describe('latestSlugs', () => {
+  const meta = { a: { addedDate: '2026-10-01' }, b: { addedDate: '2026-11-17' }, c: { addedDate: '2026-11-02' }, d: { addedDate: '2026-11-17' }, e: {} }
+  it('날짜 내림차순, 동률은 나중에 선언된 쪽이 앞, 날짜 없는 게임은 제외한다', () => {
+    expect(latestSlugs(3, meta)).toEqual(['d', 'b', 'c'])
+  })
+  it('n이 더 크면 가진 만큼만, 0이면 빈 배열', () => {
+    expect(latestSlugs(10, meta)).toEqual(['d', 'b', 'c', 'a'])
+    expect(latestSlugs(0, meta)).toEqual([])
+  })
+  it('첫 항목은 latestSlug와 같다', () => {
+    expect(latestSlugs(1, meta)[0]).toBe(latestSlug(meta))
+  })
+  it('실제 gameMeta에서 최대 3개, 중복 없이', () => {
+    const l = latestSlugs(3)
+    expect(l.length).toBeGreaterThan(0)
+    expect(l.length).toBeLessThanOrEqual(3)
+    expect(new Set(l).size).toBe(l.length)
   })
 })
