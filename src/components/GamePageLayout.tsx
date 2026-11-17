@@ -8,6 +8,7 @@ import { Leaderboard } from '@/components/Leaderboard'
 import { Reactions } from '@/components/Reactions'
 import { Comments } from '@/components/Comments'
 import { RecordPlay } from '@/components/RecordPlay'
+import { ShareButtons } from '@/components/ShareButtons'
 import { Reveal } from '@/components/Reveal'
 import { NextUp } from '@/components/NextUp'
 import { GameNavProvider } from '@/components/GameNav'
@@ -74,6 +75,9 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
         {/* 다음 게임으로 잇는 체류 후크(게임오버 catch point, 크로스셀은 스택 마지막) */}
         <NextUp currentSlug={page.slug} />
       </GameNavProvider>
+
+      {/* 공유(Threads·Facebook·KakaoTalk·Instagram·링크 복사) — 유입은 ?ref=share-<채널>로 측정 */}
+      <ShareButtons slug={page.slug} title={page.h1} description={page.shortDescription} />
 
       {hasLeaderboard(page.slug) && <Leaderboard slug={page.slug} />}
 
