@@ -85,12 +85,12 @@ export function RecoilGame({
   character: Character
   onExit: () => void
 }) {
-  const [pose, setPose] = useState<Pose>('idle')
+  const [pose, setPose] = useState<Pose>('aim')
   const poseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const flash = useCallback((p: Pose, ms: number) => {
     setPose(p)
     if (poseTimer.current) clearTimeout(poseTimer.current)
-    poseTimer.current = setTimeout(() => setPose('idle'), ms)
+    poseTimer.current = setTimeout(() => setPose('aim'), ms)
   }, [])
   const [newFriends, setNewFriends] = useState<Character[]>([])
   const [fireSeq, setFireSeq] = useState(0)
@@ -130,7 +130,7 @@ export function RecoilGame({
       setBankText(null)
       setResult(null)
       setNewFriends([])
-      setPose('idle')
+      setPose('aim')
       commit(g)
     },
     [mode, difficulty, commit],

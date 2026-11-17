@@ -5,7 +5,7 @@
 import type { Save } from './store'
 
 export type CharId = 'tori' | 'muni' | 'hamzzi' | 'bbipo' | 'mallang'
-export type Pose = 'idle' | 'fire' | 'happy' | 'dizzy'
+export type Pose = 'idle' | 'aim' | 'fire' | 'happy' | 'dizzy'
 
 export interface Character {
   id: CharId
@@ -88,7 +88,7 @@ export function spriteUrl(id: CharId, pose: Pose): string {
 /** 첫 화면에서 깜빡임 없이 바꾸려고 미리 받아 둔다. */
 export function preloadSprites(ids: CharId[]): void {
   for (const id of ids)
-    for (const p of ['idle', 'fire', 'happy', 'dizzy'] as Pose[]) {
+    for (const p of ['idle', 'aim', 'fire', 'happy', 'dizzy'] as Pose[]) {
       const img = new Image()
       img.src = spriteUrl(id, p)
     }

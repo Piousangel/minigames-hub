@@ -89,7 +89,7 @@ export function Mascot({
     return () => cancelAnimationFrame(raf)
   }, [breathe])
 
-  const poses: Pose[] = ['idle', 'fire', 'happy', 'dizzy']
+  const poses: Pose[] = ['idle', 'aim', 'fire', 'happy', 'dizzy']
   return (
     <div ref={box} className={`mascot ${className ?? ''}`} style={{ width: size, height: size }} aria-hidden="true">
       {poses.map((p) => (
