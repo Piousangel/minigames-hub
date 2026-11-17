@@ -21,6 +21,7 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 
 type Phase = 'idle' | 'playing' | 'over'
 
@@ -456,7 +457,7 @@ export function GameRipple({ storageKey, seed }: { storageKey: string; seed?: nu
   }, [])
 
   // ---- Pointer → logical coords ----
-  const toLogical = useCallback((e: React.PointerEvent<HTMLCanvasElement>): Point => {
+  const toLogical = useCallback((e: React.PointerEvent<HTMLElement>): Point => {
     const canvas = canvasRef.current
     if (!canvas) return { x: 0, y: 0 }
     const rect = canvas.getBoundingClientRect()
@@ -469,8 +470,11 @@ export function GameRipple({ storageKey, seed }: { storageKey: string; seed?: nu
   }, [])
 
   const onPointerDown = useCallback(
-    (e: React.PointerEvent<HTMLCanvasElement>) => {
+    (e: React.PointerEvent<HTMLElement>) => {
+      // 터치는 가운데 조작 구역에서 시작해야 한다(위·아래 가장자리는 페이지 스크롤 띠). 마우스는 어디서든 조준한다.
+      if (e.pointerType === 'touch' && !inPlayZone(e)) return
       e.preventDefault()
+      canvasRef.current?.focus({ preventScroll: true }) // 오버레이가 포커스를 가로채지 않게(키보드 조준 유지)
       if (phaseRef.current === 'over') return
       startIfIdle()
       pointerDownRef.current = true
@@ -481,7 +485,7 @@ export function GameRipple({ storageKey, seed }: { storageKey: string; seed?: nu
   )
 
   const onPointerMove = useCallback(
-    (e: React.PointerEvent<HTMLCanvasElement>) => {
+    (e: React.PointerEvent<HTMLElement>) => {
       if (!pointerDownRef.current) return
       previewRef.current = toLogical(e)
     },
@@ -558,7 +562,7 @@ export function GameRipple({ storageKey, seed }: { storageKey: string; seed?: nu
     >
       <div
         ref={wrapRef}
-        className="anim-board-in relative aspect-square w-full touch-none overflow-hidden rounded-xl bg-surface"
+        className="anim-board-in relative aspect-square w-full overflow-hidden rounded-xl bg-surface"
       >
         <canvas
           ref={canvasRef}
@@ -569,8 +573,15 @@ export function GameRipple({ storageKey, seed }: { storageKey: string; seed?: nu
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerCancel}
           className="block h-full w-full cursor-crosshair focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan"
-          style={{ touchAction: 'none' }}
           aria-label="Ripple pond — arrow keys to aim, Space to drop a ripple"
+        />
+        {/* 조작 구역: 위·아래 12%는 페이지 스크롤 띠. 같은 핸들러를 달고 좌표는 canvasRef rect로 계산한다(마우스는 띠에서도 캔버스가 받는다). */}
+        <PlayZone
+          className="cursor-crosshair"
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerCancel={onPointerCancel}
         />
         <GameOverlay
           show={phase === 'over'}

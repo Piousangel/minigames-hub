@@ -602,7 +602,7 @@ test('pinwheel: 키보드만으로 격자에 진입할 수 있다', async ({ pag
 test('backspace: 신기록으로 끝나면 New best 축하', async ({ page }) => {
   await page.goto('/backspace')
   await expect(page.getByTestId('backspace-board')).toBeVisible()
-  await page.getByTestId('backspace-board').click()
+  await page.getByTestId('backspace-board').click({ force: true }) // 조작 구역 오버레이가 캔버스 위를 덮는다(같은 좌표를 누름)
   await page.keyboard.down('Space') // 되감기 미터를 비워 다음 충돌이 치명타가 되게
   await page.waitForTimeout(4000)
   await page.keyboard.up('Space')
@@ -614,7 +614,7 @@ test('backspace: 기록을 못 넘으면 Game over (ref 플래그 오탐 방지)
   await page.addInitScript(() => localStorage.setItem('best:backspace', '999999'))
   await page.goto('/backspace')
   await expect(page.getByTestId('backspace-board')).toBeVisible()
-  await page.getByTestId('backspace-board').click()
+  await page.getByTestId('backspace-board').click({ force: true }) // 조작 구역 오버레이가 캔버스 위를 덮는다(같은 좌표를 누름)
   await page.keyboard.down('Space')
   await page.waitForTimeout(4000)
   await page.keyboard.up('Space')

@@ -262,6 +262,9 @@ export function GameUnblock({ storageKey }: { storageKey: string }) {
     })
   }, [])
 
+  // 스크롤이 시작되면 브라우저가 pointercancel을 보낸다 — 슬라이드를 확정하지 않고 취소한다.
+  const cancelDrag = useCallback(() => setDrag(null), [])
+
   const endDrag = useCallback(() => {
     setDrag((d) => {
       if (!d) return null
@@ -450,8 +453,7 @@ export function GameUnblock({ storageKey }: { storageKey: string }) {
           tabIndex={0}
           onKeyDown={onKeyDown}
           data-testid="unblock-board"
-          className="relative aspect-square w-full touch-none rounded-xl border border-border bg-surface p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          style={{ touchAction: 'none' }}
+          className="relative aspect-square w-full rounded-xl border border-border bg-surface p-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           {/* Exit lane highlight — a faint red band leading to the gap. */}
           <div
@@ -533,8 +535,8 @@ export function GameUnblock({ storageKey }: { storageKey: string }) {
                 onPointerDown={(e) => onBlockPointerDown(e, b)}
                 onPointerMove={onBlockPointerMove}
                 onPointerUp={endDrag}
-                onPointerCancel={endDrag}
-                className="absolute flex touch-none items-center justify-center rounded-lg font-bold"
+                onPointerCancel={cancelDrag}
+                className="absolute flex items-center justify-center rounded-lg font-bold"
                 style={{
                   left: pct(b.col),
                   top: pct(b.row),
@@ -542,7 +544,8 @@ export function GameUnblock({ storageKey }: { storageKey: string }) {
                   height: pct(b.dir === 'v' ? b.len : 1),
                   padding: 3,
                   cursor: won ? 'default' : 'grab',
-                  touchAction: 'none',
+                  // 블록 축 방향 제스처만 게임이 받고 수직 방향은 페이지 스크롤로 넘긴다.
+                  touchAction: b.dir === 'h' ? 'pan-y' : 'pan-x',
                   zIndex: isDragging ? 30 : isSel ? 20 : 10,
                   transform: escapeT ?? dragT,
                   opacity: b.target && escaping ? 0 : 1,

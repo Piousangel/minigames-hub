@@ -42,6 +42,7 @@ import { sendHit } from '@/lib/hit'
 import { MAX_NAME_LEN, loadPlayerName, savePlayerName } from '@/lib/leaderboard'
 import { challengeUrl, clearChallengeParams, compareChallenge, parseChallenge, type Challenge } from '@/lib/challenge'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 
 type Mode = 'daily' | 'practice'
 type SoundName = Parameters<ReturnType<typeof useGameSound>['play']>[0]
@@ -491,7 +492,7 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
   )
 
   const pointerAim = useCallback(
-    (e: React.PointerEvent<SVGSVGElement>) => {
+    (e: React.PointerEvent<Element>) => {
       const s = stateRef.current
       const svg = svgRef.current
       if (!s || !svg) return
@@ -506,8 +507,10 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
   )
 
   const onPointerDown = useCallback(
-    (e: React.PointerEvent<SVGSVGElement>) => {
+    (e: React.PointerEvent<Element>) => {
       if (e.pointerType === 'mouse' && e.button !== 0) return
+      // 터치는 가운데 조작 구역에서 시작해야 한다(위·아래 가장자리는 페이지 스크롤 띠).
+      if (e.pointerType === 'touch' && !inPlayZone(e)) return
       boardRef.current?.focus({ preventScroll: true })
       try {
         e.currentTarget.setPointerCapture(e.pointerId)
@@ -520,7 +523,7 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
     [pointerAim],
   )
   const onPointerMove = useCallback(
-    (e: React.PointerEvent<SVGSVGElement>) => {
+    (e: React.PointerEvent<Element>) => {
       if (pressedRef.current || e.pointerType === 'mouse') pointerAim(e)
     },
     [pointerAim],
@@ -820,7 +823,6 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
             ref={svgRef}
             viewBox={`0 0 ${ARENA_W} ${ARENA_H}`}
             className="block h-auto w-full cursor-crosshair"
-            style={{ touchAction: 'none' }}
             onPointerDown={onPointerDown}
             onPointerMove={onPointerMove}
             onPointerUp={onPointerUp}
@@ -983,6 +985,16 @@ export function GameRecoil({ storageKey }: { storageKey: string }) {
               </g>
             </g>
           </svg>
+          {/* 조작 구역: 위·아래 14%는 페이지 스크롤 띠(조준은 플레이어 기준 방향이라 가운데에서 충분). 같은 핸들러, 좌표는 svgRef rect로 계산. 취소(pointercancel)는 발사하지 않는다. */}
+          <PlayZone
+            top={0.14}
+            bottom={0.14}
+            className="cursor-crosshair"
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerCancel={onPointerCancel}
+          />
 
           {badges.map((b) => (
             <span

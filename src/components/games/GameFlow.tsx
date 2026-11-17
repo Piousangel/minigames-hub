@@ -25,6 +25,7 @@ import { recordResult } from '@/lib/gameStats'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { PlayZone } from '@/components/game-shell/PlayZone'
 
 const U = 100 // SVG units per cell
 const NEON = new Set(['cyan', 'magenta', 'lime', 'amber', 'purple', 'blue', 'red', 'green'])
@@ -415,11 +416,36 @@ export function GameFlow({ storageKey }: { storageKey: string }) {
           onPointerCancel={endStroke}
           className="relative aspect-square w-full overflow-hidden rounded-xl border border-border bg-bg-2"
           style={{
-            touchAction: 'none',
             transition: reduced ? undefined : 'transform .2s ease',
             transform: won && !reduced ? 'scale(1.01)' : undefined,
           }}
         >
+          {/* 조작 구역: 가운데 줄은 touch-action none(경로 드래그). 위·아래 끝 줄은 칸마다 따로 — 끝점·파이프가 있는 칸만 none,
+              빈 칸은 auto라 거기서 손가락을 밀면 페이지가 스크롤된다. 핸들러는 board 에서 받고 좌표는 boardRef rect로 계산한다. */}
+          {size > 2 && (
+            <PlayZone top={1 / size} bottom={1 / size} />
+          )}
+          {[0, size - 1].flatMap((r) =>
+            Array.from({ length: size }, (_, c) => {
+              const grabbable = (endpointColorAt(state, [r, c]) ?? ownerAt(state, [r, c])) !== null
+              return (
+                <div
+                  key={`strip-${r}-${c}`}
+                  aria-hidden="true"
+                  data-testid="flow-strip-cell"
+                  className="absolute"
+                  style={{
+                    left: `${(c / size) * 100}%`,
+                    top: `${(r / size) * 100}%`,
+                    width: `${100 / size}%`,
+                    height: `${100 / size}%`,
+                    touchAction: grabbable ? 'none' : 'auto',
+                    zIndex: 3,
+                  }}
+                />
+              )
+            }),
+          )}
           {/* Cell tint + grid lines */}
           <div
             className="pointer-events-none absolute inset-0 grid"

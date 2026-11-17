@@ -21,6 +21,7 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 
 interface Trail {
   x: number
@@ -237,7 +238,9 @@ export function GamePong({ storageKey }: { storageKey: string }) {
   }, [])
 
   // ---- 포인터(마우스/터치)로 패들 조작 ----
-  const onPointerMove = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+  const onPointerMove = useCallback((e: React.PointerEvent<HTMLElement>) => {
+    // 터치는 가운데 조작 구역에서 시작한 드래그만 패들을 움직인다(좌우 가장자리 띠는 페이지 스크롤용). 마우스는 어디서든 따라간다.
+    if (e.pointerType === 'touch' && !inPlayZone(e)) return
     const canvas = canvasRef.current
     if (!canvas) return
     const rect = canvas.getBoundingClientRect()
@@ -313,16 +316,17 @@ export function GamePong({ storageKey }: { storageKey: string }) {
     >
       <div
         ref={wrapRef}
-        className="anim-board-in relative aspect-square w-full touch-none overflow-hidden rounded-xl bg-surface"
+        className="anim-board-in relative aspect-square w-full overflow-hidden rounded-xl bg-surface"
+        onPointerMove={onPointerMove}
       >
         <canvas
           ref={canvasRef}
           data-testid="pong-board"
-          onPointerMove={onPointerMove}
           className="block h-full w-full cursor-pointer"
-          style={{ touchAction: 'none' }}
           aria-label="Pong game board"
         />
+        {/* 조작 구역: 패들은 세로 드래그라 위·아래는 그대로 조작하고 왼쪽·오른쪽 12%를 페이지 스크롤 띠로 비운다. 좌표는 canvasRef rect로 계산한다. */}
+        <PlayZone top={0} bottom={0} left={0.12} right={0.12} className="cursor-pointer" />
         <GameOverlay show={phase === 'won'} variant="win" title="You win!" testId="game-over">
           <p className="text-fg-muted">
             {hud.player} – {hud.cpu}

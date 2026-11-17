@@ -253,6 +253,11 @@ export function GameGemMatch({ storageKey }: { storageKey: string }) {
     [attemptSwap],
   )
 
+  // 스크롤이 시작되면 브라우저가 pointercancel을 보낸다 — 스와이프를 확정하지 않고 버린다.
+  const onBoardPointerCancel = useCallback(() => {
+    dragRef.current = null
+  }, [])
+
   const onCellClick = useCallback(
     (cell: Cell) => {
       if (suppressClick.current) {
@@ -288,12 +293,13 @@ export function GameGemMatch({ storageKey }: { storageKey: string }) {
       hint={hint}
     >
       <style>{STYLES}</style>
-      <div className="anim-board-in relative aspect-square w-full touch-none rounded-xl bg-surface p-2">
+      <div className="anim-board-in relative aspect-square w-full rounded-xl bg-surface p-2">
         <div
           ref={boardRef}
           data-testid="gemmatch-board"
           onPointerUp={onBoardPointerUp}
-          className="grid h-full w-full touch-none select-none"
+          onPointerCancel={onBoardPointerCancel}
+          className="grid h-full w-full select-none"
           style={{ gridTemplateColumns: `repeat(${SIZE}, 1fr)`, gap: GAP }}
           aria-label="Gem Match board"
         >
@@ -325,6 +331,8 @@ export function GameGemMatch({ storageKey }: { storageKey: string }) {
                   aria-pressed={isSel}
                   className="relative flex items-center justify-center rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan"
                   style={{
+                    // 위·아래 끝 줄은 세로 스크롤 띠(탭 선택은 그대로 됨). 나머지 줄은 스와이프를 게임이 받는다.
+                    touchAction: r === 0 || r === SIZE - 1 ? 'pan-y' : 'none',
                     background: `${gem.color}1f`,
                     boxShadow: isSel ? `0 0 0 2px ${gem.color}, 0 0 14px ${gem.glow}` : `inset 0 0 0 1px ${gem.color}55`,
                   }}
