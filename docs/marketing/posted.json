@@ -13,7 +13,7 @@
     "id": "2026-11-16#1",
     "date": "2026-11-17",
     "channel": "x",
-    "at": "2026-11-17T11:02:50.377Z",
+    "at": "2026-11-17T13:50:45.923Z",
     "url": "https://quickminigames.site/guides/battleship",
     "status": "skipped-no-credentials"
   },
@@ -35,6 +35,16 @@
     "url": "https://quickminigames.site/acorn-hop",
     "link": "https://www.threads.com/@makhimupsi/post/Df07LmwoNT4",
     "ref": "17942423604400311",
+    "status": "posted"
+  },
+  {
+    "id": "2026-11-17#2",
+    "date": "2026-11-17",
+    "channel": "threads",
+    "at": "2026-11-17T13:50:25.008Z",
+    "url": "https://quickminigames.site/plop-landing",
+    "link": "https://www.threads.com/@makhimupsi/post/Df2E_-JEbkC",
+    "ref": "18118589870133940",
     "status": "posted"
   }
 ]
