@@ -1,5 +1,5 @@
 /** 뿅 착지 봇 시뮬레이터(G2). 홀드 시간에 비례 노이즈를 주는 봇으로 난이도·실패 원인 분포를 본다. */
-import { type EndReason, type Phase, type PlopState, mulberry32, newGame, ensureIslands, press, release, tick, rangeMax, PING_MS } from './engine'
+import { type EndReason, type Phase, type PlopState, mulberry32, newGame, ensureIslands, press, release, tick, rangeMax, pingOf } from './engine'
 
 export interface BotCfg {
   /** 홀드 시간의 상대 표준편차(0.08=8%) */
@@ -43,14 +43,17 @@ export function playBot(seed: number, cfg: BotCfg, noiseSeed: number, maxLanded 
     const from = st.islands[st.cur]
     const target = st.islands[st.cur + 1]
     const pStar = Math.min(1, (target.cx - from.cx) / rangeMax(target.wind))
-    const hold = Math.max(1, pStar * PING_MS * (1 + cfg.sigma * gauss(rnd)))
+    const hold = Math.max(1, pStar * pingOf(st.cur + 1) * (1 + cfg.sigma * gauss(rnd)))
     press(st, st.clock)
     const b = bucketOf(target.wind)
     if (release(st, st.clock + hold)) {
       jumps += 1
       tick(st, st.flight!.durMs)
-      buckets[b][0] += 1
-      if (phaseOf(st) === 'over') buckets[b][1] += 1
+      // 바람 공정성은 같은 구간(섬 6~24)끼리만 비교한다(후반 점프는 섬 크기 때문에 원래 더 위험)
+      if (st.cur + 1 >= 6 && st.cur + 1 <= 24) {
+        buckets[b][0] += 1
+        if (phaseOf(st) === 'over') buckets[b][1] += 1
+      }
     }
   }
   return { buckets, landed: st.landed, perfects: st.perfects, score: st.score, reason: st.endReason, jumps, ms: st.clock }

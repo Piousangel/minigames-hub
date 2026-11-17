@@ -10,8 +10,10 @@ import {
   flightPos,
   inputLocked,
   newGame,
+  pingOf,
   powerAt,
   press,
+  previewFracOf,
   previewPoints,
   rangeMax,
   release,
@@ -373,9 +375,9 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
 
       // 점선 미리보기(충전 중: 바람 반영 궤적의 앞 40%)
       const holding = st.phase === 'charging'
-      const pNow = holding ? powerAt(now - st.chargeStartMs) : 0
+      const pNow = holding ? powerAt(now - st.chargeStartMs, pingOf(st.cur + 1)) : 0
       if (holding && nxt && !input.current.cancel && pNow > 0.05) {
-        const pts = previewPoints(cur.cx, pNow, nxt.wind, 0.4, 10)
+        const pts = previewPoints(cur.cx, pNow, nxt.wind, previewFracOf(st.cur + 1), 10)
         pts.forEach((pt, i) => {
           if (i === 0) return
           const wave = reducedRef.current ? 1 : 0.6 + 0.4 * Math.sin(now / 120 - i * 0.9)

@@ -16,11 +16,17 @@ describe('G2 봇 시뮬 합격선', () => {
   it('σ18% 봇: 첫 5섬 성공률 ≥ 90%', () => {
     expect(R.s18.first5).toBeGreaterThanOrEqual(0.9)
   })
-  it('σ12% 봇: 도달 섬 수 중앙값 10~24, 한 판 중앙 20~60초', () => {
-    expect(R.s12.medianLanded).toBeGreaterThanOrEqual(10)
-    expect(R.s12.medianLanded).toBeLessThanOrEqual(24)
+  it('σ12% 봇: 도달 섬 수 중앙값 12~20, 한 판 중앙 20~60초', () => {
+    expect(R.s12.medianLanded).toBeGreaterThanOrEqual(12)
+    expect(R.s12.medianLanded).toBeLessThanOrEqual(20)
     expect(R.s12.medianSec).toBeGreaterThanOrEqual(20)
     expect(R.s12.medianSec).toBeLessThanOrEqual(60)
+  })
+  it('후반 램프(오너 지적: 너무 쉽다): 숙련 봇도 끝없이 가지 못한다 — 80섬 상한 도달 ≤2%, 상위 10%가 60섬 이하', () => {
+    expect(R.s8.reasons.cap ?? 0).toBeLessThanOrEqual(0.02)
+    expect(R.s8.p90).toBeLessThanOrEqual(60)
+    expect(R.s8.medianLanded).toBeLessThanOrEqual(32)
+    expect(R.s8.medianLanded).toBeGreaterThanOrEqual(20)
   })
   it('σ8% 봇: Perfect 비율 45~65%', () => {
     expect(R.s8.perfectRatio).toBeGreaterThanOrEqual(0.45)

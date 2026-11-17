@@ -23,16 +23,29 @@ export const MIN_P = 0.08 // 이보다 약하게 놓으면 점프 안 함
 // ── 섬·규칙 ──
 export const SAFE_ISLANDS = 3 // 1~3번 섬은 크고 안전(가라앉지 않음, 바람 없음)
 export const HALFW_START = 110
-export const HALFW_MIN = 32
-export const HALFW_SHRINK_END = 19 // 이 번호의 섬에서 하한
+export const HALFW_MIN = 32 // 19번째 섬의 반폭(1차 하한)
+export const HALFW_FLOOR = 24 // 후반 램프의 최종 하한(45번째 섬)
+export const HALFW_FLOOR_INDEX = 40
+export const HALFW_SHRINK_END = 15 // 이 번호의 섬에서 1차 하한(오너 지적: 너무 쉽다 → 19에서 앞당김)
 export const MIN_GAP = 40
 export const WIND_FROM = 4 // 4(=다섯 번째 섬)부터 바람
 export const WIND_FIRST = 0.06
-export const WIND_MAX = 0.15
+export const WIND_MAX = 0.15 // 초중반 바람 상한
+export const WIND_MAX_LATE = 0.21 // 후반(30번째 섬 이후) 바람 상한
+// 후반 램프(오너 지적: 너무 쉽다 — 19번째 섬 이후 난이도가 평평했다)
+export const PING_FAST = 900 // 30번째 섬 이후 게이지 한 방향 시간(ms), 기본 1300에서 점차 빨라진다
+export const PING_RAMP_FROM = 6
+export const PING_RAMP_TO = 26
+export const PREVIEW_FRAC_START = 0.4
+export const PREVIEW_FRAC_END = 0.18 // 점선 미리보기가 점차 짧아져 게이지 감각이 필요해진다
+export const PREVIEW_RAMP_FROM = 8
+export const PREVIEW_RAMP_TO = 24
+export const SINK_LATE_END_MS = 2000 // 40번째 섬에서의 가라앉는 시간
+export const SINK_LATE_INDEX = 36
 export const SINK_FROM = 4
 export const SINK_START_MS = 4600
 export const SINK_END_MS = 2700
-export const SINK_END_INDEX = 19
+export const SINK_END_INDEX = 15
 export const PERFECT_BONUS_MS = 500
 export const PERFECT_FRAC = 0.3 // |dx| ≤ 0.30·halfW
 export const EDGE_SLACK = 6 // Good 여유 px
@@ -77,6 +90,20 @@ export interface Island {
   graceMs: number
 }
 
+const lerp01 = (i: number, from: number, to: number) => Math.min(1, Math.max(0, (i - from) / (to - from)))
+/** i번째 섬으로 가는 점프의 게이지 한 방향 시간(ms). 8번째 섬부터 30번째까지 1300→900으로 빨라진다. */
+export function pingOf(i: number): number {
+  return PING_MS + (PING_FAST - PING_MS) * lerp01(i, PING_RAMP_FROM, PING_RAMP_TO)
+}
+/** 점선 미리보기가 보여 주는 궤적 비율(0.4 → 0.18) */
+export function previewFracOf(i: number): number {
+  return PREVIEW_FRAC_START + (PREVIEW_FRAC_END - PREVIEW_FRAC_START) * lerp01(i, PREVIEW_RAMP_FROM, PREVIEW_RAMP_TO)
+}
+/** i번째 섬의 바람 상한(0.15g → 후반 0.21g) */
+export function windMaxOf(i: number): number {
+  return WIND_MAX + (WIND_MAX_LATE - WIND_MAX) * lerp01(i, 8, 26)
+}
+
 /** 바람 k(g의 배수)에서의 최대 사거리 */
 export function rangeMax(wind: number): number {
   return RMAX + WIND_K * wind
@@ -89,14 +116,16 @@ export function rangeAt(p: number, wind: number): number {
 
 export function halfWOf(i: number): number {
   if (i <= SAFE_ISLANDS) return HALFW_START
-  if (i >= HALFW_SHRINK_END) return HALFW_MIN
+  if (i >= HALFW_FLOOR_INDEX) return HALFW_FLOOR
+  if (i >= HALFW_SHRINK_END) return HALFW_MIN + ((HALFW_FLOOR - HALFW_MIN) * (i - HALFW_SHRINK_END)) / (HALFW_FLOOR_INDEX - HALFW_SHRINK_END)
   const t = (i - SAFE_ISLANDS) / (HALFW_SHRINK_END - SAFE_ISLANDS)
   return HALFW_START + (HALFW_MIN - HALFW_START) * t
 }
 
 export function graceOf(i: number): number {
   if (i < SINK_FROM) return 0
-  if (i >= SINK_END_INDEX) return SINK_END_MS
+  if (i >= SINK_LATE_INDEX) return SINK_LATE_END_MS
+  if (i >= SINK_END_INDEX) return SINK_END_MS + ((SINK_LATE_END_MS - SINK_END_MS) * (i - SINK_END_INDEX)) / (SINK_LATE_INDEX - SINK_END_INDEX)
   const t = (i - SINK_FROM) / (SINK_END_INDEX - SINK_FROM)
   return SINK_START_MS + (SINK_END_MS - SINK_START_MS) * t
 }
@@ -109,7 +138,7 @@ export function nextIsland(seed: number, i: number, prev: Island): Island {
   let wind = 0
   if (i >= WIND_FROM) {
     const sign = rnd() < 0.5 ? -1 : 1
-    wind = i === WIND_FROM ? sign * WIND_FIRST : sign * WIND_MAX * (0.3 + 0.7 * rnd())
+    wind = i === WIND_FROM ? sign * WIND_FIRST : sign * windMaxOf(i) * (0.3 + 0.7 * rnd())
     // 맞바람이라 최소 거리를 못 채우면 순풍으로 뒤집는다(생성기 제약)
     if (dMinEdge > D_MAX_FRAC * rangeMax(wind)) wind = Math.abs(wind)
   } else {
@@ -199,8 +228,8 @@ export function ensureIslands(st: PlopState, upto: number): void {
 }
 
 /** 핑퐁 힘: 홀드 시간(ms) → p∈[0,1] (0→1→0 …) */
-export function powerAt(holdMs: number): number {
-  const ph = (Math.max(0, holdMs) / PING_MS) % 2
+export function powerAt(holdMs: number, pingMs: number = PING_MS): number {
+  const ph = (Math.max(0, holdMs) / pingMs) % 2
   return ph <= 1 ? ph : 2 - ph
 }
 
@@ -245,7 +274,7 @@ export function cancelCharge(st: PlopState): void {
 export function release(st: PlopState, nowMs: number): boolean {
   if (st.phase !== 'charging') return false
   const hold = nowMs - st.chargeStartMs
-  const p = powerAt(hold)
+  const p = powerAt(hold, pingOf(st.cur + 1))
   if (p < MIN_P) {
     st.phase = 'ready'
     st.events.push('cancel')
