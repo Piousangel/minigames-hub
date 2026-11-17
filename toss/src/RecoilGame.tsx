@@ -32,6 +32,7 @@ import {
 import { playSound, type SoundName } from './sound'
 import { haptic, submitScore } from './toss'
 import { getSave, liveStreak, nextStreak, todayKST, updateSave } from './store'
+import { Mascot } from './Mascot'
 import { CHARACTERS, isUnlocked, josa, spriteUrl, type Character, type Pose } from './characters'
 
 export type Mode = 'daily' | 'practice'
@@ -92,6 +93,7 @@ export function RecoilGame({
     poseTimer.current = setTimeout(() => setPose('idle'), ms)
   }, [])
   const [newFriends, setNewFriends] = useState<Character[]>([])
+  const [fireSeq, setFireSeq] = useState(0)
   const [state, setState] = useState<RecoilState | null>(null)
   const [bursts, setBursts] = useState<Burst[]>([])
   const [bankText, setBankText] = useState<{ seq: number; x: number; y: number } | null>(null)
@@ -148,6 +150,7 @@ export function RecoilGame({
     if (evs.has('fire')) {
       haptic('tap')
       flash('fire', 260)
+      setFireSeq((n) => n + 1)
     }
     if (evs.has('star')) {
       flash('happy', 500)
@@ -410,17 +413,20 @@ export function RecoilGame({
             </g>
             </g>
           </svg>
-          <img
-            className={`hero pose-${pose}`}
-            src={spriteUrl(character.id, pose)}
-            alt=""
-            draggable={false}
-            style={{
-              left: `${((ARENA_H - shipY) / ARENA_H) * 100}%`,
-              top: `${(shipX / ARENA_W) * 100}%`,
-              transform: `translate(-50%, -50%) scaleX(${ady <= 0 ? 1 : -1})`,
-            }}
-          />
+          <div
+            className="hero"
+            style={{ left: `${((ARENA_H - shipY) / ARENA_H) * 100}%`, top: `${(shipX / ARENA_W) * 100}%`, translate: '-50% -56%' }}
+          >
+            <Mascot
+              id={character.id}
+              pose={pose}
+              size="100%"
+              facing={ady <= 0 ? 1 : -1}
+              fireSeq={fireSeq}
+              vx={(-s.vy / 1024) * 1.2}
+              vy={(s.vx / 1024) * 1.2}
+            />
+          </div>
           {bankText && (
             <span
               key={bankText.seq}

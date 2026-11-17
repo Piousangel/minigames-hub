@@ -4,6 +4,7 @@ import { RecoilGame, type Mode } from './RecoilGame'
 import { canOpenLeaderboard, closeApp, onBack, openLeaderboard } from './toss'
 import { getSave, liveStreak, loadSave, todayKST, updateSave, type Save } from './store'
 import { setMuted } from './sound'
+import { Mascot } from './Mascot'
 import { CHARACTERS, charById, isUnlocked, josa, preloadSprites, spriteUrl, unlockedIds, type Character } from './characters'
 
 type Screen = { name: 'home' } | { name: 'game'; mode: Mode; difficulty: Difficulty }
@@ -102,7 +103,9 @@ export function App() {
 
           <button className="stage" onClick={() => setTapSeq((n) => n + 1)} aria-label={`${me.name} 쓰다듬기`}>
             <span className="orbit" aria-hidden="true" />
-            <img key={tapSeq} className={`float ${tapSeq ? 'boing' : ''}`} src={spriteUrl(me.id, tapSeq % 3 === 2 ? 'happy' : 'idle')} alt={me.name} />
+            <span className="float-wrap">
+              <Mascot id={me.id} pose={tapSeq % 3 === 2 ? 'happy' : 'idle'} size={210} fireSeq={tapSeq} />
+            </span>
           </button>
           <div className="hello">
             <b>{me.name}</b>
