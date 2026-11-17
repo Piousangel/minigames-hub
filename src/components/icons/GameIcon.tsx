@@ -1059,6 +1059,16 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // acorn-hop — 도토리 한 알과 반동으로 솟는 위쪽 화살표
+  'acorn-hop': (
+    <>
+      <path d="M8 11.5c0-3 1.8-4.5 4-4.5s4 1.5 4 4.5c0 4-2 7-4 8-2-1-4-4-4-8z" {...soft} />
+      <path d="M7 9.5h10" />
+      <path d="M12 7V4.5" />
+      <path d="M19 8v-4M19 4l-1.8 2M19 4l1.8 2" />
+    </>
+  ),
+
   // recoil — 총구는 위로 쏘고, 반동 화살표로 배는 반대쪽(아래-왼쪽)으로 밀려난다
   recoil: (
     <>

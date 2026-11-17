@@ -154,6 +154,7 @@ export const gameMeta: Record<string, GameMeta> = {
   bankshot: { icon: '🎱', accent: 'green', category: 'Puzzle', addedDate: '2026-08-19', daily: true, controls: ['drag', 'arrows'] },
   'morse-relay': { icon: '📡', accent: 'red', category: 'Skill', addedDate: '2026-08-19', controls: ['tap'], endless: true },
 lagline: { icon: '⏳', accent: 'purple', category: 'Arcade', addedDate: '2026-10-09', controls: ['arrows', 'tap'] },
+'acorn-hop': { icon: '🐿️', accent: 'amber', category: 'Arcade', addedDate: '2026-11-17', daily: true, controls: ['tap', 'arrows'], endless: true },
 recoil: { icon: '🚀', accent: 'cyan', category: 'Skill', addedDate: '2026-10-09', daily: true, controls: ['point', 'drag', 'arrows'] },
 hunch: { icon: '🃏', accent: 'purple', category: 'Puzzle', addedDate: '2026-10-09', daily: true, controls: ['tap', 'arrows'] },
 fizzbeat: { icon: '🥁', accent: 'lime', category: 'Skill', addedDate: '2026-10-10', controls: ['tap', 'arrows'], endless: true },

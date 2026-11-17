@@ -641,7 +641,7 @@ test('홈: Daily 필터가 Daily 모드 게임만 보여준다', async ({ page }
   // TodayBoard/RecentlyPlayed도 게임 카드를 그리므로 브라우저 결과 그리드로 좁힌다.
   const titles = await page.getByTestId('browse-results').locator('a:has(h3) h3').allInnerTexts()
   expect(titles.sort()).toEqual(
-    ['Bankshot', 'Beatline', 'Bearing', 'Clusters', 'Decant', 'Deepdive', 'Duplex', 'Equate', 'Flapjack', 'Gravwell', 'Grasp', 'Handful', 'Hogline', 'Hunch', 'Interlock', 'Loopgrid', 'Overfold', 'Prismbox', 'Quadle', 'Quarry', 'Recoil', 'Ricochet', 'Sonar', 'Splice', 'Stackpot', 'Strata', 'Turntile', 'Word Guess'].sort(),
+    ['Acorn Hop', 'Bankshot', 'Beatline', 'Bearing', 'Clusters', 'Decant', 'Deepdive', 'Duplex', 'Equate', 'Flapjack', 'Gravwell', 'Grasp', 'Handful', 'Hogline', 'Hunch', 'Interlock', 'Loopgrid', 'Overfold', 'Prismbox', 'Quadle', 'Quarry', 'Recoil', 'Ricochet', 'Sonar', 'Splice', 'Stackpot', 'Strata', 'Turntile', 'Word Guess'].sort(),
   )
 })
 
@@ -807,6 +807,14 @@ test('lagline 도전 링크: 배너 표시', async ({ page }) => {
   await page.goto(`/lagline?${challengeQuery({ seed: 424242, score: 120, name: 'Minsu' })}`)
   await expect(page.getByTestId('lagline-board')).toBeVisible()
   await expect(page.getByText(/Minsu/).first()).toBeVisible()
+})
+
+test('acorn-hop: 로드 → 보드 표시 → 탭하면 탄이 줄고 위로 올라간다', async ({ page }) => {
+  await page.goto('/acorn-hop')
+  await expect(page.getByTestId('acornhop-board')).toBeVisible()
+  await expect(page.getByTestId('acornhop-ammo')).toHaveAttribute('aria-label', '6 acorns left')
+  await page.getByTestId('acornhop-board').click({ position: { x: 240, y: 300 } })
+  await expect(page.getByTestId('acornhop-ammo')).toHaveAttribute('aria-label', '5 acorns left')
 })
 
 test('recoil: 로드 → 보드 표시', async ({ page }) => {

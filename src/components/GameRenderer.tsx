@@ -79,6 +79,7 @@ const GameStrata = dynamic(() => import('@/components/games/GameStrata').then((m
 const GameBankshot = dynamic(() => import('@/components/games/GameBankshot').then((m) => m.GameBankshot), { ssr: false, loading: Loading })
 const GameMorseRelay = dynamic(() => import('@/components/games/GameMorseRelay').then((m) => m.GameMorseRelay), { ssr: false, loading: Loading })
 const GameLagline = dynamic(() => import('@/components/games/GameLagline').then((m) => m.GameLagline), { ssr: false, loading: Loading })
+const GameAcornHop = dynamic(() => import('@/components/games/GameAcornHop').then((m) => m.GameAcornHop), { ssr: false, loading: Loading })
 const GameRecoil = dynamic(() => import('@/components/games/GameRecoil').then((m) => m.GameRecoil), { ssr: false, loading: Loading })
 const GameHunch = dynamic(() => import('@/components/games/GameHunch').then((m) => m.GameHunch), { ssr: false, loading: Loading })
 const GameFizzBeat = dynamic(() => import('@/components/games/GameFizzBeat').then((m) => m.GameFizzBeat), { ssr: false, loading: Loading })
@@ -326,6 +327,8 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameMorseRelay storageKey={`best:${page.slug}`} />
     case 'lagline':
       return <GameLagline storageKey={`best:${page.slug}`} />
+    case 'acorn-hop':
+      return <GameAcornHop storageKey={`best:${page.slug}`} />
     case 'recoil':
       return <GameRecoil storageKey={`best:${page.slug}`} />
     case 'hunch':
