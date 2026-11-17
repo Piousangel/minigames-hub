@@ -123,6 +123,7 @@ export type GamePage = GamePageBase &
     | { game: 'slosh' }
     | { game: 'polarity' }
     | { game: 'acorn-hop' }
+    | { game: 'plop-landing' }
   )
 
 export const gamePages: GamePage[] = [
@@ -3195,6 +3196,32 @@ export const gamePages: GamePage[] = [
       { q: 'How is Acorn Hop scored?', a: 'Your score is the height you reach in metres (one metre per ten pixels above the starting island) plus 15 points for each gold star. Only your highest point counts, so falling after a good climb does not lower it.' },
       { q: 'What is the difference between Daily and Practice?', a: 'Daily gives everyone the same sky each UTC day, so scores are comparable with friends. Practice deals a new random sky every run. Your best score is shared between the two.' },
       { q: 'Why can I not tap more often?', a: 'Taps are limited to about eight per second so a frantic tap cannot burn the whole pouch in one go. When the pouch is empty, tapping does nothing until you catch an acorn or land on a rest island.' },
+    ],
+  },
+  {
+    slug: 'plop-landing',
+    game: 'plop-landing',
+    title: 'Play Plop Landing Online — Hold, Release and Plop Onto the Flower',
+    h1: 'Plop Landing',
+    metaDescription:
+      'Play Plop Landing free online: press and hold to squash Mallang the jelly, release to spring across a sunset sea of clouds, read the wind and land on the flower before the island sinks.',
+    shortDescription: 'Hold to charge, release to boing. Read the wind, land on the flower, and hop on before the island sinks.',
+    howToPlay: [
+      'Press and hold anywhere on the board (or hold Space). Mallang squashes down and a ring at the bottom fills up and drains again, over and over. Release and Mallang springs to the right along a dotted arc.',
+      'The gauge is distance: half full lands about half as far. Aim for the golden flower in the middle of the next island. A landing close to the flower is a Perfect, anywhere else on the grass is Good, and landing in the gap drops you into the clouds.',
+      'To cancel a charge, drag your finger up about 48 pixels before letting go. The ring turns grey and nothing happens. Releasing with a nearly empty gauge does not jump either.',
+      'From the fifth island the wind blows and islands start to sink. The dotted arc bends with the wind, the flag on the next island shows its direction, and a ring around your island drains until you start charging.',
+    ],
+    strategy: [
+      'Trust the dotted arc. It shows the first part of the real flight including the wind, so lining up where it is heading is more reliable than guessing from the gauge alone.',
+      'Start pressing early. The sinking timer only runs while you are not holding, so press as soon as you land and read the arc while you charge instead of thinking first.',
+      'Chase Perfects for time, not just points. A Perfect landing gives the island an extra half second before it sinks, and a streak of Perfects raises the score multiplier up to three times.',
+      'Learn from the splash. When a jump fails, the game marks where you landed and how far off you were as a percentage of the gauge, so you know whether to release earlier or later next time.',
+    ],
+    faq: [
+      { q: 'How is Plop Landing scored?', a: 'Each Good landing is worth 1 point and each Perfect is worth 2, multiplied by a streak bonus that starts at ×1 and climbs by 0.25 for every Perfect in a row, up to ×3. A Good landing lowers the streak by one step instead of wiping it.' },
+      { q: 'What is the difference between Daily and Practice?', a: 'Daily gives everyone the same chain of islands, winds and sky colours each UTC day, so scores are comparable with friends. Practice deals a new random course every run. Your first run on a new device is always Practice, and your best score is shared between the two.' },
+      { q: 'Why did my island sink?', a: 'From the fifth island on, an island starts sinking if you have not begun charging within a few seconds of landing. The timer pauses the moment you press, and the time limit shrinks slowly as you go further, so start charging earlier rather than rushing the release.' },
     ],
   },
 ]

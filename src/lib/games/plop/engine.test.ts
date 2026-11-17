@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  D_MAX_FRAC, HALFW_MIN, SINK_START_MS, MIN_GAP, PING_MS, RMAX, WIND_MAX, dailySeedFor, ensureIslands, flightDuration, flightPos,
+  D_CAP, D_MAX_FRAC, HALFW_FLOOR, HALFW_MIN, SINK_START_MS, WIND_MAX_LATE, pingOf, previewFracOf, windMaxOf, MIN_GAP, PING_MS, RMAX, WIND_MAX, dailySeedFor, ensureIslands, flightDuration, flightPos,
   halfWOf, inputLocked, newGame, nextIsland, powerAt, press, previewPoints, rangeAt, rangeMax, release, startIsland, tick, tintOf, cancelCharge,
 } from './engine'
 
@@ -55,10 +55,11 @@ describe('섬 생성(결정성·도달 가능성)', () => {
       for (let i = 1; i < st.islands.length; i++) {
         const prev = st.islands[i - 1], isl = st.islands[i]
         const d = isl.cx - prev.cx
-        expect(Math.abs(isl.wind)).toBeLessThanOrEqual(WIND_MAX + 1e-9)
+        expect(Math.abs(isl.wind)).toBeLessThanOrEqual(windMaxOf(isl.i) + 1e-9)
         expect(d).toBeLessThanOrEqual(D_MAX_FRAC * rangeMax(isl.wind) + 1e-6)      // 최대 힘의 85% 이내(맞바람이어도 닿음)
+        expect(d).toBeLessThanOrEqual(D_CAP + 1e-6)                                 // 카메라 한계(다음 섬 중심이 항상 화면 안)
         expect(d - prev.halfW - isl.halfW).toBeGreaterThanOrEqual(MIN_GAP - 1e-6)   // 겹치지 않음
-        expect(isl.halfW).toBeGreaterThanOrEqual(HALFW_MIN)
+        expect(isl.halfW).toBeGreaterThanOrEqual(HALFW_FLOOR)
       }
     }
   })
@@ -66,8 +67,9 @@ describe('섬 생성(결정성·도달 가능성)', () => {
     expect(halfWOf(1)).toBe(110)
     expect(halfWOf(3)).toBe(110)
     expect(halfWOf(11)).toBeLessThan(halfWOf(5))
-    expect(halfWOf(19)).toBe(HALFW_MIN)
-    expect(halfWOf(50)).toBe(HALFW_MIN)
+    expect(halfWOf(15)).toBe(HALFW_MIN)
+    expect(halfWOf(28)).toBeLessThan(HALFW_MIN) // 19번 이후에도 계속 줄어든다(후반 램프)
+    expect(halfWOf(50)).toBe(HALFW_FLOOR)
   })
   it('바람은 5번째 섬(번호 4)부터', () => {
     const st = newGame(7); ensureIslands(st, 10)
@@ -245,5 +247,24 @@ describe('결정성·입력 잠금·일일 시드', () => {
     const a = nextIsland(5, 6, { i: 5, cx: 900, halfW: 90, wind: 0.1, graceMs: 3000 })
     const b = nextIsland(5, 6, { i: 5, cx: 900, halfW: 90, wind: 0.1, graceMs: 3000 })
     expect(a).toEqual(b)
+  })
+})
+
+describe('후반 난이도 램프', () => {
+  it('게이지는 8번째 섬 이후 점점 빨라지고 30번째에서 최대', () => {
+    expect(pingOf(1)).toBe(PING_MS)
+    expect(pingOf(6)).toBe(PING_MS)
+    expect(pingOf(15)).toBeLessThan(PING_MS)
+    expect(pingOf(30)).toBe(700)
+    expect(pingOf(60)).toBe(700)
+  })
+  it('점선 미리보기는 10번째 섬 이후 짧아진다', () => {
+    expect(previewFracOf(5)).toBe(0.4)
+    expect(previewFracOf(16)).toBeLessThan(0.4)
+    expect(previewFracOf(40)).toBeCloseTo(0.18, 6)
+  })
+  it('후반 바람 상한이 올라가도 생성기는 도달 가능', () => {
+    expect(windMaxOf(40)).toBeCloseTo(WIND_MAX_LATE, 6)
+    expect(windMaxOf(5)).toBeLessThan(windMaxOf(40))
   })
 })

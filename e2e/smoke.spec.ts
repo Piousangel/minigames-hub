@@ -831,6 +831,23 @@ test('acorn-hop: 로드 → 보드 표시 → 탭하면 탄이 줄고 위로 올
   await expect(page.getByTestId('acornhop-ammo')).toHaveAttribute('aria-label', '7 acorns left')
 })
 
+test('plop-landing: 로드 → 보드 표시 → 길게 눌렀다 놓으면 점프한다', async ({ page }) => {
+  await page.goto('/plop-landing')
+  const board = page.getByTestId('plop-board')
+  await expect(board).toBeVisible()
+  await expect(page.getByTestId('plop-landed')).toContainText('0')
+  const box = (await board.boundingBox())!
+  await page.mouse.move(box.x + 200, box.y + 400)
+  await page.mouse.down()
+  await page.waitForTimeout(650)
+  await page.mouse.up()
+  await page.waitForTimeout(2200)
+  // 점프 결과가 났다: 착지했거나(섬 수 증가) 추락 오버레이가 떴다
+  const over = await page.getByTestId('game-over').isVisible().catch(() => false)
+  const landed = (await page.getByTestId('plop-landed').innerText()).replace(/\D/g, '')
+  expect(over || Number(landed) >= 1).toBeTruthy()
+})
+
 test('recoil: 로드 → 보드 표시', async ({ page }) => {
   await page.goto('/recoil')
   await expect(page.getByTestId('recoil-board')).toBeVisible()
