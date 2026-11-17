@@ -3181,15 +3181,15 @@ export const gamePages: GamePage[] = [
     shortDescription: 'Tap left or right: Tori fires an acorn down and the recoil rockets it up. How high can you climb?',
     howToPlay: [
       'Tap or click the left or right half of the sky (or press ← / → or A / D). Tori fires an acorn down and away, and the recoil kicks Tori up and toward the side you tapped. Pressing Space repeats your last side.',
-      'Gravity never stops pulling, and every shot spends one acorn from the pouch at the top of the screen. You start with six and can hold eight. Fall off the bottom of the screen and the run is over.',
-      'Pick up floating acorns to refill three at a time, and land on a mossy rest island (one appears roughly every 700 pixels of climbing) to top the pouch back up to six.',
+      'Gravity never stops pulling, and every shot spends one acorn from the pouch at the top of the screen. You start with eight and can hold ten. Fall off the bottom of the screen and the run is over.',
+      'Pick up floating acorns to refill four at a time, and land on a mossy rest island (one appears roughly every 630 pixels of climbing) to top the pouch back up to eight.',
       'Collect gold stars for bonus points, and steer clear of the round bramble balls and the grumpy storm clouds that drift side to side. Touching either ends the run on the spot.',
     ],
     strategy: [
       'Tap once and wait. A single hop carries Tori about 78 pixels straight up, and the dotted preview shows exactly where the next tap on the side you last used would take you, so use it before you commit.',
-      'Treat acorns as fuel, not points. An acorn lets you spend three more hops, so a small detour for one is almost always worth it, especially when the pouch is down to two.',
+      'Treat acorns as fuel, not points. An acorn buys you four more hops, so a small detour for one is almost always worth it, especially when the pouch is down to two.',
       'Let the walls help. Bouncing off the side of the sky costs no acorns and turns your sideways speed around, which is the cheapest way to line up with a star or slip past a bramble.',
-      'Plan the next rest island. They come every eight screens-worth of sky, so when the pouch is half empty, stop wandering after stars and aim straight for the next green island.',
+      'Plan the next rest island. They come about every seven stretches of sky, so when the pouch is half empty, stop wandering after stars and aim straight for the next green island.',
     ],
     faq: [
       { q: 'How is Acorn Hop scored?', a: 'Your score is the height you reach in metres (one metre per ten pixels above the starting island) plus 15 points for each gold star. Only your highest point counts, so falling after a good climb does not lower it.' },

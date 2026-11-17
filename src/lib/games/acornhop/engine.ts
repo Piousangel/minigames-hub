@@ -19,11 +19,11 @@ export const TAP_VX = 2.2
 export const DRAG = 0.985
 export const VX_MAX = 3.4
 export const VY_MAX = 6.5
-export const AMMO_START = 6
-export const AMMO_MAX = 8
-export const ACORN_REFILL = 3
+export const AMMO_START = 8
+export const AMMO_MAX = 10
+export const ACORN_REFILL = 4
 export const TAP_COOLDOWN = 7
-export const REST_EVERY = 8 // 8번째 밴드마다 쉼터 섬
+export const REST_EVERY = 7 // 7번째 밴드마다 쉼터 섬
 export const ISLAND_W = 120
 export const STAR_PTS = 15
 export const TICK_HZ = 60
@@ -114,7 +114,7 @@ export function bandObjects(seed: number, b: number): WorldObj[] {
       s.phase = rnd() * Math.PI * 2
     }
   }
-  if (b % 3 === 0 || rnd() < 0.35) place('acorn', 26)
+  if (b % 2 === 0 || rnd() < 0.45) place('acorn', 26)
   if (rnd() < 0.6) place('star', 24)
   return objs
 }
