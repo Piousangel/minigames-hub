@@ -122,6 +122,7 @@ export type GamePage = GamePageBase &
     | { game: 'shadowfit' }
     | { game: 'slosh' }
     | { game: 'polarity' }
+    | { game: 'acorn-hop' }
   )
 
 export const gamePages: GamePage[] = [
@@ -3168,6 +3169,32 @@ export const gamePages: GamePage[] = [
       { q: 'Why do some magnets push when I set PULL?', a: 'Those are magenta (−) magnets. They always do the opposite of the cyan (+) ones, so one flip can pull you toward one magnet and push you from another. They start appearing a few sections in, and later you also meet strong magnets with a double ring.' },
       { q: 'How is the score calculated?', a: 'Each gate you pass is worth 10 points times your current combo, capped at ×8. Missing a gate resets the combo but never takes away points. The distance in metres is shown for interest only and does not add to the score.' },
       { q: 'Is every run the same?', a: 'No. Each new run uses a new seed that sets the whole board. A challenge link replays the sender\'s exact seed, so both of you face the same magnets, spikes and gates. Challenge runs don\'t count toward your personal best.' },
+    ],
+  },
+  {
+    slug: 'acorn-hop',
+    game: 'acorn-hop',
+    title: 'Play Acorn Hop Online — One-Tap Space Squirrel Climber',
+    h1: 'Acorn Hop',
+    metaDescription:
+      'Play Acorn Hop free online: tap left or right and a space squirrel fires an acorn down while the recoil rockets it up. Grab acorns, dodge brambles and storm clouds, climb as high as you can.',
+    shortDescription: 'Tap left or right: Tori fires an acorn down and the recoil rockets it up. How high can you climb?',
+    howToPlay: [
+      'Tap or click the left or right half of the sky (or press ← / → or A / D). Tori fires an acorn down and away, and the recoil kicks Tori up and toward the side you tapped. Pressing Space repeats your last side.',
+      'Gravity never stops pulling, and every shot spends one acorn from the pouch at the top of the screen. You start with six and can hold eight. Fall off the bottom of the screen and the run is over.',
+      'Pick up floating acorns to refill three at a time, and land on a mossy rest island (one appears roughly every 700 pixels of climbing) to top the pouch back up to six.',
+      'Collect gold stars for bonus points, and steer clear of the round bramble balls and the grumpy storm clouds that drift side to side. Touching either ends the run on the spot.',
+    ],
+    strategy: [
+      'Tap once and wait. A single hop carries Tori about 78 pixels straight up, and the dotted preview shows exactly where the next tap on the side you last used would take you, so use it before you commit.',
+      'Treat acorns as fuel, not points. An acorn lets you spend three more hops, so a small detour for one is almost always worth it, especially when the pouch is down to two.',
+      'Let the walls help. Bouncing off the side of the sky costs no acorns and turns your sideways speed around, which is the cheapest way to line up with a star or slip past a bramble.',
+      'Plan the next rest island. They come every eight screens-worth of sky, so when the pouch is half empty, stop wandering after stars and aim straight for the next green island.',
+    ],
+    faq: [
+      { q: 'How is Acorn Hop scored?', a: 'Your score is the height you reach in metres (one metre per ten pixels above the starting island) plus 15 points for each gold star. Only your highest point counts, so falling after a good climb does not lower it.' },
+      { q: 'What is the difference between Daily and Practice?', a: 'Daily gives everyone the same sky each UTC day, so scores are comparable with friends. Practice deals a new random sky every run. Your best score is shared between the two.' },
+      { q: 'Why can I not tap more often?', a: 'Taps are limited to about eight per second so a frantic tap cannot burn the whole pouch in one go. When the pouch is empty, tapping does nothing until you catch an acorn or land on a rest island.' },
     ],
   },
 ]

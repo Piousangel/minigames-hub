@@ -50,3 +50,7 @@
 4. ~~얇은 게임 페이지 정리~~ 11-16 하위 5개 보강(rps·number-memory·aim-trainer·hangman·pong → 462~522단어). 다음 하위: word-search 356 · maze 362 · whack-a-mole 364 · tower-stack 368 · connect-four 369 (docs/adsense/2026-11-16-readiness.md)
 5. **제목·설명 반복 패턴 제거**: "Free, No Download"·"Free vs Computer" 꼬리를 걷고, 그 게임만의 특징을 앞에 둔다
 6. Search Console 색인 보고서(미색인 사유)는 오너가 캡처해 주면 2·4번 우선순위를 정한다
+
+## Acorn Hop (11-17 출시, 오너 지시: 웹 먼저, 토스는 수요 확인 후)
+- 측정: `finish`(완주) 이벤트 / 첫 판 이탈 / 재방문(daily). 1주 뒤 월요일 회고에서 판정 → 토스 허브 이전 여부 결정(docs/team/toss-hub/PLAN.md).
+- 후속(v2): 리더보드 화이트리스트, 도전 링크·공유 카드, 연속 기록, 캐릭터 해금(무니·햄찌·삐뽀·말랑 스프라이트는 feat/toss-recoil 브랜치), 3회차 수정 후 Gemini 재평가.

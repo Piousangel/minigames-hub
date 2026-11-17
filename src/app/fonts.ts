@@ -8,3 +8,11 @@ export const pixelFont = localFont({
   variable: '--font-pixel',
   weight: '400',
 })
+
+// 둥근 캐주얼 폰트(Fredoka, OFL, 라틴 서브셋 가변 600–700). Acorn Hop처럼 '동화풍' 게임의 HUD·결과창 전용.
+export const roundFont = localFont({
+  src: './fonts/Fredoka.woff2',
+  display: 'swap',
+  variable: '--font-round',
+  weight: '300 700',
+})
