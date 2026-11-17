@@ -3,3 +3,5 @@
 - 2026-11-13: 클라우드 루틴 샌드박스는 quickminigames.site에 프록시 403으로 접근 불가 → 라이브 QA는 `pnpm build && node scripts/check-routes.mjs`로 대체. 지표 파일의 D1 쿼리가 실패하면(11-12 파일) 회의에서 "지표 없음"으로 처리하고 사람에게 알린다.
 - 2026-11-14: 화면에 박힌 숫자·"최신작" 문구는 하드코딩하면 금방 낡는다(100 vs 110). 레지스트리에서 계산한다.
 - 2026-11-17: sendHit이 fetch 폴백을 쓰므로 fetch 모킹 테스트는 /api/score 호출만 필터해 센다.
+
+- 2026-11-17: **`git add -A`가 빌드 산출물(`toss/dist`)을 커밋해 CI `pnpm lint`가 깨졌고 배포가 8번 연속 실패했다**(약 1시간, 마지막 성공 12:19 KST → 복구 PR #66). 원인은 PR 전에 `git status`를 보지 않은 것. 규칙: PR 전에 `git status --short`로 추적 대상이 의도한 파일뿐인지 본다. 머지 후에는 **deploy 워크플로 결과(`gh run list --workflow deploy.yml`)와 라이브 URL**을 확인한다(Vercel 미리보기 통과만으로 안심하지 않는다). 빌드 산출물은 .gitignore와 ESLint ignores에 넣는다.
