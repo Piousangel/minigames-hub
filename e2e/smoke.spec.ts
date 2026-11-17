@@ -653,6 +653,8 @@ test('홈: 최신 출시 카드가 히어로 바로 아래 최상단에 있고 �
   const box = await card.boundingBox()
   const marquee = await page.locator('main nav[aria-label="Explore games"]').boundingBox()
   expect(box!.y).toBeLessThan(marquee!.y)
+  // 최대 3개: 큰 카드 1 + 작은 카드 최대 2
+  expect(await page.getByTestId('latest-release-more').count()).toBeLessThanOrEqual(2)
   await page.getByTestId('latest-release-link').click()
   await expect(page).not.toHaveURL(/\/$/)
 })
