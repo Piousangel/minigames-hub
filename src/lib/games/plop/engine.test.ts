@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
-  D_MAX_FRAC, HALFW_FLOOR, HALFW_MIN, SINK_START_MS, WIND_MAX_LATE, pingOf, previewFracOf, windMaxOf, MIN_GAP, PING_MS, RMAX, WIND_MAX, dailySeedFor, ensureIslands, flightDuration, flightPos,
+  D_CAP, D_MAX_FRAC, HALFW_FLOOR, HALFW_MIN, SINK_START_MS, WIND_MAX_LATE, pingOf, previewFracOf, windMaxOf, MIN_GAP, PING_MS, RMAX, WIND_MAX, dailySeedFor, ensureIslands, flightDuration, flightPos,
   halfWOf, inputLocked, newGame, nextIsland, powerAt, press, previewPoints, rangeAt, rangeMax, release, startIsland, tick, tintOf, cancelCharge,
 } from './engine'
 
@@ -57,6 +57,7 @@ describe('섬 생성(결정성·도달 가능성)', () => {
         const d = isl.cx - prev.cx
         expect(Math.abs(isl.wind)).toBeLessThanOrEqual(windMaxOf(isl.i) + 1e-9)
         expect(d).toBeLessThanOrEqual(D_MAX_FRAC * rangeMax(isl.wind) + 1e-6)      // 최대 힘의 85% 이내(맞바람이어도 닿음)
+        expect(d).toBeLessThanOrEqual(D_CAP + 1e-6)                                 // 카메라 한계(다음 섬 중심이 항상 화면 안)
         expect(d - prev.halfW - isl.halfW).toBeGreaterThanOrEqual(MIN_GAP - 1e-6)   // 겹치지 않음
         expect(isl.halfW).toBeGreaterThanOrEqual(HALFW_FLOOR)
       }
@@ -254,8 +255,8 @@ describe('후반 난이도 램프', () => {
     expect(pingOf(1)).toBe(PING_MS)
     expect(pingOf(6)).toBe(PING_MS)
     expect(pingOf(15)).toBeLessThan(PING_MS)
-    expect(pingOf(26)).toBe(900)
-    expect(pingOf(60)).toBe(900)
+    expect(pingOf(30)).toBe(700)
+    expect(pingOf(60)).toBe(700)
   })
   it('점선 미리보기는 10번째 섬 이후 짧아진다', () => {
     expect(previewFracOf(5)).toBe(0.4)

@@ -24,7 +24,7 @@ export const MIN_P = 0.08 // 이보다 약하게 놓으면 점프 안 함
 export const SAFE_ISLANDS = 3 // 1~3번 섬은 크고 안전(가라앉지 않음, 바람 없음)
 export const HALFW_START = 110
 export const HALFW_MIN = 32 // 19번째 섬의 반폭(1차 하한)
-export const HALFW_FLOOR = 24 // 후반 램프의 최종 하한(45번째 섬)
+export const HALFW_FLOOR = 20 // 후반 램프의 최종 하한(40번째 섬)
 export const HALFW_FLOOR_INDEX = 40
 export const HALFW_SHRINK_END = 15 // 이 번호의 섬에서 1차 하한(오너 지적: 너무 쉽다 → 19에서 앞당김)
 export const MIN_GAP = 40
@@ -33,14 +33,14 @@ export const WIND_FIRST = 0.06
 export const WIND_MAX = 0.15 // 초중반 바람 상한
 export const WIND_MAX_LATE = 0.21 // 후반(30번째 섬 이후) 바람 상한
 // 후반 램프(오너 지적: 너무 쉽다 — 19번째 섬 이후 난이도가 평평했다)
-export const PING_FAST = 900 // 30번째 섬 이후 게이지 한 방향 시간(ms), 기본 1300에서 점차 빨라진다
+export const PING_FAST = 700 // 30번째 섬 이후 게이지 한 방향 시간(ms), 기본 1300에서 점차 빨라진다
 export const PING_RAMP_FROM = 6
-export const PING_RAMP_TO = 26
+export const PING_RAMP_TO = 30
 export const PREVIEW_FRAC_START = 0.4
 export const PREVIEW_FRAC_END = 0.18 // 점선 미리보기가 점차 짧아져 게이지 감각이 필요해진다
 export const PREVIEW_RAMP_FROM = 8
 export const PREVIEW_RAMP_TO = 24
-export const SINK_LATE_END_MS = 2000 // 40번째 섬에서의 가라앉는 시간
+export const SINK_LATE_END_MS = 1800 // 36번째 섬에서의 가라앉는 시간
 export const SINK_LATE_INDEX = 36
 export const SINK_FROM = 4
 export const SINK_START_MS = 4600
@@ -50,6 +50,7 @@ export const PERFECT_BONUS_MS = 500
 export const PERFECT_FRAC = 0.3 // |dx| ≤ 0.30·halfW
 export const EDGE_SLACK = 6 // Good 여유 px
 export const D_MAX_FRAC = 0.85 // 중심거리 상한 = 0.85·Rmax(wind)
+export const D_CAP = 300 // 카메라에 다음 섬 중심이 항상 들어오도록 하는 절대 상한(순풍에서 0.85·Rmax가 312px를 넘던 문제)
 export const D_MIN_FRAC = 0.45
 export const INPUT_LOCK_MS = 150 // 죽은 뒤 입력 무시
 export const CANCEL_DRAG_PX = 48
@@ -140,11 +141,11 @@ export function nextIsland(seed: number, i: number, prev: Island): Island {
     const sign = rnd() < 0.5 ? -1 : 1
     wind = i === WIND_FROM ? sign * WIND_FIRST : sign * windMaxOf(i) * (0.3 + 0.7 * rnd())
     // 맞바람이라 최소 거리를 못 채우면 순풍으로 뒤집는다(생성기 제약)
-    if (dMinEdge > D_MAX_FRAC * rangeMax(wind)) wind = Math.abs(wind)
+    if (dMinEdge > Math.min(D_CAP, D_MAX_FRAC * rangeMax(wind))) wind = Math.abs(wind)
   } else {
     rnd() // 호출 횟수를 맞춘다
   }
-  const dMax = D_MAX_FRAC * rangeMax(wind)
+  const dMax = Math.min(D_CAP, D_MAX_FRAC * rangeMax(wind))
   const dMin = Math.max(dMinEdge, D_MIN_FRAC * rangeMax(wind))
   const early = i <= SAFE_ISLANDS
   const d = early ? Math.min(dMax, dMinEdge + rnd() * 15) : dMin + rnd() * (dMax - dMin)
