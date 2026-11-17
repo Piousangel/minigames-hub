@@ -14,6 +14,9 @@
 - **열린 PR**: (없음)
 - **막힌 것**: 말랑 스프라이트 5포즈는 `origin/feat/toss-recoil`의 `toss/public/chars/mallang-*.webp`에서 가져온다(`git checkout origin/feat/toss-recoil -- toss/public/chars/mallang-idle.webp` 등 후 `public/art/`로 이동). iOS 26 실기기 확인은 사람(오너) 도움이 필요할 수 있다.
 
+## 대기 중인 제안
+- **뿅 착지 v1.1 요소 다양화 제안** `docs/team/specs/2026-11-17-plop-variety.md`: 추천 ①진주(위험-보상) ②스프링 꽃 ③오늘의 변이. 독립 리뷰 응답과 오너 확인 뒤 사이클로 착수(한 사이클에 요소 1개, 합쳐서 내지 않는다).
+
 ## 완료
 - 2026-11-17 Acorn Hop 출시(PR #46), 홈 최신 출시 3개 레이아웃(#56·#58)
 
