@@ -14,7 +14,7 @@
 //   { "channel": "reddit", "subreddit": "battleship", "title": "...", "text": "...", "url": "https://..." }
 // ] }
 //
-// 안전장치: 오늘·어제 날짜 파일만, 채널당 하루 1건, 같은 채널·같은 URL은 14일 안에 다시 안 올림, 이미 posted 된 항목은 다시 안 올림,
+// 안전장치: 오늘·어제 날짜 파일만, 채널당 하루 1건(오너 승인 사유 `ownerApprovedExtra`가 있는 항목만 예외), 같은 채널·같은 URL은 14일 안에 다시 안 올림, 이미 posted 된 항목은 다시 안 올림,
 // url이 있으면 200이 될 때까지(배포 완료) 기다린 뒤 게시. 자격증명 없는 채널은 skipped로 기록.
 // 결과는 docs/marketing/posted.json(원장)에 남는다. DRY_RUN=1 이면 게시하지 않고 출력만.
 import { createHmac, randomBytes } from 'node:crypto'
@@ -358,7 +358,8 @@ for (const f of files.sort().reverse()) {
       )
     if (!a) entry.status = 'skipped-unknown-channel'
     else if (recentDup) entry.status = 'skipped-recent-duplicate'
-    else if (postedToday.has(p.channel)) entry.status = 'skipped-daily-limit'
+    // 채널당 하루 1건 제한은 오너가 명시적으로 승인한 항목만 넘을 수 있다(ownerApprovedExtra에 승인 사유 문자열이 있어야 함). 마케터가 임의로 쓰지 않는다.
+    else if (postedToday.has(p.channel) && !(typeof p.ownerApprovedExtra === 'string' && p.ownerApprovedExtra.trim())) entry.status = 'skipped-daily-limit'
     else if (!a.ready()) entry.status = 'skipped-no-credentials'
     else if (imageProblem(p)) entry.status = `skipped-${imageProblem(p)}`
     else if (DRY) entry.status = 'dry-run'
