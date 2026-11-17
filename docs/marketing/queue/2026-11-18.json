@@ -1,0 +1,10 @@
+{
+  "posts": [
+    {
+      "channel": "bluesky",
+      "lang": "en",
+      "text": "Fixed an annoying mobile bug across 30+ of our browser games: touching the board used to freeze page scrolling. Now only the center is the play zone, and the top and bottom edges scroll the page. Try it on your phone. #webgames #gamedev",
+      "url": "https://quickminigames.site/2048"
+    }
+  ]
+}
