@@ -1059,6 +1059,17 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // plop-landing — 섬 위의 젤리와 위로 휘는 점선 궤적
+  'plop-landing': (
+    <>
+      <path d="M3 19h9l-1 2.5H4z" {...soft} />
+      <path d="M14 19h7" />
+      <path d="M5.5 14.5c0-2 1.2-3 2.5-3s2.5 1 2.5 3z" {...solid} />
+      <path d="M9 9c2.5-4 7-4 10-1" strokeDasharray="1.6 2" />
+      <path d="M17.8 5.8 19 8.2 16.4 8.4" />
+    </>
+  ),
+
   // acorn-hop — 도토리 한 알과 반동으로 솟는 위쪽 화살표
   'acorn-hop': (
     <>
