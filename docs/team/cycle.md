@@ -9,7 +9,7 @@
 - **다음 할 일**
   1. (완료) 리뷰 응답과 v2 반영.
   2. G2: `src/lib/games/plop/engine.ts`(순수 해석식, 시드 `mulberry32`, 사거리 R=Rmax·p 선형, 가라앉는 섬 규칙) + `engine.test.ts` + 봇 시뮬 스크립트(홀드 시간 비례 노이즈 σ=8/12/18%, 1,000판, 해석적 도달 가능성 검사). 브리프 8장 합격선을 통과해야 한다.
-  3. 2일차: G3 목표 시안(Gemini, 새 팔레트·수평 구도, Acorn Hop과 나란히 비교) → 화면 구현(`GamePlopLanding.tsx`, 주인공 말랑) → G4(혹평 6.5 이상, iOS 실기기 길게 누르기 확인, 연타·중간 이탈·소리 끔·느린 기기 시험) → 커버 16:9 → 머지 → 홍보 큐 3종.
+  3. 2일차: G3 목표 시안(Gemini, 새 팔레트·수평 구도, Acorn Hop과 나란히 비교) → **오디오(효과음 8종 + 절차적 BGM, 담당 PM·디자이너, 브리프 12장)** → 화면 구현(`GamePlopLanding.tsx`, 주인공 말랑) → G4(혹평 6.5 이상, iOS 실기기 길게 누르기 확인, 연타·중간 이탈·소리 끔·느린 기기 시험) → 커버 16:9 → 머지 → 홍보 큐 3종.
 - **열린 PR**: (없음)
 - **막힌 것**: 말랑 스프라이트 5포즈는 `origin/feat/toss-recoil`의 `toss/public/chars/mallang-*.webp`에서 가져온다(`git checkout origin/feat/toss-recoil -- toss/public/chars/mallang-idle.webp` 등 후 `public/art/`로 이동). iOS 26 실기기 확인은 사람(오너) 도움이 필요할 수 있다.
 
