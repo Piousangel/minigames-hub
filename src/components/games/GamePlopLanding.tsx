@@ -786,10 +786,14 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerCancel}
         onContextMenu={(e) => e.preventDefault()}
-        className="relative z-[41] touch-none select-none overflow-hidden rounded-2xl border-[4px] border-[#5b3a1e] bg-[#ff9d7a] shadow-[0_5px_0_#3a2410] outline-none focus-visible:ring-2 focus-visible:ring-[#ffc933] [-webkit-touch-callout:none] [-webkit-user-select:none]"
-        style={{ aspectRatio: `${VW} / ${VH}`, touchAction: 'none' }}
+        className="relative z-[41] select-none overflow-hidden rounded-2xl border-[4px] border-[#5b3a1e] bg-[#ff9d7a] shadow-[0_5px_0_#3a2410] outline-none focus-visible:ring-2 focus-visible:ring-[#ffc933] [-webkit-touch-callout:none] [-webkit-user-select:none]"
+        // 컨테이너는 touch-action을 제한하지 않는다: 가운데 게임 구역만 none(조작 전용), 위·아래 가장자리 띠는 pan-y라 손가락을 얹고 세로로 밀면 페이지가 스크롤된다.
+        // (touch-action은 조상과의 교집합이라 자식이 부모의 none을 풀 수 없어 구조를 이렇게 나눴다. 스크롤이 시작되면 브라우저가 pointercancel을 보내 충전은 취소 처리된다.)
+        style={{ aspectRatio: `${VW} / ${VH}`, width: 'min(100%, calc(80svh * 0.609))', marginInline: 'auto' }}
       >
-        <canvas ref={canvasRef} className="block h-full w-full" aria-hidden="true" />
+        <canvas ref={canvasRef} className="block h-full w-full" style={{ touchAction: 'pan-y' }} aria-hidden="true" />
+        {/* 게임 조작 구역(가운데): 여기서는 스크롤을 막고 누르기·끌기를 게임이 받는다. 위 14%·아래 16%는 비워 둬 스크롤 띠가 된다. */}
+        <div className="absolute inset-x-0 z-[3]" style={{ top: '14%', bottom: '16%', touchAction: 'none' }} aria-hidden="true" data-testid="plop-play-zone" />
 
         {/* 단순 HUD: 착지 수, 콤보, 시간대 */}
         <div className="pointer-events-none absolute inset-x-2 top-2 flex items-center justify-between gap-2 rounded-2xl px-3 py-1" style={{ background: 'linear-gradient(#fff3dc, #f3d9aa)', border: '3px solid #5b3a1e', boxShadow: '0 3px 0 #3a2410, inset 0 0 0 2px #fbeccc', color: '#5b3a1e' }}>
