@@ -8,6 +8,9 @@
 //   { "channel": "bluesky", "text": "...", "url": "https://...", "lang": "en" },   // 링크 카드(미리보기 이미지)가 자동으로 붙는다
 //   { "channel": "x", "text": "...", "url": "https://..." },
 //   { "channel": "threads", "text": "한국어 글(500자 이내)", "url": "https://..." },   // 링크 미리보기 자동
+//   // 이미지: images 는 저장소 안 파일 경로(JPG/PNG, 장당 900KB 이하 권장) 배열. 문자열 또는 { path, alt }.
+//   //   bluesky: 최대 4장(링크 카드 대신 이미지 첨부), threads: 1장은 이미지 게시·2장 이상은 캐러셀(공개 raw URL 사용 → main에 머지된 파일만)
+//   { "channel": "threads", "text": "...", "url": "https://...", "images": [{ "path": "docs/marketing/images/a.jpg", "alt": "게임 화면" }] },
 //   { "channel": "reddit", "subreddit": "battleship", "title": "...", "text": "...", "url": "https://..." }
 // ] }
 //
@@ -97,6 +100,39 @@ async function blueskyCard(url, jwt) {
   }
 }
 
+// ---- 이미지 첨부 ----
+// 큐의 images 항목을 정규화하고 파일을 검증한다. 문제가 있으면 오류를 던져 게시를 건너뛴다(깨진 글 방지).
+function loadImages(p, max) {
+  const list = (p.images ?? []).slice(0, max).map((x) => (typeof x === 'string' ? { path: x, alt: '' } : x))
+  return list.map((x) => {
+    if (!x.path || !existsSync(x.path)) throw new Error(`image-missing:${x.path}`)
+    const ext = x.path.toLowerCase().split('.').pop()
+    const mime = ext === 'png' ? 'image/png' : ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : null
+    if (!mime) throw new Error(`image-type:${x.path}`)
+    const buf = readFileSync(x.path)
+    if (buf.length > 950_000) throw new Error(`image-too-large:${x.path}`)
+    return { path: x.path, alt: (x.alt ?? '').slice(0, 300), mime, buf }
+  })
+}
+
+// Threads는 이미지를 공개 URL로만 받는다. 저장소가 공개라 raw.githubusercontent.com 을 쓴다(main에 머지된 뒤 몇 초~분 내 열린다).
+const rawUrl = (path) => `https://raw.githubusercontent.com/${env.GITHUB_REPOSITORY}/main/${path}`
+
+async function blueskyImages(imgs, jwt) {
+  const out = []
+  for (const im of imgs) {
+    const up = await fetch('https://bsky.social/xrpc/com.atproto.repo.uploadBlob', {
+      method: 'POST',
+      headers: { 'content-type': im.mime, authorization: `Bearer ${jwt}` },
+      body: im.buf,
+    })
+    const uj = await up.json()
+    if (!uj.blob) throw new Error(`bluesky image upload: ${JSON.stringify(uj).slice(0, 150)}`)
+    out.push({ alt: im.alt || 'Acorn Hop', image: uj.blob })
+  }
+  return { $type: 'app.bsky.embed.images', images: out }
+}
+
 // ---- 채널 어댑터 ----
 const adapters = {
   bluesky: {
@@ -112,7 +148,9 @@ const adapters = {
       if (!s.accessJwt) throw new Error(`bluesky login: ${JSON.stringify(s).slice(0, 200)}`)
       const text = withUrl(p.text, p.url, 'bluesky')
       const record = { $type: 'app.bsky.feed.post', text, createdAt: new Date().toISOString(), langs: [p.lang ?? 'en'] }
-      if (p.url) {
+      const imgs = loadImages(p, 4)
+      if (imgs.length) record.embed = await blueskyImages(imgs, s.accessJwt)
+      else if (p.url) {
         const card = await blueskyCard(p.url, s.accessJwt)
         if (card) record.embed = card
       }
@@ -173,8 +211,31 @@ const adapters = {
     async post(p) {
       const base = `https://graph.threads.net/v1.0/${env.THREADS_USER_ID || 'me'}`
       const text = withUrl(p.text, p.url, 'threads')
-      const params = new URLSearchParams({ media_type: 'TEXT', text, access_token: env.THREADS_ACCESS_TOKEN })
-      if (p.url) params.set('link_attachment', p.url) // 링크 미리보기 카드
+      const tk = env.THREADS_ACCESS_TOKEN
+      const imgs = loadImages(p, 10)
+      let params
+      if (imgs.length === 0) {
+        params = new URLSearchParams({ media_type: 'TEXT', text, access_token: tk })
+        if (p.url) params.set('link_attachment', p.url) // 링크 미리보기 카드
+      } else {
+        for (const im of imgs) if (!(await waitFor200(rawUrl(im.path)))) throw new Error(`threads image not public yet: ${im.path}`)
+        if (imgs.length === 1) {
+          params = new URLSearchParams({ media_type: 'IMAGE', image_url: rawUrl(imgs[0].path), text, access_token: tk })
+        } else {
+          const kids = []
+          for (const im of imgs) {
+            const k = await fetch(`${base}/threads`, {
+              method: 'POST',
+              body: new URLSearchParams({ media_type: 'IMAGE', image_url: rawUrl(im.path), is_carousel_item: 'true', access_token: tk }),
+            })
+            const kj = await k.json()
+            if (!k.ok || !kj.id) throw new Error(`threads carousel item: ${k.status} ${JSON.stringify(kj).slice(0, 200)}`)
+            kids.push(kj.id)
+          }
+          await new Promise((r) => setTimeout(r, 8000))
+          params = new URLSearchParams({ media_type: 'CAROUSEL', children: kids.join(','), text, access_token: tk })
+        }
+      }
       const c = await fetch(`${base}/threads`, { method: 'POST', body: params })
       const cj = await c.json()
       if (!c.ok || !cj.id) throw new Error(`threads container: ${c.status} ${JSON.stringify(cj).slice(0, 200)}`)
@@ -226,6 +287,17 @@ const adapters = {
   },
 }
 
+// 게시 전에 이미지 문제를 미리 잡는다(없는 파일·형식·크기). 문제 없으면 null.
+function imageProblem(p) {
+  if (!p.images?.length) return null
+  try {
+    loadImages(p, 10)
+    return null
+  } catch (e) {
+    return String(e.message).split(':')[0] // image-missing / image-type / image-too-large
+  }
+}
+
 // ---- 실행 ----
 const ledger = existsSync(LEDGER) ? JSON.parse(readFileSync(LEDGER, 'utf8')) : []
 const done = new Set(ledger.filter((e) => e.status === 'posted').map((e) => e.id))
@@ -255,6 +327,7 @@ for (const f of files.sort().reverse()) {
     else if (recentDup) entry.status = 'skipped-recent-duplicate'
     else if (postedToday.has(p.channel)) entry.status = 'skipped-daily-limit'
     else if (!a.ready()) entry.status = 'skipped-no-credentials'
+    else if (imageProblem(p)) entry.status = `skipped-${imageProblem(p)}`
     else if (DRY) entry.status = 'dry-run'
     else {
       if (p.url && !(await waitFor200(p.url))) entry.status = 'skipped-url-not-live'
