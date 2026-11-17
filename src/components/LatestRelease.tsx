@@ -1,14 +1,14 @@
 import Link from 'next/link'
 import { gamePages } from '@/lib/games/registry'
 import { accentVar, DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
-import { latestSlugs } from '@/lib/newGames'
+import { isNew, latestSlugs } from '@/lib/newGames'
 import { GameIcon } from '@/components/icons/GameIcon'
 
 /** 홈에 보여 줄 최신 출시 최대 개수(오너 지시: 최대 3개). */
 export const LATEST_COUNT = 3
 
 /**
- * 홈 최상단 '최신 출시'(히어로 바로 아래). addedDate가 가장 최근인 게임을 큰 카드로, 그다음 최근 게임 최대 2개를 작은 카드로 보여 준다.
+ * 홈 최상단 '최신 출시'(히어로 바로 아래). addedDate가 가장 최근인 게임을 큰 카드로, 신작 기간 안의 그다음 게임을 최대 2개까지 작은 카드로 보여 준다.
  * 서버 렌더라 레이아웃이 흔들리지 않고, 새 게임을 추가하면(addedDate) 코드 수정 없이 자동으로 밀려 갱신된다.
  * 큰 카드는 커버(gameMeta.cover)가 있으면 이미지, 없으면 아이콘 그라데이션.
  */
@@ -17,7 +17,11 @@ export function LatestRelease() {
     .map((slug) => ({ slug, page: gamePages.find((g) => g.slug === slug) }))
     .filter((x): x is { slug: string; page: NonNullable<typeof x.page> } => Boolean(x.page))
   if (items.length === 0) return null
-  const [main, ...rest] = items
+  // 큰 카드(가장 최근작)는 항상 보이고, 작은 카드는 신작 기간(NEW_WINDOW_DAYS) 안의 게임만 — 오래된 게임으로 자리를 채우지 않는다.
+  // 정적 export라 빌드 시각 기준이며, 매일 배포되므로 하루 이상 어긋나지 않는다.
+  const now = Date.now()
+  const [main, ...older] = items
+  const rest = older.filter(({ slug }) => isNew(gameMeta[slug]?.addedDate, now))
   const meta = gameMeta[main.slug] ?? DEFAULT_META
   const accent = accentVar(meta.accent)
   return (
