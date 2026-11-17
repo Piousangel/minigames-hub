@@ -507,7 +507,7 @@ export function GameBankshot({ storageKey }: { storageKey: string }) {
         <svg
           ref={svgRef}
           viewBox={`0 0 ${BOARD_W / FP} ${BOARD_H / FP}`}
-          className="mx-auto block w-full max-w-175 touch-none"
+          className="mx-auto block w-full max-w-175"
           style={{ aspectRatio: `${BOARD_W / FP}/${BOARD_H / FP}`, background: 'var(--bg-2)' }}
           role="img"
           aria-label={`Bankshot board, shot ${state.shots} of ${limit}, par ${state.config.par}`}

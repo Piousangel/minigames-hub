@@ -33,6 +33,9 @@ function plays(): number {
   return raw ? (JSON.parse(raw) as { plays: number }).plays : 0
 }
 
+/** 탭은 조작 구역(PlayZone)이 받는다. */
+const zone = () => document.querySelector('[data-play-zone]') as HTMLElement
+
 describe('GameOffbeat', () => {
   beforeEach(() => {
     localStorage.clear()
@@ -62,8 +65,8 @@ describe('GameOffbeat', () => {
 
   it('the starting tap is not judged and begins the run', async () => {
     render(<GameOffbeat storageKey={STORAGE_KEY} />)
-    const ring = await screen.findByTestId('pulse-ring')
-    fireEvent.pointerDown(ring)
+    await screen.findByTestId('pulse-ring')
+    fireEvent.pointerDown(zone())
     expect(lives()).toBe('Lives: 3') // a tick-0 tap would be an 'onbeat' fail if judged
     expect(screen.queryByText('Tap to start')).not.toBeInTheDocument()
     // untouched pulses now cost lives
@@ -74,8 +77,8 @@ describe('GameOffbeat', () => {
 
   it('runs at a fixed 60 ticks/s regardless of display refresh rate (120Hz)', async () => {
     render(<GameOffbeat storageKey={STORAGE_KEY} />)
-    const ring = await screen.findByTestId('pulse-ring')
-    fireEvent.pointerDown(ring)
+    await screen.findByTestId('pulse-ring')
+    fireEvent.pointerDown(zone())
     const firstPulseMs = (START_GAP / 60) * 1000 // 800ms at 60 ticks/s
     // At 120Hz a per-frame step would reach the first pulse (and miss) at 400ms.
     runFrames(firstPulseMs * 0.75, 120)
@@ -86,8 +89,8 @@ describe('GameOffbeat', () => {
 
   it('Play again returns to the ready state', async () => {
     render(<GameOffbeat storageKey={STORAGE_KEY} />)
-    const ring = await screen.findByTestId('pulse-ring')
-    fireEvent.pointerDown(ring)
+    await screen.findByTestId('pulse-ring')
+    fireEvent.pointerDown(zone())
     runFrames(5000, 60)
     fireEvent.click(screen.getAllByRole('button', { name: 'Play again' })[0])
     expect(screen.getByText('Tap to start')).toBeInTheDocument()

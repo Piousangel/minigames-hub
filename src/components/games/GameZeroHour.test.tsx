@@ -40,6 +40,16 @@ function score() {
 // Fake-timer render loops are cheap but slow under heavy CI/dev load.
 const TEST_TIMEOUT_MS = 20_000
 
+/** 탭은 조작 구역(PlayZone)이 받고 좌표로 칸을 찾는다. jsdom은 레이아웃이 없으니 칸 rect를 흉내 낸다. */
+function tapCell(el: HTMLElement) {
+  const all = Array.from(document.querySelectorAll<HTMLElement>('[data-cell]'))
+  all.forEach((c, k) => {
+    c.getBoundingClientRect = () => ({ left: k * 10, right: k * 10 + 10, top: 0, bottom: 10, width: 10, height: 10, x: k * 10, y: 0, toJSON: () => ({}) }) as DOMRect
+  })
+  const k = all.indexOf(el)
+  fireEvent.pointerDown(document.querySelector('[data-play-zone]') as HTMLElement, { clientX: k * 10 + 5, clientY: 5 })
+}
+
 describe('GameZeroHour', () => {
   beforeEach(() => {
     localStorage.clear()
@@ -60,7 +70,7 @@ describe('GameZeroHour', () => {
     render(<GameZeroHour storageKey="best:zero-hour" />)
     fireEvent.click(screen.getAllByRole('button', { name: 'Start' })[0])
     advance(300)
-    fireEvent.pointerDown(screen.getAllByTestId('zh-tile')[0])
+    tapCell(screen.getAllByTestId('zh-tile')[0])
     const banked = score()
     expect(banked).toBeGreaterThan(0)
 
@@ -75,7 +85,7 @@ describe('GameZeroHour', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Resume' }))
     expect(screen.queryByTestId('zh-paused')).not.toBeInTheDocument()
     expect(score()).toBe(banked)
-    fireEvent.pointerDown(screen.getAllByTestId('zh-tile')[0])
+    tapCell(screen.getAllByTestId('zh-tile')[0])
     expect(score()).toBeGreaterThan(banked)
   }, TEST_TIMEOUT_MS)
 

@@ -1,5 +1,6 @@
 'use client'
 
+import { PlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   BUBBLE_R,
@@ -331,11 +332,11 @@ export function GameBubbleShooter({ storageKey }: { storageKey: string }) {
   }, [play])
 
   const onPointerMove = useCallback(
-    (e: React.PointerEvent<HTMLCanvasElement>) => aimTo(e.clientX, e.clientY),
+    (e: React.PointerEvent<HTMLElement>) => aimTo(e.clientX, e.clientY),
     [aimTo],
   )
   const onPointerDown = useCallback(
-    (e: React.PointerEvent<HTMLCanvasElement>) => {
+    (e: React.PointerEvent<HTMLElement>) => {
       aimTo(e.clientX, e.clientY)
       doShoot()
     },
@@ -376,17 +377,17 @@ export function GameBubbleShooter({ storageKey }: { storageKey: string }) {
     >
       <div
         ref={wrapRef}
-        className="anim-board-in relative aspect-square w-full touch-none overflow-hidden rounded-xl bg-surface"
+        className="anim-board-in relative aspect-square w-full overflow-hidden rounded-xl bg-surface"
       >
         <canvas
           ref={canvasRef}
           data-testid="bubble-board"
-          onPointerMove={onPointerMove}
-          onPointerDown={onPointerDown}
           className="block h-full w-full cursor-crosshair"
-          style={{ touchAction: 'none' }}
+          style={{ touchAction: 'pan-y' }}
           aria-label="Bubble Shooter game board"
         />
+        {/* 조작 구역: 위·아래 12%는 페이지 스크롤 띠(탭 입력 무시). 조준 좌표는 canvasRef rect로 계산한다. */}
+        <PlayZone className="cursor-crosshair" onPointerMove={onPointerMove} onPointerDown={onPointerDown} />
         <GameOverlay show={phase === 'won'} variant="win" title="Board cleared!" testId="game-over">
           <p className="text-fg-muted">Score: {hud.score}</p>
           <GameButton onClick={restart} className="px-4 py-2">

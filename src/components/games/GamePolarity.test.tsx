@@ -231,7 +231,7 @@ describe('GamePolarity keyboard', () => {
     advance(50)
     expect(screen.getByTestId('polarity-state')).toHaveAttribute('data-polarity', 'push')
     advance(300) // past the cooldown
-    fireEvent.pointerDown(screen.getByTestId('polarity-board'))
+    fireEvent.pointerDown(document.querySelector('[data-play-zone]') as HTMLElement)
     advance(50)
     expect(screen.getByTestId('polarity-state')).toHaveAttribute('data-polarity', 'pull')
   })
