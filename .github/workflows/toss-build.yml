@@ -1,0 +1,39 @@
+# 토스 미니앱(.ait) 빌드. PR에서는 번들만 만들어 아티팩트로 올리고, main 머지 시 AIT_API_KEY가 있으면 콘솔에 업로드(테스트 번들)한다.
+name: toss-build
+on:
+  pull_request:
+    paths: ['toss/**', 'src/lib/games/**', '.github/workflows/toss-build.yml']
+  push:
+    branches: [main]
+    paths: ['toss/**', 'src/lib/games/**']
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: toss
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: toss/package-lock.json
+      - run: npm ci
+      - run: npx tsc --noEmit -p .
+      - run: npx vite build
+      - run: npx ait build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: recoil-puzzle-ait
+          path: toss/*.ait
+          retention-days: 14
+      - name: 콘솔에 테스트 번들 업로드
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        env:
+          AIT_API_KEY: ${{ secrets.AIT_API_KEY }}
+        run: |
+          if [ -z "$AIT_API_KEY" ]; then echo "AIT_API_KEY 없음: 업로드 생략"; exit 0; fi
+          npx ait deploy --api-key "$AIT_API_KEY" -m "main $(git rev-parse --short HEAD)"
