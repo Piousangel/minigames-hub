@@ -57,7 +57,7 @@ function withUrl(text, url, channel) {
 async function waitFor200(url) {
   for (let i = 0; i < 20; i++) {
     try {
-      const r = await fetch(url, { redirect: 'follow' })
+      const r = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(15_000) })
       if (r.ok) return true
     } catch {}
     await new Promise((r) => setTimeout(r, 30_000))
@@ -105,18 +105,40 @@ async function blueskyCard(url, jwt) {
 function loadImages(p, max) {
   const list = (p.images ?? []).slice(0, max).map((x) => (typeof x === 'string' ? { path: x, alt: '' } : x))
   return list.map((x) => {
-    if (!x.path || !existsSync(x.path)) throw new Error(`image-missing:${x.path}`)
+    // 큐는 PR로만 들어오지만 안전하게: 이미지는 docs/marketing/images/ 아래 JPG/PNG만 허용(경로 이탈 차단)
+    const norm = String(x.path ?? '').replace(/\\/g, '/')
+    if (!/^docs\/marketing\/images\/[\w./-]+$/.test(norm) || norm.includes('..')) throw new Error(`image-path:${x.path}`)
+    if (!existsSync(norm)) throw new Error(`image-missing:${x.path}`)
     const ext = x.path.toLowerCase().split('.').pop()
     const mime = ext === 'png' ? 'image/png' : ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : null
     if (!mime) throw new Error(`image-type:${x.path}`)
-    const buf = readFileSync(x.path)
+    const buf = readFileSync(norm)
     if (buf.length > 950_000) throw new Error(`image-too-large:${x.path}`)
-    return { path: x.path, alt: (x.alt ?? '').slice(0, 300), mime, buf }
+    return { path: norm, alt: (x.alt ?? '').slice(0, 300), mime, buf }
   })
 }
 
 // Threads는 이미지를 공개 URL로만 받는다. 저장소가 공개라 raw.githubusercontent.com 을 쓴다(main에 머지된 뒤 몇 초~분 내 열린다).
-const rawUrl = (path) => `https://raw.githubusercontent.com/${env.GITHUB_REPOSITORY}/main/${path}`
+// 체크아웃된 커밋(GITHUB_SHA) 기준으로 읽어 raw 캐시(최대 5분)로 옛 파일이 나가는 일을 막는다.
+const rawUrl = (path) => {
+  if (!env.GITHUB_REPOSITORY) throw new Error('threads image: GITHUB_REPOSITORY 필요(Actions에서만 이미지 게시 가능)')
+  return `https://raw.githubusercontent.com/${env.GITHUB_REPOSITORY}/${env.GITHUB_SHA || 'main'}/${encodeURI(path)}`
+}
+
+// Threads 컨테이너는 만든 직후 바로 게시할 수 없다. status가 FINISHED가 될 때까지 폴링한다(문서: IN_PROGRESS/FINISHED/ERROR/EXPIRED).
+async function waitFinished(id, tk) {
+  for (let i = 0; i < 30; i++) {
+    const j = await (
+      await fetch(`https://graph.threads.net/v1.0/${id}?fields=status,error_message&access_token=${tk}`, { signal: AbortSignal.timeout(15_000) })
+    )
+      .json()
+      .catch(() => ({}))
+    if (j.status === 'FINISHED') return
+    if (j.status === 'ERROR' || j.status === 'EXPIRED') throw new Error(`threads container ${j.status}: ${j.error_message ?? ''}`)
+    await new Promise((r) => setTimeout(r, 2000))
+  }
+  throw new Error('threads container not FINISHED in time')
+}
 
 async function blueskyImages(imgs, jwt) {
   const out = []
@@ -128,7 +150,7 @@ async function blueskyImages(imgs, jwt) {
     })
     const uj = await up.json()
     if (!uj.blob) throw new Error(`bluesky image upload: ${JSON.stringify(uj).slice(0, 150)}`)
-    out.push({ alt: im.alt || 'Acorn Hop', image: uj.blob })
+    out.push({ alt: im.alt || '', image: uj.blob })
   }
   return { $type: 'app.bsky.embed.images', images: out }
 }
@@ -232,20 +254,30 @@ const adapters = {
             if (!k.ok || !kj.id) throw new Error(`threads carousel item: ${k.status} ${JSON.stringify(kj).slice(0, 200)}`)
             kids.push(kj.id)
           }
-          await new Promise((r) => setTimeout(r, 8000))
+          for (const id of kids) await waitFinished(id, tk)
           params = new URLSearchParams({ media_type: 'CAROUSEL', children: kids.join(','), text, access_token: tk })
         }
       }
       const c = await fetch(`${base}/threads`, { method: 'POST', body: params })
       const cj = await c.json()
       if (!c.ok || !cj.id) throw new Error(`threads container: ${c.status} ${JSON.stringify(cj).slice(0, 200)}`)
-      await new Promise((r) => setTimeout(r, 5000)) // 컨테이너 처리 대기(문서 권장)
-      const pub = await fetch(`${base}/threads_publish`, {
-        method: 'POST',
-        body: new URLSearchParams({ creation_id: cj.id, access_token: env.THREADS_ACCESS_TOKEN }),
-      })
-      const pj = await pub.json()
-      if (!pub.ok || !pj.id) throw new Error(`threads publish: ${pub.status} ${JSON.stringify(pj).slice(0, 200)}`)
+      await waitFinished(cj.id, tk)
+      // 게시 단계: 응답이 끊기거나 5xx면 실제로는 올라갔을 수 있다 → 'publish-unknown'(재시도하면 중복될 수 있어 자동 재시도 금지).
+      let pub
+      try {
+        pub = await fetch(`${base}/threads_publish`, {
+          method: 'POST',
+          body: new URLSearchParams({ creation_id: cj.id, access_token: tk }),
+          signal: AbortSignal.timeout(30_000),
+        })
+      } catch (e) {
+        throw new Error(`publish-unknown: ${String(e.message ?? e)}`)
+      }
+      const pj = await pub.json().catch(() => null)
+      if (!pub.ok || !pj?.id) {
+        const msg = `threads publish: ${pub.status} ${JSON.stringify(pj).slice(0, 200)}`
+        throw new Error(pub.status >= 500 || !pj ? `publish-unknown: ${msg}` : msg)
+      }
       const meta = await (await fetch(`https://graph.threads.net/v1.0/${pj.id}?fields=permalink&access_token=${env.THREADS_ACCESS_TOKEN}`)).json().catch(() => ({}))
       return { link: meta.permalink ?? `https://www.threads.com/`, ref: pj.id }
     },
@@ -300,7 +332,8 @@ function imageProblem(p) {
 
 // ---- 실행 ----
 const ledger = existsSync(LEDGER) ? JSON.parse(readFileSync(LEDGER, 'utf8')) : []
-const done = new Set(ledger.filter((e) => e.status === 'posted').map((e) => e.id))
+// error-publish-unknown: 게시 응답이 유실돼 올라갔는지 모르는 항목. 중복 게시를 막기 위해 자동 재시도하지 않는다(사람이 확인).
+const done = new Set(ledger.filter((e) => e.status === 'posted' || e.status === 'error-publish-unknown').map((e) => e.id))
 const postedToday = new Set(ledger.filter((e) => e.status === 'posted' && e.date === kstDate()).map((e) => e.channel))
 const allowedDates = new Set([kstDate(), kstDate(1)])
 
@@ -339,7 +372,7 @@ for (const f of files.sort().reverse()) {
           entry.status = 'posted'
           postedToday.add(p.channel)
         } catch (e) {
-          entry.status = 'error'
+          entry.status = String(e.message ?? e).startsWith('publish-unknown') ? 'error-publish-unknown' : 'error'
           entry.error = String(e.message ?? e).slice(0, 300)
         }
       }
@@ -351,6 +384,8 @@ for (const f of files.sort().reverse()) {
     if (prev >= 0) ledger[prev] = entry
     else ledger.push(entry)
     changed = true
+    // 항목마다 바로 저장: 뒤 항목에서 멈추거나 타임아웃이 나도 이미 올린 글이 원장에서 사라져 중복 게시되는 일을 막는다.
+    writeFileSync(LEDGER, JSON.stringify(ledger, null, 2) + '\n')
   }
 }
 if (changed) writeFileSync(LEDGER, JSON.stringify(ledger, null, 2) + '\n')
