@@ -16,6 +16,13 @@ export interface Save {
   muted: boolean
   seenHowTo: boolean
   plays: number
+  /** 캐릭터 해금용 누적 진행도 */
+  totalStars: number
+  maxStreak: number
+  parClears: number
+  character: string
+  /** 이미 축하를 보여 준 해금 캐릭터 */
+  seenUnlocks: string[]
 }
 
 const EMPTY: Save = {
@@ -27,6 +34,11 @@ const EMPTY: Save = {
   muted: false,
   seenHowTo: false,
   plays: 0,
+  totalStars: 0,
+  maxStreak: 0,
+  parClears: 0,
+  character: 'tori',
+  seenUnlocks: ['tori'],
 }
 
 let key = 'recoil:save:local'

@@ -32,6 +32,7 @@ import {
 import { playSound, type SoundName } from './sound'
 import { haptic, submitScore } from './toss'
 import { getSave, liveStreak, nextStreak, todayKST, updateSave } from './store'
+import { CHARACTERS, isUnlocked, josa, spriteUrl, type Character, type Pose } from './characters'
 
 export type Mode = 'daily' | 'practice'
 
@@ -75,16 +76,26 @@ interface Burst {
 export function RecoilGame({
   mode,
   difficulty,
+  character,
   onExit,
 }: {
   mode: Mode
   difficulty: Difficulty
+  character: Character
   onExit: () => void
 }) {
+  const [pose, setPose] = useState<Pose>('idle')
+  const poseTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const flash = useCallback((p: Pose, ms: number) => {
+    setPose(p)
+    if (poseTimer.current) clearTimeout(poseTimer.current)
+    poseTimer.current = setTimeout(() => setPose('idle'), ms)
+  }, [])
+  const [newFriends, setNewFriends] = useState<Character[]>([])
   const [state, setState] = useState<RecoilState | null>(null)
   const [bursts, setBursts] = useState<Burst[]>([])
   const [bankText, setBankText] = useState<{ seq: number; x: number; y: number } | null>(null)
-  const [result, setResult] = useState<{ counted: boolean; newBest: boolean; streak: number } | null>(null)
+  const [result, setResult] = useState<{ counted: boolean; newBest: boolean; streak: number; underPar: boolean } | null>(null)
 
   const stateRef = useRef<RecoilState | null>(null)
   const trailRef = useRef<Array<{ x: number; y: number }>>([])
@@ -116,6 +127,8 @@ export function RecoilGame({
       setBursts([])
       setBankText(null)
       setResult(null)
+      setNewFriends([])
+      setPose('idle')
       commit(g)
     },
     [mode, difficulty, commit],
@@ -132,8 +145,12 @@ export function RecoilGame({
         break
       }
     }
-    if (evs.has('fire')) haptic('tap')
+    if (evs.has('fire')) {
+      haptic('tap')
+      flash('fire', 260)
+    }
     if (evs.has('star')) {
+      flash('happy', 500)
       const fresh = next.stars.filter((st, i) => st.taken && !prev.stars[i].taken)
       setBursts((b) => [...b, ...fresh.map((st) => ({ seq: ++seqRef.current, x: st.x, y: st.y }))])
       if (next.bankShots > prev.bankShots && fresh.length) {
@@ -141,9 +158,17 @@ export function RecoilGame({
         setBankText({ seq: ++seqRef.current, x: st.x, y: st.y })
       }
     }
-    if (evs.has('win')) haptic('success')
-    if (evs.has('lose')) haptic('error')
-  }, [])
+    if (evs.has('win')) {
+      haptic('success')
+      if (poseTimer.current) clearTimeout(poseTimer.current)
+      setPose('happy')
+    }
+    if (evs.has('lose')) {
+      haptic('error')
+      if (poseTimer.current) clearTimeout(poseTimer.current)
+      setPose('dizzy')
+    }
+  }, [flash])
 
   // 60Hz 고정 틱. 프레임 시간은 몇 틱을 돌릴지만 정한다(웹판과 동일: 같은 시드+입력이면 같은 결과).
   const phase = state?.phase
@@ -195,7 +220,12 @@ export function RecoilGame({
     const counted = mode === 'practice' || firstDaily
     const newBest = counted && s.score > save.best
     let streak = liveStreak(save, todayKST())
-    const patch: Parameters<typeof updateSave>[0] = { plays: save.plays + 1 }
+    const underPar = won && s.shotsFired <= s.config.parShots
+    const patch: Parameters<typeof updateSave>[0] = {
+      plays: save.plays + 1,
+      totalStars: save.totalStars + s.collected,
+      parClears: save.parClears + (underPar ? 1 : 0),
+    }
     if (newBest) patch.best = s.score
     if (firstDaily) {
       patch.dailyTriedDay = day
@@ -204,9 +234,16 @@ export function RecoilGame({
         streak = nextStreak(save, day)
         patch.streak = streak
         patch.lastClearDay = day
+        patch.maxStreak = Math.max(save.maxStreak, streak)
       }
     }
-    setResult({ counted, newBest, streak })
+    setResult({ counted, newBest, streak, underPar })
+    const after = { ...save, ...patch }
+    const fresh = CHARACTERS.filter((c) => isUnlocked(c, after) && !save.seenUnlocks.includes(c.id))
+    if (fresh.length) {
+      patch.seenUnlocks = [...save.seenUnlocks, ...fresh.map((c) => c.id)]
+      setNewFriends(fresh)
+    }
     void updateSave(patch)
     if (firstDaily) void submitScore(s.score)
   }, [phase, mode])
@@ -303,6 +340,7 @@ export function RecoilGame({
           </div>
         )}
         <div className="arena">
+          <div className="arena-inner">
           <svg
             ref={svgRef}
             viewBox={`0 0 ${ARENA_H} ${ARENA_W}`}
@@ -359,7 +397,7 @@ export function RecoilGame({
               </g>
             ))}
             {trailRef.current.length > 1 && (
-              <polyline points={trailPts} fill="none" stroke="var(--cyan)" strokeOpacity={0.3} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+              <polyline points={trailPts} fill="none" stroke={character.accent} strokeOpacity={0.35} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
             )}
             {preview.length > 0 && (
               <polyline points={previewPts} fill="none" stroke="var(--cyan)" strokeOpacity={0.55} strokeWidth={1} strokeDasharray="1 3" strokeLinecap="round" />
@@ -368,14 +406,21 @@ export function RecoilGame({
               <line x1={shipX} y1={shipY} x2={shipX + (adx * 14) / 256} y2={shipY + (ady * 14) / 256} stroke="var(--magenta)" strokeWidth={1} strokeDasharray="2 2" />
             )}
             <g transform={`translate(${shipX} ${shipY})`}>
-              <circle r={5} fill="rgba(34,211,238,.15)" stroke="var(--cyan)" strokeWidth={1.2} />
-              <g transform={`rotate(${s.aim * 22.5})`}>
-                <line x1={0} y1={0} x2={9} y2={0} stroke="var(--cyan)" strokeWidth={2} strokeLinecap="round" />
-              </g>
-              <circle r={1.5} fill="var(--cyan)" />
+              <circle r={5} fill="none" stroke={character.accent} strokeOpacity={0.35} strokeWidth={0.8} />
             </g>
             </g>
           </svg>
+          <img
+            className={`hero pose-${pose}`}
+            src={spriteUrl(character.id, pose)}
+            alt=""
+            draggable={false}
+            style={{
+              left: `${((ARENA_H - shipY) / ARENA_H) * 100}%`,
+              top: `${(shipX / ARENA_W) * 100}%`,
+              transform: `translate(-50%, -50%) scaleX(${ady <= 0 ? 1 : -1})`,
+            }}
+          />
           {bankText && (
             <span
               key={bankText.seq}
@@ -386,6 +431,7 @@ export function RecoilGame({
               벽 튕기기 +{BANK_PTS}
             </span>
           )}
+        </div>
         </div>
         <p className="hint">{hint}</p>
       </div>
@@ -402,6 +448,7 @@ export function RecoilGame({
       {over && (
         <div className="sheet-backdrop">
           <div className="sheet" role="dialog" aria-modal="true">
+            <img className="sheet-hero" src={spriteUrl(character.id, won ? 'happy' : 'dizzy')} alt="" />
             <h2>{won ? '별을 모두 모았어요!' : s.endReason === 'stalled' ? '우주에 멈춰버렸어요' : '밖으로 흘러갔어요'}</h2>
             {won ? (
               <ul className="breakdown">
@@ -443,6 +490,15 @@ export function RecoilGame({
                   : '오늘의 퍼즐은 첫 판만 기록돼요'}
               </p>
             )}
+            {newFriends.map((f) => (
+              <div key={f.id} className="unlock">
+                <img src={spriteUrl(f.id, 'happy')} alt="" />
+                <div>
+                  <b>새 친구 {josa(f.name, '이가', '가')} 합류했어요!</b>
+                  <span>처음 화면의 우주 친구들에서 함께 날 수 있어요</span>
+                </div>
+              </div>
+            ))}
             <div className="sheet-actions">
               {mode === 'practice' ? (
                 <>

@@ -104,3 +104,60 @@ h1, h2, p { margin: 0; }
 @keyframes fade { from { opacity: 0 } }
 @keyframes up { from { transform: translateY(24px); opacity: 0 } }
 @media (prefers-reduced-motion: reduce) { .star, .burst, .bank, .sheet, .sheet-backdrop { animation: none; } }
+
+/* 캐릭터 */
+.arena-inner { position: relative; }
+.hero { position: absolute; width: 21%; pointer-events: none; user-select: none; filter: drop-shadow(0 2px 6px rgba(0,0,0,.5)); transition: none; }
+.hero.pose-fire { animation: kick .26s ease-out; }
+.hero.pose-happy { animation: pop .4s ease-out; }
+@keyframes kick { 0% { scale: 1.12 0.9 } 100% { scale: 1 1 } }
+@keyframes pop { 0% { scale: 1 } 40% { scale: 1.18 } 100% { scale: 1 } }
+.sheet-hero { width: 96px; height: 96px; align-self: center; margin-top: -64px; filter: drop-shadow(0 6px 14px rgba(0,0,0,.5)); }
+.unlock { display: flex; gap: 12px; align-items: center; background: linear-gradient(90deg, rgba(251,191,36,.18), rgba(251,191,36,.04)); border: 1px solid rgba(251,191,36,.5); border-radius: 14px; padding: 10px 12px; animation: up .3s ease-out; }
+.unlock img { width: 52px; height: 52px; }
+.unlock b { display: block; font-size: 15px; }
+.unlock span { font-size: 12px; color: var(--muted); }
+
+/* 홈 v2: 캐릭터 무대 */
+.home { position: relative; gap: 12px; overflow: hidden; }
+.starfield { position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background:
+    radial-gradient(1px 1px at 12% 18%, #fff8 50%, transparent 51%),
+    radial-gradient(1px 1px at 78% 12%, #fff6 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 64% 34%, #fbbf24aa 50%, transparent 51%),
+    radial-gradient(1px 1px at 30% 44%, #fff5 50%, transparent 51%),
+    radial-gradient(1px 1px at 88% 52%, #fff7 50%, transparent 51%),
+    radial-gradient(1px 1px at 8% 66%, #fff5 50%, transparent 51%),
+    radial-gradient(600px 300px at 50% 18%, rgba(34,211,238,.12), transparent 70%),
+    radial-gradient(500px 260px at 80% 0%, rgba(255,61,154,.10), transparent 70%);
+  animation: drift 40s linear infinite alternate; }
+@keyframes drift { to { transform: translateY(-14px) } }
+.home-top { display: flex; justify-content: space-between; align-items: center; }
+.brand { font-weight: 800; font-size: 17px; letter-spacing: -0.3px; background: linear-gradient(90deg, #22d3ee, #ff3d9a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.stage { position: relative; height: 210px; display: grid; place-items: center; }
+.orbit { position: absolute; width: 230px; height: 70px; bottom: 12px; border-radius: 50%; border: 1px dashed rgba(34,211,238,.35); transform: rotate(-8deg); }
+.float { width: 190px; height: 190px; animation: bob 3.2s ease-in-out infinite; filter: drop-shadow(0 12px 22px rgba(0,0,0,.55)); }
+.float.boing { animation: boing .5s ease-out, bob 3.2s ease-in-out .5s infinite; }
+@keyframes bob { 0%,100% { transform: translateY(0) rotate(-3deg) } 50% { transform: translateY(-12px) rotate(3deg) } }
+@keyframes boing { 0% { transform: scale(1) } 30% { transform: scale(1.15, .88) } 60% { transform: scale(.94, 1.08) } 100% { transform: scale(1) } }
+.hello { text-align: center; margin-top: -6px; }
+.hello b { display: block; font-size: 24px; font-weight: 800; }
+.hello span { font-size: 13px; color: var(--muted); }
+.tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 70px; font-size: 14px; }
+.tile small { font-size: 11px; color: var(--muted); font-weight: 600; }
+.tile-ic { font-size: 22px; }
+.boot { width: 120px; animation: bob 2s ease-in-out infinite; }
+.sheet.tall { max-height: 86dvh; overflow-y: auto; }
+.friends { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.friend { background: var(--surface-2); border: 2px solid transparent; border-radius: 16px; padding: 12px 10px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+.friend img { width: 84px; height: 84px; }
+.friend b { font-size: 16px; }
+.friend span { font-size: 12px; color: var(--muted); }
+.friend.sel { border-color: var(--acc); box-shadow: 0 0 0 4px color-mix(in srgb, var(--acc) 20%, transparent); }
+.friend.locked img { filter: brightness(0) opacity(.55); }
+.friend.locked { cursor: default; }
+.friend .bar { display: block; width: 80%; height: 6px; border-radius: 6px; background: rgba(255,255,255,.08); overflow: hidden; }
+.friend .bar i { display: block; height: 100%; background: var(--acc); }
+.friend .num { font-variant-numeric: tabular-nums; }
+.intro { font-size: 14px; color: var(--muted); text-align: center; line-height: 1.5; }
+@media (prefers-reduced-motion: reduce) { .float, .starfield, .boot { animation: none; } }
