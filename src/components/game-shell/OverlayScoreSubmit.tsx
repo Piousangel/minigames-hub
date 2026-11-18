@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { sendHit } from '@/lib/hit'
+import { parseRankInfo, rankLine, type RankInfo } from '@/lib/leaderboardOrder'
 import {
   LEADERBOARD_GAMES,
   MAX_NAME_LEN,
@@ -36,12 +37,14 @@ export function OverlayScoreSubmit({ slug, show }: { slug: string; show: boolean
   const [name, setName] = useState('')
   const [editing, setEditing] = useState(false)
   const [state, setState] = useState<'idle' | 'sending' | 'done' | 'error'>('idle')
+  const [rankInfo, setRankInfo] = useState<RankInfo | null>(null)
   const submittedRef = useRef(0)
   const meta = LEADERBOARD_GAMES[slug]
 
   useEffect(() => {
     if (!show) return
     setState('idle')
+    setRankInfo(null)
     const saved = loadPlayerName()
     setName(saved)
     setEditing(!saved.trim())
@@ -60,6 +63,11 @@ export function OverlayScoreSubmit({ slug, show }: { slug: string; show: boolean
     return (
       <p data-testid="overlay-submit-done" className="text-xs font-semibold text-neon-lime">
         ✓ Submitted to this week&apos;s board
+        {rankInfo && (
+          <span data-testid="overlay-rank" className="mt-0.5 block text-sm font-bold text-neon-amber">
+            {rankLine(rankInfo)}
+          </span>
+        )}
       </p>
     )
   }
@@ -76,6 +84,9 @@ export function OverlayScoreSubmit({ slug, show }: { slug: string; show: boolean
         body: JSON.stringify({ game: slug, name: trimmed, score: best }),
       })
       if (!res.ok) throw new Error('bad')
+      const info = parseRankInfo(await res.json().catch(() => null))
+      setRankInfo(info)
+      if (info) sendHit(slug, 'lb_rank_shown')
       saveSubmittedScore(slug, best)
       savePlayerName(trimmed)
       sendHit(slug, 'lb_submit')

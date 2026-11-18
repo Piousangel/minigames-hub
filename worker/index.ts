@@ -10,6 +10,7 @@ import {
   scoreRateKey,
   type ScoreRow,
 } from '../src/lib/leaderboard'
+import { topPercent } from '../src/lib/leaderboardOrder'
 import {
   emptyReactionCounts,
   isValidReaction,
@@ -303,7 +304,23 @@ export default {
       // 허브 엣지 캐시 무효화 — 제출한 사람이 곧바로 허브를 열었을 때 옛 보드를 보지 않게
       const hubCache = edgeCache()
       if (hubCache?.delete) defer(hubCache.delete(hubCacheKey(url.origin, week)).then(() => undefined, () => undefined))
-      return json({ week, top: await top(env, game, week), submitted: { name, score } })
+      // 제출 직후 순위: 이번 주 이 게임의 전체 제출 수와, 내 점수보다 높은 제출 수(동점은 같은 순위).
+      // idx_scores_board(game, week, score DESC)로 범위 스캔 한 번. 사용자별 1행 정리는 아직 없어 total은 '제출 수'다.
+      // 순위는 덤이다 — 조회가 실패해도 이미 저장된 제출을 실패로 돌려주면 사용자가 재시도해 중복 행이 생기므로 삼킨다.
+      let rankFields: { rank: number; total: number; topPercent: number } | undefined
+      try {
+        const { results: cnt } = await env.DB.prepare(
+          'SELECT COUNT(*) AS total, COALESCE(SUM(CASE WHEN score > ? THEN 1 ELSE 0 END), 0) AS above FROM scores WHERE game=? AND week=?',
+        )
+          .bind(score, game, week)
+          .all<{ total: number; above: number }>()
+        const total = Number(cnt[0]?.total ?? 0)
+        const rank = Number(cnt[0]?.above ?? 0) + 1
+        if (total >= 1 && rank <= total) rankFields = { rank, total, topPercent: topPercent(rank, total) }
+      } catch (e) {
+        console.warn('score rank lookup failed', e)
+      }
+      return json({ week, top: await top(env, game, week), submitted: { name, score }, ...rankFields })
     }
 
     // 게임별 이모지 리액션(무계정, UGC 없음) — src/lib/reactions.ts 참고.
