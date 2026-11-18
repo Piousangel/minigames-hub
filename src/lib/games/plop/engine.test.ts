@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { BOTS, simulate } from './sim'
 import {
-  STAR_BONUS, STAR_EVERY, STAR_FROM, STAR_HALF_MIN, starCandidate,
+  STAR_BONUS, STAR_EVERY, STAR_FROM, STAR_GAP, STAR_HALF_MAX, STAR_MID_HALF_MAX, starCandidate, starHalfOf,
   D_CAP, D_MAX_FRAC, HALFW_FLOOR, HALFW_MIN, SINK_START_MS, WIND_MAX_LATE, pingOf, previewFracOf, windMaxOf, MIN_GAP, PING_MS, RMAX, WIND_MAX, dailySeedFor, ensureIslands, flightDuration, flightPos,
   halfWOf, inputLocked, newGame, nextIsland, powerAt, press, previewPoints, rangeAt, rangeMax, release, startIsland, tick, tintOf, cancelCharge,
 } from './engine'
@@ -60,7 +60,8 @@ describe('섬 생성(결정성·도달 가능성)', () => {
         expect(Math.abs(isl.wind)).toBeLessThanOrEqual(windMaxOf(isl.i) + 1e-9)
         expect(d).toBeLessThanOrEqual(D_MAX_FRAC * rangeMax(isl.wind) + 1e-6)      // 최대 힘의 85% 이내(맞바람이어도 닿음)
         expect(d).toBeLessThanOrEqual(D_CAP + 1e-6)                                 // 카메라 한계(다음 섬 중심이 항상 화면 안)
-        expect(d - prev.halfW - isl.halfW).toBeGreaterThanOrEqual(MIN_GAP - 1e-6)   // 겹치지 않음
+        // 겹치지 않음: 별 구간(가운데·별 섬)은 STAR_GAP, 나머지는 MIN_GAP
+        expect(d - prev.halfW - isl.halfW).toBeGreaterThanOrEqual((isl.star || isl.starReach !== undefined ? STAR_GAP : MIN_GAP) - 1e-6)
         expect(isl.halfW).toBeGreaterThanOrEqual(HALFW_FLOOR)
       }
     }
@@ -278,10 +279,13 @@ describe('별 섬(11-18)', () => {
     return st.islands
   }
 
-  it('불변식(1,000시드): 별 섬은 앞 섬이 보장한 거리 안, 반폭 0.8배(≥18), 5개 간격, STAR_FROM 이후, 두 칸 점프가 항상 닿는다', () => {
+  it('불변식(1,000시드): 별 섬은 앞 섬이 보장한 거리 안, 반폭 ≤40(≥18), 4개 간격 이상, STAR_FROM 이후, 가운데 섬 ≤50, 두 칸·한 칸 점프가 항상 닿는다', () => {
     let stars = 0
+    let firstStarSum = 0
     for (let seed = 1; seed <= 1000; seed++) {
       const isl = build(seed)
+      const first = isl.findIndex((x) => x.star)
+      firstStarSum += first >= 0 ? first : isl.length
       let lastStar = -99
       for (let i = 0; i < isl.length; i++) {
         const s = isl[i]
@@ -291,17 +295,21 @@ describe('별 섬(11-18)', () => {
         expect(starCandidate(seed, i)).toBe(true)
         expect(i - lastStar).toBeGreaterThanOrEqual(STAR_EVERY)
         lastStar = i
-        expect(s.halfW).toBe(Math.max(STAR_HALF_MIN, Math.round(halfWOf(i) * 0.8)))
+        expect(s.halfW).toBe(starHalfOf(i))
+        expect(s.halfW).toBeLessThanOrEqual(STAR_HALF_MAX)
         // 두 칸 점프(i-2 → 별)는 가운데 섬(i-1)의 바람 기준 사거리 0.85배·카메라 상한 안
         const dSkip = s.cx - isl[i - 2].cx
         expect(dSkip).toBeLessThanOrEqual(Math.min(D_CAP, D_MAX_FRAC * rangeMax(isl[i - 1].wind)) + 1e-9)
         // 가운데→별 간격은 섬 가장자리 사이 MIN_GAP 이상, 한 칸씩 가는 점프도 별 섬 바람 기준 사거리 0.85배·카메라 상한 안(리뷰 지적)
         const dStep = s.cx - isl[i - 1].cx
-        expect(dStep).toBeGreaterThanOrEqual(isl[i - 1].halfW + s.halfW + MIN_GAP - 1e-9)
+        expect(dStep).toBeGreaterThanOrEqual(isl[i - 1].halfW + s.halfW + STAR_GAP - 1e-9)
+        expect(isl[i - 1].halfW).toBeLessThanOrEqual(STAR_MID_HALF_MAX) // 가운데 섬은 작다
+        expect(isl[i - 2].cx + isl[i - 2].halfW + STAR_GAP).toBeLessThanOrEqual(isl[i - 1].cx - isl[i - 1].halfW + 1e-9)
         expect(dStep).toBeLessThanOrEqual(Math.min(D_CAP, D_MAX_FRAC * rangeMax(s.wind)) + 1e-9)
       }
     }
-    expect(stars).toBeGreaterThan(5000) // 시드당 평균 5개 이상 등장
+    expect(stars).toBeGreaterThan(5000) // 시드당 평균 5개 이상 등장(46섬 기준)
+    expect(firstStarSum / 1000).toBeLessThan(14) // 첫 별 섬은 평균 14번째 이전(11-18 밤: 18번째가 너무 늦다는 지적)
   })
 
   it('같은 시드는 같은 별 섬 배치(결정적)', () => {
@@ -379,11 +387,11 @@ describe('별 섬(11-18)', () => {
     expect(st2.flight!.starTry).toBe(true)
   })
 
-  it('별을 노리지 않는 사람형 봇의 난이도는 변하지 않는다(기준선 대비 중앙 섬 수 ±3: σ30=33, σ40=28, σ60=21)', () => {
+  it('별을 노리지 않는 사람형 봇의 난이도는 변하지 않는다(기준선 대비 중앙 섬 수 ±2: σ30=33, σ40=28, σ60=21(별 섬 도입 직전). 현재 32/27/20 = −1섬)', () => {
     const base: Record<string, number> = { c30: 33, c40: 28, c60: 21 }
     for (const k of ['c30', 'c40', 'c60'] as const) {
-      const r = simulate(BOTS[k], 200)
-      expect(Math.abs(r.medianLanded - base[k]), k).toBeLessThanOrEqual(3)
+      const r = simulate(BOTS[k], 300)
+      expect(Math.abs(r.medianLanded - base[k]), k).toBeLessThanOrEqual(2)
     }
   })
 })
