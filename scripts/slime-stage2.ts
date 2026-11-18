@@ -12,9 +12,9 @@ if (group === 'tier1') {
   for (const [sx, sy] of [[150, 270], [170, 300], [120, 230]] as const) for (const ink of [460, 520])
     cands.push(mk(`t1b-spk${sx}x${sy}-ink${ink}`, 1, base, { x: 70, y: 100 }, { x: 320, y: 484 }, [{ x: sx, y: sy }], ink))
 } else {
-  // tier2 스테이지 2(2차): 벽을 높여 너무 쉬운 문제 해결(1차 후보 8개는 보통 봇 76~94%로 목표 35~55% 초과)
-  for (const wallX of [180, 230]) for (const top of [250, 270]) for (const ink of [440, 500])
-    cands.push(mk(`t2c-wall${wallX}-top${top}-ink${ink}`, 2, [seg(wallX, top, wallX, 560), seg(wallX + 22, 500, 390, 500), seg(350, 400, 350, 500)], { x: 60, y: 90 }, { x: 325, y: 484 }, [], ink))
+  // 오너 피드백: 두 번째 tier2(s-wall-b, 벽 x=230)도 같은 방향으로 쉽게(보통 55~80, 캐주얼 ≥30)
+  for (const top of [292, 298]) for (const ink of [540, 600])
+    cands.push(mk(`t2h-wall230-top${top}-ink${ink}`, 2, [seg(230, top, 230, 560), seg(252, 500, 390, 500), seg(350, 400, 350, 500)], { x: 60, y: 90 }, { x: 325, y: 484 }, [], ink))
 }
 const runs = Number(process.env.RUNS ?? 120)
 for (const c of cands) {
