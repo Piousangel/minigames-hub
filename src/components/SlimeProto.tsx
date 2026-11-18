@@ -48,6 +48,7 @@ export function SlimeProto() {
   const result = useRef<{ outcome: Outcome; acorns: number } | null>(null)
   const recs = useRef<Rec[]>([])
   const drawStart = useRef(0)
+  const downAt = useRef(0)
   const finished = useRef(false) // 한 번의 재생에서 결과 기록이 두 번 쌓이지 않게(rAF가 effect 정리 전에 또 돌 수 있다)
   const [, force] = useState(0)
   const img = useRef<HTMLImageElement | null>(null)
@@ -62,7 +63,11 @@ export function SlimeProto() {
   useEffect(() => {
     const el = wrap.current
     if (!el) return
-    const update = () => setW(Math.max(260, Math.min(BOARD_W, Math.floor(el.clientWidth))))
+    // 한 화면 안에 보드+컨트롤이 들어오게 높이로도 제한(스크롤할 일을 줄여 그리다 스크롤하는 사고를 막는다). 위쪽 크롬(헤더·제목·잉크 막대) ≈ 200px, 아래 컨트롤 ≈ 130px
+    const update = () => {
+      const byHeight = Math.floor(((window.innerHeight - 330) * BOARD_W) / BOARD_H)
+      setW(Math.max(260, Math.min(BOARD_W, Math.floor(el.clientWidth), byHeight)))
+    }
     update()
     const ro = new ResizeObserver(update)
     ro.observe(el)
@@ -206,6 +211,7 @@ export function SlimeProto() {
     raw.current = [p]
     line.current = null
     drawStart.current = performance.now()
+    downAt.current = performance.now()
     setMsg('')
   }
   const onMove = (e: React.PointerEvent) => {
@@ -218,6 +224,18 @@ export function SlimeProto() {
   }
   const onUp = () => {
     if (phase !== 'draw' || !raw.current.length) return
+    // 스크롤 제스처 판별: 빠르게(0.45초 안) 위로 길게 쓸어올린 거의 수직 동작은 선이 아니라 '아래로 스크롤'하려는 손짓이다.
+    // 선을 그을 때는 보통 아래·옆으로 천천히 그으므로(위로 급하게 긋는 선은 거의 의도되지 않음) 시도로 세지 않고 안내만 한다.
+    const r0 = raw.current[0]
+    const r1 = raw.current[raw.current.length - 1]
+    const dx = r1.x - r0.x
+    const dy = r1.y - r0.y
+    if (dy < -60 && Math.abs(dy) > 2 * Math.abs(dx) && performance.now() - downAt.current < 450) {
+      raw.current = []
+      setMsg('스크롤은 보드 바깥(위·아래·옆 띠)에서 해요')
+      force((n) => n + 1)
+      return
+    }
     const l = processStroke(raw.current, stage.ink)
     if (!l) {
       raw.current = []
@@ -286,8 +304,8 @@ export function SlimeProto() {
       </div>
       <div className="relative" style={{ width: w, height: Math.round(w * (BOARD_H / BOARD_W)) }}>
         <canvas ref={canvas} style={{ width: w, height: Math.round(w * (BOARD_H / BOARD_W)), touchAction: 'pan-y' }} className="block rounded-xl border border-white/15" data-testid="slime-canvas" />
-        {/* 그리기 구역: 가로 78%·세로 75% (위·아래 띠·좌우 띠는 스크롤용, 브리프 4-8) */}
-        <PlayZone top={0.125} bottom={0.125} left={0.11} right={0.11} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onCancel} data-testid="slime-zone" />
+        {/* 그리기 구역: 가로 76%·세로 68% (위·아래 16%·좌우 12% 띠는 스크롤용 — 11-19 오너 피드백으로 확대) */}
+        <PlayZone top={0.16} bottom={0.16} left={0.12} right={0.12} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onCancel} data-testid="slime-zone" />
       </div>
       <p role="status" aria-live="polite" className="mt-3 min-h-6 text-center text-sm font-semibold">{msg || (phase === 'draw' ? '말랑이 아래에서 시작해 둥지까지 선을 그어요' : phase === 'run' ? '미끄러지는 중…' : '')}</p>
       <div className="mt-2 flex items-center justify-center gap-2 text-sm">

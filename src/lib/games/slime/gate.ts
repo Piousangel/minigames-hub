@@ -116,10 +116,12 @@ export function checksFor(g: StageGate): Check[] {
     add('c12 3시도 ≥95%', c12.within3 >= 0.95, pct(c12.within3))
     add('c20 1회차 ≥50%', c20.first >= 0.5, pct(c20.first))
   } else if (g.tier === 2) {
-    add('낙서 1회차 ≤15%', doodle.first <= 0.15, pct(doodle.first))
-    add('c12 1회차 35~55%', inR(c12.first, 0.35, 0.55), pct(c12.first))
+    // v4.1: 15→20%. 쉬워진 tier2(벽이 낮음)에서는 직선 계열 낙서가 17% 정도 풀리는 것이 정상(우월 전략 감시 지표, 50%를 넘어야 문제)
+    add('낙서 1회차 ≤20%', doodle.first <= 0.2, pct(doodle.first))
+    // v4.1(11-19 아침): 오너가 실제로 해보고 '3스테이지가 어렵다'(시뮬 보통 52%) → 시뮬은 '어디에 그을지 판단하는 오류'를 못 넣어 낙관적. 35~55→55~80
+    add('c12 1회차 55~80%', inR(c12.first, 0.55, 0.8), pct(c12.first))
     add('c12 3시도 ≥75%', c12.within3 >= 0.75, pct(c12.within3))
-    add('c20 1회차 ≥20%', c20.first >= 0.2, pct(c20.first))
+    add('c20 1회차 ≥30%', c20.first >= 0.3, pct(c20.first))
     add('c6 1회차 ≥50%', c6.first >= 0.5, pct(c6.first))
   } else {
     add('낙서 1회차 ≤30%', doodle.first <= 0.3, pct(doodle.first))
