@@ -63,4 +63,15 @@ describe('ShareButtons', () => {
     const input = screen.getByTestId('share-manual') as HTMLInputElement
     expect(input.value).toBe('https://quickminigames.site/snake?ref=share-copy')
   })
+
+  it('결과 문구(text)를 주면 그 문구가 공유되고, compact 모드는 제목·시스템 공유 버튼이 없다', async () => {
+    const write = setNav(vi.fn())
+    render(<ShareButtons compact slug="plop-landing" title="Plop Landing" text="Plop Landing #1 ✅12 🌸7" />)
+    expect(screen.queryByRole('heading')).toBeNull()
+    expect(screen.queryByTestId('share-native')).toBeNull()
+    const t = screen.getByTestId('share-threads') as HTMLAnchorElement
+    expect(decodeURIComponent(t.href)).toContain('Plop Landing #1 ✅12 🌸7 https://quickminigames.site/plop-landing?ref=share-threads')
+    await act(async () => fireEvent.click(screen.getByTestId('share-copy')))
+    expect(write).toHaveBeenLastCalledWith('https://quickminigames.site/plop-landing?ref=share-copy')
+  })
 })

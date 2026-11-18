@@ -7,6 +7,9 @@ import { siteConfig } from '@/lib/siteConfig'
 
 const btn =
   'inline-flex min-h-10 items-center justify-center rounded-lg border border-white/15 bg-surface px-3 py-2 text-sm font-semibold text-fg transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent'
+// 오버레이(밝은 크림 배경) 안에서 읽히는 작은 버튼
+const btnCompact =
+  'inline-flex min-h-9 items-center justify-center rounded-lg border-2 border-[#5b3a1e] bg-[#fff3dc] px-2.5 py-1 text-xs font-bold text-[#5b3a1e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b3a1e]'
 
 /** 클립보드 API가 막힌 환경(인앱 브라우저·권한 거부)용 폴백: 숨은 textarea + execCommand. */
 function legacyCopy(text: string): boolean {
@@ -32,14 +35,29 @@ function legacyCopy(text: string): boolean {
  * 외부 스크립트 없음. Threads·Facebook은 진짜 링크(<a target=_blank>)라 카카오톡 같은 인앱 브라우저·팝업 차단에서도 열린다.
  * KakaoTalk·Instagram은 웹 공유 링크가 없어 시스템 공유창(앱 선택)을 쓰고, 안 되면 복사하고, 복사도 안 되면 링크를 화면에 보여 준다.
  */
-export function ShareButtons({ slug, title, description = '' }: { slug: string; title: string; description?: string }) {
+export function ShareButtons({
+  slug,
+  title,
+  description = '',
+  text: textOverride,
+  compact = false,
+}: {
+  slug: string
+  title: string
+  description?: string
+  /** 점수 같은 결과 문구(링크 제외). 주면 title·description 대신 이 문구를 공유한다. */
+  text?: string
+  /** 게임 종료 오버레이용: 제목·시스템 공유 버튼 없이 작은 한 줄. */
+  compact?: boolean
+}) {
   const [canNative, setCanNative] = useState(false)
   const [msg, setMsg] = useState('')
+  const b = compact ? btnCompact : btn
   const [manual, setManual] = useState('') // 자동 복사가 모두 실패했을 때 직접 복사하도록 보여 주는 링크
   useEffect(() => setCanNative(typeof navigator !== 'undefined' && typeof navigator.share === 'function'), [])
 
   const base = `${siteConfig.url}/${slug}`
-  const text = shareText(title, description)
+  const text = textOverride ?? shareText(title, description)
   const timer = useRef<number | undefined>(undefined)
   useEffect(() => () => window.clearTimeout(timer.current), [])
   const flash = (m: string) => {
@@ -88,18 +106,25 @@ export function ShareButtons({ slug, title, description = '' }: { slug: string; 
   }
 
   return (
-    <section className="mt-8" aria-labelledby={`share-${slug}`} data-testid="share-buttons">
-      <h2 id={`share-${slug}`} className="mb-3 text-sm font-semibold text-fg-muted">
-        Share this game
-      </h2>
-      <div className="flex flex-wrap gap-2">
-        {canNative && (
-          <button type="button" className={btn} onClick={() => go('native')} data-testid="share-native">
+    <section
+      className={compact ? 'mt-2' : 'mt-8'}
+      aria-labelledby={compact ? undefined : `share-${slug}`}
+      aria-label={compact ? 'Share your result' : undefined}
+      data-testid="share-buttons"
+    >
+      {!compact && (
+        <h2 id={`share-${slug}`} className="mb-3 text-sm font-semibold text-fg-muted">
+          Share this game
+        </h2>
+      )}
+      <div className={compact ? 'flex flex-wrap justify-center gap-1.5' : 'flex flex-wrap gap-2'}>
+        {canNative && !compact && (
+          <button type="button" className={b} onClick={() => go('native')} data-testid="share-native">
             Share…
           </button>
         )}
         <a
-          className={btn}
+          className={b}
           href={threadsIntentUrl(text, tagShareUrl(base, 'threads'))}
           target="_blank"
           rel="noopener noreferrer"
@@ -109,7 +134,7 @@ export function ShareButtons({ slug, title, description = '' }: { slug: string; 
           Threads
         </a>
         <a
-          className={btn}
+          className={b}
           href={facebookSharerUrl(tagShareUrl(base, 'facebook'))}
           target="_blank"
           rel="noopener noreferrer"
@@ -118,17 +143,21 @@ export function ShareButtons({ slug, title, description = '' }: { slug: string; 
         >
           Facebook
         </a>
-        <button type="button" className={btn} onClick={() => go('kakao')} data-testid="share-kakao">
+        <button type="button" className={b} onClick={() => go('kakao')} data-testid="share-kakao">
           KakaoTalk
         </button>
-        <button type="button" className={btn} onClick={() => go('instagram')} data-testid="share-instagram">
+        <button type="button" className={b} onClick={() => go('instagram')} data-testid="share-instagram">
           Instagram
         </button>
-        <button type="button" className={btn} onClick={() => go('copy')} data-testid="share-copy">
+        <button type="button" className={b} onClick={() => go('copy')} data-testid="share-copy">
           Copy link
         </button>
       </div>
-      <p role="status" aria-live="polite" className={`mt-3 min-h-5 text-sm ${msg ? 'font-semibold text-accent' : 'text-fg-muted'}`}>
+      <p
+        role="status"
+        aria-live="polite"
+        className={compact ? `mt-1.5 min-h-4 text-center text-xs ${msg ? 'font-bold text-[#5b3a1e]' : ''}` : `mt-3 min-h-5 text-sm ${msg ? 'font-semibold text-accent' : 'text-fg-muted'}`}
+      >
         {msg}
       </p>
       {manual && (
@@ -137,7 +166,7 @@ export function ShareButtons({ slug, title, description = '' }: { slug: string; 
           value={manual}
           onFocus={(e) => e.currentTarget.select()}
           onClick={(e) => e.currentTarget.select()}
-          className="mt-2 w-full rounded-lg border border-white/15 bg-surface px-3 py-2 text-xs text-fg"
+          className={compact ? 'mt-1 w-full rounded-lg border-2 border-[#5b3a1e] bg-white px-2 py-1 text-xs text-[#5b3a1e]' : 'mt-2 w-full rounded-lg border border-white/15 bg-surface px-3 py-2 text-xs text-fg'}
           aria-label="Link to copy"
           data-testid="share-manual"
         />
