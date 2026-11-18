@@ -52,11 +52,11 @@ export function drawIslandFloors(g: CanvasRenderingContext2D, island: HTMLImageE
 /** 뿅 착지의 꽃을 목표(둥지) 자리에 세운다. 발끝이 바닥 선분에 닿는다. */
 export function drawFlowerGoal(g: CanvasRenderingContext2D, flower: HTMLImageElement | null | undefined, p: Pt, t: number, glow: number): boolean {
   if (!flower?.complete || !flower.naturalWidth) return false
-  const hgt = 58
+  const hgt = 74
   const wid = (flower.naturalWidth / flower.naturalHeight) * hgt
   const sway = Math.sin(t / 700) * 0.04 * (1 + glow * 2)
   g.save()
-  g.translate(p.x, p.y + 17) // 발끝(바닥 윗면)
+  g.translate(p.x, p.y + 20) // 발끝(바닥 윗면)
   g.rotate(sway)
   g.drawImage(flower, -wid / 2, -hgt, wid, hgt)
   g.restore()
@@ -178,6 +178,36 @@ export function drawNest(g: CanvasRenderingContext2D, p: Pt, t: number, glow: nu
   g.beginPath()
   g.ellipse(cx - 8, cy - 5, 1.6, 2.4, 0, 0, Math.PI * 2)
   g.fill()
+}
+
+/** 별 수집물(뿅 착지의 star.webp). 둥실 떠 있다 반짝이고, 먹으면 커지며 사라진다. 그림 로딩 전엔 직접 그린 별. */
+export function drawStar(g: CanvasRenderingContext2D, img: HTMLImageElement | null | undefined, p: Pt, t: number, i: number, scale = 1, alpha = 1): void {
+  const bob = Math.sin(t / 420 + i * 1.7) * 2.2
+  const pulse = 1 + 0.06 * Math.sin(t / 300 + i)
+  const sz = 34 * scale * pulse
+  g.save()
+  g.globalAlpha = alpha
+  g.translate(p.x, p.y + bob)
+  g.rotate(Math.sin(t / 700 + i) * 0.12)
+  if (img?.complete && img.naturalWidth) {
+    g.shadowColor = 'rgba(255,200,60,0.9)'
+    g.shadowBlur = 12
+    g.drawImage(img, -sz / 2, -sz / 2, sz, sz)
+  } else {
+    g.fillStyle = '#ffd23a'
+    g.strokeStyle = '#8a5a12'
+    g.lineWidth = 2
+    g.beginPath()
+    for (let k = 0; k < 10; k++) {
+      const r = (k % 2 ? 0.42 : 1) * sz * 0.5
+      const a = (k / 10) * Math.PI * 2 - Math.PI / 2
+      g.lineTo(Math.cos(a) * r, Math.sin(a) * r)
+    }
+    g.closePath()
+    g.fill()
+    g.stroke()
+  }
+  g.restore()
 }
 
 export function drawAcorn(g: CanvasRenderingContext2D, p: Pt, t: number, i: number, scale = 1, alpha = 1): void {
