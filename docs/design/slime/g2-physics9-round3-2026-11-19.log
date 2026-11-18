@@ -1,0 +1,13 @@
+g=900 mu=0.08: g-slide 강건362 c12  99%(0p) | g-wall 강건160 c12  50%(0p) | g-gap 강건  0 c12  19%(0p)
+g=900 mu=0.04: g-slide 강건368 c12 100%(1p) | g-wall 강건128 c12  57%(7p) | g-gap 강건  3 c12  34%(15p)
+g=900 mu=0.12: g-slide 강건346 c12 100%(1p) | g-wall 강건135 c12  52%(2p) | g-gap 강건  1 c12  45%(26p)
+g=700 mu=0.08: g-slide 강건355 c12  98%(-1p) | g-wall 강건161 c12  49%(-1p) | g-gap 강건  0 c12  24%(5p)
+g=700 mu=0.04: g-slide 강건368 c12  98%(-1p) | g-wall 강건138 c12  50%(0p) | g-gap 강건  3 c12  49%(30p)
+g=700 mu=0.12: g-slide 강건342 c12 100%(1p) | g-wall 강건143 c12  57%(7p) | g-gap 강건  1 c12  43%(24p)
+g=1100 mu=0.08: g-slide 강건360 c12  98%(-1p) | g-wall 강건167 c12  55%(5p) | g-gap 강건  2 c12  45%(26p)
+g=1100 mu=0.04: g-slide 강건371 c12  97%(-3p) | g-wall 강건129 c12  50%(0p) | g-gap 강건  3 c12  39%(20p)
+g=1100 mu=0.12: g-slide 강건350 c12  99%(0p) | g-wall 강건144 c12  56%(6p) | g-gap 강건  1 c12  46%(27p)
+PASS  g-slide: c12 1회차 최대 변동 3%p (≤15), 최소 강건한 해 342개 (≥1)
+PASS  g-wall: c12 1회차 최대 변동 7%p (≤15), 최소 강건한 해 128개 (≥1)
+FAIL  g-gap: c12 1회차 최대 변동 30%p (≤15), 최소 강건한 해 0개 (≥1)
+PHYSICS9 ALL PASS: false

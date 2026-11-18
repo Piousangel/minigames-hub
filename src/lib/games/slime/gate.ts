@@ -91,7 +91,10 @@ export interface Check {
 const pct = (x: number) => `${(x * 100).toFixed(1)}%`
 const inR = (x: number, lo: number, hi: number) => x >= lo && x <= hi
 
-/** 브리프 4-10 합격선(v3: 상관 모델은 G2 결과로 확정하므로 일일 항목은 제외, 스테이지 단위 항목만). */
+/**
+ * 합격선 v4(11-18 밤, DECISIONS.md). v3의 'c12 1회차 12~30%(tier3)'는 '강건한 해 ≥50%@σ12'와 구조적으로 모순이라 폐기하고 실측 기반으로 재정의:
+ * 난이도 = 해의 취약도(보통 봇 1회차) + 3시도 + 숙련 만점률, tier 간 단조(tier3 ≤ tier2 ≤ tier1). 물리 9조합 변동은 slime-physics 스크립트가 판정한다.
+ */
 export function checksFor(g: StageGate): Check[] {
   const c12 = g.bots.c12
   const c20 = g.bots.c20
@@ -103,26 +106,29 @@ export function checksFor(g: StageGate): Check[] {
   add('강건한 해 ≥ 1', g.robust >= 1, `${g.robust}개(해 ${g.solutions})`)
   if (g.tier >= 2) add('해 클러스터 ≥ 2', g.clusters >= 2, `${g.clusters}`)
   add(`해 밀도 ≤ ${g.tier === 1 ? 8 : 3}%`, g.density <= (g.tier === 1 ? 0.08 : 0.03), pct(g.density))
-  if (g.tier === 1) add('직선 1회차 ≥80% (tier1 스테이지 1)', g.bots.straight.first >= 0.8, pct(g.bots.straight.first))
-  else {
-    const dl = g.tier === 2 ? [0, 0.15] : [0, 0.05]
-    add(`낙서 1회차 ${g.tier === 2 ? '≤15%' : '≤5%'}`, inR(doodle.first, dl[0], dl[1]), pct(doodle.first))
+  if (g.tier === 1) {
+    add('직선 1회차 ≥80% (tier1 스테이지 1)', g.bots.straight.first >= 0.8, pct(g.bots.straight.first))
+    add('c12 1회차 ≥85% (입문)', c12.first >= 0.85, pct(c12.first))
+    add('c12 3시도 ≥95%', c12.within3 >= 0.95, pct(c12.within3))
+    add('c20 1회차 ≥50%', c20.first >= 0.5, pct(c20.first))
+  } else if (g.tier === 2) {
+    add('낙서 1회차 ≤15%', doodle.first <= 0.15, pct(doodle.first))
+    add('c12 1회차 35~55%', inR(c12.first, 0.35, 0.55), pct(c12.first))
+    add('c12 3시도 ≥75%', c12.within3 >= 0.75, pct(c12.within3))
+    add('c20 1회차 ≥20%', c20.first >= 0.2, pct(c20.first))
+    add('c6 1회차 ≥50%', c6.first >= 0.5, pct(c6.first))
+  } else {
+    add('낙서 1회차 ≤30%', doodle.first <= 0.3, pct(doodle.first))
+    add('c12 1회차 30~55%', inR(c12.first, 0.3, 0.55), pct(c12.first))
+    add('c12 3시도 65~90%', inR(c12.within3, 0.65, 0.9), pct(c12.within3))
+    add('c20 1회차 ≥8%', c20.first >= 0.08, pct(c20.first))
+    add('c6 1회차 ≥40%', c6.first >= 0.4, pct(c6.first))
+    add('c3 3시도 만점 30~60%', inR(c3.full3, 0.3, 0.6), pct(c3.full3))
   }
-  const b1 = g.tier === 1 ? [0.65, 0.85] : g.tier === 2 ? [0.35, 0.55] : [0.12, 0.3]
-  add(`c12 1회차 ${pct(b1[0])}~${pct(b1[1])}`, inR(c12.first, b1[0], b1[1]), pct(c12.first))
-  const w3 = g.tier === 1 ? [0.95, 1] : g.tier === 2 ? [0.75, 1] : [0.4, 0.65]
-  add(`c12 3시도 ${pct(w3[0])}~${pct(w3[1])}`, inR(c12.within3, w3[0], w3[1]), pct(c12.within3))
-  const c20min = g.tier === 1 ? 0.5 : g.tier === 2 ? 0.2 : 0.05
-  add(`c20 1회차 ≥ ${pct(c20min)}`, c20.first >= c20min, pct(c20.first))
-  if (g.tier >= 2) {
-    const c6min = g.tier === 2 ? 0.6 : 0.4
-    add(`c6 1회차 ≥ ${pct(c6min)}`, c6.first >= c6min, pct(c6.first))
-  }
-  if (g.tier === 3) add('c3 3시도 만점 30~60%', inR(c3.full3, 0.3, 0.6), pct(c3.full3))
   const total = Object.values(c12.reasons).reduce((a, b) => a + b, 0) || 1
   const reasonsNoWin = Object.entries(c12.reasons).filter(([k]) => k !== 'nest')
   const maxFail = reasonsNoWin.length ? Math.max(...reasonsNoWin.map(([, v]) => v)) / total : 0
-  add('실패 원인 한 가지 ≤ 40%', maxFail <= 0.4, pct(maxFail))
+  add('실패 원인 한 가지 ≤ 40%(전체 시도 중)', maxFail <= 0.4, pct(maxFail))
   add('도착까지 평균 ≤ 8초', c12.meanSecs <= 8, `${c12.meanSecs.toFixed(1)}s`)
   return out
 }

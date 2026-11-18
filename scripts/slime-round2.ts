@@ -13,9 +13,9 @@ if (group === 'tier1') {
     cands.push(mk(`t1-floor${floorY}-x${x0}`, 1, [seg(x0, floorY, 390, floorY), seg(386, floorY - 120, 386, floorY)], { x: 70, y: 100 }, { x: 320, y: floorY - 16 }, [], 520))
   void 0
 } else {
-  // tier3를 더 어렵게: 틈 벽 255, 밤송이, 잉크 축소
-  for (const gx of [255, 258]) for (const spk of [0, 1]) for (const ink of [420, 520])
-    cands.push(mk(`t3-x${gx}-${spk ? 'spk' : 'no'}-ink${ink}`, 3, [seg(0, 220, 170, 220), seg(gx, 330, gx, 560), seg(gx + 30, 500, 390, 500)], { x: 60, y: 90 }, { x: 345, y: 484 }, spk ? [{ x: 215, y: 330 }] : [], ink))
+  // 3회차: tier3를 잉크·틈 폭으로 어렵게(새 매끄러운 잡음 모델 기준)
+  for (const gx of [258, 262, 266]) for (const ink of [440, 480, 520])
+    cands.push(mk(`t3-x${gx}-ink${ink}`, 3, [seg(0, 220, 170, 220), seg(gx, 330, gx, 560), seg(gx + 30, 500, 390, 500)], { x: 60, y: 90 }, { x: 345, y: 484 }, [], ink))
 }
 const runs = Number(process.env.RUNS ?? 150)
 for (const c of cands) {
