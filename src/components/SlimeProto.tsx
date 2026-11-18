@@ -5,7 +5,7 @@ import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useSlimeAudio } from '@/lib/sound/useSlimeAudio'
 import { simulate } from '@/lib/games/slime/engine'
 import { sendHit } from '@/lib/hit'
-import { drawAcorn, drawBubble, drawBurr, drawFailMark, drawFlowerGoal, drawGoalGlow, drawIslandFloors, drawNest, drawSky, drawTerrain } from '@/lib/games/slime/draw'
+import { drawBubble, drawBurr, drawFailMark, drawFlowerGoal, drawGoalGlow, drawIslandFloors, drawSky, drawStar, drawTerrain } from '@/lib/games/slime/draw'
 import { Fx, starPath } from '@/lib/games/slime/fx'
 import { SLIME_STAGES } from '@/lib/games/slime/stages'
 import { capInk, dist, dropClose, polyLength, processStroke, segmentHitsSpawnBan } from '@/lib/games/slime/strokePipeline'
@@ -70,6 +70,7 @@ export function SlimeProto() {
   const imgBg = useRef<HTMLImageElement | null>(null)
   const imgIsland = useRef<HTMLImageElement | null>(null)
   const imgFlower = useRef<HTMLImageElement | null>(null)
+  const imgStar = useRef<HTMLImageElement | null>(null)
   const fx = useRef(new Fx())
   const lastT = useRef(0)
   const popAt = useRef<Map<number, number>>(new Map())
@@ -130,6 +131,7 @@ export function SlimeProto() {
     imgBg.current = load('/art/plop-bg.webp')
     imgIsland.current = load('/art/plop-island-wide.webp')
     imgFlower.current = load('/art/plop-flower.webp')
+    imgStar.current = load('/art/star.webp')
     const mq = window.matchMedia?.('(prefers-reduced-motion: reduce)')
     fx.current.calm = mq?.matches ?? false
     const onMq = () => {
@@ -207,19 +209,19 @@ export function SlimeProto() {
       g.arc(stage.spawn.x, stage.spawn.y, CONST.SPAWN_BAN_R, 0, Math.PI * 2)
       g.stroke()
       g.setLineDash([])
-      // 둥지(도착하면 빛남)·밤송이·도토리
+      // 꽃(목표, 도착하면 빛남)·밤송이·별
       const celebrate = celebrateAt.current ? Math.max(0, 1 - (t - celebrateAt.current) / 1600) : 0
-      // 목표는 꽃 하나만(그림 로딩 전엔 둥지로 폴백). 도착하면 꽃 주변만 빛난다 — 둥지를 겹쳐 그리지 않는다
+      // 목표는 꽃 하나만(둥지 없음). 도착하면 꽃 주변이 빛난다
       drawGoalGlow(g, stage.nest, t, celebrate)
-      if (!drawFlowerGoal(g, imgFlower.current, stage.nest, t, celebrate)) drawNest(g, stage.nest, t, celebrate)
+      drawFlowerGoal(g, imgFlower.current, stage.nest, t, celebrate)
       const alarm = failAt.current ? Math.max(0, 1 - (t - failAt.current) / 900) : 0
       stage.spikes.forEach((s, i) => drawBurr(g, s, t, i, result.current?.outcome === 'spiked' ? alarm : 0))
       stage.acorns.forEach((a, i) => {
         const pop = popAt.current.get(i)
-        if (pop === undefined) drawAcorn(g, a, t, i)
+        if (pop === undefined) drawStar(g, imgStar.current, a, t, i)
         else {
           const q = (t - pop) / 380 // 먹으면 커지며 사라진다
-          if (q < 1) drawAcorn(g, a, t, i, 1 + 0.9 * q, 1 - q)
+          if (q < 1) drawStar(g, imgStar.current, a, t, i, 1 + 0.9 * q, 1 - q)
         }
       })
       // 지난 시도(고스트)·내 선(분필: 은은한 빛 + 선명한 선)
@@ -392,7 +394,7 @@ export function SlimeProto() {
       const ink = line.current ? polyLength(line.current) : 0
       recs.current.push({ stage: stage.id, outcome: r.outcome, acorns: r.acorns, ink: Math.round(ink), pts: (line.current ?? []).map((p) => [Math.round(p.x * 2), Math.round(p.y * 2)]), ms: Math.round(performance.now() - downAt.current) })
       const inkBonus = Math.round((100 * (stage.ink - ink)) / stage.ink)
-      setMsg(r.outcome === 'nest' ? `${OUTCOME_TEXT.nest} ${'⭐'.repeat(r.acorns)}${'☆'.repeat(3 - r.acorns)} 도토리 ${r.acorns * 100} + 잉크 ${inkBonus} = ${r.acorns * 100 + inkBonus}점` : OUTCOME_TEXT[r.outcome])
+      setMsg(r.outcome === 'nest' ? `${OUTCOME_TEXT.nest} ${'⭐'.repeat(r.acorns)}${'☆'.repeat(3 - r.acorns)} 별 ${r.acorns * 100} + 잉크 ${inkBonus} = ${r.acorns * 100 + inkBonus}점` : OUTCOME_TEXT[r.outcome])
       sendHit(SLUG, r.outcome === 'nest' ? `sl_win_s${si + 1}` : `sl_f_${r.outcome}_s${si + 1}`)
       force((n) => n + 1)
     }
