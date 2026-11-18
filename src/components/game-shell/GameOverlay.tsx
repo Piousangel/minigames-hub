@@ -47,8 +47,9 @@ export function GameOverlay({
   }, [show, nav.slug])
   // 종료 노출(next_* 이동률의 분모): show가 false→true가 될 때만 1회. 재렌더로 중복 집계되지 않는다.
   useEffect(() => {
-    if (show && nav.slug) sendHit(nav.slug, 'next_show')
-  }, [show, nav.slug])
+    // Next 링크가 실제로 뜰 때만 센다(추천 없음·하이드레이션 전은 분모에서 제외).
+    if (show && nav.slug && nav.nextSlug) sendHit(nav.slug, 'next_show')
+  }, [show, nav.slug, nav.nextSlug])
   if (!show) return null
   // 승/패/무에 따른 색 — 컨테이너 currentColor 로 .neon-box 발광. 무승부는 중립(본문색).
   const neon = variant === 'win' ? 'var(--neon-green)' : variant === 'lose' ? 'var(--neon-red)' : 'var(--fg-muted)'
@@ -99,7 +100,7 @@ export function GameOverlay({
           </Link>
         )}
         {hasLeaderboard(nav.slug) && <OverlayScoreSubmit slug={nav.slug} show={show} />}
-        {/* 리더보드 발견 유도: 페이지 하단(NextUp/GameStats/DailyDock 다음)에 묻혀 있어
+        {/* 리더보드 발견 유도: 페이지 하단(NextRail/GameStats/DailyDock 다음)에 묻혀 있어
             스크롤로는 잘 안 보임 — 게임오버 순간 바로 점프시켜 존재를 알린다(참여율↑). */}
         {hasLeaderboard(nav.slug) && (
           <a

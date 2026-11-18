@@ -21,7 +21,7 @@ const Ctx = createContext<GameNav>({ slug: '', nextSlug: null, nextTitle: null, 
 export const useGameNav = () => useContext(Ctx)
 
 /**
- * 게임 페이지의 '다음 게임' 단일 소스(체류/세션연장 핵심). NextUp(보드 아래 카드)과
+ * 게임 페이지의 '다음 게임' 단일 소스(체류/세션연장 핵심). NextRail(보드 아래 카드)과
  * GameOverlay(승/패 모달의 '다음 게임' 버튼)가 이 하나의 픽을 공유한다 — 그래서 RUN 카운터가
  * 이중 증가하지 않는다. 픽 규칙: 오늘·세션·최근 미플레이 우선, 같은 카테고리 우선, RUN으로 회전.
  * 클라이언트 전용(하이드레이션 안전). 프로바이더 밖에선 nextSlug=null이라 버튼이 안 뜬다.

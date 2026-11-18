@@ -11,8 +11,8 @@ import type { NextPick } from '@/lib/games/nextGame'
 /**
  * 보드 아래 "Play next" 레일(연결 고리 #3, docs/team/specs/2026-11-18-next-game-rail.md):
  * 같은 장르 1 + 다른 입력 1, 정적 카드 2장. 광고·자동 이동·새 탭 없음. 오버레이는 건드리지 않는다.
- * 노출(next_seen)은 레일이 화면에 절반 이상 보인 첫 순간 1회 — 보드 아래라 안 보일 수 있다는
- * 리서치 2의 지적을 숫자로 확인하려는 계측.
+ * 노출(next_seen)은 레일이 화면에 절반 이상 보인 첫 순간 1회(종료와 무관 — 레일 카드 클릭률의
+ * 분모는 next_show가 아니라 next_seen이다. 오버레이 버튼 클릭률의 분모가 next_show).
  */
 export function NextRail() {
   const { slug, picks, runCount } = useGameNav()
@@ -35,7 +35,10 @@ export function NextRail() {
     return () => io.disconnect()
   }, [slug, ready])
 
-  if (!ready) return null
+  // 하이드레이션 전(runCount 0)엔 자리만 잡아 레이아웃 밀림(CLS)을 막고, 추천이 없으면 그리지 않는다.
+  if (!ready) {
+    return runCount === 0 ? <div aria-hidden="true" data-testid="next-rail-reserve" className="mt-6 min-h-[150px] sm:min-h-[96px]" /> : null
+  }
   const card = (pick: NextPick | null, kind: 'same' | 'diff') => {
     if (!pick) return null
     const page = gamePages.find((p) => p.slug === pick.slug)
@@ -47,13 +50,13 @@ export function NextRail() {
         href={`/${pick.slug}?ref=next`}
         onClick={() => sendHit(slug, kind === 'same' ? 'next_same' : 'next_diff')}
         data-testid={`next-rail-${kind}`}
-        aria-label={`${page.h1} — ${pick.reason}`}
+        aria-label={`${page.h1}, ${pick.original ? 'Original, ' : ''}${pick.reason}`}
         className="flex min-h-[64px] items-center gap-3 rounded-xl border border-neon-lime/30 bg-surface px-3 py-2 transition-colors hover:border-neon-lime/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-lime"
       >
         <span aria-hidden="true" className="text-2xl">{m.icon}</span>
         <span className="min-w-0">
-          <span className="block truncate text-sm font-bold text-fg">{page.h1}</span>
-          <span className="block truncate text-xs text-fg-muted">
+          <span className="block break-words text-sm font-bold text-fg">{page.h1}</span>
+          <span className="block break-words text-xs text-fg-muted">
             {pick.original && <span className="font-semibold text-neon-amber">★ Original · </span>}
             {pick.reason}
           </span>

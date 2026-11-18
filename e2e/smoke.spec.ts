@@ -641,7 +641,7 @@ test('홈: Daily 필터가 Daily 모드 게임만 보여준다', async ({ page }
   // TodayBoard/RecentlyPlayed도 게임 카드를 그리므로 브라우저 결과 그리드로 좁힌다.
   const titles = await page.getByTestId('browse-results').locator('a:has(h3) h3').allInnerTexts()
   expect(titles.sort()).toEqual(
-    ['Acorn Hop', 'Bankshot', 'Beatline', 'Bearing', 'Clusters', 'Decant', 'Deepdive', 'Duplex', 'Equate', 'Flapjack', 'Gravwell', 'Grasp', 'Handful', 'Hogline', 'Hunch', 'Interlock', 'Loopgrid', 'Overfold', 'Prismbox', 'Quadle', 'Quarry', 'Recoil', 'Ricochet', 'Sonar', 'Splice', 'Stackpot', 'Strata', 'Turntile', 'Word Guess'].sort(),
+    ['Acorn Hop', 'Plop Landing', 'Bankshot', 'Beatline', 'Bearing', 'Clusters', 'Decant', 'Deepdive', 'Duplex', 'Equate', 'Flapjack', 'Gravwell', 'Grasp', 'Handful', 'Hogline', 'Hunch', 'Interlock', 'Loopgrid', 'Overfold', 'Prismbox', 'Quadle', 'Quarry', 'Recoil', 'Ricochet', 'Sonar', 'Splice', 'Stackpot', 'Strata', 'Turntile', 'Word Guess'].sort(),
   )
 })
 

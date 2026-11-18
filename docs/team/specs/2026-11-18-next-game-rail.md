@@ -228,3 +228,17 @@
 
 ## 14. 구현 결과 (11-18)
 `src/lib/games/nextGame.ts`(+테스트 9), `NextRail.tsx`(+테스트 4), `GameNav`·`GameOverlay`·`GamePageLayout` 수정, `NextUp.tsx` 삭제, e2e 2(390·1366). 이벤트: `next_show`·`next_seen`·`next_ovl`·`next_same`·`next_diff`, 도착 태그 `ref=next`.
+
+## 15. 독립 리뷰 응답 (11-18 16시, 6.5/10)
+| # | 지적 | 응답 |
+|---|---|---|
+| 1 | `next_show`가 추천 없을 때도 발사 | **수용**: `nav.nextSlug`가 있을 때만 발사 + 테스트 |
+| 2 | `next_seen`이 종료와 무관해 `next_show`와 비율 해석 불가 | **수용(정의 분리)**: 레일 카드 클릭률 = (`next_same`+`next_diff`)/`next_seen`, 오버레이 버튼 클릭률 = `next_ovl`/`next_show`. 주 지표는 이 둘을 각각 보고, 합산 이동률은 참고. experiments E2 갱신. IO 스텁 테스트 추가 |
+| 3 | 390px 한 줄 잘림 | **수용**: truncate 제거(줄바꿈 허용). (리뷰 예시 'Arrow keys instead of arrow keys'는 규칙상 불가능 — diff는 입력이 달라야 함) |
+| 4 | 하이드레이션 팝인 CLS | **부분 수용**: 하이드레이션 전 자리 예약 div(min-h). 추천이 없으면 제거되어 일시적 밀림은 남음 |
+| 5 | 오버레이 링크와 레일 same 중복 | **거부(의도)**: 오버레이 버튼 = 즉시 행동, 레일 = 대안. 귀속은 이벤트 분리로 처리 |
+| 6 | 폴백 시 최근 게임 재추천·`controls[0]`만 비교·세션 run 고정 | **보류**: 풀이 작을 때만 발생, 11개 복수 조작 게임은 후속. 시험은 후속 |
+| 7 | ORIGINAL 하드코딩 | **보류**: 후속(gameMeta `original` 필드화) |
+| 8 | aria-label이 보이는 글자 미포함 | **수용**: Original·이유 포함 + 테스트 |
+| 9~10 | 죽은 주석 | **수용**(대부분 정리) |
+| 11 | analytics.mjs에 next_* 없음 | **보류→후속 필수**: 11-25 판정 전까지 스크립트에 next_* 표 추가(다음 16시 세션 첫 일) |

@@ -53,13 +53,13 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
       {/* 목표 한 줄(above-the-fold) — 낯선 유저가 승리 조건을 즉시 이해 */}
       <ObjectiveBanner slug={page.slug} />
 
-      {/* 게임(children의 GameOverlay)과 NextUp이 같은 '다음 게임' 픽을 공유 → 승/패 모달의
-          '다음 게임' 버튼 + 보드 아래 NextUp 카드가 일관, RUN 카운터 이중 증가 없음(체류 세션연장). */}
+      {/* 게임(children의 GameOverlay)과 NextRail이 같은 '다음 게임' 픽을 공유 → 승/패 모달의
+          '다음 게임' 버튼 + 보드 아래 NextRail이 일관, RUN 카운터 이중 증가 없음(체류 세션연장). */}
       <GameNavProvider slug={page.slug}>
         {children}
 
         {/* 게임 바로 아래, 스크롤 없이 보이는 위치 — 리액션은 눈에 띄어야 눌린다(사용자 피드백,
-            2026-08-10: "이거 보고 잘 눌를것같지 않은데"). GameSwitcher/GameStats/DailyDock/NextUp
+            2026-08-10: "이거 보고 잘 눌를것같지 않은데"). GameSwitcher/GameStats/DailyDock/NextRail
             보다 먼저 둬서 시선이 첫 번째로 닿는 위젯으로 만듦. */}
         <Reactions slug={page.slug} />
 
