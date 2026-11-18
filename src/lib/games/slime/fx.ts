@@ -25,7 +25,8 @@ interface T {
 }
 
 const rnd = (a: number, b: number) => a + Math.random() * (b - a)
-const CONFETTI = ['#ff6b8b', '#ffd166', '#5ee0a0', '#6bc7ff', '#b69cff']
+// 파스텔 배경에서도 보이게 채도를 높이고 짙은 외곽선을 두른다(디자이너 검수: 4~7px 연한 직사각형은 거의 안 보임)
+const CONFETTI = ['#ff3d6e', '#ffb000', '#1fc77e', '#2a9dff', '#8a5cff']
 
 export function starPath(g: CanvasRenderingContext2D, cx: number, cy: number, r: number, rot = 0): void {
   g.beginPath()
@@ -60,14 +61,14 @@ export class Fx {
     for (let i = 0; i < this.n(count); i++) {
       const a = rnd(-Math.PI * 0.95, -Math.PI * 0.05) // 위쪽 부채꼴
       const v = rnd(120, 300)
-      this.ps.push({ kind: 'confetti', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, ay: 420, age: 0, life: rnd(1, 1.6), size: rnd(4, 7), color: CONFETTI[i % CONFETTI.length], rot: rnd(0, 6), vr: rnd(-9, 9) })
+      this.ps.push({ kind: 'confetti', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, ay: 420, age: 0, life: rnd(1, 1.6), size: rnd(8, 13), color: CONFETTI[i % CONFETTI.length], rot: rnd(0, 6), vr: rnd(-9, 9) })
     }
   }
   stars(x: number, y: number, count: number): void {
     for (let i = 0; i < this.n(count); i++) {
       const a = rnd(0, Math.PI * 2)
       const v = rnd(60, 170)
-      this.ps.push({ kind: 'star', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 60, ay: 90, age: 0, life: rnd(0.8, 1.3), size: rnd(5, 9), color: '#ffe27a', rot: rnd(0, 6), vr: rnd(-4, 4) })
+      this.ps.push({ kind: 'star', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 60, ay: 90, age: 0, life: rnd(0.8, 1.3), size: rnd(8, 13), color: '#ffd23a', rot: rnd(0, 6), vr: rnd(-4, 4) })
     }
   }
   /** 말랑이가 빠르게 지나간 자리에 남는 작은 빛 */
@@ -113,12 +114,18 @@ export class Fx {
         g.translate(p.x, p.y)
         g.rotate(p.rot)
         g.fillStyle = p.color
-        g.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2)
+        g.strokeStyle = 'rgba(70,40,20,0.7)'
+        g.lineWidth = 1.4
+        g.fillRect(-p.size / 2, -p.size / 3, p.size, p.size / 1.5)
+        g.strokeRect(-p.size / 2, -p.size / 3, p.size, p.size / 1.5)
         g.restore()
       } else if (p.kind === 'star') {
         g.fillStyle = p.color
+        g.strokeStyle = 'rgba(120,70,10,0.85)'
+        g.lineWidth = 1.6
         starPath(g, p.x, p.y, p.size * (0.5 + k * 0.5), p.rot)
         g.fill()
+        g.stroke()
       } else {
         g.strokeStyle = p.color
         g.lineWidth = 3 * k + 1
