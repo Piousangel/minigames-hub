@@ -38,8 +38,14 @@ export function SlimeProto() {
   const [msg, setMsg] = useState('')
   const [copied, setCopied] = useState('')
   const [muted, setMuted] = useState(false)
+  const [inKakao, setInKakao] = useState(false)
   const { unlock, play } = useSlimeAudio(muted)
   const gotAcorns = useRef<Set<number>>(new Set())
+  const lockScroll = useCallback((on: boolean) => {
+    const root = document.documentElement
+    root.style.overflow = on ? 'hidden' : ''
+    root.style.overscrollBehavior = on ? 'none' : ''
+  }, [])
   const raw = useRef<Pt[]>([])
   const line = useRef<Pt[] | null>(null)
   const ghost = useRef<Pt[] | null>(null)
@@ -53,7 +59,24 @@ export function SlimeProto() {
   const [, force] = useState(0)
   const img = useRef<HTMLImageElement | null>(null)
 
+  // 카카오톡 같은 인앱 브라우저는 touch-action을 무시해 그리는 중에 화면이 스크롤되거나 당겨진다 →
+  // 그리기 구역의 touchstart/touchmove를 passive:false로 취소하고, 그리는 동안 페이지 스크롤을 잠근다(스크롤 띠는 구역 밖이라 영향 없음).
   useEffect(() => {
+    const zone = wrap.current?.querySelector<HTMLElement>('[data-play-zone]')
+    if (!zone) return
+    const stop = (e: TouchEvent) => {
+      if (e.cancelable) e.preventDefault()
+    }
+    zone.addEventListener('touchstart', stop, { passive: false })
+    zone.addEventListener('touchmove', stop, { passive: false })
+    return () => {
+      zone.removeEventListener('touchstart', stop)
+      zone.removeEventListener('touchmove', stop)
+      lockScroll(false)
+    }
+  }, [lockScroll, w])
+  useEffect(() => {
+    setInKakao(/KAKAOTALK/i.test(navigator.userAgent))
     try {
       setMuted(localStorage.getItem('slime:muted') === '1')
     } catch {
@@ -207,6 +230,7 @@ export function SlimeProto() {
     if (dist(p, stage.spawn) < CONST.SPAWN_BAN_R) return
     unlock()
     play('draw')
+    lockScroll(true)
     e.currentTarget.setPointerCapture(e.pointerId)
     raw.current = [p]
     line.current = null
@@ -223,6 +247,7 @@ export function SlimeProto() {
     force((n) => n + 1)
   }
   const onUp = () => {
+    lockScroll(false)
     if (phase !== 'draw' || !raw.current.length) return
     // 스크롤 제스처 판별: 빠르게(0.45초 안) 위로 길게 쓸어올린 거의 수직 동작은 선이 아니라 '아래로 스크롤'하려는 손짓이다.
     // 선을 그을 때는 보통 아래·옆으로 천천히 그으므로(위로 급하게 긋는 선은 거의 의도되지 않음) 시도로 세지 않고 안내만 한다.
@@ -256,6 +281,7 @@ export function SlimeProto() {
     setPhase('run')
   }
   const onCancel = () => {
+    lockScroll(false)
     raw.current = [] // 취소는 취소(스크롤이 시작되면 브라우저가 보낸다)
     force((n) => n + 1)
   }
@@ -275,6 +301,11 @@ export function SlimeProto() {
   const success = phase === 'done' && result.current?.outcome === 'nest'
   return (
     <div ref={wrap} className="mx-auto w-full max-w-[390px]">
+      {inKakao && (
+        <p role="note" className="mb-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-center text-xs text-fg-muted" data-testid="slime-kakao-note">
+          카카오톡 안에서는 화면이 움직일 수 있어요. 오른쪽 아래 ⋮(또는 공유) → <b>다른 브라우저로 열기</b>를 쓰면 더 잘 그려져요.
+        </p>
+      )}
       <div className="mb-2 flex items-center justify-between text-sm">
         <span className="font-semibold">스테이지 {si + 1}/{SLIME_STAGES.length}</span>
         <span className="flex items-center gap-3 text-fg-muted">
