@@ -43,7 +43,6 @@ export const CONST = {
   DT: 1 / 120,
   MAX_STEPS: 1440,
   R: 14,
-  HALF_THICK: 2,
   D0: 16, // r + 반두께
   V_MAX: 800,
   ACORN_R: 24,

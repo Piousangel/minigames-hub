@@ -8,13 +8,13 @@ import { sendHit } from '@/lib/hit'
 import { drawAcorn, drawBubble, drawBurr, drawFailMark, drawFlowerGoal, drawGoalGlow, drawIslandFloors, drawNest, drawSky, drawTerrain } from '@/lib/games/slime/draw'
 import { Fx, starPath } from '@/lib/games/slime/fx'
 import { SLIME_STAGES } from '@/lib/games/slime/stages'
-import { capInk, dist, dropClose, polyLength, processStroke } from '@/lib/games/slime/strokePipeline'
+import { capInk, dist, dropClose, polyLength, processStroke, segmentHitsSpawnBan } from '@/lib/games/slime/strokePipeline'
 import { BOARD_H, BOARD_W, CONST, DEFAULT_PHYSICS, type Outcome, type Pt } from '@/lib/games/slime/types'
 
 type Phase = 'draw' | 'run' | 'done'
 interface Rec {
   stage: string
-  outcome: Outcome | 'cancel'
+  outcome: Outcome
   acorns: number
   ink: number
   pts: number[][]
@@ -60,7 +60,7 @@ export function SlimeProto() {
   const runStart = useRef(0)
   const result = useRef<{ outcome: Outcome; acorns: number } | null>(null)
   const recs = useRef<Rec[]>([])
-  const drawStart = useRef(0)
+  const activePointer = useRef<number | null>(null) // 멀티터치: 처음 누른 손가락 하나만 선을 긋는다
   const downAt = useRef(0)
   const finished = useRef(false) // 한 번의 재생에서 결과 기록이 두 번 쌓이지 않게(rAF가 effect 정리 전에 또 돌 수 있다)
   const [, force] = useState(0)
@@ -130,8 +130,28 @@ export function SlimeProto() {
     imgBg.current = load('/art/plop-bg.webp')
     imgIsland.current = load('/art/plop-island-wide.webp')
     imgFlower.current = load('/art/plop-flower.webp')
-    fx.current.calm = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
-    return () => ro.disconnect()
+    const mq = window.matchMedia?.('(prefers-reduced-motion: reduce)')
+    fx.current.calm = mq?.matches ?? false
+    const onMq = () => {
+      fx.current.calm = mq?.matches ?? false
+    }
+    mq?.addEventListener?.('change', onMq)
+    return () => {
+      ro.disconnect()
+      mq?.removeEventListener?.('change', onMq)
+    }
+  }, [])
+
+  // 한 판의 연출 상태 초기화(reset·놓기에서 공통)
+  const resetRunFx = useCallback(() => {
+    gotAcorns.current = new Set()
+    popAt.current = new Map()
+    celebrateAt.current = 0
+    failAt.current = 0
+    fx.current.clear()
+    vel.current = { x: 0, y: 0 }
+    prevSpeed.current = 0
+    squash.current = 0
   }, [])
 
   const reset = useCallback((next?: number) => {
@@ -139,18 +159,15 @@ export function SlimeProto() {
       setSi(next)
       ghost.current = null // 다른 스테이지로 가면 이전 스테이지의 선을 남기지 않는다
     }
+    activePointer.current = null
     raw.current = []
     line.current = null
     trace.current = []
     result.current = null
-    gotAcorns.current = new Set()
-    popAt.current = new Map()
-    celebrateAt.current = 0
-    failAt.current = 0
-    fx.current.clear()
+    resetRunFx()
     setPhase('draw')
     setMsg('')
-  }, [])
+  }, [resetRunFx])
 
   // 렌더 루프
   useEffect(() => {
@@ -373,7 +390,7 @@ export function SlimeProto() {
         void ty
       }
       const ink = line.current ? polyLength(line.current) : 0
-      recs.current.push({ stage: stage.id, outcome: r.outcome, acorns: r.acorns, ink: Math.round(ink), pts: (line.current ?? []).map((p) => [Math.round(p.x * 2), Math.round(p.y * 2)]), ms: Math.round(performance.now() - drawStart.current) })
+      recs.current.push({ stage: stage.id, outcome: r.outcome, acorns: r.acorns, ink: Math.round(ink), pts: (line.current ?? []).map((p) => [Math.round(p.x * 2), Math.round(p.y * 2)]), ms: Math.round(performance.now() - downAt.current) })
       const inkBonus = Math.round((100 * (stage.ink - ink)) / stage.ink)
       setMsg(r.outcome === 'nest' ? `${OUTCOME_TEXT.nest} ${'⭐'.repeat(r.acorns)}${'☆'.repeat(3 - r.acorns)} 도토리 ${r.acorns * 100} + 잉크 ${inkBonus} = ${r.acorns * 100 + inkBonus}점` : OUTCOME_TEXT[r.outcome])
       sendHit(SLUG, r.outcome === 'nest' ? `sl_win_s${si + 1}` : `sl_f_${r.outcome}_s${si + 1}`)
@@ -388,7 +405,7 @@ export function SlimeProto() {
     return { x: ((e.clientX - r.left) / r.width) * BOARD_W, y: ((e.clientY - r.top) / r.height) * BOARD_H }
   }
   const onDown = (e: React.PointerEvent) => {
-    if (phase !== 'draw' || !inPlayZone(e)) return
+    if (phase !== 'draw' || !inPlayZone(e) || activePointer.current !== null) return
     const p = pt(e)
     if (dist(p, stage.spawn) < CONST.SPAWN_BAN_R) {
       ringFlash.current = performance.now() + 400
@@ -401,20 +418,23 @@ export function SlimeProto() {
     e.currentTarget.setPointerCapture(e.pointerId)
     raw.current = [p]
     line.current = null
-    drawStart.current = performance.now()
+    activePointer.current = e.pointerId
     downAt.current = performance.now()
     sendHit(SLUG, 'sl_draw_start')
     setMsg('')
   }
   const onMove = (e: React.PointerEvent) => {
-    if (phase !== 'draw' || !raw.current.length) return
+    if (phase !== 'draw' || !raw.current.length || e.pointerId !== activePointer.current) return
     const p = pt(e)
-    if (dist(p, stage.spawn) < CONST.SPAWN_BAN_R) return // 스폰 금지 반경 안으로는 못 긋는다
+    // 스폰 금지 반경: 점이 안이거나 직전 점과의 선분이 원을 지나가도 못 긋는다(빠른 선이 점 사이를 건너뛰는 경우 포함)
+    if (segmentHitsSpawnBan(raw.current[raw.current.length - 1], p, stage.spawn)) return
     if (polyLength(raw.current) >= stage.ink) return // 잉크 한도에서 멈춤
     raw.current.push(p)
     force((n) => n + 1)
   }
-  const onUp = () => {
+  const onUp = (e: React.PointerEvent) => {
+    if (e.pointerId !== activePointer.current) return // 다른 손가락을 뗀 것은 무시
+    activePointer.current = null
     lockScroll(false)
     if (phase !== 'draw' || !raw.current.length) return
     // 스크롤 제스처 판별: 빠르게(0.45초 안) 위로 길게 쓸어올린 거의 수직 동작은 선이 아니라 '아래로 스크롤'하려는 손짓이다.
@@ -446,19 +466,14 @@ export function SlimeProto() {
     runStart.current = performance.now()
     ghost.current = l
     finished.current = false
-    gotAcorns.current = new Set()
-    popAt.current = new Map()
-    celebrateAt.current = 0
-    failAt.current = 0
-    fx.current.clear()
-    vel.current = { x: 0, y: 0 }
-    prevSpeed.current = 0
-    squash.current = 0
+    resetRunFx()
     play('release')
     sendHit(SLUG, 'sl_run')
     setPhase('run')
   }
-  const onCancel = () => {
+  const onCancel = (e: React.PointerEvent) => {
+    if (e.pointerId !== activePointer.current) return
+    activePointer.current = null
     sendHit(SLUG, 'sl_pointercancel')
     lockScroll(false)
     raw.current = [] // 취소는 취소(스크롤이 시작되면 브라우저가 보낸다)

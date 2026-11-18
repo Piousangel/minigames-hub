@@ -118,3 +118,18 @@ export function processStroke(raw: Pt[], ink: number): Pt[] | null {
 export function inSpawnBan(p: Pt, spawn: Pt): boolean {
   return dist(p, spawn) < CONST.SPAWN_BAN_R
 }
+
+/** 선분 a→b가 스폰 금지 원을 지나는가(점 사이를 건너뛰는 빠른 선도 잡는다). 입력·시험 판정의 단일 기준. */
+export function segmentHitsSpawnBan(a: Pt, b: Pt, spawn: Pt): boolean {
+  const dx = b.x - a.x
+  const dy = b.y - a.y
+  const len2 = dx * dx + dy * dy
+  const t = len2 === 0 ? 0 : Math.max(0, Math.min(1, ((spawn.x - a.x) * dx + (spawn.y - a.y) * dy) / len2))
+  return Math.hypot(a.x + t * dx - spawn.x, a.y + t * dy - spawn.y) < CONST.SPAWN_BAN_R
+}
+
+export function lineHitsSpawnBan(pts: Pt[], spawn: Pt): boolean {
+  if (pts.length === 1) return inSpawnBan(pts[0], spawn)
+  for (let i = 1; i < pts.length; i++) if (segmentHitsSpawnBan(pts[i - 1], pts[i], spawn)) return true
+  return false
+}

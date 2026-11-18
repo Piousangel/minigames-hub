@@ -1,7 +1,7 @@
 import { simulate } from './engine'
 import { mulberry32, gauss, perturb } from './rng'
-import { polyLength, processStroke } from './strokePipeline'
-import { BOARD_H, BOARD_W, CONST, DEFAULT_PHYSICS, type Physics, type Pt, type SimResult, type Stage } from './types'
+import { lineHitsSpawnBan, polyLength, processStroke } from './strokePipeline'
+import { BOARD_H, BOARD_W, DEFAULT_PHYSICS, type Physics, type Pt, type SimResult, type Stage } from './types'
 
 /** 웨이포인트(굵은 점) → 시뮬용 선. 점 사이를 6px 간격으로 채워 손으로 그은 선처럼 만든 뒤 파이프라인을 통과시킨다. */
 export function waypointsToRaw(wp: Pt[]): Pt[] {
@@ -20,7 +20,7 @@ export function runLine(stage: Stage, raw: Pt[], phys: Physics = DEFAULT_PHYSICS
   const line = processStroke(raw, stage.ink)
   if (!line) return null
   // 스폰 금지 반경: 그리는 순간 거부되는 입력이므로 시험에서도 무효 처리
-  for (const p of line) if (Math.hypot(p.x - stage.spawn.x, p.y - stage.spawn.y) < CONST.SPAWN_BAN_R) return null
+  if (lineHitsSpawnBan(line, stage.spawn)) return null
   return { res: simulate(stage, [line], phys), line }
 }
 
