@@ -63,3 +63,45 @@ export const GATE_STAGES: Stage[] = [
     ink: 440,
   },
 ]
+
+/** tier1 스테이지 2: 밤송이가 직선을 막는다(곡선으로 피해야 함). 11-19 새벽 후보 6개 중 직선 14%·보통 96%·캐주얼 81%로 가장 분명. */
+export const T1_SPIKE: Stage = {
+  id: 's-spike',
+  tier: 1,
+  terrain: [
+    { a: { x: 230, y: 500 }, b: { x: 390, y: 500 } },
+    { a: { x: 350, y: 380 }, b: { x: 350, y: 500 } },
+  ],
+  spawn: { x: 70, y: 100 },
+  acorns: [
+    { x: 70, y: 131 },
+    { x: 70, y: 269 },
+    { x: 186, y: 434 },
+  ],
+  nest: { x: 320, y: 484 },
+  spikes: [{ x: 150, y: 270 }],
+  ink: 460,
+}
+
+/** tier2 스테이지 2: 낮고 먼 벽(x=230, 높이 270) + 오른쪽 완충벽. 11-19 새벽 후보 8개 중 10/10 통과(강건 98·클러스터 9·보통 52%→89%·캐주얼 24%). */
+export const T2_WALL_B: Stage = {
+  id: 's-wall-b',
+  tier: 2,
+  terrain: [
+    { a: { x: 230, y: 270 }, b: { x: 230, y: 560 } },
+    { a: { x: 252, y: 500 }, b: { x: 390, y: 500 } },
+    { a: { x: 350, y: 400 }, b: { x: 350, y: 500 } },
+  ],
+  spawn: { x: 60, y: 90 },
+  acorns: [
+    { x: 67, y: 162 },
+    { x: 143, y: 186 },
+    { x: 270, y: 301 },
+  ],
+  nest: { x: 325, y: 484 },
+  spikes: [],
+  ink: 440,
+}
+
+/** 시험판·첫 출시 스테이지(tier1 2개, tier2 2개). tier3(g-gap)는 9조합 불안정으로 제외(DECISIONS 11-19). */
+export const SLIME_STAGES: Stage[] = [GATE_STAGES[0], T1_SPIKE, GATE_STAGES[1], T2_WALL_B]

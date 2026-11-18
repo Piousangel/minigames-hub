@@ -1,4 +1,4 @@
-import { GATE_STAGES } from '../src/lib/games/slime/stages'
+import { SLIME_STAGES as GATE_STAGES } from '../src/lib/games/slime/stages'
 import { gateStage } from '../src/lib/games/slime/gate'
 
 // 물리 계수 9조합(g × μ): 각 스테이지에서 (1) 강건한 해가 존재하는가 (2) c12 1회차가 기본값 대비 ±15%p 이내인가.

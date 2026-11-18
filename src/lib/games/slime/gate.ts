@@ -24,6 +24,8 @@ export interface StageGate {
   robust: number
   clusters: number
   density: number
+  /** 밤송이가 있는 스테이지(직선을 막으려는 설계)인가 */
+  blocksStraight: boolean
   bots: Record<string, { first: number; within3: number; full3: number; reasons: Record<string, number>; meanSecs: number }>
 }
 
@@ -70,7 +72,7 @@ export function gateStage(stage: Stage, opts: { runs?: number; densityN?: number
     }
     bots[id] = { first: first / runs, within3: within3 / runs, full3: full3 / runs, reasons, meanSecs: wins ? steps / wins / 120 : 0 }
   }
-  return { id: stage.id, tier: stage.tier, solutions: solutions.length, robust: robust.length, clusters, density, bots }
+  return { id: stage.id, tier: stage.tier, blocksStraight: stage.spikes.length > 0, solutions: solutions.length, robust: robust.length, clusters, density, bots }
 }
 
 /** 같은 입력 1,000회 → 결과 동일(결정성). */
@@ -107,7 +109,9 @@ export function checksFor(g: StageGate): Check[] {
   if (g.tier >= 2) add('해 클러스터 ≥ 2', g.clusters >= 2, `${g.clusters}`)
   add(`해 밀도 ≤ ${g.tier === 1 ? 8 : 3}%`, g.density <= (g.tier === 1 ? 0.08 : 0.03), pct(g.density))
   if (g.tier === 1) {
-    add('직선 1회차 ≥80% (tier1 스테이지 1)', g.bots.straight.first >= 0.8, pct(g.bots.straight.first))
+    // 직선 기준: 밤송이가 없는 입문 스테이지는 직선이 풀려야 하고(≥80%), 밤송이로 직선을 막은 스테이지는 막혀야 한다(≤50%, 브리프 4-10)
+    if (g.blocksStraight) add('직선 1회차 ≤50% (직선을 막는 스테이지)', g.bots.straight.first <= 0.5, pct(g.bots.straight.first))
+    else add('직선 1회차 ≥80% (입문 스테이지)', g.bots.straight.first >= 0.8, pct(g.bots.straight.first))
     add('c12 1회차 ≥85% (입문)', c12.first >= 0.85, pct(c12.first))
     add('c12 3시도 ≥95%', c12.within3 >= 0.95, pct(c12.within3))
     add('c20 1회차 ≥50%', c20.first >= 0.5, pct(c20.first))

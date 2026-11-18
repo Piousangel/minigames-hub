@@ -1,4 +1,4 @@
-import { GATE_STAGES } from '../src/lib/games/slime/stages'
+import { SLIME_STAGES as GATE_STAGES } from '../src/lib/games/slime/stages'
 import { checksFor, determinism, gateStage } from '../src/lib/games/slime/gate'
 import { DEFAULT_PHYSICS } from '../src/lib/games/slime/types'
 
