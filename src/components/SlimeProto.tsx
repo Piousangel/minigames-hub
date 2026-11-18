@@ -5,7 +5,7 @@ import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useSlimeAudio } from '@/lib/sound/useSlimeAudio'
 import { simulate } from '@/lib/games/slime/engine'
 import { sendHit } from '@/lib/hit'
-import { drawBubble, drawBurr, drawFailMark, drawFlowerGoal, drawGoalGlow, drawIslandFloors, drawSky, drawStar, drawTerrain } from '@/lib/games/slime/draw'
+import { drawBubble, drawFailMark, drawFlowerGoal, drawGoalGlow, drawIslandFloors, drawPoisonFlower, drawSky, drawStar, drawTerrain } from '@/lib/games/slime/draw'
 import { Fx, starPath } from '@/lib/games/slime/fx'
 import { SLIME_STAGES } from '@/lib/games/slime/stages'
 import { capInk, dist, dropClose, polyLength, processStroke, segmentHitsSpawnBan } from '@/lib/games/slime/strokePipeline'
@@ -23,12 +23,12 @@ interface Rec {
 
 const OUTCOME_TEXT: Record<Outcome, string> = {
   nest: '도착!',
-  spiked: '밤송이에 닿았어요',
+  spiked: '독꽃에 닿았어요',
   fell: '떨어졌어요',
   stalled: '멈췄어요',
   timeout: '시간이 다 됐어요',
 }
-const FAIL_BUBBLE: Record<Outcome, string> = { nest: '', spiked: '앗, 가시!', fell: '떨어졌어요', stalled: '멈췄어요', timeout: '멈췄어요' }
+const FAIL_BUBBLE: Record<Outcome, string> = { nest: '', spiked: '앗, 독꽃!', fell: '떨어졌어요', stalled: '멈췄어요', timeout: '멈췄어요' }
 const TRACE_MS = 50 // 트레이스 한 칸 = 6스텝 = 50ms
 const START_VIS_MS = 220 // 놓은 뒤 말랑이가 움직이기까지(엔진 시뮬의 0.5초 대기는 그대로, 화면만 앞당김). 그 사이 웅크리는 예비 동작
 const SLUG = 'slime-proto' // 측정 슬러그(정식 출시 전이라 slime-slide와 분리)
@@ -215,7 +215,7 @@ export function SlimeProto() {
       drawGoalGlow(g, stage.nest, t, celebrate)
       drawFlowerGoal(g, imgFlower.current, stage.nest, t, celebrate)
       const alarm = failAt.current ? Math.max(0, 1 - (t - failAt.current) / 900) : 0
-      stage.spikes.forEach((s, i) => drawBurr(g, s, t, i, result.current?.outcome === 'spiked' ? alarm : 0))
+      stage.spikes.forEach((s, i) => drawPoisonFlower(g, imgFlower.current, s, t, i, result.current?.outcome === 'spiked' ? alarm : 0))
       stage.acorns.forEach((a, i) => {
         const pop = popAt.current.get(i)
         if (pop === undefined) drawStar(g, imgStar.current, a, t, i)
