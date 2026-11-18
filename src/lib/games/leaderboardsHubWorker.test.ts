@@ -62,8 +62,11 @@ describe('/api/leaderboards 허브 조회', () => {
       await Promise.all(pending)
       expect(r1.headers.get('cache-control')).toBe('public, max-age=0, s-maxage=60')
       expect(cache.put).toHaveBeenCalledTimes(1)
-      await hub()
+      const r2 = await hub()
       expect(batches).toHaveLength(1) // 두 번째는 캐시 적중 — D1 batch 호출 없음
+      // 적중 응답도 브라우저 캐시는 0(존 설정이 덮어쓴 max-age를 되돌린다)
+      expect(r2.headers.get('cache-control')).toBe('public, max-age=0, must-revalidate')
+      expect(((await r2.json()) as { boards: Record<string, unknown[]> }).boards[g0]).toHaveLength(1)
 
       // 점수 제출 → 허브 캐시 삭제
       ;(env as { DB: { prepare: (s: string) => unknown } }).DB.prepare = vi.fn((sql: string) => ({
