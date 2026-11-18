@@ -136,6 +136,15 @@ export function SlimeProto() {
     imgIsland.current = load('/art/plop-island-wide.webp')
     imgFlower.current = load('/art/plop-flower.webp')
     imgStar.current = load('/art/star.webp')
+    let hiddenAt = 0
+    const onVis = () => {
+      if (document.hidden) hiddenAt = performance.now()
+      else if (hiddenAt) {
+        runStart.current += performance.now() - hiddenAt // 숨은 동안 재생이 흐르지 않은 것처럼 이어 본다
+        hiddenAt = 0
+      }
+    }
+    document.addEventListener('visibilitychange', onVis)
     const mq = window.matchMedia?.('(prefers-reduced-motion: reduce)')
     fx.current.calm = mq?.matches ?? false
     const onMq = () => {
@@ -144,6 +153,7 @@ export function SlimeProto() {
     mq?.addEventListener?.('change', onMq)
     return () => {
       ro.disconnect()
+      document.removeEventListener('visibilitychange', onVis)
       mq?.removeEventListener?.('change', onMq)
     }
   }, [])
@@ -520,6 +530,15 @@ export function SlimeProto() {
   const used = line.current ? polyLength(line.current) : polyLength(capInk(dropClose(raw.current), stage.ink))
   const left = Math.max(0, Math.round(100 * (1 - used / stage.ink)))
   const success = phase === 'done' && result.current?.outcome === 'nest'
+  // 도착하면 축하를 보여 준 뒤 3.2초 후 자동으로 다음 스테이지(버튼으로 바로 넘길 수도 있다). 마지막 스테이지는 넘기지 않는다
+  useEffect(() => {
+    if (!success || si + 1 >= SLIME_STAGES.length) return
+    const id = window.setTimeout(() => {
+      sendHit(SLUG, 'sl_auto_next')
+      reset(si + 1)
+    }, 3200)
+    return () => window.clearTimeout(id)
+  }, [success, si, reset])
   return (
     <div ref={wrap} className="mx-auto w-full max-w-[390px]">
       {inKakao && (
@@ -540,7 +559,7 @@ export function SlimeProto() {
                 sendHit(SLUG, 'sl_pick_stage')
                 reset(i)
               }}
-              className={`h-8 w-8 rounded-full border-2 text-xs font-bold ${i === si ? 'border-[#5b3a1e] bg-[#fff3dc] text-[#5b3a1e]' : 'border-white/20 text-fg-muted'}`}
+              className={`h-11 w-11 rounded-full border-2 text-sm font-bold ${i === si ? 'border-[#5b3a1e] bg-[#fff3dc] text-[#5b3a1e]' : 'border-white/20 text-fg-muted'}`}
             >
               {i + 1}
             </button>
@@ -572,24 +591,24 @@ export function SlimeProto() {
         <div className="h-full rounded-full bg-[#f4f0ff] transition-[width]" style={{ width: `${left}%` }} />
       </div>
       <div className="relative" style={{ width: w, height: Math.round(w * (BOARD_H / BOARD_W)) }}>
-        <canvas ref={canvas} style={{ width: w, height: Math.round(w * (BOARD_H / BOARD_W)), touchAction: 'pan-y' }} className="block rounded-xl border border-white/15" data-testid="slime-canvas" />
+        <canvas ref={canvas} style={{ width: w, height: Math.round(w * (BOARD_H / BOARD_W)), touchAction: 'pan-y' }} className="block rounded-xl border border-white/15" role="img" aria-label="말랑 미끄럼길 게임판. 손가락으로 선을 그어 말랑이를 꽃까지 보내요" data-testid="slime-canvas" />
         {/* 그리기 구역: 가로 76%·세로 68% (위·아래 16%·좌우 12% 띠는 스크롤용 — 11-19 오너 피드백으로 확대) */}
         <PlayZone top={0.16} bottom={0.16} left={0.12} right={0.12} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onCancel} data-testid="slime-zone" />
       </div>
       <p role="status" aria-live="polite" className="mt-3 min-h-6 text-center text-sm font-semibold">{msg || (phase === 'draw' ? '말랑이 아래에서 시작해 꽃까지 선을 그어요' : phase === 'run' ? '미끄러지는 중…' : '')}</p>
       <div className="mt-2 flex items-center justify-center gap-2 text-sm">
-        <button type="button" className="rounded-lg border border-white/15 px-3 py-2" onClick={() => {
+        <button type="button" className="min-h-11 rounded-lg border border-white/15 px-4 py-2" onClick={() => {
             sendHit(SLUG, 'sl_retry')
             reset()
           }} disabled={phase === 'run'}>다시 그리기</button>
-        {success && si + 1 < SLIME_STAGES.length && <button type="button" className="rounded-lg bg-accent px-3 py-2 font-semibold text-black" onClick={() => {
+        {success && si + 1 < SLIME_STAGES.length && <button type="button" className="min-h-11 rounded-lg bg-accent px-4 py-2 font-semibold text-black" onClick={() => {
             sendHit(SLUG, 'sl_next')
             reset(si + 1)
           }}>다음 스테이지</button>}
         {success && si + 1 === SLIME_STAGES.length && <span className="font-semibold">모두 클리어! 🎉</span>}
       </div>
       <div className="mt-5 text-center text-xs text-fg-muted">
-        <button type="button" className="rounded-lg border border-white/15 px-3 py-2" onClick={copy}>플레이 기록 복사 ({recs.current.length}판)</button>
+        <button type="button" className="min-h-11 rounded-lg border border-white/15 px-4 py-2" onClick={copy}>플레이 기록 복사 ({recs.current.length}판)</button>
         <p className="mt-1">{copied}</p>
       </div>
     </div>
