@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
+import { useSlimeAudio } from '@/lib/sound/useSlimeAudio'
 import { simulate } from '@/lib/games/slime/engine'
 import { SLIME_STAGES } from '@/lib/games/slime/stages'
 import { capInk, dist, dropClose, polyLength, processStroke } from '@/lib/games/slime/strokePipeline'
@@ -36,6 +37,9 @@ export function SlimeProto() {
   const [phase, setPhase] = useState<Phase>('draw')
   const [msg, setMsg] = useState('')
   const [copied, setCopied] = useState('')
+  const [muted, setMuted] = useState(false)
+  const { unlock, play } = useSlimeAudio(muted)
+  const gotAcorns = useRef<Set<number>>(new Set())
   const raw = useRef<Pt[]>([])
   const line = useRef<Pt[] | null>(null)
   const ghost = useRef<Pt[] | null>(null)
@@ -48,6 +52,13 @@ export function SlimeProto() {
   const [, force] = useState(0)
   const img = useRef<HTMLImageElement | null>(null)
 
+  useEffect(() => {
+    try {
+      setMuted(localStorage.getItem('slime:muted') === '1')
+    } catch {
+      /* 저장소를 못 써도 소리는 켜진 채로 */
+    }
+  }, [])
   useEffect(() => {
     const el = wrap.current
     if (!el) return
@@ -141,6 +152,14 @@ export function SlimeProto() {
           if (phase === 'run' && el >= tr.length - 1 && result.current) finish()
         }
       }
+      if (phase === 'run') {
+        stage.acorns.forEach((a, i) => {
+          if (!gotAcorns.current.has(i) && dist(sp, a) < CONST.ACORN_R) {
+            gotAcorns.current.add(i)
+            play('acorn', gotAcorns.current.size)
+          }
+        })
+      }
       const im = img.current
       if (im?.complete && im.naturalWidth) g.drawImage(im, sp.x - 22, sp.y - 26, 44, 44)
       else {
@@ -163,6 +182,7 @@ export function SlimeProto() {
       if (!r || phase !== 'run' || finished.current) return
       finished.current = true
       setPhase('done')
+      play(r.outcome === 'nest' ? 'nest' : r.outcome === 'timeout' ? 'stalled' : r.outcome)
       const ink = line.current ? polyLength(line.current) : 0
       recs.current.push({ stage: stage.id, outcome: r.outcome, acorns: r.acorns, ink: Math.round(ink), pts: (line.current ?? []).map((p) => [Math.round(p.x * 2), Math.round(p.y * 2)]), ms: Math.round(performance.now() - drawStart.current) })
       setMsg(r.outcome === 'nest' ? `${OUTCOME_TEXT.nest} 🌰 ${r.acorns}/3 · 점수 ${r.acorns * 100 + Math.round((100 * (stage.ink - ink)) / stage.ink)}` : OUTCOME_TEXT[r.outcome])
@@ -170,7 +190,7 @@ export function SlimeProto() {
     }
     raf = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(raf)
-  }, [w, stage, phase])
+  }, [w, stage, phase, play])
 
   const pt = (e: React.PointerEvent): Pt => {
     const r = canvas.current!.getBoundingClientRect()
@@ -180,6 +200,8 @@ export function SlimeProto() {
     if (phase !== 'draw' || !inPlayZone(e)) return
     const p = pt(e)
     if (dist(p, stage.spawn) < CONST.SPAWN_BAN_R) return
+    unlock()
+    play('draw')
     e.currentTarget.setPointerCapture(e.pointerId)
     raw.current = [p]
     line.current = null
@@ -199,6 +221,7 @@ export function SlimeProto() {
     const l = processStroke(raw.current, stage.ink)
     if (!l) {
       raw.current = []
+      play('invalid')
       setMsg('선이 너무 짧아요(40px 이상)')
       return
     }
@@ -210,6 +233,8 @@ export function SlimeProto() {
     runStart.current = performance.now()
     ghost.current = l
     finished.current = false
+    gotAcorns.current = new Set()
+    play('release')
     setPhase('run')
   }
   const onCancel = () => {
@@ -234,7 +259,27 @@ export function SlimeProto() {
     <div ref={wrap} className="mx-auto w-full max-w-[390px]">
       <div className="mb-2 flex items-center justify-between text-sm">
         <span className="font-semibold">스테이지 {si + 1}/{SLIME_STAGES.length}</span>
-        <span className="text-fg-muted">잉크 {left}%</span>
+        <span className="flex items-center gap-3 text-fg-muted">
+          잉크 {left}%
+          <button
+            type="button"
+            aria-label={muted ? '소리 켜기' : '소리 끄기'}
+            aria-pressed={muted}
+            className="rounded-lg border border-white/15 px-2 py-1 text-base"
+            onClick={() => {
+              const m = !muted
+              setMuted(m)
+              try {
+                localStorage.setItem('slime:muted', m ? '1' : '0')
+              } catch {
+                /* 무시 */
+              }
+              if (!m) unlock()
+            }}
+          >
+            {muted ? '🔇' : '🔊'}
+          </button>
+        </span>
       </div>
       <div className="mb-2 h-2 overflow-hidden rounded-full bg-white/10" aria-hidden="true">
         <div className="h-full rounded-full bg-[#f4f0ff] transition-[width]" style={{ width: `${left}%` }} />
