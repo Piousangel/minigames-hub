@@ -5,10 +5,10 @@ import { BOARD_H, BOARD_W, DEFAULT_PHYSICS, type Outcome, type Physics, type Pt,
 export { perturb } from './rng'
 import { perturb } from './rng'
 
-export type BotId = 'c3' | 'c6' | 'c12' | 'c20' | 'doodle'
+export type BotId = 'c3' | 'c6' | 'c12' | 'c20' | 'doodle' | 'straight'
 /** σ는 390px 보드 기준 px. c12 = 손가락 실측(폭의 2.3~3.1%) 중앙. */
-export const BOT_SIGMA: Record<BotId, number> = { c3: 3, c6: 6, c12: 10.3, c20: 20, doodle: 10.3 }
-const BOT_TREMOR: Record<BotId, number> = { c3: 1.5, c6: 1.5, c12: 1.5, c20: 2, doodle: 1.5 }
+export const BOT_SIGMA: Record<BotId, number> = { c3: 3, c6: 6, c12: 10.3, c20: 20, doodle: 10.3, straight: 10.3 }
+const BOT_TREMOR: Record<BotId, number> = { c3: 1.5, c6: 1.5, c12: 1.5, c20: 2, doodle: 1.5, straight: 1.5 }
 const ATTEMPT_LEARN = [1, 0.85, 0.72]
 
 export interface RobustSolution extends Solution {
@@ -77,7 +77,7 @@ export function makePolicy(id: BotId, robust: RobustSolution[], all: Solution[])
   const randOf = <T,>(xs: T[], rng: () => number): T => xs[Math.floor(rng() * xs.length)]
   return {
     pick(attempt, prevCluster, rng) {
-      if (id === 'doodle') return null
+      if (id === 'doodle' || id === 'straight') return null
       if (robust.length === 0) return null
       if (id === 'c3') return randOf(sortedRobust.slice(0, Math.max(1, Math.ceil(sortedRobust.length * 0.2))), rng)
       if (id === 'c6') return randOf(robust, rng)
