@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useSlimeAudio } from '@/lib/sound/useSlimeAudio'
 import { simulate } from '@/lib/games/slime/engine'
-import { drawAcorn, drawBurr, drawFlowerGoal, drawIslandFloors, drawNest, drawSky, drawTerrain } from '@/lib/games/slime/draw'
+import { sendHit } from '@/lib/hit'
+import { drawAcorn, drawBubble, drawBurr, drawFailMark, drawFlowerGoal, drawGoalGlow, drawIslandFloors, drawNest, drawSky, drawTerrain } from '@/lib/games/slime/draw'
 import { Fx, starPath } from '@/lib/games/slime/fx'
 import { SLIME_STAGES } from '@/lib/games/slime/stages'
 import { capInk, dist, dropClose, polyLength, processStroke } from '@/lib/games/slime/strokePipeline'
@@ -27,7 +28,11 @@ const OUTCOME_TEXT: Record<Outcome, string> = {
   stalled: '멈췄어요',
   timeout: '시간이 다 됐어요',
 }
+const FAIL_BUBBLE: Record<Outcome, string> = { nest: '', spiked: '앗, 가시!', fell: '떨어졌어요', stalled: '멈췄어요', timeout: '멈췄어요' }
 const TRACE_MS = 50 // 트레이스 한 칸 = 6스텝 = 50ms
+const START_VIS_MS = 220 // 놓은 뒤 말랑이가 움직이기까지(엔진 시뮬의 0.5초 대기는 그대로, 화면만 앞당김). 그 사이 웅크리는 예비 동작
+const SLUG = 'slime-proto' // 측정 슬러그(정식 출시 전이라 slime-slide와 분리)
+const clampPt = (p: Pt): Pt => ({ x: Math.max(18, Math.min(BOARD_W - 18, p.x)), y: Math.max(26, Math.min(BOARD_H - 34, p.y)) })
 
 /** 비공개 시험판: 그리기 → 시뮬 재생 → 결과. 사이트에 연결하지 않았고, 플레이 기록을 복사해 난이도 조정에 쓴다. */
 export function SlimeProto() {
@@ -75,6 +80,7 @@ export function SlimeProto() {
   const vel = useRef<Pt>({ x: 0, y: 0 })
   const prevSpeed = useRef(0)
   const squash = useRef(0)
+  const ringFlash = useRef(0)
 
   // 카카오톡 같은 인앱 브라우저는 touch-action을 무시해 그리는 중에 화면이 스크롤되거나 당겨진다 →
   // 그리기 구역의 touchstart/touchmove를 passive:false로 취소하고, 그리는 동안 페이지 스크롤을 잠근다(스크롤 띠는 구역 밖이라 영향 없음).
@@ -93,6 +99,7 @@ export function SlimeProto() {
     }
   }, [lockScroll, w])
   useEffect(() => {
+    sendHit(SLUG, 'sl_view')
     setInKakao(/KAKAOTALK/i.test(navigator.userAgent))
     try {
       setMuted(localStorage.getItem('slime:muted') === '1')
@@ -176,16 +183,18 @@ export function SlimeProto() {
       drawTerrain(g, stage.terrain, islandsOk) // 벽 = 바위 기둥(그림이 아직 없으면 바닥도 선으로)
       // 스폰 금지 링
       g.setLineDash([4, 6])
-      g.strokeStyle = 'rgba(91,58,30,0.45)'
-      g.lineWidth = 2
+      const rf = ringFlash.current > t ? (ringFlash.current - t) / 400 : 0
+      g.strokeStyle = rf > 0 ? `rgba(230,70,70,${0.5 + 0.5 * rf})` : 'rgba(91,58,30,0.45)'
+      g.lineWidth = rf > 0 ? 4 : 2
       g.beginPath()
       g.arc(stage.spawn.x, stage.spawn.y, CONST.SPAWN_BAN_R, 0, Math.PI * 2)
       g.stroke()
       g.setLineDash([])
       // 둥지(도착하면 빛남)·밤송이·도토리
       const celebrate = celebrateAt.current ? Math.max(0, 1 - (t - celebrateAt.current) / 1600) : 0
+      // 목표는 꽃 하나만(그림 로딩 전엔 둥지로 폴백). 도착하면 꽃 주변만 빛난다 — 둥지를 겹쳐 그리지 않는다
+      drawGoalGlow(g, stage.nest, t, celebrate)
       if (!drawFlowerGoal(g, imgFlower.current, stage.nest, t, celebrate)) drawNest(g, stage.nest, t, celebrate)
-      if (celebrate > 0) drawNest(g, stage.nest, t, celebrate) // 도착하면 꽃 주변이 따뜻하게 빛난다
       const alarm = failAt.current ? Math.max(0, 1 - (t - failAt.current) / 900) : 0
       stage.spikes.forEach((s, i) => drawBurr(g, s, t, i, result.current?.outcome === 'spiked' ? alarm : 0))
       stage.acorns.forEach((a, i) => {
@@ -203,12 +212,35 @@ export function SlimeProto() {
         drawLine(g, cur, '#5b3a1e', 10)
         drawLine(g, cur, '#fff3dc', 5.5)
       }
+      // 첫 10초 안내: 첫 판 전, 첫 스테이지에서만 손가락이 선을 긋는 시범과 말풍선을 보여준다(디자이너·PM 검수)
+      if (phase === 'draw' && si === 0 && recs.current.length === 0 && raw.current.length === 0 && !line.current) {
+        const q = Math.min(1, (t % 3200) / 2400)
+        const A = { x: 54, y: 152 }
+        const B = { x: 312, y: 484 }
+        const hx = A.x + (B.x - A.x) * q
+        const hy = A.y + (B.y - A.y) * q
+        g.save()
+        g.setLineDash([9, 9])
+        g.strokeStyle = 'rgba(255,243,220,0.9)'
+        g.lineWidth = 5
+        g.beginPath()
+        g.moveTo(A.x, A.y)
+        g.lineTo(hx, hy)
+        g.stroke()
+        g.setLineDash([])
+        g.font = '30px sans-serif'
+        g.textAlign = 'center'
+        g.textBaseline = 'middle'
+        g.fillText('👆', hx + 6, hy + 14)
+        g.restore()
+        drawBubble(g, '말랑이 아래에서 꽃까지 선을 그어요', BOARD_W / 2, 52)
+      }
       // 말랑이
       let sp: Pt = stage.spawn
       let moving = false
       if (phase === 'run' || phase === 'done') {
         const tr = trace.current
-        const el = Math.max(0, t - runStart.current - 500) / TRACE_MS
+        const el = Math.max(0, t - runStart.current - START_VIS_MS) / TRACE_MS
         if (tr.length) {
           const i = Math.min(tr.length - 1, Math.floor(el))
           const j = Math.min(tr.length - 1, i + 1)
@@ -219,6 +251,14 @@ export function SlimeProto() {
             moving = true
           }
           if (phase === 'run' && el >= tr.length - 1 && result.current) finish()
+        }
+      }
+      const failedNow = phase === 'done' && result.current !== null && result.current.outcome !== 'nest'
+      if (failedNow) {
+        sp = clampPt(sp) // 보드 밖으로 떨어져도 어지러운 얼굴과 ✕가 보이게 가장자리에 남긴다
+        if (failAt.current && t - failAt.current < 2400) {
+          drawFailMark(g, { x: sp.x, y: sp.y + 4 }, (t - failAt.current) / 1000)
+          drawBubble(g, FAIL_BUBBLE[result.current?.outcome ?? 'fell'], Math.max(80, Math.min(BOARD_W - 80, sp.x)), Math.max(30, sp.y - 54), 200)
         }
       }
       if (phase === 'run') {
@@ -235,7 +275,7 @@ export function SlimeProto() {
         })
       }
       const speed = Math.sqrt(vel.current.x ** 2 + vel.current.y ** 2)
-      if (moving && speed > 140) fx.current.trail(sp.x, sp.y + 4)
+      if (moving && speed > 140 && !fx.current.calm) fx.current.trail(sp.x, sp.y + 4)
       if (prevSpeed.current - speed > 160) squash.current = 1 // 부딪히거나 확 느려지면 찌그러진다
       squash.current *= 0.86
       prevSpeed.current = moving ? speed : 0
@@ -253,15 +293,21 @@ export function SlimeProto() {
       const im = (happy ? imgHappy.current : dizzy ? imgDizzy.current : img.current) ?? img.current
       let hop = 0
       let wob = 0
-      if (happy && celebrateAt.current) {
+      if (happy && celebrateAt.current && !fx.current.calm) {
         const q = (t - celebrateAt.current) / 1000
         hop = Math.abs(Math.sin(q * 9)) * 16 * Math.exp(-q * 2.2) // 통통 튄다
       }
       if (dizzy && failAt.current) wob = Math.sin((t - failAt.current) / 90) * 0.2 * Math.max(0, 1 - (t - failAt.current) / 1500)
       g.save()
       g.translate(p.x, p.y - hop)
-      const stretch = moving ? Math.min(0.32, speed / 2200) : 0
-      if (moving && speed > 30) {
+      const calm = fx.current.calm
+      // 놓은 직후 웅크렸다 튀어 나가는 예비 동작(디자이너 검수: 대기 0.5초가 길고 맥이 없다)
+      if (phase === 'run' && !moving && !calm) {
+        const c = Math.sin(Math.min(1, Math.max(0, (t - runStart.current) / START_VIS_MS)) * Math.PI)
+        g.scale(1 + 0.14 * c, 1 - 0.24 * c)
+      }
+      const stretch = moving && !calm ? Math.min(0.32, speed / 2200) : 0
+      if (moving && !calm && speed > 30) {
         const ang = Math.atan2(vel.current.y, vel.current.x)
         g.rotate(ang)
         g.scale(1 + stretch, 1 / (1 + stretch)) // 빠를수록 진행 방향으로 늘어난다
@@ -323,16 +369,19 @@ export function SlimeProto() {
           fx.current.sparks(last.x, last.y, 12, '#ff8a8a', 150, 0.5)
           if (typeof navigator !== 'undefined') navigator.vibrate?.(60)
         }
-        fx.current.text(tx, ty, r.outcome === 'stalled' || r.outcome === 'timeout' ? '…' : '앗!', '#ffffff', 22, 1)
+        void tx
+        void ty
       }
       const ink = line.current ? polyLength(line.current) : 0
       recs.current.push({ stage: stage.id, outcome: r.outcome, acorns: r.acorns, ink: Math.round(ink), pts: (line.current ?? []).map((p) => [Math.round(p.x * 2), Math.round(p.y * 2)]), ms: Math.round(performance.now() - drawStart.current) })
-      setMsg(r.outcome === 'nest' ? `${OUTCOME_TEXT.nest} 🌰 ${r.acorns}/3 · 점수 ${r.acorns * 100 + Math.round((100 * (stage.ink - ink)) / stage.ink)}` : OUTCOME_TEXT[r.outcome])
+      const inkBonus = Math.round((100 * (stage.ink - ink)) / stage.ink)
+      setMsg(r.outcome === 'nest' ? `${OUTCOME_TEXT.nest} ${'⭐'.repeat(r.acorns)}${'☆'.repeat(3 - r.acorns)} 도토리 ${r.acorns * 100} + 잉크 ${inkBonus} = ${r.acorns * 100 + inkBonus}점` : OUTCOME_TEXT[r.outcome])
+      sendHit(SLUG, r.outcome === 'nest' ? `sl_win_s${si + 1}` : `sl_f_${r.outcome}_s${si + 1}`)
       force((n) => n + 1)
     }
     raf = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(raf)
-  }, [w, stage, phase, play])
+  }, [w, stage, phase, play, si])
 
   const pt = (e: React.PointerEvent): Pt => {
     const r = canvas.current!.getBoundingClientRect()
@@ -341,7 +390,11 @@ export function SlimeProto() {
   const onDown = (e: React.PointerEvent) => {
     if (phase !== 'draw' || !inPlayZone(e)) return
     const p = pt(e)
-    if (dist(p, stage.spawn) < CONST.SPAWN_BAN_R) return
+    if (dist(p, stage.spawn) < CONST.SPAWN_BAN_R) {
+      ringFlash.current = performance.now() + 400
+      setMsg('말랑이 바로 근처(점선 안)에는 못 그어요')
+      return
+    }
     unlock()
     play('draw')
     lockScroll(true)
@@ -350,6 +403,7 @@ export function SlimeProto() {
     line.current = null
     drawStart.current = performance.now()
     downAt.current = performance.now()
+    sendHit(SLUG, 'sl_draw_start')
     setMsg('')
   }
   const onMove = (e: React.PointerEvent) => {
@@ -371,6 +425,7 @@ export function SlimeProto() {
     const dy = r1.y - r0.y
     if (dy < -60 && Math.abs(dy) > 2 * Math.abs(dx) && performance.now() - downAt.current < 450) {
       raw.current = []
+      sendHit(SLUG, 'sl_cancel_scroll')
       setMsg('스크롤은 보드 바깥(위·아래·옆 띠)에서 해요')
       force((n) => n + 1)
       return
@@ -379,6 +434,7 @@ export function SlimeProto() {
     if (!l) {
       raw.current = []
       play('invalid')
+      sendHit(SLUG, 'sl_cancel_short')
       setMsg('선이 너무 짧아요(40px 이상)')
       return
     }
@@ -399,15 +455,18 @@ export function SlimeProto() {
     prevSpeed.current = 0
     squash.current = 0
     play('release')
+    sendHit(SLUG, 'sl_run')
     setPhase('run')
   }
   const onCancel = () => {
+    sendHit(SLUG, 'sl_pointercancel')
     lockScroll(false)
     raw.current = [] // 취소는 취소(스크롤이 시작되면 브라우저가 보낸다)
     force((n) => n + 1)
   }
 
   const copy = async () => {
+    sendHit(SLUG, 'sl_copy')
     const payload = JSON.stringify({ v: 1, canvasW: w, dpr: window.devicePixelRatio, touch: navigator.maxTouchPoints, vp: [window.innerWidth, window.innerHeight], recs: recs.current })
     try {
       await navigator.clipboard.writeText(payload)
@@ -428,7 +487,24 @@ export function SlimeProto() {
         </p>
       )}
       <div className="mb-2 flex items-center justify-between text-sm">
-        <span className="font-semibold">스테이지 {si + 1}/{SLIME_STAGES.length}</span>
+        <span className="flex items-center gap-1.5" role="group" aria-label="스테이지 선택">
+          {SLIME_STAGES.map((st, i) => (
+            <button
+              key={st.id}
+              type="button"
+              aria-label={`스테이지 ${i + 1}`}
+              aria-current={i === si ? 'true' : undefined}
+              disabled={phase === 'run'}
+              onClick={() => {
+                sendHit(SLUG, 'sl_pick_stage')
+                reset(i)
+              }}
+              className={`h-8 w-8 rounded-full border-2 text-xs font-bold ${i === si ? 'border-[#5b3a1e] bg-[#fff3dc] text-[#5b3a1e]' : 'border-white/20 text-fg-muted'}`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </span>
         <span className="flex items-center gap-3 text-fg-muted">
           잉크 {left}%
           <button
@@ -459,10 +535,16 @@ export function SlimeProto() {
         {/* 그리기 구역: 가로 76%·세로 68% (위·아래 16%·좌우 12% 띠는 스크롤용 — 11-19 오너 피드백으로 확대) */}
         <PlayZone top={0.16} bottom={0.16} left={0.12} right={0.12} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onCancel} data-testid="slime-zone" />
       </div>
-      <p role="status" aria-live="polite" className="mt-3 min-h-6 text-center text-sm font-semibold">{msg || (phase === 'draw' ? '말랑이 아래에서 시작해 둥지까지 선을 그어요' : phase === 'run' ? '미끄러지는 중…' : '')}</p>
+      <p role="status" aria-live="polite" className="mt-3 min-h-6 text-center text-sm font-semibold">{msg || (phase === 'draw' ? '말랑이 아래에서 시작해 꽃까지 선을 그어요' : phase === 'run' ? '미끄러지는 중…' : '')}</p>
       <div className="mt-2 flex items-center justify-center gap-2 text-sm">
-        <button type="button" className="rounded-lg border border-white/15 px-3 py-2" onClick={() => reset()} disabled={phase === 'run'}>다시 그리기</button>
-        {success && si + 1 < SLIME_STAGES.length && <button type="button" className="rounded-lg bg-accent px-3 py-2 font-semibold text-black" onClick={() => reset(si + 1)}>다음 스테이지</button>}
+        <button type="button" className="rounded-lg border border-white/15 px-3 py-2" onClick={() => {
+            sendHit(SLUG, 'sl_retry')
+            reset()
+          }} disabled={phase === 'run'}>다시 그리기</button>
+        {success && si + 1 < SLIME_STAGES.length && <button type="button" className="rounded-lg bg-accent px-3 py-2 font-semibold text-black" onClick={() => {
+            sendHit(SLUG, 'sl_next')
+            reset(si + 1)
+          }}>다음 스테이지</button>}
         {success && si + 1 === SLIME_STAGES.length && <span className="font-semibold">모두 클리어! 🎉</span>}
       </div>
       <div className="mt-5 text-center text-xs text-fg-muted">

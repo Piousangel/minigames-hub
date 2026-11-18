@@ -43,7 +43,7 @@ export function drawIslandFloors(g: CanvasRenderingContext2D, island: HTMLImageE
     const x1 = Math.max(s.a.x, s.b.x)
     const w = x1 - x0 + 70 // 양끝으로 조금 더 나와 둥근 섬 모서리가 보인다
     const h = (island.naturalHeight / island.naturalWidth) * w
-    const surface = h * 0.16 // 이미지에서 풀 윗면의 높이 비율
+    const surface = h * 0.27 // 이미지에서 풀 윗면(말랑이가 서는 면)의 높이 비율 — 0.16은 말랑이가 18px 떠 보였다(디자이너 검수)
     g.drawImage(island, (x0 + x1) / 2 - w / 2, (s.a.y + s.b.y) / 2 - surface, w, h)
   }
   return true
@@ -122,6 +122,19 @@ export function drawTerrain(g: CanvasRenderingContext2D, terrain: Seg[], skipFla
       }
     }
   }
+}
+
+/** 목표 주변의 따뜻한 빛만(꽃·둥지 공용). 둥지 그림은 그리지 않아 꽃과 겹치지 않는다. */
+export function drawGoalGlow(g: CanvasRenderingContext2D, p: Pt, t: number, glow: number): void {
+  const cx = p.x
+  const cy = p.y + 8
+  const gl = g.createRadialGradient(cx, cy, 4, cx, cy, 44 + glow * 20)
+  gl.addColorStop(0, `rgba(255,220,120,${0.1 + glow * 0.5 + 0.04 * Math.sin(t / 500)})`)
+  gl.addColorStop(1, 'rgba(255,220,120,0)')
+  g.fillStyle = gl
+  g.beginPath()
+  g.arc(cx, cy, 64, 0, Math.PI * 2)
+  g.fill()
 }
 
 export function drawNest(g: CanvasRenderingContext2D, p: Pt, t: number, glow: number): void {
@@ -243,5 +256,52 @@ export function drawBurr(g: CanvasRenderingContext2D, p: Pt, t: number, i: numbe
   g.beginPath()
   g.ellipse(-4, -5, 3, 2, -0.5, 0, Math.PI * 2)
   g.fill()
+  g.restore()
+}
+
+/** 실패한 자리에 크게 표시하는 ✕(갈색 윤곽 + 붉은 심). */
+export function drawFailMark(g: CanvasRenderingContext2D, p: Pt, age: number): void {
+  const k = Math.min(1, age / 0.18)
+  const r = 13 * (0.6 + 0.4 * k)
+  g.save()
+  g.globalAlpha = Math.max(0, Math.min(1, 2.4 - age))
+  g.lineCap = 'round'
+  for (const [w, c] of [[9, '#5b3a1e'], [5, '#ff4b4b']] as const) {
+    g.strokeStyle = c
+    g.lineWidth = w
+    g.beginPath()
+    g.moveTo(p.x - r, p.y - r)
+    g.lineTo(p.x + r, p.y + r)
+    g.moveTo(p.x + r, p.y - r)
+    g.lineTo(p.x - r, p.y + r)
+    g.stroke()
+  }
+  g.restore()
+}
+
+/** 크림색 말풍선(뿅 착지 UI와 같은 갈색 윤곽). */
+export function drawBubble(g: CanvasRenderingContext2D, text: string, cx: number, cy: number, maxW = 300): void {
+  g.save()
+  g.font = '700 15px sans-serif'
+  g.textAlign = 'center'
+  g.textBaseline = 'middle'
+  const w = Math.min(maxW, g.measureText(text).width + 28)
+  const h = 32
+  const x = cx - w / 2
+  const y = cy - h / 2
+  g.beginPath()
+  g.moveTo(x + 12, y)
+  g.arcTo(x + w, y, x + w, y + h, 12)
+  g.arcTo(x + w, y + h, x, y + h, 12)
+  g.arcTo(x, y + h, x, y, 12)
+  g.arcTo(x, y, x + w, y, 12)
+  g.closePath()
+  g.fillStyle = '#fff3dc'
+  g.fill()
+  g.lineWidth = 3
+  g.strokeStyle = '#5b3a1e'
+  g.stroke()
+  g.fillStyle = '#5b3a1e'
+  g.fillText(text, cx, cy + 1, maxW - 20)
   g.restore()
 }
