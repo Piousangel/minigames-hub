@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { gamePages } from '@/lib/games/registry'
-import { DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
+import { pickNextGames, type NextPicks } from '@/lib/games/nextGame'
 import { todayUTC } from '@/lib/dailyDate'
 import { loadPlayedToday } from '@/lib/today'
 import { RECENT_KEY } from '@/components/RecordPlay'
@@ -14,9 +14,10 @@ export interface GameNav {
   nextSlug: string | null // 다음에 권할 게임
   nextTitle: string | null
   runCount: number // 이번 세션 연속 플레이 수
+  picks: NextPicks // 레일용 2장(같은 장르·다른 입력)
 }
 
-const Ctx = createContext<GameNav>({ slug: '', nextSlug: null, nextTitle: null, runCount: 0 })
+const Ctx = createContext<GameNav>({ slug: '', nextSlug: null, nextTitle: null, runCount: 0, picks: { same: null, diff: null } })
 export const useGameNav = () => useContext(Ctx)
 
 /**
@@ -26,7 +27,7 @@ export const useGameNav = () => useContext(Ctx)
  * 클라이언트 전용(하이드레이션 안전). 프로바이더 밖에선 nextSlug=null이라 버튼이 안 뜬다.
  */
 export function GameNavProvider({ slug, children }: { slug: string; children: ReactNode }) {
-  const [nav, setNav] = useState<GameNav>({ slug, nextSlug: null, nextTitle: null, runCount: 0 })
+  const [nav, setNav] = useState<GameNav>({ slug, nextSlug: null, nextTitle: null, runCount: 0, picks: { same: null, diff: null } })
 
   useEffect(() => {
     let run = 0
@@ -43,26 +44,15 @@ export function GameNavProvider({ slug, children }: { slug: string; children: Re
     } catch {
       recent = []
     }
-    const excl = new Set<string>([slug, ...played, ...recent])
-    const cat = (gameMeta[slug] ?? DEFAULT_META).category
-    const all = gamePages.map((g) => g.slug)
-    const fresh = all.filter((s) => !excl.has(s))
-    const sameCat = fresh.filter((s) => (gameMeta[s] ?? DEFAULT_META).category === cat)
-    // 추천 가중: 잘 만든(featured) 게임을 우선 제안(같은 카테고리 우선 유지) → 다음 게임도 품질 위주.
-    const feat = (list: string[]) => list.filter((s) => gameMeta[s]?.featured)
-    const pool =
-      feat(sameCat).length > 0
-        ? feat(sameCat)
-        : sameCat.length > 0
-          ? sameCat
-          : feat(fresh).length > 0
-            ? feat(fresh)
-            : fresh.length > 0
-              ? fresh
-              : all.filter((s) => s !== slug)
-    const nextSlug = pool.length > 0 ? pool[run % pool.length] : null
+    const picks = pickNextGames({
+      current: slug,
+      all: gamePages.map((g) => g.slug),
+      exclude: [...played, ...recent],
+      run,
+    })
+    const nextSlug = picks.same?.slug ?? picks.diff?.slug ?? null
     const g = nextSlug ? gamePages.find((p) => p.slug === nextSlug) : null
-    setNav({ slug, nextSlug, nextTitle: g?.h1 ?? null, runCount: run })
+    setNav({ slug, nextSlug, nextTitle: g?.h1 ?? null, runCount: run, picks })
   }, [slug])
 
   return <Ctx.Provider value={nav}>{children}</Ctx.Provider>

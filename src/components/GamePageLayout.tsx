@@ -10,7 +10,7 @@ import { Comments } from '@/components/Comments'
 import { RecordPlay } from '@/components/RecordPlay'
 import { ShareButtons } from '@/components/ShareButtons'
 import { Reveal } from '@/components/Reveal'
-import { NextUp } from '@/components/NextUp'
+import { NextRail } from '@/components/NextRail'
 import { GameNavProvider } from '@/components/GameNav'
 import { GameSwitcher } from '@/components/GameSwitcher'
 import { GameStats } from '@/components/GameStats'
@@ -63,6 +63,9 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
             보다 먼저 둬서 시선이 첫 번째로 닿는 위젯으로 만듦. */}
         <Reactions slug={page.slug} />
 
+        {/* 다음 게임 레일(같은 장르·다른 입력 2장, 광고 없음) — 구 NextUp(5번째 블록)을 대체해 2번째로 승격 */}
+        <NextRail />
+
         {/* 최근 게임 퀵스위처 — 게임 중에도 방금 하던 게임으로 원탭 전환(체류) */}
         <GameSwitcher currentSlug={page.slug} />
 
@@ -72,8 +75,6 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
         {/* 착지 페이지 리턴 훅: 사이트 streak + 오늘 퀘스트 + 다음 데일리 카운트다운 */}
         <DailyDock />
 
-        {/* 다음 게임으로 잇는 체류 후크(게임오버 catch point, 크로스셀은 스택 마지막) */}
-        <NextUp currentSlug={page.slug} />
       </GameNavProvider>
 
       {/* 공유(Threads·Facebook·KakaoTalk·Instagram·링크 복사) — 유입은 ?ref=share-<채널>로 측정 */}

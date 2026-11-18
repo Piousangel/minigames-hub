@@ -7,6 +7,7 @@ import { useGameNav } from '@/components/GameNav'
 import { nearestGoalHint } from '@/lib/achievements'
 import { siteConfig } from '@/lib/siteConfig'
 import { hasLeaderboard } from '@/lib/leaderboard'
+import { sendHit } from '@/lib/hit'
 import { isEndless } from '@/lib/games/gameMeta'
 import { OverlayScoreSubmit } from './OverlayScoreSubmit'
 
@@ -43,6 +44,10 @@ export function GameOverlay({
   useEffect(() => {
     // endless 게임은 승리가 없으므로 'N more wins' 넛지는 이 판에서 이룰 수 없다 — 제외.
     setGoalHint(show ? nearestGoalHint(3, { excludeUnits: isEndless(nav.slug) ? ['win'] : [] }) : null)
+  }, [show, nav.slug])
+  // 종료 노출(next_* 이동률의 분모): show가 false→true가 될 때만 1회. 재렌더로 중복 집계되지 않는다.
+  useEffect(() => {
+    if (show && nav.slug) sendHit(nav.slug, 'next_show')
   }, [show, nav.slug])
   if (!show) return null
   // 승/패/무에 따른 색 — 컨테이너 currentColor 로 .neon-box 발광. 무승부는 중립(본문색).
@@ -84,7 +89,8 @@ export function GameOverlay({
         )}
         {nav.nextSlug && nav.nextTitle && (
           <Link
-            href={`/${nav.nextSlug}`}
+            href={`/${nav.nextSlug}?ref=next`}
+            onClick={() => sendHit(nav.slug, 'next_ovl')}
             data-testid="overlay-next-game"
             className={`mt-1 inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${cozy ? 'border-2 border-[#5b3a1e] bg-[#fff8e8] text-[#5b3a1e] hover:bg-white focus-visible:ring-[#a0561b]' : 'border border-neon-lime/50 bg-surface text-neon-lime hover:bg-neon-lime/10 focus-visible:ring-neon-lime focus-visible:ring-offset-bg'}`}
           >

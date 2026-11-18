@@ -7,3 +7,5 @@
 - 2026-11-17: **`git add -A`가 빌드 산출물(`toss/dist`)을 커밋해 CI `pnpm lint`가 깨졌고 배포가 8번 연속 실패했다**(약 1시간, 마지막 성공 12:19 KST → 복구 PR #66). 원인은 PR 전에 `git status`를 보지 않은 것. 규칙: PR 전에 `git status --short`로 추적 대상이 의도한 파일뿐인지 본다. 머지 후에는 **deploy 워크플로 결과(`gh run list --workflow deploy.yml`)와 라이브 URL**을 확인한다(Vercel 미리보기 통과만으로 안심하지 않는다). 빌드 산출물은 .gitignore와 ESLint ignores에 넣는다.
 
 - 2026-11-17 16시: 서브에이전트 리서치는 포털 도메인(poki·crazygames·itch·nytimes)이 세션 네트워크에서 막힌다. 근거 없음을 스펙에 그대로 적고 계측 실험으로 판정한다. 실험은 코호트 태그(`?ref=`)를 처음부터 심어야 판정 가능하다(리뷰가 지적).
+
+- 2026-11-18 16시: 레포 pin 버전 playwright가 설치된 /opt/pw-browsers와 리비전이 달라 e2e가 안 뜬다 → 레포를 바꾸지 말고 스크래치패드에 `executablePath: '/opt/pw-browsers/chromium'` 임시 config로 실행한다.
