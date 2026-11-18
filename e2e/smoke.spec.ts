@@ -641,7 +641,7 @@ test('홈: Daily 필터가 Daily 모드 게임만 보여준다', async ({ page }
   // TodayBoard/RecentlyPlayed도 게임 카드를 그리므로 브라우저 결과 그리드로 좁힌다.
   const titles = await page.getByTestId('browse-results').locator('a:has(h3) h3').allInnerTexts()
   expect(titles.sort()).toEqual(
-    ['Acorn Hop', 'Bankshot', 'Beatline', 'Bearing', 'Clusters', 'Decant', 'Deepdive', 'Duplex', 'Equate', 'Flapjack', 'Gravwell', 'Grasp', 'Handful', 'Hogline', 'Hunch', 'Interlock', 'Loopgrid', 'Overfold', 'Prismbox', 'Quadle', 'Quarry', 'Recoil', 'Ricochet', 'Sonar', 'Splice', 'Stackpot', 'Strata', 'Turntile', 'Word Guess'].sort(),
+    ['Acorn Hop', 'Plop Landing', 'Bankshot', 'Beatline', 'Bearing', 'Clusters', 'Decant', 'Deepdive', 'Duplex', 'Equate', 'Flapjack', 'Gravwell', 'Grasp', 'Handful', 'Hogline', 'Hunch', 'Interlock', 'Loopgrid', 'Overfold', 'Prismbox', 'Quadle', 'Quarry', 'Recoil', 'Ricochet', 'Sonar', 'Splice', 'Stackpot', 'Strata', 'Turntile', 'Word Guess'].sort(),
   )
 })
 
@@ -960,3 +960,24 @@ test('스포트라이트: 홈에서 오늘의 스포트라이트가 공개된다
   await expect(page.getByTestId('spotlight-reveal')).toBeVisible()
   await expect(page.getByTestId('spotlight-reveal')).toContainText("TODAY'S SPOTLIGHT")
 })
+
+for (const vp of [{ name: '390', width: 390, height: 844 }, { name: '1366', width: 1366, height: 768 }]) {
+  test(`snake 종료 후 다음 게임 레일(${vp.name}px): 오버레이는 보드 안, 카드 2장, 가로 스크롤 없음, ?ref=next`, async ({ page }) => {
+    await page.setViewportSize({ width: vp.width, height: vp.height })
+    await page.goto('/snake')
+    await expect(page.getByTestId('snake-board')).toBeVisible()
+    await page.keyboard.press('ArrowRight')
+    await expect(page.getByTestId('game-over')).toBeVisible({ timeout: 10_000 })
+    const [ov, board] = await Promise.all([
+      page.getByTestId('game-over').boundingBox(),
+      page.getByTestId('snake-board').boundingBox(),
+    ])
+    expect(ov!.x).toBeGreaterThanOrEqual(board!.x - 1)
+    expect(ov!.x + ov!.width).toBeLessThanOrEqual(board!.x + board!.width + 1)
+    await expect(page.getByTestId('overlay-next-game')).toHaveCount(1)
+    await expect(page.locator('[data-testid^="next-rail-"]')).toHaveCount(2)
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    await page.getByTestId('next-rail-same').click()
+    await expect(page).toHaveURL(/ref=next/)
+  })
+}

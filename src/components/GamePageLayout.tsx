@@ -10,7 +10,7 @@ import { Comments } from '@/components/Comments'
 import { RecordPlay } from '@/components/RecordPlay'
 import { ShareButtons } from '@/components/ShareButtons'
 import { Reveal } from '@/components/Reveal'
-import { NextUp } from '@/components/NextUp'
+import { NextRail } from '@/components/NextRail'
 import { GameNavProvider } from '@/components/GameNav'
 import { GameSwitcher } from '@/components/GameSwitcher'
 import { GameStats } from '@/components/GameStats'
@@ -53,15 +53,18 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
       {/* 목표 한 줄(above-the-fold) — 낯선 유저가 승리 조건을 즉시 이해 */}
       <ObjectiveBanner slug={page.slug} />
 
-      {/* 게임(children의 GameOverlay)과 NextUp이 같은 '다음 게임' 픽을 공유 → 승/패 모달의
-          '다음 게임' 버튼 + 보드 아래 NextUp 카드가 일관, RUN 카운터 이중 증가 없음(체류 세션연장). */}
+      {/* 게임(children의 GameOverlay)과 NextRail이 같은 '다음 게임' 픽을 공유 → 승/패 모달의
+          '다음 게임' 버튼 + 보드 아래 NextRail이 일관, RUN 카운터 이중 증가 없음(체류 세션연장). */}
       <GameNavProvider slug={page.slug}>
         {children}
 
         {/* 게임 바로 아래, 스크롤 없이 보이는 위치 — 리액션은 눈에 띄어야 눌린다(사용자 피드백,
-            2026-08-10: "이거 보고 잘 눌를것같지 않은데"). GameSwitcher/GameStats/DailyDock/NextUp
+            2026-08-10: "이거 보고 잘 눌를것같지 않은데"). GameSwitcher/GameStats/DailyDock/NextRail
             보다 먼저 둬서 시선이 첫 번째로 닿는 위젯으로 만듦. */}
         <Reactions slug={page.slug} />
+
+        {/* 다음 게임 레일(같은 장르·다른 입력 2장, 광고 없음) — 구 NextUp(5번째 블록)을 대체해 2번째로 승격 */}
+        <NextRail />
 
         {/* 최근 게임 퀵스위처 — 게임 중에도 방금 하던 게임으로 원탭 전환(체류) */}
         <GameSwitcher currentSlug={page.slug} />
@@ -72,8 +75,6 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
         {/* 착지 페이지 리턴 훅: 사이트 streak + 오늘 퀘스트 + 다음 데일리 카운트다운 */}
         <DailyDock />
 
-        {/* 다음 게임으로 잇는 체류 후크(게임오버 catch point, 크로스셀은 스택 마지막) */}
-        <NextUp currentSlug={page.slug} />
       </GameNavProvider>
 
       {/* 공유(Threads·Facebook·KakaoTalk·Instagram·링크 복사) — 유입은 ?ref=share-<채널>로 측정 */}
