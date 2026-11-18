@@ -1,4 +1,4 @@
-import type { Stage } from './types'
+import type { Pt, Stage } from './types'
 
 /**
  * G2 게이트용 시험 스테이지 3개(tier1·2·3 하나씩). 합격선 판정 기계를 검증하는 용도이고,
@@ -108,3 +108,14 @@ export const T2_WALL_B: Stage = {
 
 /** 시험판·첫 출시 스테이지(tier1 2개, tier2 2개). tier3(g-gap)는 9조합 불안정으로 제외(DECISIONS 11-19). */
 export const SLIME_STAGES: Stage[] = [GATE_STAGES[0], T1_SPIKE, GATE_STAGES[1], T2_WALL_B]
+
+/**
+ * 스테이지별 추천 길(웨이포인트). scripts/slime-hints.ts가 강건 해 중 별 3개·σ12 생존율 최고를 뽑은 것.
+ * 두 번 연속 실패하면 점선으로 보여 준다(PM 검수: 경로를 모르는 사람은 9번을 연속 실패).
+ */
+export const STAGE_HINTS: Record<string, Pt[]> = {
+  'g-slide': [{ x: 8, y: 255 }, { x: 203, y: 382 }, { x: 280, y: 505 }],
+  's-spike': [{ x: 8, y: 256 }, { x: 299, y: 540 }, { x: 259, y: 424 }],
+  'g-wall': [{ x: 19, y: 156 }, { x: 195, y: 249 }, { x: 320, y: 521 }],
+  's-wall-b': [{ x: 8, y: 211 }, { x: 241, y: 268 }, { x: 261, y: 495 }],
+}
