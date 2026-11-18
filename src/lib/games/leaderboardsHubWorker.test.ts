@@ -150,4 +150,40 @@ describe('/api/leaderboards 허브 조회', () => {
     expect('rank' in body).toBe(false)
     warn.mockRestore()
   })
+
+  it('원본 IP는 DB에 가지 않고(해시 키만), 링크가 든 이름은 Anon으로 저장된다', async () => {
+    const g0 = Object.keys(LEADERBOARD_GAMES)[0]
+    const bound: unknown[][] = []
+    const env = {
+      DB: {
+        prepare: (sql: string) => ({
+          bind: (...a: unknown[]) => {
+            bound.push(a)
+            return {
+              run: async () => ({ meta: { changes: 1 } }),
+              all: async () => (sql.includes('COUNT(*)') ? { results: [{ total: 1, above: 0 }] } : { results: [] }),
+            }
+          },
+        }),
+        batch: async () => [],
+      },
+    } as never
+    const res = await worker.fetch(
+      new Request('https://quickminigames.site/api/score', {
+        method: 'POST',
+        headers: { 'CF-Connecting-IP': '203.0.113.77' },
+        body: JSON.stringify({ game: g0, score: 7, name: 'visit evil.com now' }),
+      }),
+      env,
+    )
+    expect(res.status).toBe(200)
+    expect(JSON.stringify(bound)).not.toContain('203.0.113.77')
+    // INSERT 바인딩(game, week, name, score, created_at)을 순서에 기대지 않고 찾는다
+    const insert = bound.find((a) => a.includes(g0) && a.includes(7) && a.length >= 5)
+    expect(insert).toBeDefined()
+    expect(insert).toContain('Anon')
+    expect(insert).not.toContain('visit evil.com now')
+    const key = bound.find((a) => typeof a[0] === 'string' && String(a[0]).startsWith('score:'))
+    expect(String(key?.[0])).toMatch(/^score:[0-9a-f]{24}:/)
+  })
 })
