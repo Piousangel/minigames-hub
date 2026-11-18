@@ -1,6 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { ShareButtons } from '@/components/ShareButtons'
+import { sendHit } from '@/lib/hit'
 import {
   CANCEL_DRAG_PX,
   cancelCharge,
@@ -136,7 +138,7 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
   const [armed, setArmed] = useState(true)
   const [ready, setReady] = useState(false)
   const [announce, setAnnounce] = useState('')
-  const [shared, setShared] = useState('')
+  const [showShare, setShowShare] = useState(false)
   const { muted, toggleMuted } = useGameSound()
   const { play, unlock, startBgm } = usePlopAudio(muted)
   const { reduced, reducedRef } = useReducedMotion()
@@ -170,7 +172,7 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
     lastScore.current = 0
     setArmed(true)
     setNewBest(false)
-    setShared('')
+    setShowShare(false)
     setAnnounce('')
     setUi(uiOf(st))
   }, [startBgm])
@@ -702,22 +704,32 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
     [endCharge],
   )
 
-  const share = useCallback(async () => {
+  // 결과 문구(링크 제외) — 채널 줄과 시스템 공유가 같은 문구를 쓴다
+  const resultText = useCallback(() => {
     const s = stRef.current
-    if (!s) return
+    if (!s) return ''
     const daily = modeRef.current === 'daily'
     const head = daily ? `Plop Landing #${dailyNumber(dayRef.current)}` : 'Plop Landing'
-    const text = `${head} ✅${s.landed} 🌸${s.perfects}\n${siteConfig.url}/plop-landing?ref=share`
-    try {
-      if (typeof navigator.share === 'function') await navigator.share({ text })
-      else {
-        await navigator.clipboard.writeText(text)
-        setShared('Copied!')
-      }
-    } catch {
-      setShared('')
-    }
+    return `${head} ✅${s.landed} 🌸${s.perfects}`
   }, [])
+  const share = useCallback(async () => {
+    const text = resultText()
+    if (!text) return
+    // 터치 기기는 시스템 공유창(카카오톡·인스타그램 등 설치된 앱이 뜬다). 마우스 환경(데스크톱)의 공유창엔
+    // 보통 Threads·Facebook·카카오톡이 없어서 채널 줄을 펼친다.
+    const touch = typeof window !== 'undefined' && window.matchMedia?.('(pointer: coarse)').matches
+    if (touch && typeof navigator.share === 'function') {
+      sendHit('plop-landing', 'share_native') // 채널 줄과 같은 계측 체계(share_<채널>)
+      try {
+        await navigator.share({ text: `${text}\n${siteConfig.url}/plop-landing?ref=share-native` })
+        return
+      } catch (e) {
+        // 공유창을 닫은 경우(AbortError)만 조용히 끝낸다. 그 밖의 실패(인앱 브라우저 등)는 채널 줄로 넘긴다.
+        if (e instanceof DOMException && e.name === 'AbortError') return
+      }
+    }
+    setShowShare((v) => !v)
+  }, [resultText])
 
   if (!ui || !ready) {
     return (
@@ -848,10 +860,16 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
               <button onClick={() => deal(modeRef.current)} className={`${btn} bg-[#ffc933] text-[#5b3a1e]`}>
                 Play again
               </button>
-              <button onClick={share} className={`${btn} bg-[#fff3dc] text-[#5b3a1e]`} data-testid="plop-share">
-                {shared || 'Share'}
+              <button
+                onClick={share}
+                className={`${btn} bg-[#fff3dc] text-[#5b3a1e]`}
+                data-testid="plop-share"
+                aria-expanded={showShare}
+              >
+                {showShare ? 'Hide share' : 'Share'}
               </button>
             </div>
+            {showShare && <ShareButtons compact slug="plop-landing" title="Plop Landing" text={resultText()} />}
           </GameOverlay>
         </div>
       </div>
