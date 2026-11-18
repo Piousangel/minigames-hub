@@ -250,6 +250,44 @@ export function drawAcorn(g: CanvasRenderingContext2D, p: Pt, t: number, i: numb
   g.restore()
 }
 
+let poisonCache: { src: HTMLImageElement; cv: HTMLCanvasElement } | null = null
+/** 독꽃: 목표 꽃과 같은 그림에 보라·어두운 색을 입힌 것(ctx.filter 미지원 브라우저 대비 오프스크린 합성). 노란 꽃=목표, 보라 꽃=위험. */
+function poisonFlower(img: HTMLImageElement): HTMLCanvasElement | null {
+  if (poisonCache?.src === img) return poisonCache.cv
+  if (typeof document === 'undefined') return null
+  const cv = document.createElement('canvas')
+  cv.width = img.naturalWidth
+  cv.height = img.naturalHeight
+  const c = cv.getContext('2d')
+  if (!c) return null
+  c.drawImage(img, 0, 0)
+  c.globalCompositeOperation = 'source-atop'
+  c.fillStyle = 'rgba(110,40,150,0.72)'
+  c.fillRect(0, 0, cv.width, cv.height)
+  poisonCache = { src: img, cv }
+  return cv
+}
+
+/** 위험 요소 = 보라 독꽃(밤송이 대체). 접촉 반경은 엔진 그대로(spike r26). 그림 로딩 전엔 기존 밤송이로 폴백. */
+export function drawPoisonFlower(g: CanvasRenderingContext2D, img: HTMLImageElement | null | undefined, p: Pt, t: number, i: number, alarm = 0): void {
+  const cv = img?.complete && img.naturalWidth ? poisonFlower(img) : null
+  if (!cv) return drawBurr(g, p, t, i, alarm)
+  const h = 62
+  const w = (cv.width / cv.height) * h
+  g.save()
+  if (alarm > 0) {
+    g.strokeStyle = `rgba(255,90,90,${0.7 * alarm})`
+    g.lineWidth = 3
+    g.beginPath()
+    g.arc(p.x, p.y, 30 + 10 * alarm, 0, Math.PI * 2)
+    g.stroke()
+  }
+  g.translate(p.x, p.y + 22)
+  g.rotate(Math.sin(t / 520 + i * 2) * 0.07)
+  g.drawImage(cv, -w / 2, -h, w, h)
+  g.restore()
+}
+
 export function drawBurr(g: CanvasRenderingContext2D, p: Pt, t: number, i: number, alarm = 0): void {
   g.save()
   g.translate(p.x, p.y)
