@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { ShareButtons } from '@/components/ShareButtons'
 import { sendHit } from '@/lib/hit'
 import {
+  STAR_BONUS,
   CANCEL_DRAG_PX,
   cancelCharge,
   dailySeedFor,
@@ -37,8 +38,8 @@ import { roundFont } from '@/app/fonts'
 import { siteConfig } from '@/lib/siteConfig'
 
 type Mode = 'daily' | 'practice'
-type Sprite = 'plop-bg' | 'plop-island-wide' | 'plop-island-small' | 'plop-flower' | 'plop-flag' | 'mallang-idle' | 'mallang-happy' | 'mallang-dizzy'
-const SPRITES: Sprite[] = ['plop-bg', 'plop-island-wide', 'plop-island-small', 'plop-flower', 'plop-flag', 'mallang-idle', 'mallang-happy', 'mallang-dizzy']
+type Sprite = 'star' | 'plop-bg' | 'plop-island-wide' | 'plop-island-small' | 'plop-flower' | 'plop-flag' | 'mallang-idle' | 'mallang-happy' | 'mallang-dizzy'
+const SPRITES: Sprite[] = ['star', 'plop-bg', 'plop-island-wide', 'plop-island-small', 'plop-flower', 'plop-flag', 'mallang-idle', 'mallang-happy', 'mallang-dizzy']
 
 /** 논리 해상도(캔버스는 이 좌표계로 그리고 DPR로 확대). */
 const VW = 390
@@ -214,7 +215,10 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
       const f = s.flight
       for (const e of events) {
         if (e === 'cancel') play('cancel')
-        else if (e === 'launch') play('launch')
+        else if (e === 'launch') {
+          play('launch')
+          if (f?.starTry) sendHit('plop-landing', 'star_try')
+        }
         else if (e === 'warn') play('warn')
         else if (e === 'sunk') {
           play('sunk')
@@ -229,9 +233,17 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
             fx.current.push({ kind: 'ripple', x: f.landX, y: 0, vx: 0, vy: 0, born: now, life: 650 })
             if (perfect) for (let i = 0; i < 9; i++) fx.current.push({ kind: 'spark', x: f.landX, y: 24, vx: Math.cos(i * 0.7) * 90, vy: 60 + Math.sin(i * 0.7) * 90, born: now, life: 700 })
           }
-          if (f) fx.current.push({ kind: 'pop', x: f.landX, y: 118, vx: 0, vy: 40, born: now, life: 900, text: perfect ? `Perfect +${s.score - (lastScore.current)}` : '+1', color: perfect ? '#ffc933' : '#fff3dc' })
+          if (f) fx.current.push({ kind: 'pop', x: f.landX, y: 118, vx: 0, vy: 40, born: now, life: 900, text: perfect ? `Perfect +${s.score - (lastScore.current) - (f?.starBonus ?? 0)}` : '+1', color: perfect ? '#ffc933' : '#fff3dc' })
           setAnnounce(perfect ? `Perfect, ${s.score} points` : `Landed, ${s.score} points`)
           lastScore.current = s.score
+        } else if (e === 'star') {
+          // 착지음(good/perfect)은 같은 틱에 이미 재생됐다 — 겹쳐 울리지 않게 별 전용 소리는 따로 없다
+          sendHit('plop-landing', 'star_hit')
+          if (f) {
+            fx.current.push({ kind: 'pop', x: f.landX, y: 168, vx: 0, vy: 40, born: now, life: 1100, text: `⭐ Star +${STAR_BONUS}` })
+            if (!reducedRef.current) for (let i = 0; i < 12; i++) fx.current.push({ kind: 'spark', x: f.landX, y: 40, vx: Math.cos(i * 0.52) * 120, vy: 70 + Math.sin(i * 0.52) * 110, born: now, life: 800 })
+          }
+          setAnnounce(`Star island! Plus ${STAR_BONUS}, ${s.score} points`)
         } else if (e === 'miss') {
           play('splash')
           v.overAt = now
@@ -309,6 +321,19 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
         if (x < -260 || x > VW + 260) continue
         const dip = i === st.cur ? 300 * sunkT * sunkT : 0
         drawIsland(ctx, im, isl, x, SURF_Y + dip)
+        if (isl.star && i > st.cur) {
+          // 별 섬 표시: 섬 위에 떠서 살짝 오르내리는 별(건너뛰기 보너스 +4)
+          const sp = im['star']
+          const sz = 38
+          const bob = reducedRef.current ? 0 : Math.sin(now / 380 + i) * 3
+          if (sp?.complete && sp.naturalWidth) ctx.drawImage(sp, x - sz / 2, SURF_Y - 112 + bob, sz, sz)
+          else {
+            // 이미지가 아직/끝내 안 왔어도 별 표시는 사라지지 않게 글자로 대체
+            ctx.font = `${sz}px sans-serif`
+            ctx.textAlign = 'center'
+            ctx.fillText('⭐', x, SURF_Y - 80 + bob)
+          }
+        }
         if (i >= 1) {
           const fl = im['plop-flower']
           if (fl?.complete && fl.naturalWidth) {

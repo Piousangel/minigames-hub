@@ -47,10 +47,12 @@ describe('G2 봇 시뮬 합격선', () => {
   it('바람 공정성: 센 바람(≥0.1g) 점프의 사망률이 약한 바람 점프의 1.4배 이하(같은 단계 비교)', () => {
     for (const r of [R.s12, R.s18]) expect(r.windRatio).toBeLessThanOrEqual(1.4)
   })
-  it('느린 플레이어(사고 0.8~3.0초): 가라앉음이 눈에 띄는 원인이되 주된 원인은 아님(5~40%)', () => {
+  it('느린 플레이어(사고 0.8~3.0초): 가라앉음이 눈에 띄는 원인이되 과반은 아님(5~50%)', () => {
+    // 11-18 별 섬: 옛 모델(점프 길이에 비례하는 오차) 봇은 별 섬 앞 섬이 가까워져 빗나감이 줄어 가라앉음 비중이 37→45%로 올랐다.
+    // 사람형(상수 오차) 느린 봇은 기준선과 같다(σ30 87~97% 대 89~97%, 아래 별 섬 난이도 중립 테스트가 중앙 섬 수로 고정). 상한을 0.4→0.5로(과반 아님)
     const sunk = R.slow.reasons.sunk ?? 0
     expect(sunk).toBeGreaterThanOrEqual(0.05)
-    expect(sunk).toBeLessThanOrEqual(0.4)
+    expect(sunk).toBeLessThanOrEqual(0.5)
   })
   it('사람형(상수 오차) 봇: 숙련은 끝없이 가지 못하고, 캐주얼은 너무 어렵지 않다', () => {
     expect(C.c30.medianLanded).toBeLessThanOrEqual(38) // 숙련(σ30ms): 88→39→34섬(11-18 램프 보정)
