@@ -249,7 +249,13 @@ export default {
       if (cache) {
         try {
           const cached = await cache.match(cacheKey)
-          if (cached) return cached
+          if (cached) {
+            // Cloudflare 존의 'Browser Cache TTL'이 적중 응답에 max-age=14400(4시간)을 덮어쓴다(라이브 확인).
+            // 브라우저가 옛 보드를 몇 시간씩 들고 있지 않게 적중 경로에서 헤더를 다시 지정한다.
+            const headers = new Headers(cached.headers)
+            headers.set('Cache-Control', 'public, max-age=0, must-revalidate')
+            return new Response(cached.body, { status: cached.status, headers })
+          }
         } catch {
           // 캐시 장애는 조회를 막지 않는다 — 원본(D1)으로 진행
         }
