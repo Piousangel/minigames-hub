@@ -16,6 +16,8 @@
 
 - **사이트(축 B) 11-18 16시**: '다음 게임 레일' 출시(E2). 리서치2(세 가정 약화) → v2(next_seen·낯섦 완화) → 독립 리뷰 → 구현·테스트. 다음 세션: 11-25 판정(next_* 지표), 이후 연결고리 #4(스트릭 정의)·#5(공략 칩).
 
+- **13시 11-18**: 뿅 착지 사이클 1(램프 보정) 출시 PR. 다음: 사이클 2 별 섬(리서치2부터), 오너 폰 선 샘플 후 B Day 1 게이트.
+
 ## 리뉴얼 큐(축 C)
 - **`docs/team/renewal-queue.md`** (11-17 재검증): 감사 bug 42건은 모두 수정됨, major 133건 중 **102건 남음**, 공용 기반(`useGameLoop`·`useRovingFocus`·`dailyResult` 등) 미구현. **먼저 할 5개**: ① 시작 게이트·일시정지 훅 + tetris·space-shooter·pong·flappy ② solitaire 계열 점수·표시 정직화 ③ 무승부 기록·오버레이 지연(connect-four 등) ④ 지배 전략 게임(strata·ticker·ripple) ⑤ 포커스 강탈 7종. 하루 사이클 배치 R0~R14.
 

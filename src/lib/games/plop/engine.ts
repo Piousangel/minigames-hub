@@ -24,7 +24,7 @@ export const MIN_P = 0.08 // 이보다 약하게 놓으면 점프 안 함
 export const SAFE_ISLANDS = 3 // 1~3번 섬은 크고 안전(가라앉지 않음, 바람 없음)
 export const HALFW_START = 110
 export const HALFW_MIN = 32 // 19번째 섬의 반폭(1차 하한)
-export const HALFW_FLOOR = 20 // 후반 램프의 최종 하한(40번째 섬)
+export const HALFW_FLOOR = 18 // 후반 램프의 최종 하한(40번째 섬)
 export const HALFW_FLOOR_INDEX = 40
 export const HALFW_SHRINK_END = 15 // 이 번호의 섬에서 1차 하한(오너 지적: 너무 쉽다 → 19에서 앞당김)
 export const MIN_GAP = 40
@@ -33,14 +33,14 @@ export const WIND_FIRST = 0.06
 export const WIND_MAX = 0.15 // 초중반 바람 상한
 export const WIND_MAX_LATE = 0.21 // 후반(30번째 섬 이후) 바람 상한
 // 후반 램프(오너 지적: 너무 쉽다 — 19번째 섬 이후 난이도가 평평했다)
-export const PING_FAST = 700 // 30번째 섬 이후 게이지 한 방향 시간(ms), 기본 1300에서 점차 빨라진다
+export const PING_FAST = 600 // 30번째 섬 이후 게이지 한 방향 시간(ms), 기본 1300에서 점차 빨라진다
 export const PING_RAMP_FROM = 6
 export const PING_RAMP_TO = 30
 export const PREVIEW_FRAC_START = 0.4
 export const PREVIEW_FRAC_END = 0.18 // 점선 미리보기가 점차 짧아져 게이지 감각이 필요해진다
 export const PREVIEW_RAMP_FROM = 8
 export const PREVIEW_RAMP_TO = 24
-export const SINK_LATE_END_MS = 1800 // 36번째 섬에서의 가라앉는 시간
+export const SINK_LATE_END_MS = 1500 // 36번째 섬에서의 가라앉는 시간
 export const SINK_LATE_INDEX = 36
 export const SINK_FROM = 4
 export const SINK_START_MS = 4600
@@ -92,7 +92,7 @@ export interface Island {
 }
 
 const lerp01 = (i: number, from: number, to: number) => Math.min(1, Math.max(0, (i - from) / (to - from)))
-/** i번째 섬으로 가는 점프의 게이지 한 방향 시간(ms). 8번째 섬부터 30번째까지 1300→900으로 빨라진다. */
+/** i번째 섬으로 가는 점프의 게이지 한 방향 시간(ms). 8번째 섬부터 30번째까지 1300→600으로 빨라진다. */
 export function pingOf(i: number): number {
   return PING_MS + (PING_FAST - PING_MS) * lerp01(i, PING_RAMP_FROM, PING_RAMP_TO)
 }
