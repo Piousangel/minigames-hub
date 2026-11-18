@@ -255,8 +255,8 @@ describe('후반 난이도 램프', () => {
     expect(pingOf(1)).toBe(PING_MS)
     expect(pingOf(6)).toBe(PING_MS)
     expect(pingOf(15)).toBeLessThan(PING_MS)
-    expect(pingOf(30)).toBe(700)
-    expect(pingOf(60)).toBe(700)
+    expect(pingOf(30)).toBe(600)
+    expect(pingOf(60)).toBe(600)
   })
   it('점선 미리보기는 10번째 섬 이후 짧아진다', () => {
     expect(previewFracOf(5)).toBe(0.4)

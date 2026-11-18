@@ -53,10 +53,10 @@ describe('G2 봇 시뮬 합격선', () => {
     expect(sunk).toBeLessThanOrEqual(0.4)
   })
   it('사람형(상수 오차) 봇: 숙련은 끝없이 가지 못하고, 캐주얼은 너무 어렵지 않다', () => {
-    expect(C.c30.medianLanded).toBeLessThanOrEqual(45) // 숙련(σ30ms): 이전 빌드 88섬
+    expect(C.c30.medianLanded).toBeLessThanOrEqual(38) // 숙련(σ30ms): 88→39→34섬(11-18 램프 보정)
     expect(C.c30.medianLanded).toBeGreaterThanOrEqual(25)
     expect(C.c40.medianLanded).toBeLessThanOrEqual(36) // 보통(σ40ms): 이전 40섬
-    expect(C.c40.medianLanded).toBeGreaterThanOrEqual(20)
+    expect(C.c40.medianLanded).toBeGreaterThanOrEqual(26) // 누적 하한 σ40 ≥ 26
     expect(C.c60.medianLanded).toBeGreaterThanOrEqual(14) // 캐주얼은 너무 어렵지 않게
     expect(C.c80.medianLanded).toBeGreaterThanOrEqual(10)
     expect(C.c80.medianSec).toBeGreaterThanOrEqual(20)
