@@ -5,6 +5,8 @@ import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useSlimeAudio } from '@/lib/sound/useSlimeAudio'
 import { simulate } from '@/lib/games/slime/engine'
 import { sendHit } from '@/lib/hit'
+import { STAGE_HINTS } from '@/lib/games/slime/stages'
+import { runLine, waypointsToRaw } from '@/lib/games/slime/solver'
 import { drawBubble, drawFailMark, drawFlowerGoal, drawGoalGlow, drawIslandFloors, drawPoisonFlower, drawSky, drawStar, drawTerrain } from '@/lib/games/slime/draw'
 import { Fx, starPath } from '@/lib/games/slime/fx'
 import { SLIME_STAGES } from '@/lib/games/slime/stages'
@@ -82,6 +84,8 @@ export function SlimeProto() {
   const prevSpeed = useRef(0)
   const squash = useRef(0)
   const ringFlash = useRef(0)
+  const failStreak = useRef(0) // 현재 스테이지에서 연속 실패 수(2회 이상이면 추천 길 표시)
+  const hintLine = useRef<Pt[] | null>(null)
 
   // 카카오톡 같은 인앱 브라우저는 touch-action을 무시해 그리는 중에 화면이 스크롤되거나 당겨진다 →
   // 그리기 구역의 touchstart/touchmove를 passive:false로 취소하고, 그리는 동안 페이지 스크롤을 잠근다(스크롤 띠는 구역 밖이라 영향 없음).
@@ -160,6 +164,8 @@ export function SlimeProto() {
     if (next !== undefined) {
       setSi(next)
       ghost.current = null // 다른 스테이지로 가면 이전 스테이지의 선을 남기지 않는다
+      failStreak.current = 0
+      hintLine.current = null
     }
     activePointer.current = null
     raw.current = []
@@ -224,6 +230,14 @@ export function SlimeProto() {
           if (q < 1) drawStar(g, imgStar.current, a, t, i, 1 + 0.9 * q, 1 - q)
         }
       })
+      // 추천 길(두 번 연속 실패 후): 점선 + 말풍선
+      if (hintLine.current && phase === 'draw' && !line.current && raw.current.length === 0) {
+        g.save()
+        g.setLineDash([2, 12])
+        drawLine(g, hintLine.current, 'rgba(255,243,220,0.95)', 6)
+        g.restore()
+        drawBubble(g, '이 길로 그어 보세요 (힌트)', BOARD_W / 2, 52)
+      }
       // 지난 시도(고스트)·내 선(분필: 은은한 빛 + 선명한 선)
       if (ghost.current && phase !== 'run') drawLine(g, ghost.current, 'rgba(91,58,30,0.28)', 5)
       const cur = line.current ?? (raw.current.length > 1 ? capInk(dropClose(raw.current), stage.ink) : null)
@@ -396,6 +410,16 @@ export function SlimeProto() {
       const inkBonus = Math.round((100 * (stage.ink - ink)) / stage.ink)
       setMsg(r.outcome === 'nest' ? `${OUTCOME_TEXT.nest} ${'⭐'.repeat(r.acorns)}${'☆'.repeat(3 - r.acorns)} 별 ${r.acorns * 100} + 잉크 ${inkBonus} = ${r.acorns * 100 + inkBonus}점` : OUTCOME_TEXT[r.outcome])
       sendHit(SLUG, r.outcome === 'nest' ? `sl_win_s${si + 1}` : `sl_f_${r.outcome}_s${si + 1}`)
+      if (r.outcome === 'nest') {
+        failStreak.current = 0
+        hintLine.current = null
+      } else {
+        failStreak.current += 1
+        if (failStreak.current >= 2 && !hintLine.current && STAGE_HINTS[stage.id]) {
+          hintLine.current = runLine(stage, waypointsToRaw(STAGE_HINTS[stage.id]))?.line ?? null
+          if (hintLine.current) sendHit(SLUG, `sl_hint_s${si + 1}`)
+        }
+      }
       force((n) => n + 1)
     }
     raf = requestAnimationFrame(loop)

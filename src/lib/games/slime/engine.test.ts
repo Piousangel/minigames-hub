@@ -130,3 +130,15 @@ describe('스폰 금지 반경 선분 판정', () => {
     expect(lineHitsSpawnBan([{ x: 0, y: 300 }, { x: 300, y: 300 }], spawn)).toBe(false)
   })
 })
+
+import { runLine, waypointsToRaw } from './solver'
+import { SLIME_STAGES, STAGE_HINTS } from './stages'
+describe('추천 길(힌트)', () => {
+  it('모든 스테이지의 추천 길이 실제로 도착하고 별 3개를 먹는다', () => {
+    for (const st of SLIME_STAGES) {
+      const r = runLine(st, waypointsToRaw(STAGE_HINTS[st.id]))
+      expect(r?.res.outcome, st.id).toBe('nest')
+      expect(r?.res.acorns, st.id).toBe(3)
+    }
+  })
+})
