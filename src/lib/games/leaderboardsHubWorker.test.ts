@@ -90,4 +90,64 @@ describe('/api/leaderboards 허브 조회', () => {
       delete (globalThis as { caches?: unknown }).caches
     }
   })
+
+  it('점수 제출 응답에 순위·전체·상위 %를 넣는다(내 점수보다 높은 제출 수 + 1)', async () => {
+    const g0 = Object.keys(LEADERBOARD_GAMES)[0]
+    const calls: string[] = []
+    const env = {
+      DB: {
+        prepare: (sql: string) => ({
+          bind: (...a: unknown[]) => ({
+            sql,
+            a,
+            run: async () => ({ meta: { changes: 1 } }),
+            all: async () => {
+              calls.push(sql)
+              if (sql.includes('COUNT(*)')) return { results: [{ total: 12, above: 2 }] }
+              return { results: [{ name: 'Z', score: 99 }] }
+            },
+          }),
+        }),
+        batch: async () => [],
+      },
+    } as never
+    const res = await worker.fetch(
+      new Request('https://quickminigames.site/api/score', {
+        method: 'POST',
+        body: JSON.stringify({ game: g0, score: 50, name: 'Z' }),
+      }),
+      env,
+    )
+    const body = (await res.json()) as { rank: number; total: number; topPercent: number; submitted: { score: number } }
+    expect(body).toMatchObject({ rank: 3, total: 12, topPercent: 25, submitted: { score: 50 } })
+    expect(calls.some((q) => q.includes('COUNT(*)') && q.includes('game=? AND week=?'))).toBe(true)
+  })
+
+  it('순위 조회가 실패해도 저장된 제출은 성공으로 응답한다(순위 필드만 없음)', async () => {
+    const g0 = Object.keys(LEADERBOARD_GAMES)[0]
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const env = {
+      DB: {
+        prepare: (sql: string) => ({
+          bind: () => ({
+            run: async () => ({ meta: { changes: 1 } }),
+            all: async () => {
+              if (sql.includes('COUNT(*)')) throw new Error('d1 hiccup')
+              return { results: [{ name: 'Z', score: 50 }] }
+            },
+          }),
+        }),
+        batch: async () => [],
+      },
+    } as never
+    const res = await worker.fetch(
+      new Request('https://quickminigames.site/api/score', { method: 'POST', body: JSON.stringify({ game: g0, score: 50, name: 'Z' }) }),
+      env,
+    )
+    const body = (await res.json()) as Record<string, unknown>
+    expect(res.status).toBe(200)
+    expect(body.submitted).toEqual({ name: 'Z', score: 50 })
+    expect('rank' in body).toBe(false)
+    warn.mockRestore()
+  })
 })

@@ -118,4 +118,26 @@ describe('OverlayScoreSubmit', () => {
     await waitFor(() => expect(screen.getByText(/Couldn't submit/)).toBeInTheDocument())
     expect(screen.getByTestId('overlay-submit')).toBeInTheDocument()
   })
+
+  it('제출 직후 서버가 준 순위를 한 줄로 보여 준다(옛 응답이면 순위 줄 없음)', async () => {
+    localStorage.setItem('lb:name', 'Ann')
+    localStorage.setItem('best:snake', '10')
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ rank: 3, total: 12, topPercent: 25 }) }),
+    )
+    render(<OverlayScoreSubmit slug="snake" show />)
+    fireEvent.click(await screen.findByTestId('overlay-submit'))
+    expect((await screen.findByTestId('overlay-rank')).textContent).toBe('#3 of 12 scores this week · top 25%')
+  })
+
+  it('옛 응답(rank 없음)에서는 제출 완료만 보이고 순위 줄은 없다', async () => {
+    localStorage.setItem('lb:name', 'Ann')
+    localStorage.setItem('best:snake', '10')
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({}) }))
+    render(<OverlayScoreSubmit slug="snake" show />)
+    fireEvent.click(await screen.findByTestId('overlay-submit'))
+    expect(await screen.findByTestId('overlay-submit-done')).toBeInTheDocument()
+    expect(screen.queryByTestId('overlay-rank')).toBeNull()
+  })
 })
