@@ -54,10 +54,13 @@ export const D_CAP = 300 // 카메라에 다음 섬 중심이 항상 들어오�
 export const D_MIN_FRAC = 0.45
 /** 별 섬(11-18, 독립 리뷰 확정안): 5번째 섬마다 한 칸 건너 도박 목표. 두 칸 한 번에 착지하면 +4(콤보 유지). */
 export const STAR_BONUS = 4
-export const STAR_EVERY = 5
-export const STAR_FROM = 7 // 이 번호 이후의 섬부터 별 섬 후보(안전 섬·첫 바람 이후)
+export const STAR_EVERY = 4 // 11-18 밤: 5→4(오너 '빈도 조금 늘리자')
+export const STAR_FROM = 9 // 이 번호 이후의 섬부터 별 섬 후보(7→9: 별 구간의 가운데 섬을 작게 해서 초반에도 두 칸이 300px 안에 든다)
 export const STAR_HALF_FRAC = 0.8
 export const STAR_HALF_MIN = 18
+export const STAR_HALF_MAX = 40 // 별 섬 반폭 상한(초반 큰 섬 80의 0.8배=64를 40으로)
+export const STAR_MID_HALF_MAX = 50 // 별 구간의 가운데 섬 반폭 상한
+export const STAR_GAP = 26 // 별 구간(출발→가운데→별)의 섬 가장자리 최소 간격(MIN_GAP 40 대신)
 export const INPUT_LOCK_MS = 150 // 죽은 뒤 입력 무시
 export const CANCEL_DRAG_PX = 48
 
@@ -141,25 +144,29 @@ export function graceOf(i: number): number {
   return SINK_START_MS + (SINK_END_MS - SINK_START_MS) * t
 }
 
-/** i번째 섬이 별 섬 후보인가(시드로 결정, 5개 간격). 실제 별 섬은 앞 섬이 닿는 거리를 보장할 때(starReach)만 된다. */
+/** i번째 섬이 별 섬 후보인가(시드로 결정, STAR_EVERY=4개 간격, STAR_FROM=9부터). 실제 별 섬은 앞 섬이 닿는 거리를 보장할 때(starReach)만 된다. */
 export function starCandidate(seed: number, i: number): boolean {
   return i >= STAR_FROM && (i + ((seed >>> 0) % STAR_EVERY)) % STAR_EVERY === 0
 }
 
-function starHalfOf(i: number): number {
-  return Math.max(STAR_HALF_MIN, Math.round(halfWOf(i) * STAR_HALF_FRAC))
+export function starHalfOf(i: number): number {
+  return Math.max(STAR_HALF_MIN, Math.min(STAR_HALF_MAX, Math.round(halfWOf(i) * STAR_HALF_FRAC)))
 }
 
 /**
  * 섬 i를 직전 섬 prev에서 만든다. 시드와 번호만으로 결정. 중심거리는 [d_min, 0.85·Rmax(wind)]를 항상 만족한다.
- * 별 섬(i가 별): 반폭 0.8배, prev.starReach 이내. 별 섬 앞(가운데) 섬: 가운데 섬의 바람 기준(건너뛰기 점프의 바람은 항상 cur+1 섬 기준)으로
- * 두 칸 합계 거리가 min(D_CAP, 0.85·Rmax(wind))를 넘지 않게 가운데 거리를 줄인다 → 두 칸 점프가 항상 물리적으로 닿는다.
+ * 별 섬(i가 별): 반폭 max(18, min(40, 0.8·반폭)), 직전 섬과의 가장자리 간격 STAR_GAP(26), prev.starReach 이내.
+ * 별 섬 앞(가운데) 섬: 반폭을 STAR_MID_HALF_MAX(50) 이하로 줄이고 간격을 STAR_GAP으로 줄여, 가운데 섬의 바람 기준(건너뛰기 점프의 바람은 항상 cur+1 섬 기준)
+ * 두 칸 합계 거리가 min(D_CAP, 0.85·Rmax(wind))를 넘지 않게 한다 → 두 칸 점프가 항상 물리적으로 닿는다. 닿지 않는 자리(큰 초반 섬·맞바람)엔 별을 만들지 않는다.
  */
 export function nextIsland(seed: number, i: number, prev: Island): Island {
   const rnd = mulberry32((seed ^ Math.imul(i + 1, 0x9e3779b1)) >>> 0)
   const isStar = prev.starReach !== undefined
-  const halfW = isStar ? starHalfOf(i) : halfWOf(i)
-  const dMinEdge = prev.halfW + halfW + MIN_GAP
+  const early = i <= SAFE_ISLANDS
+  const candidate = !isStar && !early && starCandidate(seed, i + 1)
+  let halfW = isStar ? starHalfOf(i) : halfWOf(i)
+  let gap = isStar ? STAR_GAP : MIN_GAP
+  let dMinEdge = prev.halfW + halfW + gap
   let wind = 0
   if (i >= WIND_FROM) {
     const sign = rnd() < 0.5 ? -1 : 1
@@ -169,20 +176,27 @@ export function nextIsland(seed: number, i: number, prev: Island): Island {
   } else {
     rnd() // 호출 횟수를 맞춘다
   }
-  const dMax = Math.min(D_CAP, D_MAX_FRAC * rangeMax(wind))
-  const dMin = Math.max(dMinEdge, D_MIN_FRAC * rangeMax(wind))
-  const early = i <= SAFE_ISLANDS
-  let dHi = isStar ? Math.min(dMax, prev.starReach as number) : dMax
-  // 다음 섬이 별 후보면: 두 칸 합계가 dMax(이 섬 바람 기준) 안에 들도록 이 섬의 거리를 제한한다
+  // 별 구간 가운데 섬: 두 칸 점프(출발→가운데→별)가 이 섬의 바람 기준 사거리·카메라 상한 안에 들려면 가운데 섬을 작게 하고 간격을 줄인다.
+  // 그래도 안 되면(맞바람이면 순풍으로 뒤집어 본 뒤) 이 구간은 별 없이 일반 섬으로 둔다 — 별 섬은 닿는 곳에만 생긴다.
   let makeStarMid = false
-  if (!isStar && !early && starCandidate(seed, i + 1)) {
-    const dMinStar = halfW + starHalfOf(i + 1) + MIN_GAP
-    const hiMid = dMax - dMinStar
-    if (hiMid >= dMinEdge) {
-      dHi = Math.min(dHi, hiMid)
-      makeStarMid = true // d 확정 후 starReach 계산
+  if (candidate) {
+    const hm = Math.min(halfW, STAR_MID_HALF_MAX)
+    const needMin = prev.halfW + hm + STAR_GAP + (hm + starHalfOf(i + 1) + STAR_GAP)
+    const capOf = (w: number) => Math.min(D_CAP, D_MAX_FRAC * rangeMax(w))
+    // 맞바람으로는 안 닿지만 순풍이면 닿을 때만 뒤집는다(별 구간이 성립 안 하면 바람은 그대로 — 순풍 편향 방지)
+    const flipped = wind < 0 && needMin > capOf(wind) && needMin <= capOf(-wind)
+    if (flipped) wind = -wind
+    if (needMin <= capOf(wind)) {
+      makeStarMid = true
+      halfW = hm
+      gap = STAR_GAP
+      dMinEdge = prev.halfW + halfW + gap
     }
   }
+  const dMax = Math.min(D_CAP, D_MAX_FRAC * rangeMax(wind))
+  const dMin = Math.max(dMinEdge, D_MIN_FRAC * rangeMax(wind))
+  let dHi = isStar ? Math.min(dMax, prev.starReach as number) : dMax
+  if (makeStarMid) dHi = Math.min(dHi, dMax - (halfW + starHalfOf(i + 1) + STAR_GAP)) // 두 칸 합계 ≤ dMax
   const lo = Math.max(dMinEdge, Math.min(dMin, dHi))
   const d = early ? Math.min(dMax, dMinEdge + rnd() * 15) : lo + rnd() * (Math.max(dHi, lo) - lo)
   if (early) rnd()
