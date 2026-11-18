@@ -32,8 +32,9 @@ export function survival(stage: Stage, sol: Solution, sigma: number, n: number, 
 
 export function doodlePath(stage: Stage, kind: number, rng: () => number): Pt[] {
   // 스폰 금지 반경(34px) 밖에서 시작
-  // 낙하하는 말랑이 바로 아래(스폰 금지 반경 34px 바깥)에서 시작한다 — 사람은 말랑이 아래에 선을 긋는다
-  const start: Pt = { x: stage.spawn.x - 4, y: stage.spawn.y + 40 }
+  // 사람은 낙하하는 말랑이를 '받치도록' 선을 말랑이보다 왼쪽 위에서 시작해 아래로 긋는다(스폰 금지 반경 34px 바깥).
+  // 말랑이 바로 밑(x 오차 4px)에서 시작하면 말랑이가 선 끝점 모서리에 앉아 멈추는 인위적 실패(σ0에서도 43%)가 생긴다.
+  const start: Pt = { x: stage.spawn.x - 36, y: stage.spawn.y + 44 }
   const end: Pt = { ...stage.nest, y: stage.nest.y + 6 }
   if (kind === 0) return waypointsToRaw([start, end]) // 직선
   if (kind === 1) {
