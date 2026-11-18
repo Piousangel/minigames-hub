@@ -34,6 +34,8 @@ interface D1Stmt {
 }
 interface D1Database {
   prepare(query: string): D1Stmt
+  /** 여러 문장을 왕복 한 번으로 실행(D1 batch). 결과는 문장 순서대로. */
+  batch<T = unknown>(stmts: D1Stmt[]): Promise<{ results: T[] }[]>
 }
 interface AnalyticsEngine {
   writeDataPoint(event: { indexes?: string[]; blobs?: (string | null)[]; doubles?: number[] }): void
@@ -51,6 +53,13 @@ interface Env {
 interface EdgeCache {
   match(req: Request): Promise<Response | undefined>
   put(req: Request, res: Response): Promise<void>
+  delete?(req: Request): Promise<boolean>
+}
+function edgeCache(): EdgeCache | undefined {
+  return (globalThis as unknown as { caches?: { default?: EdgeCache } }).caches?.default
+}
+function hubCacheKey(origin: string, week: string): Request {
+  return new Request(`${origin}/api/leaderboards?week=${week}`)
 }
 
 const POPULAR_TTL_SEC = 21_600 // 6시간 — AE는 하루 몇 번만 조회
@@ -226,20 +235,44 @@ export default {
     }
 
     // 전체 주간 랭킹 허브: 게임별 톱3를 한 번에.
+    // 예전엔 그 주 전체 행을 읽어 JS에서 3개씩 잘랐다 — 주간 1만 행 × 하루 1천 호출이면 D1 무료 읽기
+    // 한도(500만 행/일)를 넘는다. 이제 게임별 LIMIT 3(idx_scores_board = game, week, score DESC)을 batch
+    // 한 번으로 읽어 읽는 행이 게임 수×3(+ 같은 점수가 몰린 경계 동점 행)으로 억제되고, 응답을 60초 엣지
+    // 캐시에 둬 같은 분의 방문은 D1을 건드리지 않는다. 점수 제출(POST /api/score)은 이 캐시를 지운다.
+    // 한계: created_at이 인덱스에 없어 같은 점수가 아주 많으면 그 동점 행까지 읽는다 → 필요해지면
+    // (game, week, score DESC, created_at) 인덱스를 원격 D1 마이그레이션으로 추가.
+    // 엣지 캐시는 데이터센터별이고 *.workers.dev에선 no-op(아래 popular 주석)이라 커스텀 도메인에서만 효과가 있다.
     if (url.pathname === '/api/leaderboards' && request.method === 'GET') {
       const week = isoWeek(new Date())
-      const { results } = await env.DB.prepare(
-        'SELECT game, name, score FROM scores WHERE week=? ORDER BY game ASC, score DESC, created_at ASC',
-      )
-        .bind(week)
-        .all<{ game: string; name: string; score: number }>()
-      const boards: Record<string, ScoreRow[]> = {}
-      for (const r of results) {
-        if (!LEADERBOARD_GAMES[r.game]) continue
-        const list = (boards[r.game] ??= [])
-        if (list.length < 3) list.push({ name: r.name, score: r.score })
+      const cache = edgeCache()
+      const cacheKey = hubCacheKey(url.origin, week)
+      if (cache) {
+        try {
+          const cached = await cache.match(cacheKey)
+          if (cached) return cached
+        } catch {
+          // 캐시 장애는 조회를 막지 않는다 — 원본(D1)으로 진행
+        }
       }
-      return json({ week, boards })
+      const games = Object.keys(LEADERBOARD_GAMES)
+      const batch = await env.DB.batch<ScoreRow>(
+        games.map((g) =>
+          env.DB.prepare(
+            'SELECT name, score FROM scores WHERE game=? AND week=? ORDER BY score DESC, created_at ASC LIMIT 3',
+          ).bind(g, week),
+        ),
+      )
+      const boards: Record<string, ScoreRow[]> = {}
+      games.forEach((g, i) => {
+        const rows = batch[i]?.results ?? []
+        if (rows.length) boards[g] = rows.slice(0, 3)
+      })
+      const res = json({ week, boards })
+      // 브라우저는 캐시하지 않고(max-age=0) 엣지만 60초(s-maxage) — 제출 직후 새로고침하면 바로 반영
+      res.headers.set('Cache-Control', 'public, max-age=0, s-maxage=60')
+      // 새 주 초반의 빈 보드는 캐시하지 않는다(첫 제출이 TTL 동안 안 보이는 것 방지)
+      if (cache && Object.keys(boards).length > 0) defer(cache.put(cacheKey, res.clone()).catch(() => undefined))
+      return res
     }
 
     if (url.pathname === '/api/score' && request.method === 'POST') {
@@ -261,6 +294,9 @@ export default {
       )
         .bind(game, week, name, score, Date.now())
         .run()
+      // 허브 엣지 캐시 무효화 — 제출한 사람이 곧바로 허브를 열었을 때 옛 보드를 보지 않게
+      const hubCache = edgeCache()
+      if (hubCache?.delete) defer(hubCache.delete(hubCacheKey(url.origin, week)).then(() => undefined, () => undefined))
       return json({ week, top: await top(env, game, week), submitted: { name, score } })
     }
 
