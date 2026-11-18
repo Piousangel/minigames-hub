@@ -118,3 +118,15 @@ describe('사람형 오차(perturb) 보정', () => {
     expect(rms).toBeLessThan(11)
   })
 })
+
+import { lineHitsSpawnBan, segmentHitsSpawnBan } from './strokePipeline'
+describe('스폰 금지 반경 선분 판정', () => {
+  const spawn = { x: 100, y: 100 }
+  it('점이 모두 밖이어도 선분이 원을 지나면 금지', () => {
+    expect(segmentHitsSpawnBan({ x: 50, y: 150 }, { x: 110, y: 40 }, spawn)).toBe(true)
+  })
+  it('멀리 지나가는 선분은 허용', () => {
+    expect(segmentHitsSpawnBan({ x: 0, y: 300 }, { x: 300, y: 300 }, spawn)).toBe(false)
+    expect(lineHitsSpawnBan([{ x: 0, y: 300 }, { x: 300, y: 300 }], spawn)).toBe(false)
+  })
+})
