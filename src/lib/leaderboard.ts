@@ -163,6 +163,32 @@ export function cleanName(raw: unknown): string {
   return s.length > 0 ? s : 'Anon'
 }
 
+// 이름이 광고·연락처처럼 보이는지: 링크, 맨 도메인(evil.com), 단어 앞 @계정, 전화번호형(숫자 10개 이상).
+// 이름은 16자라 짧은 도메인으로도 광고가 된다 — containsLink(http/www만)로는 못 잡는다.
+// 과차단을 피하려고 도메인은 3자 이상 + 알려진 TLD(충돌 잦은 .co/.me/.tv/.top 제외)로만 판정한다.
+// 검사 전에 정규화한다(NFKC, 전각·한자 점 → '.', 보이지 않는 문자 제거) — 'evil．com' 같은 우회 방지.
+const NAME_AD_RE = /(https?:\/\/|www\.|(^|\s)@\w|\b[\w-]{3,}\.(com|net|org|io|kr|gg|app|dev|xyz|ly|site|link|shop|vip)\b)/i
+function normalizeForAdCheck(name: string): string {
+  return name
+    .normalize('NFKC')
+    .replace(/[\u200b-\u200f\u2060\ufeff]/g, '')
+    .replace(/[。｡．]/g, '.')
+}
+export function nameLooksLikeAd(name: string): boolean {
+  const n = normalizeForAdCheck(name)
+  if (NAME_AD_RE.test(n)) return true
+  return (n.match(/\d/g)?.length ?? 0) >= 10
+}
+
+/**
+ * 화면에 보이는 이름의 단일 규칙(점수·댓글 공통): 16자로 자르기 **전의 전체 문자열**에서 광고·연락처를 검사해
+ * 걸리면 'Anon', 아니면 cleanName. 거절하지 않아 점수·댓글 자체는 등록된다.
+ */
+export function safeDisplayName(raw: unknown): string {
+  const full = String(raw ?? '')
+  return nameLooksLikeAd(full) ? 'Anon' : cleanName(full)
+}
+
 // 점수 검증: 정수, 0..MAX. 유효하면 정수, 아니면 null.
 export function cleanScore(raw: unknown): number | null {
   const n = Math.floor(Number(raw))

@@ -3,14 +3,15 @@
 import {
   LEADERBOARD_GAMES,
   TOP_N,
-  cleanName,
   cleanScore,
   SCORE_RATE_LIMIT_MS,
   isoWeek,
+  safeDisplayName,
   scoreRateKey,
   type ScoreRow,
 } from '../src/lib/leaderboard'
 import { topPercent } from '../src/lib/leaderboardOrder'
+import { hashKey } from '../src/lib/hashKey'
 import {
   emptyReactionCounts,
   isValidReaction,
@@ -48,6 +49,8 @@ interface Env {
   /** AE SQL API 읽기용 시크릿(Account Analytics:Read). 없으면 /api/popular는 빈 목록. */
   CF_ANALYTICS_TOKEN?: string
   CF_ACCOUNT_ID?: string
+  /** 레이트리밋 키 해시용 선택 시크릿(없으면 salt 없이 해시). */
+  RATE_SALT?: string
 }
 
 // Workers Cache API 최소 타입(caches.default). 로컬/테스트 런타임엔 없을 수 있어 optional 취급.
@@ -58,6 +61,20 @@ interface EdgeCache {
 }
 function edgeCache(): EdgeCache | undefined {
   return (globalThis as unknown as { caches?: { default?: EdgeCache } }).caches?.default
+}
+let warnedNoSalt = false
+/**
+ * 레이트리밋용 클라이언트 키 = IP의 해시. CF-Connecting-IP가 없으면(로컬 개발 등) 한 버킷('unknown')을 공유한다 —
+ * 운영에서는 Cloudflare가 항상 넣어 준다. RATE_SALT 시크릿이 없으면 salt 없는 해시라 IPv4 전수 대입으로 되돌릴 수 있다
+ * (원본을 그대로 보관하지 않는 수준의 보호): 강한 비식별이 필요하면 `wrangler secret put RATE_SALT`로 설정한다.
+ * 옛 원본-IP 키 행은 기존 정리(passCooldown의 하루 지난 행 삭제)가 하루 안에 지운다.
+ */
+async function clientKey(request: Request, env: Env): Promise<string> {
+  if (!env.RATE_SALT && !warnedNoSalt) {
+    warnedNoSalt = true
+    console.warn('RATE_SALT 시크릿이 없어 IP 해시에 salt를 쓰지 않는다(wrangler secret put RATE_SALT 권장)')
+  }
+  return hashKey(request.headers.get('CF-Connecting-IP') ?? 'unknown', env.RATE_SALT)
 }
 function hubCacheKey(origin: string, week: string): Request {
   return new Request(`${origin}/api/leaderboards?week=${week}`)
@@ -289,10 +306,12 @@ export default {
       if (!LEADERBOARD_GAMES[game]) return json({ error: 'unknown game' }, 400)
       const score = cleanScore(body.score)
       if (score === null || score <= 0) return json({ error: 'bad score' }, 400)
-      const name = cleanName(body.name)
+      // 이름에 링크·연락처가 들어 있으면 'Anon'으로(보드가 광고판이 되는 것 방지). 거절하지 않아 점수는 등록된다.
+      const name = safeDisplayName(body.name)
       // IP+게임당 제출 쿨다운. 예전엔 레이트리밋이 전혀 없어 curl 루프로 보드를 도배할 수 있었다.
-      const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown'
-      if (!(await passCooldown(env, scoreRateKey(ip, game), SCORE_RATE_LIMIT_MS, defer))) {
+      // 원본 IP는 저장하지 않는다 — 해시한 키로만 쿨다운을 건다
+      const ipKey = await clientKey(request, env)
+      if (!(await passCooldown(env, scoreRateKey(ipKey, game), SCORE_RATE_LIMIT_MS, defer))) {
         return json({ error: 'slow down' }, 429)
       }
       const week = isoWeek(new Date())
@@ -379,15 +398,15 @@ export default {
 
       const text = cleanCommentText(body.text)
       if (text.length === 0) return json({ error: 'empty comment' }, 400)
-      const name = cleanName(body.name)
+      const name = safeDisplayName(body.name)
       // 링크 차단은 본문·이름 둘 다 검사한다 — 본문만 검사하면 이름 필드(최대 16자, 짧은
       // 링크엔 충분)로 통째로 우회된다(리뷰에서 발견된 실제 우회 경로).
       if (containsLink(text) || containsLink(name)) return json({ error: 'links not allowed' }, 400)
 
       // IP당 30초 쿨다운(passCooldown — 원자적 UPSERT, TOCTOU 없음).
-      const ip = request.headers.get('CF-Connecting-IP') ?? 'unknown'
+      const ipKey = await clientKey(request, env)
       const now = Date.now()
-      if (!(await passCooldown(env, ip, COMMENT_RATE_LIMIT_MS, defer, now))) return json({ error: 'slow down' }, 429)
+      if (!(await passCooldown(env, `comment:${ipKey}`, COMMENT_RATE_LIMIT_MS, defer, now))) return json({ error: 'slow down' }, 429)
 
       await env.DB.prepare(
         'INSERT INTO comments (slug, name, text, created_at) VALUES (?,?,?,?)',
