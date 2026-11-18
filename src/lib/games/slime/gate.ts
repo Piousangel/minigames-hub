@@ -49,7 +49,7 @@ export function gateStage(stage: Stage, opts: { runs?: number; densityN?: number
   const clusters = new Set(robust.map((r) => r.cluster)).size
   const density = randomDensity(stage, opts.densityN ?? 6000, seed + 3)
   const bots: StageGate['bots'] = {}
-  for (const id of ['c3', 'c6', 'c12', 'c20', 'doodle'] as BotId[]) {
+  for (const id of ['c3', 'c6', 'c12', 'c20', 'doodle', 'straight'] as BotId[]) {
     const policy = makePolicy(id, robust, solutions)
     let first = 0
     let within3 = 0
@@ -103,8 +103,11 @@ export function checksFor(g: StageGate): Check[] {
   add('강건한 해 ≥ 1', g.robust >= 1, `${g.robust}개(해 ${g.solutions})`)
   if (g.tier >= 2) add('해 클러스터 ≥ 2', g.clusters >= 2, `${g.clusters}`)
   add(`해 밀도 ≤ ${g.tier === 1 ? 8 : 3}%`, g.density <= (g.tier === 1 ? 0.08 : 0.03), pct(g.density))
-  const dl = g.tier === 1 ? [0.8, 1] : g.tier === 2 ? [0, 0.15] : [0, 0.05]
-  add(`낙서 1회차 ${g.tier === 1 ? '≥80%' : g.tier === 2 ? '≤15%' : '≤5%'}`, inR(doodle.first, dl[0], dl[1]), pct(doodle.first))
+  if (g.tier === 1) add('직선 1회차 ≥80% (tier1 스테이지 1)', g.bots.straight.first >= 0.8, pct(g.bots.straight.first))
+  else {
+    const dl = g.tier === 2 ? [0, 0.15] : [0, 0.05]
+    add(`낙서 1회차 ${g.tier === 2 ? '≤15%' : '≤5%'}`, inR(doodle.first, dl[0], dl[1]), pct(doodle.first))
+  }
   const b1 = g.tier === 1 ? [0.65, 0.85] : g.tier === 2 ? [0.35, 0.55] : [0.12, 0.3]
   add(`c12 1회차 ${pct(b1[0])}~${pct(b1[1])}`, inR(c12.first, b1[0], b1[1]), pct(c12.first))
   const w3 = g.tier === 1 ? [0.95, 1] : g.tier === 2 ? [0.75, 1] : [0.4, 0.65]
