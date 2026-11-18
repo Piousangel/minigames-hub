@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import { BOTS, simulate } from './sim'
 import {
+  STAR_BONUS, STAR_EVERY, STAR_FROM, STAR_HALF_MIN, starCandidate,
   D_CAP, D_MAX_FRAC, HALFW_FLOOR, HALFW_MIN, SINK_START_MS, WIND_MAX_LATE, pingOf, previewFracOf, windMaxOf, MIN_GAP, PING_MS, RMAX, WIND_MAX, dailySeedFor, ensureIslands, flightDuration, flightPos,
   halfWOf, inputLocked, newGame, nextIsland, powerAt, press, previewPoints, rangeAt, rangeMax, release, startIsland, tick, tintOf, cancelCharge,
 } from './engine'
@@ -268,3 +270,121 @@ describe('후반 난이도 램프', () => {
     expect(windMaxOf(5)).toBeLessThan(windMaxOf(40))
   })
 })
+
+describe('별 섬(11-18)', () => {
+  const build = (seed: number, n = 46) => {
+    const st = newGame(seed)
+    ensureIslands(st, n)
+    return st.islands
+  }
+
+  it('불변식(1,000시드): 별 섬은 앞 섬이 보장한 거리 안, 반폭 0.8배(≥18), 5개 간격, STAR_FROM 이후, 두 칸 점프가 항상 닿는다', () => {
+    let stars = 0
+    for (let seed = 1; seed <= 1000; seed++) {
+      const isl = build(seed)
+      let lastStar = -99
+      for (let i = 0; i < isl.length; i++) {
+        const s = isl[i]
+        if (!s.star) continue
+        stars++
+        expect(i).toBeGreaterThanOrEqual(STAR_FROM)
+        expect(starCandidate(seed, i)).toBe(true)
+        expect(i - lastStar).toBeGreaterThanOrEqual(STAR_EVERY)
+        lastStar = i
+        expect(s.halfW).toBe(Math.max(STAR_HALF_MIN, Math.round(halfWOf(i) * 0.8)))
+        // 두 칸 점프(i-2 → 별)는 가운데 섬(i-1)의 바람 기준 사거리 0.85배·카메라 상한 안
+        const dSkip = s.cx - isl[i - 2].cx
+        expect(dSkip).toBeLessThanOrEqual(Math.min(D_CAP, D_MAX_FRAC * rangeMax(isl[i - 1].wind)) + 1e-9)
+        // 가운데→별 간격은 섬 가장자리 사이 MIN_GAP 이상, 한 칸씩 가는 점프도 별 섬 바람 기준 사거리 0.85배·카메라 상한 안(리뷰 지적)
+        const dStep = s.cx - isl[i - 1].cx
+        expect(dStep).toBeGreaterThanOrEqual(isl[i - 1].halfW + s.halfW + MIN_GAP - 1e-9)
+        expect(dStep).toBeLessThanOrEqual(Math.min(D_CAP, D_MAX_FRAC * rangeMax(s.wind)) + 1e-9)
+      }
+    }
+    expect(stars).toBeGreaterThan(5000) // 시드당 평균 5개 이상 등장
+  })
+
+  it('같은 시드는 같은 별 섬 배치(결정적)', () => {
+    expect(build(777).map((s) => !!s.star)).toEqual(build(777).map((s) => !!s.star))
+  })
+
+  it('한 번에 두 칸(별 섬)에 착지하면 +4, 일반 착지 점수에 가산(콤보 유지)', () => {
+    const seed = 4242
+    const st = newGame(seed)
+    ensureIslands(st, 46)
+    const k = st.islands.findIndex((s) => s.star)
+    expect(k).toBeGreaterThan(2)
+    st.cur = k - 2
+    st.landed = 5
+    const from = st.islands[st.cur]
+    const mid = st.islands[st.cur + 1]
+    const star = st.islands[k]
+    const p = (star.cx - from.cx) / rangeMax(mid.wind) // 정확히 별 섬 중심으로
+    expect(p).toBeLessThanOrEqual(1)
+    const before = st.score
+    expect(jump(st, p * pingOf(st.cur + 1))).toBe(true)
+    expect(st.cur).toBe(k)
+    expect(st.stars).toBe(1)
+    expect(st.score - before).toBeGreaterThanOrEqual(1 + STAR_BONUS) // good(+1) 또는 perfect(+2×배수) + 4
+  })
+
+  it('한 칸씩 가면(가운데 섬 → 별 섬) 별 보너스가 없다', () => {
+    const st = newGame(4242)
+    ensureIslands(st, 46)
+    const k = st.islands.findIndex((s) => s.star)
+    st.cur = k - 2
+    const from = st.islands[st.cur]
+    const mid = st.islands[st.cur + 1]
+    const p1 = (mid.cx - from.cx) / rangeMax(mid.wind)
+    expect(jump(st, p1 * pingOf(st.cur + 1))).toBe(true)
+    expect(st.cur).toBe(k - 1)
+    const star = st.islands[k]
+    const p2 = (star.cx - st.islands[k - 1].cx) / rangeMax(star.wind)
+    expect(jump(st, p2 * pingOf(st.cur + 1))).toBe(true)
+    expect(st.cur).toBe(k)
+    expect(st.stars).toBe(0)
+  })
+
+  it('별 섬 보너스는 정확히 두 칸 건너뛰기만(세 칸 점프가 별에 앉아도 보너스 없음)', () => {
+    const st = newGame(4242)
+    ensureIslands(st, 46)
+    const k = st.islands.findIndex((s) => s.star)
+    st.cur = k - 3 // 세 칸 앞이 별
+    const from = st.islands[st.cur]
+    const star = st.islands[k]
+    const p = (star.cx - from.cx) / rangeMax(st.islands[st.cur + 1].wind)
+    if (p > 0 && p <= 1) {
+      const ok = jump(st, p * pingOf(st.cur + 1))
+      if (ok && st.cur === k) expect(st.stars).toBe(0)
+    }
+  })
+
+  it('별 시도(starTry)는 가운데 섬을 넘긴 점프만 true, 한 칸 점프는 false', () => {
+    const st = newGame(4242)
+    ensureIslands(st, 46)
+    const k = st.islands.findIndex((s) => s.star)
+    st.cur = k - 2
+    const from = st.islands[st.cur]
+    const mid = st.islands[st.cur + 1]
+    const pMid = (mid.cx - from.cx) / rangeMax(mid.wind)
+    press(st, 0)
+    release(st, pMid * pingOf(st.cur + 1))
+    expect(st.flight!.starTry).toBe(false)
+    const st2 = newGame(4242)
+    ensureIslands(st2, 46)
+    st2.cur = k - 2
+    const pStar = (st2.islands[k].cx - from.cx) / rangeMax(mid.wind)
+    press(st2, 0)
+    release(st2, pStar * pingOf(st2.cur + 1))
+    expect(st2.flight!.starTry).toBe(true)
+  })
+
+  it('별을 노리지 않는 사람형 봇의 난이도는 변하지 않는다(기준선 대비 중앙 섬 수 ±3: σ30=33, σ40=28, σ60=21)', () => {
+    const base: Record<string, number> = { c30: 33, c40: 28, c60: 21 }
+    for (const k of ['c30', 'c40', 'c60'] as const) {
+      const r = simulate(BOTS[k], 200)
+      expect(Math.abs(r.medianLanded - base[k]), k).toBeLessThanOrEqual(3)
+    }
+  })
+})
+
