@@ -35,5 +35,5 @@
 1. 뿅 착지(A) → 2. 말랑 미끄럼길(B, 손으로 만든 30스테이지로 범위 축소) — 오너 결정 11-17.
 
 ## 리더보드·경쟁 구조 (오너 11-18, 최우선 사이트 축)
-- 방향·확정 단계 S0~S3: `docs/team/specs/2026-11-18-leaderboard-direction.md`, 조사 원문 `docs/design/leaderboard/`. **다음 슬롯에서 S0(서버: 조회 LIMIT+캐시·필터·상한·IP 해시) → S1(순위 노출+최신 게임 순)** 을 라운드 2(반증)→기획 v2→독립 리뷰 후 구현. 샌드랩도 같은 맥락(sandlab 저장소 동일 문서).
+- 방향·확정 단계 S0~S3: `docs/team/specs/2026-11-18-leaderboard-direction.md`, 조사 원문 `docs/design/leaderboard/`. **상태(11-18 16시 갱신)**: S0 일부 완료(허브 조회 게임별 LIMIT 3 batch + 60초 엣지 캐시 + 제출 시 캐시 무효화, PR #102·#103), **S1 완료**(제출 직후 `#N of M scores · top P%`, 허브 최신 게임 순·빈 보드 접기·메달·NEW, 계측 lb_rank_shown·lb_board_view·lb_hub_card_click, PR #105). **S0 남은 것**: 이름 링크·욕설 필터, 게임별 점수 상한(비결정적 게임), 레이트리밋 IP 해시화(현재 원본 IP 저장), SCORE_SCALE(aim-trainer ×10) 허브 반영·chess/gomoku/pong Wins 보드 확인. **다음 = 위 S0 남은 것 → S2(일/주 보드, 사용자별 1행, 서버 발급 player_id·닉네임 선점)**, 라운드 2(반증)→기획 v2→독립 리뷰 후 구현. 이미 끝난 S0 조회·S1은 다시 만들지 말 것(지표는 며칠 뒤 확인). 한도 사고: 11-18 10시·13시 세션이 5시간 한도 거절로 실행되지 못해(샌드랩 13시 포함) 16:42에 수동 실행. 샌드랩도 같은 맥락(sandlab 저장소 동일 문서).
 
