@@ -85,6 +85,8 @@ describe('GameBrowser 씨앗 도서관(R4)', () => {
     render(<GameBrowser items={many} />)
     act(() => screen.getByRole('button', { name: /My games/ }).click())
     expect(screen.getByText(/No saved games yet/)).toBeInTheDocument()
+    // 빈 상태 안내자: 생각하는 해씨 80px 1마리(R6)
+    expect(screen.getByTestId('browse-empty').querySelectorAll('img[data-mascot="haessi-think"]')).toHaveLength(1)
     act(() => screen.getByRole('button', { name: 'All' }).click())
     act(() => screen.getByRole('button', { name: 'Add Game 3 to My Games' }).click())
     act(() => screen.getByRole('button', { name: 'Add Game 12 to My Games' }).click())

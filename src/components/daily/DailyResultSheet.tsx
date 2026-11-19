@@ -6,6 +6,7 @@ import { Fragment, useCallback, useEffect, useId, useRef, useState, type MouseEv
 import { createPortal } from 'react-dom'
 import { roundFont } from '@/app/roundFont'
 import { useGameNav } from '@/components/GameNav'
+import { Mascot } from '@/components/Mascot'
 import { ShareButtons } from '@/components/ShareButtons'
 import { BudIcon, FlowerIcon, PlayIcon } from '@/components/site-chrome/GardenIcons'
 import { todayLocal } from '@/lib/dailyDate'
@@ -423,8 +424,10 @@ export function DailyResultSheet({
             <span className="whitespace-nowrap">
               Next edition in <b className="inline-block w-[8ch] text-left font-bold tabular-nums text-garden-ink">{clock || '--:--:--'}</b>
             </span>
-            {/* 보미(꿀벌 우체부) 자리 — 그림은 R6. 32px 비워 둔다 */}
-            <span aria-hidden="true" className="block h-8 w-8 shrink-0" data-testid="sheet-bomi-slot" />
+            {/* 보미(꿀벌 우체부, 소식 담당 D5) — '내일 호'를 들고 나는 countdown 32px(R6). 시트의 마스코트는 이 1마리(D6) */}
+            <span aria-hidden="true" className="block h-8 w-8 shrink-0" data-testid="sheet-bomi-slot">
+              <Mascot art="bomi-countdown" size={32} />
+            </span>
           </p>
         </div>
       </div>

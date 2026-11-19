@@ -98,9 +98,6 @@ export default function Home() {
             </section>
           </div>
 
-          {/* 광고 1(선반 아래) — 비활성이면 DOM 없음 */}
-          <HomeAdBand slot="home-shelves" className="mt-12" />
-
           {/* 씨앗 도서관(All games): 검색·필터·랜덤, 113개 링크 전부 HTML에 */}
           <div className="mt-12">
             <GameBrowser
@@ -116,13 +113,17 @@ export default function Home() {
             />
           </div>
 
-          {/* 편집 블록(About + From the guides) */}
-          <div className="mt-14 border-t-2 border-garden-ink pt-10">
+          {/* 편집 블록(About + From the guides). 머리에 안내자 해씨(등불) */}
+          <div className="mt-14 border-t-2 border-garden-ink pt-10" data-ad-after="home-about">
             <HomeAbout gameCount={gamePages.length} dailyCount={dailyCount} />
           </div>
 
+          {/* 광고 1(About 아래) — 비활성이면 DOM 없음. R6: 선반 아래에서 옮김 — 마스코트(선반 disc·빈 상태 해씨·About 해씨)와
+              400px 이상(D6, DECISIONS 11-20 R6). 위치를 바꾸면 e2e/mascots.spec.ts가 거리를 다시 잰다 */}
+          <HomeAdBand slot="home-about" className="mt-12" />
+
           {/* 정원 안내판(예전 Explore 링크) */}
-          <div className="mt-12">
+          <div className="mt-12" data-ad-after="home-footer">
             <GardenSignboard />
           </div>
 

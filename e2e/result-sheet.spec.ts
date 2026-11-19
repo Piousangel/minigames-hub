@@ -34,6 +34,11 @@ test.describe('결과 시트(R5)', () => {
     await expect(sheet.locator('ins.adsbygoogle, [data-ad-slot]')).toHaveCount(0)
     await expect(page.getByTestId('game-over')).toHaveCount(0) // 예전 오버레이는 연습 판에만
     await expect(sheet.getByTestId('sheet-countdown')).toHaveText(/Next edition in \d\d:\d\d:\d\d/)
+    // D6(R6): 시트의 마스코트는 카운트다운 옆 보미 countdown 32px 1마리
+    await expect(sheet.locator('img[data-mascot]')).toHaveCount(1)
+    const bomi = sheet.getByTestId('sheet-bomi-slot').locator('img[data-mascot="bomi-countdown"]')
+    await expect(bomi).toBeVisible()
+    await expect.poll(() => bomi.evaluate((el: HTMLImageElement) => [el.getBoundingClientRect().width, el.complete && el.naturalWidth > 0])).toEqual([32, true])
     await expect(sheet.getByTestId('sheet-streak')).toHaveText('1')
     const next = sheet.getByTestId('sheet-next-game')
     await expect(next).toBeVisible()

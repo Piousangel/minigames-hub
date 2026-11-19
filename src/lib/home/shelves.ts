@@ -3,13 +3,12 @@
  *
  * - 선반 수는 항상 gamePages × gameMeta에서 센다(하드코딩 금지, D4). 합계 = gamePages.length를 테스트가 지킨다.
  * - 마스코트 ↔ 카테고리 1:1(D5): 말랑이 = Puzzle, 토리 = Arcade, 해씨 = Classic, 보미 = Skill.
- *   그림은 R6 — 지금은 카테고리 꽃 아이콘(벨꽃·별꽃·클로버·해)을 원형 disc에 넣는다.
+ *   R6부터 원형 disc에 그 마스코트 idle 그림(`disc` = 바탕색 — 해씨만 하늘색, 갈색·크림 몸이 크림 UI에 묻히지 않게).
  * - registry를 import하지 않는다(서버 컴포넌트가 pages를 넘긴다) — 테스트에서 가짜 목록을 넣기 쉽게.
  */
 import { CATEGORIES, DEFAULT_META, type GameCategory, type GameMeta } from '@/lib/games/gameMeta'
 
 export type ShelfHost = 'mallang' | 'tori' | 'haessi' | 'bomi'
-export type ShelfIcon = 'bell' | 'star' | 'clover' | 'sun'
 
 export type Shelf = {
   category: GameCategory
@@ -17,20 +16,21 @@ export type Shelf = {
   slug: 'puzzle' | 'arcade' | 'classic' | 'skill'
   count: number
   host: ShelfHost
-  icon: ShelfIcon
   /** 선반 이름(무엇을 하고 싶은지) */
   name: string
   /** 한 줄 설명 */
   blurb: string
+  /** 마스코트 disc 바탕색 — 없으면 카테고리 wash(CATEGORY_TINT). 해씨만 하늘색 */
+  disc?: string
 }
 
 type ShelfStatic = Omit<Shelf, 'category' | 'count'>
 
 const SHELF_BY_CATEGORY: Record<GameCategory, ShelfStatic> = {
-  Puzzle: { slug: 'puzzle', host: 'mallang', icon: 'bell', name: 'Wake my brain', blurb: 'logic, words, numbers' },
-  Arcade: { slug: 'arcade', host: 'tori', icon: 'star', name: 'Busy hands', blurb: 'quick reflex rounds' },
-  Classic: { slug: 'classic', host: 'haessi', icon: 'clover', name: 'Slow & classic', blurb: 'cards, boards, tiles' },
-  Skill: { slug: 'skill', host: 'bomi', icon: 'sun', name: 'Steady aim', blurb: 'timing and touch' },
+  Puzzle: { slug: 'puzzle', host: 'mallang', name: 'Wake my brain', blurb: 'logic, words, numbers' },
+  Arcade: { slug: 'arcade', host: 'tori', name: 'Busy hands', blurb: 'quick reflex rounds' },
+  Classic: { slug: 'classic', host: 'haessi', name: 'Slow & classic', blurb: 'cards, boards, tiles', disc: '#bfe6ff' },
+  Skill: { slug: 'skill', host: 'bomi', name: 'Steady aim', blurb: 'timing and touch' },
 }
 
 type PageLike = { slug: string }

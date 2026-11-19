@@ -1,5 +1,14 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 07시 리디자인 v2 R6 마스코트 배치 인계 (브랜치 `shift/redesign-r6-mascots`)
+
+**한 줄:** 네 마스코트가 '한 마리 = 한 기능' 자리에 앉았다 — 홈 4선반 disc(말랑 Puzzle·토리 Arcade·해씨 Classic(하늘색 disc)·보미 Skill), About 머리 해씨 등불 96px, 씨앗 도서관 빈 상태 해씨 think 80px, 결과 시트 카운트다운 옆 보미 32px, 404 말랑 dizzy(404 페이지 신설).
+- **코드**: `src/components/Mascot.tsx`(MASCOT_ART 표 + `<img data-mascot>` lazy·width/height·alt=""), `ShelfIndex`(disc, `data-mascot-group="shelf"`), `shelves.ts`(`disc` 색, `icon` 필드·CategoryIcon 삭제), `HomeAbout`(머리 해씨, 1024+ 한 단·가이드 3칸 줄), `GameBrowser`(`browse-empty`), `DailyResultSheet`(sheet-bomi-slot 안 그림), `src/app/not-found.tsx`, `page.tsx`(광고 1 이동·`data-ad-after`), `globals.css` 맨 아래 빈 상태 접기(:has). 그림 사본 `public/art/mascots/*-<2x px>.webp`(합계 29KB).
+- **결정**: DECISIONS 11-20 R6(disc 묶음 = 1마리, 광고 1 About 아래, About 한 단, 빈 상태 접기, 시트 보미만, 리더보드는 R7).
+- **측정**: D6 e2e 390·1440 통과(뷰포트당 ≤1, 광고 선 ↔ 마스코트 최소: 1440 About 해씨 503px), CLS 0(390·1440 끝까지 스크롤), axe 위반 0(홈·빈 상태·404·시트 × 2폭), LCP 요소 = 히어로 키아트/H1(마스코트 아님). lazy 그림은 Chrome 거리 임계값 때문에 첫 로드 뒤 미리 받아지지만(5장 ~20KB) LCP 뒤. e2e 전체 170/170. 캡처 `docs/design/redesign-v2/r6-mascots/`.
+- **함정**: 광고 위치를 바꾸거나 About·도서관 높이를 크게 줄이면 `e2e/mascots.spec.ts`의 400px 검사가 깨질 수 있다(광고가 꺼져 있으면 `[data-ad-after]` 블록 아랫변으로 잰다 — 새 광고 자리를 만들면 그 앞 블록에 속성을 달 것). 마스코트를 새로 넣으면 `Mascot` 컴포넌트로(검사가 `img[data-mascot]`을 센다). 한 화면에 여러 장을 묶어 보여야 하면 감싸는 요소에 `data-mascot-group`.
+- **⏭ R7 배치 a**: ① /leaderboards 정원 틀 전환 때 머리에 보미 deliver 96px(H1 위, 사본 `bomi-deliver-192.webp` 생성 — 원본 40KB라 사본 필수) ② 게임 페이지에 마스코트를 넣을 일이 생기면 광고 150px(D11)과 별개로 D6 400px도 지킬 것 ③ 공유 카드 키아트 크롭은 이번에 안 바뀜(마스코트 그림 교체 없음).
+
 ## ▶ 2026-11-20 06시 회의·계획 (브랜치 `shift/06-meeting-r6-research`, 문서+홍보 큐)
 
 **한 줄:** 회의록 meetings/2026-11-20.md. 오늘 출시 = **10시 R1 게이트(사흘째 밀림)**, **16시 리디자인 R6 마스코트**(18시 몫을 당김). R6 리서치1+기획 v1 = `docs/team/specs/2026-11-20-r6-mascots.md`.
