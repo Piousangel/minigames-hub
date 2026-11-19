@@ -179,8 +179,48 @@
       "out": "public/art/bomi-sad.webp",
       "model": "gemini-3-pro-image",
       "at": "2026-11-19T13:16:20+00:00"
+    },
+    "hub-hero-mobile": {
+      "out": "public/art/hub-hero-mobile.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:24:38+00:00"
+    },
+    "hub-hero-desktop": {
+      "out": "public/art/hub-hero-desktop.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:24:52+00:00"
+    },
+    "thumb-slime-slide": {
+      "out": "public/art/thumb-slime-slide.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:25:05+00:00"
+    },
+    "thumb-plop-landing": {
+      "out": "public/art/thumb-plop-landing.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:25:19+00:00"
+    },
+    "thumb-acorn-hop": {
+      "out": "public/art/thumb-acorn-hop.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:25:34+00:00"
+    },
+    "haessi-guide": {
+      "out": "public/art/haessi-guide.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:25:51+00:00"
+    },
+    "bomi-countdown": {
+      "out": "public/art/bomi-countdown.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:26:08+00:00"
+    },
+    "bomi-sheet-v2": {
+      "out": "docs/design/mascots/bomi-sheet-v2.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:26:22+00:00"
     }
   },
   "month": "2026-11",
-  "count": 35
+  "count": 43
 }
