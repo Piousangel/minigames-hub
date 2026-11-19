@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import type { Shelf } from '@/lib/home/shelves'
 import { Mascot } from '@/components/Mascot'
+import { CATEGORY_TINT } from './SeedCard'
 import { ChevronIcon } from './HomeIcons'
 
 /**
@@ -27,7 +28,7 @@ export function ShelfIndex({ shelves }: { shelves: Shelf[] }) {
             <span
               aria-hidden="true"
               className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-garden-ink"
-              style={{ background: s.disc }}
+              style={{ background: s.disc ?? CATEGORY_TINT[s.category].wash }}
             >
               <Mascot art={`${s.host}-idle`} size={34} />
             </span>

@@ -20,17 +20,17 @@ export type Shelf = {
   name: string
   /** 한 줄 설명 */
   blurb: string
-  /** 마스코트 disc 바탕색 */
-  disc: string
+  /** 마스코트 disc 바탕색 — 없으면 카테고리 wash(CATEGORY_TINT). 해씨만 하늘색 */
+  disc?: string
 }
 
 type ShelfStatic = Omit<Shelf, 'category' | 'count'>
 
 const SHELF_BY_CATEGORY: Record<GameCategory, ShelfStatic> = {
-  Puzzle: { slug: 'puzzle', host: 'mallang', name: 'Wake my brain', blurb: 'logic, words, numbers', disc: '#f1eafd' },
-  Arcade: { slug: 'arcade', host: 'tori', name: 'Busy hands', blurb: 'quick reflex rounds', disc: '#ffeedd' },
+  Puzzle: { slug: 'puzzle', host: 'mallang', name: 'Wake my brain', blurb: 'logic, words, numbers' },
+  Arcade: { slug: 'arcade', host: 'tori', name: 'Busy hands', blurb: 'quick reflex rounds' },
   Classic: { slug: 'classic', host: 'haessi', name: 'Slow & classic', blurb: 'cards, boards, tiles', disc: '#bfe6ff' },
-  Skill: { slug: 'skill', host: 'bomi', name: 'Steady aim', blurb: 'timing and touch', disc: '#fff5d6' },
+  Skill: { slug: 'skill', host: 'bomi', name: 'Steady aim', blurb: 'timing and touch' },
 }
 
 type PageLike = { slug: string }

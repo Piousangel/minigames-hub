@@ -58,6 +58,11 @@ async function checkD6(page: Page) {
     const seen = units.filter((u) => u.bottom > y && u.top < y + vh)
     expect(seen.length, `scrollY ${y}: ${seen.map((u) => u.name).join(', ')}`).toBeLessThanOrEqual(1)
   }
+  // ①' 창 경계를 끼고 걸친 경우까지: 이웃한 두 단위 사이 빈 간격 ≥ 뷰포트 높이 → 어느 스크롤 위치에서도 둘이 함께 보이지 않는다
+  for (let i = 1; i < units.length; i++) {
+    const gap = units[i].top - units[i - 1].bottom
+    expect(gap, `${units[i - 1].name} → ${units[i].name} 간격`).toBeGreaterThanOrEqual(vh)
+  }
   // ② 광고 띠 ↔ 마스코트 세로 거리
   const ads = await adBands(page)
   expect(ads.length, '홈 광고 자리 2곳').toBe(2)

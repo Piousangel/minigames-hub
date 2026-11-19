@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Mascot } from '@/components/Mascot'
 
+// noindex는 Next가 404에 자동으로 넣는다
 export const metadata: Metadata = {
   title: 'Page not found',
-  robots: { index: false, follow: true },
 }
 
 const chip =
