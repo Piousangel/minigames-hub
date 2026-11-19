@@ -1,0 +1,33 @@
+import * as L from './lib.ts'
+const a1 = L.SLIME_STAGES[0], a2 = L.SLIME_STAGES[1]
+const t0 = performance.now()
+const prev = L.sampleSols(a1, 80, 80)
+const hint1 = L.waypointsToRaw(L.STAGE_HINTS['g-slide'])
+console.log('prev sample', prev.length, 'c-meadow pass', L.pct(L.passRate(prev, a2)), 'doodle', L.pct(L.quickDoodle(a2, 400, 11, L.runLine)))
+const rng = L.mulberry32(42)
+const cands: any[] = []
+for (let i = 0; i < 1500; i++) {
+  const n = 2 + Math.floor(rng() * 2)
+  const spikes = Array.from({ length: n }, () => ({ x: Math.round(40 + rng() * 280), y: Math.round(150 + rng() * 210) }))
+  if (spikes.some((p) => Math.hypot(p.x - 70, p.y - 100) < 70)) continue
+  const st: L.Stage = { ...a1, id: 'a2v', acorns: L.FAR, spikes }
+  const h = L.runLine(st, hint1); if (h && h.res.outcome === 'nest') continue
+  const pr = L.passRate(prev, st); if (pr > 0.35) continue
+  const dd = L.quickDoodle(st, 300, 11, L.runLine); if (dd > 0.15) continue
+  const sols = L.solve(st, 7, { pop: 80 }).solutions
+  if (sols.length < 100) continue
+  cands.push({ spikes, pr, dd, n: sols.length })
+}
+console.log('screened', cands.length, ((performance.now() - t0) / 1000).toFixed(0) + 's')
+cands.sort((a, b) => b.n * (1 - b.pr) - a.n * (1 - a.pr))
+for (const c of cands.slice(0, 4)) {
+  const base: L.Stage = { ...a1, id: 'a2v', acorns: L.FAR, spikes: c.spikes }
+  const placed = L.placeAcorns(base, 777); if (!placed) { console.log('no acorns'); continue }
+  const st = { ...placed, id: 'a2v' }
+  const sols = L.solve(st, 2026, { pop: 200 }).solutions
+  const { best, three } = L.bestHint(st, sols.filter((s) => s.waypoints.every((p) => p.x >= 22 && p.x <= 368 && p.y >= 45 && p.y <= 540)), 12, 60, 20)
+  const gs = L.gateSummary(st)
+  console.log(JSON.stringify(c.spikes), 'pass', L.pct(c.pr), 'dd', L.pct(c.dd), 'acorns', JSON.stringify(st.acorns.map((a) => [a.x, a.y])), '3star', three, 'hint', best && best.sv.toFixed(2), best && L.r0(best.wp), 'ink', best && Math.round(best.ink))
+  console.log('   ', gs.line, 'FAILS:', gs.fails.join('; ') || 'none')
+}
+console.log('total', ((performance.now() - t0) / 1000).toFixed(0) + 's')

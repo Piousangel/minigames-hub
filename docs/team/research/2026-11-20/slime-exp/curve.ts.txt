@@ -1,0 +1,20 @@
+import { solve, runLine, waypointsToRaw } from '/home/user/minigames-hub/src/lib/games/slime/solver.ts'
+import { simulate } from '/home/user/minigames-hub/src/lib/games/slime/engine.ts'
+import { SLIME_STAGES, STAGE_HINTS } from '/home/user/minigames-hub/src/lib/games/slime/stages.ts'
+import { landformsOf } from '/home/user/minigames-hub/src/lib/games/slime/terrainRender.ts'
+import type { Pt, Seg, Stage } from '/home/user/minigames-hub/src/lib/games/slime/types.ts'
+// Catmull-Rom-ish 근사 없이: 코사인 언덕 폴리라인(N 선분)
+function hill(x0: number, x1: number, yBase: number, amp: number, n: number): Seg[] {
+  const pts: Pt[] = []
+  for (let i = 0; i <= n; i++) { const t = i / n; pts.push({ x: x0 + (x1 - x0) * t, y: yBase - amp * 0.5 * (1 - Math.cos(2 * Math.PI * t)) }) }
+  return pts.slice(1).map((b, i) => ({ a: pts[i], b }))
+}
+const base = SLIME_STAGES[0]
+for (const n of [8, 30, 60, 150]) {
+  const st: Stage = { ...base, id: 'curve' + n, terrain: [...hill(150, 290, 500, 40, n), { a: { x: 290, y: 500 }, b: { x: 390, y: 500 } }, { a: { x: 350, y: 380 }, b: { x: 350, y: 500 } }] }
+  const t0 = performance.now(); const r = solve(st, 2026, { pop: 80 }); const t1 = performance.now()
+  const line = runLine(st, waypointsToRaw(STAGE_HINTS['g-slide']))!.line
+  const t2 = performance.now(); let res; for (let i = 0; i < 2000; i++) res = simulate(st, [line]); const t3 = performance.now()
+  console.log(`segs ${st.terrain.length}: solve pop80 ${(t1 - t0).toFixed(0)}ms sol ${r.solutions.length} | simulate ${(((t3 - t2) / 2000) * 1000).toFixed(0)}us/run outcome ${res!.outcome} steps ${res!.steps} | landforms ${landformsOf(st).map((f) => f.kind + ':' + f.chain.length).join(',')}`)
+}
+// timeout worst case: 공이 가만히 앉는 선 없이 MAX_STEPS 돌게? stalled가 먼저 와서 timeout 최악은 드묾 → 1440 스텝 강제: 그냥 흔들리는 판 대신 루프 비용 추정

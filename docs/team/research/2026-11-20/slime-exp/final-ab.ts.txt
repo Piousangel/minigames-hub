@@ -1,0 +1,19 @@
+import * as L from './lib.ts'
+const a1 = L.SLIME_STAGES[0]
+const SPK = [{ x: 105, y: 186 }, { x: 104, y: 275 }]
+export const A2: L.Stage = { ...a1, id: 'v3-meadow', spikes: SPK, acorns: [{ x: 70, y: 144 }, { x: 70, y: 298 }, { x: 207, y: 442 }] }
+const top = 415, x0 = 195, s1 = 500, s2 = (s1 + top) / 2
+const pts = [[x0 - 14, 560], [x0 - 8, 528], [x0, 512], [x0 + 12, s1 + 2], [x0 + 30, s1], [x0 + 66, s1], [x0 + 76, s1 - 4], [x0 + 82, s1 - 14], [x0 + 84, s2 + 12], [x0 + 88, s2 + 3], [x0 + 98, s2], [x0 + 132, s2], [x0 + 142, s2 - 4], [x0 + 148, s2 - 14], [x0 + 150, top + 12], [x0 + 154, top + 3], [x0 + 164, top], [366, top], [376, top - 6], [382, top - 18], [384, top - 40], [386, top - 70], [390, top - 96]]
+console.log('B pts', JSON.stringify(pts))
+const B: L.Stage = { id: 'v3-steps', tier: 2, terrain: L.chain(pts), spawn: { x: 70, y: 100 }, acorns: [{ x: 70, y: 159 }, { x: 95, y: 309 }, { x: 240, y: 374 }], nest: { x: 350, y: top - 16 }, spikes: SPK, ink: 560 }
+console.log('B hint check', L.runLine(B, L.waypointsToRaw([{ x: 24, y: 319 }, { x: 246, y: 397 }, { x: 326, y: 409 }]))?.res)
+console.log('A hint check', L.runLine(A2, L.waypointsToRaw([{ x: 30, y: 316 }, { x: 129, y: 410 }, { x: 210, y: 468 }]))?.res, 'A1hint on A2', L.runLine(A2, L.waypointsToRaw(L.STAGE_HINTS['g-slide']))?.res.outcome, 'diag', L.runLine(A2, [{ x: 50, y: 150 }, { x: 315, y: 488 }])?.res.outcome)
+for (const st of [A2, B]) {
+  let base = 0, worst = 0, minR = 1e9; const row: string[] = []
+  for (const g of [900, 700, 1100]) for (const mu of [0.08, 0.04, 0.12]) {
+    const r = L.gateStage(st, { runs: 200, densityN: 600, pop: 200, phys: { g, e: 0.1, mu } })
+    const v = r.bots.c12.first; if (g === 900 && mu === 0.08) base = v
+    worst = Math.max(worst, Math.abs(v - base) * 100); minR = Math.min(minR, r.robust); row.push(`${g}/${mu}:${(v * 100).toFixed(0)}(${r.robust})`)
+  }
+  console.log(st.id, 'phys9', row.join(' '), 'worst', worst.toFixed(0) + 'p', 'minRobust', minR)
+}

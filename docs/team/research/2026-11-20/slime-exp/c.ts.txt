@@ -1,0 +1,33 @@
+import * as L from './lib.ts'
+const ledge = L.chain([[0, 108], [60, 114], [100, 124], [112, 134]])
+const ground = L.chain([[90, 560], [100, 500], [115, 470], [135, 452], [155, 448], [172, 456], [188, 474], [202, 492], [214, 500], [228, 498], [242, 486], [256, 466], [272, 444], [290, 428], [310, 420], [340, 418], [362, 420], [376, 410], [384, 392], [390, 370]])
+const INK = Number(process.env.INK ?? 480)
+const base: L.Stage = { id: 'v3-twin', tier: 2, terrain: [...ledge, ...ground], spawn: { x: 70, y: 100 }, acorns: L.FAR, nest: { x: 330, y: 402 }, spikes: [], ink: INK }
+console.log('landforms', L.landformsOf(base).map((f) => f.kind + f.chain.length).join(','))
+const placed = L.placeAcorns(base, 777)!
+console.log('placeAcorns', JSON.stringify(placed.acorns.map((a) => [a.x, a.y])))
+const a1 = placed.acorns[1], a2 = placed.acorns[2]
+const distTerr = (p: L.Pt) => Math.min(...base.terrain.map((s) => { const dx = s.b.x - s.a.x, dy = s.b.y - s.a.y; let t = ((p.x - s.a.x) * dx + (p.y - s.a.y) * dy) / (dx * dx + dy * dy); t = Math.max(0, Math.min(1, t)); return Math.hypot(p.x - s.a.x - t * dx, p.y - s.a.y - t * dy) }))
+const below = (p: L.Pt) => { // 지형 아래(땅속)인지: 그 x에서 지면 y보다 아래
+  for (const s of ground) if ((s.a.x - p.x) * (s.b.x - p.x) <= 0 && s.a.x !== s.b.x) { const y = s.a.y + ((p.x - s.a.x) * (s.b.y - s.a.y)) / (s.b.x - s.a.x); if (p.y > y) return true }
+  return p.x < 112 && p.y > 108
+}
+const out: any[] = []
+for (let x = 40; x <= 370; x += 30) for (let y = 150; y <= 420; y += 30) {
+  const p = { x, y }; if (distTerr(p) < 26 || below(p) || Math.hypot(x - a1.x, y - a1.y) < 60 || Math.hypot(x - a2.x, y - a2.y) < 60 || Math.hypot(x - 70, y - 100) < 60) continue
+  const st = { ...base, acorns: [a1, a2, p] as L.Stage['acorns'] }
+  const sols = L.solve(st, 5, { pop: 120 }).solutions
+  out.push({ p, n3: sols.filter((s) => s.res.acorns === 3).length, n2: sols.filter((s) => s.res.acorns >= 2).length, n: sols.length })
+}
+const zero = out.filter((o) => o.n3 === 0 && o.n2 >= 50)
+console.log('grid', out.length, 'zero3', zero.length, JSON.stringify(zero.map((o) => [o.p.x, o.p.y, o.n2])))
+// 2선 참고: zero 후보 중 둥지·경로 근처 우선 몇 개
+const fin: any[] = []
+for (const o of zero) {
+  const st = { ...base, acorns: [a1, a2, o.p] as L.Stage['acorns'] }
+  const strong = [11, 12].map((sd) => L.solve(st, sd, { pop: 400, ks: [3, 4, 5, 6] }).solutions.filter((s) => s.res.acorns === 3).length).reduce((a, b) => a + b)
+  if (strong) { console.log('a3', o.p.x, o.p.y, 'strong 1-line finds 3star', strong); continue }
+  const two = L.solve2(st, 3, 250, 8)
+  console.log('a3', o.p.x, o.p.y, '1선 3별 0 / 2선 CEM 도착', two.length, '3별', two.filter((s) => s.acorns === 3).length, two.find((s) => s.acorns === 3) ? L.r0(two.find((s) => s.acorns === 3)!.wp[0]) + ' + ' + L.r0(two.find((s) => s.acorns === 3)!.wp[1]) : '')
+  fin.push(o.p); if (fin.length >= 4) break
+}

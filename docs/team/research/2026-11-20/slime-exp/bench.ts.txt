@@ -1,0 +1,11 @@
+import { solve } from '/home/user/minigames-hub/src/lib/games/slime/solver.ts'
+import { SLIME_STAGES } from '/home/user/minigames-hub/src/lib/games/slime/stages.ts'
+for (const id of ['g-slide', 'c-meadow', 's-bounce']) {
+  const st = SLIME_STAGES.find((s) => s.id === id)!
+  const t0 = performance.now()
+  const r = solve(st, 2026, { pop: 80 })
+  const t1 = performance.now()
+  const r2 = solve(st, 2026, { pop: 80, robustTrials: 4, robustSigma: 9 })
+  const t2 = performance.now()
+  console.log(id, 'pop80 default rounds6 ks[3,4,5]:', (t1 - t0).toFixed(0) + 'ms', 'tried', r.tried, 'sol', r.solutions.length, '| +robust4:', (t2 - t1).toFixed(0) + 'ms', 'sol', r2.solutions.length)
+}

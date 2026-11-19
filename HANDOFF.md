@@ -1,5 +1,13 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 04시 새벽 기획·디자인 숙의 — 말랑 3~8단계 누적 콜백 설계 (브랜치 `shift/04-slime-stage-design`, 문서만)
+
+**한 줄:** `specs/2026-11-20-slime-stages-3-8-callback.md` v2.1. 리서치 2라운드(웹 레퍼런스 14기법·반증 7가정 + **솔버 실측 A~D**) → 독립 리뷰 5명(5·6·5·5·5) 반영. 하루 = 막 3개(I 1~3 / II 4~6 / III 7~8), 콜백 여부는 게이트 CB-1~5로 판정.
+- **실측 핵심**: 라이브 `c-meadow`는 1단계 해 60% 통과(콜백 약함) → 독꽃 (105,186),(104,275)면 24%·tier1 통과(`c-meadow-2`, legacy 트랙). 3단계 3단 계단 c20 20%+규칙 위반 → 2단·그릇 ≥80으로 재설계. 4단계 낙서 69%(tier2 미달)·별 3은 2선으로도 거의 불가. 5단계는 실측 D로 1선 건너뛰기 반증 → 건너편 둑 물리로 막기. 6단계 쿠션 사용 0% → '젤리 잉크'(선 자체가 튕김) 우선 후보.
+- **함정**: 일일은 매일 `SLIME_STAGES` 전체를 연다(verify.ts:50·GameSlimeSlide.tsx:35) — 풀의 칸을 바꾸면 오늘 `slime:daily2` 시도가 새 판에 붙고 서버 재생이 400. 골든에 c-meadow·s-bounce가 없다. 고스트 ✕는 지금 독꽃만. 실측은 node_modules 없이 `docs/team/research/2026-11-20/slime-exp/`(README의 register.mjs 방식)로 재현 가능.
+- **⏭ 08시 개발(문서 4장, 전부 S·풀 불변)**: ① `c-meadow-2` 정의+테스트 3 ② 골든에 c-meadow·s-bounce 행 추가 ③ `gate.ts` `prevPassRate`·`hintKilled`(정확값 테스트 0.6 / 0.2375) ④ `ghost.ts` `ghostMark`(금지 구역 첫 접점 → 아니면 simulate trace 끝점) — 그다음 PR-6·PR-7(2선 솔버 + CB-3~5).
+- **⏭ 다음 04시**: 3단계 2단 계단·6단계 젤리 잉크 A/B·5단계 건너편 둑 실측(`slime-exp/b.ts`·`d.ts` 출발), 또는 우선순위 ②(신작 브리프 v2)·③(Acorn·Plop 심화).
+
 ## ▶ 2026-11-20 03시 게임 퀄리티팀 (장부 docs/team/quality/ledger.md)
 - 2048-animals 12→18: 판 아래 진화 사다리 🐭→🐉(이번 판 최고·다음 단계), 타일 모서리 단계 값, 이모지 cell×0.55 + 진한 타일 크림 원판, 결과 "You reached 🦁 Lion · next: 🐯 Tiger"/"New animal!"(새 키 `bestTile:2048-animals`, 기존 점수 기록 불변), 공용 `GameOverlay compact`(opt-in, animals만). 남은 것: 동물 진화 순간 연출 없음, 기기별 이모지 차이(자체 SVG는 M+), 결과 패널 7요소로 빽빽(공통).
 - 2048 16→20: 판 안 노을 정원 타일(한 방향 진해짐, 전 단계 글자 4.5:1+), cozy 결과, `GameShell compactHeader`(opt-in, 2048·animals만 — 390에서 점수 자릿수 늘 때 판 32px 튐 제거), 연타 12/12(새 입력이 진행 중 슬라이드를 즉시 확정), 합치기 진동. 남은 것: 128~1024 어두운 단계끼리 명도 근접(animals는 이모지만이라 더 불리), 결과 카드가 판보다 큼, 가로 회전 잘림, 진행 중 판 저장 없음.
