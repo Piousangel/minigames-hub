@@ -41,11 +41,19 @@ export interface SlimeBoardProps {
   onAttempt?: (a: { stageId: string; outcome: Outcome; stars: number; score: number; hint: boolean }) => void
   /** 플레이 기록 복사 버튼(시험판 전용). */
   devTools?: boolean
+  /** 재생(애니메이션)이 끝났을 때. 시도 기록은 놓는 순간 이미 끝났으므로, 화면 전환 같은 후속 동작의 타이밍에만 쓴다. */
+  onRunEnd?: () => void
+  /** 이 스테이지에서 이미 연속으로 실패한 횟수(저장된 시도 기준). 새로고침해도 2회 이상이면 추천 길이 바로 보인다. */
+  initialFailStreak?: number
 }
 
 /** 그리기 → 시뮬 재생 → 결과. 시험판(/tools/slime-proto)과 정식 게임이 같이 쓴다. */
-export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, attemptsLocked = false, onAttempt, devTools = true }: SlimeBoardProps = {}) {
+export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, attemptsLocked = false, onAttempt, devTools = true, onRunEnd, initialFailStreak = 0 }: SlimeBoardProps = {}) {
   const SLUG = slug
+  const onRunEndRef = useRef(onRunEnd)
+  useEffect(() => {
+    onRunEndRef.current = onRunEnd
+  }, [onRunEnd])
   const onAttemptRef = useRef(onAttempt) // 콜백이 바뀌어도 렌더 루프(rAF)를 다시 만들지 않는다
   useEffect(() => {
     onAttemptRef.current = onAttempt
@@ -96,8 +104,8 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
   const prevSpeed = useRef(0)
   const squash = useRef(0)
   const ringFlash = useRef(0)
-  const failStreak = useRef(0) // 현재 스테이지에서 연속 실패 수(2회 이상이면 추천 길 표시)
-  const hintLine = useRef<Pt[] | null>(null)
+  const failStreak = useRef(initialFailStreak) // 현재 스테이지에서 연속 실패 수(2회 이상이면 추천 길 표시)
+  const hintLine = useRef<Pt[] | null>(initialFailStreak >= 2 && STAGE_HINTS[SLIME_STAGES[fixedStage ?? 0]?.id] ? runLine(SLIME_STAGES[fixedStage ?? 0], waypointsToRaw(STAGE_HINTS[SLIME_STAGES[fixedStage ?? 0].id]))?.line ?? null : null)
 
   // 카카오톡 같은 인앱 브라우저는 touch-action을 무시해 그리는 중에 화면이 스크롤되거나 당겨진다 →
   // 그리기 구역의 touchstart/touchmove를 passive:false로 취소하고, 그리는 동안 페이지 스크롤을 잠근다(스크롤 띠는 구역 밖이라 영향 없음).
@@ -433,7 +441,6 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
       const inkBonus = Math.round((100 * (stage.ink - ink)) / stage.ink)
       setMsg(r.outcome === 'nest' ? tx.scoreLine(r.acorns, r.acorns * 100, inkBonus, r.acorns * 100 + inkBonus) : tx.outcome[r.outcome])
       sendHit(SLUG, r.outcome === 'nest' ? `sl_win_s${si + 1}` : `sl_f_${r.outcome}_s${si + 1}`)
-      onAttemptRef.current?.({ stageId: stage.id, outcome: r.outcome, stars: r.acorns, score: scoreOf(r.outcome, r.acorns, ink, stage.ink), hint: hintLine.current !== null })
       if (r.outcome === 'nest') {
         failStreak.current = 0
         hintLine.current = null
@@ -445,6 +452,7 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
         }
       }
       force((n) => n + 1)
+      onRunEndRef.current?.()
     }
     raf = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(raf)
@@ -513,6 +521,8 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
     const res = simulate(stage, [l], DEFAULT_PHYSICS, tr)
     trace.current = tr.length ? tr : [stage.spawn]
     result.current = { outcome: res.outcome, acorns: res.acorns }
+    // 시도는 놓는 순간 기록한다: 결과가 이미 확정이라, 재생 중 탭을 닫아도 시도·해금이 남는다(공짜 재시도 방지, PR-0)
+    onAttemptRef.current?.({ stageId: stage.id, outcome: res.outcome, stars: res.acorns, score: scoreOf(res.outcome, res.acorns, polyLength(l), stage.ink), hint: hintLine.current !== null })
     runStart.current = performance.now()
     ghost.current = l
     finished.current = false

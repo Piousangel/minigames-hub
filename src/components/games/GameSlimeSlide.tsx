@@ -50,6 +50,13 @@ function saveProgress(iso: string, p: DailyProgress) {
   }
 }
 
+/** 저장된 시도에서 끝에서부터 이어진 실패 횟수(깨면 0). */
+const failStreakOf = (list: Attempt[]): number => {
+  let n = 0
+  for (let i = list.length - 1; i >= 0 && list[i].outcome !== 'nest'; i--) n++
+  return n
+}
+
 const CHIP: Record<'locked' | 'open' | 'cleared' | 'failed', string> = { locked: '🔒', open: '', cleared: '⭐', failed: '💥' }
 
 /** 말랑 미끄럼길: 일일(1스테이지를 깨면 다음이 열린다, 스테이지당 3번, 하루 점수는 스테이지별 최고점 합) / 연습. */
@@ -59,6 +66,7 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
   const [mode, setMode] = useState<Mode>('daily')
   const [progress, setProgress] = useState<DailyProgress>(() => emptyProgress(TOTAL))
   const [view, setView] = useState(0) // 지금 보드에 올라간 스테이지
+  const [settled, setSettled] = useState(true) // 보드의 재생이 끝났는가(끝나기 전에는 다음 스테이지로 넘기지 않는다)
   const [practiceIdx, setPracticeIdx] = useState(0) // 연습 = 해금된 스테이지 중 하나(점수 반영 없음)
 
   useEffect(() => {
@@ -87,6 +95,7 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
   const onAttempt = useCallback(
     (a: { stageId: string; outcome: Attempt['outcome']; stars: number; score: number; hint: boolean }) => {
       if (mode !== 'daily' || !day) return
+      setSettled(false)
       setProgress((prev) => {
         const next = recordAttempt(prev, view, { outcome: a.outcome, stars: a.stars, score: a.score, hint: a.hint })
         if (next !== prev) saveProgress(day, next)
@@ -99,13 +108,13 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
   // 깨면 3.2초 뒤 열린 다음 스테이지로 자동 이동
   const cur = currentStage(progress)
   useEffect(() => {
-    if (mode !== 'daily' || cur === null || cur === view) return
+    if (mode !== 'daily' || !settled || cur === null || cur === view) return
     const id = window.setTimeout(() => {
       sendHit(SLUG, `unlock_s${cur + 1}`)
       setView(cur)
     }, NEXT_DELAY_MS)
     return () => window.clearTimeout(id)
-  }, [mode, cur, view])
+  }, [mode, cur, view, settled])
 
   const over = dailyOver(progress)
   const state = stageState(progress, view)
@@ -176,6 +185,8 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
         fixedStage={mode === 'daily' ? view : practiceIdx}
         attemptsLocked={locked}
         onAttempt={onAttempt}
+        onRunEnd={() => setSettled(true)}
+        initialFailStreak={mode === 'daily' ? failStreakOf(progress[view] ?? []) : 0}
         devTools={false}
       />
 
