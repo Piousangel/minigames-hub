@@ -6,6 +6,7 @@ import { useSlimeAudio } from '@/lib/sound/useSlimeAudio'
 import { simulate } from '@/lib/games/slime/engine'
 import { sendHit } from '@/lib/hit'
 import { scoreOf } from '@/lib/games/slime/daily'
+import { renderTerrainLayer } from '@/lib/games/slime/terrainRender'
 import { KO, type SlimeText } from '@/lib/games/slime/strings'
 import { STAGE_HINTS } from '@/lib/games/slime/stages'
 import { runLine, waypointsToRaw } from '@/lib/games/slime/solver'
@@ -92,6 +93,7 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
   const imgBg = useRef<HTMLImageElement | null>(null)
   const imgIsland = useRef<HTMLImageElement | null>(null)
   const imgFlower = useRef<HTMLImageElement | null>(null)
+  const terrainLayer = useRef<{ key: string; cv: HTMLCanvasElement | null } | null>(null)
   const imgStar = useRef<HTMLImageElement | null>(null)
   const fx = useRef(new Fx())
   const lastT = useRef(0)
@@ -235,8 +237,18 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
       drawSky(g, imgBg.current, t, BOARD_W, BOARD_H)
       g.lineCap = 'round'
       g.lineJoin = 'round'
-      const islandsOk = drawIslandFloors(g, imgIsland.current, stage.terrain, stage.bouncy) // 바닥 = 풀 섬 그림
-      drawTerrain(g, stage.terrain, islandsOk, stage.bouncy, t) // 벽 = 바위 기둥(그림이 아직 없으면 바닥도 선으로)
+      // 지형 v2: 채워진 암석 덩어리를 오프스크린에 한 번 그려 두고 복사(막대기 금지, 오너 11-19). 만들 수 없으면 기존 방식으로 폴백
+      const dpr = Math.min(2, window.devicePixelRatio || 1)
+      const tkey = `${stage.id}:${w}:${dpr}`
+      if (terrainLayer.current?.key !== tkey) terrainLayer.current = { key: tkey, cv: renderTerrainLayer(stage, w, dpr) }
+      const layer = terrainLayer.current.cv
+      if (layer) {
+        g.drawImage(layer, 0, 0, BOARD_W, BOARD_H)
+        drawTerrain(g, stage.bouncy?.map((i) => stage.terrain[i]) ?? [], false, stage.bouncy?.map((_, k) => k) ?? [], t) // 튕기는 벽만 프레임마다(숨 쉬는 쿠션)
+      } else {
+        const islandsOk = drawIslandFloors(g, imgIsland.current, stage.terrain, stage.bouncy)
+        drawTerrain(g, stage.terrain, islandsOk, stage.bouncy, t)
+      }
       // 스폰 금지 링
       g.setLineDash([4, 6])
       const rf = ringFlash.current > t ? (ringFlash.current - t) / 400 : 0
