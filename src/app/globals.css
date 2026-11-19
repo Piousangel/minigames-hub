@@ -793,3 +793,71 @@ body:has(main[data-game-page]) [data-site-nav-row] {
   height: 19px;
   pointer-events: none;
 }
+
+/* ───────── 리디자인 v2 R5: 데일리 결과 시트 (src/components/daily/DailyResultSheet.tsx) ─────────
+   - 아래에서 올라오는 시트 + 꽃이 차례로 핀다. 모션 줄이기면 둘 다 없이 최종 상태(계획서 3장 공통 규칙).
+   - z 60: 헤더(43)·게임 보드(41)보다 위. 시트 안 광고 없음. */
+.daily-sheet {
+  animation: daily-sheet-up 320ms var(--ease-out) both;
+}
+.daily-sheet__dim {
+  animation: daily-sheet-fade 220ms ease-out both;
+}
+.daily-sheet__flower.is-bloomed {
+  animation: daily-sheet-bloom 420ms var(--ease-out) both;
+}
+@keyframes daily-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes daily-sheet-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes daily-sheet-bloom {
+  0% {
+    transform: scale(0.4) rotate(-20deg);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.12);
+    opacity: 1;
+  }
+  100% {
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .daily-sheet,
+  .daily-sheet__dim,
+  .daily-sheet__flower.is-bloomed {
+    animation: none !important;
+  }
+}
+
+/* R5(R4 이월): 데스크톱 히어로 바닥 라벤더 띠 위 '오늘 호 티켓' 3장. 1280 이상에서만(3×384 + 간격 48 = 1,200px).
+   정적 HTML에 자리가 있고 칸 크기가 고정이라 상태가 바뀌어도 CLS 0. */
+.home-hero__tickets {
+  display: none;
+}
+@media (min-width: 80rem) {
+  .home-hero__inner {
+    /* 키아트(1376×768)를 1440×약 900으로 cover — 바닥 라벤더 띠가 티켓 줄 자리 */
+    min-height: min(62.5vw, 900px);
+  }
+  .home-hero__img {
+    object-position: 70% 100%;
+  }
+  .home-hero__tickets {
+    display: block;
+    position: relative;
+    z-index: 3;
+    margin: 36px auto 0;
+    width: 1200px;
+  }
+}

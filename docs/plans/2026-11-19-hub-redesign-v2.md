@@ -114,7 +114,7 @@ export type DailyResult = { slug: string; primary: { label: string; value: numbe
 | R2 | 머지 | #179 | 크림 헤더(lg 64px 1줄 / 그 아래 56px sticky + 2행 내비 44px)·푸터 정원 안내판, `src/components/site-chrome/`. 검색=홈 GameBrowser `/#search`, Originals=`/collection/original-games`. 내부 링크 감소 0(+3), 크롬 axe 심각 0, 헤더 기인 CLS 0. Figtree preload. R3 몫: pill 진행 상태(`TODAY_PILL`, 높이 유지), Fraunces roman preload 분리, aria-current |
 | R3 | 머지 | #181 | 노을 하늘(헤더 뒤까지)·H1 2단·마스트헤드 No.N(기준일 07-18)·키아트 <picture>·오늘 호 카드 3상태·pill 진행 상태·게임 페이지 모바일 2행 숨김·Fraunces roman만 preload. 링크 168/127 = 전과 같음, CLS 0. LH 모바일 LCP: devtools 스로틀 1.9~2.3s, simulate 3.8s(전 3.6s, JS 번들 몫). R4 몫: 히어로 아래 섹션·티켓 줄(데스크톱 라벤더 띠, 히어로 높이 다시 늘림)·정원 판정을 R5 완료 기록으로 |
 | R4 | 머지 | #182 | 히어로 아래 paper+구름 경계, Continue(최근/인기 4, 칸 위치 key로 CLS 0), Originals 목차(Plop·Acorn, readGarden), 4선반(shelves() 계산·합계 테스트), 씨앗 도서관(113 링크 전부 HTML·기본 24·카테고리 번갈아·My games 필터=즐겨찾기 흡수·하트/칩 44px), About 약 150단어+가이드 3, 정원 안내판, 광고 고정 100px 슬롯 2곳. 링크 168/127 → 170/134(감소 0). CLS ≤0.0013(CPU 4배), axe 위반 0, 320·360 가로 스크롤 0. **390 높이 5,012px — 2,600 기준은 R4 면제·오너 결정 대기(DECISIONS R4 구간표)**. R5로 이월: 데스크톱 티켓 줄(히어로 라벤더 띠), 정원 판정을 완료 기록으로 |
-| R5 | 대기 | | |
+| R5 | 머지 | (이 PR) | `DailyResult`·완료 키 `garden:done:<게임의 일일 날짜>:<slug>`(말랑 현지·나머지 UTC)·게임별 streak(`src/lib/daily/result.ts`), `readGarden` = 완료 키만(R3 약한 신호 폐기), 공통 결과 시트 `src/components/daily/DailyResultSheet.tsx`(85dvh·Share 노란 1·Next game 크림·UTC 카운트다운·보미 32px 자리·포커스 가둠·Esc·뒤로 가기·모션 줄이기), 공유 카드 PNG 440~640px ≤250KB(실측 188KB), 세 게임 Daily 종료 화면 교체(연습은 예전 오버레이), 리더보드 제출 시트 안(`tone=garden`), 1280+ 히어로 티켓 3장. axe 위반 0, CLS ≤0.0005. 캡처 `docs/design/redesign-v2/r5-sheet/` |
 | R6 | 대기 | | |
 | R7a~f | 대기 | | |
 

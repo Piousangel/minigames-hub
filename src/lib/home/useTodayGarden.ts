@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { todayLocal } from '@/lib/dailyDate'
+import { GARDEN_DONE_EVENT } from '@/lib/daily/result'
 import { editionFor, type Edition } from './edition'
 import { FIRST_GARDEN, readGarden, type Garden } from './garden'
 
@@ -37,10 +38,12 @@ export function useTodayGarden(): TodayGarden {
     }
     document.addEventListener('visibilitychange', onVis)
     window.addEventListener('storage', read)
+    window.addEventListener(GARDEN_DONE_EVENT, read) // 같은 탭에서 결과 시트가 완료를 남김(R5)
     return () => {
       window.clearTimeout(later)
       document.removeEventListener('visibilitychange', onVis)
       window.removeEventListener('storage', read)
+      window.removeEventListener(GARDEN_DONE_EVENT, read)
     }
   }, [pathname])
   return v

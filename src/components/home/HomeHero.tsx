@@ -1,7 +1,9 @@
 import { gamePages } from '@/lib/games/registry'
+import { gameMeta } from '@/lib/games/gameMeta'
 import { GARDEN_SLUGS } from '@/lib/home/garden'
 import { HeroMasthead } from './HeroMasthead'
 import { TodayCard, type TodayCardGame } from './TodayCard'
+import { HeroTickets, type TicketGame } from './HeroTickets'
 
 /** 키아트 크기(파일 실제 픽셀). width·height 속성으로 자리를 먼저 잡아 CLS 0. */
 export const HERO_ART = {
@@ -25,6 +27,10 @@ export const HERO_ART = {
  *   1440 틀 안에 두고 바깥은 같은 하늘 그라데이션으로 잇는다(1920 업스케일 판단은 PR 본문).
  * - 숫자(게임 수)는 gamePages에서 계산(D4).
  */
+// 티켓 세 번째 칸 'Continue'가 최근 게임 이름을 찾는 목록(slug·제목만, 약 4KB)
+const ticketGames: TicketGame[] = gamePages.map((g) => ({ slug: g.slug, title: g.h1 }))
+const dailyCount = gamePages.filter((g) => gameMeta[g.slug]?.daily).length
+
 export function HomeHero() {
   const games: TodayCardGame[] = GARDEN_SLUGS.map((slug) => ({
     slug,
@@ -72,6 +78,9 @@ export function HomeHero() {
         <div className="home-hero__card">
           <TodayCard games={games} />
         </div>
+
+        {/* 1280 이상: 바닥 라벤더 띠 위 '오늘 호' 티켓 3장(R5, R4 이월). 그 아래 폭에선 display:none */}
+        <HeroTickets games={ticketGames} dailyCount={dailyCount} />
       </div>
     </section>
   )

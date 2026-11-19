@@ -25,6 +25,10 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordFinish } from '@/lib/gameStats'
 import { todayUTC } from '@/lib/dailyDate'
 import { GameOverlay } from '@/components/game-shell'
+import { OverlayScoreSubmit } from '@/components/game-shell/OverlayScoreSubmit'
+import { DailyResultSheet } from '@/components/daily/DailyResultSheet'
+import { recordDoneInBrowser, type DailyResult } from '@/lib/daily/result'
+import { hasLeaderboard } from '@/lib/leaderboard'
 import { roundFont } from '@/app/roundFont'
 
 type Mode = 'daily' | 'practice'
@@ -77,6 +81,10 @@ export function GameAcornHop({ storageKey }: { storageKey: string }) {
   // 연타 중 죽으면 오버레이가 엄지 밑에 뜬다 — 마지막 탭이 '다음 게임' 링크를 누르지 않게 잠깐 터치를 막는다.
   const [armed, setArmed] = useState(true)
   const [flash, setFlash] = useState<{ side: Side; n: number } | null>(null)
+  // Daily 판의 결과 시트(R5). 연습 판은 예전 오버레이 그대로.
+  const [daily, setDaily] = useState<DailyResult | null>(null)
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const dayRef = useRef('')
   const { play, muted, toggleMuted } = useGameSound()
   const { reduced, reducedRef } = useReducedMotion()
 
@@ -99,13 +107,16 @@ export function GameAcornHop({ storageKey }: { storageKey: string }) {
   const deal = useCallback(
     (m: Mode) => {
       modeRef.current = m
-      const seed = m === 'daily' ? seedForDay(todayUTC()) : freshSeed()
+      dayRef.current = todayUTC()
+      const seed = m === 'daily' ? seedForDay(dayRef.current) : freshSeed()
       queueRef.current = []
       fx.current = []
       vis.current = { cam: cameraTop({ minY: 0 }), tapAt: -99, happyAt: -99, shake: 0, lastSide: 1, squash: 0, trailTick: -1 }
       doneRef.current = false
       setArmed(true)
       setNewBest(false)
+      setDaily(null)
+      setSheetOpen(false)
       setAnnounce('')
       commit(createGame(seed))
     },
@@ -224,7 +235,16 @@ export function GameAcornHop({ storageKey }: { storageKey: string }) {
       setBest(s.score)
       setNewBest(true)
     }
-    return () => clearTimeout(t)
+    // Daily 한 판이 끝남 = 오늘의 정원 완료(R5). 날짜 = 그 판을 받은 UTC 날짜. 연타 중 죽어도 마지막 탭이 시트 버튼을 누르지 않게 잠깐 있다 올린다
+    let open: ReturnType<typeof setTimeout> | undefined
+    if (modeRef.current === 'daily' && dayRef.current) {
+      setDaily(recordDoneInBrowser({ slug: 'acorn-hop', day: dayRef.current, primary: { label: 'points', value: s.score }, secondary: { label: 'height', value: `${heightM(s.minY)} m` } }))
+      open = setTimeout(() => setSheetOpen(true), 800)
+    }
+    return () => {
+      clearTimeout(t)
+      clearTimeout(open)
+    }
   }, [over, storageKey])
 
   const sideFromEvent = (clientX: number): Side => {
@@ -642,7 +662,7 @@ export function GameAcornHop({ storageKey }: { storageKey: string }) {
         </p>
 
         <div style={{ pointerEvents: armed ? 'auto' : 'none' }}>
-          <GameOverlay show={over} variant="lose" title={s.endReason ? END_TEXT[s.endReason] : 'Run over'} testId="game-over" tone="cozy">
+          <GameOverlay show={over && mode !== 'daily'} variant="lose" title={s.endReason ? END_TEXT[s.endReason] : 'Run over'} testId="game-over" tone="cozy">
             <div className="flex flex-col items-center gap-1">
               <p className="text-5xl font-bold leading-none tabular-nums">
                 {m}
@@ -666,6 +686,22 @@ export function GameAcornHop({ storageKey }: { storageKey: string }) {
           </GameOverlay>
         </div>
       </div>
+      {over && daily && !sheetOpen && (
+        <div className="mt-3 flex items-center justify-center gap-2" data-testid="acornhop-daily-done">
+          <button onClick={() => setSheetOpen(true)} className={`${btn} bg-[#fff3dc] px-4 text-[#5b3a1e]`} data-testid="open-result-sheet">
+            Today’s result
+          </button>
+          <button onClick={() => deal('daily')} className={`${btn} bg-[#fff3dc] px-4 text-[#5b3a1e]`}>
+            Play again
+          </button>
+        </div>
+      )}
+      {daily && (
+        <DailyResultSheet open={sheetOpen} onClose={() => setSheetOpen(false)} slug="acorn-hop" gameTitle="Acorn Hop" leaderboard={hasLeaderboard('acorn-hop')} result={daily} shareText={`Acorn Hop · ${m} m · ★${s.stars} · ${s.score} pts`}>
+          {newBest && <p className="rounded-full border-2 border-[#5b3a1e] bg-[#fff3dc] px-2.5 py-0.5 text-sm font-bold text-[#5b3a1e]">NEW BEST · {s.score} pts</p>}
+          {hasLeaderboard('acorn-hop') && <OverlayScoreSubmit slug="acorn-hop" show={sheetOpen} tone="garden" />}
+        </DailyResultSheet>
+      )}
       <p className="sr-only">Tap the left or right half of the sky. Tori fires an acorn down and rockets up toward that side. Arrow keys or A and D also work.</p>
     </div>
   )
