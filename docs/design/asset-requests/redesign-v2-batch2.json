@@ -1,0 +1,111 @@
+[
+  {
+    "id": "hub-hero-mobile",
+    "model": "gemini-3-pro-image",
+    "aspect": "3:4",
+    "key": "none",
+    "size": 1320,
+    "out": "public/art/hub-hero-mobile.webp",
+    "refs": [
+      "public/art/hub-keyart-hero.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading (light + one hard-edged shadow), no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style of the references. Portrait composition for a 390px-wide mobile home hero (master ~1200x1600). TOP 40%: open, calm sunset sky gradient (#ff9d7a to #ffc6a0) with only a few soft clouds — empty space for the headline. MIDDLE: the sunflower stepping-stone islands leading to one main floating island where Mallang (jelly) waves and Tori (squirrel in glass helmet) cheers, sun just behind them on the right, nothing cropped. BOTTOM 25%: a flat, calm lavender cloud sea (#a88ecc) with no objects — space for a card to sit on."
+  },
+  {
+    "id": "hub-hero-desktop",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 2400,
+    "out": "public/art/hub-hero-desktop.webp",
+    "refs": [
+      "public/art/hub-keyart-hero.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading (light + one hard-edged shadow), no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style of the references. Wide composition for a 1440-1920px desktop home hero. LEFT 40%: open sunset sky only (space for headline and buttons). RIGHT 60%: sunflower stepping-stone islands leading to the main island with Mallang and Tori, the small tree island fully inside the frame (within the right 85%), the sun behind on the right; the bottom tip of the main island ends above 75% of the height. BOTTOM 20%: a flat lavender cloud band (#a88ecc) with nothing on it (space for three ticket cards)."
+  },
+  {
+    "id": "thumb-slime-slide",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "none",
+    "size": 512,
+    "out": "public/art/thumb-slime-slide.webp",
+    "refs": [
+      "public/art/slime-slide-cover.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading (light + one hard-edged shadow), no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style of the references. Square game thumbnail icon, readable at 48px: Mallang the jelly sliding down a hand-drawn cream line toward a sunflower, two small stars on the path. Character and key prop centred and large, simple sky background in the game's time-of-day colours, thick clean silhouette."
+  },
+  {
+    "id": "thumb-plop-landing",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "none",
+    "size": 512,
+    "out": "public/art/thumb-plop-landing.webp",
+    "refs": [
+      "public/art/plop-landing-cover.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading (light + one hard-edged shadow), no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style of the references. Square game thumbnail icon, readable at 48px: Mallang plopping onto a flower-petal landing pad on a tiny dawn-coloured island. Character and key prop centred and large, simple sky background in the game's time-of-day colours, thick clean silhouette."
+  },
+  {
+    "id": "thumb-acorn-hop",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "none",
+    "size": 512,
+    "out": "public/art/thumb-acorn-hop.webp",
+    "refs": [
+      "public/art/acorn-hop-cover.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading (light + one hard-edged shadow), no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style of the references. Square game thumbnail icon, readable at 48px: Tori the squirrel mid-jump holding an acorn between two small night-sky islands with stars. Character and key prop centred and large, simple sky background in the game's time-of-day colours, thick clean silhouette."
+  },
+  {
+    "id": "haessi-guide",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "out": "public/art/haessi-guide.webp",
+    "refs": [
+      "docs/design/mascots/haessi-sheet.webp",
+      "public/art/haessi-idle.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading (light + one hard-edged shadow), no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style of the references. CHARACTER: Haessi, the sunflower-seed sprite (striped seed-brown and cream teardrop body, sunflower crown, leaf arms, brass lantern) exactly as in the references. Pose: friendly guide, holding the lantern forward to light the way and pointing ahead with the other leaf hand, warm smile. Single character centred, plain solid magenta (#ff00ff) background for keying, no other objects."
+  },
+  {
+    "id": "bomi-countdown",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "out": "public/art/bomi-countdown.webp",
+    "refs": [
+      "docs/design/mascots/bomi-sheet.webp",
+      "public/art/bomi-deliver.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading (light + one hard-edged shadow), no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style of the references. CHARACTER: Bomi, the round bumblebee mail courier (honey-yellow and cocoa stripes, cream postal cap ALWAYS on, brown satchel of rolled newspapers) exactly as in the references. Pose: flying off with a rolled newspaper under one arm, looking back with a wink as if saying 'see you tomorrow'. Newspapers show scribble lines only, no letters. Plain solid magenta (#ff00ff) background, no other objects."
+  },
+  {
+    "id": "bomi-sheet-v2",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 1800,
+    "out": "docs/design/mascots/bomi-sheet-v2.webp",
+    "refs": [
+      "docs/design/mascots/bomi-sheet.webp",
+      "public/art/bomi-idle.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading (light + one hard-edged shadow), no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style of the references. CHARACTER: Bomi, the round bumblebee mail courier, exactly as in the references. Clean CHARACTER MODEL SHEET on flat cream (#fff3dc): top row turnaround (front, three-quarter, side, back); bottom row six expressions (happy, cheering with newspaper, thinking, sleepy, sad, surprised) — the cream postal cap MUST be on in every single view. No text or labels anywhere."
+  }
+]
