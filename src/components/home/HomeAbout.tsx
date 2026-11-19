@@ -22,7 +22,7 @@ export function HomeAbout({ gameCount, dailyCount }: { gameCount: number; dailyC
         <h2 id="about-site" className="font-display mt-1 text-[24px] leading-[30px] font-semibold tracking-[-0.015em]">
           About <em className="font-display-italic italic">this garden</em>
         </h2>
-        <div className="mt-3 space-y-3 text-[16px] leading-[26px] text-garden-ink-deep">
+        <div data-testid="home-about-body" className="mt-3 space-y-3 text-[16px] leading-[26px] text-garden-ink-deep">
           <p>
             {siteConfig.name} is a small garden of {gameCount} free games that run in your browser. There is nothing to
             download and no account to make: open a page and the game is ready, on a phone or a computer.
@@ -41,15 +41,16 @@ export function HomeAbout({ gameCount, dailyCount }: { gameCount: number; dailyC
             <Link href="/acorn-hop" className={link}>
               Acorn Hop
             </Link>
-            , live in the sunset garden at the top of this page, and {dailyCount}{' '}
+            , grow in today’s sunset garden on this page, and {dailyCount}{' '}
             <Link href="/daily" className={link}>
               daily games
             </Link>{' '}
             give everyone the same fresh puzzle each day.
           </p>
           <p>
-            Everything is free. Your scores, streaks and favorites stay in your own browser, and unless you choose to post
-            a score or a comment, the site sends only anonymous usage counts to its own server — the{' '}
+            Everything is free. Your scores, streaks and favorites stay in your own browser. The site has no accounts:
+            apart from scores or comments you choose to post, it sends only anonymous usage events, with no name or
+            email, to its own server — the{' '}
             <Link href="/privacy" className={link}>
               privacy page
             </Link>{' '}

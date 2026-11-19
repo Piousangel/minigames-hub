@@ -723,6 +723,17 @@ test('홈(R4): Show all을 안 눌러도 전 게임 링크가 HTML에 있다(접
   await expect(grid.locator('li:visible')).toHaveCount(total)
 })
 
+test('홈(R4): 내부 링크가 R3 기준(전체 168 / 고유 경로 127)보다 줄지 않는다', async ({ request }) => {
+  const html = (await (await request.get('/')).text()).replace(/<script[\s\S]*?<\/script>/g, '')
+  const hrefs = [...html.matchAll(/<a\b[^>]*?href="(\/[^"]*)"/g)].map((m) => m[1]).filter((h) => !h.startsWith('//'))
+  const paths = new Set(hrefs.map((h) => h.split(/[?#]/)[0] || '/'))
+  expect(hrefs.length).toBeGreaterThanOrEqual(168)
+  expect(paths.size).toBeGreaterThanOrEqual(127)
+  for (const p of ['/daily', '/collections', '/guides', '/leaderboards', '/collection/original-games', '/about', '/privacy', '/terms', '/contact']) {
+    expect(paths.has(p), p).toBe(true)
+  }
+})
+
 test('홈(R4): 4선반 수 합계 = 전체 게임 수, 각 행은 /category로', async ({ page }) => {
   await page.goto('/')
   const counts = (await page.getByTestId('shelf-count').allInnerTexts()).map((t) => parseInt(t, 10))

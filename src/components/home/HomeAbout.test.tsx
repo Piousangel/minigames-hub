@@ -7,7 +7,7 @@ import { signboardLinks } from './GardenSignboard'
 describe('HomeAbout (R4 편집 블록, 리뷰 B5)', () => {
   it('About 본문은 120~200단어, 수는 넘긴 값', () => {
     render(<HomeAbout gameCount={113} dailyCount={31} />)
-    const text = screen.getByTestId('home-about').querySelector('div.space-y-3')!.textContent!
+    const text = screen.getByTestId('home-about-body').textContent!
     const words = text.trim().split(/\s+/).length
     expect(words).toBeGreaterThanOrEqual(120)
     expect(words).toBeLessThanOrEqual(200)

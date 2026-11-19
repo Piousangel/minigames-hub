@@ -43,7 +43,7 @@ export function SeedCard({
     <div className="relative h-full">
       <Link
         href={href ?? `/${slug}`}
-        className="seed-card garden-jelly font-ui relative flex h-full min-h-[68px] items-center gap-2 overflow-hidden sm:gap-2.5 rounded-[14px] border-2 border-garden-ink bg-garden-cream py-2.5 pr-8 pl-2 sm:pr-9 sm:pl-2.5 text-garden-ink shadow-[var(--garden-highlight),var(--garden-shadow-seed)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-garden-ink focus-visible:ring-offset-2 focus-visible:ring-offset-garden-paper sm:items-start sm:pt-4"
+        className="garden-jelly font-ui relative flex h-full min-h-[68px] items-center gap-2 overflow-hidden sm:gap-2.5 rounded-[14px] border-2 border-garden-ink bg-garden-cream py-2.5 pr-8 pl-2 sm:pr-9 sm:pl-2.5 text-garden-ink shadow-[var(--garden-highlight),var(--garden-shadow-seed)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-garden-ink focus-visible:ring-offset-2 focus-visible:ring-offset-garden-paper sm:items-start sm:pt-4"
       >
         {/* 봉투 윗단 꽃색 띠 */}
         <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1.5 border-b-[1.5px] border-garden-ink" style={{ background: tint.flower }} />

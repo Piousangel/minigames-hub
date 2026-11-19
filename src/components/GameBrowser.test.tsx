@@ -71,11 +71,13 @@ describe('GameBrowser 씨앗 도서관(R4)', () => {
     expect(container.querySelectorAll('[data-testid="library-grid"] a[href^="/g"]')).toHaveLength(30)
     const grid = screen.getByTestId('library-grid')
     expect(grid).toHaveAttribute('data-collapsed', 'true')
+    expect(grid.querySelectorAll('li.hidden')).toHaveLength(6) // 24개 뒤만 접힘
     const toggle = screen.getByTestId('library-toggle')
     expect(toggle).toHaveTextContent('Show all 30')
     expect(toggle).toHaveAttribute('aria-expanded', 'false')
     act(() => toggle.click())
     expect(grid).not.toHaveAttribute('data-collapsed')
+    expect(grid.querySelectorAll('li.hidden')).toHaveLength(0)
     expect(toggle).toHaveAttribute('aria-expanded', 'true')
   })
 

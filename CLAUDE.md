@@ -25,7 +25,7 @@
 - Cloudflare 무료 플랜은 상업적 이용(AdSense) 허용 → 수익화해도 이전 불필요.
 - 정적 내보내기 제약: `robots.ts` / `sitemap.ts` / `opengraph-image.tsx`에 `export const dynamic = 'force-static'` 필수.
 - 커스텀 도메인 구매 시 변경 지점: `src/lib/siteConfig.ts`의 `url` 한 줄 + Cloudflare 대시보드에서 도메인 라우트 연결.
-- 홈 Featured 레일 인기순(`/api/popular`)은 `pnpm exec wrangler secret put CF_ANALYTICS_TOKEN`(Account Analytics:Read 토큰)을 1회 설정해야 동작 — 없으면 레일은 큐레이션 순서 그대로.
+- 홈 Continue 줄 '인기 4' 순서(`/api/popular`, 첫 방문)는 `pnpm exec wrangler secret put CF_ANALYTICS_TOKEN`(Account Analytics:Read 토큰)을 1회 설정해야 동작 — 없으면 큐레이션 순서 그대로.
 
 ## 매일 아침 팀 운영
 06:00 KST 클라우드 루틴이 회의(docs/team/meetings) → 리뷰 → 반영(PR·머지) → 메일 보고. 05:30 Actions가 지표를 docs/daily/metrics에 커밋. 결정은 DECISIONS.md, 백로그 docs/daily/backlog.md, 운영 방식은 sandlab 저장소 docs/ops/playbook.md.

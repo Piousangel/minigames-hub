@@ -793,8 +793,3 @@ body:has(main[data-game-page]) [data-site-nav-row] {
   height: 19px;
   pointer-events: none;
 }
-/* 씨앗 도서관 접힘: 앞 24개(LIBRARY_PREVIEW, src/lib/home/shelves.ts)만 보이고 나머지는 숨긴다.
-   링크는 모두 HTML에 남는다(SEO·내부 링크). 24를 바꾸면 여기 n+25도 같이 */
-.seed-grid[data-collapsed='true'] > li:nth-child(n + 25) {
-  display: none;
-}

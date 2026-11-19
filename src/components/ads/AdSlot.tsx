@@ -13,16 +13,16 @@ export function AdSlot({
   slot,
   className,
   minHeight = 90,
-  fixedHeight,
+  fixedSize,
 }: {
   slot: string
   className?: string
   minHeight?: number
   /**
-   * 고정 크기 슬롯(D11, 홈 R4): 높이를 이 값으로 못 박고 반응형 자동 크기를 끈다 — 광고가 예약보다 커져
-   * 아래 콘텐츠를 밀지 않게(CLS 0). 생략하면 예전처럼 min-height + auto.
+   * 고정 크기 광고 단위(D11, 홈 R4): AdSense 고정 크기 방식(inline-block + width·height, data-ad-format 없음)이라
+   * 소재가 예약보다 커지지 않는다(CLS 0, 잘라 내기 없음 — 광고를 가리거나 자르면 정책 위반). 생략하면 예전처럼 min-height + auto.
    */
-  fixedHeight?: number
+  fixedSize?: { width: number; height: number }
 }) {
   const ref = useRef<HTMLModElement>(null)
   const clientId = siteConfig.adsenseEnabled ? siteConfig.adsenseClientId : ''
@@ -42,12 +42,11 @@ export function AdSlot({
   return (
     <ins
       ref={ref}
-      className={`adsbygoogle block ${className ?? ''}`}
-      style={fixedHeight ? { display: 'block', height: fixedHeight, overflow: 'hidden' } : { display: 'block', minHeight }}
+      className={`adsbygoogle ${fixedSize ? '' : 'block'} ${className ?? ''}`}
+      style={fixedSize ? { display: 'inline-block', width: fixedSize.width, height: fixedSize.height } : { display: 'block', minHeight }}
       data-ad-client={clientId}
       data-ad-slot={slot}
-      data-ad-format={fixedHeight ? 'horizontal' : 'auto'}
-      data-full-width-responsive={fixedHeight ? 'false' : 'true'}
+      {...(fixedSize ? {} : { 'data-ad-format': 'auto', 'data-full-width-responsive': 'true' })}
     />
   )
 }

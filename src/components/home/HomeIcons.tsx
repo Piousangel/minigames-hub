@@ -1,6 +1,6 @@
 /**
  * 홈 본문(R4) 아이콘 — 시안 docs/design/redesign-v2/hub-v2.html의 <symbol>(c-bell·c-star·c-clover·c-sun·chev·seed·sprout)
- * 을 옮겼다. 색은 정원 팔레트 고정값. 모두 장식(aria-hidden) — 이름은 감싼 링크·버튼이 갖는다.
+ * 을 옮겼다(새싹 sprout은 출시 예정 행이 생길 때 다시). 색은 정원 팔레트 고정값. 모두 장식(aria-hidden) — 이름은 감싼 링크·버튼이 갖는다.
  */
 import type { ShelfIcon } from '@/lib/home/shelves'
 
@@ -95,22 +95,6 @@ export function SeedIcon({ className }: IconProps) {
         strokeLinejoin="round"
       />
       <path d="M12 9v8" stroke={INK} strokeWidth="1.4" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-/** 새싹(빈 상태·안내판) */
-export function SproutIcon({ className }: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} {...svgProps}>
-      <path d="M12 20v-7" stroke="#4f8a3c" strokeWidth="2" strokeLinecap="round" />
-      <path
-        d="M12 13.5c-4 0-5.6-2.4-5.6-5.4 3.8 0 5.6 2 5.6 5.4zM12 12c3.6 0 5.2-2.2 5.2-4.8-3.4 0-5.2 1.8-5.2 4.8z"
-        fill="#7cc26a"
-        stroke={INK}
-        strokeWidth="1.6"
-        strokeLinejoin="round"
-      />
     </svg>
   )
 }

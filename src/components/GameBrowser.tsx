@@ -26,8 +26,8 @@ const FILTERS: Filter[] = ['All', 'Daily', ...CATEGORIES, 'My games']
 
 /**
  * 홈 '씨앗 도서관'(All games, 리디자인 v2 R4): 인스턴트 검색 + 필터 칩 + 씨앗 던지기(랜덤).
- * - 기본(검색어 없음·All): 전 게임을 카테고리 번갈아 순서(libraryOrder)로. 앞 24개만 보이고 나머지는
- *   CSS로 접어 두지만 **113개 링크가 모두 정적 HTML에 있다**(SEO·내부 링크 — e2e가 지킨다). "Show all N"으로 편다.
+ * - 기본(검색어 없음·All): 전 게임을 카테고리 번갈아 순서(libraryOrder)로. 앞 LIBRARY_PREVIEW(24)개만 보이고 나머지는
+ *   `hidden` 클래스로 접어 두지만 **113개 링크가 모두 정적 HTML에 있다**(SEO·내부 링크 — e2e가 지킨다). "Show all N"으로 편다.
  * - 검색·필터: 맞는 게임만 평평한 그리드(data-testid="browse-results"), 접지 않는다.
  * - 앵커: 헤더 검색 `/#search`(입력), 헤더 All games `/#all-games`(섹션 머리).
  */
@@ -166,10 +166,10 @@ export function GameBrowser({ items, heading }: { items: BrowseItem[]; heading?:
             id="library-grid"
             data-testid="library-grid"
             data-collapsed={expanded ? undefined : 'true'}
-            className="seed-grid mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4"
+            className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4"
           >
-            {library.map((g) => (
-              <li key={g.slug}>
+            {library.map((g, i) => (
+              <li key={g.slug} className={!expanded && i >= LIBRARY_PREVIEW ? 'hidden' : undefined}>
                 <SeedCard slug={g.slug} title={g.title} description={g.description} category={g.category} />
               </li>
             ))}
@@ -191,7 +191,7 @@ export function GameBrowser({ items, heading }: { items: BrowseItem[]; heading?:
         </>
       ) : matches.length > 0 ? (
         <div className="mt-4">
-          <p className="mb-3 text-[13px] text-garden-ink-soft" aria-live="polite">
+          <p aria-hidden="true" className="mb-3 text-[13px] text-garden-ink-soft">
             {matches.length} game{matches.length === 1 ? '' : 's'}
           </p>
           <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4" data-testid="browse-results">
@@ -203,12 +203,16 @@ export function GameBrowser({ items, heading }: { items: BrowseItem[]; heading?:
           </ul>
         </div>
       ) : (
-        <p className="py-10 text-center text-[15px] text-garden-ink-soft" aria-live="polite">
+        <p className="py-10 text-center text-[15px] text-garden-ink-soft">
           {filter === 'My games' && !q
             ? 'No saved games yet — tap the heart on any game to keep it here.'
             : `No games match “${query}”. Try another word, or toss a random seed.`}
         </p>
       )}
+      {/* 결과 수 안내(스크린리더). live 영역은 늘 렌더해 두고 글만 바꾼다 — 새로 붙는 live 영역은 안 읽히는 경우가 많다 */}
+      <p aria-live="polite" className="sr-only" data-testid="browse-status">
+        {isBrowsing ? '' : matches.length > 0 ? `${matches.length} game${matches.length === 1 ? '' : 's'}` : 'No games found'}
+      </p>
     </section>
   )
 }

@@ -9,7 +9,7 @@ import { HeartIcon } from '@/components/home/HomeIcons'
  * GameCard의 relative 래퍼 위에 sibling으로 절대배치한다(앵커 바깥 → 유효 HTML).
  *
  * 하이드레이션 안전: 마운트 전엔 빈(비활성) 하트를 그려 SSR과 마크업을 맞추고, 마운트 후
- * localStorage를 읽어 상태를 채운다. 토글은 커스텀 이벤트로 다른 하트/‘My Games’ 레일과 동기화.
+ * localStorage를 읽어 상태를 채운다. 토글은 커스텀 이벤트로 다른 하트·홈 씨앗 도서관 'My games' 필터와 동기화.
  */
 // 카드 우상단 모서리에 44×44 히트 영역(보이는 하트 20px). 카드 밖 간격으로 4px 넘쳐 제목 자리를 덜 먹는다.
 const GARDEN_CLASS =

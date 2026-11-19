@@ -3,6 +3,12 @@ import { cleanup, render, screen, waitFor } from '@testing-library/react'
 import { ContinueRow, type ContinueItem } from './ContinueRow'
 import { __resetPopularFetchForTest } from '@/lib/home/usePopular'
 import { RECENT_KEY } from '@/components/RecordPlay'
+import { spotlightFor } from '@/lib/spotlight'
+
+vi.mock('@/lib/spotlight', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/spotlight')>()
+  return { ...actual, spotlightFor: vi.fn(() => null) }
+})
 
 const mk = (slug: string): ContinueItem => ({ slug, title: `T-${slug}`, description: '', category: 'Puzzle' })
 const curated = ['solitaire', 'chess', '2048', 'flow', 'unblock'].map(mk)
@@ -12,6 +18,7 @@ const titles = () => screen.getAllByRole('heading', { level: 3 }).map((h) => h.t
 const ok = (games: unknown) => ({ ok: true, json: async () => ({ games }) })
 
 beforeEach(() => {
+  vi.mocked(spotlightFor).mockReturnValue(null)
   __resetPopularFetchForTest()
   sessionStorage.clear()
   localStorage.clear()
@@ -110,5 +117,33 @@ describe('ContinueRow — 단골(최근 플레이)', () => {
     render(<ContinueRow curated={curated} items={items} />)
     await waitFor(() => expect(titles()).toEqual(['T-solitaire', 'T-chess', 'T-2048', 'T-flow']))
     expect(screen.getByTestId('continue-row')).toHaveAttribute('data-state', 'first')
+  })
+})
+
+describe('ContinueRow — 즐겨찾기·스포트라이트', () => {
+  it('최근 플레이 뒤를 즐겨찾기(최근에 담은 순)로 채우고, 그다음 인기', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
+    localStorage.setItem(RECENT_KEY, JSON.stringify(['snake']))
+    localStorage.setItem('favorites', JSON.stringify(['sudoku', 'snake']))
+    const { container } = render(<ContinueRow curated={curated} items={items} />)
+    await waitFor(() => expect(titles()).toEqual(['T-snake', 'T-sudoku', 'T-solitaire', 'T-chess']))
+    expect(container.querySelector('a[href="/sudoku?ref=home-saved"]')).not.toBeNull()
+    expect(container.querySelector('a[href="/solitaire?ref=home-popular"]')).not.toBeNull()
+  })
+
+  it('즐겨찾기만 있어도 단골 모양(Saved games)', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
+    localStorage.setItem('favorites', JSON.stringify(['tetris']))
+    render(<ContinueRow curated={curated} items={items} />)
+    await waitFor(() => expect(screen.getByTestId('continue-row')).toHaveAttribute('data-state', 'returning'))
+    expect(screen.getByText('Saved games')).toBeInTheDocument()
+    expect(titles()[0]).toBe('T-tetris')
+  })
+
+  it('인기로 채우는 칸에서 오늘의 스포트라이트 게임은 뺀다(아래 스포트라이트 줄과 중복 방지)', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
+    vi.mocked(spotlightFor).mockReturnValue('chess')
+    render(<ContinueRow curated={curated} items={items} />)
+    await waitFor(() => expect(titles()).toEqual(['T-solitaire', 'T-2048', 'T-flow', 'T-unblock']))
   })
 })
