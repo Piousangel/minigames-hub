@@ -109,6 +109,7 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
   const squash = useRef(0)
   const ringFlash = useRef(0)
   const failStreak = useRef(initialFailStreak) // 현재 스테이지에서 연속 실패 수(2회 이상이면 추천 길 표시)
+  const demoPath = useRef<Pt[] | null>(null)
   const hintLine = useRef<Pt[] | null>(initialFailStreak >= 2 && STAGE_HINTS[SLIME_STAGES[fixedStage ?? 0]?.id] ? runLine(SLIME_STAGES[fixedStage ?? 0], waypointsToRaw(STAGE_HINTS[SLIME_STAGES[fixedStage ?? 0].id]))?.line ?? null : null)
 
   // 카카오톡 같은 인앱 브라우저는 touch-action을 무시해 그리는 중에 화면이 스크롤되거나 당겨진다 →
@@ -182,6 +183,12 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
       mq?.removeEventListener?.('change', onMq)
     }
   }, [])
+
+  // 안내 시범용 길: 이 스테이지의 추천 길(없으면 시범 없이 말풍선만)
+  useEffect(() => {
+    const wp = STAGE_HINTS[stage.id]
+    demoPath.current = wp ? (runLine(stage, waypointsToRaw(wp))?.line ?? null) : null
+  }, [stage])
 
   // 스테이지에 들어올 때 이름 카드를 잠깐 보여 준다(입력하면 바로 사라진다)
   useEffect(() => {
@@ -298,27 +305,30 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
         drawLine(g, cur, '#5b3a1e', 10)
         drawLine(g, cur, '#fff3dc', 5.5)
       }
-      // 첫 10초 안내: 첫 판 전, 첫 스테이지에서만 손가락이 선을 긋는 시범과 말풍선을 보여준다(디자이너·PM 검수)
-      if (phase === 'draw' && si === 0 && recs.current.length === 0 && raw.current.length === 0 && !line.current) {
-        const q = Math.min(1, (t % 3200) / 2400)
-        const A = { x: 54, y: 152 }
-        const B = { x: 312, y: 484 }
-        const hx = A.x + (B.x - A.x) * q
-        const hy = A.y + (B.y - A.y) * q
-        g.save()
-        g.setLineDash([9, 9])
-        g.strokeStyle = 'rgba(255,243,220,0.9)'
-        g.lineWidth = 5
-        g.beginPath()
-        g.moveTo(A.x, A.y)
-        g.lineTo(hx, hy)
-        g.stroke()
-        g.setLineDash([])
-        g.font = '30px sans-serif'
-        g.textAlign = 'center'
-        g.textBaseline = 'middle'
-        g.fillText('👆', hx + 6, hy + 14)
-        g.restore()
+      // 안내 시범: 이 스테이지에서 아직 한 번도 그어 보지 않았으면, 이 스테이지의 추천 길을 따라 손가락이 선을 긋는 시범과 말풍선을 보여준다
+      // (예전에는 1번 스테이지 전용·고정 좌표라 2번 스테이지부터는 아무 안내가 없어 '게임이 시작 안 되는' 것처럼 보였다)
+      const triedHere = recs.current.some((r) => r.stage === stage.id) || failStreak.current > 0
+      if (phase === 'draw' && !triedHere && raw.current.length === 0 && !line.current) {
+        const dl = demoPath.current
+        if (dl && dl.length > 1) {
+          const q = Math.min(1, (t % 3200) / 2400)
+          const upto = Math.max(1, Math.floor(q * (dl.length - 1)))
+          const hp = dl[upto]
+          g.save()
+          g.setLineDash([9, 9])
+          g.strokeStyle = 'rgba(255,243,220,0.9)'
+          g.lineWidth = 5
+          g.beginPath()
+          g.moveTo(dl[0].x, dl[0].y)
+          for (let i = 1; i <= upto; i++) g.lineTo(dl[i].x, dl[i].y)
+          g.stroke()
+          g.setLineDash([])
+          g.font = '30px sans-serif'
+          g.textAlign = 'center'
+          g.textBaseline = 'middle'
+          g.fillText('👆', hp.x + 6, hp.y + 14)
+          g.restore()
+        }
         drawBubble(g, tx.startBubble, BOARD_W / 2, 52)
       }
       // 말랑이
