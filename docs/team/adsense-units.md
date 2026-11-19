@@ -11,4 +11,5 @@
 - 사이트 상태(11-20 확인): quickminigames.site·sandlab.app 모두 "준비 중"(심사 중). ads.txt는 두 사이트 모두 200으로 서비스 중(AdSense 화면의 '찾을 수 없음'은 재크롤 전 표시).
 - 광고는 `adsenseEnabled`(siteConfig)가 켜질 때만 렌더된다. 승인 전에는 켜지 않는다. 재심사 신청 금지.
 - 샌드랩 단위는 P8·P10에서 자리·크기가 정해지면 같은 방식으로 만든다(sandlab `src/ui-next/ads/config.ts` AD_SLOTS).
-- 다음 할 일: 홈 광고 컴포넌트에 위 슬롯 ID를 연결(`home-about` → 3366937812, `home-footer` → 5373706948)(별도 작은 PR — 광고 off 상태에서는 화면 변화 0).
+- ~~홈 광고 컴포넌트에 슬롯 ID 연결~~ — 11-20 완료: 매핑은 `src/components/ads/adSlots.ts`(AD_SLOTS) 한 곳, 켰을 때 `<ins>` 속성은 `src/components/ads/AdSlot.test.tsx`가 지킨다.
+- 다음 할 일: ① AdSense 승인 후 `siteConfig.adsenseEnabled = true`(EU CMP 확인 함께), 켠 빌드로 `e2e/mascots.spec.ts` 400px 검사 재확인 ② 게임 페이지(`game-incontent`) 단위는 아직 없음 — 자리·크기(D11 150px)가 정해지면 단위를 만들어 AD_SLOTS에 채운다(그 전엔 켜도 안 그림).

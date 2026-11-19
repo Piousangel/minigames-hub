@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { gamePages } from '@/lib/games/registry'
 import { CATEGORIES, gameMeta, type GameCategory } from '@/lib/games/gameMeta'
-import { LIBRARY_PREVIEW, libraryOrder, shelves } from './shelves'
+import { LIBRARY_PREVIEW, LIBRARY_PREVIEW_MOBILE, libraryOrder, shelves } from './shelves'
 
 describe('shelves (D4: 수는 계산값)', () => {
   it('합계 = gamePages.length, 선반 4개는 Puzzle·Arcade·Classic·Skill 순서', () => {
@@ -44,6 +44,12 @@ describe('libraryOrder', () => {
   it('앞 24개(접힌 상태)에 네 카테고리가 모두 6개씩', () => {
     const head = libraryOrder(items).slice(0, LIBRARY_PREVIEW)
     for (const c of CATEGORIES) expect(head.filter((x) => x.category === c)).toHaveLength(6)
+  })
+
+  it('앞 12개(모바일 접힌 상태)에 네 카테고리가 모두 3개씩', () => {
+    expect(LIBRARY_PREVIEW_MOBILE).toBe(12)
+    const head = libraryOrder(items).slice(0, LIBRARY_PREVIEW_MOBILE)
+    for (const c of CATEGORIES) expect(head.filter((x) => x.category === c)).toHaveLength(3)
   })
 
   it('카테고리 안 순서는 registry 순서', () => {

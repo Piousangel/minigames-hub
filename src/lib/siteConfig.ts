@@ -6,8 +6,8 @@ export const siteConfig = {
   // 발급된 AdSense 퍼블리셔 ID. 사이트 소유권 확인용 메타 태그(layout.tsx)와
   // public/ads.txt가 이 값을 쓰므로 승인 전에도 채워져 있어야 한다.
   adsenseClientId: 'ca-pub-9363381710674627',
-  // 광고 게재 스위치. AdSlot의 data-ad-slot이 아직 플레이스홀더 문자열이라,
-  // 승인 후 AdSense에서 광고 단위를 만들어 실제 숫자 슬롯 ID로 교체한 뒤에 true로 바꿀 것.
+  // 광고 게재 스위치. 승인 전에는 false 유지(재심사 신청 금지). 슬롯 ID는 components/ads/adSlots.ts(AD_SLOTS) —
+  // 홈 2곳(home-about·home-footer)은 실제 단위 연결됨(11-20), 게임 페이지(game-incontent)는 단위 미생성이라 켜도 안 그림.
   // EU 트래픽엔 인증 CMP도 필요.
   adsenseEnabled: false,
   // 후원(선택) — Ko-fi 페이지. 위젯 스크립트가 아니라 단순 외부 링크로만 연결(외부 JS·추적기
