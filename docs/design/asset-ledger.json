@@ -54,8 +54,18 @@
       "out": "docs/design/critiques/hub-home-critique-pilot.md",
       "model": "gemini-3.1-pro-preview",
       "at": "2026-11-19T12:27:41+00:00"
+    },
+    "hub-keyart-hero": {
+      "out": "public/art/hub-keyart-hero.webp",
+      "model": "gemini-3.1-flash-image",
+      "at": "2026-11-19T12:28:58+00:00"
+    },
+    "mallang-wave": {
+      "out": "public/art/mallang-wave.webp",
+      "model": "gemini-3.1-flash-image",
+      "at": "2026-11-19T12:29:10+00:00"
     }
   },
   "month": "2026-11",
-  "count": 10
+  "count": 12
 }
