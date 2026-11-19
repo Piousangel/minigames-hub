@@ -1,5 +1,8 @@
 # 세션 가이드 (미니게임 허브 팀)
 
+> **최우선(오너 11-19)**: [docs/team/specs/2026-11-19-owner-direction-depth.md](specs/2026-11-19-owner-direction-depth.md) — 말랑 미끄럼길 순차 해금 개편(홍보 보류), 신작 「벽바둑」 조사·설계(17:10 이후), 오리지널 3종 심화.
+
+
 루틴은 하루 5번(06·10·13·16·20시 KST) 돈다. 각 세션은 이 문서의 **자기 시간 절**을 따른다. 규칙의 근거는 [OPERATING.md](./OPERATING.md), 설계 관문은 [DESIGN-PROCESS.md](./DESIGN-PROCESS.md), 진행 상태는 [cycle.md](./cycle.md), 리뉴얼 큐는 [renewal-queue.md](./renewal-queue.md).
 
 ## 0. 모든 세션 공통
