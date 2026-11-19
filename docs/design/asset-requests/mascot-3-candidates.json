@@ -1,0 +1,82 @@
+[
+  {
+    "id": "mascot3-a-bee-courier",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 1600,
+    "out": "docs/design/mascots/mascot3-a-bee-courier.webp",
+    "refs": [
+      "public/art/mallang-wave.webp",
+      "public/art/mallang-idle.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/tori-idle.webp",
+      "public/art/hub-keyart-hero.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style, line weight, proportions and colour treatment of the reference characters. Composition 16:9: a character LINEUP of three friends standing together on one small floating grass island at sunset, lavender cloud sea behind, sun just above the horizon, sunflowers at the edge. Left: Mallang (the jelly blob from the references, mint-to-lavender, brown outline, matte). Right: Tori (the squirrel in a glass space helmet and mint suit from the references). CENTER, slightly forward, the NEW third mascot described below, same height class as the other two (chibi, big head, readable silhouette at 48px), friendly and distinct in colour from both (avoid mint/lavender and squirrel-orange as its main colour). All three look at the viewer, warm and a little cheeky. Leave clean sky in the top third. NEW MASCOT: Bomi, a round bumblebee mail courier: honey-yellow and cocoa-brown stripes, tiny translucent wings, a little cream postal cap and a satchel full of rolled 'today's edition' newspapers, holding one up proudly. Role: delivers the daily edition between islands."
+  },
+  {
+    "id": "mascot3-b-turtle-gardener",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 1600,
+    "out": "docs/design/mascots/mascot3-b-turtle-gardener.webp",
+    "refs": [
+      "public/art/mallang-wave.webp",
+      "public/art/mallang-idle.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/tori-idle.webp",
+      "public/art/hub-keyart-hero.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style, line weight, proportions and colour treatment of the reference characters. Composition 16:9: a character LINEUP of three friends standing together on one small floating grass island at sunset, lavender cloud sea behind, sun just above the horizon, sunflowers at the edge. Left: Mallang (the jelly blob from the references, mint-to-lavender, brown outline, matte). Right: Tori (the squirrel in a glass space helmet and mint suit from the references). CENTER, slightly forward, the NEW third mascot described below, same height class as the other two (chibi, big head, readable silhouette at 48px), friendly and distinct in colour from both (avoid mint/lavender and squirrel-orange as its main colour). All three look at the viewer, warm and a little cheeky. Leave clean sky in the top third. NEW MASCOT: Gobu, a slow, kind little turtle gardener: sage-green skin, a terracotta flower-pot-shaped shell with a tiny sunflower sprout growing on top, a straw sun hat and a watering can. Role: keeper of the classic games garden."
+  },
+  {
+    "id": "mascot3-c-owl-editor",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 1600,
+    "out": "docs/design/mascots/mascot3-c-owl-editor.webp",
+    "refs": [
+      "public/art/mallang-wave.webp",
+      "public/art/mallang-idle.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/tori-idle.webp",
+      "public/art/hub-keyart-hero.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style, line weight, proportions and colour treatment of the reference characters. Composition 16:9: a character LINEUP of three friends standing together on one small floating grass island at sunset, lavender cloud sea behind, sun just above the horizon, sunflowers at the edge. Left: Mallang (the jelly blob from the references, mint-to-lavender, brown outline, matte). Right: Tori (the squirrel in a glass space helmet and mint suit from the references). CENTER, slightly forward, the NEW third mascot described below, same height class as the other two (chibi, big head, readable silhouette at 48px), friendly and distinct in colour from both (avoid mint/lavender and squirrel-orange as its main colour). All three look at the viewer, warm and a little cheeky. Leave clean sky in the top third. NEW MASCOT: Hoo, a small round owl almanac editor: soft cocoa and cream feathers, big round reading glasses, a pencil tucked behind an ear tuft, hugging a thick almanac book with a sunflower bookmark. Role: the wise host of puzzles, cards and the leaderboard."
+  },
+  {
+    "id": "mascot3-d-sunseed-sprite",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 1600,
+    "out": "docs/design/mascots/mascot3-d-sunseed-sprite.webp",
+    "refs": [
+      "public/art/mallang-wave.webp",
+      "public/art/mallang-idle.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/tori-idle.webp",
+      "public/art/hub-keyart-hero.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style, line weight, proportions and colour treatment of the reference characters. Composition 16:9: a character LINEUP of three friends standing together on one small floating grass island at sunset, lavender cloud sea behind, sun just above the horizon, sunflowers at the edge. Left: Mallang (the jelly blob from the references, mint-to-lavender, brown outline, matte). Right: Tori (the squirrel in a glass space helmet and mint suit from the references). CENTER, slightly forward, the NEW third mascot described below, same height class as the other two (chibi, big head, readable silhouette at 48px), friendly and distinct in colour from both (avoid mint/lavender and squirrel-orange as its main colour). All three look at the viewer, warm and a little cheeky. Leave clean sky in the top third. NEW MASCOT: Haessi, a sunflower-seed sprite: a plump seed-shaped body in warm striped seed-brown and cream, a tiny sunflower bloom crown with gold petals, leaf arms, carrying a small lantern of sunset light. Role: the seed that holds the sun; appears when a garden blooms."
+  },
+  {
+    "id": "mascot3-e-cloud-whale",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 1600,
+    "out": "docs/design/mascots/mascot3-e-cloud-whale.webp",
+    "refs": [
+      "public/art/mallang-wave.webp",
+      "public/art/mallang-idle.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/tori-idle.webp",
+      "public/art/hub-keyart-hero.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style, line weight, proportions and colour treatment of the reference characters. Composition 16:9: a character LINEUP of three friends standing together on one small floating grass island at sunset, lavender cloud sea behind, sun just above the horizon, sunflowers at the edge. Left: Mallang (the jelly blob from the references, mint-to-lavender, brown outline, matte). Right: Tori (the squirrel in a glass space helmet and mint suit from the references). CENTER, slightly forward, the NEW third mascot described below, same height class as the other two (chibi, big head, readable silhouette at 48px), friendly and distinct in colour from both (avoid mint/lavender and squirrel-orange as its main colour). All three look at the viewer, warm and a little cheeky. Leave clean sky in the top third. NEW MASCOT: Mungi, a tiny flying cloud whale: fluffy cream-white cloud body with a peach-pink belly blush, a small spout puff, floats just above the island, a little cloud-sea guide. Role: carries players between islands; the travel host."
+  }
+]
