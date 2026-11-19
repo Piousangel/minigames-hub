@@ -13,7 +13,7 @@
     "size": 512,                    # 긴 변 최대 px (기본 1024)
     "out": "public/art/tori-idle.webp"   # 기본 public/art/<id>.webp, critique 는 docs/design/critiques/<id>.md
   }
-예산: 실행당 MAX_PER_RUN(12), 월 MAX_PER_MONTH(150) 장. 장부는 docs/design/asset-ledger.json.
+예산: 실행당 MAX_PER_RUN(24), 월 MAX_PER_MONTH(600) 장(오너 11-19 상향). 장부는 docs/design/asset-ledger.json.
 """
 import base64, glob, io, json, os, sys, time, urllib.request, urllib.error
 from datetime import datetime, timezone, timedelta
@@ -22,8 +22,8 @@ ROOT = os.getcwd()
 REQ_DIR = os.path.join(ROOT, 'docs/design/asset-requests')
 LEDGER = os.path.join(ROOT, 'docs/design/asset-ledger.json')
 KEY = os.environ.get('GEMINI_API_KEY', '').strip()
-MAX_RUN = int(os.environ.get('MAX_PER_RUN', '12'))
-MAX_MONTH = int(os.environ.get('MAX_PER_MONTH', '150'))
+MAX_RUN = int(os.environ.get('MAX_PER_RUN', '24'))  # 오너 11-19 '다 동원': 12 → 24
+MAX_MONTH = int(os.environ.get('MAX_PER_MONTH', '600'))  # 오너 11-19 '다 동원': 150 → 600
 API = 'https://generativelanguage.googleapis.com/v1beta/models/{}:generateContent'
 kst_month = (datetime.now(timezone.utc) + timedelta(hours=9)).strftime('%Y-%m')
 
