@@ -22,6 +22,8 @@ import {
   type DailyProgress,
 } from '@/lib/games/slime/daily'
 import { SLIME_STAGES } from '@/lib/games/slime/stages'
+import { slotName } from '@/lib/games/slime/theme'
+import { SlimeJourney } from '@/components/games/SlimeJourney'
 import { EN } from '@/lib/games/slime/strings'
 
 const SLUG = 'slime-slide'
@@ -56,8 +58,6 @@ const failStreakOf = (list: Attempt[]): number => {
   for (let i = list.length - 1; i >= 0 && list[i].outcome !== 'nest'; i--) n++
   return n
 }
-
-const CHIP: Record<'locked' | 'open' | 'cleared' | 'failed', string> = { locked: '🔒', open: '', cleared: '⭐', failed: '💥' }
 
 /** 말랑 미끄럼길: 일일(1스테이지를 깨면 다음이 열린다, 스테이지당 3번, 하루 점수는 스테이지별 최고점 합) / 연습. */
 export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: string }) {
@@ -156,27 +156,7 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
         )}
       </div>
 
-      {mode === 'daily' && (
-        <ol className="mb-3 flex flex-wrap gap-1.5" aria-label="Today's stages">
-          {SLIME_STAGES.map((st, i) => {
-            const s = stageState(progress, i)
-            return (
-              <li key={st.id}>
-                <span
-                  aria-current={i === view ? 'step' : undefined}
-                  aria-label={`Stage ${i + 1}: ${s}`}
-                  className={`inline-flex h-9 min-w-9 items-center justify-center gap-0.5 rounded-full border-2 px-2 text-xs font-bold ${
-                    i === view ? 'border-[#5b3a1e] bg-[#fff3dc] text-[#5b3a1e]' : s === 'locked' ? 'border-white/10 text-fg-muted opacity-60' : 'border-white/25 text-fg'
-                  }`}
-                >
-                  {i + 1}
-                  {CHIP[s]}
-                </span>
-              </li>
-            )
-          })}
-        </ol>
-      )}
+      {mode === 'daily' && <SlimeJourney states={SLIME_STAGES.map((_, i) => stageState(progress, i))} current={view} names={SLIME_STAGES.map((_, i) => slotName(i))} />}
 
       <SlimeProto
         key={mode === 'daily' ? `daily-${view}` : `practice-${practiceIdx}`}
