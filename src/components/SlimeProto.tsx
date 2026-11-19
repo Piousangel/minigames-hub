@@ -5,6 +5,7 @@ import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useSlimeAudio } from '@/lib/sound/useSlimeAudio'
 import { simulate } from '@/lib/games/slime/engine'
 import { sendHit } from '@/lib/hit'
+import { scoreOf } from '@/lib/games/slime/daily'
 import { KO, type SlimeText } from '@/lib/games/slime/strings'
 import { STAGE_HINTS } from '@/lib/games/slime/stages'
 import { runLine, waypointsToRaw } from '@/lib/games/slime/solver'
@@ -26,12 +27,30 @@ interface Rec {
 
 const TRACE_MS = 50 // 트레이스 한 칸 = 6스텝 = 50ms
 const START_VIS_MS = 220 // 놓은 뒤 말랑이가 움직이기까지(엔진 시뮬의 0.5초 대기는 그대로, 화면만 앞당김). 그 사이 웅크리는 예비 동작
-const SLUG = 'slime-proto' // 측정 슬러그(정식 출시 전이라 slime-slide와 분리)
 const clampPt = (p: Pt): Pt => ({ x: Math.max(18, Math.min(BOARD_W - 18, p.x)), y: Math.max(26, Math.min(BOARD_H - 34, p.y)) })
 
-/** 비공개 시험판: 그리기 → 시뮬 재생 → 결과. 사이트에 연결하지 않았고, 플레이 기록을 복사해 난이도 조정에 쓴다. */
-export function SlimeProto({ text: tx = KO }: { text?: SlimeText } = {}) {
-  const [si, setSi] = useState(0)
+export interface SlimeBoardProps {
+  text?: SlimeText
+  /** 측정 슬러그. 시험판은 'slime-proto', 정식은 'slime-slide'. */
+  slug?: string
+  /** 일일처럼 한 스테이지만 플레이(스테이지 버튼·자동 다음 없음). */
+  fixedStage?: number
+  /** true면 더 그릴 수 없다(일일 시도 소진). */
+  attemptsLocked?: boolean
+  /** 한 번 재생이 끝날 때마다(도착·실패 모두) 호출. hint = 추천 길이 화면에 떠 있던 판인가. */
+  onAttempt?: (a: { stageId: string; outcome: Outcome; stars: number; score: number; hint: boolean }) => void
+  /** 플레이 기록 복사 버튼(시험판 전용). */
+  devTools?: boolean
+}
+
+/** 그리기 → 시뮬 재생 → 결과. 시험판(/tools/slime-proto)과 정식 게임이 같이 쓴다. */
+export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, attemptsLocked = false, onAttempt, devTools = true }: SlimeBoardProps = {}) {
+  const SLUG = slug
+  const onAttemptRef = useRef(onAttempt) // 콜백이 바뀌어도 렌더 루프(rAF)를 다시 만들지 않는다
+  useEffect(() => {
+    onAttemptRef.current = onAttempt
+  }, [onAttempt])
+  const [si, setSi] = useState(fixedStage ?? 0)
   const stage = SLIME_STAGES[si]
   const wrap = useRef<HTMLDivElement>(null)
   const canvas = useRef<HTMLCanvasElement>(null)
@@ -104,7 +123,7 @@ export function SlimeProto({ text: tx = KO }: { text?: SlimeText } = {}) {
     } catch {
       /* 저장소를 못 써도 소리는 켜진 채로 */
     }
-  }, [])
+  }, [SLUG])
   useEffect(() => {
     const el = wrap.current
     if (!el) return
@@ -413,6 +432,7 @@ export function SlimeProto({ text: tx = KO }: { text?: SlimeText } = {}) {
       const inkBonus = Math.round((100 * (stage.ink - ink)) / stage.ink)
       setMsg(r.outcome === 'nest' ? tx.scoreLine(r.acorns, r.acorns * 100, inkBonus, r.acorns * 100 + inkBonus) : tx.outcome[r.outcome])
       sendHit(SLUG, r.outcome === 'nest' ? `sl_win_s${si + 1}` : `sl_f_${r.outcome}_s${si + 1}`)
+      onAttemptRef.current?.({ stageId: stage.id, outcome: r.outcome, stars: r.acorns, score: scoreOf(r.outcome, r.acorns, ink, stage.ink), hint: hintLine.current !== null })
       if (r.outcome === 'nest') {
         failStreak.current = 0
         hintLine.current = null
@@ -427,14 +447,14 @@ export function SlimeProto({ text: tx = KO }: { text?: SlimeText } = {}) {
     }
     raf = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(raf)
-  }, [w, stage, phase, play, si, tx])
+  }, [w, stage, phase, play, si, tx, SLUG])
 
   const pt = (e: React.PointerEvent): Pt => {
     const r = canvas.current!.getBoundingClientRect()
     return { x: ((e.clientX - r.left) / r.width) * BOARD_W, y: ((e.clientY - r.top) / r.height) * BOARD_H }
   }
   const onDown = (e: React.PointerEvent) => {
-    if (phase !== 'draw' || !inPlayZone(e) || activePointer.current !== null) return
+    if (phase !== 'draw' || attemptsLocked || !inPlayZone(e) || activePointer.current !== null) return
     const p = pt(e)
     if (dist(p, stage.spawn) < CONST.SPAWN_BAN_R) {
       ringFlash.current = performance.now() + 400
@@ -525,13 +545,13 @@ export function SlimeProto({ text: tx = KO }: { text?: SlimeText } = {}) {
   const success = phase === 'done' && result.current?.outcome === 'nest'
   // 도착하면 축하를 보여 준 뒤 3.2초 후 자동으로 다음 스테이지(버튼으로 바로 넘길 수도 있다). 마지막 스테이지는 넘기지 않는다
   useEffect(() => {
-    if (!success || si + 1 >= SLIME_STAGES.length) return
+    if (fixedStage !== undefined || !success || si + 1 >= SLIME_STAGES.length) return
     const id = window.setTimeout(() => {
       sendHit(SLUG, 'sl_auto_next')
       reset(si + 1)
     }, 3200)
     return () => window.clearTimeout(id)
-  }, [success, si, reset])
+  }, [success, si, reset, fixedStage, SLUG])
   return (
     <div ref={wrap} className="mx-auto w-full max-w-[390px]">
       {inKakao && (
@@ -540,7 +560,7 @@ export function SlimeProto({ text: tx = KO }: { text?: SlimeText } = {}) {
         </p>
       )}
       <div className="mb-2 flex items-center justify-between text-sm">
-        <span className="flex items-center gap-1.5" role="group" aria-label={tx.stageGroup}>
+        <span className="flex items-center gap-1.5" role="group" aria-label={tx.stageGroup} hidden={fixedStage !== undefined}>
           {SLIME_STAGES.map((st, i) => (
             <button
               key={st.id}
@@ -593,17 +613,19 @@ export function SlimeProto({ text: tx = KO }: { text?: SlimeText } = {}) {
         <button type="button" className="min-h-11 rounded-lg border border-white/15 px-4 py-2" onClick={() => {
             sendHit(SLUG, 'sl_retry')
             reset()
-          }} disabled={phase === 'run'}>{tx.retry}</button>
-        {success && si + 1 < SLIME_STAGES.length && <button type="button" className="min-h-11 rounded-lg bg-accent px-4 py-2 font-semibold text-black" onClick={() => {
+          }} disabled={phase === 'run' || attemptsLocked}>{tx.retry}</button>
+        {fixedStage === undefined && success && si + 1 < SLIME_STAGES.length && <button type="button" className="min-h-11 rounded-lg bg-accent px-4 py-2 font-semibold text-black" onClick={() => {
             sendHit(SLUG, 'sl_next')
             reset(si + 1)
           }}>{tx.next}</button>}
-        {success && si + 1 === SLIME_STAGES.length && <span className="font-semibold">{tx.allClear}</span>}
+        {fixedStage === undefined && success && si + 1 === SLIME_STAGES.length && <span className="font-semibold">{tx.allClear}</span>}
       </div>
-      <div className="mt-5 text-center text-xs text-fg-muted">
-        <button type="button" className="min-h-11 rounded-lg border border-white/15 px-4 py-2" onClick={copy}>{tx.copy(recs.current.length)}</button>
-        <p className="mt-1">{copied}</p>
-      </div>
+      {devTools && (
+        <div className="mt-5 text-center text-xs text-fg-muted">
+          <button type="button" className="min-h-11 rounded-lg border border-white/15 px-4 py-2" onClick={copy}>{tx.copy(recs.current.length)}</button>
+          <p className="mt-1">{copied}</p>
+        </div>
+      )}
     </div>
   )
 }

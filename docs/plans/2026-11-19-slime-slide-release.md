@@ -20,3 +20,9 @@ tier3 스테이지, 서버 재검증, 실루엣 이미지 공유, BGM(출시 후
 
 ## 단계
 A. 일일 로직(완료) → B. 영문 문구 테이블+`GameSlimeSlide`(일일/연습·시도·공유·점수 제출) → C. 허브 등록 PR(공개 전 승인) → D. G4·실기기 → E. 공개
+
+## 진행 상황
+- A 완료(daily.ts). B 완료: `GameSlimeSlide`(일일 3회·연습·공유·점수 저장 best:slime-slide) + 비공개 미리보기 `/tools/slime-slide`. SlimeProto는 slug·fixedStage·attemptsLocked·onAttempt·devTools props를 받는 공용 보드.
+- **리더보드 항목(`LEADERBOARD_GAMES['slime-slide']`)은 registry 등록과 같은 PR에서 추가**한다(leaderboard.test가 '등록 slug는 실제 게임 페이지'를 강제). 그래서 미리보기에서는 점수 제출 UI가 숨겨진다.
+- 남음: C 허브 등록(영문 SEO·커버·gameMeta·gameIntros·nextGame·HeroPlayButton·GameIcon) — 공개이므로 오너 승인 후, D G4·실기기.
+
