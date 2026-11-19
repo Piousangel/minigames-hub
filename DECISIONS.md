@@ -90,5 +90,5 @@
 ## 2026-11-19 Higgsfield는 쓰지 않는다 — Figma MCP + Gemini + 게임 화면 캡처로 충분(오너)
 - 오너: "Higgsfield 안 쓰고 고퀄리티 UI·UX를 뽑을 방법은 없나? … Figma MCP와 Gemini API로 충분할 것 같다."
 - 결정: Higgsfield 도입 보류(계정·키 불필요). 이미지는 Figma MCP generate_image(추가 비용 없음, 로컬 메인 세션) + Gemini 이미지(gen-assets 워크플로, 클라우드 교대도 사용). 영상은 실제 게임 화면 캡처(Playwright 녹화 → AV1/WebM)가 기본, 생성 영상이 꼭 필요하면 Gemini 영상 모델(Veo 3.1 preview는 10-22 종료 — 후속 모델명은 호출 전 확인). UI 모션은 CSS + motion/mini(모션·에셋 파이프라인 문서).
-- 남은 일: Gemini 잔액 약 ₩10,000 — 파일럿(약 ₩1,070) 이후 2·3차 배치(약 ₩7,000)와 영상 시험 전에 오너가 충전.
+- Gemini 결제(11-19 확인): 선불 잔액이 아니라 **후불 Tier 1**(카드 청구). 오너가 월 지출 한도 **₩50,000** 설정(11월 사용 ₩21,882 → 남은 여유 약 ₩28,000, 매월 1일 PST 재설정). 이전의 "잔액 약 ₩10,000"은 잘못된 정보였음.
 - Higgsfield 조사는 docs/team/research/2026-11-19/higgsfield-adoption.md 에 보관(나중에 필요하면 그대로 도입 가능).
