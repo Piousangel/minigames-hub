@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { sendHit } from '@/lib/hit'
 import { HeroPlayButton } from '@/components/HeroPlayButton'
 import { BudIcon, FlowerIcon, PlayIcon } from '@/components/site-chrome/GardenIcons'
 import { bloomedCount, nextSlot, type Garden, type GardenSlug } from '@/lib/home/garden'
@@ -32,7 +33,7 @@ export function todayCardView(g: Garden, games: TodayCardGame[]): View {
     return {
       kicker: 'Today’s garden is full',
       title: 'All three bloomed',
-      tagline: 'New puzzles at 00:00 UTC.',
+      tagline: 'New puzzles bloom tomorrow.', // 시각은 쓰지 않는다: 말랑은 현지 자정, 나머지는 UTC 자정(D3)
       thumb: null,
       cta: 'Play more daily games',
       href: '/daily',
@@ -62,7 +63,7 @@ export function TodayCard({ games }: { games: TodayCardGame[] }) {
   const n = bloomedCount(garden)
   return (
     <section
-      aria-label="Today's puzzle"
+      aria-labelledby="today-card-title"
       data-testid="today-card"
       data-state={garden.state}
       className="today-card font-ui relative rounded-3xl border-4 border-garden-ink bg-garden-cream p-3 text-garden-ink shadow-[inset_0_2px_0_#fff8ea,0_6px_0_var(--garden-ink-deep)] min-[360px]:p-4"
@@ -100,13 +101,15 @@ export function TodayCard({ games }: { games: TodayCardGame[] }) {
           )}
         </div>
         <div className="min-w-0">
-          <h2 className="font-display truncate text-[24px] leading-8 font-semibold tracking-[-0.015em] min-[360px]:text-[28px]">{v.title}</h2>
+          <h2 id="today-card-title" className="font-display truncate text-[24px] leading-8 font-semibold tracking-[-0.015em] min-[360px]:text-[28px]">{v.title}</h2>
           <p className="font-display-italic mt-0.5 truncate text-[13px] leading-5 min-[360px]:text-[15px] text-garden-ink-soft italic">{v.tagline}</p>
         </div>
       </div>
 
       <Link
-        href={v.href}
+        // ?ref=hero-today: 히어로 1차 CTA 유입 코호트(예전 HeroPlayButton의 ?ref=hero와 구분). 링크 수 집계엔 영향 없음
+        href={`${v.href}?ref=hero-today`}
+        onClick={() => sendHit(v.href.slice(1), 'hero_today')}
         data-testid="today-play"
         className="garden-jelly mt-4 flex h-[52px] w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border-[3px] border-garden-ink bg-garden-sun px-3 text-[15px] leading-none font-bold text-garden-ink shadow-garden-button min-[360px]:gap-2.5 min-[360px]:text-[17px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-garden-ink focus-visible:ring-offset-2 focus-visible:ring-offset-garden-cream"
       >

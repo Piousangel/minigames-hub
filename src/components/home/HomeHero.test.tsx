@@ -2,7 +2,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, render, screen, within } from '@testing-library/react'
 import { renderToStaticMarkup } from 'react-dom/server'
 
-vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => '/' }))
+let pathname = '/'
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => pathname }))
 vi.mock('@/lib/hit', () => ({ sendHit: vi.fn() }))
 
 import { gamePages } from '@/lib/games/registry'
@@ -28,7 +29,10 @@ afterEach(() => {
   localStorage.clear()
 })
 
-/** 노란색(sun) 면을 쓰는 요소 = bg-garden-sun 클래스 또는 인라인 #ffc933 배경 */
+/**
+ * 노란색(sun) 면을 쓰는 요소 = bg-garden-sun 클래스 또는 인라인 #ffc933 배경.
+ * 기준: '행동 색 sun(#ffc933)은 Play 하나'. 꽃 아이콘의 해바라기색(#ffd966, --garden-sunflower)은 장식 아이콘이라 세지 않는다.
+ */
 function sunSurfaces(root: HTMLElement) {
   return [...root.querySelectorAll<HTMLElement>('*')].filter(
     (el) => /(^|\s)bg-garden-sun(\s|$)/.test(el.getAttribute('class') ?? '') || /#ffc933|var\(--garden-sun\)/i.test(el.getAttribute('style') ?? ''),
@@ -56,7 +60,7 @@ describe('홈 히어로(R3)', () => {
     expect(html).toContain('data-state="first"')
     expect(html).toContain('Today’s puzzle · 2 min')
     expect(html).toContain('Play today’s Slime Slide')
-    expect(html).toContain('href="/slime-slide"')
+    expect(html).toContain('href="/slime-slide?ref=hero-today"')
     expect(html).toContain('Today&#x27;s garden: 0 of 3 bloomed')
   })
 
@@ -77,7 +81,7 @@ describe('홈 히어로(R3)', () => {
     const card = screen.getByTestId('today-card')
     expect(card).toHaveAttribute('data-state', 'first')
     expect(within(card).getByLabelText("Today's garden: 0 of 3 bloomed")).toBeInTheDocument()
-    expect(screen.getByTestId('today-play')).toHaveAttribute('href', '/slime-slide')
+    expect(screen.getByTestId('today-play')).toHaveAttribute('href', '/slime-slide?ref=hero-today')
     expect(screen.getByTestId('today-play')).toHaveTextContent('Play today’s Slime Slide')
     expect(sunSurfaces(container)).toHaveLength(1)
   })
@@ -89,7 +93,7 @@ describe('홈 히어로(R3)', () => {
     expect(card).toHaveAttribute('data-state', 'in-progress')
     expect(within(card).getByLabelText("Today's garden: 1 of 3 bloomed")).toBeInTheDocument()
     expect(within(card).getByRole('heading', { level: 2 })).toHaveTextContent('Plop Landing')
-    expect(screen.getByTestId('today-play')).toHaveAttribute('href', '/plop-landing')
+    expect(screen.getByTestId('today-play')).toHaveAttribute('href', '/plop-landing?ref=hero-today')
     expect(screen.getByTestId('today-play')).toHaveTextContent('Play today’s Plop Landing')
     expect(sunSurfaces(container)).toHaveLength(1)
   })
@@ -102,7 +106,7 @@ describe('홈 히어로(R3)', () => {
     expect(card).toHaveAttribute('data-state', 'complete')
     expect(within(card).getByLabelText("Today's garden: 3 of 3 bloomed")).toBeInTheDocument()
     expect(within(card).getByRole('heading', { level: 2 })).toHaveTextContent('All three bloomed')
-    expect(screen.getByTestId('today-play')).toHaveAttribute('href', '/daily')
+    expect(screen.getByTestId('today-play')).toHaveAttribute('href', '/daily?ref=hero-today')
     expect(sunSurfaces(container)).toHaveLength(1)
   })
 
@@ -167,6 +171,16 @@ describe('헤더 오늘 pill(R3 진행 상태)', () => {
       window.dispatchEvent(new StorageEvent('storage'))
     })
     expect(screen.getByTestId('today-pill')).toHaveTextContent('Today 1/3')
+  })
+
+  it('같은 탭 클라이언트 이동(경로 변경) 뒤에도 pill이 다시 읽는다 — storage 이벤트 없이', async () => {
+    pathname = '/'
+    const { rerender } = render(<SiteHeader />)
+    expect(screen.getByTestId('today-pill')).toHaveAttribute('data-state', 'first')
+    localStorage.setItem('quest:2026-11-19', JSON.stringify(['plop-landing'])) // 게임 페이지 RecordPlay가 쓴 것
+    pathname = '/plop-landing'
+    rerender(<SiteHeader />)
+    expect(await screen.findByText('Today 1/3')).toBeInTheDocument()
   })
 
   it('2행 내비에 게임 페이지 숨김 표식(data-site-nav-row)이 있다', () => {

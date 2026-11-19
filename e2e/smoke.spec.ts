@@ -19,7 +19,7 @@ test('홈 히어로(R3): H1 키워드·마스트헤드·오늘 호 Play → /sli
   const card = page.getByTestId('today-card')
   await expect(card).toHaveAttribute('data-state', 'first')
   await page.getByTestId('today-play').click()
-  await expect(page).toHaveURL(/\/slime-slide$/)
+  await expect(page).toHaveURL(/\/slime-slide\?ref=hero-today$/)
 })
 
 for (const width of [320, 360]) {
