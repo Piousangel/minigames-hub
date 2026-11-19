@@ -1,11 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CATEGORIES, type GameCategory } from '@/lib/games/gameMeta'
 import { GameCard } from '@/components/GameCard'
 import { DiceIcon } from '@/components/icons/DiceIcon'
 import { Reveal } from '@/components/Reveal'
+import { ALL_GAMES_ANCHOR, SEARCH_ANCHOR } from '@/components/site-chrome/anchors'
 
 export interface BrowseItem {
   slug: string
@@ -30,6 +31,31 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<Filter>('All')
   const router = useRouter()
+  const inputRef = useRef<HTMLInputElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
+
+  // 헤더 검색·All games(다른 페이지 → /#search, /#all-games, 또는 새로 열기·새로고침)로 왔을 때.
+  // Next 클라이언트 이동은 이 섹션까지 스크롤해 주지 않고(실측), 새로 로드하면 위쪽 섹션(최근 플레이·
+  // 신작 등 클라이언트 렌더)이 늦게 커져 앵커가 밀린다(실측 top 80 → 1595). 그래서 몇 번 다시 맞추되,
+  // 사용자가 직접 스크롤·터치·키 입력을 하면 바로 멈춘다.
+  useEffect(() => {
+    const hash = window.location.hash
+    const isSearch = hash === `#${SEARCH_ANCHOR}`
+    if (!isSearch && hash !== `#${ALL_GAMES_ANCHOR}`) return
+    const align = () => {
+      if (isSearch) inputRef.current?.scrollIntoView({ block: 'center' })
+      else rootRef.current?.scrollIntoView({ block: 'start' })
+    }
+    const timers = [0, 250, 700, 1500].map((ms) => window.setTimeout(align, ms))
+    const stop = () => timers.forEach((t) => window.clearTimeout(t))
+    const userEvents = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const
+    userEvents.forEach((e) => window.addEventListener(e, stop, { once: true, passive: true }))
+    if (isSearch) inputRef.current?.focus({ preventScroll: true })
+    return () => {
+      stop()
+      userEvents.forEach((e) => window.removeEventListener(e, stop))
+    }
+  }, [])
 
   const q = query.trim().toLowerCase()
   const isBrowsing = q === '' && filter === 'All'
@@ -55,7 +81,8 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
   }
 
   return (
-    <div>
+    // 헤더 'All games' 앵커. sticky 헤더 여백은 html scroll-padding-top(globals.css)이 맡는다.
+    <div ref={rootRef} id={ALL_GAMES_ANCHOR}>
       {/* 검색 + 랜덤 */}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
@@ -79,6 +106,8 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
             </svg>
           </span>
           <input
+            ref={inputRef}
+            id={SEARCH_ANCHOR}
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}

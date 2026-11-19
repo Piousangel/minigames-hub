@@ -9,12 +9,12 @@
 
 ## Deploy Configuration (configured by /setup-deploy)
 - Platform: Cloudflare Workers (static assets)
-- Production URL: https://minigames-hub.piousangel.workers.dev
+- Production URL: https://quickminigames.site (예전 workers.dev 주소는 404)
 - Deploy trigger: `pnpm run deploy` (= `next build && wrangler deploy`)
 - Deploy status: `wrangler deployments list`
 - Merge method: squash
 - Project type: static web app (SSG, no server runtime)
-- Post-deploy health check: `curl -sf https://minigames-hub.piousangel.workers.dev/ -o /dev/null -w "%{http_code}"` → 200
+- Post-deploy health check: `curl -sf https://quickminigames.site/ -o /dev/null -w "%{http_code}"` → 200
 
 ### Custom deploy hooks
 - Pre-merge: `pnpm test && pnpm typecheck`

@@ -86,6 +86,13 @@
 
 html {
   color-scheme: dark;
+  /* sticky 헤더(모바일 56px·lg 64px) 밑으로 앵커·포커스가 숨지 않게(WCAG 2.4.11). R2 */
+  scroll-padding-top: 4rem;
+}
+@media (min-width: 64rem) {
+  html {
+    scroll-padding-top: 5rem;
+  }
 }
 
 body {
