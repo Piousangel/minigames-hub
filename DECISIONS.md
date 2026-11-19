@@ -81,3 +81,8 @@
 - 코드 재사용 가능(MIT·Apache 등): react-spring, Motion, screen-shake, ZzFX, canvas-confetti, matter-js, planck.js, sandspiel(MIT) 등 — 라이선스 고지 유지.
 - **코드 금지·아이디어만**: Sandboxels(R74n, 광고 포함 상업 이용 금지), Sand Game JS(README에 "법적으로 오픈소스 아님"), GPL·AGPL 계열(Powder Toy, lichess, Hextris). AdSense 사이트이므로 한 줄도 가져오지 않는다.
 - 근거: docs/team/research/2026-11-19/reference-repos-uiux.md(46개 레포·별 수·라이선스 11-19 GitHub API 확인).
+
+## 2026-11-19 제작 도구 전면 동원(오너) — 허브·샌드랩 독보적 리디자인
+- 오너: "허브 쪽도 Gemini·Higgsfield 다 동원해도 되니, 최고의 기획·디자인 팀을 꾸려서 독보적으로 만들어 보자. 다 동원해도 좋다는 뜻."
+- 적용: 이미지 생성 한도 월 150 → 600장·실행당 12 → 24장. 영상(Veo)·음악(Lyria)·Higgsfield 사용 승인. 샌드랩은 UI·UX 전면 교체, 허브는 '노을 정원' 세계관을 사이트 전체로 확장하는 리디자인을 최고 수준 팀(크리에이티브·아트·모션·UX·카피·비평)으로 진행.
+- 남은 준비: Higgsfield 계정·API 키(오너가 GitHub 시크릿 `HIGGSFIELD_API_KEY`로 등록), 편집 가능한 Figma 파일 링크.
