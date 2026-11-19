@@ -109,6 +109,9 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
     if (state.score > prevScore.current) {
       play('eat')
       setGulpAt(`${state.snake[0].x},${state.snake[0].y}`)
+    } else {
+      // 펄스는 먹은 그 틱에만. 남겨 두면 나중에 같은 칸을 지날 때 다시 재생된다.
+      setGulpAt((g) => (g === null ? g : null))
     }
     prevScore.current = state.score
     if (state.over && !prevOver.current) {
@@ -141,8 +144,10 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
       if (e.key === 'Enter' || e.key === ' ') {
         // 게임오버 결과가 떠 있을 때만 재시작. 버튼·링크에 포커스가 있으면 그쪽 기본 동작
         // (Try again 클릭, Next 링크 이동)에 맡긴다 — 이중 재시작·링크 가로채기 방지.
-        if (!over || !overlayShown) return
         if (e.target instanceof Element && e.target.closest('button, a')) return
+        // 플레이 중·죽음 연출 중 Space가 페이지를 스크롤하지 않게 막는다(판이 화면 밖으로 밀림).
+        if (e.key === ' ' && (running || over)) e.preventDefault()
+        if (!over || !overlayShown) return
         e.preventDefault()
         restart()
         return
@@ -155,7 +160,7 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [steer, restart, over, overlayShown])
+  }, [steer, restart, over, overlayShown, running])
 
   const onTouchStart = (e: React.TouchEvent) => {
     if (!inPlayZone(e)) {
@@ -249,9 +254,16 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
                   dying ? 'anim-snake-blink' : !state.over && gulpAt === key ? 'anim-snake-gulp' : ''
                 }`}
               >
-                {EYES[state.dir].map((p, j) => (
-                  <span key={j} aria-hidden="true" className="absolute h-[24%] w-[24%] rounded-full bg-garden-cream" style={p} />
-                ))}
+                {state.over ? (
+                  // 죽은 머리: 색만으로 구분하지 않도록 눈 대신 × (모션 줄이기에서도 보인다)
+                  <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-[0.7rem] font-black leading-none text-garden-cream">
+                    ×
+                  </span>
+                ) : (
+                  EYES[state.dir].map((p, j) => (
+                    <span key={j} aria-hidden="true" className="absolute h-[24%] w-[24%] rounded-full bg-garden-cream" style={p} />
+                  ))
+                )}
               </div>
             )
           }
@@ -262,7 +274,7 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
               data-testid={crashed ? 'snake-crash' : undefined}
               className={
                 kind === 'body'
-                  ? `rounded-[3px] bg-garden-leaf-deep ${crashed ? `ring-2 ring-inset ring-garden-danger-text ${dying ? 'anim-snake-blink' : ''}` : ''}`
+                  ? `rounded-[3px] bg-garden-leaf-deep ${crashed ? `ring-[3px] ring-inset ring-garden-ink ${dying ? 'anim-snake-blink' : ''}` : ''}`
                   : isFood
                     ? 'anim-pop rounded-full border-2 border-garden-ink bg-[radial-gradient(circle_at_35%_35%,var(--garden-apricot)_0%,var(--garden-apricot)_30%,var(--garden-coral)_75%)]'
                     : 'rounded-[2px] bg-garden-cream-2'
@@ -279,12 +291,18 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
         >
           <p className="font-semibold tabular-nums">
             Score: {state.score} · Best: {best}
+            {/* 같은 줄에 붙여 390에서 시트가 판보다 커지지 않게 한다 */}
+            {!newBest && shortBy > 0 && (
+              <span data-testid="snake-short-of-best" className="block text-sm font-bold text-garden-coral-text">
+                {shortBy} short of your best
+              </span>
+            )}
+            {!newBest && shortBy === 0 && state.score > 0 && (
+              <span data-testid="snake-short-of-best" className="block text-sm font-bold text-garden-coral-text">
+                Tied your best!
+              </span>
+            )}
           </p>
-          {!newBest && shortBy > 0 && (
-            <p data-testid="snake-short-of-best" className="text-sm font-bold text-garden-coral-text">
-              {shortBy} short of your best
-            </p>
-          )}
           <button
             type="button"
             onClick={restart}

@@ -1,5 +1,8 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 03시 게임 퀄리티팀 (장부 docs/team/quality/ledger.md)
+- snake 13→19: 엔진 방향 큐(최대 2, 빠른 U턴 씹힘 0/5→5/5), 죽음 깜빡임·×머리·오버레이 600ms 지연·진동, 먹기 펄스·머리 눈, "N short of your best"·Enter 재시작, 판 안 노을 정원, cozy 오버레이 + **GameOverlay cozy일 때 리더보드 줄 garden 톤**(Plop·Acorn 연습 판도 같이 좋아짐). **오너 결정 요청: 속도 곡선**(130ms 고정 → 점수 따라 빨라지기는 기존 기록·주간 리더보드 공정성이 바뀜 — 그대로/전환/별도 Fast 모드 중 택1). 남은 것: 390에서 결과 시트가 판보다 큼(공용 오버레이), 판 바깥 네온(R7).
+
 ## ▶ 2026-11-20 02시 리디자인 v2 R5 데일리 결과 시트 인계 (브랜치 `shift/redesign-r5-result-sheet`)
 
 **한 줄:** 말랑·뿅·도토리의 Daily를 끝내면 게임 화면 위로 크림 하단 시트가 올라온다 — "Today’s garden *is full.*"/"*is growing.*", 꽃 3칸(점선 궤적), 큰 숫자 3개(coral-text), 공유 카드 미리보기, **노란 Share 하나**, 크림 Next game, "Next edition in hh:mm:ss"(UTC). 끝낸 기록이 `garden:done:<날짜>:<slug>`로 남아 홈 카드·목차·헤더 pill·1280+ 히어로 티켓이 그걸로 핀다.

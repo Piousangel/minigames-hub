@@ -99,7 +99,7 @@ export function GameOverlay({
             <span>Next: {nav.nextTitle}</span>
           </Link>
         )}
-        {hasLeaderboard(nav.slug) && <OverlayScoreSubmit slug={nav.slug} show={show} />}
+        {hasLeaderboard(nav.slug) && <OverlayScoreSubmit slug={nav.slug} show={show} tone={cozy ? 'garden' : 'neon'} />}
         {/* 리더보드 발견 유도: 페이지 하단(NextRail/GameStats/DailyDock 다음)에 묻혀 있어
             스크롤로는 잘 안 보임 — 게임오버 순간 바로 점프시켜 존재를 알린다(참여율↑). */}
         {hasLeaderboard(nav.slug) && (
@@ -110,7 +110,7 @@ export function GameOverlay({
               e.preventDefault()
               document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
             }}
-            className="text-xs text-fg-muted underline decoration-dotted underline-offset-2 transition-colors hover:text-neon-amber"
+            className={`text-xs underline decoration-dotted underline-offset-2 transition-colors ${cozy ? 'text-garden-ink-soft hover:text-garden-coral-text' : 'text-fg-muted hover:text-neon-amber'}`}
           >
             🏆 See this week&apos;s leaderboard
           </a>
