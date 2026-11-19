@@ -1,0 +1,115 @@
+[
+  {
+    "id": "hub-m-h1-edition",
+    "model": "gemini-3-pro-image",
+    "aspect": "9:16",
+    "key": "none",
+    "size": 1536,
+    "out": "docs/design/mockups/hub-m-h1-edition.webp",
+    "refs": [
+      "public/art/hub-keyart-hero.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/slime-slide-cover.webp",
+      "public/art/cat-island-daily.webp"
+    ],
+    "prompt": "Render a single high-fidelity, production-quality mobile app/website UI screenshot (not a device mockup, no phone frame, no hands), as a top-tier Apple Design Award-level product would ship it. Crisp vector UI, pixel-perfect 4pt spacing, generous margins, clear typographic hierarchy, every UI word spelled exactly as given and perfectly legible. No lorem ipsum, no extra words, no watermark, no logos of real companies. World: 'Sunset Garden' — small floating garden islands above a lavender sea of clouds, the sun always just above the horizon; mascots Mallang (a matte jelly blob, mint-to-lavender gradient, dark brown outline) and Tori (a squirrel in a glass space helmet and mint suit). Illustration style: cozy hand-drawn storybook, warm dark-brown ink outlines (#5b3a1e), matte two-tone cel shading, no glow, no neon, no pixel fonts. UI palette strictly: paper #fffaf0, cream #fff3dc, ink brown #5b3a1e, soft brown #7a5636, sun gold #ffc933 used ONLY for the single primary button, sunset sky gradient #ff9d7a→#ffc6a0→lavender. Buttons and cards have 3px brown outlines and a hard 4-6px solid brown 'plate' shadow (no blur). Typography: a soft rounded serif display (like Fraunces Soft, semibold, italic second line) + a clean geometric sans (like Figtree) for UI. Direction H1 'Today's Edition': mobile home screen 390pt wide. Top: slim cream translucent header with a tiny island logo mark, wordmark 'Quick MiniGames', and a pill 'Day 37 · 2 flowers'. Under it a thin 'Sunset now' sky dial (8 small colour bands with a marker). Masthead in italic serif: 'No. 37 — Thursday, November 19'. H1 large serif: 'A small garden' and italic second line 'that blooms daily.'; subtitle sans: 'Free online mini games — 113 and growing.' Then a wide illustrated scene card: the sunflower stepping-stone islands with Mallang and Tori at sunset (from the reference key art), overlapped by a cream ticket card: 'Today's puzzle', title 'Slime Slide', three tiny flower slots (2 bloomed, 1 bud), and the ONLY gold button '▶ Play today's Slime Slide'. Below, start of a list 'The rest of today's sky' with two rows (Plop Landing — Bloomed, Acorn Hop — Unplayed) with small square island thumbnails. Elegant, editorial, calm, lots of air."
+  },
+  {
+    "id": "hub-m-h2-almanac",
+    "model": "gemini-3-pro-image",
+    "aspect": "9:16",
+    "key": "none",
+    "size": 1536,
+    "out": "docs/design/mockups/hub-m-h2-almanac.webp",
+    "refs": [
+      "public/art/hub-keyart-hero.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/slime-slide-cover.webp"
+    ],
+    "prompt": "Render a single high-fidelity, production-quality mobile app/website UI screenshot (not a device mockup, no phone frame, no hands), as a top-tier Apple Design Award-level product would ship it. Crisp vector UI, pixel-perfect 4pt spacing, generous margins, clear typographic hierarchy, every UI word spelled exactly as given and perfectly legible. No lorem ipsum, no extra words, no watermark, no logos of real companies. World: 'Sunset Garden' — small floating garden islands above a lavender sea of clouds, the sun always just above the horizon; mascots Mallang (a matte jelly blob, mint-to-lavender gradient, dark brown outline) and Tori (a squirrel in a glass space helmet and mint suit). Illustration style: cozy hand-drawn storybook, warm dark-brown ink outlines (#5b3a1e), matte two-tone cel shading, no glow, no neon, no pixel fonts. UI palette strictly: paper #fffaf0, cream #fff3dc, ink brown #5b3a1e, soft brown #7a5636, sun gold #ffc933 used ONLY for the single primary button, sunset sky gradient #ff9d7a→#ffc6a0→lavender. Buttons and cards have 3px brown outlines and a hard 4-6px solid brown 'plate' shadow (no blur). Typography: a soft rounded serif display (like Fraunces Soft, semibold, italic second line) + a clean geometric sans (like Figtree) for UI. Direction H2 'Garden Almanac' (a daily illustrated newspaper): mobile home. Cream paper texture, masthead centered 'The Garden Almanac' in big serif with thin double rules and 'No. 37 · Thursday, November 19 · Free online mini games'. A lead story with an inked illustration of Mallang sliding down a drawn line toward a flower on a floating island, headline 'Today: Slime Slide', dek 'Draw one line. Guide the jelly to the flower.', and the only gold button 'Play today's edition'. Below in two narrow newspaper columns: 'Also today' (Plop Landing, Acorn Hop with tiny spot illustrations) and 'Weekly bloom' (a mini leaderboard: 1. Mina 1,240  2. Jun 1,180  3. Ari 990). Fine hairlines, drop caps, small caps labels. Sophisticated, witty, printed-matter feel."
+  },
+  {
+    "id": "hub-m-h3-diorama",
+    "model": "gemini-3-pro-image",
+    "aspect": "9:16",
+    "key": "none",
+    "size": 1536,
+    "out": "docs/design/mockups/hub-m-h3-diorama.webp",
+    "refs": [
+      "public/art/hub-keyart-hero.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/slime-slide-cover.webp"
+    ],
+    "prompt": "Render a single high-fidelity, production-quality mobile app/website UI screenshot (not a device mockup, no phone frame, no hands), as a top-tier Apple Design Award-level product would ship it. Crisp vector UI, pixel-perfect 4pt spacing, generous margins, clear typographic hierarchy, every UI word spelled exactly as given and perfectly legible. No lorem ipsum, no extra words, no watermark, no logos of real companies. World: 'Sunset Garden' — small floating garden islands above a lavender sea of clouds, the sun always just above the horizon; mascots Mallang (a matte jelly blob, mint-to-lavender gradient, dark brown outline) and Tori (a squirrel in a glass space helmet and mint suit). Illustration style: cozy hand-drawn storybook, warm dark-brown ink outlines (#5b3a1e), matte two-tone cel shading, no glow, no neon, no pixel fonts. UI palette strictly: paper #fffaf0, cream #fff3dc, ink brown #5b3a1e, soft brown #7a5636, sun gold #ffc933 used ONLY for the single primary button, sunset sky gradient #ff9d7a→#ffc6a0→lavender. Buttons and cards have 3px brown outlines and a hard 4-6px solid brown 'plate' shadow (no blur). Typography: a soft rounded serif display (like Fraunces Soft, semibold, italic second line) + a clean geometric sans (like Figtree) for UI. Direction H3 'One Living Sky' (Monument Valley-like single scene): the whole mobile screen is one full-bleed painted sunset scene — a single floating island in the lower middle with Mallang waving, a sunflower holding the sun, soft clouds. UI is minimal and floats over the sky: tiny wordmark 'Quick MiniGames' top-left, pill 'Day 37' top-right; centered serif title 'Little games for a sunset garden.' with small sans line 'Free online mini games · no sign-up'. At the bottom a frosted cream sheet with rounded top corners holding the only gold button '▶ Play today's Slime Slide' and three small round island chips 'Slime Slide', 'Plop Landing', 'Acorn Hop'. Poetic, quiet, gallery-like."
+  },
+  {
+    "id": "hub-d-h1-edition",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 1536,
+    "out": "docs/design/mockups/hub-d-h1-edition.webp",
+    "refs": [
+      "public/art/hub-keyart-hero.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/slime-slide-cover.webp"
+    ],
+    "prompt": "Render a single high-fidelity, production-quality mobile app/website UI screenshot (not a device mockup, no phone frame, no hands), as a top-tier Apple Design Award-level product would ship it. Crisp vector UI, pixel-perfect 4pt spacing, generous margins, clear typographic hierarchy, every UI word spelled exactly as given and perfectly legible. No lorem ipsum, no extra words, no watermark, no logos of real companies. World: 'Sunset Garden' — small floating garden islands above a lavender sea of clouds, the sun always just above the horizon; mascots Mallang (a matte jelly blob, mint-to-lavender gradient, dark brown outline) and Tori (a squirrel in a glass space helmet and mint suit). Illustration style: cozy hand-drawn storybook, warm dark-brown ink outlines (#5b3a1e), matte two-tone cel shading, no glow, no neon, no pixel fonts. UI palette strictly: paper #fffaf0, cream #fff3dc, ink brown #5b3a1e, soft brown #7a5636, sun gold #ffc933 used ONLY for the single primary button, sunset sky gradient #ff9d7a→#ffc6a0→lavender. Buttons and cards have 3px brown outlines and a hard 4-6px solid brown 'plate' shadow (no blur). Typography: a soft rounded serif display (like Fraunces Soft, semibold, italic second line) + a clean geometric sans (like Figtree) for UI. Direction H1 'Today's Edition' as a 1440×810 desktop home first screen. The key-art scene (sunflower stepping-stone islands, Mallang and Tori, sun at right) fills the full width as the background, sky on the left third. Header bar: island logo + 'Quick MiniGames' left, centered nav 'Islands  Seed Library  Leaderboards' with tiny vector icons, pill 'Day 37' right. Left column on the sky: masthead italic 'No. 37 — Thursday, November 19', H1 'A small garden / that blooms daily.' (second line italic), subtitle 'Free online mini games — 113 and growing. No sign-up.', buttons: gold primary '▶ Play today's Slime Slide' and cream secondary 'Toss a seed'. Along the bottom over the clouds: three cream ticket cards 'Slime Slide · Unplayed', 'Plop Landing · Bloomed', 'Acorn Hop · Bloomed' with square thumbnails."
+  },
+  {
+    "id": "sand-m-s1-glass",
+    "model": "gemini-3-pro-image",
+    "aspect": "9:16",
+    "key": "none",
+    "size": 1536,
+    "out": "docs/design/mockups/sand-m-s1-glass.webp",
+    "refs": [
+      "docs/design/shots/sandlab-home-390-1119.png",
+      "docs/design/shots/sandlab-daily-390-1119.png"
+    ],
+    "prompt": "Render a single high-fidelity, production-quality mobile app/website UI screenshot (not a device mockup, no phone frame, no hands), as a top-tier Apple Design Award-level product would ship it. Crisp vector UI, pixel-perfect 4pt spacing, generous margins, clear typographic hierarchy, every UI word spelled exactly as given and perfectly legible. No lorem ipsum, no extra words, no watermark, no logos of real companies. Product: Sandlab, a falling-sand physics toy and daily puzzle site. The canvas shows a REAL falling-sand simulation: thousands of tiny square pixel grains — golden sand piles with natural slopes, blue water pooled at the bottom, orange glowing lava, green plant growth, grey stone ledges — on a near-black canvas #07090D. Direction S1 'Glass & Grain': mobile home. Warm bone paper chrome #F4ECDD, ink #2A2118, one accent ember orange #E0661B used only for the primary action. Typography: a slightly gritty grotesque (like Bricolage Grotesque, bold) + monospace labels (like JetBrains Mono, small caps, tracked). Header: wordmark 'SANDLAB' whose letters are made of stacked sand grains, a small hourglass pill 'No.42 · 6h'. Headline 'Pour something. See what it becomes.' The simulation canvas sits inside a thick glass vitrine frame with a 1px inner highlight and soft contact shadow. Mono gauge label 'SAND · GRAIN 6 · 412,019 CELLS'. Below: a rack of 7 glass test tubes with cork stoppers, each filled with its material (sand, water, lava, plant, acid, wood, ice) and lowercase mono labels; the selected 'SAND' tube is lifted with its cork open. A bottom thumb dock: 'Erase', a brush-size slider, ember button 'Share'. Then a card 'DAILY No.42 — Two Pots' with a drawn hourglass whose top chamber is half empty and an ember button 'Solve'. Museum-grade, tactile, refined."
+  },
+  {
+    "id": "sand-m-s2-cabinet",
+    "model": "gemini-3-pro-image",
+    "aspect": "9:16",
+    "key": "none",
+    "size": 1536,
+    "out": "docs/design/mockups/sand-m-s2-cabinet.webp",
+    "refs": [
+      "docs/design/shots/sandlab-home-390-1119.png",
+      "docs/design/shots/sandlab-daily-390-1119.png"
+    ],
+    "prompt": "Render a single high-fidelity, production-quality mobile app/website UI screenshot (not a device mockup, no phone frame, no hands), as a top-tier Apple Design Award-level product would ship it. Crisp vector UI, pixel-perfect 4pt spacing, generous margins, clear typographic hierarchy, every UI word spelled exactly as given and perfectly legible. No lorem ipsum, no extra words, no watermark, no logos of real companies. Product: Sandlab, a falling-sand physics toy and daily puzzle site. The canvas shows a REAL falling-sand simulation: thousands of tiny square pixel grains — golden sand piles with natural slopes, blue water pooled at the bottom, orange glowing lava, green plant growth, grey stone ledges — on a near-black canvas #07090D. Direction S2 'Specimen Cabinet': a dark, moody natural-history-museum look. Deep warm charcoal #14110E background, brass and bone accents, a single soft spotlight on the canvas. Header: 'SANDLAB' in an elegant engraved serif, small brass plaque 'Daily No.42'. The canvas is presented like a specimen jar/diorama under glass with a brass label plate 'Exhibit 01 — Sand meets Water'. Materials appear as a horizontal drawer of labelled specimen vials with handwritten-style tags (Sand, Water, Lava, Plant, Acid, Wood). Primary action button in warm amber 'Pour'. A small card 'Today's puzzle · Two Pots · 6h left' with 'Solve' link. Rich, quiet, luxurious, curated."
+  },
+  {
+    "id": "sand-m-s3-fieldnotes",
+    "model": "gemini-3-pro-image",
+    "aspect": "9:16",
+    "key": "none",
+    "size": 1536,
+    "out": "docs/design/mockups/sand-m-s3-fieldnotes.webp",
+    "refs": [
+      "docs/design/shots/sandlab-home-390-1119.png",
+      "docs/design/shots/sandlab-daily-390-1119.png"
+    ],
+    "prompt": "Render a single high-fidelity, production-quality mobile app/website UI screenshot (not a device mockup, no phone frame, no hands), as a top-tier Apple Design Award-level product would ship it. Crisp vector UI, pixel-perfect 4pt spacing, generous margins, clear typographic hierarchy, every UI word spelled exactly as given and perfectly legible. No lorem ipsum, no extra words, no watermark, no logos of real companies. Product: Sandlab, a falling-sand physics toy and daily puzzle site. The canvas shows a REAL falling-sand simulation: thousands of tiny square pixel grains — golden sand piles with natural slopes, blue water pooled at the bottom, orange glowing lava, green plant growth, grey stone ledges — on a near-black canvas #07090D. Direction S3 'Field Notes': a scientist's lab notebook. Ivory graph paper #F3EEE3 with a faint 1px grid, black ink line work, hand-annotated arrows and small handwritten notes ('lava + water → stone!', 'try ice here'). Header 'Sandlab — Experiment No. 42' in a typewriter/mono face. The canvas is taped onto the page with paper tape corners. Materials are a row of ink-drawn sample swatches with labels. Primary button in a single signal red-orange 'Pour'. A 'Daily puzzle: Two Pots' box drawn like a notebook checklist with a 'Solve →' button. Smart, playful, educational."
+  },
+  {
+    "id": "sand-d-s1-glass",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 1536,
+    "out": "docs/design/mockups/sand-d-s1-glass.webp",
+    "refs": [
+      "docs/design/shots/sandlab-home-390-1119.png",
+      "docs/design/shots/sandlab-daily-390-1119.png"
+    ],
+    "prompt": "Render a single high-fidelity, production-quality mobile app/website UI screenshot (not a device mockup, no phone frame, no hands), as a top-tier Apple Design Award-level product would ship it. Crisp vector UI, pixel-perfect 4pt spacing, generous margins, clear typographic hierarchy, every UI word spelled exactly as given and perfectly legible. No lorem ipsum, no extra words, no watermark, no logos of real companies. Product: Sandlab, a falling-sand physics toy and daily puzzle site. The canvas shows a REAL falling-sand simulation: thousands of tiny square pixel grains — golden sand piles with natural slopes, blue water pooled at the bottom, orange glowing lava, green plant growth, grey stone ledges — on a near-black canvas #07090D. Direction S1 'Glass & Grain' as a 1440×810 desktop home. Bone paper chrome #F4ECDD, ember #E0661B for primary only, grotesque + mono labels. Top bar: sand-grain wordmark 'SANDLAB', nav 'Pour · Solve · Browse · Notes', hourglass pill 'No.42 · 6h 12m'. Left: a vertical glass shelf rack of test tubes grouped 'SOLIDS / POWDERS / LIQUIDS / GASES' with mono keyboard hints 1–9. Center: a large 2:1 glass vitrine canvas with a lively simulation. Under it a mono gauge 'SAND · grain 6 · 412,019 cells moving' and small icon buttons. Right column: 'TODAY — Two Pots' hourglass card with ember 'Solve', a 'STRATA' streak drawn as layered sediment bands, and 'ON THE WALL' three tiny framed gallery thumbnails."
+  }
+]
