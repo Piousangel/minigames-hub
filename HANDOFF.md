@@ -7,7 +7,16 @@
 - **결정**: DECISIONS 11-19 R3(기준일·정원 판정·2행 숨김·1920 틀·폰트 분리).
 - **측정**: 홈 링크 168/127(전과 같음). CLS 0(3상태 Playwright ≤0.0007). Lighthouse 모바일 devtools 스로틀 LCP 1.9~2.3s, simulate 3.8s(main도 3.6s — JS 번들 ~200KB가 LCP 앞에 깔림, R3 밖). 캡처 `docs/design/redesign-v2/r3-hero/`.
 - **함정**: 히어로는 크롬 높이(모바일 102px, lg 64px)만큼 위로 당겨져 있다 — 헤더 높이를 바꾸면 `.home-hero { --chrome-h }`도 같이. 헤더 z 43 / 2행 z 42 / 히어로 z 41 / 스캔라인 z 40. 모바일 키아트 페이드 색 `--hero-join`은 하늘 그라데이션 1100px 기준 근사값.
-- **⏭ R4**: 히어로 아래 섹션(Continue·Originals 목차·4선반·All games·About·광고). 데스크톱 키아트 바닥 라벤더 띠는 티켓 줄 자리(R3에서 잘라 둠 → R4에서 `.home-hero__inner` min-height·object-position 다시). 정원 판정(뿅·도토리 = 연 기록)은 R5 완료 기록으로 교체. aria-current(헤더 현재 위치)는 아직 없음. e2e 기준선 실패 2건(Daily 필터 목록에 Slime Slide 누락, Slime 연습 탭)은 main에서도 실패.
+- **⏭ R4**: 히어로 아래 섹션(Continue·Originals 목차·4선반·All games·About·광고). 데스크톱 키아트 바닥 라벤더 띠는 티켓 줄 자리(R3에서 잘라 둠 → R4에서 `.home-hero__inner` min-height·object-position 다시). 정원 판정(뿅·도토리 = 연 기록)은 R5 완료 기록으로 교체. aria-current(헤더 현재 위치)는 아직 없음. e2e 기준선 실패 2건(Daily 필터 목록에 Slime Slide 누락, Slime 연습 탭)은 main에서도 실패(→ #180이 갱신, 머지 후 재확인). 모바일 게임 페이지 2행 숨김으로 첫 화면이 46px 올라와 bugs.md Q1(말랑 꽃 첫 화면 밖 176px)이 그만큼 준다. Q2(홈 하트 36px·필터 칩 30px)는 R4 몫.
+
+## ▶ 2026-11-20 00시 심야 QA 인계 (브랜치 `shift/00-qa`)
+
+**한 줄:** 배포본(main ce5ce0f, deploy #162 성공)을 390×844·390×664 터치 에뮬로 홈·말랑·뿅·다람쥐 전수 점검. 큰 회귀 없음. 작은 것 4건 수정, 큰 것 2건은 `docs/team/bugs.md`(신설)에 재현·원인.
+- **수정(이번 PR)**: 리액션 API 깨진 200 응답 시 게임 페이지 전체 크래시 방어(+테스트), 말랑 소리 버튼 터치 48×44(보이는 크기·보드 위치 불변), 캘린더·공유 버튼 44px, 낡은 e2e 2건(말랑 연습=고정 1스테이지, 홈 Daily 필터에 Slime Slide) 갱신, Beatline 날짜 시드 플레이키 테스트 보강. 전체 vitest 통과·e2e 148/148.
+- **bugs.md Q1 [중]**: 말랑 꽃(도착점)이 실제 폰 가시 높이(664)에서 첫 화면 밖 176px — 보드 크기 식이 위 크롬 250px 가정, 실제 352px(R2 헤더 2행으로 악화). 디자인 결정 필요(제안 ①실측 top ②게임 페이지 2행 내비 ③보드로 스크롤).
+- **bugs.md Q2 [하]**: 홈 하트 36px·필터 칩 30px — R3+ 홈 PR에서 처리(겹침 방지로 미수정).
+- **함정**: 이 세션 네트워크 정책이 quickminigames.site를 막는다(프록시 403) → 라이브 대신 같은 커밋 로컬 빌드로 점검. e2e는 `npx serve` 대신 정적 서버를 3100에 직접 띄우고 config에서 webServer 제거·`executablePath:/opt/pw-browsers/chromium`. 오너가 환경 허용 목록에 도메인을 넣으면 진짜 라이브 점검 가능.
+- **⏭ 다음 교대**: ① 02시: Q1을 말랑 v2 다음 PR에 묶어 처리(또는 R 계획 담당과 2행 내비 결정) ② 시작 버튼 전 단계 통일(DECISIONS 11-19) 미구현 확인 ③ 다음 QA: 라이브 접속 가능 여부 먼저 확인, R3 머지분 회귀.
 
 ## ▶ 2026-11-19 22시 야간 개발 B 인계 — 서버 재생 검증·측정·성능·에셋 기준 (브랜치 `shift/22-replay-verify`)
 

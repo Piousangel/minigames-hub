@@ -711,7 +711,8 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
             type="button"
             aria-label={muted ? tx.soundOn : tx.soundOff}
             aria-pressed={muted}
-            className="rounded-lg border border-white/15 px-2 py-1 text-base"
+            // 보이는 크기(38×34)는 그대로 두고 투명 ::before(테두리 밖 5px)로 터치 영역만 48×44로 넓힌다(보드를 밀어내지 않게)
+            className="relative z-10 rounded-lg border border-white/15 px-2 py-1 text-base before:absolute before:-inset-[6px] before:content-['']"
             onClick={() => {
               const m = !muted
               setMuted(m)

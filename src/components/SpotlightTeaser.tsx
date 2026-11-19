@@ -115,7 +115,7 @@ export function SpotlightTeaser() {
           onClick={saveReminder}
           data-testid="spotlight-ics"
           aria-label="Add to calendar — downloads a daily reminder file"
-          className="inline-flex shrink-0 items-center gap-1 rounded-md border border-neon-cyan/50 bg-surface px-2 py-1 text-xs font-semibold text-neon-cyan transition-colors hover:bg-neon-cyan/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+          className="inline-flex min-h-11 shrink-0 items-center gap-1 rounded-md border border-neon-cyan/50 bg-surface px-3 py-1 text-xs font-semibold text-neon-cyan transition-colors hover:bg-neon-cyan/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
         >
           <span aria-hidden="true">📅</span>
           <span>Add to calendar</span>

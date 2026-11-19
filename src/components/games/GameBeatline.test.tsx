@@ -73,6 +73,13 @@ describe('GameBeatline — audit 2026-10-10', () => {
     await act(async () => {
       vi.advanceTimersByTime(2100 + 600) // count-in, then ~0.6s of chart
     })
+    // 데일리 차트는 날짜 시드라 첫 노트가 화면에 들어오는 시각이 날마다 다르다(11-19 시드는 0.6초 안에 없음).
+    // 노트가 보일 때까지 100ms씩 더 진행(상한 4초) — 위치 검증 자체는 그대로.
+    for (let t = 0; t < 4000 && screen.queryAllByTestId('beatline-note').length === 0; t += 100) {
+      await act(async () => {
+        vi.advanceTimersByTime(100)
+      })
+    }
     const notes = screen.getAllByTestId('beatline-note')
     expect(notes.length).toBeGreaterThan(0)
     for (const n of notes) {
