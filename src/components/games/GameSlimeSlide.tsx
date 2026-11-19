@@ -59,6 +59,7 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
   const [mode, setMode] = useState<Mode>('daily')
   const [progress, setProgress] = useState<DailyProgress>(() => emptyProgress(TOTAL))
   const [view, setView] = useState(0) // 지금 보드에 올라간 스테이지
+  const [practiceIdx, setPracticeIdx] = useState(0) // 연습 = 해금된 스테이지 중 하나(점수 반영 없음)
 
   useEffect(() => {
     const d = todayUTC()
@@ -67,6 +68,20 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
     setProgress(p)
     setView(currentStage(p) ?? 0)
     sendHit(SLUG, 'view')
+    // 탭을 열어 둔 채 UTC 자정을 넘기면 어제 기록이 오늘 보드로 올라가지 않게, 다시 보일 때 날짜를 확인한다(엔지니어 검수)
+    const onVis = () => {
+      if (document.hidden) return
+      const now = todayUTC()
+      setDay((prev) => {
+        if (prev === null || prev === now) return prev
+        const np = loadProgress(now)
+        setProgress(np)
+        setView(currentStage(np) ?? 0)
+        return now
+      })
+    }
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
   }, [])
 
   const onAttempt = useCallback(
@@ -113,6 +128,10 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
               aria-selected={mode === m}
               onClick={() => {
                 sendHit(SLUG, `mode_${m}`)
+                if (m === 'practice') {
+                  const open = Math.min(TOTAL, progress.filter((_, i) => stageState(progress, i) !== 'locked').length || 1)
+                  setPracticeIdx(Math.floor(Math.random() * open))
+                }
                 setMode(m)
               }}
               className={`min-h-11 rounded-lg border px-3 text-sm font-semibold ${mode === m ? 'border-accent bg-accent/15 text-accent' : 'border-white/15 text-fg-muted'}`}
@@ -151,10 +170,10 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
       )}
 
       <SlimeProto
-        key={mode === 'daily' ? `daily-${view}` : 'practice'}
+        key={mode === 'daily' ? `daily-${view}` : `practice-${practiceIdx}`}
         text={EN}
         slug={SLUG}
-        fixedStage={mode === 'daily' ? view : undefined}
+        fixedStage={mode === 'daily' ? view : practiceIdx}
         attemptsLocked={locked}
         onAttempt={onAttempt}
         devTools={false}
