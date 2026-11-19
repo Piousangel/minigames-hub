@@ -33,3 +33,50 @@ describe('일일 구조', () => {
     expect(t).toContain('💥🌟 2/3')
   })
 })
+
+import { clearedCount, currentStage, dailyOver, dailyTotal, emptyProgress, progressShareText, recordAttempt, stageState } from './daily'
+
+describe('순차 해금 일일', () => {
+  const win = (stars = 3, score = 300): Attempt => ({ outcome: 'nest', stars, score, hint: false })
+  const lose = (): Attempt => ({ outcome: 'spiked', stars: 0, score: 0, hint: false })
+
+  it('처음에는 1스테이지만 열려 있다', () => {
+    const p = emptyProgress(4)
+    expect([0, 1, 2, 3].map((i) => stageState(p, i))).toEqual(['open', 'locked', 'locked', 'locked'])
+    expect(currentStage(p)).toBe(0)
+  })
+  it('1스테이지를 깨면 2스테이지가 열린다', () => {
+    const p = recordAttempt(emptyProgress(4), 0, win())
+    expect([0, 1, 2].map((i) => stageState(p, i))).toEqual(['cleared', 'open', 'locked'])
+    expect(currentStage(p)).toBe(1)
+  })
+  it('잠긴 스테이지·이미 깬 스테이지의 기록은 무시한다', () => {
+    const p0 = emptyProgress(3)
+    expect(recordAttempt(p0, 1, win())).toBe(p0)
+    const p1 = recordAttempt(p0, 0, win())
+    expect(recordAttempt(p1, 0, win(3, 999))).toBe(p1)
+  })
+  it('같은 스테이지에서 3번 다 실패하면 그날은 거기서 끝, 점수는 그때까지 합', () => {
+    let p = recordAttempt(emptyProgress(4), 0, win(2, 210))
+    for (let k = 0; k < 3; k++) p = recordAttempt(p, 1, lose())
+    expect(stageState(p, 1)).toBe('failed')
+    expect(stageState(p, 2)).toBe('locked')
+    expect(currentStage(p)).toBeNull()
+    expect(dailyOver(p)).toBe(true)
+    expect(dailyTotal(p)).toBe(210)
+  })
+  it('실패 후 성공하면 그 스테이지는 깬 것이고 점수는 스테이지별 최고점', () => {
+    let p = recordAttempt(emptyProgress(2), 0, lose())
+    p = recordAttempt(p, 0, win(1, 120))
+    expect(stageState(p, 0)).toBe('cleared')
+    p = recordAttempt(p, 1, win(3, 330))
+    expect(clearedCount(p)).toBe(2)
+    expect(dailyTotal(p)).toBe(450)
+    expect(dailyOver(p)).toBe(true) // 전부 깼다
+  })
+  it('공유 문구: 스테이지별 한 칸, 경로 없음', () => {
+    let p = recordAttempt(emptyProgress(4), 0, win(3, 330))
+    p = recordAttempt(p, 1, win(1, 130))
+    expect(progressShareText('2026-11-21', p)).toBe('Slime Slide #2 · 2/4 stages · 460 pts\n🌟⭐⬜⬜')
+  })
+})
