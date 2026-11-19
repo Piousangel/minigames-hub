@@ -110,7 +110,7 @@ export type DailyResult = { slug: string; primary: { label: string; value: numbe
 ## 6. 진행표
 | PR | 상태 | PR 번호 | 메모 |
 |---|---|---|---|
-| R1 | 머지 | #PRNUM | 토큰 `--garden-*`·`--color-garden-*`·`--shadow-garden-*`, 폰트 `--font-display`·`--font-ui`(preload 끔, 아직 미적용). 새 폰트 62.5KB. 화면 픽셀 diff 0 |
+| R1 | 머지 | #178 | 토큰 `--garden-*`·`--color-garden-*`·`--shadow-garden-*`, 폰트 `--font-display`·`--font-ui`(preload 끔, 아직 미적용). 새 폰트 62.5KB. 화면 픽셀 diff 0 |
 | R2 | 대기 | | |
 | R3 | 대기 | | |
 | R4 | 대기 | | |
