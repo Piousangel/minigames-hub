@@ -5,9 +5,9 @@
     "aspect": "16:9",
     "key": "none",
     "size": 2400,
-    "out": "public/art/hub-hero-desktop-4f-d2.webp",
+    "out": "docs/design/hero-candidates/hub-hero-desktop-4f-d2.webp",
     "refs": [
-      "public/art/hub-hero-desktop-4f-d.webp",
+      "docs/design/hero-candidates/hub-hero-desktop-4f-d.webp",
       "public/art/hub-keyart-hero.webp",
       "public/art/slime-slide-cover.webp",
       "public/art/mallang-happy.webp",
@@ -24,7 +24,7 @@
     "size": 2400,
     "out": "public/art/hub-hero-desktop-4f-d3.webp",
     "refs": [
-      "public/art/hub-hero-desktop-4f-d.webp",
+      "docs/design/hero-candidates/hub-hero-desktop-4f-d.webp",
       "public/art/hub-keyart-hero.webp",
       "public/art/slime-slide-cover.webp",
       "public/art/mallang-happy.webp",

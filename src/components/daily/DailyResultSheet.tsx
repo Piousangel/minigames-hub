@@ -358,7 +358,7 @@ export function DailyResultSheet({
 
         {/* 공유 카드 미리보기(실제 공유는 같은 구성의 PNG) */}
         <div className="mt-3 flex items-center gap-3 rounded-2xl border-2 border-garden-ink bg-garden-paper px-3 py-2.5" data-testid="sheet-share-card">
-          <div aria-hidden="true" className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border-2 border-garden-ink bg-[url(/art/hub-hero-desktop.webp)] bg-[length:auto_148%] bg-[position:78%_8%]" />
+          <div aria-hidden="true" className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border-2 border-garden-ink bg-[url(/art/hub-hero-desktop-4f-d3.webp)] bg-[length:auto_148%] bg-[position:66%_60%]" />
           <div className="min-w-0">
             <p className="font-display truncate text-[15px] leading-5 font-semibold">Quick MiniGames · No. {edition.no}</p>
             <p className="truncate text-[12px] leading-4 text-garden-ink-soft">{copy.shareLine}</p>

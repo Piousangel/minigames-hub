@@ -5,7 +5,7 @@
     "aspect": "16:9",
     "key": "none",
     "size": 2400,
-    "out": "public/art/hub-hero-desktop-4f-a.webp",
+    "out": "docs/design/hero-candidates/hub-hero-desktop-4f-a.webp",
     "refs": [
       "public/art/hub-hero-desktop.webp",
       "public/art/mallang-wave.webp",
@@ -41,7 +41,7 @@
     "aspect": "16:9",
     "key": "none",
     "size": 2400,
-    "out": "public/art/hub-hero-desktop-4f-b.webp",
+    "out": "docs/design/hero-candidates/hub-hero-desktop-4f-b.webp",
     "refs": [
       "public/art/hub-hero-desktop.webp",
       "public/art/mallang-wave.webp",
@@ -59,7 +59,7 @@
     "aspect": "3:4",
     "key": "none",
     "size": 1320,
-    "out": "public/art/hub-hero-mobile-4f-b.webp",
+    "out": "docs/design/hero-candidates/hub-hero-mobile-4f-b.webp",
     "refs": [
       "public/art/hub-hero-desktop.webp",
       "public/art/mallang-wave.webp",
