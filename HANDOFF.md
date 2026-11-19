@@ -1,5 +1,13 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 06시 회의·계획 (브랜치 `shift/06-meeting-r6-research`, 문서+홍보 큐)
+
+**한 줄:** 회의록 meetings/2026-11-20.md. 오늘 출시 = **10시 R1 게이트(사흘째 밀림)**, **16시 리디자인 R6 마스코트**(18시 몫을 당김). R6 리서치1+기획 v1 = `docs/team/specs/2026-11-20-r6-mascots.md`.
+- **R6 v1 배치표**: ① 404 신설(`not-found.tsx` 없음 → wrangler 404-page로 `out/404.html`; 미사용 `hub-404-drifted-islet.webp`에 말랑이 이미 있음, ≤40KB 재인코딩) ② GameBrowser 빈 상태 2종 해씨 ③ 결과 시트 `sheet-bomi-slot` 보미 32px(peek 안 씀) ④ About 해씨 ⑤ 선반 disc 4 얼굴 배지(D6 해석: 전신 ≥56px만 1마리 규칙 — **리서치2 반증 대상**). 리더보드·카테고리 페이지는 R7로. 게임 페이지 금지.
+- **함정**: bomi-cheer 49KB·tori-think 42.6KB·bomi-deliver 40.3KB는 40KB 초과/경계 → 표시 2× 파생본(`public/art/m/`)을 만들 것. `DailyResultSheet.test.tsx`:98 `toBeEmptyDOMElement`는 갱신 대상(약화 아님 — 보미 img 1개 검사로 교체). home-shelves 광고가 선반 바로 아래(약 60px).
+- **마케팅**: 11-18 큐가 날짜 앞섬으로 버려져 11-18~19 게시 0건(lessons). `queue/2026-11-20.json` snake 리뉴얼(Bluesky en·Threads ko·전후 이미지 `docs/marketing/images/2026-11-20-snake-before-after.jpg`). 20시는 posted.json 결과 확인.
+- **⏭ 16시**: R6 리서치2(H1~H5) → v2 → 독립 리뷰 → 구현·출시. **⏭ 10시**: R1(specs/2026-11-18-r1-arcade-gate.md 리서치2부터).
+
 ## ▶ 2026-11-20 04시 새벽 기획·디자인 숙의 — 말랑 3~8단계 누적 콜백 설계 (브랜치 `shift/04-slime-stage-design`, 문서만)
 
 **한 줄:** `specs/2026-11-20-slime-stages-3-8-callback.md` v2.1. 리서치 2라운드(웹 레퍼런스 14기법·반증 7가정 + **솔버 실측 A~D**) → 독립 리뷰 5명(5·6·5·5·5) 반영. 하루 = 막 3개(I 1~3 / II 4~6 / III 7~8), 콜백 여부는 게이트 CB-1~5로 판정.
