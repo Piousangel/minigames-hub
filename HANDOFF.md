@@ -1,5 +1,15 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 02시 야간 개발 A 인계 — 말랑 v3 PR-5 다중 선 순수 로직 (브랜치 `shift/02-slime-multiline`)
+
+**한 줄:** 선 여러 개 스테이지의 입력 규칙(D-3~D-13)을 UI 없이 순수 함수로 완성 — `src/lib/games/slime/multiline.ts`. 출시 스테이지·화면 변화 0, 골든 비트 동일.
+- **내용**: `step(stage, state, action)` 상태 기계(down/move/up/cancel/undo/remove/clear/restore/start/finish → 이벤트 ban·full·locked·ink-out·too-short·set·removed·restored·start·start-blocked), 잉크 합계 한도+남은 필수 선 예약(`inkCap`), 금지 구역 `segmentHitsRect`(Liang–Barsky, 선분 판정 → 건너편 점프 불가), `startBlock`(D-13 ①~⑥, 손 떼면 출발 스테이지는 ②③ 생략), `lineSetHash`(정준 정렬 FNV-1a 8자리). `Stage` 선택 필드 `maxLines·minLines·manualStart·banZones`(엔진은 안 읽음). `segmentHitsSpawnBan` hypot→제곱.
+- **서버**: `verify.ts`가 maxLines/minLines/banZones를 읽는다(선 0개·상한 초과 거부, minLines 미만은 0점 실패 시도, 합계 잉크, 금지 구역 = 클라와 같은 `segmentInServerZone`). 지금 스테이지는 필드가 없어 동작 불변.
+- **독립 리뷰 반영**: 강가를 L자로 따라 그은 선이 평활(RDP+Chaikin)로 구역 안에 당겨져 서버가 하루 전체를 거부하던 문제 → 클라가 확정 직전 서버 판정으로 다듬은 선을 검사해 처음 닿는 선분 앞에서 자름(수정 없이 돌리면 실패하는 테스트 확인). 얇은 구역(<12px)은 줄이지 않고 검사. 손 떼면 출발 + 다중 선 스테이지는 가득 차면 'full'.
+- **테스트**: `multiline.test.ts` 31건(금지 우회 퍼즈 3,000획, 잉크 퍼즈 1,000쌍, 순서 교환 5,000쌍 해시·정렬 + 500쌍 시뮬 비트 동일, Restore·Start 조건). 전체 vitest 230파일 4,638건 통과(리뷰 반영 전 기준, 반영 후 slime 124건 재통과), typecheck·lint error 0, build·route-check OK.
+- **함정**: `BAN_SLACK`(verify)와 `ZONE_SLACK`(multiline)은 같은 값이어야 한다(verify 로드 시 다르면 throw). 4~8단계 서버 제출은 아직 `slimeSubmitBody`가 선 1개(`line`)만 보냄 → PR-6/13에서 `lines`로.
+- **⏭ 다음 교대(02시 또는 08시)**: PR-6 다중 선 UI(`/tools/slime-proto` 한정, `step` 연결: 컨트롤 줄 Undo·Clear·Start, 핍, 잉크 막대, Restore 3초, start-blocked 이유 안내) → PR-7 빌더+validator. 진행 A안 콜백 3단계는 PR-7 빌더 위에서. 리디자인 R7은 R5·R6 머지 후.
+
 ## ▶ 2026-11-20 01시 리디자인 v2 R4 홈 본문 인계 (브랜치 `shift/redesign-r4-home-body`, PR #182)
 
 **한 줄:** 홈 히어로 아래 전체가 노을 정원 paper 종이가 됐다 — 구름 경계 → Continue 줄(최근 4 / 첫 방문 인기 4) + 오늘의 스포트라이트 한 줄 → Originals 목차(Plop·Acorn) | 4선반 색인 → 씨앗 도서관(All 113, 기본 24 접힘) → About + From the guides → 정원 안내판 → (광고 2곳, 지금은 꺼져 DOM 없음).
