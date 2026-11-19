@@ -9,6 +9,7 @@
 import { canonLines, decodeLine } from './canon'
 import { DAILY_ATTEMPTS, attemptScore } from './daily'
 import { simulate } from './engine'
+import { ZONE_SLACK, maxLinesOf, minLinesOf, segmentInServerZone } from './multiline'
 import { SLIME_STAGES, STAGE_HINTS } from './stages'
 import { polyLength } from './strokePipeline'
 import { BOARD_H, BOARD_W, CONST, type Outcome, type Pt, type Stage } from './types'
@@ -21,6 +22,7 @@ export const MAX_GAP = 8.75
 export const INK_SLACK = 2
 /** 스폰 금지 판정 여유(px). 클라는 손으로 그은 원점을 판정하고, 서버는 부드럽게 다듬은 선을 보므로 안쪽으로 조금 파고들 수 있다. */
 export const BAN_SLACK = 6
+if (BAN_SLACK !== ZONE_SLACK) throw new Error('BAN_SLACK must equal multiline ZONE_SLACK')
 /** 첫 점 허용 오차(px). 선은 보드 위를 눌러야 시작되므로 첫 점은 보드 안이다(스냅·평활 오차만 허용).
  * 나머지 점은 자르지 않는다: 포인터 캡처 중에는 손가락이 보드 밖으로 나가도 점이 찍히고, 길이는 잉크 검사가 묶는다. */
 export const START_SLACK = 1
@@ -68,6 +70,8 @@ export function checkLine(pts: Pt[], stage: Stage): string | null {
     if (dx * dx + dy * dy > MAX_GAP * MAX_GAP) return 'gap'
     if (segDist2(pts[i - 1], pts[i], stage.spawn) < R * R) return 'spawn ban'
   }
+  // 금지 구역: 클라 확정 직전 검사와 같은 함수(여유 ZONE_SLACK = BAN_SLACK, 얇은 구역은 줄이지 않음)
+  if (stage.banZones) for (let i = 1; i < pts.length; i++) if (segmentInServerZone(pts[i - 1], pts[i], stage)) return 'ban zone'
   const len = polyLength(pts)
   if (len < CONST.MIN_LINE - 0.5) return 'too short'
   if (len > stage.ink + INK_SLACK) return 'ink'
@@ -101,8 +105,8 @@ export function verifyDay(day: string, stagesRaw: unknown): VerifyResult {
       if (res.some((a) => a.outcome === 'nest')) return { ok: false, error: `after clear @${i + 1}` }
       const a = list[k] as SubmittedAttempt | null
       const linesRaw = a && Array.isArray(a.lines) ? a.lines : null
-      // 지금 스테이지는 모두 선 1개(maxLines 1). 다중 선이 오면 Stage.maxLines/minLines로 바꾼다.
-      if (!linesRaw || linesRaw.length !== 1) return { ok: false, error: `bad lines @${i + 1}.${k + 1}` }
+      // 선 수: 0개·상한 초과는 거부. 1 ≤ 선 수 < minLines는 거부가 아니라 실패 시도(D-18, 시뮬 없이 0점)
+      if (!linesRaw || linesRaw.length < 1 || linesRaw.length > maxLinesOf(stage)) return { ok: false, error: `bad lines @${i + 1}.${k + 1}` }
       const lines: Pt[][] = []
       for (const lr of linesRaw) {
         const pts = decodeLine(lr, MAX_POINTS)
@@ -111,7 +115,14 @@ export function verifyDay(day: string, stagesRaw: unknown): VerifyResult {
         if (why) return { ok: false, error: `${why} @${i + 1}.${k + 1}` }
         lines.push(pts)
       }
+      // 잉크는 선 전체 합계 한도 하나(D-5). 선 1개면 위 선별 검사와 같다
+      if (lines.length > 1 && lines.reduce((sum, l) => sum + polyLength(l), 0) > stage.ink + INK_SLACK * lines.length) return { ok: false, error: `ink @${i + 1}.${k + 1}` }
       const hint = hintShown(res, stage)
+      if (lines.length < minLinesOf(stage)) {
+        res.push({ outcome: 'stalled', stars: 0, score: 0, hint })
+        if (hint) hints++
+        continue
+      }
       const r = simulate(stage, canonLines(lines))
       const inkUsed = lines.reduce((s, l) => s + polyLength(l), 0)
       res.push({ outcome: r.outcome, stars: r.acorns, score: attemptScore(r.outcome, r.acorns, inkUsed, stage.ink, hint), hint })
