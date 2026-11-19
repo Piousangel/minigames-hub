@@ -1,12 +1,14 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { CATEGORIES, type GameCategory } from '@/lib/games/gameMeta'
-import { GameCard } from '@/components/GameCard'
-import { DiceIcon } from '@/components/icons/DiceIcon'
-import { Reveal } from '@/components/Reveal'
+import { FAVORITES_EVENT, loadFavorites } from '@/lib/favorites'
+import { LIBRARY_PREVIEW, libraryOrder } from '@/lib/home/shelves'
+import { SeedCard } from '@/components/home/SeedCard'
+import { SeedIcon } from '@/components/home/HomeIcons'
 import { ALL_GAMES_ANCHOR, SEARCH_ANCHOR } from '@/components/site-chrome/anchors'
+import { SearchIcon } from '@/components/site-chrome/GardenIcons'
 
 export interface BrowseItem {
   slug: string
@@ -17,26 +19,30 @@ export interface BrowseItem {
 }
 
 // Daily는 카테고리가 아니라 가로지르는 축이다 — 매일 같은 판이 주어지는 게임을 모은다.
-// 재방문 훅이라 찾을 수 있어야 하는데 그전엔 노출 경로가 0개였다.
-type Filter = 'All' | 'Daily' | GameCategory
+// 'My games'는 즐겨찾기(하트) — 예전 홈 'My Games' 레일을 R4에서 이 필터로 흡수했다(기능 유지).
+type Filter = 'All' | 'Daily' | GameCategory | 'My games'
 
-const FILTERS: Filter[] = ['All', 'Daily', ...CATEGORIES]
+const FILTERS: Filter[] = ['All', 'Daily', ...CATEGORIES, 'My games']
 
 /**
- * 홈 게임 브라우저: 인스턴트 검색 + 카테고리 필터 + 랜덤 게임.
- * 검색어 없고 필터 All이면 기존 카테고리 섹션 레이아웃(SSR 초기 렌더 = SEO 보존).
- * 검색/필터 시 매칭 결과를 플랫 그리드로.
+ * 홈 '씨앗 도서관'(All games, 리디자인 v2 R4): 인스턴트 검색 + 필터 칩 + 씨앗 던지기(랜덤).
+ * - 기본(검색어 없음·All): 전 게임을 카테고리 번갈아 순서(libraryOrder)로. 앞 LIBRARY_PREVIEW(24)개만 보이고 나머지는
+ *   `hidden` 클래스로 접어 두지만 **113개 링크가 모두 정적 HTML에 있다**(SEO·내부 링크 — e2e가 지킨다). "Show all N"으로 편다.
+ * - 검색·필터: 맞는 게임만 평평한 그리드(data-testid="browse-results"), 접지 않는다.
+ * - 앵커: 헤더 검색 `/#search`(입력), 헤더 All games `/#all-games`(섹션 머리).
  */
-export function GameBrowser({ items }: { items: BrowseItem[] }) {
+export function GameBrowser({ items, heading }: { items: BrowseItem[]; heading?: ReactNode }) {
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<Filter>('All')
+  const [expanded, setExpanded] = useState(false)
+  const [favs, setFavs] = useState<string[]>([])
   const router = useRouter()
   const inputRef = useRef<HTMLInputElement>(null)
-  const rootRef = useRef<HTMLDivElement>(null)
+  const rootRef = useRef<HTMLElement>(null)
 
   // 헤더 검색·All games(다른 페이지 → /#search, /#all-games, 또는 새로 열기·새로고침)로 왔을 때.
-  // Next 클라이언트 이동은 이 섹션까지 스크롤해 주지 않고(실측), 새로 로드하면 위쪽 섹션(최근 플레이·
-  // 신작 등 클라이언트 렌더)이 늦게 커져 앵커가 밀린다(실측 top 80 → 1595). 그래서 몇 번 다시 맞추되,
+  // Next 클라이언트 이동은 이 섹션까지 스크롤해 주지 않고(실측), 새로 로드하면 위쪽 섹션(Continue 줄 등
+  // 클라이언트 렌더)이 늦게 바뀌어 앵커가 밀릴 수 있다. 그래서 몇 번 다시 맞추되,
   // 사용자가 직접 스크롤·터치·키 입력을 하면 바로 멈춘다.
   useEffect(() => {
     const hash = window.location.hash
@@ -57,22 +63,33 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
     }
   }, [])
 
+  // 즐겨찾기 목록(하트 토글 시 커스텀 이벤트로 즉시 갱신)
+  useEffect(() => {
+    const sync = () => setFavs(loadFavorites())
+    sync()
+    window.addEventListener(FAVORITES_EVENT, sync)
+    return () => window.removeEventListener(FAVORITES_EVENT, sync)
+  }, [])
+
   const q = query.trim().toLowerCase()
   const isBrowsing = q === '' && filter === 'All'
+  const library = useMemo(() => libraryOrder(items), [items])
 
   const matches = useMemo(() => {
-    return items.filter((it) => {
-      if (filter === 'Daily') {
-        if (!it.daily) return false
-      } else if (filter !== 'All' && it.category !== filter) {
-        return false
-      }
+    const favSet = new Set(favs)
+    const pool =
+      filter === 'My games'
+        ? // 즐겨찾기는 최근에 담은 순서(favorites.ts: 맨 앞이 최신)
+          favs.map((s) => items.find((it) => it.slug === s)).filter((x): x is BrowseItem => Boolean(x))
+        : items
+    return pool.filter((it) => {
+      if (filter === 'Daily' && !it.daily) return false
+      if (filter === 'My games' && !favSet.has(it.slug)) return false
+      if (filter !== 'All' && filter !== 'Daily' && filter !== 'My games' && it.category !== filter) return false
       if (!q) return true
-      return (
-        it.title.toLowerCase().includes(q) || it.description.toLowerCase().includes(q)
-      )
+      return it.title.toLowerCase().includes(q) || it.description.toLowerCase().includes(q)
     })
-  }, [items, filter, q])
+  }, [items, filter, q, favs])
 
   function playRandom() {
     const pool = matches.length > 0 ? matches : items
@@ -80,31 +97,17 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
     if (pick) router.push(`/${pick.slug}`)
   }
 
+  const hidden = library.length - LIBRARY_PREVIEW
+
   return (
     // 헤더 'All games' 앵커. sticky 헤더 여백은 html scroll-padding-top(globals.css)이 맡는다.
-    <div ref={rootRef} id={ALL_GAMES_ANCHOR}>
-      {/* 검색 + 랜덤 */}
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-fg-muted"
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.75"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <circle cx="11" cy="11" r="7" />
-              <path d="m20 20-3-3" />
-            </svg>
-          </span>
+    <section ref={rootRef} id={ALL_GAMES_ANCHOR} aria-labelledby="all-games-title" className="font-ui text-garden-ink">
+      {heading}
+
+      {/* 검색 + 씨앗 던지기 */}
+      <div className="mt-4 flex gap-2">
+        <div className="relative min-w-0 flex-1">
+          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2" />
           <input
             ref={inputRef}
             id={SEARCH_ANCHOR}
@@ -113,96 +116,103 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search games…"
             aria-label="Search games"
-            className="w-full rounded-lg border border-border bg-surface/80 py-2.5 pl-10 pr-3 text-sm text-fg placeholder:text-fg-muted focus-visible:border-neon-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/40"
+            className="h-12 w-full rounded-xl border-2 border-garden-ink bg-garden-cream-2 pr-3 pl-10 text-[16px] text-garden-ink placeholder:text-garden-ink-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-garden-ink focus-visible:ring-offset-2 focus-visible:ring-offset-garden-paper"
           />
         </div>
         <button
+          type="button"
           onClick={playRandom}
-          className="btn-press font-pixel flex min-h-11 items-center justify-center gap-2 rounded-lg border border-neon-magenta/60 bg-surface/80 px-4 text-[10px] tracking-[0.15em] text-neon-magenta hover:bg-neon-magenta/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-magenta/50"
-          style={{ color: 'var(--neon-magenta)' }}
+          className="garden-jelly flex h-12 shrink-0 items-center justify-center gap-1.5 rounded-xl border-2 border-garden-ink bg-garden-cream px-3 text-[14px] font-semibold shadow-[var(--garden-shadow-button)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-garden-ink focus-visible:ring-offset-2 focus-visible:ring-offset-garden-paper"
         >
-          <DiceIcon className="h-4 w-4" />
-          RANDOM
+          <SeedIcon className="h-5 w-5" />
+          <span>
+            Random<span className="max-[359px]:hidden"> seed</span>
+          </span>
         </button>
       </div>
 
-      {/* 카테고리 필터 칩 */}
-      <div className="mb-8 flex flex-wrap gap-2">
+      {/* 필터 칩(44px, bugs Q2). 390에선 한 줄 가로 스크롤 — 페이지 가로 스크롤은 0 */}
+      <div role="group" aria-label="Filter games" className="-mx-4 mt-3 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
         {FILTERS.map((f) => {
           const active = filter === f
           return (
             <button
               key={f}
+              type="button"
               onClick={() => setFilter(f)}
               aria-pressed={active}
-              className={`btn-press rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/50 ${
-                active
-                  ? 'border-neon-cyan bg-neon-cyan/15 text-neon-cyan'
-                  : 'border-border bg-surface/60 text-fg-muted hover:text-fg'
+              className={`flex h-11 shrink-0 items-center rounded-full border-2 border-garden-ink px-4 text-[14px] font-semibold whitespace-nowrap focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-garden-ink focus-visible:ring-offset-2 focus-visible:ring-offset-garden-paper ${
+                active ? 'bg-garden-ink text-garden-cream' : 'bg-garden-cream text-garden-ink'
               }`}
             >
-              {f}
+              {f === 'My games' ? (
+                <>
+                  <span aria-hidden="true" className="mr-1">
+                    ♥
+                  </span>
+                  My games
+                </>
+              ) : (
+                f
+              )}
             </button>
           )
         })}
       </div>
 
       {isBrowsing ? (
-        // 브라우즈 상태: 카테고리 섹션(기존 레이아웃)
-        <div className="space-y-14">
-          {CATEGORIES.map((category) => {
-            const games = items.filter((it) => it.category === category)
-            if (games.length === 0) return null
-            return (
-              <section key={category} aria-labelledby={`cat-${category}`}>
-                <Reveal>
-                  <div className="mb-6 flex items-center gap-4">
-                    <h2
-                      id={`cat-${category}`}
-                      className="font-pixel neon-text text-sm text-neon-cyan sm:text-base"
-                    >
-                      {category}
-                    </h2>
-                    <span
-                      aria-hidden="true"
-                      className="h-px flex-1 bg-gradient-to-r from-neon-cyan/50 to-transparent"
-                    />
-                    <span aria-hidden="true" className="font-pixel text-[10px] text-fg-muted">
-                      {String(games.length).padStart(2, '0')}
-                    </span>
-                  </div>
-                </Reveal>
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                  {games.map((g, i) => (
-                    <Reveal key={g.slug} delay={Math.min(i * 50, 300)}>
-                      <GameCard slug={g.slug} title={g.title} description={g.description} />
-                    </Reveal>
-                  ))}
-                </div>
-              </section>
-            )
-          })}
-        </div>
+        <>
+          <ul
+            id="library-grid"
+            data-testid="library-grid"
+            data-collapsed={expanded ? undefined : 'true'}
+            className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4"
+          >
+            {library.map((g, i) => (
+              <li key={g.slug} className={!expanded && i >= LIBRARY_PREVIEW ? 'hidden' : undefined}>
+                <SeedCard slug={g.slug} title={g.title} description={g.description} category={g.category} />
+              </li>
+            ))}
+          </ul>
+          {hidden > 0 && (
+            <div className="mt-4 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setExpanded((v) => !v)}
+                aria-expanded={expanded}
+                aria-controls="library-grid"
+                data-testid="library-toggle"
+                className="garden-jelly flex h-12 items-center rounded-full border-2 border-garden-ink bg-garden-cream px-6 text-[15px] font-semibold shadow-[var(--garden-shadow-button)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-garden-ink focus-visible:ring-offset-2 focus-visible:ring-offset-garden-paper"
+              >
+                {expanded ? 'Show fewer' : `Show all ${library.length}`}
+              </button>
+            </div>
+          )}
+        </>
       ) : matches.length > 0 ? (
-        // 검색/필터 결과: 플랫 그리드
-        <div>
-          <p className="mb-4 text-xs text-fg-muted">
+        <div className="mt-4">
+          <p aria-hidden="true" className="mb-3 text-[13px] text-garden-ink-soft">
             {matches.length} game{matches.length === 1 ? '' : 's'}
           </p>
-          <div
-            className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
-            data-testid="browse-results"
-          >
+          <ul className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4" data-testid="browse-results">
             {matches.map((g) => (
-              <GameCard key={g.slug} slug={g.slug} title={g.title} description={g.description} />
+              <li key={g.slug}>
+                <SeedCard slug={g.slug} title={g.title} description={g.description} category={g.category} />
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       ) : (
-        <p className="py-12 text-center text-fg-muted">
-          No games match “{query}”. Try another search or hit RANDOM.
+        <p className="py-10 text-center text-[15px] text-garden-ink-soft">
+          {filter === 'My games' && !q
+            ? 'No saved games yet — tap the heart on any game to keep it here.'
+            : `No games match “${query}”. Try another word, or toss a random seed.`}
         </p>
       )}
-    </div>
+      {/* 결과 수 안내(스크린리더). live 영역은 늘 렌더해 두고 글만 바꾼다 — 새로 붙는 live 영역은 안 읽히는 경우가 많다 */}
+      <p aria-live="polite" className="sr-only" data-testid="browse-status">
+        {isBrowsing ? '' : matches.length > 0 ? `${matches.length} game${matches.length === 1 ? '' : 's'}` : 'No games found'}
+      </p>
+    </section>
   )
 }

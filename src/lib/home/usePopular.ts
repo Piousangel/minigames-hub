@@ -1,10 +1,13 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
-import { GameCard } from '@/components/GameCard'
-import type { BrowseItem } from '@/components/GameBrowser'
-import { parsePopularRows, rankFeatured, type PopularEntry } from '@/lib/popular'
+import { useEffect, useState } from 'react'
+import { parsePopularRows, type PopularEntry } from '@/lib/popular'
 
+/**
+ * /api/popular(최근 14일 몰입 순 플레이어 수)를 한 번 받아 세션에 캐시한다.
+ * 예전 홈 Featured 레일(FeaturedRail)의 클라이언트 로직을 그대로 옮겼다(R4: 레일은 Continue 줄의 '인기 4'로 흡수).
+ * 정렬·임계·슬러그 검증은 src/lib/popular.ts rankFeatured 한 곳에서.
+ */
 const SESSION_KEY = 'mg:popular:v1'
 
 function readSession(): PopularEntry[] | null {
@@ -50,16 +53,11 @@ export function __resetPopularFetchForTest(): void {
   inflight = null
 }
 
-/**
- * Featured 레일의 클라이언트 부분 — 첫 렌더(SSR 포함)는 큐레이션 순서 그대로, 마운트 후 /api/popular를
- * 한 번 받아(세션 캐시) 같은 카드 집합을 인기순으로 재배치한다(src/lib/popular.ts rankFeatured).
- * 카드 수·크기가 같아 레이아웃 시프트 없음. API가 없거나(정적 e2e) 실패하면 큐레이션 순서 유지.
- */
-export function FeaturedRail({ curated, items }: { curated: string[]; items: BrowseItem[] }) {
-  const bySlug = useMemo(() => new Map(items.map((it) => [it.slug, it])), [items])
+/** 인기 목록(첫 렌더·실패·정적 e2e = []). enabled=false면 요청하지 않는다(최근 플레이가 있어 쓸 일이 없을 때). */
+export function usePopular(enabled = true): PopularEntry[] {
   const [popular, setPopular] = useState<PopularEntry[]>([])
-
   useEffect(() => {
+    if (!enabled) return
     const cached = readSession()
     if (cached) {
       setPopular(cached)
@@ -72,25 +70,6 @@ export function FeaturedRail({ curated, items }: { curated: string[]; items: Bro
     return () => {
       cancelled = true
     }
-  }, [])
-
-  const { order, popular: hot } = useMemo(
-    () => rankFeatured(curated, popular, { known: new Set(bySlug.keys()) }),
-    [curated, popular, bySlug],
-  )
-  const games = order.map((s) => bySlug.get(s)).filter((g): g is BrowseItem => Boolean(g))
-
-  return (
-    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-      {games.map((g) => (
-        <GameCard
-          key={g.slug}
-          slug={g.slug}
-          title={g.title}
-          description={g.description}
-          badge={hot.has(g.slug) ? 'popular' : undefined}
-        />
-      ))}
-    </div>
-  )
+  }, [enabled])
+  return popular
 }

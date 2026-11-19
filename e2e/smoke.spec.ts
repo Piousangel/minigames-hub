@@ -674,18 +674,91 @@ test('홈: Daily 필터가 Daily 모드 게임만 보여준다', async ({ page }
   )
 })
 
-test('홈: 최신 출시 카드가 히어로 바로 아래 최상단에 있고 게임으로 이동한다', async ({ page }) => {
+// R4: 예전 '최신 출시' 카드(최신 3종 = 정원 오리지널)는 히어로 오늘 호 카드 + Originals 목차로 바뀌었다.
+// 같은 뜻 — 최신 오리지널이 홈 위쪽(안내판·씨앗 도서관보다 위)에 있고 눌러서 게임으로 간다.
+test('홈: 오리지널 목차가 히어로 아래 위쪽에 있고 게임으로 이동한다(R4)', async ({ page }) => {
   await page.goto('/')
-  const card = page.getByTestId('latest-release')
-  await expect(card).toBeVisible()
-  // 첫 화면 근처: 카드 상단이 뷰포트 높이 안에 들어온다(모바일 포함 — Marquee·Featured보다 위).
-  const box = await card.boundingBox()
-  const marquee = await page.locator('main nav[aria-label="Explore games"]').boundingBox()
-  expect(box!.y).toBeLessThan(marquee!.y)
-  // 최대 3개: 큰 카드 1 + 작은 카드 최대 2
-  expect(await page.getByTestId('latest-release-more').count()).toBeLessThanOrEqual(2)
-  await page.getByTestId('latest-release-link').click()
-  await expect(page).not.toHaveURL(/\/$/)
+  const toc = page.getByTestId('originals-toc')
+  await expect(toc).toBeVisible()
+  const box = await toc.boundingBox()
+  const board = await page.locator('main nav[aria-label="Explore games"]').boundingBox()
+  const library = await page.locator('#all-games').boundingBox()
+  expect(box!.y).toBeLessThan(board!.y)
+  expect(box!.y).toBeLessThan(library!.y)
+  await expect(toc.getByRole('link')).toHaveCount(2)
+  await expect(page.getByTestId('toc-status-plop-landing')).toHaveText('Unplayed')
+  await toc.getByRole('link', { name: /Plop Landing/ }).click()
+  await expect(page).toHaveURL(/\/plop-landing\?ref=home-toc$/)
+})
+
+test('홈(R4): 헤더 검색 → 2048 입력 → 2048 페이지 진입', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/leaderboards')
+  await page.getByRole('link', { name: 'Search games' }).first().click()
+  await expect(page).toHaveURL(/\/#search$/)
+  const input = page.getByRole('searchbox', { name: 'Search games' })
+  await expect(input).toBeFocused()
+  await input.fill('2048')
+  const results = page.getByTestId('browse-results')
+  await expect(results.locator('h3')).toContainText(['2048'])
+  // 390에선 카드 설명이 숨겨져 링크 이름 = 제목
+  await results.getByRole('link', { name: '2048', exact: true }).click()
+  await expect(page).toHaveURL(/\/2048$/)
+  await expect(page.getByTestId('board')).toBeVisible()
+})
+
+test('홈(R4): Show all을 안 눌러도 전 게임 링크가 HTML에 있다(접힌 건 24개 뒤)', async ({ page, request }) => {
+  const html = await (await request.get('/')).text()
+  const slugs = [...html.matchAll(/data-testid="library-grid"[\s\S]*?<\/ul>/g)][0]?.[0] ?? ''
+  const hrefs = new Set([...slugs.matchAll(/href="\/([a-z0-9-]+)"/g)].map((m) => m[1]))
+  await page.goto('/')
+  const total = Number((await page.getByTestId('library-toggle').innerText()).match(/\d+/)![0])
+  expect(total).toBeGreaterThanOrEqual(113)
+  expect(hrefs.size).toBe(total)
+  // 화면에는 24개만, 링크는 전부 DOM에
+  const grid = page.getByTestId('library-grid')
+  await expect(grid.locator('li:visible')).toHaveCount(24)
+  await expect(grid.locator('li')).toHaveCount(total)
+  await page.getByTestId('library-toggle').click()
+  await expect(grid.locator('li:visible')).toHaveCount(total)
+})
+
+test('홈(R4): 내부 링크가 R3 기준(전체 168 / 고유 경로 127)보다 줄지 않는다', async ({ request }) => {
+  const html = (await (await request.get('/')).text()).replace(/<script[\s\S]*?<\/script>/g, '')
+  const hrefs = [...html.matchAll(/<a\b[^>]*?href="(\/[^"]*)"/g)].map((m) => m[1]).filter((h) => !h.startsWith('//'))
+  const paths = new Set(hrefs.map((h) => h.split(/[?#]/)[0] || '/'))
+  expect(hrefs.length).toBeGreaterThanOrEqual(168)
+  expect(paths.size).toBeGreaterThanOrEqual(127)
+  for (const p of ['/daily', '/collections', '/guides', '/leaderboards', '/collection/original-games', '/about', '/privacy', '/terms', '/contact']) {
+    expect(paths.has(p), p).toBe(true)
+  }
+})
+
+test('홈(R4): 4선반 수 합계 = 전체 게임 수, 각 행은 /category로', async ({ page }) => {
+  await page.goto('/')
+  const counts = (await page.getByTestId('shelf-count').allInnerTexts()).map((t) => parseInt(t, 10))
+  expect(counts).toHaveLength(4)
+  const total = Number((await page.getByTestId('library-toggle').innerText()).match(/\d+/)![0])
+  expect(counts.reduce((a, b) => a + b, 0)).toBe(total)
+  for (const c of ['puzzle', 'arcade', 'classic', 'skill']) {
+    await expect(page.getByTestId(`shelf-${c}`)).toHaveAttribute('href', `/category/${c}`)
+  }
+  // 광고 꺼진 빌드(adsenseEnabled false): 빈 광고 박스 0
+  await expect(page.locator('[data-testid="home-ad"], ins.adsbygoogle')).toHaveCount(0)
+})
+
+test('홈(R4): 하트·필터 칩 44px(bugs Q2), My games 필터가 즐겨찾기를 보여준다', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  const chip = page.getByRole('button', { name: 'Daily', exact: true })
+  expect((await chip.boundingBox())!.height).toBeGreaterThanOrEqual(44)
+  const heart = page.getByRole('button', { name: 'Add Snake to My Games' })
+  const hb = (await heart.boundingBox())!
+  expect(hb.height).toBeGreaterThanOrEqual(44)
+  expect(hb.width).toBeGreaterThanOrEqual(44)
+  await heart.click()
+  await page.getByRole('button', { name: /My games/ }).click()
+  await expect(page.getByTestId('browse-results').locator('h3')).toHaveText(['Snake'])
 })
 
 test('leaderboards: 허브 페이지 로드', async ({ page }) => {

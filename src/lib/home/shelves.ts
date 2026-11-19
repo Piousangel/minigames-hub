@@ -1,0 +1,67 @@
+/**
+ * 홈 '4선반 색인'·'씨앗 도서관(All games)'의 계산값(계획서 2장 Shelf, D4·D5).
+ *
+ * - 선반 수는 항상 gamePages × gameMeta에서 센다(하드코딩 금지, D4). 합계 = gamePages.length를 테스트가 지킨다.
+ * - 마스코트 ↔ 카테고리 1:1(D5): 말랑이 = Puzzle, 토리 = Arcade, 해씨 = Classic, 보미 = Skill.
+ *   그림은 R6 — 지금은 카테고리 꽃 아이콘(벨꽃·별꽃·클로버·해)을 원형 disc에 넣는다.
+ * - registry를 import하지 않는다(서버 컴포넌트가 pages를 넘긴다) — 테스트에서 가짜 목록을 넣기 쉽게.
+ */
+import { CATEGORIES, DEFAULT_META, type GameCategory, type GameMeta } from '@/lib/games/gameMeta'
+
+export type ShelfHost = 'mallang' | 'tori' | 'haessi' | 'bomi'
+export type ShelfIcon = 'bell' | 'star' | 'clover' | 'sun'
+
+export type Shelf = {
+  category: GameCategory
+  /** /category/<slug> (실제 라우트: src/app/category/[slug]/page.tsx의 HUBS 키) */
+  slug: 'puzzle' | 'arcade' | 'classic' | 'skill'
+  count: number
+  host: ShelfHost
+  icon: ShelfIcon
+  /** 선반 이름(무엇을 하고 싶은지) */
+  name: string
+  /** 한 줄 설명 */
+  blurb: string
+}
+
+type ShelfStatic = Omit<Shelf, 'category' | 'count'>
+
+const SHELF_BY_CATEGORY: Record<GameCategory, ShelfStatic> = {
+  Puzzle: { slug: 'puzzle', host: 'mallang', icon: 'bell', name: 'Wake my brain', blurb: 'logic, words, numbers' },
+  Arcade: { slug: 'arcade', host: 'tori', icon: 'star', name: 'Busy hands', blurb: 'quick reflex rounds' },
+  Classic: { slug: 'classic', host: 'haessi', icon: 'clover', name: 'Slow & classic', blurb: 'cards, boards, tiles' },
+  Skill: { slug: 'skill', host: 'bomi', icon: 'sun', name: 'Steady aim', blurb: 'timing and touch' },
+}
+
+type PageLike = { slug: string }
+type MetaTable = Record<string, GameMeta | undefined>
+
+export const categoryOf = (slug: string, meta: MetaTable): GameCategory => (meta[slug] ?? DEFAULT_META).category
+
+/** 4선반(Puzzle·Arcade·Classic·Skill 순서 고정). 수는 계산값. */
+export function shelves(pages: readonly PageLike[], meta: MetaTable): Shelf[] {
+  const counts = new Map<GameCategory, number>(CATEGORIES.map((c) => [c, 0]))
+  for (const p of pages) {
+    const c = categoryOf(p.slug, meta)
+    counts.set(c, (counts.get(c) ?? 0) + 1)
+  }
+  return CATEGORIES.map((category) => ({ category, count: counts.get(category) ?? 0, ...SHELF_BY_CATEGORY[category] }))
+}
+
+/**
+ * 씨앗 도서관 기본 순서: 카테고리를 돌아가며 한 개씩(Puzzle → Arcade → Classic → Skill → Puzzle …),
+ * 각 카테고리 안은 registry 순서. 접힌 상태(앞 24개)에도 네 선반이 고르게 보이게 하려는 것.
+ * 원소는 그대로 돌려준다(복사·누락 없음 — 길이·집합이 같음을 테스트가 지킨다).
+ */
+export function libraryOrder<T extends { category: GameCategory }>(items: readonly T[]): T[] {
+  const queues = CATEGORIES.map((c) => items.filter((it) => it.category === c))
+  const rest = items.filter((it) => !CATEGORIES.includes(it.category))
+  const out: T[] = []
+  for (let i = 0; out.length < items.length - rest.length; i++) {
+    for (const q of queues) if (i < q.length) out.push(q[i])
+  }
+  return [...out, ...rest]
+}
+
+/** 접힌 상태에서 보이는 카드 수(나머지도 HTML에는 모두 있다). */
+export const LIBRARY_PREVIEW = 24

@@ -1,5 +1,5 @@
 // 홈 "Featured" 레일을 실제 인기(Analytics Engine)로 정렬하는 공유 순수 로직.
-// 워커(/api/popular)와 클라이언트(FeaturedRail)가 같이 쓴다 — 워커 번들을 위해 레지스트리 import 금지.
+// 워커(/api/popular)와 클라이언트(홈 Continue 줄의 '인기 4', src/lib/home/usePopular.ts)가 같이 쓴다 — 워커 번들을 위해 레지스트리 import 금지.
 //
 // 신호 = "몰입한 순 플레이어 수": 최근 POPULAR_WINDOW_DAYS일 동안 한 게임에서 dwell >= POPULAR_MIN_DWELL_SEC초를
 // 기록한 서로 다른 방문자(vid) 수. 조회수(hits)는 자동화 방문자 1명이 수백 건을 찍을 수 있어(실측: 'reactor'

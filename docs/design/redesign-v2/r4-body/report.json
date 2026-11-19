@@ -1,0 +1,28 @@
+{
+  "m390-first": {
+    "docHeight": 5012,
+    "footerTop": 4529.59375
+  },
+  "m390-returning": {
+    "docHeight": 5012,
+    "footerTop": 4529.59375
+  },
+  "d1440-first": {
+    "docHeight": 3286,
+    "footerTop": 2893
+  },
+  "d1440-returning": {
+    "docHeight": 3286,
+    "footerTop": 2893
+  },
+  "hscroll-320": 0,
+  "hscroll-360": 0,
+  "hscroll-390": 0,
+  "small-hits-390": [],
+  "small-hits-1440": [],
+  "cls-390-first": 0,
+  "cls-390-returning": 0.0004814634976349392,
+  "cls-1440-first": 0,
+  "cls-1440-returning": 0.00131477596664952,
+  "adBoxes": 0
+}
