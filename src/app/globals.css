@@ -52,6 +52,36 @@
   --color-neon-green: var(--neon-green);
 
   --font-pixel: var(--font-pixel);
+  /* 리디자인 v2 폰트(next/font/local이 html에 변수 클래스로 넣음). font-display / font-ui 클래스 */
+  --font-display: var(--font-display);
+  --font-ui: var(--font-ui);
+
+  /* 리디자인 v2 「노을 정원」 색 — 값은 아래 :root의 --garden-* */
+  --color-garden-paper: var(--garden-paper);
+  --color-garden-cream: var(--garden-cream);
+  --color-garden-cream-2: var(--garden-cream-2);
+  --color-garden-cream-shade: var(--garden-cream-shade);
+  --color-garden-ink: var(--garden-ink);
+  --color-garden-ink-soft: var(--garden-ink-soft);
+  --color-garden-ink-deep: var(--garden-ink-deep);
+  --color-garden-sun: var(--garden-sun);
+  --color-garden-coral: var(--garden-coral);
+  --color-garden-coral-text: var(--garden-coral-text);
+  --color-garden-leaf: var(--garden-leaf);
+  --color-garden-leaf-deep: var(--garden-leaf-deep);
+  --color-garden-leaf-text: var(--garden-leaf-text);
+  --color-garden-danger: var(--garden-danger);
+  --color-garden-danger-text: var(--garden-danger-text);
+  --color-garden-lavender: var(--garden-lavender);
+  --color-garden-apricot: var(--garden-apricot);
+  --color-garden-clover: var(--garden-clover);
+  --color-garden-sunflower: var(--garden-sunflower);
+  --color-garden-sea: var(--garden-sea);
+
+  --shadow-garden-island: var(--garden-shadow-island);
+  --shadow-garden-seed: var(--garden-shadow-seed);
+  --shadow-garden-button: var(--garden-shadow-button);
+  --shadow-garden-sheet: var(--garden-shadow-sheet);
 }
 
 html {
@@ -629,12 +659,47 @@ body {
 }
 
 /* ───────── 노을 정원(Sunset Garden) 세계 — 오리지널 3종(Plop·Acorn·Slime)이 공유 (디자이너 문서 11-19) ───────── */
+/* 허브 리디자인 v2 토큰(R1). 값의 정본은 docs/team/research/2026-11-19/hub-redesign-concept.md 3장.
+   아직 전역에 적용하지 않는다 — 크롬·홈은 R2~R4, 게임은 R7에서 data-world="garden" 스코프로(D7).
+   --neon-*·color-scheme: dark는 그대로 둔다. Tailwind 클래스는 bg-garden-cream, text-garden-ink 식. */
 :root {
-  --garden-ink: #5b3a1e;
-  --garden-ink-deep: #3a2410;
-  --garden-cream: #fff3dc;
-  --garden-gold: #ffc933;
-  --garden-coral: #e8643f;
+  /* 코어(낮 정원) */
+  --garden-paper: #fffaf0; /* 페이지 바탕 */
+  --garden-cream: #fff3dc; /* 카드·시트·pill 면 */
+  --garden-cream-2: #fbeccc; /* 광고 띠·입력창·안쪽 하이라이트 */
+  --garden-cream-shade: #f3d9aa; /* 카드 하단 그라데이션 */
+  --garden-ink: #5b3a1e; /* 윤곽·본문 글자 */
+  --garden-ink-soft: #7a5636; /* 보조 글자(cream 5.95:1) */
+  --garden-ink-deep: #3a2410; /* 판 그림자·눌림 */
+  --garden-sun: #ffc933; /* 주 행동 전용(Play·Share). 장식 금지 */
+  --garden-gold: #ffc933; /* 예전 이름(오리지널 3종) = sun. 새 코드는 --garden-sun */
+  --garden-coral: #e8643f; /* 큰 점수 숫자(≥24px bold) 전용 */
+  --garden-coral-text: #b3431f; /* 작은 강조 글자·링크 hover(cream 5.11:1) */
+  --garden-leaf: #7cc26a; /* 섬 윗면(장식) */
+  --garden-leaf-deep: #4f8a3c; /* 언덕(장식) — 글자 금지 */
+  --garden-leaf-text: #2f6b4f; /* 잎색 글자(5.73:1) */
+  --garden-danger: #ff5a4a; /* 실패·위험 면 */
+  --garden-danger-text: #b3431f; /* 실패·위험 글자 */
+
+  /* 카테고리 꽃색(면 전용, 글자는 ink) — Puzzle·Arcade·Classic·Skill */
+  --garden-lavender: #c9b6f2;
+  --garden-apricot: #ffb27a;
+  --garden-clover: #a8d98f;
+  --garden-sunflower: #ffd966;
+
+  /* 하늘 4시간대(위→아래, draw.ts 값과 같음). 홈은 노을 고정, 시간대는 게임 '방'에만 */
+  --garden-sky-dawn: linear-gradient(180deg, #ffe3b8, #bfe6ff);
+  --garden-sky-day: linear-gradient(180deg, #8fd3ff, #e9f8ff);
+  --garden-sky-sunset: linear-gradient(180deg, #ff9d7a, #ffc6a0, #b79ad9);
+  --garden-sky-night: linear-gradient(180deg, #3d3170, #241c4a);
+  --garden-sea: #b79ad9; /* 노을 하늘 아래 바다·그림자 보라 */
+
+  /* 판 그림자(블러·글로우 금지 — 아래로 단단히 떨어지는 그림자만) */
+  --garden-shadow-island: 0 6px 0 var(--garden-ink-deep); /* 섬 카드·보드 */
+  --garden-shadow-seed: 0 4px 0 var(--garden-ink-deep); /* 씨앗 봉투 카드 */
+  --garden-shadow-button: 0 3px 0 var(--garden-ink-deep); /* 버튼·pill(눌림 시 0 + translateY(3px)) */
+  --garden-shadow-sheet: 0 -2px 0 color-mix(in srgb, var(--garden-ink) 20%, transparent); /* 하단 시트 */
+  --garden-highlight: inset 0 2px 0 #fff8ea; /* 카드 상단 안쪽 하이라이트 */
 }
 /* 게임별 네온 색 대신 같은 크림 제목 + 갈색 윤곽(구분은 색이 아니라 구역=배경이 한다) */
 .garden-title {

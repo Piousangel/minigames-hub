@@ -353,6 +353,7 @@
 | UI·본문 | **Figtree**(OFL) | **Pretendard**(OFL) | 400/500/600/700, 본문 16/26, 메타 13/18 | 숫자는 `font-variant-numeric: tabular-nums`. |
 | 숫자·HUD·결과 큰 수 | **Fredoka**(이미 self-host 중, 300–700) | **Jua**(OFL) | 600–700 | 게임 안과 결과 시트 전용. 사이트 본문 금지(귀여움 과다 방지). |
 | 픽셀 폰트(Press Start 2P) | **은퇴** | – | – | 이스터에그(콘솔 메시지)에만 남김. |
+- **구현 정본은 계획서 D9**(docs/plans/2026-11-19-hub-redesign-v2.md): 600 roman + 600 italic, WONK 0(축·WONK 1·800은 쓰지 않음). R1에서 이렇게 들어갔다. 아래 로딩 전략의 600·800·WONK는 D9 이전 초안이다.
 - 로딩 전략: Fraunces는 **라틴 서브셋 + 필요 축(wght·SOFT·WONK, opsz 고정 72)만 남긴 정적 인스턴스 2개(600·800)** 로 self-host하고 woff2 preload는 1개만 한다. 목표 합계 ≤ 90KB(실측 필요 [추정]). Figtree는 variable 1파일. `display: swap` + `size-adjust`로 CLS를 막는다.
 - 줄길이 본문 최대 68ch. 제목은 `text-wrap: balance`.
 - 대문자 tracking 금지(현재 "FREE ONLINE MINI GAMES" 0.15em → 문장형 "Free online mini games").
