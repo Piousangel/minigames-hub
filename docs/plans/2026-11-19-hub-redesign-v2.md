@@ -111,7 +111,7 @@ export type DailyResult = { slug: string; primary: { label: string; value: numbe
 | PR | 상태 | PR 번호 | 메모 |
 |---|---|---|---|
 | R1 | 머지 | #178 | 토큰 `--garden-*`·`--color-garden-*`·`--shadow-garden-*`, 폰트 `--font-display`·`--font-ui`(preload 끔, 아직 미적용). 새 폰트 62.5KB. 화면 픽셀 diff 0 |
-| R2 | 대기 | | |
+| R2 | 머지 | #179 | 크림 헤더(lg 64px 1줄 / 그 아래 56px sticky + 2행 내비 44px)·푸터 정원 안내판, `src/components/site-chrome/`. 검색=홈 GameBrowser `/#search`, Originals=`/collection/original-games`. 내부 링크 감소 0(+3), 크롬 axe 심각 0, 헤더 기인 CLS 0. Figtree preload. R3 몫: pill 진행 상태(`TODAY_PILL`, 높이 유지), Fraunces roman preload 분리, aria-current |
 | R3 | 대기 | | |
 | R4 | 대기 | | |
 | R5 | 대기 | | |
