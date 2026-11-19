@@ -29,6 +29,16 @@ interface Rec {
 
 const TRACE_MS = 50 // 트레이스 한 칸 = 6스텝 = 50ms
 const START_VIS_MS = 220 // 놓은 뒤 말랑이가 움직이기까지(엔진 시뮬의 0.5초 대기는 그대로, 화면만 앞당김). 그 사이 웅크리는 예비 동작
+/** 선분 a-b가 점 c에서 r 이내를 지나는가 */
+function segmentNear(a: Pt, b: Pt, c: Pt, r: number): boolean {
+  const dx = b.x - a.x
+  const dy = b.y - a.y
+  const l2 = dx * dx + dy * dy
+  const t = l2 === 0 ? 0 : Math.max(0, Math.min(1, ((c.x - a.x) * dx + (c.y - a.y) * dy) / l2))
+  const ex = a.x + t * dx - c.x
+  const ey = a.y + t * dy - c.y
+  return ex * ex + ey * ey < r * r
+}
 const clampPt = (p: Pt): Pt => ({ x: Math.max(18, Math.min(BOARD_W - 18, p.x)), y: Math.max(26, Math.min(BOARD_H - 34, p.y)) })
 
 export interface SlimeBoardProps {
@@ -40,7 +50,9 @@ export interface SlimeBoardProps {
   /** true면 더 그릴 수 없다(일일 시도 소진). */
   attemptsLocked?: boolean
   /** 한 번 재생이 끝날 때마다(도착·실패 모두) 호출. hint = 추천 길이 화면에 떠 있던 판인가. */
-  onAttempt?: (a: { stageId: string; outcome: Outcome; stars: number; score: number; hint: boolean }) => void
+  onAttempt?: (a: { stageId: string; outcome: Outcome; stars: number; score: number; hint: boolean; line: number[][] }) => void
+  /** 앞 스테이지에서 클리어한 내 선(좌표×2 정수). 흐리게 보여 주고 독꽃에 막히는 지점에 ✕를 찍는다(기억 장치). */
+  memoryLine?: number[][] | null
   /** 플레이 기록 복사 버튼(시험판 전용). */
   devTools?: boolean
   /** 재생(애니메이션)이 끝났을 때. 시도 기록은 놓는 순간 이미 끝났으므로, 화면 전환 같은 후속 동작의 타이밍에만 쓴다. */
@@ -50,7 +62,7 @@ export interface SlimeBoardProps {
 }
 
 /** 그리기 → 시뮬 재생 → 결과. 시험판(/tools/slime-proto)과 정식 게임이 같이 쓴다. */
-export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, attemptsLocked = false, onAttempt, devTools = true, onRunEnd, initialFailStreak = 0 }: SlimeBoardProps = {}) {
+export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, attemptsLocked = false, onAttempt, devTools = true, onRunEnd, initialFailStreak = 0, memoryLine = null }: SlimeBoardProps = {}) {
   const SLUG = slug
   const onRunEndRef = useRef(onRunEnd)
   useEffect(() => {
@@ -110,6 +122,7 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
   const ringFlash = useRef(0)
   const failStreak = useRef(initialFailStreak) // 현재 스테이지에서 연속 실패 수(2회 이상이면 추천 길 표시)
   const demoPath = useRef<Pt[] | null>(null)
+  const memory = useRef<{ pts: Pt[]; x: Pt | null } | null>(null)
   const hintLine = useRef<Pt[] | null>(initialFailStreak >= 2 && STAGE_HINTS[SLIME_STAGES[fixedStage ?? 0]?.id] ? runLine(SLIME_STAGES[fixedStage ?? 0], waypointsToRaw(STAGE_HINTS[SLIME_STAGES[fixedStage ?? 0].id]))?.line ?? null : null)
 
   // 카카오톡 같은 인앱 브라우저는 touch-action을 무시해 그리는 중에 화면이 스크롤되거나 당겨진다 →
@@ -183,6 +196,23 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
       mq?.removeEventListener?.('change', onMq)
     }
   }, [])
+
+  // 기억 고스트: 앞 스테이지의 내 선과, 이 스테이지에서 독꽃에 막히는 첫 지점(✕)
+  useEffect(() => {
+    if (!memoryLine || memoryLine.length < 2) {
+      memory.current = null
+      return
+    }
+    const pts = memoryLine.map(([x, y]) => ({ x: x / 2, y: y / 2 }))
+    let hit: Pt | null = null
+    for (const sp of stage.spikes) {
+      for (let i = 0; i + 1 < pts.length && !hit; i++) {
+        if (segmentNear(pts[i], pts[i + 1], sp, CONST.SPIKE_R)) hit = sp
+      }
+      if (hit) break
+    }
+    memory.current = { pts, x: hit }
+  }, [memoryLine, stage])
 
   // 안내 시범용 길: 이 스테이지의 추천 길(없으면 시범 없이 말풍선만)
   useEffect(() => {
@@ -304,6 +334,25 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
       if (cur) {
         drawLine(g, cur, '#5b3a1e', 10)
         drawLine(g, cur, '#fff3dc', 5.5)
+      }
+      // 기억 고스트: 아직 안 그어 본 스테이지에서만(앞에서 내가 쓴 길이 어디서 막히는지 보인다)
+      const mem = memory.current
+      if (mem && phase === 'draw' && raw.current.length === 0 && !line.current && !(recs.current.some((r) => r.stage === stage.id) || failStreak.current > 0)) {
+        g.save()
+        g.setLineDash([3, 9])
+        drawLine(g, mem.pts, 'rgba(255,243,220,0.55)', 5)
+        g.setLineDash([])
+        if (mem.x) {
+          g.font = '800 26px sans-serif'
+          g.textAlign = 'center'
+          g.textBaseline = 'middle'
+          g.fillStyle = '#ff4b4b'
+          g.strokeStyle = '#5b3a1e'
+          g.lineWidth = 4
+          g.strokeText('✕', mem.x.x, mem.x.y - 34)
+          g.fillText('✕', mem.x.x, mem.x.y - 34)
+        }
+        g.restore()
       }
       // 안내 시범: 이 스테이지에서 아직 한 번도 그어 보지 않았으면, 이 스테이지의 추천 길을 따라 손가락이 선을 긋는 시범과 말풍선을 보여준다
       // (예전에는 1번 스테이지 전용·고정 좌표라 2번 스테이지부터는 아무 안내가 없어 '게임이 시작 안 되는' 것처럼 보였다)
@@ -555,7 +604,7 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
     trace.current = tr.length ? tr : [stage.spawn]
     result.current = { outcome: res.outcome, acorns: res.acorns }
     // 시도는 놓는 순간 기록한다: 결과가 이미 확정이라, 재생 중 탭을 닫아도 시도·해금이 남는다(공짜 재시도 방지, PR-0)
-    onAttemptRef.current?.({ stageId: stage.id, outcome: res.outcome, stars: res.acorns, score: scoreOf(res.outcome, res.acorns, polyLength(l), stage.ink), hint: hintLine.current !== null })
+    onAttemptRef.current?.({ stageId: stage.id, outcome: res.outcome, stars: res.acorns, score: scoreOf(res.outcome, res.acorns, polyLength(l), stage.ink), hint: hintLine.current !== null, line: l.map((q) => [Math.round(q.x * 2), Math.round(q.y * 2)]) })
     runStart.current = performance.now()
     ghost.current = l
     finished.current = false

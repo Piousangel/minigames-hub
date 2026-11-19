@@ -158,7 +158,7 @@ describe('미러 스테이지', () => {
   })
   it('스테이지 id가 모두 다르고 반전본이 없다', () => {
     expect(new Set(SLIME_STAGES.map((s) => s.id)).size).toBe(SLIME_STAGES.length)
-    expect(SLIME_STAGES.map((s) => s.id)).toEqual(['g-slide', 's-spike', 'g-wall', 's-wall-b', 's-bounce'])
+    expect(SLIME_STAGES.map((s) => s.id)).toEqual(['g-slide', 'c-meadow', 'g-wall', 's-wall-b', 's-bounce'])
     expect(SLIME_STAGES.some((s) => s.id.endsWith('-m'))).toBe(false) // 반전본은 일일 풀에 없다
   })
 })
@@ -185,5 +185,26 @@ describe('3단계 튕기는 벽', () => {
     const a = simulate(st, [line])
     const b = simulate(st, [line])
     expect(b).toEqual(a)
+  })
+})
+
+describe('2단계 콜백(c-meadow)', () => {
+  const a1 = SLIME_STAGES[0]
+  const a2 = SLIME_STAGES.find((x) => x.id === 'c-meadow')!
+  it('1단계 지형을 그대로 쓰고 독꽃만 더한다', () => {
+    expect(a2.terrain).toEqual(a1.terrain)
+    expect(a2.spawn).toEqual(a1.spawn)
+    expect(a2.nest).toEqual(a1.nest)
+    expect(a2.spikes.length).toBe(2)
+  })
+  it('1단계의 흔한 대각선 직선은 2단계에서 독꽃에 막힌다(콜백)', () => {
+    const diag = [{ x: 50, y: 150 }, { x: 315, y: 488 }]
+    expect(runLine(a1, diag)?.res.outcome).toBe('nest')
+    expect(runLine(a2, diag)?.res.outcome).toBe('spiked')
+  })
+  it('추천 길은 별 3개로 도착한다', () => {
+    const r = runLine(a2, waypointsToRaw(STAGE_HINTS['c-meadow']))
+    expect(r?.res.outcome).toBe('nest')
+    expect(r?.res.acorns).toBe(3)
   })
 })

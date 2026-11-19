@@ -26,7 +26,8 @@ export const SKY: Record<Theme, SkyStyle> = {
 /** 현재 스테이지 → 시간대. 새 스테이지(v3-*)는 여기에 한 줄 추가한다. 없으면 노을(현행). */
 export const THEME_BY_STAGE: Record<string, Theme> = {
   'g-slide': 'dawn',
-  's-spike': 'morning',
+  's-spike': 'afternoon',
+  'c-meadow': 'morning',
   'g-wall': 'noon',
   's-wall-b': 'sunset',
   's-bounce': 'dusk',

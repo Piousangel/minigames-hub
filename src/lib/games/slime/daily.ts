@@ -15,6 +15,8 @@ export interface Attempt {
   stars: number // 0~3
   score: number // 도착이 아니면 0
   hint: boolean // 추천 길을 본 뒤의 시도인가(공유·순위에서 구분)
+  /** 그은 선(좌표×2 정수 [x2,y2][]). 다음 스테이지의 고스트와 서버 재생 입력에 쓴다. 구 데이터에는 없다. */
+  line?: number[][]
 }
 
 /** 점수 = 별 × 100 + 남긴 잉크 %(0~100). 도착하지 못하면 0. */

@@ -53,6 +53,12 @@ function saveProgress(iso: string, p: DailyProgress) {
 }
 
 /** 저장된 시도에서 끝에서부터 이어진 실패 횟수(깨면 0). */
+/** 그 스테이지를 깬 시도 중 최고점의 선(고스트용). 구 데이터에는 선이 없다. */
+const clearedLine = (list: Attempt[]): number[][] | null => {
+  const won = list.filter((a) => a.outcome === 'nest' && a.line)
+  return won.length ? (won.reduce((b, a) => (a.score > b.score ? a : b)).line ?? null) : null
+}
+
 const failStreakOf = (list: Attempt[]): number => {
   let n = 0
   for (let i = list.length - 1; i >= 0 && list[i].outcome !== 'nest'; i--) n++
@@ -93,11 +99,11 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
   }, [])
 
   const onAttempt = useCallback(
-    (a: { stageId: string; outcome: Attempt['outcome']; stars: number; score: number; hint: boolean }) => {
+    (a: { stageId: string; outcome: Attempt['outcome']; stars: number; score: number; hint: boolean; line: number[][] }) => {
       if (mode !== 'daily' || !day) return
       setSettled(false)
       setProgress((prev) => {
-        const next = recordAttempt(prev, view, { outcome: a.outcome, stars: a.stars, score: a.score, hint: a.hint })
+        const next = recordAttempt(prev, view, { outcome: a.outcome, stars: a.stars, score: a.score, hint: a.hint, line: a.line })
         if (next !== prev) saveProgress(day, next)
         return next
       })
@@ -166,6 +172,7 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
         attemptsLocked={locked}
         onAttempt={onAttempt}
         onRunEnd={() => setSettled(true)}
+        memoryLine={mode === 'daily' && view > 0 ? clearedLine(progress[view - 1] ?? []) : null}
         initialFailStreak={mode === 'daily' ? failStreakOf(progress[view] ?? []) : 0}
         devTools={false}
       />
