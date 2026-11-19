@@ -25,7 +25,15 @@ export function scoreOf(outcome: Outcome, stars: number, inkUsed: number, inkMax
   return stars * 100 + Math.max(0, Math.min(100, Math.round((100 * (inkMax - inkUsed)) / inkMax)))
 }
 
-export const bestOf = (attempts: Attempt[]): Attempt | null => attempts.reduce<Attempt | null>((b, a) => (a.score > (b?.score ?? -1) ? a : b), null)
+/** 힌트를 본 시도의 별 상한(오너 승인 11-19 ④: 추천 길이 곧 만점이 되지 않게). 표시는 실제 별, 점수만 상한. */
+export const HINT_STAR_CAP = 2
+
+/** 시도 점수 = scoreOf, 단 힌트가 보인 시도는 별을 HINT_STAR_CAP으로 상한. 클라와 서버 재생 검증이 같은 함수를 쓴다. */
+export function attemptScore(outcome: Outcome, stars: number, inkUsed: number, inkMax: number, hint: boolean): number {
+  return scoreOf(outcome, hint ? Math.min(stars, HINT_STAR_CAP) : stars, inkUsed, inkMax)
+}
+
+export const bestOf =(attempts: Attempt[]): Attempt | null => attempts.reduce<Attempt | null>((b, a) => (a.score > (b?.score ?? -1) ? a : b), null)
 
 export const attemptsLeft = (attempts: Attempt[]): number => Math.max(0, DAILY_ATTEMPTS - attempts.length)
 
@@ -96,4 +104,19 @@ export function progressShareText(iso: string, p: DailyProgress, url = ''): stri
     .join('')
   const head = `Slime Slide #${dailyNumber(iso)} · ${clearedCount(p)}/${p.length} stages · ${dailyTotal(p)} pts${usedHint(p) ? ' (used a hint)' : ''}`
   return [head, marks, url].filter(Boolean).join('\n')
+}
+
+/**
+ * 서버 재생 검증 제출 본문(/api/slime/submit). 시도마다 그은 선을 그린 순서대로 보내고, 서버가 다시 시뮬해 점수를 낸다.
+ * 선이 없는 옛 시도가 섞여 있으면 null(증거를 못 만든다).
+ */
+export function slimeSubmitBody(day: string, p: DailyProgress, name: string, vid: string): Record<string, unknown> | null {
+  let last = -1
+  p.forEach((list, i) => {
+    if (list.length) last = i
+  })
+  if (last < 0) return null
+  const stages = p.slice(0, last + 1).map((list) => list.map((a) => (a.line ? { lines: [a.line] } : null)))
+  if (stages.some((l) => l.some((a) => a === null))) return null
+  return { v: 2, day, vid, name, stages }
 }

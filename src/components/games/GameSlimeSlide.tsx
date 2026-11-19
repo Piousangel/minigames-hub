@@ -5,7 +5,7 @@ import { OverlayScoreSubmit } from '@/components/game-shell/OverlayScoreSubmit'
 import { ShareButtons } from '@/components/ShareButtons'
 import { SlimeProto } from '@/components/SlimeProto'
 import { todayLocal } from '@/lib/dailyDate'
-import { sendHit } from '@/lib/hit'
+import { sendHit, visitorId } from '@/lib/hit'
 import {
   DAILY_ATTEMPTS,
   attemptsLeft,
@@ -17,6 +17,7 @@ import {
   emptyProgress,
   progressShareText,
   recordAttempt,
+  slimeSubmitBody,
   stageState,
   type Attempt,
   type DailyProgress,
@@ -25,6 +26,7 @@ import { SLIME_STAGES } from '@/lib/games/slime/stages'
 import { slotName } from '@/lib/games/slime/theme'
 import { SlimeJourney } from '@/components/games/SlimeJourney'
 import { EN } from '@/lib/games/slime/strings'
+import { trackVisit, type VisitTrigger } from '@/lib/games/slime/visits'
 
 const SLUG = 'slime-slide'
 const TOTAL = SLIME_STAGES.length
@@ -49,6 +51,15 @@ function saveProgress(iso: string, p: DailyProgress) {
     if (total > prev) localStorage.setItem(`best:${SLUG}`, String(total)) // 리더보드 제출용(하루 합산 최고)
   } catch {
     /* 저장소를 못 써도 판은 계속된다 */
+  }
+}
+
+/** 기기 단위 하루 1회 이벤트(시작·완료·재방문). 중복 방지는 visits.ts가 저장소로 한다. */
+function fireVisit(iso: string, trigger: VisitTrigger) {
+  try {
+    for (const e of trackVisit(localStorage, iso, trigger)) sendHit(SLUG, e)
+  } catch {
+    /* 측정 실패가 판을 막지 않게 */
   }
 }
 
@@ -104,7 +115,11 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
       setSettled(false)
       setProgress((prev) => {
         const next = recordAttempt(prev, view, { outcome: a.outcome, stars: a.stars, score: a.score, hint: a.hint, line: a.line })
-        if (next !== prev) saveProgress(day, next)
+        if (next !== prev) {
+          saveProgress(day, next)
+          fireVisit(day, 'start')
+          if (dailyOver(next)) fireVisit(day, 'complete') // 기록된 시도로 하루가 끝났다(이미 끝난 날은 recordAttempt가 prev를 돌려준다)
+        }
         return next
       })
     },
@@ -188,7 +203,18 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
               <ShareButtons slug={SLUG} title="Slime Slide" text={share} />
             </div>
           )}
-          <OverlayScoreSubmit slug={SLUG} show={total > 0} />
+          <OverlayScoreSubmit
+            slug={SLUG}
+            show={total > 0}
+            verified={{
+              score: total,
+              key: `${SLUG}:${day}`,
+              request: (name) => {
+                const body = slimeSubmitBody(day, progress, name, visitorId())
+                return body ? { url: '/api/slime/submit', body } : null
+              },
+            }}
+          />
         </section>
       )}
     </div>

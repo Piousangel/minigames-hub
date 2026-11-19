@@ -33,7 +33,20 @@ export function readBestScore(slug: string): number {
  * 입력창의 키 이벤트는 전파를 끊어 window에 붙은 게임 키 핸들러(방향키·스페이스 등)로 새지 않게 한다.
  * 오버레이가 뜨자마자 게임 재시작 키를 삼키지 않도록 자동 포커스는 하지 않는다.
  */
-export function OverlayScoreSubmit({ slug, show }: { slug: string; show: boolean }) {
+/**
+ * 검증 제출(선택): 게임이 점수 대신 증거를 서버에 보내는 경우(말랑 미끄럼길 /api/slime/submit).
+ * - score: best:<slug> 대신 보여 주고 제출할 점수(예: 오늘 합계)
+ * - key: 중복 제출 방지 키(기본 slug, 예: 'slime-slide:2026-11-20' → 날마다 따로)
+ * - request: 이름을 받아 보낼 요청. null이면 기본 /api/score 경로.
+ * 응답의 submitted.score(서버가 다시 계산한 점수)가 있으면 그 값을 저장한다.
+ */
+export interface VerifiedSubmit {
+  score: number
+  key: string
+  request: (name: string) => { url: string; body: unknown } | null
+}
+
+export function OverlayScoreSubmit({ slug, show, verified }: { slug: string; show: boolean; verified?: VerifiedSubmit }) {
   const [best, setBest] = useState(0)
   const [name, setName] = useState('')
   const [editing, setEditing] = useState(false)
@@ -41,6 +54,8 @@ export function OverlayScoreSubmit({ slug, show }: { slug: string; show: boolean
   const [rankInfo, setRankInfo] = useState<RankInfo | null>(null)
   const submittedRef = useRef(0)
   const meta = LEADERBOARD_GAMES[slug]
+  const verifiedKey = verified?.key
+  const verifiedScore = verified?.score
 
   useEffect(() => {
     if (!show) return
@@ -49,13 +64,17 @@ export function OverlayScoreSubmit({ slug, show }: { slug: string; show: boolean
     const saved = loadPlayerName()
     setName(saved)
     setEditing(!saved.trim())
-    submittedRef.current = loadSubmittedScore(slug)
+    submittedRef.current = loadSubmittedScore(verifiedKey ?? slug)
+    if (verifiedScore != null) {
+      setBest(verifiedScore)
+      return
+    }
     // 게임이 best를 오버레이와 같은 틱에 쓰지 않는 경우가 있어 잠시 뒤 한 번 더 읽는다.
     const read = () => setBest(readBestScore(slug))
     read()
     const t = setTimeout(read, 600)
     return () => clearTimeout(t)
-  }, [show, slug])
+  }, [show, slug, verifiedKey, verifiedScore])
 
   if (!show || !meta || best <= 0) return null
   const fresh = best > submittedRef.current && state !== 'done'
@@ -79,16 +98,20 @@ export function OverlayScoreSubmit({ slug, show }: { slug: string; show: boolean
     if (!trimmed || state === 'sending') return
     setState('sending')
     try {
-      const res = await fetch('/api/score', {
+      const custom = verified?.request(trimmed) ?? null
+      const res = await fetch(custom?.url ?? '/api/score', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ game: slug, name: trimmed, score: best }),
+        body: JSON.stringify(custom ? custom.body : { game: slug, name: trimmed, score: best }),
       })
       if (!res.ok) throw new Error('bad')
-      const info = parseRankInfo(await res.json().catch(() => null))
+      const data = (await res.json().catch(() => null)) as { submitted?: { score?: unknown } } | null
+      const info = parseRankInfo(data)
       setRankInfo(info)
       if (info) sendHit(slug, 'lb_rank_shown')
-      saveSubmittedScore(slug, best)
+      const serverScore = Number(data?.submitted?.score)
+      // 서버가 다시 계산한 점수가 다르면(검증 제출) 그 값을 제출 기록으로 — 같은 판을 다시 내밀지 않게 큰 쪽을 저장
+      saveSubmittedScore(verified?.key ?? slug, Number.isFinite(serverScore) && serverScore > 0 ? Math.max(best, serverScore) : best)
       savePlayerName(trimmed)
       sendHit(slug, 'lb_submit')
       sendHit(slug, 'lb_submit_overlay')

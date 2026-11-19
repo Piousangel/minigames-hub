@@ -158,6 +158,44 @@ async function main() {
     ]),
   )
 
+  // 3.8) 말랑 미끄럼길 일일 퍼널(기기 단위 재방문) — src/lib/games/slime/visits.ts가 기기당 하루 1번만 쏜다.
+  // start = 오늘 첫 시도, complete = 일일 끝냄, return = 전에 다른 날 하던 기기가 오늘 시작(d1=연속, d2_7, d8p=간격).
+  // 하루 1회라 distinct vid ≈ 기기 수. 날짜는 AE timestamp의 UTC 일 — 게임의 날(현지 자정)과 몇 시간 어긋날 수 있다.
+  // LIKE의 '_'는 와일드카드라 이벤트 이름을 IN으로 못 박는다.
+  const SL_EVENTS = ['sl_daily_start', 'sl_daily_complete', 'sl_return', 'sl_return_d1', 'sl_return_d2_7', 'sl_return_d8p']
+  const slime = await q(
+    `SELECT toStartOfInterval(timestamp, INTERVAL '1' DAY) AS day, blob1 AS event,
+       COUNT(DISTINCT blob4) AS devices, SUM(_sample_interval) AS hits
+     FROM mg_events
+     WHERE index1='slime-slide' AND blob1 IN (${SL_EVENTS.map((e) => `'${e}'`).join(',')}) AND ${SINCE}
+     GROUP BY day, event ORDER BY day DESC, event`,
+  )
+  // 행(day×event)을 날짜당 한 줄로 펼친다
+  const byDay = new Map()
+  for (const r of slime.data || []) {
+    const d = String(r.day).slice(0, 10)
+    if (!byDay.has(d)) byDay.set(d, { day: d })
+    byDay.get(d)[r.event] = Number(r.devices || 0)
+  }
+  const slRows = [...byDay.values()].map((r) => {
+    const s = r.sl_daily_start || 0
+    return { ...r, done_pct: s ? `${Math.round((100 * (r.sl_daily_complete || 0)) / s)}%` : '—', ret_pct: s ? `${Math.round((100 * (r.sl_return || 0)) / s)}%` : '—' }
+  })
+  console.log(`\n[★ 말랑 미끄럼길 일일 퍼널 — 날짜별 기기 수(distinct vid)]`)
+  console.log(
+    table(slRows, [
+      { h: 'day(UTC)', k: 'day' },
+      { h: 'start', k: 'sl_daily_start' },
+      { h: 'complete', k: 'sl_daily_complete' },
+      { h: 'done%', k: 'done_pct' },
+      { h: 'return', k: 'sl_return' },
+      { h: 'ret%', k: 'ret_pct' },
+      { h: 'd1', k: 'sl_return_d1' },
+      { h: 'd2-7', k: 'sl_return_d2_7' },
+      { h: 'd8+', k: 'sl_return_d8p' },
+    ]),
+  )
+
   console.log(`\n[국가]`)
   console.log(table(geo.data, [{ h: 'country', k: 'country' }, { h: 'n', k: 'n' }]))
 

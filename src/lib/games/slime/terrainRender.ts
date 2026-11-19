@@ -1,4 +1,5 @@
-import { BOARD_H, BOARD_W, type Pt, type Seg, type Stage } from './types'
+import { backingSize } from './canvasLayer'
+import { BOARD_H, type Pt, type Seg, type Stage } from './types'
 
 /**
  * 지형 렌더러 v2(오너 11-19: 단순 막대기로 구성하지 않는다). 충돌 선분 체인을 채워진 암석 덩어리로 그린다.
@@ -75,10 +76,10 @@ function trace(g: CanvasRenderingContext2D, pts: Pt[]) {
 /** 정적 지형 레이어(튕기는 벽·움직이는 것 제외). dpr 배율로 선명하게. canvas 생성이 안 되는 환경이면 null. */
 export function renderTerrainLayer(stage: Stage, width: number, dpr: number): HTMLCanvasElement | null {
   if (typeof document === 'undefined') return null
-  const scale = (width * dpr) / BOARD_W
+  const { bw, bh, k: scale } = backingSize(width, dpr) // 메인 캔버스와 같은 식(크기가 정확히 같아야 1:1 복사)
   const cv = document.createElement('canvas')
-  cv.width = Math.round(BOARD_W * scale)
-  cv.height = Math.round(BOARD_H * scale)
+  cv.width = bw
+  cv.height = bh
   const g = cv.getContext('2d')
   if (!g) return null
   g.scale(scale, scale)

@@ -46,6 +46,15 @@ function hash(i: number): number {
 
 /** 에셋 하늘 위에 시간대 색 막·해/달·별을 얹는다. W×H는 논리 보드 크기. */
 export function paintSkyTheme(g: CanvasRenderingContext2D, theme: Theme, W: number, H: number, t: number, calm: boolean): void {
+  paintSkyVeil(g, theme, W, H)
+  paintSkyStars(g, theme, W, H, t, calm)
+}
+
+/** 별이 프레임마다 반짝이는가(아니면 하늘 전체가 정적이라 오프스크린 캐시에 같이 넣을 수 있다). */
+export const skyStarsAnimated = (theme: Theme, calm: boolean): boolean => !calm && SKY[theme].stars > 0
+
+/** 시간대의 정적 부분: 색 막·바다 띠·해/달(시간 무관 → 오프스크린 캐시 대상). */
+export function paintSkyVeil(g: CanvasRenderingContext2D, theme: Theme, W: number, H: number): void {
   const s = SKY[theme]
   if (s.veil > 0) {
     const grad = g.createLinearGradient(0, 0, 0, H * 0.62)
@@ -79,6 +88,11 @@ export function paintSkyTheme(g: CanvasRenderingContext2D, theme: Theme, W: numb
     g.fill()
     g.restore()
   }
+}
+
+/** 시간대의 별(움직임 줄이기면 고정 밝기). 색 막·해/달 위에 그린다. */
+export function paintSkyStars(g: CanvasRenderingContext2D, theme: Theme, W: number, H: number, t: number, calm: boolean): void {
+  const s = SKY[theme]
   for (let i = 0; i < s.stars; i++) {
     const x = hash(i) * W
     const y = hash(i + 91) * H * 0.55

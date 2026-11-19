@@ -1,5 +1,17 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-19 22시 야간 개발 B 인계 — 서버 재생 검증·측정·성능·에셋 기준 (브랜치 `shift/22-replay-verify`)
+
+**한 줄:** 말랑 점수를 서버가 선을 재생해 다시 계산한다(`/api/slime/submit`, 옛 `/api/score` 경로는 slime-slide 거부). 기기 단위 일일 퍼널·재방문 이벤트, 인앱 브라우저 10종 판별, 캔버스 dpr 2 캡·배경 오프스크린 캐시, 번들 기준선, 에셋 스타일 기준·검수표.
+- **서버 검증**: `src/lib/games/slime/{canon,verify}.ts`, 워커 `slimeSubmit`. 보고·실측 `docs/design/slime/PR-11-replay-verify.md`(정직한 선 7,290개 오탐 0, 판당 0.11ms, 워커 번들 gzip 6→12KiB). 힌트 별 상한 2(오너 승인 ④)를 클라·서버 공통 `attemptScore`로 구현.
+- **D1**: `slime_daily` 추가 전용 마이그레이션 `db/migrations/0001_slime_daily.sql`. deploy.yml이 배포 전에 원격 실행(`continue-on-error`). **배포 후 Actions 로그에서 'D1 additive migrations' 단계 성공 여부 확인** — 실패해도 워커는 검증된 점수를 scores에 추가하는 폴백으로 동작(단 (day,player) 1행 정리 없음).
+- **측정**: `src/lib/games/slime/visits.ts` — `sl_daily_start`·`sl_daily_complete`·`sl_return`(+`_d1`/`_d2_7`/`_d8p`), 기기(vid)·하루 1회. `scripts/analytics.mjs` 3.8절 표(`toStartOfInterval` 첫 실행 확인 필요).
+- **인앱 UA**: `src/lib/inAppBrowser.ts`(카카오·인스타·페북·네이버·라인·다음·에브리타임·밴드·위챗·틱톡). 카카오 외 앱은 새 일반 안내 문구 `inAppNote`.
+- **성능**: `src/lib/games/slime/canvasLayer.ts` — 3x 기기 390px 캔버스 픽셀 −56%, 배경 drawImage 1회. 2x 시각 비교 1/255 이내. 기준선 `docs/perf/bundle-baseline-2026-11-19.md` — 슬라임 코드는 안 샌다, 진짜 공용 비용은 registry 전문 청크(77.5KB gzip, 모든 페이지) → 다음 성능 과제.
+- **에셋**: `docs/design/asset-style-standard.md`·`asset-review-sheet.md`(GEMINI.md에 링크). **스펙 F를 그대로 요청하면 깨지는 곳 8개**(파란 키 미지원, size는 긴 변 상한, 초안·최종 id 분리, PR-2 합성 시안 8장 미존재 등) — 검수표 문서 참고, PR-10 전에 해결.
+- **함정**: e2e `Slime Slide` 스모크가 main에서도 실패(연습 탭의 'Choose stage' 그룹이 fixedStage로 숨겨짐 — 테스트가 낡음, 미수정). 이 컨테이너 Chromium은 1243이라 Playwright 1228 기본 경로와 다름(executablePath 지정). `npx --yes`는 권한 분류기에 막힌다 → 스크립트는 vitest 테스트로 실측.
+- **⏭ 다음 교대**: ① 배포 후 마이그레이션 단계·라이브 제출 1건(AE `sl_submit_verified`)·Workers CPU p99 ② WebKit·Firefox 클라-서버 동일 결과 픽스처 ③ e2e 슬라임 스모크 갱신 ④ registry 클라이언트 경량 인덱스 분리(전 페이지 77KB) ⑤ 보드 문구 "best day of the week".
+
 ## ▶ 2026-11-18 인계(팀 세션용) — 큰 흐름 4개
 
 **한 줄:** 오늘은 뿅 착지 후속, 리더보드 S0·S1, 공유 버튼, 스크롤 갇힘 수정(35종), 신작 B 엔진 G2까지 진행. 팀은 `docs/team/cycle.md` 맨 아래 항목부터 이어간다.
