@@ -723,6 +723,24 @@ test('홈(R4): Show all을 안 눌러도 전 게임 링크가 HTML에 있다(접
   await expect(grid.locator('li:visible')).toHaveCount(total)
 })
 
+test('홈(오너 11-20): 390은 씨앗 도서관 기본 12개(카테고리별 3), 링크는 전부 DOM, Show all로 편다', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/')
+  const grid = page.getByTestId('library-grid')
+  const total = Number((await page.getByTestId('library-toggle').innerText()).match(/\d+/)![0])
+  expect(total).toBeGreaterThanOrEqual(113)
+  await expect(grid.locator('li:visible')).toHaveCount(12)
+  await expect(grid.locator('li')).toHaveCount(total)
+  await expect(grid.locator('li a[href^="/"]')).toHaveCount(total)
+  await page.getByTestId('library-toggle').click()
+  await expect(grid.locator('li:visible')).toHaveCount(total)
+  await page.getByTestId('library-toggle').click()
+  await expect(grid.locator('li:visible')).toHaveCount(12)
+  // md(768) 경계: 768부터는 24개
+  await page.setViewportSize({ width: 768, height: 900 })
+  await expect(grid.locator('li:visible')).toHaveCount(24)
+})
+
 test('홈(R4): 내부 링크가 R3 기준(전체 168 / 고유 경로 127)보다 줄지 않는다', async ({ request }) => {
   const html = (await (await request.get('/')).text()).replace(/<script[\s\S]*?<\/script>/g, '')
   const hrefs = [...html.matchAll(/<a\b[^>]*?href="(\/[^"]*)"/g)].map((m) => m[1]).filter((h) => !h.startsWith('//'))
