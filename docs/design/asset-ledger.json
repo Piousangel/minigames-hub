@@ -154,8 +154,33 @@
       "out": "public/art/haessi-sad.webp",
       "model": "gemini-3-pro-image",
       "at": "2026-11-19T13:14:04+00:00"
+    },
+    "bomi-sheet": {
+      "out": "docs/design/mascots/bomi-sheet.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:14:56+00:00"
+    },
+    "bomi-idle": {
+      "out": "public/art/bomi-idle.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:15:14+00:00"
+    },
+    "bomi-deliver": {
+      "out": "public/art/bomi-deliver.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:15:31+00:00"
+    },
+    "bomi-cheer": {
+      "out": "public/art/bomi-cheer.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:15:58+00:00"
+    },
+    "bomi-sad": {
+      "out": "public/art/bomi-sad.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:16:20+00:00"
     }
   },
   "month": "2026-11",
-  "count": 30
+  "count": 35
 }
