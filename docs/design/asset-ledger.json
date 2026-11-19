@@ -129,8 +129,33 @@
       "out": "docs/design/mascots/mascot3-e-cloud-whale.webp",
       "model": "gemini-3-pro-image",
       "at": "2026-11-19T13:07:46+00:00"
+    },
+    "haessi-sheet": {
+      "out": "docs/design/mascots/haessi-sheet.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:12:43+00:00"
+    },
+    "haessi-idle": {
+      "out": "public/art/haessi-idle.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:13:10+00:00"
+    },
+    "haessi-cheer": {
+      "out": "public/art/haessi-cheer.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:13:26+00:00"
+    },
+    "haessi-think": {
+      "out": "public/art/haessi-think.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:13:46+00:00"
+    },
+    "haessi-sad": {
+      "out": "public/art/haessi-sad.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:14:04+00:00"
     }
   },
   "month": "2026-11",
-  "count": 25
+  "count": 30
 }
