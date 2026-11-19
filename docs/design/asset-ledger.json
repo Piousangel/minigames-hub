@@ -239,8 +239,18 @@
       "out": "public/art/hub-hero-mobile-4f-b.webp",
       "model": "gemini-3-pro-image",
       "at": "2026-11-19T22:36:58+00:00"
+    },
+    "hub-hero-desktop-4f-c": {
+      "out": "public/art/hub-hero-desktop-4f-c.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T22:39:58+00:00"
+    },
+    "hub-hero-desktop-4f-d": {
+      "out": "public/art/hub-hero-desktop-4f-d.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T22:40:13+00:00"
     }
   },
   "month": "2026-11",
-  "count": 47
+  "count": 49
 }
