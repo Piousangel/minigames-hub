@@ -3,7 +3,7 @@ import { siteConfig } from '@/lib/siteConfig'
 import { SiteFooter } from '@/components/site-chrome/SiteFooter'
 import { SiteHeader } from '@/components/site-chrome/SiteHeader'
 import { RecordPageView } from '@/components/RecordPageView'
-import { displayFont, pixelFont, uiFont } from './fonts'
+import { displayFont, displayItalicFont, pixelFont, uiFont } from './fonts'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -25,7 +25,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // displayFont·uiFont는 CSS 변수(--font-display·--font-ui)로 노출. R2: 헤더·푸터만 font-ui/font-display, body 전체는 R3.
   return (
-    <html lang="en" className={`${pixelFont.variable} ${displayFont.variable} ${uiFont.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${pixelFont.variable} ${displayFont.variable} ${displayItalicFont.variable} ${uiFont.variable}`} suppressHydrationWarning>
       <body className="scanlines flex min-h-screen flex-col antialiased">
         {/* Mark JS as available BEFORE first paint so the scroll-reveal hidden
             state only applies for JS-capable browsers (no FOUC; no-JS/crawlers

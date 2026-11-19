@@ -17,6 +17,7 @@ import {
   emptyProgress,
   progressShareText,
   recordAttempt,
+  slimeDayKey,
   slimeSubmitBody,
   stageState,
   type Attempt,
@@ -33,7 +34,7 @@ const TOTAL = SLIME_STAGES.length
 type Mode = 'daily' | 'practice'
 const NEXT_DELAY_MS = 3200 // 깬 뒤 다음 스테이지로 자동으로 넘어가기까지
 
-const dayKey = (iso: string) => `slime:daily2:${iso}`
+const dayKey = slimeDayKey
 function loadProgress(iso: string): DailyProgress {
   try {
     const v = JSON.parse(localStorage.getItem(dayKey(iso)) ?? 'null')

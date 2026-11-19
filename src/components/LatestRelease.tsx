@@ -30,8 +30,9 @@ export function LatestRelease() {
         style={{ borderColor: accent }}
         className="group relative block overflow-hidden rounded-2xl border-2 bg-surface shadow-[0_0_24px_rgba(251,191,36,0.18)] transition-transform duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-amber focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
       >
+        {/* R3: 히어로 키아트가 LCP라 이 커버는 우선순위를 낮춘다(예전엔 fetchPriority high + preload로 키아트와 다퉜다) */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={meta.cover} alt="" width={1200} height={670} fetchPriority="high" className="aspect-[16/9] w-full object-cover" />
+        <img src={meta.cover} alt="" width={1200} height={670} loading="lazy" decoding="async" className="aspect-[16/9] w-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0b0b16]/90 via-[#0b0b16]/25 to-transparent" aria-hidden="true" />
         <div className="absolute inset-x-0 bottom-0 flex flex-col gap-1.5 p-4 sm:p-6">
           <span className="font-pixel w-fit rounded-full bg-neon-amber px-2.5 py-1 text-[9px] tracking-[0.2em] text-stone-900 sm:text-[10px]">NEW · LATEST RELEASE</span>

@@ -9,9 +9,8 @@ import { ALL_GAMES_ANCHOR } from './anchors'
 export type HeaderNavIcon = 'isle' | 'packet' | 'well'
 export type ChromeLink = { href: string; label: string }
 
-// 크롬 공통 포커스 링: 크림 위 ink 2px + 크림 오프셋(대비 9:1 이상). outline 대신 ring이라 모서리를 따른다.
-export const chromeFocus =
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-garden-ink focus-visible:ring-offset-2 focus-visible:ring-offset-garden-cream'
+// chromeFocus·TODAY_PILL은 클라이언트 섬(TodayPill)도 쓰므로 registry 없는 chromeBase.ts에 둔다.
+export { TODAY_PILL, chromeFocus } from './chromeBase'
 
 
 // D12: Originals · All games (N) · Leaderboards. N은 항상 계산(D4).
@@ -22,8 +21,6 @@ export const HEADER_NAV: (ChromeLink & { icon: HeaderNavIcon })[] = [
   { href: '/leaderboards', label: 'Leaderboards', icon: 'well' },
 ]
 
-/** 오늘 pill — /daily. 정적 HTML은 첫 방문 문구(D2). 진행 상태 표시는 R3. */
-export const TODAY_PILL = { href: '/daily', label: '3 free daily puzzles', short: 'Daily puzzles', tiny: 'Daily' }
 
 // 푸터 '정원 안내판'. 예전 헤더(Guides·About)·푸터 링크를 모두 포함한다(AdSense 필수 페이지 About·Privacy·Terms·Contact).
 export const FOOTER_GROUPS: { id: string; title: string; links: ChromeLink[]; inline?: boolean }[] = [

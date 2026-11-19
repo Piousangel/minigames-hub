@@ -115,3 +115,13 @@
 - 선택: 검색 버튼은 홈 GameBrowser 입력(`/#search`)으로 보내고 마운트 때 스크롤·포커스. Originals는 기존 `/collection/original-games`. All games는 `/#all-games`(GameBrowser). 모바일은 1행(로고·pill·검색 56px)만 sticky(z 42), 2행 내비(z 41)는 스크롤과 함께 1행 밑으로 사라진다. pill 전체 문구는 640 이상에서만 들어가 380~639는 "Daily puzzles", 380 미만은 "Daily", 접근 이름은 늘 "3 free daily puzzles". 앵커 여백은 html `scroll-padding-top`(4rem/lg 5rem).
 - 알려진 비용(독립 리뷰): 모바일 게임 페이지 첫 화면이 2행(44px)만큼 내려간다(2048 h1 top 69 → 126px). 게임 페이지에서 2행 숨김은 오너 결정. wordmark 때문에 Fraunces roman(19KB)을 모든 페이지가 받고 swap 깜빡임이 있다(높이 고정이라 CLS 0) — R3에서 roman만 preload로 분리. 현재 위치 표시(aria-current·밑줄)는 서버 레이아웃이라 R3 이후 클라이언트 섬으로.
 - 버린 안: 새 /search 페이지(범위 밖·얇은 페이지), 헤더 2행 통째 sticky(게임 화면 100px 잠식), pill 문구 줄바꿈.
+
+## 2026-11-19 리디자인 v2 R3 홈 히어로: 호수 기준일·정원 판정·게임 페이지 2행 숨김(팀)
+- 맥락: 계획서 R3(노을 하늘·H1 2단·키아트·오늘 호 카드·마스트헤드)를 만들며 정할 것이 생겼다.
+- **No.1 기준일 = 2026-07-18(UTC)** (`src/lib/home/edition.ts` EDITION_EPOCH_UTC). 근거: 이날 `src/lib/dailyDate.ts`(todayUTC)가 생겨(커밋 87c09c7) 데일리 7종의 "오늘"이 하나의 UTC 자정으로 묶였다 — 사이트 전체가 같은 순간에 같은 판을 낸 첫날. 그 전(07-15 첫 dailySeed 게임~07-17)은 게임마다 로컬/UTC 자정이 섞여 '한 호'가 없었다. 2026-11-19 = No. 125. 바꾸면 모든 호수가 바뀌므로 고정.
+- **오늘의 정원 판정**(`readGarden`): 말랑 = `slime:daily2:<현지 날짜>`에 시도 1개 이상, 뿅·도토리 = 날짜별 완료 기록이 없어 오늘(UTC) 그 게임을 연 기록(`quest:<UTC>`, RecordPlay). '열었으면 핌'은 약한 신호라 **R5(DailyResult)가 날짜별 완료 기록을 남기면 그 키로 바꾼다**. 게임 코드는 바꾸지 않았다(말랑 키는 `slimeDayKey`로 공용화만).
+- 카드 3상태: first = Slime Slide(정적 HTML), in-progress = 순서(말랑→뿅→도토리)상 안 핀 첫 게임, complete = "All three bloomed" + Play more daily games(/daily). 노란 Play는 상태와 무관하게 1개. pill: "3 free daily puzzles" / "Today n/3" / "Garden full".
+- **모바일 게임 페이지에서 헤더 2행 내비 숨김**(R2 리뷰 남은 건): `main[data-game-page]`가 있으면 `body:has(...) [data-site-nav-row]{display:none}`. 게임 첫 화면이 46px 올라온다. 홈·허브 페이지는 그대로. `:has` 미지원 브라우저는 예전처럼 보인다(기능 손실 없음 — 1행 검색·pill, 푸터 링크).
+- 키아트: 768 미만 모바일판(600·720·896w srcset), 768 이상 데스크톱판이 헤더 뒤까지 덮음. **1920은 업스케일하지 않고 1440 틀 안**에 두고 좌우 160px을 하늘 그라데이션 div(mask)로 잇는다 — 1920 꽉 채우면 1.4배 확대 + 히어로 1,072px(첫 화면 넘침). 데스크톱 바닥 라벤더 띠는 R4 티켓 줄 자리라 R3에선 잘라(object-position top) 히어로 704px.
+- 폰트: Fraunces를 roman(preload)·italic(preload 안 함, `font-display-italic`) 두 객체로 분리. Fredoka(roundFont)를 `src/app/roundFont.ts`로 떼어 홈·허브가 더는 preload하지 않는다(쓰는 게임 페이지만, −30KB). LatestRelease 커버의 fetchPriority high를 lazy로(키아트와 다툼 방지).
+- 버린 안: 키아트 CSS 배경(LCP·리뷰 B8), 1920 업스케일, 날짜를 빌드 시각으로 굳히기(B9), 카드 상태마다 다른 높이.

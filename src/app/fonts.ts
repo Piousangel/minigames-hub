@@ -9,30 +9,36 @@ export const pixelFont = localFont({
   weight: '400',
 })
 
-// 둥근 캐주얼 폰트(Fredoka, OFL, 라틴 서브셋 가변 600–700). Acorn Hop처럼 '동화풍' 게임의 HUD·결과창 전용.
-export const roundFont = localFont({
-  src: './fonts/Fredoka.woff2',
-  display: 'swap',
-  variable: '--font-round',
-  weight: '300 700',
-})
+// 둥근 캐주얼 폰트(Fredoka)는 ./roundFont.ts — 여기 두면 레이아웃이 이 파일을 import해서 홈·허브 전 페이지가
+// Fredoka(30KB)를 preload했다(R3에서 분리, 쓰는 게임 페이지에서만 preload).
+
 
 // ───── 허브 리디자인 v2 「노을 정원」 폰트 (계획서 D9, R1에서는 변수만 노출 — 적용은 R2·R3) ─────
 // 원본: Google Fonts 공식 소스(google/fonts ofl/*), OFL 1.1 → ./fonts/OFL.txt.
 // Fraunces는 가변 축 전체를 싣지 않고 fontTools로 정적 인스턴스 2개만 만들었다
 // (wght 600 · SOFT 100 · opsz 72 · WONK 0, 라틴 서브셋). 다른 굵기·축이 필요하면 인스턴스를 새로 만든다.
 
-// Display(로고·H1·섹션·게임 제목): Fraunces 600 roman + italic.
+// Display(로고·H1·섹션·게임 제목): Fraunces 600 roman. R3: 홈 H1·헤더 wordmark가 첫 화면에서 쓰므로 preload.
+// roman·italic을 한 localFont에 넣으면 preload가 둘 다 걸려 'preload 1개'(콘셉트 3-2)를 넘는다 → 두 객체로 나눴다.
 export const displayFont = localFont({
-  src: [
-    { path: './fonts/Fraunces-600.woff2', weight: '600', style: 'normal' },
-    { path: './fonts/Fraunces-600-Italic.woff2', weight: '600', style: 'italic' },
-  ],
+  src: './fonts/Fraunces-600.woff2',
+  weight: '600',
+  style: 'normal',
   display: 'swap',
   variable: '--font-display',
-  // R2부터 헤더 wordmark(roman)가 쓴다. preload는 아직 끔 — 이 옵션은 roman·italic 둘 다 preload해서
-  // 'preload 1개'(콘셉트 3-2)를 넘는다. R3에서 H1에 적용할 때 roman만 따로 preload하도록 나눈다.
-  // 그동안 wordmark는 swap(+adjustFontFallback)으로 그려지고 헤더 높이는 고정이라 CLS는 없다.
+  preload: true,
+  adjustFontFallback: 'Times New Roman',
+  fallback: ['Georgia', 'Times New Roman', 'serif'],
+})
+
+// Display italic(H1 둘째 구절 'that blooms daily.' 등): preload 안 함 — swap으로 늦게 들어와도
+// 줄 높이가 고정(leading 고정값)이라 CLS가 없다. 쓰는 곳은 `font-display-italic` 클래스(globals.css).
+export const displayItalicFont = localFont({
+  src: './fonts/Fraunces-600-Italic.woff2',
+  weight: '600',
+  style: 'italic',
+  display: 'swap',
+  variable: '--font-display-italic',
   preload: false,
   adjustFontFallback: 'Times New Roman',
   fallback: ['Georgia', 'Times New Roman', 'serif'],

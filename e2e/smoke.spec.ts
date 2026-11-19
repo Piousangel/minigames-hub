@@ -4,10 +4,39 @@ import { challengeQuery } from '../src/lib/challenge'
 
 test('홈에서 게임 카드로 이동할 수 있다', async ({ page }) => {
   await page.goto('/')
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Free Online Mini Games')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('Free online mini games')
   await page.getByRole('link', { name: /2048 Animals/ }).click()
   await expect(page).toHaveURL(/\/2048-animals/)
   await expect(page.getByTestId('board')).toBeVisible()
+})
+
+test('홈 히어로(R3): H1 키워드·마스트헤드·오늘 호 Play → /slime-slide', async ({ page }) => {
+  await page.goto('/')
+  const h1 = page.getByRole('heading', { level: 1 })
+  await expect(h1).toContainText('Free online mini games')
+  await expect(h1).toContainText('A small garden that blooms daily.')
+  await expect(page.getByTestId('hero-masthead')).toHaveText(/^No\. \d+ · [A-Z][a-z]{2}, [A-Z][a-z]{2} \d{1,2}$/)
+  const card = page.getByTestId('today-card')
+  await expect(card).toHaveAttribute('data-state', 'first')
+  await page.getByTestId('today-play').click()
+  await expect(page).toHaveURL(/\/slime-slide\?ref=hero-today$/)
+})
+
+for (const width of [320, 360]) {
+  test(`홈 히어로(R3) ${width}px: 가로 스크롤 없음, Play 버튼 보임`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 640 })
+    await page.goto('/')
+    await expect(page.getByTestId('today-play')).toBeVisible()
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  })
+}
+
+test('게임 페이지(모바일): 헤더 2행 내비 숨김, 홈은 보임(R3)', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/2048')
+  await expect(page.locator('nav[data-site-nav-row]')).toBeHidden()
+  await page.goto('/')
+  await expect(page.locator('nav[data-site-nav-row]')).toBeVisible()
 })
 
 test('2048: 로드 → 조작 → 상태 변화', async ({ page }) => {

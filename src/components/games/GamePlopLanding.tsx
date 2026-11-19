@@ -34,7 +34,7 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordFinish } from '@/lib/gameStats'
 import { todayUTC } from '@/lib/dailyDate'
 import { GameOverlay } from '@/components/game-shell'
-import { roundFont } from '@/app/fonts'
+import { roundFont } from '@/app/roundFont'
 import { siteConfig } from '@/lib/siteConfig'
 
 type Mode = 'daily' | 'practice'
