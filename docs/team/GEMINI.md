@@ -2,6 +2,9 @@
 
 목표: 기본 도형·기본 UI 수준에서 벗어나, **직접 그린 듯한 일관된 비주얼**의 게임을 만든다. 도구는 Gemini(이미지 나노바나나, 화면 평가)이고, 팀은 클라우드 루틴이라 외부 API를 못 부른다. 그래서 **요청 파일 → GitHub Actions가 생성 → main에 커밋** 순서로 쓴다.
 
+- **스타일 기준(모든 이미지 요청이 인용)**: [docs/design/asset-style-standard.md](../design/asset-style-standard.md) — 팔레트·윤곽·명암·시간대·금지·용량·이름·refs 순서·기존 에셋 목록
+- **합성 시안 검수표(최종 생성 전 필수)**: [docs/design/asset-review-sheet.md](../design/asset-review-sheet.md) — 합격선, 후보별 기록표, 판정(틴트 확정/틴트 수정/생성)
+
 ## 쓰는 곳
 - 새 게임·화면의 **목표 시안**(만들기 전에 완성된 모습을 먼저 뽑는다)
 - 캐릭터·오브젝트·아이콘·배경, 공유 이미지(OG), 마케팅 이미지
