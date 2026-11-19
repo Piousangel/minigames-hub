@@ -142,3 +142,22 @@ describe('추천 길(힌트)', () => {
     }
   })
 })
+
+import { mirrorStage } from './stages'
+import { BOARD_W } from './types'
+describe('미러 스테이지', () => {
+  it('원본과 반전본에서 같은(반전한) 선이 같은 결과를 낸다', () => {
+    const mx = (p: { x: number; y: number }) => ({ x: BOARD_W - p.x, y: p.y })
+    for (const st of SLIME_STAGES.filter((s) => !s.id.endsWith('-m'))) {
+      const hint = waypointsToRaw(STAGE_HINTS[st.id])
+      const a = runLine(st, hint)
+      const b = runLine(mirrorStage(st), hint.map(mx))
+      expect(b?.res.outcome, st.id).toBe(a?.res.outcome)
+      expect(b?.res.acorns, st.id).toBe(a?.res.acorns)
+    }
+  })
+  it('스테이지 id가 모두 다르고, 각 원본 바로 뒤에 반전본이 온다', () => {
+    expect(new Set(SLIME_STAGES.map((s) => s.id)).size).toBe(SLIME_STAGES.length)
+    expect(SLIME_STAGES.map((s) => s.id)).toEqual(['g-slide', 'g-slide-m', 's-spike', 's-spike-m', 'g-wall', 'g-wall-m', 's-wall-b', 's-wall-b-m'])
+  })
+})

@@ -1,4 +1,4 @@
-import type { Pt, Stage } from './types'
+import { BOARD_W, type Pt, type Stage } from './types'
 
 /**
  * G2 게이트용 시험 스테이지 3개(tier1·2·3 하나씩). 합격선 판정 기계를 검증하는 용도이고,
@@ -106,16 +106,42 @@ export const T2_WALL_B: Stage = {
   ink: 540,
 }
 
-/** 시험판·첫 출시 스테이지(tier1 2개, tier2 2개). tier3(g-gap)는 9조합 불안정으로 제외(DECISIONS 11-19). */
-export const SLIME_STAGES: Stage[] = [GATE_STAGES[0], T1_SPIKE, GATE_STAGES[1], T2_WALL_B]
+const mx = (p: Pt): Pt => ({ x: BOARD_W - p.x, y: p.y })
+/** 좌우 반전 스테이지. 엔진이 좌우 대칭이라 난이도는 원본과 같고, 손 방향이 반대라 새로 풀어야 한다(브리프의 '미러로 2배'). */
+export function mirrorStage(s: Stage): Stage {
+  return {
+    ...s,
+    id: `${s.id}-m`,
+    terrain: s.terrain.map((t) => ({ a: mx(t.a), b: mx(t.b) })),
+    spawn: mx(s.spawn),
+    acorns: s.acorns.map(mx) as Stage['acorns'],
+    nest: mx(s.nest),
+    spikes: s.spikes.map(mx),
+  }
+}
+
+const BASE_STAGES: Stage[] = [GATE_STAGES[0], T1_SPIKE, GATE_STAGES[1], T2_WALL_B]
+
+/**
+ * 첫 출시 스테이지, **난도 오름차순**(길 모르는 무작위 선 성공률: 슬라이드 30% → 독꽃 13% → 벽 4% → 낮은 벽 3%, 각각 반전본이 바로 뒤).
+ * 일일 #N = N번째 스테이지(12개까지 난도 순, 이후 팀이 하루 1개씩 끝에 추가 — 오너 11-19). **새 스테이지는 항상 끝에만** 붙여 지난 날짜의 결과가 바뀌지 않게 한다.
+ * tier3(g-gap)는 9조합 불안정으로 제외(DECISIONS 11-19).
+ */
+export const SLIME_STAGES: Stage[] = BASE_STAGES.flatMap((s) => [s, mirrorStage(s)])
 
 /**
  * 스테이지별 추천 길(웨이포인트). scripts/slime-hints.ts가 강건 해 중 별 3개·σ12 생존율 최고를 뽑은 것.
  * 두 번 연속 실패하면 점선으로 보여 준다(PM 검수: 경로를 모르는 사람은 9번을 연속 실패).
  */
-export const STAGE_HINTS: Record<string, Pt[]> = {
+const BASE_HINTS: Record<string, Pt[]> = {
   'g-slide': [{ x: 8, y: 255 }, { x: 203, y: 382 }, { x: 280, y: 505 }],
   's-spike': [{ x: 8, y: 256 }, { x: 299, y: 540 }, { x: 259, y: 424 }],
   'g-wall': [{ x: 19, y: 156 }, { x: 195, y: 249 }, { x: 320, y: 521 }],
   's-wall-b': [{ x: 8, y: 211 }, { x: 241, y: 268 }, { x: 261, y: 495 }],
+}
+
+/** 추천 길. 미러 스테이지는 원본 추천 길을 좌우 반전해서 쓴다. */
+export const STAGE_HINTS: Record<string, Pt[]> = {
+  ...BASE_HINTS,
+  ...Object.fromEntries(Object.entries(BASE_HINTS).map(([id, wp]) => [`${id}-m`, wp.map(mx)])),
 }
