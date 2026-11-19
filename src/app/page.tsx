@@ -2,19 +2,19 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { gamePages } from '@/lib/games/registry'
 import { DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
-import { siteConfig } from '@/lib/siteConfig'
-import { AdSlot } from '@/components/ads/AdSlot'
+import { shelves } from '@/lib/home/shelves'
+import { POPULAR_CURATED } from '@/lib/home/popularCurated'
 import { GameBrowser, type BrowseItem } from '@/components/GameBrowser'
-import { Achievements } from '@/components/Achievements'
-import { FeaturedGames } from '@/components/FeaturedGames'
+import { SpotlightReveal } from '@/components/SpotlightReveal'
 import { HomeHero } from '@/components/home/HomeHero'
-import { LatestRelease } from '@/components/LatestRelease'
-import { HomeAbout } from '@/components/HomeAbout'
-import { Marquee } from '@/components/Marquee'
-import { MyGames } from '@/components/MyGames'
-import { NewGames } from '@/components/NewGames'
-import { RecentlyPlayed } from '@/components/RecentlyPlayed'
-import { TodayBoard } from '@/components/TodayBoard'
+import { CloudEdge } from '@/components/home/CloudEdge'
+import { ContinueRow, type ContinueItem } from '@/components/home/ContinueRow'
+import { OriginalsToc, type TocGame } from '@/components/home/OriginalsToc'
+import { ShelfIndex } from '@/components/home/ShelfIndex'
+import { HomeAbout } from '@/components/home/HomeAbout'
+import { GardenSignboard } from '@/components/home/GardenSignboard'
+import { HomeAdBand } from '@/components/home/HomeAdBand'
+import { SeedIcon } from '@/components/home/HomeIcons'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
@@ -29,67 +29,106 @@ const items: BrowseItem[] = gamePages.map((g) => ({
   daily: (gameMeta[g.slug] ?? DEFAULT_META).daily,
 }))
 
+
+// 클라이언트 섬(Continue·Spotlight)에는 설명 없는 가벼운 목록만 넘긴다 — 113개 설명은 GameBrowser 한 곳에만.
+const slim: ContinueItem[] = items.map(({ slug, title, category }) => ({ slug, title, category, description: '' }))
+const bySlug = new Map(items.map((it) => [it.slug, it]))
+const curated: ContinueItem[] = POPULAR_CURATED.flatMap((s) => {
+  const it = bySlug.get(s)
+  return it ? [{ slug: it.slug, title: it.title, category: it.category, description: '' }] : []
+})
+const tocGames: TocGame[] = (['plop-landing', 'acorn-hop'] as const).map((slug) => ({ slug, title: bySlug.get(slug)?.title ?? slug }))
+
+const kicker = 'text-[12px] leading-4 font-semibold text-garden-coral-text'
+const h2 = 'font-display mt-1 text-[24px] leading-[30px] font-semibold tracking-[-0.015em]'
+
 export default function Home() {
+  const shelf = shelves(gamePages, gameMeta)
+  const dailyCount = items.filter((it) => it.daily).length
   return (
     <main>
       {/* ===== HERO — 리디자인 v2 R3 「오늘 호 표지」: 노을 하늘·H1 2단·키아트·오늘 호 카드 ===== */}
       <HomeHero />
 
-      {/* 히어로 아래는 R4 전까지 예전(다크 네온) 섹션 그대로 */}
-      <div className="mx-auto max-w-6xl px-4 pb-16 pt-10">
-        {/* ===== 최신 출시 — 가장 최근에 추가된 게임을 히어로 바로 아래 최상단에(addedDate 자동) ===== */}
-        <LatestRelease />
+      {/* ===== 본문 — 리디자인 v2 R4 「노을 정원」 paper 종이. 구름 경계로 히어로와 잇는다 ===== */}
+      <div className="home-body font-ui text-garden-ink">
+        <div className="home-body__edge">
+          <CloudEdge />
+        </div>
+        <div className="mx-auto max-w-[1200px] px-4 pt-8 pb-12 sm:px-6 lg:pt-12">
+          {/* Continue 줄 + 오늘의 스포트라이트(어제 게임 페이지에서 예고한 게임) */}
+          <ContinueRow curated={curated} items={slim} />
+          <div className="mt-3 min-h-14">
+            <SpotlightReveal items={slim} />
+          </div>
 
-        {/* ===== 아케이드 마퀴 티커 ===== */}
-        <Marquee />
+          {/* 목차(오늘 호 나머지 섬) + 4선반 색인 — 1024 이상 나란히 */}
+          <div className="mt-12 grid grid-cols-1 gap-12 lg:grid-cols-2 [&>*]:min-w-0">
+            <section aria-labelledby="toc-title">
+              <div className="flex h-5 items-center justify-between">
+                <p className={kicker}>Also in today’s garden</p>
+                <Link
+                  href="/collection/original-games"
+                  className="-my-3 flex h-11 items-center text-[13px] font-semibold underline decoration-garden-ink/40 decoration-2 underline-offset-[3px]"
+                >
+                  All originals
+                </Link>
+              </div>
+              <h2 id="toc-title" className={h2}>
+                The rest of <em className="font-display-italic italic">today’s sky</em>
+              </h2>
+              <OriginalsToc games={tocGames} />
+            </section>
 
-        {/* ===== Explore — 최고 권위 페이지(홈)에서 SEO 랜딩으로 가는 내부링크 스트립 ===== */}
-        <nav aria-label="Explore games" className="mb-10 flex flex-wrap justify-center gap-2 text-sm">
-          {[
-            { href: '/daily', label: '🔥 Daily games' },
-            { href: '/collections', label: '★ Collections' },
-            ...(siteConfig.thinPagesNoindex ? [] : [{ href: '/unblocked', label: 'Unblocked' }]),
-            { href: '/category/puzzle', label: 'Puzzle' },
-            { href: '/category/arcade', label: 'Arcade' },
-            { href: '/category/classic', label: 'Classic' },
-            { href: '/category/skill', label: 'Skill' },
-          ].map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="rounded-lg border border-border bg-surface/80 px-3 py-1.5 text-fg-muted transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-            >
-              {l.label}
-            </Link>
-          ))}
-        </nav>
+            <section aria-labelledby="shelf-title">
+              <div className="flex h-5 items-center justify-between">
+                <p className={kicker}>Seed library · {gamePages.length} games</p>
+                <Link
+                  href="/#all-games"
+                  className="-my-3 flex h-11 items-center gap-1.5 text-[13px] font-semibold underline decoration-garden-ink/40 decoration-2 underline-offset-[3px]"
+                >
+                  <SeedIcon className="h-4 w-4" />
+                  Browse all
+                </Link>
+              </div>
+              <h2 id="shelf-title" className={h2}>
+                What kind of <em className="font-display-italic italic">five minutes?</em>
+              </h2>
+              <ShelfIndex shelves={shelf} />
+            </section>
+          </div>
 
-        {/* ===== Featured(엄선 — 최고 게임을 첫 화면에, 서버 렌더) ===== */}
-        <FeaturedGames items={items} />
+          {/* 광고 1(선반 아래) — 비활성이면 DOM 없음 */}
+          <HomeAdBand slot="home-shelves" className="mt-12" />
 
-        {/* ===== TODAY 보드(사이트 streak + 오늘 3게임 퀘스트 + 오늘의 픽) ===== */}
-        <TodayBoard items={items} />
+          {/* 씨앗 도서관(All games): 검색·필터·랜덤, 113개 링크 전부 HTML에 */}
+          <div className="mt-12">
+            <GameBrowser
+              items={items}
+              heading={
+                <>
+                  <p className={kicker}>Seed library</p>
+                  <h2 id="all-games-title" className={h2}>
+                    All {gamePages.length} <em className="font-display-italic italic">games</em>
+                  </h2>
+                </>
+              }
+            />
+          </div>
 
-        {/* ===== Goals(목표 진척 — 계속 플레이 유도, 진척 없으면 안 보임) ===== */}
-        <Achievements />
+          {/* 편집 블록(About + From the guides) */}
+          <div className="mt-14 border-t-2 border-garden-ink pt-10">
+            <HomeAbout gameCount={gamePages.length} dailyCount={dailyCount} />
+          </div>
 
-        {/* ===== My Games(즐겨찾기, 비었으면 안 보임) ===== */}
-        <MyGames items={items} />
+          {/* 정원 안내판(예전 Explore 링크) */}
+          <div className="mt-12">
+            <GardenSignboard />
+          </div>
 
-        {/* ===== New games(최근 추가, 없으면 안 보임 — 홈 신선함) ===== */}
-        <NewGames items={items} />
-
-        {/* ===== 최근 플레이(리텐션, 비었으면 안 보임) ===== */}
-        <RecentlyPlayed items={items} />
-
-        {/* ===== 검색 + 필터 + 랜덤 + 게임 그리드 ===== */}
-        <GameBrowser items={items} />
-
-        {/* ===== 실질 편집 콘텐츠(사이트 목적·차별점·구성) — 심사자 착지 페이지의 고유 가치 ===== */}
-        <HomeAbout />
-
-        {/* 하단 광고 자리(승인 전엔 렌더 안 됨) */}
-        <AdSlot slot="home-footer" className="mt-14" />
+          {/* 광고 2(푸터 앞) */}
+          <HomeAdBand slot="home-footer" className="mt-12" />
+        </div>
       </div>
     </main>
   )

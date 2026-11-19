@@ -125,3 +125,14 @@
 - 키아트: 768 미만 모바일판(600·720·896w srcset), 768 이상 데스크톱판이 헤더 뒤까지 덮음. **1920은 업스케일하지 않고 1440 틀 안**에 두고 좌우 160px을 하늘 그라데이션 div(mask)로 잇는다 — 1920 꽉 채우면 1.4배 확대 + 히어로 1,072px(첫 화면 넘침). 데스크톱 바닥 라벤더 띠는 R4 티켓 줄 자리라 R3에선 잘라(object-position top) 히어로 704px.
 - 폰트: Fraunces를 roman(preload)·italic(preload 안 함, `font-display-italic`) 두 객체로 분리. Fredoka(roundFont)를 `src/app/roundFont.ts`로 떼어 홈·허브가 더는 preload하지 않는다(쓰는 게임 페이지만, −30KB). LatestRelease 커버의 fetchPriority high를 lazy로(키아트와 다툼 방지).
 - 버린 안: 키아트 CSS 배경(LCP·리뷰 B8), 1920 업스케일, 날짜를 빌드 시각으로 굳히기(B9), 카드 상태마다 다른 높이.
+
+## 2026-11-20 리디자인 v2 R4 홈 본문: 섹션 정리·씨앗 도서관 순서·즐겨찾기 흡수(팀)
+- 맥락: 계획서 R4(히어로 아래 = 노을 정원 paper)를 만들며 예전 홈 섹션 11개를 어디로 보낼지 정해야 했다.
+- **유지·흡수**: Featured 레일 → Continue 줄의 '인기 4'(같은 큐레이션 18개·/api/popular 재정렬 로직 그대로, `src/lib/home/usePopular.ts`·`popularCurated.ts`). Recently Played → Continue 줄(최근 4, 모자라면 인기로 채워 늘 4칸). **My Games(즐겨찾기) → 씨앗 도서관 'My games' 필터 칩**(하트는 카드마다 44px). 스포트라이트 공개(게임 페이지 예고 → 다음 날 홈) → Continue 아래 56px 한 줄(높이 예약). 최신 출시 카드(최신 3종 = 정원 오리지널) → 히어로 오늘 호 카드 + Originals 목차. Explore 스트립 → 정원 안내판(링크 그대로 + 컬렉션 4).
+- **뺀 것**: TODAY 보드(사이트 연속 방문 🔥·오늘 3게임 퀘스트·오늘의 픽 3) — 오늘 호 카드·정원 3칸이 같은 자리(오늘 할 일)를 맡는다. 기록 로직(`site:streak`·`quest:<날짜>`, RecordPlay)은 그대로 남아 R5 결과 시트(streak)가 읽는다. Goals(Achievements) 홈 카드 — 게임 페이지 GameStats에 목표가 남아 있다. New games 행 — 카드의 New 뱃지로 대신. 아케이드 마퀴(장식). 관련 CSS(hero-crt-on·breathe·shimmer·marquee) 삭제.
+- **씨앗 도서관 기본 순서 = 카테고리 번갈아(Puzzle→Arcade→Classic→Skill, 각 안은 registry 순)**(`libraryOrder`). 접힌 앞 24개에 네 선반이 6개씩 보인다. 113개 링크는 접혀도 모두 정적 HTML에(CSS `nth-child(n+25)` 숨김).
+- 카드 = '씨앗 봉투'(크림·2px ink·판 그림자 4px·카테고리 꽃색 4종만, 아이콘은 기존 GameIcon을 ink로). 390에선 설명을 숨겨 카드 68px. 랜덤 네온 9색은 홈에서 폐기(다른 허브 페이지의 GameCard는 R7 전까지 그대로).
+- 오리지널 컬렉션(/collection/original-games)에 정원 3종 추가(헤더 Originals 목적지에 빠져 있었다, R2 보고). slug 변경 없음.
+- 광고(D11): 홈 2곳(선반 아래 `home-shelves`, 푸터 앞 `home-footer`) 고정 100px 슬롯 + 'Advertisement' 라벨 + cream-2 띠, 비활성이면 DOM 없음. AdSlot에 `fixedHeight`(반응형 auto 끔) 추가 — 다른 자리는 예전 동작.
+- **홈 390 높이 목표(≤2,600px)는 못 맞췄다: 4,986px**(전 18,722). 구간: 히어로 852 · Continue+스포트라이트 352 · 목차 274 · 선반 327 · 씨앗 도서관(24개) 1,298 · About 680 · 가이드 275 · 안내판 414 · 푸터 482. 24개 기본 표시(R4 범위)와 About 120~200단어(B5)만으로 ~2,000px라 2,600은 시안(1,690, 도서관·About 없음) 기준 목표였다. 줄이려면 오너 결정: 모바일 기본 12개, 또는 안내판을 푸터와 합치기(링크 수 유지 조건).
+- 버린 안: 카테고리별 섹션 4개를 그대로 둔 채 접기(같은 높이에서 첫 화면에 Puzzle만 보임), Continue를 가로 스크롤 줄로(390에서 1.3칸만 보여 '이어 하기'가 안 읽힘), 하트를 카드 hover 때만(터치 기기 발견성).

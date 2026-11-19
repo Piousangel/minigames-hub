@@ -53,3 +53,47 @@ describe('GameBrowser 해시 도착', () => {
     expect(document.activeElement).toBe(document.body)
   })
 })
+
+/** R4 씨앗 도서관: 접혀도 링크는 전부 HTML에, 'My games' 필터가 예전 My Games 레일(즐겨찾기)을 대신한다. */
+describe('GameBrowser 씨앗 도서관(R4)', () => {
+  const many: BrowseItem[] = Array.from({ length: 30 }, (_, i) => ({
+    slug: `g${i}`,
+    title: `Game ${i}`,
+    description: `d${i}`,
+    category: (['Puzzle', 'Arcade', 'Classic', 'Skill'] as const)[i % 4],
+    daily: i % 5 === 0,
+  }))
+
+  afterEach(() => localStorage.clear())
+
+  it('접힌 상태: 30개 링크가 모두 있고 그리드는 data-collapsed, Show all 30으로 편다', () => {
+    const { container } = render(<GameBrowser items={many} />)
+    expect(container.querySelectorAll('[data-testid="library-grid"] a[href^="/g"]')).toHaveLength(30)
+    const grid = screen.getByTestId('library-grid')
+    expect(grid).toHaveAttribute('data-collapsed', 'true')
+    const toggle = screen.getByTestId('library-toggle')
+    expect(toggle).toHaveTextContent('Show all 30')
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    act(() => toggle.click())
+    expect(grid).not.toHaveAttribute('data-collapsed')
+    expect(toggle).toHaveAttribute('aria-expanded', 'true')
+  })
+
+  it("'My games' 필터: 비었으면 안내 문구, 하트로 담으면 바로 결과에 나온다(최근에 담은 순)", () => {
+    render(<GameBrowser items={many} />)
+    act(() => screen.getByRole('button', { name: /My games/ }).click())
+    expect(screen.getByText(/No saved games yet/)).toBeInTheDocument()
+    act(() => screen.getByRole('button', { name: 'All' }).click())
+    act(() => screen.getByRole('button', { name: 'Add Game 3 to My Games' }).click())
+    act(() => screen.getByRole('button', { name: 'Add Game 12 to My Games' }).click())
+    act(() => screen.getByRole('button', { name: /My games/ }).click())
+    const titles = Array.from(screen.getByTestId('browse-results').querySelectorAll('h3')).map((h) => h.textContent)
+    expect(titles).toEqual(['Game 12', 'Game 3'])
+  })
+
+  it('필터 칩·하트는 44px(h-11, bugs Q2)', () => {
+    render(<GameBrowser items={many} />)
+    expect(screen.getByRole('button', { name: 'Daily' }).className).toMatch(/\bh-11\b/)
+    expect(screen.getAllByRole('button', { name: /to My Games$/ })[0].className).toMatch(/\bh-11\b/)
+  })
+})

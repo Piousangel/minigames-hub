@@ -454,88 +454,6 @@ body {
     0 0 26px color-mix(in srgb, currentColor 45%, transparent);
 }
 
-/* 4 — Hero polish */
-/* one-time CRT power-on flicker when the hero first mounts (gentle, settles) */
-@keyframes hero-crt-on {
-  0% {
-    opacity: 0;
-    transform: scaleY(0.006);
-    filter: brightness(2.4);
-  }
-  9% {
-    opacity: 1;
-    transform: scaleY(0.02);
-  }
-  20% {
-    transform: scaleY(1) scaleX(1.015);
-    filter: brightness(1.5);
-  }
-  26% {
-    transform: scaleY(0.99);
-  }
-  34% {
-    opacity: 0.72;
-  }
-  46% {
-    opacity: 1;
-    filter: brightness(1.05);
-  }
-  100% {
-    opacity: 1;
-    transform: none;
-    filter: brightness(1);
-  }
-}
-.hero-crt-on {
-  animation: hero-crt-on 900ms var(--ease-out) both;
-  transform-origin: center;
-}
-/* slow "breathing" glow on the pixel logo — filter + opacity only */
-@keyframes hero-breathe {
-  0%,
-  100% {
-    opacity: 0.96;
-    filter: brightness(1);
-  }
-  50% {
-    opacity: 1;
-    filter: brightness(1.18);
-  }
-}
-.hero-breathe {
-  animation: hero-breathe 4.5s ease-in-out infinite;
-}
-/* periodic sheen sweep across the tagline */
-.hero-shimmer {
-  position: relative;
-  overflow: hidden;
-}
-.hero-shimmer::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  mix-blend-mode: screen;
-  opacity: 0.55;
-  background: linear-gradient(
-    100deg,
-    transparent 42%,
-    color-mix(in srgb, currentColor 60%, white) 50%,
-    transparent 58%
-  );
-  transform: translateX(-130%);
-  animation: hero-sheen 5s var(--ease-out) 1.4s infinite;
-}
-@keyframes hero-sheen {
-  0% {
-    transform: translateX(-130%);
-  }
-  24%,
-  100% {
-    transform: translateX(130%);
-  }
-}
-
 /* 5 — Synthwave background: drifting aurora + scrolling perspective grid.
    Fixed, pointer-events:none, behind all content (z-index:-1), low intensity. */
 .synthwave-bg {
@@ -591,26 +509,6 @@ body {
   }
 }
 
-/* 6 — Arcade marquee ticker: seamless infinite scroll (content duplicated). */
-.marquee {
-  overflow: hidden;
-  white-space: nowrap;
-}
-.marquee-track {
-  display: inline-flex;
-  width: max-content;
-  animation: marquee-scroll 24s linear infinite;
-  will-change: transform;
-}
-@keyframes marquee-scroll {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
 /* ---------------------------------------------------------------------------
    Reduced motion — kill transforms/animations but keep state changes visible.
    Games stay fully playable; tiles snap instead of slide.
@@ -631,10 +529,7 @@ body {
   .btn-press,
   .neon-box-hover,
   .card-icon,
-  .card-title,
-  .hero-crt-on,
-  .hero-breathe,
-  .marquee-track {
+  .card-title {
     animation: none !important;
     transition: none !important;
   }
@@ -656,8 +551,7 @@ body {
   .spotlight-card:hover .card-icon {
     transform: none;
   }
-  .spotlight-card::before,
-  .hero-shimmer::after {
+  .spotlight-card::before {
     display: none;
   }
   .synthwave-bg::before,
@@ -881,5 +775,26 @@ body {
 /* R3(팀 결정): 모바일 게임 페이지에서는 헤더 2행 내비를 숨긴다 — 게임 첫 화면 우선(1행 로고·pill·검색만 남김).
    홈·허브 페이지는 그대로. 게임 페이지 표시는 GamePageLayout의 main[data-game-page]. :has 미지원 브라우저는 예전처럼 보인다 */
 body:has(main[data-game-page]) [data-site-nav-row] {
+  display: none;
+}
+
+/* ───────── 리디자인 v2 R4: 홈 본문 「노을 정원」 paper 종이 (src/app/page.tsx) ─────────
+   - z 41: 히어로와 같은 층(body.scanlines 줄무늬 z 40 위, 헤더 z 43 아래). DOM 순서상 히어로 위에 그려져
+     구름 경계(CloudEdge, 19px)가 히어로 바닥 라벤더 위로 올라간다 — 혹 사이 빈 곳으로 히어로가 비친다. */
+.home-body {
+  position: relative;
+  z-index: 41;
+  background: var(--garden-paper);
+  color: var(--garden-ink);
+}
+.home-body__edge {
+  position: absolute;
+  inset: -19px 0 auto 0;
+  height: 19px;
+  pointer-events: none;
+}
+/* 씨앗 도서관 접힘: 앞 24개(LIBRARY_PREVIEW, src/lib/home/shelves.ts)만 보이고 나머지는 숨긴다.
+   링크는 모두 HTML에 남는다(SEO·내부 링크). 24를 바꾸면 여기 n+25도 같이 */
+.seed-grid[data-collapsed='true'] > li:nth-child(n + 25) {
   display: none;
 }

@@ -14,10 +14,11 @@
 - 영향: 첫 판에서 목표가 안 보여 '어디로 그리지?' — 그리다 스크롤 사고 방지 목적(코드 주석)과도 충돌.
 - 제안(디자인 결정 필요, QA가 임의로 안 고침): ① 보드 top을 실측(`getBoundingClientRect().top + scrollY`)해 높이 상한 계산 ② 게임 페이지에서는 2행 내비를 숨기거나 1행에 합침(R 계획 담당) ③ 첫 진입 시 보드로 `scrollIntoView({block:'end'})`. 오너 '폭 꽉 채우기'와 상충하므로 ①+③ 조합 권장.
 
-### Q2 [하] 홈 터치 타깃 44px 미달
+### Q2 [하] 홈 터치 타깃 44px 미달 — 해결(R4, shift/redesign-r4-home-body)
 - 재현: 390×844 `/` — 'Add … to My Games' 하트 버튼 36×36(카드마다, 약 140개), 카테고리 필터 칩 All/Daily/Puzzle… 높이 30px, 둘러보기 칩(Daily games·Collections·Puzzle…) 34px, 상단 '113 free games' 배너 링크 30px.
 - 원인: 리디자인 이전 컴포넌트(GameCard 즐겨찾기, GameBrowser 필터) 그대로.
 - 처리: 홈은 리디자인 v2 R3 이후 PR이 다시 짜므로 **겹침 방지로 이번 교대는 안 건드림** — R3+ 담당이 44px 규격(D12)으로 교체할 것.
+- 해결(R4): 홈 하트 44×44(정원판 FavoriteHeart), 필터 칩·안내판 칩·검색·랜덤·Show all 모두 44px 이상. Playwright 실측 390·1440에서 홈 `main` 안 44px 미만 히트 0(문장 속 인라인 링크 제외 — WCAG 2.5.8 예외). 상단 '113 free games' 배너는 R3에서 없어졌다. e2e `홈(R4): 하트·필터 칩 44px`. 다른 허브 페이지(카테고리 등)의 네온 GameCard 하트 36px는 R7 배치 몫.
 
 ### Q3 [하] 리액션 API가 깨진 200 응답을 주면 게임 페이지 전체가 'Application error' — 해결(이번 PR)
 - 재현: `/api/reactions`가 200 + `{}`를 돌려주면 `counts['🔥']`에서 TypeError → 게임 페이지 전체 크래시(Next 클라이언트 예외 화면). 정상 워커에선 안 나지만 프록시·캐시 오염 시 단일 장애점.

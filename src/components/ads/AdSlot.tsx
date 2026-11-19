@@ -13,10 +13,16 @@ export function AdSlot({
   slot,
   className,
   minHeight = 90,
+  fixedHeight,
 }: {
   slot: string
   className?: string
   minHeight?: number
+  /**
+   * 고정 크기 슬롯(D11, 홈 R4): 높이를 이 값으로 못 박고 반응형 자동 크기를 끈다 — 광고가 예약보다 커져
+   * 아래 콘텐츠를 밀지 않게(CLS 0). 생략하면 예전처럼 min-height + auto.
+   */
+  fixedHeight?: number
 }) {
   const ref = useRef<HTMLModElement>(null)
   const clientId = siteConfig.adsenseEnabled ? siteConfig.adsenseClientId : ''
@@ -37,11 +43,11 @@ export function AdSlot({
     <ins
       ref={ref}
       className={`adsbygoogle block ${className ?? ''}`}
-      style={{ display: 'block', minHeight }}
+      style={fixedHeight ? { display: 'block', height: fixedHeight, overflow: 'hidden' } : { display: 'block', minHeight }}
       data-ad-client={clientId}
       data-ad-slot={slot}
-      data-ad-format="auto"
-      data-full-width-responsive="true"
+      data-ad-format={fixedHeight ? 'horizontal' : 'auto'}
+      data-full-width-responsive={fixedHeight ? 'false' : 'true'}
     />
   )
 }
