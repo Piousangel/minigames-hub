@@ -1,6 +1,6 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
-## ▶ 2026-11-20 01시 리디자인 v2 R4 홈 본문 인계 (브랜치 `shift/redesign-r4-home-body`)
+## ▶ 2026-11-20 01시 리디자인 v2 R4 홈 본문 인계 (브랜치 `shift/redesign-r4-home-body`, PR #182)
 
 **한 줄:** 홈 히어로 아래 전체가 노을 정원 paper 종이가 됐다 — 구름 경계 → Continue 줄(최근 4 / 첫 방문 인기 4) + 오늘의 스포트라이트 한 줄 → Originals 목차(Plop·Acorn) | 4선반 색인 → 씨앗 도서관(All 113, 기본 24 접힘) → About + From the guides → 정원 안내판 → (광고 2곳, 지금은 꺼져 DOM 없음).
 - **코드**: `src/components/home/`(CloudEdge·ContinueRow·OriginalsToc·ShelfIndex·SeedCard·HomeAbout·GardenSignboard·HomeAdBand·HomeIcons), `src/lib/home/`(shelves·usePopular·popularCurated), `GameBrowser.tsx`(정원판), `FavoriteHeart`·`NewBadge`에 `variant='garden'`, `AdSlot` `fixedHeight`. CSS `globals.css` 맨 아래 `.home-body`·`.seed-grid[data-collapsed]`.
