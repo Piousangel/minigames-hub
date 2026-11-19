@@ -129,8 +129,9 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
     if (!el) return
     // 한 화면 안에 보드+컨트롤이 들어오게 높이로도 제한(스크롤할 일을 줄여 그리다 스크롤하는 사고를 막는다). 위쪽 크롬(헤더·제목·잉크 막대) ≈ 200px, 아래 컨트롤 ≈ 130px
     const update = () => {
-      const byHeight = Math.floor(((window.innerHeight - 330) * BOARD_W) / BOARD_H)
-      setW(Math.max(260, Math.min(BOARD_W, Math.floor(el.clientWidth), byHeight)))
+      // 폭을 최대한 채운다(오너: 화면이 꽉 안 참). 낮은 화면에서도 340px 아래로 줄이지 않고, 넓은 화면은 480px까지 키운다
+      const byHeight = Math.max(340, Math.floor(((window.innerHeight - 250) * BOARD_W) / BOARD_H))
+      setW(Math.max(260, Math.min(480, Math.floor(el.clientWidth), byHeight)))
     }
     update()
     const ro = new ResizeObserver(update)
@@ -553,7 +554,7 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
     return () => window.clearTimeout(id)
   }, [success, si, reset, fixedStage, SLUG])
   return (
-    <div ref={wrap} className="mx-auto w-full max-w-[390px]">
+    <div ref={wrap} className="mx-auto w-full max-w-[480px]">
       {inKakao && (
         <p role="note" className="mb-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-center text-xs text-fg-muted" data-testid="slime-kakao-note">
           {tx.kakaoNote}<b>{tx.kakaoBold}</b>{tx.kakaoTail}
@@ -605,8 +606,8 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
       </div>
       <div className="relative" style={{ width: w, height: Math.round(w * (BOARD_H / BOARD_W)) }}>
         <canvas ref={canvas} style={{ width: w, height: Math.round(w * (BOARD_H / BOARD_W)), touchAction: 'pan-y' }} className="block rounded-xl border border-white/15" role="img" aria-label={tx.canvasLabel} data-testid="slime-canvas" />
-        {/* 그리기 구역: 가로 76%·세로 68% (위·아래 16%·좌우 12% 띠는 스크롤용 — 11-19 오너 피드백으로 확대) */}
-        <PlayZone top={0.16} bottom={0.16} left={0.12} right={0.12} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onCancel} data-testid="slime-zone" />
+        {/* 그리기 구역: 가로 90%·세로 84%. 스크롤용 띠는 위·아래 8%·좌우 5%만 남긴다(오너 11-19: 띠가 넓어 선이 안 그려지는 곳이 많았음). 위로 빠르게 쓸어올리는 스크롤 손짓은 onUp 필터가 선으로 세지 않는다 */}
+        <PlayZone top={0.08} bottom={0.08} left={0.05} right={0.05} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onCancel} data-testid="slime-zone" />
       </div>
       <p role="status" aria-live="polite" className="mt-3 min-h-6 text-center text-sm font-semibold">{msg || (phase === 'draw' ? tx.startStatus : phase === 'run' ? tx.running : '')}</p>
       <div className="mt-2 flex items-center justify-center gap-2 text-sm">
