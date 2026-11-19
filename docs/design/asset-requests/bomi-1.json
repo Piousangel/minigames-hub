@@ -1,0 +1,72 @@
+[
+  {
+    "id": "bomi-sheet",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 1800,
+    "out": "docs/design/mascots/bomi-sheet.webp",
+    "refs": [
+      "docs/design/mascots/mascot3-a-bee-courier.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration, warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no watermark. Exactly match the line weight, proportions and colour treatment of the reference characters (Mallang the jelly, Tori the squirrel). CHARACTER: Bomi, a round bumblebee mail courier — chubby round body with honey-yellow (#ffc94a) and cocoa-brown (#5b3a1e) stripes, soft fuzzy texture suggested by line only, two tiny translucent pale-blue wings, short antennae, a small cream postal cap with a brown brim, a brown leather satchel across the body full of rolled newspapers, rosy cheeks, friendly confident smile. Chibi, readable at 48px. No text anywhere (newspapers show only scribble lines). Make a clean CHARACTER MODEL SHEET on a flat warm cream paper background (#fff3dc): top row turnaround (front, three-quarter, side, back) at the same scale with a thin baseline; bottom row six expressions: happy, cheering while holding up a newspaper, thinking, sleepy, sad, surprised. Plus a small colour swatch strip (no labels). Consistent design in every view."
+  },
+  {
+    "id": "bomi-idle",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "out": "public/art/bomi-idle.webp",
+    "refs": [
+      "docs/design/mascots/mascot3-a-bee-courier.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration, warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no watermark. Exactly match the line weight, proportions and colour treatment of the reference characters (Mallang the jelly, Tori the squirrel). CHARACTER: Bomi, a round bumblebee mail courier — chubby round body with honey-yellow (#ffc94a) and cocoa-brown (#5b3a1e) stripes, soft fuzzy texture suggested by line only, two tiny translucent pale-blue wings, short antennae, a small cream postal cap with a brown brim, a brown leather satchel across the body full of rolled newspapers, rosy cheeks, friendly confident smile. Chibi, readable at 48px. No text. Single full-body character, centred, pose: hovering calmly with wings out, holding the satchel strap, friendly smile, three-quarter view. Plain solid magenta (#ff00ff) background filling the whole image for keying, no other objects."
+  },
+  {
+    "id": "bomi-deliver",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "out": "public/art/bomi-deliver.webp",
+    "refs": [
+      "docs/design/mascots/mascot3-a-bee-courier.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration, warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no watermark. Exactly match the line weight, proportions and colour treatment of the reference characters (Mallang the jelly, Tori the squirrel). CHARACTER: Bomi, a round bumblebee mail courier — chubby round body with honey-yellow (#ffc94a) and cocoa-brown (#5b3a1e) stripes, soft fuzzy texture suggested by line only, two tiny translucent pale-blue wings, short antennae, a small cream postal cap with a brown brim, a brown leather satchel across the body full of rolled newspapers, rosy cheeks, friendly confident smile. Chibi, readable at 48px. No text. Single full-body character, centred, pose: flying forward and holding out a rolled newspaper toward the viewer, cheerful wink. Plain solid magenta (#ff00ff) background filling the whole image for keying, no other objects."
+  },
+  {
+    "id": "bomi-cheer",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "out": "public/art/bomi-cheer.webp",
+    "refs": [
+      "docs/design/mascots/mascot3-a-bee-courier.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration, warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no watermark. Exactly match the line weight, proportions and colour treatment of the reference characters (Mallang the jelly, Tori the squirrel). CHARACTER: Bomi, a round bumblebee mail courier — chubby round body with honey-yellow (#ffc94a) and cocoa-brown (#5b3a1e) stripes, soft fuzzy texture suggested by line only, two tiny translucent pale-blue wings, short antennae, a small cream postal cap with a brown brim, a brown leather satchel across the body full of rolled newspapers, rosy cheeks, friendly confident smile. Chibi, readable at 48px. No text. Single full-body character, centred, pose: celebrating, both arms up, a newspaper in one hand, small motion lines. Plain solid magenta (#ff00ff) background filling the whole image for keying, no other objects."
+  },
+  {
+    "id": "bomi-sad",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "out": "public/art/bomi-sad.webp",
+    "refs": [
+      "docs/design/mascots/mascot3-a-bee-courier.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration, warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no watermark. Exactly match the line weight, proportions and colour treatment of the reference characters (Mallang the jelly, Tori the squirrel). CHARACTER: Bomi, a round bumblebee mail courier — chubby round body with honey-yellow (#ffc94a) and cocoa-brown (#5b3a1e) stripes, soft fuzzy texture suggested by line only, two tiny translucent pale-blue wings, short antennae, a small cream postal cap with a brown brim, a brown leather satchel across the body full of rolled newspapers, rosy cheeks, friendly confident smile. Chibi, readable at 48px. No text. Single full-body character, centred, pose: sad, drooping antennae and wings, holding an empty satchel. Plain solid magenta (#ff00ff) background filling the whole image for keying, no other objects."
+  }
+]
