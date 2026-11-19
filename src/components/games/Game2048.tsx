@@ -91,7 +91,8 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   const idRef = useRef(0)
   const animSeqRef = useRef(0)
   const animatingRef = useRef(false)
-  // 애니메이션 중 들어온 입력(FIFO, 최대 MAX_QUEUE). 새 입력이 오면 진행 중 슬라이드를 즉시 확정한다.
+  // 애니메이션 중 들어온 입력. 새 입력이 오면 진행 중 슬라이드를 즉시 확정하고 바로 다음 이동을 처리하므로
+  // 실제로는 거의 비어 있다(MAX_QUEUE는 확정 중 재진입 대비 상한).
   const queueRef = useRef<Direction[]>([])
   const slideTimerRef = useRef<number | null>(null)
   const pendingFinishRef = useRef<(() => void) | null>(null)
