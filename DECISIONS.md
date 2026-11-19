@@ -109,3 +109,8 @@
 - 맥락: 계획서 D9(Fraunces 정적 2인스턴스 + Figtree)를 실제 파일로 만들면서 정할 것이 생겼다.
 - 선택: Fraunces는 가변 원본에서 fontTools로 wght 600·SOFT 100·opsz 72·WONK 0 인스턴스(roman·italic) 2개를 만들고, Figtree는 가변 그대로 둔다. 셋 다 라틴 서브셋 woff2(합계 62.5KB, Fredoka 포함 92.2KB). R1에서는 `preload: false`로 두어 아직 쓰지 않는 폰트를 내려받지 않는다. 적용하는 PR(R2 Figtree, R3 Fraunces roman)이 preload를 켠다. 기존 `--garden-gold`는 이름을 유지하고 새 코드는 `--garden-sun`을 쓴다.
 - 재현: `scripts/fonts/build-garden-fonts.py`(원본 google/fonts 커밋·버전 기록).
+
+## 2026-11-19 리디자인 v2 R2 크롬: 헤더 검색·Originals 목적지, 모바일 sticky 1행만
+- 맥락: 계획서 D12의 헤더(내비 3 + 검색 + 오늘 pill)를 정적 사이트에 넣을 때 검색 페이지·Originals 라우트가 없다. 시안의 모바일 헤더는 2행(56+44px)이라 통째로 sticky면 게임 화면에서 고정 크롬이 100px.
+- 선택: 검색 버튼은 홈 GameBrowser 입력(`/#search`)으로 보내고 마운트 때 스크롤·포커스. Originals는 기존 `/collection/original-games`. All games는 `/#all-games`(GameBrowser). 모바일은 1행(로고·pill·검색 56px)만 sticky, 2행 내비는 스크롤과 함께 사라진다. 390에서 pill 전체 문구가 안 들어가 640 미만은 "Daily puzzles", 접근 이름은 전체 문구.
+- 버린 안: 새 /search 페이지(범위 밖·얇은 페이지), 헤더 2행 통째 sticky(게임 화면 100px 잠식), pill 문구 줄바꿈.

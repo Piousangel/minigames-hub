@@ -1,11 +1,12 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CATEGORIES, type GameCategory } from '@/lib/games/gameMeta'
 import { GameCard } from '@/components/GameCard'
 import { DiceIcon } from '@/components/icons/DiceIcon'
 import { Reveal } from '@/components/Reveal'
+import { ALL_GAMES_ANCHOR, SEARCH_ANCHOR } from '@/components/site-chrome/anchors'
 
 export interface BrowseItem {
   slug: string
@@ -30,6 +31,25 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<Filter>('All')
   const router = useRouter()
+  const inputRef = useRef<HTMLInputElement>(null)
+  const rootRef = useRef<HTMLDivElement>(null)
+
+  // 헤더 검색·All games(다른 페이지 → /#search, /#all-games)로 왔을 때. Next 클라이언트 이동은
+  // 이 홈 섹션까지 스크롤해 주지 않아(실측: 위치 그대로) 마운트 때 직접 맞추고, 검색이면 입력에 포커스.
+  // Next의 이동 후 스크롤 처리(레이아웃 effect 뒤)가 끝난 다음 프레임에 맞춘다.
+  useEffect(() => {
+    const hash = window.location.hash
+    if (hash !== `#${SEARCH_ANCHOR}` && hash !== `#${ALL_GAMES_ANCHOR}`) return
+    const id = window.setTimeout(() => {
+      if (hash === `#${SEARCH_ANCHOR}`) {
+        inputRef.current?.scrollIntoView({ block: 'center' })
+        inputRef.current?.focus({ preventScroll: true })
+      } else {
+        rootRef.current?.scrollIntoView({ block: 'start' })
+      }
+    }, 0)
+    return () => window.clearTimeout(id)
+  }, [])
 
   const q = query.trim().toLowerCase()
   const isBrowsing = q === '' && filter === 'All'
@@ -55,7 +75,8 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
   }
 
   return (
-    <div>
+    // 헤더 'All games' 앵커. scroll-mt = 고정 헤더 높이(56/64) + 여유.
+    <div ref={rootRef} id={ALL_GAMES_ANCHOR} className="scroll-mt-20 lg:scroll-mt-24">
       {/* 검색 + 랜덤 */}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
@@ -79,12 +100,14 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
             </svg>
           </span>
           <input
+            ref={inputRef}
+            id={SEARCH_ANCHOR}
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search games…"
             aria-label="Search games"
-            className="w-full rounded-lg border border-border bg-surface/80 py-2.5 pl-10 pr-3 text-sm text-fg placeholder:text-fg-muted focus-visible:border-neon-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/40"
+            className="scroll-mt-28 w-full rounded-lg border border-border bg-surface/80 py-2.5 pl-10 pr-3 text-sm text-fg placeholder:text-fg-muted focus-visible:border-neon-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/40"
           />
         </div>
         <button

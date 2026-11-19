@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from 'next'
-import Link from 'next/link'
 import { siteConfig } from '@/lib/siteConfig'
-import { Logo } from '@/components/Logo'
-import { TrophyIcon } from '@/components/icons/TrophyIcon'
+import { SiteFooter } from '@/components/site-chrome/SiteFooter'
+import { SiteHeader } from '@/components/site-chrome/SiteHeader'
 import { RecordPageView } from '@/components/RecordPageView'
 import { displayFont, pixelFont, uiFont } from './fonts'
 import './globals.css'
@@ -24,7 +23,7 @@ export const viewport: Viewport = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // displayFont·uiFont는 CSS 변수(--font-display·--font-ui)만 노출한다. body 폰트 적용은 R2·R3.
+  // displayFont·uiFont는 CSS 변수(--font-display·--font-ui)로 노출. R2: 헤더·푸터만 font-ui/font-display, body 전체는 R3.
   return (
     <html lang="en" className={`${pixelFont.variable} ${displayFont.variable} ${uiFont.variable}`} suppressHydrationWarning>
       <body className="scanlines flex min-h-screen flex-col antialiased">
@@ -46,86 +45,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
         {/* Synthwave background — decorative, fixed, behind all content. */}
         <div aria-hidden="true" className="synthwave-bg" />
-        <header className="sticky top-0 z-30 border-b border-border bg-bg/80 backdrop-blur-md">
-          <nav className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-            <Link
-              href="/"
-              aria-label={`${siteConfig.name} — home`}
-              className="group flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-amber focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-              style={{ color: 'var(--neon-amber)' }}
-            >
-              <Logo className="h-5 w-5" />
-              <span className="font-pixel neon-text text-xs sm:text-sm">
-                {siteConfig.name}
-              </span>
-            </Link>
-            <div className="flex items-center gap-4">
-              {/* aria-label은 상시 필요: 좁은 화면에서 텍스트 라벨이 display:none이 되므로
-                  이게 없으면 링크에 접근 가능한 이름이 남지 않는다.
-                  탭 영역은 ::after로 44px까지 넓힌다 — 링크 자체를 키우면 스티키 헤더가 두꺼워진다. */}
-              <Link
-                href="/leaderboards"
-                aria-label="Leaderboards"
-                className="relative flex items-center gap-1.5 rounded-md text-sm text-fg-muted transition-colors after:absolute after:left-1/2 after:top-1/2 after:h-11 after:w-full after:min-w-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-[''] hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-              >
-                <TrophyIcon className="h-[1.15em] w-[1.15em]" />
-                <span className="hidden sm:inline">Leaderboards</span>
-              </Link>
-              <Link
-                href="/guides"
-                className="relative rounded-md text-sm text-fg-muted transition-colors after:absolute after:left-1/2 after:top-1/2 after:h-11 after:w-full after:min-w-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-[''] hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-              >
-                Guides
-              </Link>
-              <Link
-                href="/about"
-                className="relative rounded-md text-sm text-fg-muted transition-colors after:absolute after:left-1/2 after:top-1/2 after:h-11 after:w-full after:min-w-11 after:-translate-x-1/2 after:-translate-y-1/2 after:content-[''] hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-              >
-                About
-              </Link>
-            </div>
-          </nav>
-        </header>
+        <SiteHeader />
         {/* 전 페이지 조회·체류 비콘. 게임 페이지는 RecordPlay가 'view'를 따로 보내므로
             여기서는 'pageview'로 분리 기록한다(기존 'view' 집계 정의 보존). */}
         <RecordPageView />
         <div className="flex-1">{children}</div>
-        <footer className="border-t border-border bg-bg-2/60 py-8 text-center text-sm text-fg-muted">
-          <p
-            aria-hidden="true"
-            className="font-pixel neon-text mb-4 text-[10px] tracking-[0.25em] text-neon-magenta"
-          >
-            ★ GAME OVER · INSERT COIN ★
-          </p>
-          <nav className="mb-3 space-x-4" aria-label="Browse by category">
-            <Link href="/daily" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-amber focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Daily games</Link>
-            <Link href="/category/puzzle" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Puzzle games</Link>
-            <Link href="/category/arcade" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Arcade games</Link>
-            <Link href="/category/classic" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Classic games</Link>
-            <Link href="/category/skill" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Skill games</Link>
-            <Link href="/collections" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Collections</Link>
-          </nav>
-          <nav className="mb-4 space-x-4">
-            <Link href="/about" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">About</Link>
-            <Link href="/privacy" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Privacy</Link>
-            <Link href="/terms" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Terms</Link>
-            <Link href="/contact" className="rounded-md transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg">Contact</Link>
-          </nav>
-          {siteConfig.kofiUrl && (
-            <p className="mb-4">
-              <a
-                href={siteConfig.kofiUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-neon-magenta/40 bg-surface px-3 py-1.5 text-neon-magenta transition-colors hover:bg-neon-magenta/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-magenta focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
-              >
-                <span aria-hidden="true">☕</span>
-                <span>Enjoying the games? Support the site</span>
-              </a>
-            </p>
-          )}
-          <p>© 2026 {siteConfig.name}. All games are free to play.</p>
-        </footer>
+        <SiteFooter />
       </body>
     </html>
   )
