@@ -419,6 +419,8 @@ export default {
       if (!body) return json({ error: 'bad json' }, 400)
       const game = String(body.game ?? '')
       if (!LEADERBOARD_GAMES[game]) return json({ error: 'unknown game' }, 400)
+      // 말랑 미끄럼길은 숫자만 받는 이 경로를 닫는다 — 선 증거를 서버가 재생하는 /api/slime/submit만 받는다(curl 한 줄 1위 방지).
+      if (game === SLIME_SLUG) return json({ error: 'use /api/slime/submit' }, 400)
       const score = cleanScore(body.score, game)
       if (score === null || score <= 0) return json({ error: 'bad score' }, 400)
       // 이름에 링크·연락처가 들어 있으면 'Anon'으로(보드가 광고판이 되는 것 방지). 거절하지 않아 점수는 등록된다.

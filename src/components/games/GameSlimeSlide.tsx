@@ -5,7 +5,7 @@ import { OverlayScoreSubmit } from '@/components/game-shell/OverlayScoreSubmit'
 import { ShareButtons } from '@/components/ShareButtons'
 import { SlimeProto } from '@/components/SlimeProto'
 import { todayLocal } from '@/lib/dailyDate'
-import { sendHit } from '@/lib/hit'
+import { sendHit, visitorId } from '@/lib/hit'
 import {
   DAILY_ATTEMPTS,
   attemptsLeft,
@@ -17,6 +17,7 @@ import {
   emptyProgress,
   progressShareText,
   recordAttempt,
+  slimeSubmitBody,
   stageState,
   type Attempt,
   type DailyProgress,
@@ -202,7 +203,18 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
               <ShareButtons slug={SLUG} title="Slime Slide" text={share} />
             </div>
           )}
-          <OverlayScoreSubmit slug={SLUG} show={total > 0} />
+          <OverlayScoreSubmit
+            slug={SLUG}
+            show={total > 0}
+            verified={{
+              score: total,
+              key: `${SLUG}:${day}`,
+              request: (name) => {
+                const body = slimeSubmitBody(day, progress, name, visitorId())
+                return body ? { url: '/api/slime/submit', body } : null
+              },
+            }}
+          />
         </section>
       )}
     </div>

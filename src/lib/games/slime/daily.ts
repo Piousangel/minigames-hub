@@ -105,3 +105,18 @@ export function progressShareText(iso: string, p: DailyProgress, url = ''): stri
   const head = `Slime Slide #${dailyNumber(iso)} · ${clearedCount(p)}/${p.length} stages · ${dailyTotal(p)} pts${usedHint(p) ? ' (used a hint)' : ''}`
   return [head, marks, url].filter(Boolean).join('\n')
 }
+
+/**
+ * 서버 재생 검증 제출 본문(/api/slime/submit). 시도마다 그은 선을 그린 순서대로 보내고, 서버가 다시 시뮬해 점수를 낸다.
+ * 선이 없는 옛 시도가 섞여 있으면 null(증거를 못 만든다).
+ */
+export function slimeSubmitBody(day: string, p: DailyProgress, name: string, vid: string): Record<string, unknown> | null {
+  let last = -1
+  p.forEach((list, i) => {
+    if (list.length) last = i
+  })
+  if (last < 0) return null
+  const stages = p.slice(0, last + 1).map((list) => list.map((a) => (a.line ? { lines: [a.line] } : null)))
+  if (stages.some((l) => l.some((a) => a === null))) return null
+  return { v: 2, day, vid, name, stages }
+}

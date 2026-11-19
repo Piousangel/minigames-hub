@@ -5,7 +5,7 @@ const VID_KEY = 'vid'
  * 세션당 view 수 = 방문당 플레이). PII 아님(랜덤), 무계정 컨벤션과 일치. 없으면 생성.
  * crypto.randomUUID가 없으면 시간·난수 조합으로 폴백(결정론 불필요, 유일성만 충족).
  */
-function visitorId(): string {
+export function visitorId(): string {
   try {
     let v = localStorage.getItem(VID_KEY)
     if (!v) {

@@ -35,3 +35,16 @@ CREATE TABLE IF NOT EXISTS comment_rate_limits (
   ip TEXT PRIMARY KEY,
   last_at INTEGER NOT NULL
 );
+
+-- 말랑 미끄럼길 하루 제출(서버 재생 검증) — db/migrations/0001_slime_daily.sql과 같다.
+CREATE TABLE IF NOT EXISTS slime_daily (
+  day TEXT NOT NULL,
+  player TEXT NOT NULL,
+  total INTEGER NOT NULL,
+  cleared INTEGER NOT NULL,
+  hints INTEGER NOT NULL,
+  attempts INTEGER NOT NULL,
+  score_id INTEGER,
+  updated_at INTEGER NOT NULL,
+  PRIMARY KEY (day, player)
+);
