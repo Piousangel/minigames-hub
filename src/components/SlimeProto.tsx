@@ -5,7 +5,7 @@ import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useSlimeAudio } from '@/lib/sound/useSlimeAudio'
 import { simulate } from '@/lib/games/slime/engine'
 import { sendHit } from '@/lib/hit'
-import { scoreOf } from '@/lib/games/slime/daily'
+import { HINT_STAR_CAP, attemptScore } from '@/lib/games/slime/daily'
 import { renderTerrainLayer } from '@/lib/games/slime/terrainRender'
 import { paintSkyTheme, slotName, themeOf } from '@/lib/games/slime/theme'
 import { KO, type SlimeText } from '@/lib/games/slime/strings'
@@ -520,7 +520,9 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
       const ink = line.current ? polyLength(line.current) : 0
       recs.current.push({ stage: stage.id, outcome: r.outcome, acorns: r.acorns, ink: Math.round(ink), pts: (line.current ?? []).map((p) => [Math.round(p.x * 2), Math.round(p.y * 2)]), ms: Math.round(performance.now() - downAt.current) })
       const inkBonus = Math.round((100 * (stage.ink - ink)) / stage.ink)
-      setMsg(r.outcome === 'nest' ? tx.scoreLine(r.acorns, r.acorns * 100, inkBonus, r.acorns * 100 + inkBonus) : tx.outcome[r.outcome])
+      // 힌트가 보인 시도는 점수 계산에서 별 상한 2(표시 별은 실제 개수, 점수는 attemptScore와 같게)
+      const starPts = (hintLine.current ? Math.min(r.acorns, HINT_STAR_CAP) : r.acorns) * 100
+      setMsg(r.outcome === 'nest' ? tx.scoreLine(r.acorns, starPts, inkBonus, starPts + inkBonus) : tx.outcome[r.outcome])
       sendHit(SLUG, r.outcome === 'nest' ? `sl_win_s${si + 1}` : `sl_f_${r.outcome}_s${si + 1}`)
       if (r.outcome === 'nest') {
         failStreak.current = 0
@@ -604,7 +606,7 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
     trace.current = tr.length ? tr : [stage.spawn]
     result.current = { outcome: res.outcome, acorns: res.acorns }
     // 시도는 놓는 순간 기록한다: 결과가 이미 확정이라, 재생 중 탭을 닫아도 시도·해금이 남는다(공짜 재시도 방지, PR-0)
-    onAttemptRef.current?.({ stageId: stage.id, outcome: res.outcome, stars: res.acorns, score: scoreOf(res.outcome, res.acorns, polyLength(l), stage.ink), hint: hintLine.current !== null, line: l.map((q) => [Math.round(q.x * 2), Math.round(q.y * 2)]) })
+    onAttemptRef.current?.({ stageId: stage.id, outcome: res.outcome, stars: res.acorns, score: attemptScore(res.outcome, res.acorns, polyLength(l), stage.ink, hintLine.current !== null), hint: hintLine.current !== null, line: l.map((q) => [Math.round(q.x * 2), Math.round(q.y * 2)]) })
     runStart.current = performance.now()
     ghost.current = l
     finished.current = false

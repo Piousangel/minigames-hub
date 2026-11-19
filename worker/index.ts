@@ -27,6 +27,7 @@ import {
 import { isValidGameSlug } from '../src/lib/slug'
 import { RATE_LIMIT_PRUNE_BATCH, rateLimitPruneCutoff, shouldPruneRateLimits } from '../src/lib/rateLimitPrune'
 import { buildPopularSql, createTtlCache, parsePopularRows, type PopularResponse } from '../src/lib/popular'
+import { SUBMIT_MAX_BYTES, dayAcceptable, verifyDay } from '../src/lib/games/slime/verify'
 
 // 최소 타입(CF 타입 의존 없이) — 번들은 wrangler(esbuild)가 처리.
 interface D1Stmt {
@@ -240,6 +241,120 @@ async function commentsFor(env: Env, slug: string): Promise<CommentRow[]> {
   return results.map((r) => ({ slug, name: r.name, text: r.text, createdAt: r.created_at }))
 }
 
+// 제출 직후 순위: 이번 주 이 게임의 전체 제출 수와, 내 점수보다 높은 제출 수(동점은 같은 순위).
+// idx_scores_board(game, week, score DESC)로 범위 스캔 한 번. 사용자별 1행 정리는 아직 없어 total은 '제출 수'다.
+// 순위는 덤이다 — 조회가 실패해도 이미 저장된 제출을 실패로 돌려주면 사용자가 재시도해 중복 행이 생기므로 삼킨다.
+async function rankFor(
+  env: Env,
+  game: string,
+  week: string,
+  score: number,
+): Promise<{ rank: number; total: number; topPercent: number } | undefined> {
+  try {
+    const { results: cnt } = await env.DB.prepare(
+      'SELECT COUNT(*) AS total, COALESCE(SUM(CASE WHEN score > ? THEN 1 ELSE 0 END), 0) AS above FROM scores WHERE game=? AND week=?',
+    )
+      .bind(score, game, week)
+      .all<{ total: number; above: number }>()
+    const total = Number(cnt[0]?.total ?? 0)
+    const rank = Number(cnt[0]?.above ?? 0) + 1
+    if (total >= 1 && rank <= total) return { rank, total, topPercent: topPercent(rank, total) }
+  } catch (e) {
+    console.warn('score rank lookup failed', e)
+  }
+  return undefined
+}
+
+const SLIME_SLUG = 'slime-slide'
+
+/**
+ * POST /api/slime/submit — 말랑 미끄럼길 하루 진행을 서버가 재생해 검증하고(클라 점수 무시) 주간 보드에 (day, player)당 1행으로 올린다.
+ * 본문: { v: 2, day: 'YYYY-MM-DD'(현지 날짜), vid?, name, stages: [[{ lines: [[[x2,y2],...]] }, ...], ...] }
+ * - day는 UTC−12~+14 어딘가의 오늘(+30분 유예). 주 보드는 제출 시각이 아니라 day의 ISO 주(일요일 밤 제출이 월요일로 새지 않게).
+ * - 같은 (day, player)의 재제출은 점수가 오를 때만 기존 scores 행을 갱신(보드 도배 방지). player = vid 해시, 없으면 IP 해시.
+ * - slime_daily 표가 아직 없으면(원격 마이그레이션 전) 검증된 점수만 scores에 추가한다(기존 /api/score와 같은 동작, 경고 로그).
+ */
+async function slimeSubmit(request: Request, env: Env, defer: Defer, origin: string): Promise<Response> {
+  const text = await request.text().catch(() => '')
+  if (text.length > SUBMIT_MAX_BYTES) return json({ error: 'too large' }, 413)
+  let body: Record<string, unknown>
+  try {
+    body = JSON.parse(text) as Record<string, unknown>
+  } catch {
+    return json({ error: 'bad json' }, 400)
+  }
+  const day = String(body.day ?? '')
+  if (body.v !== 2 || !dayAcceptable(day, Date.now())) return json({ error: 'bad day' }, 400)
+  const v = verifyDay(day, body.stages)
+  if (!v.ok) return json({ error: v.error }, 400)
+  if (v.total <= 0) return json({ error: 'no score' }, 400)
+  const name = safeDisplayName(body.name)
+  const ipKey = await clientKey(request, env)
+  if (!(await passCooldown(env, scoreRateKey(ipKey, SLIME_SLUG), SCORE_RATE_LIMIT_MS, defer))) {
+    return json({ error: 'slow down' }, 429)
+  }
+  const vid = typeof body.vid === 'string' && /^[A-Za-z0-9-]{8,64}$/.test(body.vid) ? body.vid : ''
+  const player = vid ? `v:${await hashKey(vid, env.RATE_SALT)}` : `ip:${ipKey}`
+  const week = isoWeek(new Date(Date.parse(day + 'T00:00:00Z')))
+  const now = Date.now()
+  let score = v.total
+  let improved = true
+  let inserted = false
+  try {
+    const { results } = await env.DB.prepare('SELECT total, score_id FROM slime_daily WHERE day=? AND player=?')
+      .bind(day, player)
+      .all<{ total: number; score_id: number | null }>()
+    const prev = results[0]
+    if (prev && Number(prev.total) >= v.total) {
+      improved = false
+      score = Number(prev.total)
+    } else if (prev && prev.score_id != null) {
+      await env.DB.batch([
+        env.DB.prepare('UPDATE scores SET score=?, name=? WHERE id=?').bind(v.total, name, prev.score_id),
+        env.DB.prepare('UPDATE slime_daily SET total=?, cleared=?, hints=?, attempts=?, updated_at=? WHERE day=? AND player=?').bind(
+          v.total, v.cleared, v.hints, v.attempts, now, day, player,
+        ),
+      ])
+    } else {
+      const { results: ins } = await env.DB.prepare(
+        'INSERT INTO scores (game, week, name, score, created_at) VALUES (?,?,?,?,?) RETURNING id',
+      )
+        .bind(SLIME_SLUG, week, name, v.total, now)
+        .all<{ id: number }>()
+      inserted = true
+      await env.DB.prepare(
+        'INSERT INTO slime_daily (day, player, total, cleared, hints, attempts, score_id, updated_at) VALUES (?,?,?,?,?,?,?,?) ' +
+          'ON CONFLICT(day, player) DO UPDATE SET total=excluded.total, cleared=excluded.cleared, hints=excluded.hints, ' +
+          'attempts=excluded.attempts, score_id=excluded.score_id, updated_at=excluded.updated_at',
+      )
+        .bind(day, player, v.total, v.cleared, v.hints, v.attempts, ins[0]?.id ?? null, now)
+        .run()
+    }
+  } catch (e) {
+    // slime_daily 표가 없을 때(원격 마이그레이션 전): 검증된 점수만 추가한다. scores에 넣은 뒤 slime_daily에서 실패했다면 다시 넣지 않는다.
+    const msg = String((e as Error)?.message ?? e)
+    if (!/slime_daily/.test(msg)) throw e
+    console.warn('slime_daily unavailable, fallback to append', msg)
+    if (!inserted) {
+      await env.DB.prepare('INSERT INTO scores (game, week, name, score, created_at) VALUES (?,?,?,?,?)')
+        .bind(SLIME_SLUG, week, name, v.total, now)
+        .run()
+    }
+  }
+  const hubCache = edgeCache()
+  if (improved && hubCache?.delete) defer(hubCache.delete(hubCacheKey(origin, week)).then(() => undefined, () => undefined))
+  env.ANALYTICS?.writeDataPoint({ indexes: [SLIME_SLUG], blobs: ['sl_submit_verified', '', '', '', improved ? 'up' : 'same'], doubles: [v.total] })
+  const rankFields = await rankFor(env, SLIME_SLUG, week, score)
+  return json({
+    week,
+    top: await top(env, SLIME_SLUG, week),
+    submitted: { name, score },
+    verified: { total: v.total, cleared: v.cleared, hints: v.hints },
+    improved,
+    ...rankFields,
+  })
+}
+
 export default {
   async fetch(request: Request, env: Env, ctx?: { waitUntil(p: Promise<unknown>): void }): Promise<Response> {
     const defer: Defer = (p) => (ctx ? ctx.waitUntil(p) : void p)
@@ -323,23 +438,12 @@ export default {
       // 허브 엣지 캐시 무효화 — 제출한 사람이 곧바로 허브를 열었을 때 옛 보드를 보지 않게
       const hubCache = edgeCache()
       if (hubCache?.delete) defer(hubCache.delete(hubCacheKey(url.origin, week)).then(() => undefined, () => undefined))
-      // 제출 직후 순위: 이번 주 이 게임의 전체 제출 수와, 내 점수보다 높은 제출 수(동점은 같은 순위).
-      // idx_scores_board(game, week, score DESC)로 범위 스캔 한 번. 사용자별 1행 정리는 아직 없어 total은 '제출 수'다.
-      // 순위는 덤이다 — 조회가 실패해도 이미 저장된 제출을 실패로 돌려주면 사용자가 재시도해 중복 행이 생기므로 삼킨다.
-      let rankFields: { rank: number; total: number; topPercent: number } | undefined
-      try {
-        const { results: cnt } = await env.DB.prepare(
-          'SELECT COUNT(*) AS total, COALESCE(SUM(CASE WHEN score > ? THEN 1 ELSE 0 END), 0) AS above FROM scores WHERE game=? AND week=?',
-        )
-          .bind(score, game, week)
-          .all<{ total: number; above: number }>()
-        const total = Number(cnt[0]?.total ?? 0)
-        const rank = Number(cnt[0]?.above ?? 0) + 1
-        if (total >= 1 && rank <= total) rankFields = { rank, total, topPercent: topPercent(rank, total) }
-      } catch (e) {
-        console.warn('score rank lookup failed', e)
-      }
+      const rankFields = await rankFor(env, game, week, score)
       return json({ week, top: await top(env, game, week), submitted: { name, score }, ...rankFields })
+    }
+
+    if (url.pathname === '/api/slime/submit' && request.method === 'POST') {
+      return slimeSubmit(request, env, defer, url.origin)
     }
 
     // 게임별 이모지 리액션(무계정, UGC 없음) — src/lib/reactions.ts 참고.
