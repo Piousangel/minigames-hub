@@ -14,6 +14,8 @@ export function simulate(stage: Stage, lines: Pt[][], phys: Physics = DEFAULT_PH
   for (const t of stage.terrain) push(t)
   for (const line of lines) for (let i = 0; i + 1 < line.length; i++) push({ a: line[i], b: line[i + 1] })
   const n = segs.length / 4
+  // 튕기는 벽(terrain 인덱스): 기믹이 없는 스테이지는 이 배열이 비어 기존 계산 경로 그대로다
+  const bouncy = stage.bouncy && stage.bouncy.length ? stage.bouncy : null
 
   let x = stage.spawn.x
   let y = stage.spawn.y
@@ -79,14 +81,15 @@ export function simulate(stage: Stage, lines: Pt[][], phys: Physics = DEFAULT_PH
         // 속도: 법선 성분 반사(e), 접선 성분 쿨롱 마찰
         const vn = vx * nx + vy * ny
         if (vn < 0) {
-          const imp = -e1 * vn // 법선 임펄스 크기
+          const isB = bouncy !== null && s < stage.terrain.length && bouncy.includes(s)
+          const imp = -(isB ? CONST.BOUNCE_E1 : e1) * vn // 법선 임펄스 크기
           vx += imp * nx
           vy += imp * ny
           const tx = vx - (vx * nx + vy * ny) * nx
           const ty = vy - (vx * nx + vy * ny) * ny
           const tl = Math.sqrt(tx * tx + ty * ty)
           if (tl > 0) {
-            const dec = phys.mu * imp
+            const dec = (isB ? 0 : phys.mu) * imp
             const k = dec >= tl ? 0 : (tl - dec) / tl
             vx = vx - tx + tx * k
             vy = vy - ty + ty * k

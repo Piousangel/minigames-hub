@@ -35,10 +35,11 @@ export function drawBackground(g: CanvasRenderingContext2D, t: number, W: number
 const isFlat = (s: Seg) => Math.abs(s.b.y - s.a.y) < Math.abs(s.b.x - s.a.x) * 0.3
 
 /** 수평 지형 = 뿅 착지의 풀 덮인 떠다니는 섬. 섬 윗면이 물리 선분(말랑이가 서는 높이)에 오도록 맞춘다(그림은 시각용, 물리는 선분). */
-export function drawIslandFloors(g: CanvasRenderingContext2D, island: HTMLImageElement | null | undefined, terrain: Seg[]): boolean {
+export function drawIslandFloors(g: CanvasRenderingContext2D, island: HTMLImageElement | null | undefined, terrain: Seg[], bouncy: number[] = []): boolean {
   if (!island?.complete || !island.naturalWidth) return false
-  for (const s of terrain) {
-    if (!isFlat(s)) continue
+  for (let i = 0; i < terrain.length; i++) {
+    const s = terrain[i]
+    if (!isFlat(s) || bouncy.includes(i)) continue
     const x0 = Math.min(s.a.x, s.b.x)
     const x1 = Math.max(s.a.x, s.b.x)
     const w = x1 - x0 + 70 // 양끝으로 조금 더 나와 둥근 섬 모서리가 보인다
@@ -63,10 +64,43 @@ export function drawFlowerGoal(g: CanvasRenderingContext2D, flower: HTMLImageEle
   return true
 }
 
-export function drawTerrain(g: CanvasRenderingContext2D, terrain: Seg[], skipFlat = false): void {
+/** 튕기는 벽 = 말랑한 산호색 젤리 쿠션(바위 기둥과 한눈에 구분). 살짝 숨 쉬듯 굵기가 변한다. */
+function drawBouncePad(g: CanvasRenderingContext2D, s: Seg, t: number): void {
+  const dx = s.b.x - s.a.x
+  const dy = s.b.y - s.a.y
+  const len = Math.max(1, Math.sqrt(dx * dx + dy * dy))
+  const breathe = 1 + 0.06 * Math.sin(t / 260)
+  const stroke = (w: number, col: string, ox = 0, oy = 0) => {
+    g.strokeStyle = col
+    g.lineWidth = w
+    g.beginPath()
+    g.moveTo(s.a.x + ox, s.a.y + oy)
+    g.lineTo(s.b.x + ox, s.b.y + oy)
+    g.stroke()
+  }
+  g.lineCap = 'round'
+  stroke(18 * breathe, 'rgba(60,35,20,0.22)', 3, 4)
+  stroke(18 * breathe, '#5b3a1e')
+  stroke(13 * breathe, '#ff7f6b')
+  stroke(4, '#ffc1b3', -dy / len * 3, dx / len * 3)
+  // 쿠션 점무늬
+  g.fillStyle = '#ffe3da'
+  for (let d = 10; d < len - 6; d += 16) {
+    g.beginPath()
+    g.arc(s.a.x + (dx * d) / len, s.a.y + (dy * d) / len, 1.8, 0, Math.PI * 2)
+    g.fill()
+  }
+}
+
+export function drawTerrain(g: CanvasRenderingContext2D, terrain: Seg[], skipFlat = false, bouncy: number[] = [], t = 0): void {
   g.lineCap = 'round'
   g.lineJoin = 'round'
-  for (const s of terrain) {
+  for (let ti = 0; ti < terrain.length; ti++) {
+    const s = terrain[ti]
+    if (bouncy.includes(ti)) {
+      drawBouncePad(g, s, t)
+      continue
+    }
     if (skipFlat && isFlat(s)) continue
     const dx = s.b.x - s.a.x
     const dy = s.b.y - s.a.y
