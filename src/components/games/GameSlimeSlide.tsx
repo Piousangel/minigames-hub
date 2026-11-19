@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { OverlayScoreSubmit } from '@/components/game-shell/OverlayScoreSubmit'
 import { ShareButtons } from '@/components/ShareButtons'
 import { SlimeProto } from '@/components/SlimeProto'
-import { todayUTC } from '@/lib/dailyDate'
+import { todayLocal } from '@/lib/dailyDate'
 import { sendHit } from '@/lib/hit'
 import {
   DAILY_ATTEMPTS,
@@ -62,7 +62,7 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
   const [practiceIdx, setPracticeIdx] = useState(0) // 연습 = 해금된 스테이지 중 하나(점수 반영 없음)
 
   useEffect(() => {
-    const d = todayUTC()
+    const d = todayLocal()
     const p = loadProgress(d)
     setDay(d)
     setProgress(p)
@@ -71,7 +71,7 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
     // 탭을 열어 둔 채 UTC 자정을 넘기면 어제 기록이 오늘 보드로 올라가지 않게, 다시 보일 때 날짜를 확인한다(엔지니어 검수)
     const onVis = () => {
       if (document.hidden) return
-      const now = todayUTC()
+      const now = todayLocal()
       setDay((prev) => {
         if (prev === null || prev === now) return prev
         const np = loadProgress(now)
