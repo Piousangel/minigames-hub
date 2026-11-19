@@ -1,5 +1,8 @@
 # 세션 가이드 (미니게임 허브 팀)
 
+> **상시 안건(오너 11-19)**: [사이트 전체 UI·UX 고품질·독창성](specs/2026-11-19-uiux-north-star.md) — 모든 교대가 계속 진다. 24시간 교대 체제는 [ROTA.md](ROTA.md).
+
+
 > **최우선(오너 11-19 저녁)**: [docs/team/specs/2026-11-19-owner-direction-expand.md](specs/2026-11-19-owner-direction-expand.md) — 말랑 2~8단계 디벨롭(선 여러 번·물리·가로 풀스크린), 신작 확장(퍼즐·데블스 플랜류·앵그리버드류 마스코트), 기존 게임 심화.
 
 
