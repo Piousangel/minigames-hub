@@ -56,14 +56,22 @@ describe('순차 해금 일일', () => {
     const p1 = recordAttempt(p0, 0, win())
     expect(recordAttempt(p1, 0, win(3, 999))).toBe(p1)
   })
-  it('같은 스테이지에서 3번 다 실패하면 그날은 거기서 끝, 점수는 그때까지 합', () => {
+  it('같은 스테이지에서 3번 다 실패하면 0점으로 지나가고 다음 스테이지가 열린다', () => {
     let p = recordAttempt(emptyProgress(4), 0, win(2, 210))
     for (let k = 0; k < 3; k++) p = recordAttempt(p, 1, lose())
     expect(stageState(p, 1)).toBe('failed')
-    expect(stageState(p, 2)).toBe('locked')
-    expect(currentStage(p)).toBeNull()
-    expect(dailyOver(p)).toBe(true)
+    expect(stageState(p, 2)).toBe('open')
+    expect(currentStage(p)).toBe(2)
+    expect(dailyOver(p)).toBe(false)
     expect(dailyTotal(p)).toBe(210)
+  })
+  it('마지막 스테이지까지 지나가면 하루가 끝난다', () => {
+    let p = emptyProgress(2)
+    for (let k = 0; k < 3; k++) p = recordAttempt(p, 0, lose())
+    p = recordAttempt(p, 1, win(3, 320))
+    expect(dailyOver(p)).toBe(true)
+    expect(clearedCount(p)).toBe(1)
+    expect(dailyTotal(p)).toBe(320)
   })
   it('실패 후 성공하면 그 스테이지는 깬 것이고 점수는 스테이지별 최고점', () => {
     let p = recordAttempt(emptyProgress(2), 0, lose())

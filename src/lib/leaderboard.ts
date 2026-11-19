@@ -118,6 +118,11 @@ export const SCORE_SCALE: Record<string, number> = {
 
 // 위조 방어(캐주얼): 말도 안 되는 값 컷.
 export const MAX_SCORE = 100_000_000
+// 게임별 현실적인 상한(엔진상 나올 수 없는 값 컷 — curl 한 줄로 1위를 만드는 것 방지, 엔지니어 검수 11-19).
+// 말랑 미끄럼길: 스테이지당 최대 400(별3×100 + 잉크 100). 스테이지가 16개를 넘으면 이 값을 올릴 것(테스트가 지킨다).
+export const GAME_SCORE_CAP: Record<string, number> = {
+  'slime-slide': 6400,
+}
 // 같은 IP의 점수 제출 간격(ms). 리더보드는 사람 손으로 한 판 끝나야 제출되므로 10초면
 // 정상 플레이는 안 막고 curl 루프 도배만 막는다(저장 방식은 worker의 passCooldown 참고).
 export const SCORE_RATE_LIMIT_MS = 10_000
@@ -191,9 +196,10 @@ export function safeDisplayName(raw: unknown): string {
 }
 
 // 점수 검증: 정수, 0..MAX. 유효하면 정수, 아니면 null.
-export function cleanScore(raw: unknown): number | null {
+export function cleanScore(raw: unknown, game?: string): number | null {
   const n = Math.floor(Number(raw))
-  if (!Number.isFinite(n) || n < 0 || n > MAX_SCORE) return null
+  const cap = (game && GAME_SCORE_CAP[game]) || MAX_SCORE
+  if (!Number.isFinite(n) || n < 0 || n > cap) return null
   return n
 }
 

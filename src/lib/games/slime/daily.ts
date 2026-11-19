@@ -50,23 +50,22 @@ export type StageState = 'locked' | 'open' | 'cleared' | 'failed'
 export const emptyProgress = (total: number): DailyProgress => Array.from({ length: total }, () => [])
 
 const clearedAt = (p: DailyProgress, i: number): boolean => (p[i] ?? []).some((a) => a.outcome === 'nest')
+/** 시도 3번을 다 쓰고도 못 깼다 = 0점으로 지나간다(다음 스테이지는 열린다. 팀 종합 11-19: 막히면 이탈이 몰린다). */
+const exhaustedAt = (p: DailyProgress, i: number): boolean => !clearedAt(p, i) && (p[i] ?? []).length >= DAILY_ATTEMPTS
+const passedAt = (p: DailyProgress, i: number): boolean => clearedAt(p, i) || exhaustedAt(p, i)
 
 /**
- * 스테이지 상태. 앞 스테이지를 모두 깨야 열린다. 한 스테이지에서 시도를 3번 다 쓰고도 못 깨면 'failed'(그날은 거기서 끝, 점수는 그때까지의 합).
+ * 스테이지 상태. 앞 스테이지를 지나가야 열린다(깼거나, 3번 다 쓰고 0점으로 포기). 3번 다 실패한 스테이지는 'failed'.
  */
 export function stageState(p: DailyProgress, i: number): StageState {
-  for (let k = 0; k < i; k++) if (!clearedAt(p, k)) return 'locked'
+  for (let k = 0; k < i; k++) if (!passedAt(p, k)) return 'locked'
   if (clearedAt(p, i)) return 'cleared'
   return (p[i] ?? []).length >= DAILY_ATTEMPTS ? 'failed' : 'open'
 }
 
-/** 지금 플레이할 스테이지 인덱스. 하루가 끝났으면(전부 깼거나 어딘가에서 실패) null. */
+/** 지금 플레이할 스테이지 인덱스. 하루가 끝났으면(모든 스테이지를 지나갔으면) null. */
 export function currentStage(p: DailyProgress): number | null {
-  for (let i = 0; i < p.length; i++) {
-    const s = stageState(p, i)
-    if (s === 'open') return i
-    if (s === 'failed') return null
-  }
+  for (let i = 0; i < p.length; i++) if (stageState(p, i) === 'open') return i
   return null
 }
 
