@@ -19,6 +19,7 @@ export const PICKS = [
   'unblock',
   'plop-landing',
   'acorn-hop',
+  'slime-slide',
 ]
 
 export function HeroPlayButton() {

@@ -9,7 +9,7 @@ import { DEFAULT_META, gameMeta, type GameMeta } from '@/lib/games/gameMeta'
 /** 컬렉션 'original-games'(우리가 만든 게임) + 그 뒤 출시된 오리지널(컬렉션 미반영분). */
 const EXTRA_ORIGINALS = [
   'recoil', 'lagline', 'hunch', 'fizzbeat', 'siteswap', 'shadowfit', 'slosh', 'polarity',
-  'bisect', 'plop-landing', 'acorn-hop',
+  'bisect', 'plop-landing', 'acorn-hop', 'slime-slide',
 ]
 export const ORIGINAL_SLUGS: ReadonlySet<string> = new Set([
   ...(COLLECTIONS['original-games']?.games ?? []),

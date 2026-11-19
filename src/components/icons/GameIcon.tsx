@@ -1070,6 +1070,17 @@ const glyphs: Record<string, ReactNode> = {
     </>
   ),
 
+  // slime-slide — 비스듬한 선 위의 젤리와 꽃
+  'slime-slide': (
+    <>
+      <path d="M3 6 14 17" />
+      <path d="M6.5 5.5c0-2 1.2-3 2.5-3s2.5 1 2.5 3z" {...solid} transform="translate(5 4)" />
+      <path d="M17 20v-4" />
+      <circle cx="17" cy="14.5" r="1.8" {...soft} />
+      <path d="M14 21h7" />
+    </>
+  ),
+
   // acorn-hop — 도토리 한 알과 반동으로 솟는 위쪽 화살표
   'acorn-hop': (
     <>
