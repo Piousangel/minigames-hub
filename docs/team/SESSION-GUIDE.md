@@ -1,5 +1,8 @@
 # 세션 가이드 (미니게임 허브 팀)
 
+> **최우선(오너 11-19 저녁)**: [docs/team/specs/2026-11-19-owner-direction-expand.md](specs/2026-11-19-owner-direction-expand.md) — 말랑 2~8단계 디벨롭(선 여러 번·물리·가로 풀스크린), 신작 확장(퍼즐·데블스 플랜류·앵그리버드류 마스코트), 기존 게임 심화.
+
+
 > **최우선(오너 11-19)**: [docs/team/specs/2026-11-19-owner-direction-depth.md](specs/2026-11-19-owner-direction-depth.md) — 말랑 미끄럼길 순차 해금 개편(홍보 보류), 신작 「벽바둑」 조사·설계(17:10 이후), 오리지널 3종 심화.
 
 
