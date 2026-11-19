@@ -1,0 +1,40 @@
+[
+  {
+    "id": "hub-hero-desktop-4f-c",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 2400,
+    "out": "public/art/hub-hero-desktop-4f-c.webp",
+    "refs": [
+      "docs/design/mascots/haessi-sheet.webp",
+      "public/art/haessi-cheer.webp",
+      "public/art/haessi-idle.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/bomi-deliver.webp",
+      "docs/design/mascots/bomi-sheet-v2.webp",
+      "public/art/hub-hero-desktop-4f-a.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration, warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no neon, no text, no watermark. Match EXACTLY the character designs in the reference images — do not redesign anyone. CLOSE-UP FRAMING: the four friends are LARGE and close to the viewer — the group fills about 50-55% of the image height, standing together on the near edge of one floating grass island, slightly overlapping, all fully visible from head to feet, happy faces: 1) Mallang — a soft matte jelly blob, mint-to-lavender gradient, waving (same as the Mallang reference). 2) Tori — a chibi squirrel in a round glass space helmet and mint suit, holding up an acorn (same as the Tori reference). 3) Haessi — a SUNFLOWER SEED, NOT a person and NOT a fairy: a plump teardrop-shaped seed body with vertical stripes of seed-brown and cream, simple dot eyes on the seed body, a small sunflower bloom on top of the seed as a crown, two little leaf-shaped arms, tiny stubby feet, holding a small brass lantern (exactly like the Haessi model sheet reference). 4) Bomi — a round chubby bumblebee mail courier with honey-yellow and cocoa-brown stripes, a cream postal cap, small translucent wings, a brown satchel of rolled newspapers, hovering just above the others holding up a rolled newspaper (exactly like the Bomi reference). Order left to right: Haessi, Mallang, Tori, Bomi (Bomi slightly higher). Wide 16:9 composition for a desktop home hero: LEFT 38% is open sunset sky only (space for a headline) — the island and the four friends occupy the RIGHT 62%. BOTTOM 15%: a calm lavender cloud band (#a88ecc). Background like the reference scene: an acorn tree on the right edge behind Bomi, sunflowers along the island edge, the sun low behind the group."
+  },
+  {
+    "id": "hub-hero-desktop-4f-d",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 2400,
+    "out": "public/art/hub-hero-desktop-4f-d.webp",
+    "refs": [
+      "docs/design/mascots/haessi-sheet.webp",
+      "public/art/haessi-cheer.webp",
+      "public/art/haessi-idle.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/bomi-deliver.webp",
+      "docs/design/mascots/bomi-sheet-v2.webp",
+      "public/art/hub-hero-desktop-4f-a.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration, warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no neon, no text, no watermark. Match EXACTLY the character designs in the reference images — do not redesign anyone. CLOSE-UP FRAMING: the four friends are LARGE and close to the viewer — the group fills about 50-55% of the image height, standing together on the near edge of one floating grass island, slightly overlapping, all fully visible from head to feet, happy faces: 1) Mallang — a soft matte jelly blob, mint-to-lavender gradient, waving (same as the Mallang reference). 2) Tori — a chibi squirrel in a round glass space helmet and mint suit, holding up an acorn (same as the Tori reference). 3) Haessi — a SUNFLOWER SEED, NOT a person and NOT a fairy: a plump teardrop-shaped seed body with vertical stripes of seed-brown and cream, simple dot eyes on the seed body, a small sunflower bloom on top of the seed as a crown, two little leaf-shaped arms, tiny stubby feet, holding a small brass lantern (exactly like the Haessi model sheet reference). 4) Bomi — a round chubby bumblebee mail courier with honey-yellow and cocoa-brown stripes, a cream postal cap, small translucent wings, a brown satchel of rolled newspapers, hovering just above the others holding up a rolled newspaper (exactly like the Bomi reference). Order left to right: Haessi, Mallang, Tori, Bomi (Bomi slightly higher). Wide 16:9 composition for a desktop home hero: LEFT 38% is open sunset sky only (space for a headline) — the island and the four friends occupy the RIGHT 62%. BOTTOM 15%: a calm lavender cloud band (#a88ecc). Background: the sun low behind the group with two tall sunflowers framing it, a small stepping-stone island at the far left edge."
+  }
+]
