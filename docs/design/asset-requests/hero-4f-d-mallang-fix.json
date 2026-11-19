@@ -1,0 +1,36 @@
+[
+  {
+    "id": "hub-hero-desktop-4f-d2",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 2400,
+    "out": "public/art/hub-hero-desktop-4f-d2.webp",
+    "refs": [
+      "public/art/hub-hero-desktop-4f-d.webp",
+      "public/art/hub-keyart-hero.webp",
+      "public/art/slime-slide-cover.webp",
+      "public/art/mallang-happy.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/thumb-slime-slide.webp"
+    ],
+    "prompt": "IMAGE EDIT TASK. The FIRST reference image is the final artwork — reproduce it EXACTLY (same composition, framing, sky, clouds, island, sunflowers, lantern, Haessi the striped sunflower-seed sprite, Tori the squirrel astronaut, Bomi the flying bumblebee courier, same positions, poses and line style, same 16:9 framing). Change ONLY the jelly character in the middle (Mallang): redraw Mallang to match the ORIGINAL Mallang shown in the other reference images — a glossy jelly blob with a saturated sky-blue/cyan top fading to violet-purple at the bottom, a clear white glossy highlight on the upper-left of the head, small shiny reflections, slightly translucent jelly look, dark simple dot eyes and a happy open smile, same waving pose and same size and position as in the first image. Do not make Mallang pastel mint or matte. Keep the warm dark-brown outline style consistent with the rest. No text, no watermark."
+  },
+  {
+    "id": "hub-hero-desktop-4f-d3",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 2400,
+    "out": "public/art/hub-hero-desktop-4f-d3.webp",
+    "refs": [
+      "public/art/hub-hero-desktop-4f-d.webp",
+      "public/art/hub-keyart-hero.webp",
+      "public/art/slime-slide-cover.webp",
+      "public/art/mallang-happy.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/thumb-slime-slide.webp"
+    ],
+    "prompt": "IMAGE EDIT TASK. The FIRST reference image is the final artwork — reproduce it EXACTLY (same composition, framing, sky, clouds, island, sunflowers, lantern, Haessi the striped sunflower-seed sprite, Tori the squirrel astronaut, Bomi the flying bumblebee courier, same positions, poses and line style, same 16:9 framing). Change ONLY the jelly character in the middle (Mallang): redraw Mallang to match the ORIGINAL Mallang shown in the other reference images — a glossy jelly blob with a saturated sky-blue/cyan top fading to violet-purple at the bottom, a clear white glossy highlight on the upper-left of the head, small shiny reflections, slightly translucent jelly look, dark simple dot eyes and a happy open smile, same waving pose and same size and position as in the first image. Do not make Mallang pastel mint or matte. Keep the warm dark-brown outline style consistent with the rest. No text, no watermark."
+  }
+]
