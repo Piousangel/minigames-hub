@@ -72,13 +72,28 @@ describe('GameBrowser 씨앗 도서관(R4)', () => {
     const grid = screen.getByTestId('library-grid')
     expect(grid).toHaveAttribute('data-collapsed', 'true')
     expect(grid.querySelectorAll('li.hidden')).toHaveLength(6) // 24개 뒤만 접힘
+    // 모바일(md 미만)은 13~24번째도 CSS로만 접는다 — 링크는 그대로 DOM에
+    const lis = [...grid.querySelectorAll('li')]
+    expect(lis.map((li, i) => [i, li.className]).filter(([, c]) => c === 'max-md:hidden').map(([i]) => i)).toEqual(
+      Array.from({ length: 12 }, (_, k) => 12 + k),
+    )
+    expect(lis.slice(0, 12).every((li) => li.className === '')).toBe(true)
     const toggle = screen.getByTestId('library-toggle')
     expect(toggle).toHaveTextContent('Show all 30')
     expect(toggle).toHaveAttribute('aria-expanded', 'false')
     act(() => toggle.click())
     expect(grid).not.toHaveAttribute('data-collapsed')
     expect(grid.querySelectorAll('li.hidden')).toHaveLength(0)
+    expect(grid.querySelectorAll('li[class~="max-md:hidden"]')).toHaveLength(0)
     expect(toggle).toHaveAttribute('aria-expanded', 'true')
+  })
+
+  it('13~24개면 모바일에서만 접힌다: 토글은 md 이상에서 숨김(md:hidden), md 이상 접힘(hidden) 0', () => {
+    render(<GameBrowser items={many.slice(0, 20)} />)
+    const grid = screen.getByTestId('library-grid')
+    expect(grid.querySelectorAll('li.hidden')).toHaveLength(0)
+    expect(grid.querySelectorAll('li[class~="max-md:hidden"]')).toHaveLength(8)
+    expect(screen.getByTestId('library-toggle').parentElement).toHaveClass('md:hidden')
   })
 
   it("'My games' 필터: 비었으면 안내 문구, 하트로 담으면 바로 결과에 나온다(최근에 담은 순)", () => {

@@ -219,8 +219,48 @@
       "out": "docs/design/mascots/bomi-sheet-v2.webp",
       "model": "gemini-3-pro-image",
       "at": "2026-11-19T13:26:22+00:00"
+    },
+    "hub-hero-desktop-4f-a": {
+      "out": "public/art/hub-hero-desktop-4f-a.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T22:36:08+00:00"
+    },
+    "hub-hero-mobile-4f-a": {
+      "out": "public/art/hub-hero-mobile-4f-a.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T22:36:25+00:00"
+    },
+    "hub-hero-desktop-4f-b": {
+      "out": "public/art/hub-hero-desktop-4f-b.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T22:36:42+00:00"
+    },
+    "hub-hero-mobile-4f-b": {
+      "out": "public/art/hub-hero-mobile-4f-b.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T22:36:58+00:00"
+    },
+    "hub-hero-desktop-4f-c": {
+      "out": "public/art/hub-hero-desktop-4f-c.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T22:39:58+00:00"
+    },
+    "hub-hero-desktop-4f-d": {
+      "out": "public/art/hub-hero-desktop-4f-d.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T22:40:13+00:00"
+    },
+    "hub-hero-desktop-4f-d2": {
+      "out": "public/art/hub-hero-desktop-4f-d2.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T22:53:55+00:00"
+    },
+    "hub-hero-desktop-4f-d3": {
+      "out": "public/art/hub-hero-desktop-4f-d3.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T22:54:10+00:00"
     }
   },
   "month": "2026-11",
-  "count": 43
+  "count": 51
 }

@@ -50,7 +50,7 @@ export function shelves(pages: readonly PageLike[], meta: MetaTable): Shelf[] {
 
 /**
  * 씨앗 도서관 기본 순서: 카테고리를 돌아가며 한 개씩(Puzzle → Arcade → Classic → Skill → Puzzle …),
- * 각 카테고리 안은 registry 순서. 접힌 상태(앞 24개)에도 네 선반이 고르게 보이게 하려는 것.
+ * 각 카테고리 안은 registry 순서. 접힌 상태(앞 24개, 모바일 12개)에도 네 선반이 고르게 보이게 하려는 것.
  * 원소는 그대로 돌려준다(복사·누락 없음 — 길이·집합이 같음을 테스트가 지킨다).
  */
 export function libraryOrder<T extends { category: GameCategory }>(items: readonly T[]): T[] {
@@ -63,5 +63,12 @@ export function libraryOrder<T extends { category: GameCategory }>(items: readon
   return [...out, ...rest]
 }
 
-/** 접힌 상태에서 보이는 카드 수(나머지도 HTML에는 모두 있다). */
+/** 접힌 상태에서 보이는 카드 수 — md(768px) 이상(나머지도 HTML에는 모두 있다). */
 export const LIBRARY_PREVIEW = 24
+
+/**
+ * 접힌 상태에서 md 미만(모바일)에 보이는 카드 수(오너 11-20: 홈 390 높이 줄이기).
+ * 13~24번째는 CSS(`max-md:hidden`)로만 숨긴다 — JS 분기가 없어 정적 HTML·하이드레이션이 폭과 무관하게 같다(CLS 0).
+ * 카테고리 번갈아 순서라 12개 안에서도 네 카테고리가 3개씩.
+ */
+export const LIBRARY_PREVIEW_MOBILE = 12

@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { CATEGORIES, type GameCategory } from '@/lib/games/gameMeta'
 import { FAVORITES_EVENT, loadFavorites } from '@/lib/favorites'
-import { LIBRARY_PREVIEW, libraryOrder } from '@/lib/home/shelves'
+import { LIBRARY_PREVIEW, LIBRARY_PREVIEW_MOBILE, libraryOrder } from '@/lib/home/shelves'
 import { Mascot } from '@/components/Mascot'
 import { SeedCard } from '@/components/home/SeedCard'
 import { SeedIcon } from '@/components/home/HomeIcons'
@@ -29,6 +29,7 @@ const FILTERS: Filter[] = ['All', 'Daily', ...CATEGORIES, 'My games']
  * 홈 '씨앗 도서관'(All games, 리디자인 v2 R4): 인스턴트 검색 + 필터 칩 + 씨앗 던지기(랜덤).
  * - 기본(검색어 없음·All): 전 게임을 카테고리 번갈아 순서(libraryOrder)로. 앞 LIBRARY_PREVIEW(24)개만 보이고 나머지는
  *   `hidden` 클래스로 접어 두지만 **113개 링크가 모두 정적 HTML에 있다**(SEO·내부 링크 — e2e가 지킨다). "Show all N"으로 편다.
+ *   md 미만(모바일)은 앞 LIBRARY_PREVIEW_MOBILE(12)개만 — 13~24번째는 `max-md:hidden`(CSS만, 폭에 따른 JS 분기 없음 → CLS 0).
  * - 검색·필터: 맞는 게임만 평평한 그리드(data-testid="browse-results"), 접지 않는다.
  * - 앵커: 헤더 검색 `/#search`(입력), 헤더 All games `/#all-games`(섹션 머리).
  */
@@ -98,7 +99,9 @@ export function GameBrowser({ items, heading }: { items: BrowseItem[]; heading?:
     if (pick) router.push(`/${pick.slug}`)
   }
 
-  const hidden = library.length - LIBRARY_PREVIEW
+  // 모바일은 12개 뒤부터 접히므로 토글은 12개 초과면 있다. 24개 이하라 md 이상에선 접힌 게 없으면 그 폭에서만 숨긴다.
+  const collapsible = library.length > LIBRARY_PREVIEW_MOBILE
+  const collapsibleOnDesktop = library.length > LIBRARY_PREVIEW
 
   return (
     // 헤더 'All games' 앵커. sticky 헤더 여백은 html scroll-padding-top(globals.css)이 맡는다.
@@ -170,13 +173,13 @@ export function GameBrowser({ items, heading }: { items: BrowseItem[]; heading?:
             className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4"
           >
             {library.map((g, i) => (
-              <li key={g.slug} className={!expanded && i >= LIBRARY_PREVIEW ? 'hidden' : undefined}>
+              <li key={g.slug} className={expanded ? undefined : i >= LIBRARY_PREVIEW ? 'hidden' : i >= LIBRARY_PREVIEW_MOBILE ? 'max-md:hidden' : undefined}>
                 <SeedCard slug={g.slug} title={g.title} description={g.description} category={g.category} />
               </li>
             ))}
           </ul>
-          {hidden > 0 && (
-            <div className="mt-4 flex justify-center">
+          {collapsible && (
+            <div className={`mt-4 flex justify-center ${collapsibleOnDesktop ? '' : 'md:hidden'}`}>
               <button
                 type="button"
                 onClick={() => setExpanded((v) => !v)}
