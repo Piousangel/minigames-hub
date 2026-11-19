@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useSlimeAudio } from '@/lib/sound/useSlimeAudio'
 import { simulate } from '@/lib/games/slime/engine'
+import { ghostMark } from '@/lib/games/slime/ghost'
 import { sendHit } from '@/lib/hit'
 import { detectInAppBrowser, type InAppBrowser } from '@/lib/inAppBrowser'
 import { HINT_STAR_CAP, attemptScore } from '@/lib/games/slime/daily'
@@ -31,16 +32,6 @@ interface Rec {
 
 const TRACE_MS = 50 // 트레이스 한 칸 = 6스텝 = 50ms
 const START_VIS_MS = 220 // 놓은 뒤 말랑이가 움직이기까지(엔진 시뮬의 0.5초 대기는 그대로, 화면만 앞당김). 그 사이 웅크리는 예비 동작
-/** 선분 a-b가 점 c에서 r 이내를 지나는가 */
-function segmentNear(a: Pt, b: Pt, c: Pt, r: number): boolean {
-  const dx = b.x - a.x
-  const dy = b.y - a.y
-  const l2 = dx * dx + dy * dy
-  const t = l2 === 0 ? 0 : Math.max(0, Math.min(1, ((c.x - a.x) * dx + (c.y - a.y) * dy) / l2))
-  const ex = a.x + t * dx - c.x
-  const ey = a.y + t * dy - c.y
-  return ex * ex + ey * ey < r * r
-}
 const clampPt = (p: Pt): Pt => ({ x: Math.max(18, Math.min(BOARD_W - 18, p.x)), y: Math.max(26, Math.min(BOARD_H - 34, p.y)) })
 
 export interface SlimeBoardProps {
@@ -200,21 +191,14 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
     }
   }, [])
 
-  // 기억 고스트: 앞 스테이지의 내 선과, 이 스테이지에서 독꽃에 막히는 첫 지점(✕)
+  // 기억 고스트: 앞 스테이지의 내 선과, 그 선이 이 스테이지에서 막히는 지점(✕ — 금지 구역·독꽃·추락 등, ghost.ts)
   useEffect(() => {
     if (!memoryLine || memoryLine.length < 2) {
       memory.current = null
       return
     }
     const pts = memoryLine.map(([x, y]) => ({ x: x / 2, y: y / 2 }))
-    let hit: Pt | null = null
-    for (const sp of stage.spikes) {
-      for (let i = 0; i + 1 < pts.length && !hit; i++) {
-        if (segmentNear(pts[i], pts[i + 1], sp, CONST.SPIKE_R)) hit = sp
-      }
-      if (hit) break
-    }
-    memory.current = { pts, x: hit }
+    memory.current = { pts, x: ghostMark(stage, pts) }
   }, [memoryLine, stage])
 
   // 안내 시범용 길: 이 스테이지의 추천 길(없으면 시범 없이 말풍선만)
@@ -381,8 +365,11 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
           g.fillStyle = '#ff4b4b'
           g.strokeStyle = '#5b3a1e'
           g.lineWidth = 4
-          g.strokeText('✕', mem.x.x, mem.x.y - 34)
-          g.fillText('✕', mem.x.x, mem.x.y - 34)
+          // 독꽃이 아닌 지점(추락·금지 구역)은 보드 가장자리일 수 있어 글자가 잘리지 않게 안쪽으로 당긴다(독꽃 자리는 그대로)
+          const mx = Math.max(13, Math.min(BOARD_W - 13, mem.x.x))
+          const my = Math.max(13, Math.min(BOARD_H - 13, mem.x.y - 34))
+          g.strokeText('✕', mx, my)
+          g.fillText('✕', mx, my)
         }
         g.restore()
       }
