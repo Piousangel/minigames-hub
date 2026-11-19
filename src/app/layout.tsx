@@ -4,7 +4,7 @@ import { siteConfig } from '@/lib/siteConfig'
 import { Logo } from '@/components/Logo'
 import { TrophyIcon } from '@/components/icons/TrophyIcon'
 import { RecordPageView } from '@/components/RecordPageView'
-import { pixelFont } from './fonts'
+import { displayFont, pixelFont, uiFont } from './fonts'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -24,8 +24,9 @@ export const viewport: Viewport = {
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // displayFont·uiFont는 CSS 변수(--font-display·--font-ui)만 노출한다. body 폰트 적용은 R2·R3.
   return (
-    <html lang="en" className={pixelFont.variable} suppressHydrationWarning>
+    <html lang="en" className={`${pixelFont.variable} ${displayFont.variable} ${uiFont.variable}`} suppressHydrationWarning>
       <body className="scanlines flex min-h-screen flex-col antialiased">
         {/* Mark JS as available BEFORE first paint so the scroll-reveal hidden
             state only applies for JS-capable browsers (no FOUC; no-JS/crawlers

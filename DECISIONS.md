@@ -104,3 +104,8 @@
 - 시안: docs/design/redesign-v2/hub-v2.html(+ 390·1440·결과 시트 캡처). 한 화면 = 오늘 발행된 하늘 한 장(No. N): 하늘 다이얼(지금 시각), 발행 마스트헤드, 키아트 한 장면, 오늘 호 카드의 유일한 노란 버튼, 목차형 목록, 4선반 색인.
 - 마스코트 4마리 반영(말랑이·토리·해씨·보미). 113개 게임 전체를 세계관 틀로(공통 토큰 재정의 + 정원 틀 전체 적용 + 결과 화면 마스코트 반응 공통 부품).
 - 독립 전문가 리뷰 반영 후 단계별 PR 계획서(docs/plans/)로 구현. 오너: "기획·계획 꼼꼼하게 세워서", "쉬지 말고 계속 발전".
+
+## 2026-11-19 리디자인 R1 폰트·토큰 세부(팀)
+- 맥락: 계획서 D9(Fraunces 정적 2인스턴스 + Figtree)를 실제 파일로 만들면서 정할 것이 생겼다.
+- 선택: Fraunces는 가변 원본에서 fontTools로 wght 600·SOFT 100·opsz 72·WONK 0 인스턴스(roman·italic) 2개를 만들고, Figtree는 가변 그대로 둔다. 셋 다 라틴 서브셋 woff2(합계 62.5KB, Fredoka 포함 92.2KB). R1에서는 `preload: false`로 두어 아직 쓰지 않는 폰트를 내려받지 않는다. 적용하는 PR(R2 Figtree, R3 Fraunces roman)이 preload를 켠다. 기존 `--garden-gold`는 이름을 유지하고 새 코드는 `--garden-sun`을 쓴다.
+- 재현: `scripts/fonts/build-garden-fonts.py`(원본 google/fonts 커밋·버전 기록).

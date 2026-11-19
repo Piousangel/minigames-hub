@@ -34,7 +34,7 @@
 | D4 | **카테고리 수·전체 게임 수는 항상 계산**(`gamePages`·`gameMeta`), 하드코딩 금지 + 집계 단위 테스트 | 리뷰 B1. 실제 Puzzle 49 / Arcade 21 / Classic 19 / Skill 25 |
 | D5 | **마스코트 ↔ 카테고리 1:1**: 말랑이 = Puzzle, 토리 = Arcade, 해씨 = Classic(+오늘의 정원·안내), **보미 = Skill(정밀 비행·타이밍) + 소식(데일리 배달·리더보드·공유)** | 리뷰가 Skill 담당 공백 지적. 4마리 ↔ 4카테고리로 정리(팀 결정, 오너에게 보고) |
 | D6 | **마스코트 배치 규칙**: 한 뷰포트에 1마리(히어로 키아트 제외), 광고 띠 400px 안에는 두지 않음, 한 마리 = 한 기능 | 리뷰 마스코트 배치안 |
-| D7 | 세계관 틀 적용은 **`data-world="garden"` 스코프 안에서만** `--neon-*` 재매핑, 20개씩 배치. 전역 `color-scheme: dark`(globals.css 58행)는 건드리지 않는다 | 리뷰 9. 113개 동시 회귀 위험 |
+| D7 | 세계관 틀 적용은 **`data-world="garden"` 스코프 안에서만** `--neon-*` 재매핑, 20개씩 배치. 전역 `html { color-scheme: dark }`(globals.css)는 건드리지 않는다 | 리뷰 9. 113개 동시 회귀 위험 |
 | D8 | 게임판은 1차에 **'밤 정원' 짙은 남보라 바탕 유지**(네온 글자 대비 안전), 바깥 틀만 크림. 게임판 크림화는 퀄리티팀이 게임별로 | 대비 회귀 방지 |
 | D9 | 폰트: Fraunces **정적 인스턴스 2개**(roman 600, italic 600, SOFT 100 고정, opsz 72 고정, WONK 없음, 라틴 서브셋) + Figtree variable, `next/font/local` self-host, `display: swap` + `adjustFontFallback`. 픽셀 폰트는 은퇴(콘솔 이스터에그만) | 리뷰 B7 |
 | D10 | 키아트는 `<img fetchpriority="high">` + srcset, **모바일 전용 크롭(780w ≤ 60KB)·데스크톱 1920w(≤ 150KB)** 별도 생성. 썸네일은 전용 정사각(128/256) | 리뷰 B8 |
@@ -110,7 +110,7 @@ export type DailyResult = { slug: string; primary: { label: string; value: numbe
 ## 6. 진행표
 | PR | 상태 | PR 번호 | 메모 |
 |---|---|---|---|
-| R1 | 대기 | | |
+| R1 | 머지 | #178 | 토큰 `--garden-*`·`--color-garden-*`·`--shadow-garden-*`, 폰트 `--font-display`·`--font-ui`(preload 끔, 아직 미적용). 새 폰트 62.5KB. 화면 픽셀 diff 0 |
 | R2 | 대기 | | |
 | R3 | 대기 | | |
 | R4 | 대기 | | |
