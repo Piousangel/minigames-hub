@@ -1,7 +1,10 @@
+import { readdirSync, existsSync } from 'node:fs'
+import { join } from 'node:path'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { gamePages } from '@/lib/games/registry'
-import { COLLECTIONS } from '@/lib/games/collections'
+import { generateStaticParams as categoryParams } from '@/app/category/[slug]/page'
+import { generateStaticParams as collectionParams } from '@/app/collection/[slug]/page'
 import { SiteHeader } from './SiteHeader'
 import { SiteFooter } from './SiteFooter'
 import { HeaderSearchLink } from './HeaderSearchLink'
@@ -30,10 +33,20 @@ const LEGACY_LINKS = [
   '/contact',
 ]
 
-// 크롬이 가리켜도 되는 라우트(app 디렉터리에 실제로 있는 것). 앵커는 홈 GameBrowser.
+// 크롬이 가리켜도 되는 라우트 = app 디렉터리에 실제로 있는 것. 정적 라우트는 page.tsx가 있는 폴더를
+// 직접 훑고, 크롬이 쓰는 동적 라우트(category·collection)는 그 페이지의 generateStaticParams로 펼친다.
+function staticRoutes(dir: string, prefix = ''): string[] {
+  const out: string[] = existsSync(join(dir, 'page.tsx')) ? [prefix || '/'] : []
+  for (const d of readdirSync(dir, { withFileTypes: true })) {
+    if (!d.isDirectory() || d.name.startsWith('[') || d.name.startsWith('(')) continue
+    out.push(...staticRoutes(join(dir, d.name), `${prefix}/${d.name}`))
+  }
+  return out
+}
 const KNOWN_ROUTES = new Set([
-  ...LEGACY_LINKS,
-  ...Object.keys(COLLECTIONS).map((s) => `/collection/${s}`),
+  ...staticRoutes(join(process.cwd(), 'src/app')),
+  ...categoryParams().map((p) => `/category/${p.slug}`),
+  ...collectionParams().map((p) => `/collection/${p.slug}`),
 ])
 
 describe('사이트 크롬(헤더·푸터)', () => {
@@ -76,18 +89,22 @@ describe('사이트 크롬(헤더·푸터)', () => {
 
   it('오늘 pill은 /daily, 접근 이름에 첫 방문 문구 전체가 들어간다', () => {
     render(<SiteHeader />)
-    const pill = screen.getByRole('link', { name: /3 free daily puzzles/ })
+    const pill = screen.getByRole('link', { name: '3 free daily puzzles' })
     expect(pill).toHaveAttribute('href', '/daily')
   })
 
-  it('검색 버튼: 다른 페이지에선 /#search 로 이동(기본 동작 유지)', () => {
-    render(<HeaderSearchLink />)
+  it('검색 버튼: 다른 페이지에선 가로채지 않고 /#search 로 보낸다(포커스는 도착한 홈 GameBrowser가)', () => {
+    render(
+      <>
+        <HeaderSearchLink />
+        {/* 다른 페이지에 같은 id가 있더라도 홈이 아니면 건드리지 않는다 */}
+        <input id="search" aria-label="Other input" />
+      </>,
+    )
     const link = screen.getByRole('link', { name: 'Search games' })
     expect(link).toHaveAttribute('href', '/#search')
-    const ev = new MouseEvent('click', { bubbles: true, cancelable: true })
-    link.dispatchEvent(ev)
-    // Next Link가 클라이언트 이동을 위해 preventDefault 할 수 있으므로 포커스 이동이 없는 것만 확인
-    expect(document.activeElement).not.toHaveAttribute('id', 'search')
+    fireEvent.click(link)
+    expect(document.activeElement).not.toBe(screen.getByLabelText('Other input'))
   })
 
   it('검색 버튼: 홈에선 검색 입력으로 포커스를 옮긴다', () => {

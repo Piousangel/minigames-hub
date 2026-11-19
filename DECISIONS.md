@@ -112,5 +112,6 @@
 
 ## 2026-11-19 리디자인 v2 R2 크롬: 헤더 검색·Originals 목적지, 모바일 sticky 1행만
 - 맥락: 계획서 D12의 헤더(내비 3 + 검색 + 오늘 pill)를 정적 사이트에 넣을 때 검색 페이지·Originals 라우트가 없다. 시안의 모바일 헤더는 2행(56+44px)이라 통째로 sticky면 게임 화면에서 고정 크롬이 100px.
-- 선택: 검색 버튼은 홈 GameBrowser 입력(`/#search`)으로 보내고 마운트 때 스크롤·포커스. Originals는 기존 `/collection/original-games`. All games는 `/#all-games`(GameBrowser). 모바일은 1행(로고·pill·검색 56px)만 sticky, 2행 내비는 스크롤과 함께 사라진다. 390에서 pill 전체 문구가 안 들어가 640 미만은 "Daily puzzles", 접근 이름은 전체 문구.
+- 선택: 검색 버튼은 홈 GameBrowser 입력(`/#search`)으로 보내고 마운트 때 스크롤·포커스. Originals는 기존 `/collection/original-games`. All games는 `/#all-games`(GameBrowser). 모바일은 1행(로고·pill·검색 56px)만 sticky(z 42), 2행 내비(z 41)는 스크롤과 함께 1행 밑으로 사라진다. pill 전체 문구는 640 이상에서만 들어가 380~639는 "Daily puzzles", 380 미만은 "Daily", 접근 이름은 늘 "3 free daily puzzles". 앵커 여백은 html `scroll-padding-top`(4rem/lg 5rem).
+- 알려진 비용(독립 리뷰): 모바일 게임 페이지 첫 화면이 2행(44px)만큼 내려간다(2048 h1 top 69 → 126px). 게임 페이지에서 2행 숨김은 오너 결정. wordmark 때문에 Fraunces roman(19KB)을 모든 페이지가 받고 swap 깜빡임이 있다(높이 고정이라 CLS 0) — R3에서 roman만 preload로 분리. 현재 위치 표시(aria-current·밑줄)는 서버 레이아웃이라 R3 이후 클라이언트 섬으로.
 - 버린 안: 새 /search 페이지(범위 밖·얇은 페이지), 헤더 2행 통째 sticky(게임 화면 100px 잠식), pill 문구 줄바꿈.

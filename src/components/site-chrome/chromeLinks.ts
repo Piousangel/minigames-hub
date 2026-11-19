@@ -23,7 +23,7 @@ export const HEADER_NAV: (ChromeLink & { icon: HeaderNavIcon })[] = [
 ]
 
 /** 오늘 pill — /daily. 정적 HTML은 첫 방문 문구(D2). 진행 상태 표시는 R3. */
-export const TODAY_PILL = { href: '/daily', label: '3 free daily puzzles', short: 'Daily puzzles' }
+export const TODAY_PILL = { href: '/daily', label: '3 free daily puzzles', short: 'Daily puzzles', tiny: 'Daily' }
 
 // 푸터 '정원 안내판'. 예전 헤더(Guides·About)·푸터 링크를 모두 포함한다(AdSense 필수 페이지 About·Privacy·Terms·Contact).
 export const FOOTER_GROUPS: { id: string; title: string; links: ChromeLink[]; inline?: boolean }[] = [

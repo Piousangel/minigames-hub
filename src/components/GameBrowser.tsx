@@ -34,21 +34,27 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
   const inputRef = useRef<HTMLInputElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
 
-  // 헤더 검색·All games(다른 페이지 → /#search, /#all-games)로 왔을 때. Next 클라이언트 이동은
-  // 이 홈 섹션까지 스크롤해 주지 않아(실측: 위치 그대로) 마운트 때 직접 맞추고, 검색이면 입력에 포커스.
-  // Next의 이동 후 스크롤 처리(레이아웃 effect 뒤)가 끝난 다음 프레임에 맞춘다.
+  // 헤더 검색·All games(다른 페이지 → /#search, /#all-games, 또는 새로 열기·새로고침)로 왔을 때.
+  // Next 클라이언트 이동은 이 섹션까지 스크롤해 주지 않고(실측), 새로 로드하면 위쪽 섹션(최근 플레이·
+  // 신작 등 클라이언트 렌더)이 늦게 커져 앵커가 밀린다(실측 top 80 → 1595). 그래서 몇 번 다시 맞추되,
+  // 사용자가 직접 스크롤·터치·키 입력을 하면 바로 멈춘다.
   useEffect(() => {
     const hash = window.location.hash
-    if (hash !== `#${SEARCH_ANCHOR}` && hash !== `#${ALL_GAMES_ANCHOR}`) return
-    const id = window.setTimeout(() => {
-      if (hash === `#${SEARCH_ANCHOR}`) {
-        inputRef.current?.scrollIntoView({ block: 'center' })
-        inputRef.current?.focus({ preventScroll: true })
-      } else {
-        rootRef.current?.scrollIntoView({ block: 'start' })
-      }
-    }, 0)
-    return () => window.clearTimeout(id)
+    const isSearch = hash === `#${SEARCH_ANCHOR}`
+    if (!isSearch && hash !== `#${ALL_GAMES_ANCHOR}`) return
+    const align = () => {
+      if (isSearch) inputRef.current?.scrollIntoView({ block: 'center' })
+      else rootRef.current?.scrollIntoView({ block: 'start' })
+    }
+    const timers = [0, 250, 700, 1500].map((ms) => window.setTimeout(align, ms))
+    const stop = () => timers.forEach((t) => window.clearTimeout(t))
+    const userEvents = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const
+    userEvents.forEach((e) => window.addEventListener(e, stop, { once: true, passive: true }))
+    if (isSearch) inputRef.current?.focus({ preventScroll: true })
+    return () => {
+      stop()
+      userEvents.forEach((e) => window.removeEventListener(e, stop))
+    }
   }, [])
 
   const q = query.trim().toLowerCase()
@@ -75,8 +81,8 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
   }
 
   return (
-    // 헤더 'All games' 앵커. scroll-mt = 고정 헤더 높이(56/64) + 여유.
-    <div ref={rootRef} id={ALL_GAMES_ANCHOR} className="scroll-mt-20 lg:scroll-mt-24">
+    // 헤더 'All games' 앵커. sticky 헤더 여백은 html scroll-padding-top(globals.css)이 맡는다.
+    <div ref={rootRef} id={ALL_GAMES_ANCHOR}>
       {/* 검색 + 랜덤 */}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
@@ -107,7 +113,7 @@ export function GameBrowser({ items }: { items: BrowseItem[] }) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search games…"
             aria-label="Search games"
-            className="scroll-mt-28 w-full rounded-lg border border-border bg-surface/80 py-2.5 pl-10 pr-3 text-sm text-fg placeholder:text-fg-muted focus-visible:border-neon-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/40"
+            className="w-full rounded-lg border border-border bg-surface/80 py-2.5 pl-10 pr-3 text-sm text-fg placeholder:text-fg-muted focus-visible:border-neon-cyan focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan/40"
           />
         </div>
         <button

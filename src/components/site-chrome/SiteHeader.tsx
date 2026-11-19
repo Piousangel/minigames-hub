@@ -20,7 +20,8 @@ function NavLinks({ layout }: { layout: 'bar' | 'row' }) {
               `flex h-11 min-w-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-md text-[13px] font-semibold text-garden-ink-deep transition-colors hover:bg-garden-cream-2 [&+&]:border-l [&+&]:border-garden-ink/45 ${chromeFocus}`
         }
       >
-        <Icon className={layout === 'bar' ? 'h-5 w-5 shrink-0' : 'h-[18px] w-[18px] shrink-0'} />
+        {/* 360 미만은 칸(약 100px)에 'All games (113)'만 겨우 들어가 아이콘을 뺀다 */}
+        <Icon className={layout === 'bar' ? 'h-5 w-5 shrink-0' : 'h-[18px] w-[18px] shrink-0 max-[359px]:hidden'} />
         {label}
       </Link>
     )
@@ -35,7 +36,8 @@ function NavLinks({ layout }: { layout: 'bar' | 'row' }) {
  * 높이는 전부 고정값(h-14/h-16/h-11) → 폰트 swap·하이드레이션으로 높이가 변하지 않는다(CLS 0).
  * 내비 마크업은 두 벌이지만 화면에 보이는 건 늘 한 벌(다른 쪽은 display:none = 접근성 트리에서도 빠짐).
  * z-[42]: body.scanlines::after(z 40) 줄무늬가 크림 바에 얹히지 않게, 그리고 z-[41]을 쓰는
- * Plop Landing 보드가 스크롤 때 sticky 헤더 위로 올라오지 않게.
+ * Plop Landing 보드가 스크롤 때 sticky 헤더 위로 올라오지 않게. 2행 내비는 z-[41] — 헤더보다 아래여야
+ * 스크롤 중 sticky 1행 밑으로 들어간다(같은 z면 DOM 뒤인 2행이 1행을 덮는다).
  */
 export function SiteHeader() {
   return (
@@ -48,7 +50,7 @@ export function SiteHeader() {
             className={`flex h-11 min-w-0 shrink items-center gap-2 rounded-lg ${chromeFocus}`}
           >
             <GardenLogoMark className="h-7 w-7 shrink-0 lg:h-9 lg:w-9" />
-            <span className="font-display truncate text-[18px] leading-none font-semibold tracking-[-0.01em] text-garden-ink sm:text-[20px] lg:text-[22px]">
+            <span className="font-display truncate text-[16px] leading-none min-[360px]:text-[18px] font-semibold tracking-[-0.01em] text-garden-ink sm:text-[20px] lg:text-[22px]">
               {siteConfig.name}
             </span>
           </Link>
@@ -64,12 +66,14 @@ export function SiteHeader() {
             {/* 오늘 pill: 터치 영역 44px(링크) 안에 40px 알약. 좁은 화면은 짧은 문구, 이름은 늘 전체 문구 */}
             <Link
               href={TODAY_PILL.href}
-              aria-label={`${TODAY_PILL.short} — ${TODAY_PILL.label}`}
+              aria-label={TODAY_PILL.label}
               className={`group flex h-11 items-center rounded-full ${chromeFocus}`}
             >
               <span className="flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full border-2 border-garden-ink bg-garden-cream pl-2 pr-3 text-[14px] leading-none font-semibold text-garden-ink transition-colors group-hover:bg-garden-cream-2">
                 <SunIcon className="h-[18px] w-[18px] shrink-0" />
-                <span className="sm:hidden">{TODAY_PILL.short}</span>
+                {/* 폭에 따라 'Daily' → 'Daily puzzles' → 전체 문구. 보이는 글자는 늘 접근 이름(전체 문구)의 일부 */}
+                <span className="min-[380px]:hidden">{TODAY_PILL.tiny}</span>
+                <span className="hidden min-[380px]:inline sm:hidden">{TODAY_PILL.short}</span>
                 <span className="hidden sm:inline">{TODAY_PILL.label}</span>
               </span>
             </Link>
@@ -81,7 +85,7 @@ export function SiteHeader() {
       </header>
       <nav
         aria-label="Main"
-        className="font-ui relative z-[42] border-b-2 border-garden-ink bg-garden-cream/[.86] lg:hidden"
+        className="font-ui relative z-[41] border-b-2 border-garden-ink bg-garden-cream/[.86] lg:hidden"
       >
         <div className="mx-auto grid h-11 max-w-6xl grid-cols-3 px-2 sm:px-4">
           <NavLinks layout="row" />
