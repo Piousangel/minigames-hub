@@ -641,7 +641,7 @@ test('홈: Daily 필터가 Daily 모드 게임만 보여준다', async ({ page }
   // TodayBoard/RecentlyPlayed도 게임 카드를 그리므로 브라우저 결과 그리드로 좁힌다.
   const titles = await page.getByTestId('browse-results').locator('a:has(h3) h3').allInnerTexts()
   expect(titles.sort()).toEqual(
-    ['Acorn Hop', 'Plop Landing', 'Bankshot', 'Beatline', 'Bearing', 'Clusters', 'Decant', 'Deepdive', 'Duplex', 'Equate', 'Flapjack', 'Gravwell', 'Grasp', 'Handful', 'Hogline', 'Hunch', 'Interlock', 'Loopgrid', 'Overfold', 'Prismbox', 'Quadle', 'Quarry', 'Recoil', 'Ricochet', 'Sonar', 'Splice', 'Stackpot', 'Strata', 'Turntile', 'Word Guess'].sort(),
+    ['Acorn Hop', 'Plop Landing', 'Bankshot', 'Beatline', 'Bearing', 'Clusters', 'Decant', 'Deepdive', 'Duplex', 'Equate', 'Flapjack', 'Gravwell', 'Grasp', 'Handful', 'Hogline', 'Hunch', 'Interlock', 'Loopgrid', 'Overfold', 'Prismbox', 'Quadle', 'Quarry', 'Recoil', 'Ricochet', 'Slime Slide', 'Sonar', 'Splice', 'Stackpot', 'Strata', 'Turntile', 'Word Guess'].sort(),
   )
 })
 
@@ -988,6 +988,10 @@ test('Slime Slide: 일일/연습 탭과 시도 수가 보이고 캔버스가 뜬
   await expect(page.getByRole('tab', { name: 'Practice' })).toBeVisible()
   await expect(page.getByText(/3 tries left/)).toBeVisible()
   await expect(page.getByTestId('slime-canvas')).toBeVisible()
+  // 연습은 고정 1스테이지(DECISIONS 11-19 말랑 v2 ③): 스테이지 선택 없이 First Light만, 시도 제한 없음
   await page.getByRole('tab', { name: 'Practice' }).click()
-  await expect(page.getByRole('group', { name: 'Choose stage' })).toBeVisible()
+  await expect(page.getByRole('tab', { name: 'Practice' })).toHaveAttribute('aria-selected', 'true')
+  await expect(page.getByText('First Light')).toBeVisible()
+  await expect(page.getByTestId('slime-canvas')).toBeVisible()
+  await expect(page.getByText(/tries left/)).toHaveCount(0)
 })

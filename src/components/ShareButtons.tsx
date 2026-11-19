@@ -6,7 +6,7 @@ import { facebookSharerUrl, shareText, tagShareUrl, threadsIntentUrl, type Share
 import { siteConfig } from '@/lib/siteConfig'
 
 const btn =
-  'inline-flex min-h-10 items-center justify-center rounded-lg border border-white/15 bg-surface px-3 py-2 text-sm font-semibold text-fg transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent'
+  'inline-flex min-h-11 items-center justify-center rounded-lg border border-white/15 bg-surface px-3 py-2 text-sm font-semibold text-fg transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent'
 // 오버레이(밝은 크림 배경) 안에서 읽히는 작은 버튼
 const btnCompact =
   'inline-flex min-h-9 items-center justify-center rounded-lg border-2 border-[#5b3a1e] bg-[#fff3dc] px-2.5 py-1 text-xs font-bold text-[#5b3a1e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b3a1e]'
