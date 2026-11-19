@@ -1,5 +1,13 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 08시 리디자인 v2 R7a 정원 틀 배치 a 인계 (브랜치 `shift/redesign-r7a-batch1`)
+
+**한 줄:** 게임 20개 페이지가 「노을 정원」 틀이 됐다 — 바깥(제목 Fraunces·목표·HOW WAS IT?·Play next·공유·하단 섹션)은 크림·ink, 게임은 밤 정원 남보라 판 위(게임 컴포넌트 코드 변경 0). 오리지널 3종·나머지 90개는 픽셀 그대로.
+- **코드**: `src/lib/games/gardenRollout.ts`(`GARDEN_ORIGINALS`·`GARDEN_BATCHES`·`gameWorld`), `GamePageLayout`(framed면 `data-world="garden"`·판 `<div data-garden-board style=--accent>`·정원 제목/섹션 머리, 모든 게임에 높이 0 `[data-ad-after="game-incontent"]`), `globals.css` 맨 아래 'R7 정원 틀' 블록(토큰 2층 매핑·글로우 제거·바깥 픽셀 폰트 → Figtree·리액션/레일/공유/목표 ink 윤곽), 오리지널은 `data-world="garden-room"`(예전 `garden`에서 값만 바뀜 — CSS에서 쓰던 곳 없음).
+- **검사**: `e2e/garden-frame.spec.ts` — 배치 게임마다 390·1440 로드·판 그려짐·가로 스크롤 0·**대비 실패 0**(main 안 보이는 글자 전부, 판 안 포함)·**광고 ↔ 판 ≥150px**·첫 입력 뒤 페이지 오류 0, + 배치 밖 게임 예전 그대로·오리지널 room. 새 배치는 `GARDEN_BATCHES`에 키만 늘리면 자동 검사. `src/lib/games/gardenRollout.test.ts`(slug 실재·중복·≤20·배치 a에 getContext 없음).
+- **캡처·diff**: `node scripts/garden-capture.mjs capture|diff --base <main 빌드 URL> --head <브랜치 빌드 URL> --slugs ... [--out]`. 시계 고정(2026-11-20T03:00Z)·Math.random 시드·애니메이션 끔·캔버스 마스크라 main↔main 흔들림 0. R7a 캡처 `docs/design/redesign-v2/r7a/<slug>-<390|1440>-<before|after>.jpg`, 배치 밖 diff `diff-outside.json`.
+- **함정**: ⓪ 광고 거리 검사는 `[data-ad-after="game-incontent"]` 표시를 광고 자리로 본다 — `<AdSlot slot="game-incontent">`을 옮기면 표시도 바로 앞으로 같이 옮길 것(안 그러면 광고가 꺼진 동안 거짓 통과, 리뷰 지적) ① 판은 `margin-inline:-16px`로 main 여백까지 넓힌다 — main의 `px-4`를 바꾸면 판도 같이 고칠 것 ② 대비 검사는 조상 배경만 본다(절대 위치로 다른 요소 위에 뜬 글자는 근사) ③ 리액션은 정적 서버에서 /api가 없어 숨는다 — e2e·캡처는 `/api/reactions`를 흉내 낸다 ④ 원래 포트 3100은 다른 세션 serve가 잡고 있을 때가 많다(PW_PORT).
+- **⏭ R7b가 알아야 할 것**: ① 다음 20개도 같은 규칙(캔버스·하드코딩 색 20+ 제외, 트래픽·장부 우선) — 남은 DOM 후보 상위: unblock(hex 20)·ticker(25)는 규칙상 뒤, chess·mahjong은 게임 안 대비 결함(장부 '세계관' 칸) 고치면 바로 넣기, 그 밖 tetris·yahtzee·freecell·spider·jigsaw·memory-game·tic-tac-toe·connect-four 등 ② 캔버스 12종(breakout·pong·flappy·bubble-shooter·space-shooter·tower-stack·ripple·latch·backspace·flywheel + 오리지널 plop·acorn)은 판 안 그림이 직접 색을 칠하므로 마지막 배치(판 바탕만 바뀌고 캔버스 안은 그대로인지 diff로) ③ /leaderboards 정원 틀 전환 + 머리 보미 deliver 96px(R6 인계, 사본 `bomi-deliver-192.webp` 생성 필요)은 아직 — 게임 페이지가 아니라 R7 배치 밖 별도 PR이 낫다 ④ 오리지널 3종을 `garden`으로 옮길지는 방 그림과 크림 바깥이 어울리는지 캡처로 먼저 볼 것.
 
 ## ▶ 2026-11-20 08시 아침 개발 인계 (브랜치 `shift/08-slime-callback-s`)
 
