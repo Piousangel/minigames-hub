@@ -14,3 +14,16 @@
 export function todayUTC(): string {
   return new Date().toISOString().slice(0, 10) // 'YYYY-MM-DD' (UTC)
 }
+
+/**
+ * 사용자 현지 날짜('YYYY-MM-DD'). 나라별로 각자의 자정에 일일이 바뀌어야 하는 게임용(말랑 미끄럼길, 오너 11-19).
+ * 같은 순간에 나라마다 다른 날의 판을 받으므로 전 세계 같은 판 비교는 안 되고, 그 대신 아침 9시(한국)처럼 어색한 시각에 판이 바뀌지 않는다.
+ * 다른 일일 게임은 아직 todayUTC()를 쓴다(주간 리더보드 UTC 주와 맞추기 위함).
+ */
+export function todayLocal(): string {
+  const d = new Date()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${d.getFullYear()}-${m}-${day}`
+}
+
