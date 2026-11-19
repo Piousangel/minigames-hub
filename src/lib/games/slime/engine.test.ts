@@ -156,9 +156,10 @@ describe('미러 스테이지', () => {
       expect(b?.res.acorns, st.id).toBe(a?.res.acorns)
     }
   })
-  it('스테이지 id가 모두 다르고, 새 규칙 스테이지가 반전본 자리를 대체한다', () => {
+  it('스테이지 id가 모두 다르고 반전본이 없다', () => {
     expect(new Set(SLIME_STAGES.map((s) => s.id)).size).toBe(SLIME_STAGES.length)
-    expect(SLIME_STAGES.map((s) => s.id)).toEqual(['g-slide', 'g-slide-m', 's-spike', 's-spike-m', 'g-wall', 's-bounce', 's-wall-b', 's-wall-b-m'])
+    expect(SLIME_STAGES.map((s) => s.id)).toEqual(['g-slide', 's-spike', 'g-wall', 's-wall-b', 's-bounce'])
+    expect(SLIME_STAGES.some((s) => s.id.endsWith('-m'))).toBe(false) // 반전본은 일일 풀에 없다
   })
 })
 

@@ -155,7 +155,7 @@ export const KNOWN_LEGACY_STAGES: Stage[] = BASE_STAGES.flatMap((s) => [s, mirro
  * 일일 #N = N번째 스테이지(12개까지 난도 순, 이후 팀이 하루 1개씩 끝에 추가 — 오너 11-19). **새 스테이지는 항상 끝에만** 붙여 지난 날짜의 결과가 바뀌지 않게 한다.
  * tier3(g-gap)는 9조합 불안정으로 제외(DECISIONS 11-19).
  */
-export const SLIME_STAGES: Stage[] = KNOWN_LEGACY_STAGES.map((s) => (s.id === 'g-wall-m' ? T2_BOUNCE : s)) // 반전본 자리를 새 규칙으로 하나씩 바꿔 넣는다
+export const SLIME_STAGES: Stage[] = [GATE_STAGES[0], T1_SPIKE, GATE_STAGES[1], T2_WALL_B, T2_BOUNCE] // 고유 스테이지만(좌우 반전본 제외, 오너 11-19). 난도 순: 슬라이드 30% → 독꽃 13% → 벽 4% → 낮은 벽 3% → 튕기는 벽 1%(길 모르는 무작위 선 성공률)
 
 /**
  * 스테이지별 추천 길(웨이포인트). scripts/slime-hints.ts가 강건 해 중 별 3개·σ12 생존율 최고를 뽑은 것.
