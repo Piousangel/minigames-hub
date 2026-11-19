@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { accentVar, DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
+import { accentVar, DEFAULT_META, gameMeta, GARDEN_GAMES } from '@/lib/games/gameMeta'
+import { roundFont } from '@/app/fonts'
 import { GAME_INTROS } from '@/lib/games/gameIntros'
 import { hasLeaderboard } from '@/lib/leaderboard'
 import type { GamePage } from '@/lib/games/registry'
@@ -40,14 +41,15 @@ function SectionHeading({ children, color }: { children: React.ReactNode; color:
 }
 
 export function GamePageLayout({ page, children }: { page: GamePage; children: React.ReactNode }) {
-  const color = accentVar((gameMeta[page.slug] ?? DEFAULT_META).accent)
+  const garden = GARDEN_GAMES.has(page.slug)
+  const color = garden ? '#ffc933' : accentVar((gameMeta[page.slug] ?? DEFAULT_META).accent)
   const guide = guideForGame(page.slug)
   const related = articlesForGame(page.slug)
   return (
     // --accent를 페이지 스코프로 깔아 게임 컴포넌트 밖(스탯 패널 등)에서도 text-accent가 먹게 한다.
-    <main className="mx-auto max-w-3xl px-4 py-6" style={{ ['--accent' as string]: color }}>
+    <main className="mx-auto max-w-3xl px-4 py-6" style={{ ['--accent' as string]: color }} data-world={garden ? 'garden' : undefined}>
       <RecordPlay slug={page.slug} />
-      <h1 className="neon-text mb-4 text-center text-3xl font-bold" style={{ color }}>
+      <h1 className={garden ? `garden-title ${roundFont.className} mb-4 text-center text-4xl` : 'neon-text mb-4 text-center text-3xl font-bold'} style={garden ? undefined : { color }}>
         {page.h1}
       </h1>
       {/* 목표 한 줄(above-the-fold) — 낯선 유저가 승리 조건을 즉시 이해 */}

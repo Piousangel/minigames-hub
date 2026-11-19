@@ -193,3 +193,6 @@ export const ACCENT_VAR: Record<NeonAccent, string> = {
 export function accentVar(accent: NeonAccent): string {
   return ACCENT_VAR[accent]
 }
+
+/** 같은 세계관('노을 정원')을 공유하는 오리지널 게임: 제목·틀·강조색을 통일한다. */
+export const GARDEN_GAMES: ReadonlySet<string> = new Set(['plop-landing', 'acorn-hop', 'slime-slide'])

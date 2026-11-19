@@ -605,11 +605,11 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
         <div className="h-full rounded-full bg-[#f4f0ff] transition-[width]" style={{ width: `${left}%` }} />
       </div>
       <div className="relative" style={{ width: w, height: Math.round(w * (BOARD_H / BOARD_W)) }}>
-        <canvas ref={canvas} style={{ width: w, height: Math.round(w * (BOARD_H / BOARD_W)), touchAction: 'pan-y' }} className="block rounded-xl border border-white/15" role="img" aria-label={tx.canvasLabel} data-testid="slime-canvas" />
+        <canvas ref={canvas} style={{ width: w, height: Math.round(w * (BOARD_H / BOARD_W)), touchAction: 'pan-y' }} className="garden-frame block" role="img" aria-label={tx.canvasLabel} data-testid="slime-canvas" />
         {/* 그리기 구역: 가로 90%·세로 84%. 스크롤용 띠는 위·아래 8%·좌우 5%만 남긴다(오너 11-19: 띠가 넓어 선이 안 그려지는 곳이 많았음). 위로 빠르게 쓸어올리는 스크롤 손짓은 onUp 필터가 선으로 세지 않는다 */}
         <PlayZone top={0.08} bottom={0.08} left={0.05} right={0.05} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onCancel} data-testid="slime-zone" />
       </div>
-      <p role="status" aria-live="polite" className="mt-3 min-h-6 text-center text-sm font-semibold">{msg || (phase === 'draw' ? tx.startStatus : phase === 'run' ? tx.running : '')}</p>
+      <p role="status" aria-live="polite" className="mt-6 min-h-6 text-center text-sm font-semibold">{msg || (phase === 'draw' ? tx.startStatus : phase === 'run' ? tx.running : '')}</p>
       <div className="mt-2 flex items-center justify-center gap-2 text-sm">
         <button type="button" className="min-h-11 rounded-lg border border-white/15 px-4 py-2" onClick={() => {
             sendHit(SLUG, 'sl_retry')

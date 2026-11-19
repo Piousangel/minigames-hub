@@ -627,3 +627,25 @@ body {
     animation: none !important;
   }
 }
+
+/* ───────── 노을 정원(Sunset Garden) 세계 — 오리지널 3종(Plop·Acorn·Slime)이 공유 (디자이너 문서 11-19) ───────── */
+:root {
+  --garden-ink: #5b3a1e;
+  --garden-ink-deep: #3a2410;
+  --garden-cream: #fff3dc;
+  --garden-gold: #ffc933;
+  --garden-coral: #e8643f;
+}
+/* 게임별 네온 색 대신 같은 크림 제목 + 갈색 윤곽(구분은 색이 아니라 구역=배경이 한다) */
+.garden-title {
+  color: var(--garden-cream);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-shadow: 2px 0 0 var(--garden-ink), -2px 0 0 var(--garden-ink), 0 -2px 0 var(--garden-ink), 0 2px 0 var(--garden-ink),
+    2px 2px 0 var(--garden-ink), -2px 2px 0 var(--garden-ink), 0 5px 0 var(--garden-ink-deep);
+}
+/* 보드 공통 틀: 4px 갈색 윤곽 + 아래로 단단히 떨어진 그림자(레이아웃을 바꾸지 않도록 box-shadow로) */
+.garden-frame {
+  border-radius: 14px;
+  box-shadow: 0 0 0 4px var(--garden-ink), 0 9px 0 4px var(--garden-ink-deep);
+}

@@ -530,7 +530,7 @@ export function GameAcornHop({ storageKey }: { storageKey: string }) {
   const low = !over && s.phase === 'flying' && s.ammo <= 1
   const playing = s.phase === 'flying' && !over
   const pill = 'whitespace-nowrap rounded-full border-[3px] border-[#5b3a1e] bg-[#fff3dc] px-2.5 py-0.5 text-xs font-bold text-[#5b3a1e] shadow-[0_2px_0_#3a2410]'
-  const btn = 'btn-press flex h-10 min-w-10 items-center justify-center rounded-full border-[3px] border-[#5b3a1e] px-2 text-sm font-bold shadow-[0_3px_0_#3a2410] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffc933]'
+  const btn = 'btn-press flex h-11 min-w-11 items-center justify-center rounded-full border-[3px] border-[#5b3a1e] px-2 text-sm font-bold shadow-[0_3px_0_#3a2410] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffc933]'
 
   return (
     <div className={`${roundFont.className} mx-auto w-full max-w-100 select-none`}>
@@ -554,7 +554,7 @@ export function GameAcornHop({ storageKey }: { storageKey: string }) {
                   deal(x)
                 }}
                 aria-pressed={mode === x}
-                className={`h-9 px-2.5 text-xs font-bold capitalize ${mode === x ? 'bg-[#ffc933] text-[#5b3a1e]' : 'bg-[#fff3dc] text-[#8a6a44]'}`}
+                className={`h-11 px-3 text-xs font-bold capitalize ${mode === x ? 'bg-[#ffc933] text-[#5b3a1e]' : 'bg-[#fff3dc] text-[#8a6a44]'}`}
               >
                 {x}
               </button>
