@@ -100,7 +100,7 @@ export type DailyResult = { slug: string; primary: { label: string; value: numbe
 ## 5. 교대 배정 (ROTA 연결)
 
 - **16시 사이트 개발** → R1 → R2 → R3 → R4 순서(앞 PR 머지 후 다음).
-- **18시 저녁 개발** → R5 → R6.
+- **18시 저녁 개발** → R5 → R6. (11-20: R1~R4가 끝나 16시가 R6를 당겨 맡음 — 06시 회의 결정. 18시는 bugs Q1·R7 스코프 준비)
 - **22시 야간 개발 B** → 4장 그림 요청 PR(gen-assets) + R7 배치 준비(스코프 일반화·캡처 비교 스크립트).
 - **02시 야간 개발 A** → R7 배치 a~f(하루 1~2배치).
 - **00시 심야 QA** → 전날 머지된 R-PR 라이브 전수 점검(390 터치·Lighthouse·내부 링크 수).

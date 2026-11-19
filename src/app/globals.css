@@ -351,6 +351,35 @@ body {
   animation: juice-match var(--dur-med) var(--ease-pop);
 }
 
+/* Snake: 먹은 직후 머리 한 번 부풀기(한 틱 130ms 안에 끝나야 다음 칸으로 안 끌려간다) */
+@keyframes snake-gulp {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.35);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.anim-snake-gulp {
+  animation: snake-gulp 120ms var(--ease-pop);
+}
+/* Snake: 죽은 칸 깜빡임(오버레이가 뜨기 전 ~600ms) */
+@keyframes snake-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.15;
+  }
+}
+.anim-snake-blink {
+  animation: snake-blink 150ms steps(2, jump-none) 4;
+}
+
 /* Mismatch: a gentle horizontal shake before the cards flip back. */
 @keyframes juice-shake {
   0%,
@@ -525,6 +554,8 @@ body {
   .memory-card-inner,
   .anim-match,
   .anim-shake,
+  .anim-snake-gulp,
+  .anim-snake-blink,
   .anim-char-ok,
   .btn-press,
   .neon-box-hover,

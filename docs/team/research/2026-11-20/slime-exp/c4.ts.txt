@@ -1,0 +1,12 @@
+import * as L from './lib.ts'
+const ledge = L.chain([[0, 108], [60, 114], [100, 124], [112, 134]])
+const ground = L.chain([[90, 560], [100, 500], [115, 470], [135, 452], [155, 448], [172, 456], [188, 474], [202, 492], [214, 500], [228, 498], [242, 486], [256, 466], [272, 444], [290, 428], [310, 420], [340, 418], [362, 420], [376, 410], [384, 392], [390, 370]])
+const st: L.Stage = { id: 'v3-twin', tier: 2, terrain: [...ledge, ...ground], spawn: { x: 70, y: 100 }, acorns: [{ x: 138, y: 141 }, { x: 207, y: 364 }, { x: 130, y: 300 }], nest: { x: 330, y: 402 }, spikes: [], ink: 480 }
+const gs = L.gateSummary(st)
+console.log('C gate(1선)', gs.line)
+const sols = L.solve(st, 2026, { pop: 200 }).solutions
+console.log('1선 해', sols.length, '별 분포', [0, 1, 2, 3].map((k) => sols.filter((s) => s.res.acorns === k).length).join('/'))
+let n3 = 0, ex: any = null
+for (const sd of [3, 4, 5]) { const t = L.solve2(st, sd, 300, 8); const th = t.filter((s) => s.acorns === 3); n3 += th.length; if (th.length && !ex) ex = th[0] }
+console.log('2선 CEM 3별(3시드)', n3, ex ? L.r0(ex.wp[0]) + ' + ' + L.r0(ex.wp[1]) : '')
+if (ex) { const rng = L.mulberry32(8); let ok = 0; for (let i = 0; i < 60; i++) { const ls = ex.wp.map((w: L.Pt[]) => L.perturb(L.waypointsToRaw(w), 8, 1.5, rng)); const r = L.simulate(st, ls.map((l: L.Pt[]) => l)); if (r.outcome === 'nest' && r.acorns === 3) ok++ } console.log('2선 예시 σ8(파이프라인 생략 근사) 별3 생존', ok / 60) }

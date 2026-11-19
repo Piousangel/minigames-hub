@@ -41,7 +41,61 @@ describe('changeDir', () => {
   })
   it('한 틱 안에 두 번 꺾어도 180도 반전은 불가하다', () => {
     const s = changeDir(S({ dir: 'right', pendingDir: 'right' }), 'up')
-    expect(changeDir(s, 'left').pendingDir).toBe('up') // dir가 아직 right이므로 left 거부
+    // left는 up 뒤에 큐잉될 뿐 이번 틱엔 up이 먼저 — right에서 곧장 left로 뒤집히지 않는다.
+    const s2 = changeDir(s, 'left')
+    expect(s2.pendingDir).toBe('up')
+    const t1 = tick({ ...s2, snake: [{ x: 5, y: 5 }, { x: 4, y: 5 }] }, () => 0)
+    expect(t1.over).toBe(false)
+    expect(t1.snake[0]).toEqual({ x: 5, y: 4 })
+  })
+})
+
+describe('입력 큐', () => {
+  const body = [{ x: 5, y: 5 }, { x: 4, y: 5 }, { x: 3, y: 5 }]
+  it('새 게임은 큐가 비어 있다', () => {
+    const s = newSnakeGame(() => 0)
+    expect(s.queue).toEqual([])
+    expect(s.pendingDir).toBe('right')
+  })
+  it('오른쪽 진행 중 한 틱 안 up→left는 두 틱에 걸쳐 차례로 적용된다', () => {
+    let s = S({ snake: body, dir: 'right', pendingDir: 'right', queue: [], food: { x: 0, y: 0 } })
+    s = changeDir(changeDir(s, 'up'), 'left')
+    expect(s.queue).toEqual(['up', 'left'])
+    s = tick(s, () => 0)
+    expect(s.snake[0]).toEqual({ x: 5, y: 4 })
+    expect(s.dir).toBe('up')
+    expect(s.queue).toEqual(['left'])
+    expect(s.pendingDir).toBe('left')
+    s = tick(s, () => 0)
+    expect(s.snake[0]).toEqual({ x: 4, y: 4 })
+    expect(s.dir).toBe('left')
+    expect(s.queue).toEqual([])
+  })
+  it('큐 마지막 기준으로 반대·중복 입력은 무시한다', () => {
+    const s = changeDir(S({ dir: 'right', pendingDir: 'right', queue: [] }), 'up')
+    expect(changeDir(s, 'down')).toBe(s) // up의 반대
+    expect(changeDir(s, 'up')).toBe(s) // 중복
+    const empty = S({ dir: 'right', pendingDir: 'right', queue: [] })
+    expect(changeDir(empty, 'right')).toBe(empty) // 진행 방향과 같음
+    expect(changeDir(empty, 'left')).toBe(empty) // 진행 방향의 반대
+  })
+  it('세 번째 입력은 버린다 (최대 2)', () => {
+    let s = S({ dir: 'right', pendingDir: 'right', queue: [] })
+    s = changeDir(changeDir(s, 'up'), 'left')
+    const full = s
+    expect(changeDir(full, 'down')).toBe(full)
+    expect(full.queue).toEqual(['up', 'left'])
+  })
+  it('큐가 없는 예전 형태 상태도 pendingDir를 그대로 따른다', () => {
+    const s = S({ snake: body, dir: 'right', pendingDir: 'up', food: { x: 0, y: 0 } })
+    expect(changeDir(s, 'left').queue).toEqual(['up', 'left'])
+    expect(tick(s, () => 0).snake[0]).toEqual({ x: 5, y: 4 })
+  })
+  it('죽으면 큐가 비워진다', () => {
+    const s = S({ snake: [{ x: 19, y: 10 }], dir: 'right', pendingDir: 'up', queue: ['right', 'up'] })
+    const t = tick(s, () => 0)
+    expect(t.over).toBe(true)
+    expect(t.queue).toEqual([])
   })
 })
 

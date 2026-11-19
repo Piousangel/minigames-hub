@@ -46,5 +46,25 @@
     "link": "https://www.threads.com/@makhimupsi/post/Df2E_-JEbkC",
     "ref": "18118589870133940",
     "status": "posted"
+  },
+  {
+    "id": "2026-11-20#0",
+    "date": "2026-11-20",
+    "channel": "bluesky",
+    "at": "2026-11-19T21:13:26.545Z",
+    "url": "https://quickminigames.site/snake",
+    "link": "https://bsky.app/profile/piousangel.bsky.social/post/3n2oygoxfqi2o",
+    "ref": "at://did:plc:5jko3o5kkgiskomb3ntwp4kt/app.bsky.feed.post/3n2oygoxfqi2o",
+    "status": "posted"
+  },
+  {
+    "id": "2026-11-20#1",
+    "date": "2026-11-20",
+    "channel": "threads",
+    "at": "2026-11-19T21:13:28.843Z",
+    "url": "https://quickminigames.site/snake",
+    "link": "https://www.threads.com/@makhimupsi/post/Df8BRr4mxCG",
+    "ref": "18026296061714053",
+    "status": "posted"
   }
 ]

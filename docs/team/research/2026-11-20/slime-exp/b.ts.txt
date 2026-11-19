@@ -1,0 +1,33 @@
+import * as L from './lib.ts'
+const a1 = L.SLIME_STAGES[0]
+const SPK = [{ x: 105, y: 186 }, { x: 104, y: 275 }]
+const A2: L.Stage = { ...a1, id: 'v3-meadow', spikes: SPK, acorns: [{ x: 70, y: 144 }, { x: 70, y: 298 }, { x: 207, y: 442 }] }
+const prev = L.sampleSols(A2, 80, 80)
+// 둥근 계단: s1=첫 단 높이, s2=둘째 단, top=맨 윗단 y
+function steps(top: number, x0: number) {
+  const s1 = 500, s2 = (s1 + top) / 2
+  const pts = [[x0 - 14, 560], [x0 - 8, 528], [x0, 512], [x0 + 12, s1 + 2], [x0 + 30, s1],
+    [x0 + 66, s1], [x0 + 76, s1 - 4], [x0 + 82, s1 - 14], [x0 + 84, s2 + 12], [x0 + 88, s2 + 3], [x0 + 98, s2],
+    [x0 + 132, s2], [x0 + 142, s2 - 4], [x0 + 148, s2 - 14], [x0 + 150, top + 12], [x0 + 154, top + 3], [x0 + 164, top],
+    [366, top], [376, top - 6], [382, top - 18], [384, top - 40], [386, top - 70], [390, top - 96]]
+  return L.chain(pts)
+}
+const variants = [
+  { top: 420, x0: 200, ink: 540 },
+  { top: 415, x0: 195, ink: 560 },
+]
+for (const v of variants) {
+  const terrain = steps(v.top, v.x0)
+  const nest = { x: 350, y: v.top - 16 }
+  const base: L.Stage = { id: 'v3-steps', tier: 2, terrain, spawn: { x: 70, y: 100 }, acorns: L.FAR, nest, spikes: SPK, ink: v.ink }
+  const lf = L.landformsOf(base).map((f) => f.kind + f.chain.length).join(',')
+  const placed = L.placeAcorns(base, 777)
+  if (!placed) { console.log(JSON.stringify(v), 'no solution'); continue }
+  const st = { ...placed, spikes: SPK }
+  const pr = L.passRate(prev, st)
+  const sols = L.solve(st, 2026, { pop: 200 }).solutions.filter((s) => s.waypoints.every((p) => p.x >= 22 && p.x <= 368 && p.y >= 45 && p.y <= 540))
+  const { best, three } = L.bestHint(st, sols, 12, 60, 20)
+  const gs = L.gateSummary(st)
+  console.log(JSON.stringify(v), lf, 'prevPass', L.pct(pr), 'acorns', JSON.stringify(st.acorns.map((a) => [a.x, a.y])), '3star', three, 'hint σ12', best?.sv.toFixed(2), best && L.r0(best.wp), 'ink', best && Math.round(best.ink))
+  console.log('   ', gs.line, 'FAILS:', gs.fails.join('; ') || 'none')
+}

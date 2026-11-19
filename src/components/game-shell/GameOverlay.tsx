@@ -26,6 +26,7 @@ export function GameOverlay({
   children,
   testId,
   tone = 'neon',
+  compact = false,
 }: {
   show: boolean
   variant: 'win' | 'lose' | 'draw'
@@ -34,6 +35,9 @@ export function GameOverlay({
   testId?: string
   /** 'cozy': 동화풍 게임용(네온 글로우 없이 크림 패널·갈색 외곽선). 기본 'neon'은 기존과 동일. */
   tone?: 'neon' | 'cozy'
+  /** opt-in: 패널 안 간격·제목·여백을 줄여 390 폭의 작은 판(≈358px)보다 패널이 커지지 않게 한다.
+   * 결과 줄이 한 줄 더 붙는 게임(2048 Animals)용. 기본 false = 기존 동작 그대로. */
+  compact?: boolean
 }) {
   const cozy = tone === 'cozy'
   // 게임오버 = 최고 이탈 지점. 여기에 '다음 게임'을 꽂아 세션을 이어붙인다(DOMAIN §2, 체류↑).
@@ -67,12 +71,12 @@ export function GameOverlay({
       {(variant === 'win' || runMilestone) && <Confetti active={show} />}
       <div
         style={cozy ? { color: '#5b3a1e', background: 'linear-gradient(#fff3dc, #f3d9aa)', border: '4px solid #5b3a1e', boxShadow: '0 5px 0 #3a2410, inset 0 0 0 3px #fbeccc' } : { color: neon }}
-        className={`anim-overlay-in flex flex-col items-center gap-4 rounded-2xl text-center ${cozy ? 'mx-3 px-6 py-5' : 'neon-box border border-current/40 bg-bg-2/85 px-8 py-6'}`}
+        className={`anim-overlay-in flex flex-col items-center rounded-2xl text-center ${compact ? 'gap-2' : 'gap-4'} ${cozy ? (compact ? 'mx-2 px-4 py-2.5' : 'mx-3 px-6 py-5') : compact ? 'neon-box border border-current/40 bg-bg-2/85 px-5 py-4' : 'neon-box border border-current/40 bg-bg-2/85 px-8 py-6'}`}
       >
-        <p className={cozy ? 'text-[1.7rem] font-bold leading-tight tracking-tight' : 'neon-text-strong text-3xl font-extrabold tracking-tight'}>
+        <p className={cozy ? `${compact ? 'text-[1.4rem]' : 'text-[1.7rem]'} font-bold leading-tight tracking-tight` : `neon-text-strong ${compact ? 'text-2xl' : 'text-3xl'} font-extrabold tracking-tight`}>
           {title}
         </p>
-        <div className={`flex flex-col items-center gap-3 ${cozy ? '' : 'text-fg'}`}>{children}</div>
+        <div className={`flex flex-col items-center ${compact ? 'gap-2' : 'gap-3'} ${cozy ? '' : 'text-fg'}`}>{children}</div>
         {/* 넛지: 목표가 가까우면 구체적으로(강한 동기), 아니면 세션 RUN. 한 줄만 — 클러터 방지. */}
         {goalHint ? (
           <p data-testid="overlay-goal-hint" className={`text-sm font-semibold ${cozy ? 'text-[#a0561b]' : 'text-neon-amber'}`}>
@@ -93,13 +97,13 @@ export function GameOverlay({
             href={`/${nav.nextSlug}?ref=next`}
             onClick={() => sendHit(nav.slug, 'next_ovl')}
             data-testid="overlay-next-game"
-            className={`mt-1 inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${cozy ? 'border-2 border-[#5b3a1e] bg-[#fff8e8] text-[#5b3a1e] hover:bg-white focus-visible:ring-[#a0561b]' : 'border border-neon-lime/50 bg-surface text-neon-lime hover:bg-neon-lime/10 focus-visible:ring-neon-lime focus-visible:ring-offset-bg'}`}
+            className={`inline-flex items-center gap-1.5 rounded-lg px-4 text-sm ${compact ? 'py-1.5' : 'mt-1 py-2'} font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${cozy ? 'border-2 border-[#5b3a1e] bg-[#fff8e8] text-[#5b3a1e] hover:bg-white focus-visible:ring-[#a0561b]' : 'border border-neon-lime/50 bg-surface text-neon-lime hover:bg-neon-lime/10 focus-visible:ring-neon-lime focus-visible:ring-offset-bg'}`}
           >
             <span aria-hidden="true">▶</span>
             <span>Next: {nav.nextTitle}</span>
           </Link>
         )}
-        {hasLeaderboard(nav.slug) && <OverlayScoreSubmit slug={nav.slug} show={show} />}
+        {hasLeaderboard(nav.slug) && <OverlayScoreSubmit slug={nav.slug} show={show} tone={cozy ? 'garden' : 'neon'} />}
         {/* 리더보드 발견 유도: 페이지 하단(NextRail/GameStats/DailyDock 다음)에 묻혀 있어
             스크롤로는 잘 안 보임 — 게임오버 순간 바로 점프시켜 존재를 알린다(참여율↑). */}
         {hasLeaderboard(nav.slug) && (
@@ -110,7 +114,7 @@ export function GameOverlay({
               e.preventDefault()
               document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
             }}
-            className="text-xs text-fg-muted underline decoration-dotted underline-offset-2 transition-colors hover:text-neon-amber"
+            className={`text-xs underline decoration-dotted underline-offset-2 transition-colors ${cozy ? 'text-garden-ink-soft hover:text-garden-coral-text' : 'text-fg-muted hover:text-neon-amber'}`}
           >
             🏆 See this week&apos;s leaderboard
           </a>

@@ -1,0 +1,141 @@
+const R = '/home/user/minigames-hub/src/lib/games/slime/'
+import { solve, runLine, waypointsToRaw, type Solution } from '/home/user/minigames-hub/src/lib/games/slime/solver.ts'
+import { survival, playBot, makePolicy, doodlePath } from '/home/user/minigames-hub/src/lib/games/slime/bots.ts'
+import { gateStage, checksFor } from '/home/user/minigames-hub/src/lib/games/slime/gate.ts'
+import { simulate } from '/home/user/minigames-hub/src/lib/games/slime/engine.ts'
+import { mulberry32, gauss, perturb } from '/home/user/minigames-hub/src/lib/games/slime/rng.ts'
+import { processStroke, lineHitsSpawnBan, polyLength } from '/home/user/minigames-hub/src/lib/games/slime/strokePipeline.ts'
+import { segmentBanned } from '/home/user/minigames-hub/src/lib/games/slime/multiline.ts'
+import { placeAcorns, FAR } from '/home/user/minigames-hub/src/lib/games/slime/stageBuilder.ts'
+import { landformsOf } from '/home/user/minigames-hub/src/lib/games/slime/terrainRender.ts'
+import { SLIME_STAGES, STAGE_HINTS } from '/home/user/minigames-hub/src/lib/games/slime/stages.ts'
+import { BOARD_H, BOARD_W, DEFAULT_PHYSICS, type Physics, type Pt, type Seg, type Stage } from '/home/user/minigames-hub/src/lib/games/slime/types.ts'
+export { solve, runLine, waypointsToRaw, survival, playBot, makePolicy, doodlePath, gateStage, checksFor, simulate, mulberry32, perturb, placeAcorns, FAR, landformsOf, SLIME_STAGES, STAGE_HINTS, polyLength }
+export type { Pt, Seg, Stage, Solution }
+export const seg = (ax: number, ay: number, bx: number, by: number): Seg => ({ a: { x: ax, y: ay }, b: { x: bx, y: by } })
+export const chain = (pts: number[][]): Seg[] => pts.slice(1).map((p, i) => seg(pts[i][0], pts[i][1], p[0], p[1]))
+
+/** 이전 스테이지 해 표본: 도착 해를 균등 간격으로 n개 */
+export function sampleSols(st: Stage, n = 60, pop = 80, seed = 2026): Solution[] {
+  const all = solve(st, seed, { pop }).solutions.filter((s) => s.res.outcome === 'nest')
+  if (all.length <= n) return all
+  return Array.from({ length: n }, (_, i) => all[Math.floor((i * all.length) / n)])
+}
+export const passRate = (sols: Solution[], st: Stage) => sols.filter((s) => simulate(st, [s.line]).outcome === 'nest').length / Math.max(1, sols.length)
+
+/** 금지 구역 반영 runLine: 다듬은 선이 금지에 처음 닿는 선분 앞에서 자른다(입력에서 점이 버려지는 효과의 근사). */
+export function runLineB(st: Stage, raw: Pt[], phys: Physics = DEFAULT_PHYSICS) {
+  let cut = raw
+  if (st.banZones) {
+    let i = 1
+    if (segmentBanned(raw[0], raw[0], st)) return null
+    for (; i < raw.length; i++) if (segmentBanned(raw[i - 1], raw[i], st)) break
+    cut = raw.slice(0, i)
+  }
+  const line = processStroke(cut, st.ink)
+  if (!line) return null
+  if (lineHitsSpawnBan(line, st.spawn)) return null
+  if (st.banZones) for (let i = 1; i < line.length; i++) if (segmentBanned(line[i - 1], line[i], st)) return null
+  return { res: simulate(st, [line], phys), line }
+}
+export function quickDoodle(st: Stage, n = 400, seed = 11, run = runLineB) {
+  const rng = mulberry32(seed); let ok = 0
+  for (let i = 0; i < n; i++) {
+    let r = null
+    for (let a = 0; a < 3 && !(r && r.res.outcome === 'nest'); a++) {} // placeholder
+    const d = doodlePath(st, Math.floor(rng() * 3), rng)
+    r = run(st, perturb(d, 10.3, 1.5, rng))
+    if (r && r.res.outcome === 'nest') ok++
+  }
+  return ok / n
+}
+export function survB(st: Stage, wp: Pt[], sigma: number, n: number, seed: number, phys: Physics = DEFAULT_PHYSICS) {
+  const rng = mulberry32(seed); const dense = waypointsToRaw(wp); let ok = 0
+  for (let i = 0; i < n; i++) { const r = runLineB(st, perturb(dense, sigma, 1.5, rng), phys); if (r && r.res.outcome === 'nest') ok++ }
+  return ok / n
+}
+const clampPt = (p: Pt): Pt => ({ x: Math.max(8, Math.min(BOARD_W - 8, p.x)), y: Math.max(40, Math.min(BOARD_H - 20, p.y)) })
+/** solver.ts의 CEM 복사본: runLineB 사용(금지 구역 반영). */
+export function solveB(st: Stage, seed: number, pop = 200, rounds = 6, ks = [3, 4, 5], robustTrials = 0) {
+  const rng = mulberry32(seed); const sols: Solution[] = []
+  const fit = (r: ReturnType<typeof runLineB>, ink: number) => !r ? -1e6 : r.res.outcome === 'nest' ? 10000 + r.res.acorns * 300 - ink : -r.res.minNest + r.res.acorns * 60 - (r.res.outcome === 'spiked' ? 40 : 0)
+  for (const k of ks) {
+    const mean: Pt[] = []; const std: number[] = []
+    for (let i = 0; i < k; i++) { const t = (i + 0.5) / k; mean.push({ x: st.spawn.x + (st.nest.x - st.spawn.x) * t, y: st.spawn.y + 50 + (st.nest.y - st.spawn.y - 50) * t }); std.push(110) }
+    for (let round = 0; round < rounds; round++) {
+      const c: { wp: Pt[]; f: number }[] = []
+      for (let s = 0; s < pop; s++) {
+        const wp = mean.map((m, i) => clampPt({ x: m.x + gauss(rng) * std[i], y: m.y + gauss(rng) * std[i] }))
+        const raw = waypointsToRaw(wp); const r = runLineB(st, raw); const ink = r ? polyLength(r.line) : 0
+        let f = fit(r, ink)
+        if (robustTrials) { let acc = 0; for (let t = 0; t < robustTrials; t++) { const rr = runLineB(st, perturb(raw, 9, 1.5, rng)); acc += fit(rr, rr ? polyLength(rr.line) : 0) } f = 0.3 * f + 0.7 * acc / robustTrials }
+        c.push({ wp, f })
+        if (r && r.res.outcome === 'nest') sols.push({ waypoints: wp, line: r.line, res: r.res, inkUsed: ink })
+      }
+      c.sort((a, b) => b.f - a.f); const el = c.slice(0, Math.max(8, Math.floor(pop * 0.1)))
+      for (let i = 0; i < k; i++) {
+        const mx = el.reduce((s, q) => s + q.wp[i].x, 0) / el.length, my = el.reduce((s, q) => s + q.wp[i].y, 0) / el.length
+        const v = el.reduce((s, q) => s + (q.wp[i].x - mx) ** 2 + (q.wp[i].y - my) ** 2, 0) / el.length / 2
+        mean[i] = { x: mx, y: my }; std[i] = Math.max(14, Math.sqrt(v))
+      }
+    }
+  }
+  return sols
+}
+/** 별3 해 중 σ 생존율 최고(힌트 후보) */
+export function bestHint(st: Stage, sols: Solution[], sigma = 12, n = 60, top = 30, banned = false) {
+  const three = sols.filter((s) => s.res.acorns === 3)
+  const pool = three.length ? three : sols
+  let best: { wp: Pt[]; sv: number; ink: number; acorns: number } | null = null
+  const step = Math.max(1, Math.floor(pool.length / top))
+  for (let i = 0; i < pool.length; i += step) {
+    const s = pool[i]
+    const sv = banned ? survB(st, s.waypoints, sigma, n, 99) : survival(st, s, sigma, n, 99)
+    if (!best || sv > best.sv) best = { wp: s.waypoints, sv, ink: s.inkUsed, acorns: s.res.acorns }
+  }
+  return { best, three: three.length }
+}
+export const r0 = (wp: Pt[]) => JSON.stringify(wp.map((p) => [Math.round(p.x), Math.round(p.y)]))
+export const pct = (x: number) => (x * 100).toFixed(0) + '%'
+export function gateSummary(st: Stage, runs = 400, pop = 300) {
+  const g = gateStage(st, { runs, pop, densityN: 2000 })
+  const b = (k: string) => g.bots[k]
+  return { g, line: `sol ${g.solutions} robust ${g.robust} cl ${g.clusters} dens ${pct(g.density)} c12 ${pct(b('c12').first)}/${pct(b('c12').within3)} c20 ${pct(b('c20').first)} c6 ${pct(b('c6').first)} doodle ${pct(b('doodle').first)} straight ${pct(b('straight').first)} c3full ${pct(b('c3').full3)}`, fails: checksFor(g).filter((c) => !c.pass).map((c) => `${c.item}=${c.value}`) }
+}
+import { canonLines } from '/home/user/minigames-hub/src/lib/games/slime/canon.ts'
+/** 비공식 2선 CEM: 선1(k1점)·선2(k2점), 잉크는 합계 한도(선1 상한 = ink−40). banZones 반영. */
+export function solve2(st: Stage, seed: number, pop = 300, rounds = 8, k1 = 3, k2 = 3) {
+  const rng = mulberry32(seed); const sols: { wp: Pt[][]; acorns: number; lines: Pt[][] }[] = []
+  const mk = (wp: Pt[][]) => {
+    const r1 = runPart(st, waypointsToRaw(wp[0]), st.ink - 40); if (!r1) return null
+    const r2 = runPart(st, waypointsToRaw(wp[1]), st.ink - polyLength(r1)); if (!r2) return null
+    const lines = [r1, r2]; return { lines, res: simulate(st, canonLines(lines)), ink: polyLength(r1) + polyLength(r2) }
+  }
+  const K = k1 + k2
+  const mean: Pt[] = []; const std: number[] = []
+  for (let i = 0; i < K; i++) { const t = (i + 0.5) / K; mean.push({ x: st.spawn.x + (st.nest.x - st.spawn.x) * t, y: st.spawn.y + 50 + (st.nest.y - st.spawn.y - 50) * t }); std.push(110) }
+  for (let round = 0; round < rounds; round++) {
+    const c: { wp: Pt[]; f: number }[] = []
+    for (let s = 0; s < pop; s++) {
+      const wp = mean.map((m, i) => clampPt({ x: m.x + gauss(rng) * std[i], y: m.y + gauss(rng) * std[i] }))
+      const r = mk([wp.slice(0, k1), wp.slice(k1)])
+      const f = !r ? -1e6 : r.res.outcome === 'nest' ? 10000 + r.res.acorns * 300 - r.ink : -r.res.minNest + r.res.acorns * 60
+      c.push({ wp, f }); if (r && r.res.outcome === 'nest') sols.push({ wp: [wp.slice(0, k1), wp.slice(k1)], acorns: r.res.acorns, lines: r.lines })
+    }
+    c.sort((a, b) => b.f - a.f); const el = c.slice(0, Math.max(8, Math.floor(pop * 0.1)))
+    for (let i = 0; i < K; i++) {
+      const mx = el.reduce((s, q) => s + q.wp[i].x, 0) / el.length, my = el.reduce((s, q) => s + q.wp[i].y, 0) / el.length
+      const v = el.reduce((s, q) => s + (q.wp[i].x - mx) ** 2 + (q.wp[i].y - my) ** 2, 0) / el.length / 2
+      mean[i] = { x: mx, y: my }; std[i] = Math.max(14, Math.sqrt(v))
+    }
+  }
+  return sols
+}
+function runPart(st: Stage, raw: Pt[], ink: number): Pt[] | null {
+  let cut = raw
+  if (st.banZones) { if (segmentBanned(raw[0], raw[0], st)) return null; let i = 1; for (; i < raw.length; i++) if (segmentBanned(raw[i - 1], raw[i], st)) break; cut = raw.slice(0, i) }
+  const line = processStroke(cut, ink); if (!line) return null
+  if (lineHitsSpawnBan(line, st.spawn)) return null
+  if (st.banZones) for (let i = 1; i < line.length; i++) if (segmentBanned(line[i - 1], line[i], st)) return null
+  return line
+}

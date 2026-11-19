@@ -1,0 +1,31 @@
+import * as L from './lib.ts'
+const ledge = L.chain([[0, 108], [60, 114], [100, 124], [112, 134]])
+const left = L.chain([[80, 560], [100, 500], [115, 470], [135, 452], [155, 448], [166, 452], [174, 462], [177, 480], [176, 560]])
+const right = L.chain([[245, 560], [243, 500], [246, 472], [256, 456], [272, 444], [290, 428], [310, 420], [340, 418], [362, 420], [376, 412], [386, 404], [390, 396]])
+const bans = [{ x0: 175, y0: 0, x1: 245, y1: 560 }, { x0: 245, y0: 0, x1: 390, y1: 350 }, { x0: 245, y0: 350, x1: 295, y1: 560 }, { x0: 245, y0: 425, x1: 390, y1: 560 }]
+const pads = [[[140, 408], [170, 438]], [[132, 420], [168, 440]], [[146, 400], [172, 446]]]
+for (const pd of pads) {
+  const pad = L.seg(pd[0][0], pd[0][1], pd[1][0], pd[1][1])
+  const terrain = [...ledge, ...left, ...right, pad]
+  const base: L.Stage = { id: 'v3-jelly', tier: 2, terrain, spawn: { x: 70, y: 100 }, acorns: L.FAR, nest: { x: 330, y: 402 }, spikes: [], ink: 480, bouncy: [terrain.length - 1], banZones: bans, maxLines: 1 }
+  const lf = L.landformsOf(base).map((f) => f.kind + f.chain.length).join(',')
+  const sols = L.solveB(base, 2026, 200, 6, [3, 4, 5], 0)
+  const noB = L.solveB({ ...base, bouncy: undefined }, 2026, 200, 6, [3, 4, 5], 0)
+  const dep = sols.filter((s) => L.simulate({ ...base, bouncy: [] }, [s.line]).outcome !== 'nest').length
+  if (!sols.length) { console.log(JSON.stringify(pd), lf, 'NO SOLUTION; noBouncy sols', noB.length); continue }
+  // 강건 해 → 도토리 배치(placeAcorns와 같은 25/55/85%)
+  const inZone = sols.filter((s) => s.waypoints.every((p) => p.x >= 22 && p.y >= 45 && p.y <= 540))
+  let best: any = null
+  for (let i = 0; i < inZone.length; i += Math.max(1, Math.floor(inZone.length / 30))) { const sv = L.survB(base, inZone[i].waypoints, 8, 40, 5); if (!best || sv > best.sv) best = { s: inZone[i], sv } }
+  const tr: L.Pt[] = []; L.simulate(base, [best.s.line], undefined, tr)
+  const at = (f: number) => { const p = tr[Math.min(tr.length - 1, Math.floor(tr.length * f))]; return { x: Math.round(p.x), y: Math.round(p.y) } }
+  const st: L.Stage = { ...base, acorns: [at(0.25), at(0.55), at(0.85)] }
+  const s3 = L.solveB(st, 2027, 200, 6, [3, 4, 5], 0)
+  const three = s3.filter((s) => s.res.acorns === 3 && s.waypoints.every((p) => p.x >= 22 && p.y >= 45 && p.y <= 540))
+  let h: any = null
+  for (let i = 0; i < three.length; i += Math.max(1, Math.floor(three.length / 25))) { const sv = L.survB(st, three[i].waypoints, 8, 60, 99); if (!h || sv > h.sv) h = { wp: three[i].waypoints, sv, ink: three[i].inkUsed } }
+  const sv12 = h ? L.survB(st, h.wp, 12, 60, 98) : 0, sv10 = h ? L.survB(st, h.wp, 10.3, 60, 97) : 0
+  const dd = L.quickDoodle(st, 600, 11, L.runLineB)
+  const rnd = (() => { const rng = L.mulberry32(4); let ok = 0; for (let i = 0; i < 3000; i++) { const k = 3 + Math.floor(rng() * 3); const wp = Array.from({ length: k }, () => ({ x: 8 + rng() * 374, y: 40 + rng() * 500 })); const r = L.runLineB(st, L.waypointsToRaw(wp)); if (r && r.res.outcome === 'nest') ok++ } return ok / 3000 })()
+  console.log(JSON.stringify(pd), lf, `sols ${sols.length} bounceDependent ${L.pct(dep / sols.length)} noBouncy ${noB.length} | acorns ${JSON.stringify(st.acorns.map((a) => [a.x, a.y]))} 3star ${three.length} hint σ8 ${h?.sv.toFixed(2)} σ10.3 ${sv10.toFixed(2)} σ12 ${sv12.toFixed(2)} ${h ? L.r0(h.wp) : ''} ink ${h ? Math.round(h.ink) : ''} | doodle ${L.pct(dd)} randomDensity ${(rnd * 100).toFixed(1)}%`)
+}

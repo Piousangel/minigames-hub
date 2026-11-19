@@ -21,19 +21,41 @@ const KEY_DIRS: Record<string, Direction> = {
 const GAP = 8 // px — matches the board's gap-2 background grid
 const SLIDE_MS = 130
 
+// 노을 정원 타일: 값이 오를수록 한 방향으로만 진해진다(크림 → 살구 → 주황 → 산호 → 적갈 → 노을 자주).
+// 글자 대비(WCAG, 실제 hex로 계산): 2 9.6 · 4 8.5 · 8 7.1 · 16 8.3 · 32 6.7 · 64 5.1 · 128 4.5 · 256 5.9 ·
+// 512 7.7 · 1024 8.6 · 2048 8.9 — 전 단계 4.5:1 이상.
 const TILE_STYLES: Record<number, string> = {
-  2: 'bg-amber-100 text-stone-800',
-  4: 'bg-amber-200 text-stone-800',
-  8: 'bg-orange-300 text-stone-900',
-  16: 'bg-orange-400 text-white',
-  32: 'bg-orange-500 text-white',
-  64: 'bg-red-500 text-white',
-  128: 'bg-yellow-400 text-stone-900',
-  256: 'bg-yellow-500 text-stone-900',
-  512: 'bg-yellow-600 text-white',
-  1024: 'bg-amber-600 text-white',
-  2048: 'bg-accent text-stone-900',
+  2: 'bg-[#fff8ea] text-garden-ink',
+  4: 'bg-[#ffe8bd] text-garden-ink',
+  8: 'bg-[#ffd27a] text-garden-ink',
+  16: 'bg-[#ffb461] text-garden-ink-deep',
+  32: 'bg-[#ff9550] text-garden-ink-deep',
+  64: 'bg-[#f2733f] text-garden-ink-deep',
+  128: 'bg-[#c9472a] text-[#fff8ea]',
+  256: 'bg-[#ad3826] text-[#fff8ea]',
+  512: 'bg-[#8f2d26] text-[#fff8ea]',
+  1024: 'bg-[#70263a] text-[#ffe9a8]',
+  2048: 'bg-[#4a2560] text-garden-sunflower',
 }
+
+/** 상위 단계(1024+)는 네온 글로우 대신 해바라기 테두리 + 정원 그림자로 구분. 2048은 더 두껍게. */
+function tileDepth(value: number): string {
+  if (value >= 2048) return 'shadow-[0_0_0_3px_var(--garden-sunflower),0_4px_0_3px_var(--garden-ink-deep)]'
+  if (value >= 1024) return 'shadow-[0_0_0_2px_var(--garden-sunflower),0_3px_0_2px_var(--garden-ink-deep)]'
+  return 'shadow-garden-button'
+}
+
+/** 합치기 진동: 128 이상은 조금 길게. 음소거·미지원 환경에서는 아무것도 하지 않는다. */
+function vibrateMerge(maxValue: number) {
+  try {
+    if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return
+    navigator.vibrate(maxValue >= 128 ? 18 : 8)
+  } catch {
+    // 일부 브라우저는 사용자 제스처 밖 호출이나 권한 정책으로 throw — 무시
+  }
+}
+
+const MAX_QUEUE = 3
 
 function faceAnimClass(animKey: string): string {
   if (animKey.startsWith('m')) return 'anim-pop'
@@ -41,10 +63,67 @@ function faceAnimClass(animKey: string): string {
   return ''
 }
 
+// 진화 사다리(theme.ladder): 타일 단계 11칸. 이번 판 최고 타일까지 '도달', 바로 다음 한 칸 '다음'.
+const LADDER = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+
+function maxTileOf(board: number[][]): number {
+  let m = 0
+  for (const row of board) for (const v of row) if (v > m) m = v
+  return m
+}
+
+function nextStep(max: number): number | null {
+  return LADDER.find((v) => v > max) ?? null
+}
+
+/** 이름이 없는 값(4096+)은 최상위 단계 이름으로 — 사다리 밖으로 나간 동물도 '용'으로 읽힌다. */
+function stepOf(theme: Theme2048, value: number): { emoji: string; name: string } {
+  const v = theme.names?.[value] ? value : LADDER.filter((s) => s <= value).pop() ?? 2
+  return { emoji: theme.tiles[v] ?? String(v), name: theme.names?.[v] ?? String(v) }
+}
+
+function EvolutionLadder({ theme, max }: { theme: Theme2048; max: number }) {
+  const next = nextStep(max)
+  const reached = LADDER.filter((v) => v <= max).map((v) => stepOf(theme, v).name)
+  const label = `Evolution: ${reached.join(', ')}${next ? ` — next: ${stepOf(theme, next).name}` : ' — top reached'}`
+  return (
+    <div
+      data-testid="evolution-ladder"
+      role="img"
+      aria-label={label}
+      className="mt-3 flex w-full items-center justify-between gap-0.5 sm:gap-1"
+    >
+      {LADDER.map((v) => {
+        const state = v <= max ? 'reached' : v === next ? 'next' : 'locked'
+        const cls =
+          state === 'reached'
+            ? 'border-garden-ink bg-[#ffe8bd] shadow-[0_2px_0_var(--garden-ink)]'
+            : state === 'next'
+              ? 'border-dashed border-[#c9472a] bg-[#fff8ea]'
+              : v === LADDER[LADDER.length - 1]
+                ? // 최종 목표(용)는 잠겨 있어도 알아볼 수 있게 — GOAL 문구가 말하는 바로 그 동물
+                  'border-garden-ink/40 bg-garden-cream-2 opacity-80'
+                : 'border-garden-ink/25 bg-garden-cream-2 opacity-60 grayscale'
+        return (
+          <span
+            key={v}
+            aria-hidden="true"
+            data-step={v}
+            data-state={state}
+            className={`flex aspect-square min-w-0 max-w-9 flex-1 items-center justify-center rounded-md border-2 text-[clamp(13px,4.4vw,20px)] leading-none ${cls}`}
+          >
+            {theme.tiles[v]}
+          </span>
+        )
+      })}
+    </div>
+  )
+}
+
 function fontSize(label: string): string {
-  if (label.length <= 2) return 'text-2xl'
-  if (label.length === 3) return 'text-xl'
-  return 'text-base'
+  if (label.length <= 2) return 'text-[1.625rem]'
+  if (label.length === 3) return 'text-[1.375rem]'
+  return 'text-[1.1875rem]'
 }
 
 export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: string }) {
@@ -58,6 +137,10 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   const [wonSeen, setWonSeen] = useState(false)
   const [tiles, setTiles] = useState<Tile[]>([])
   const [cell, setCell] = useState(0)
+  // 역대 최고 타일(동물) — 점수 기록(best:<slug>)과 별개의 새 키. names가 있는 테마(animals)만 쓴다.
+  const tileKey = theme.names ? `bestTile:${storageKey.replace(/^best:/, '')}` : null
+  const bestTileRef = useRef(0)
+  const [bestTileBefore, setBestTileBefore] = useState(0) // 이 판 시작 시점의 역대 최고 — 'New animal!' 판정
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reducedRef } = useReducedMotion()
@@ -69,8 +152,16 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   const idRef = useRef(0)
   const animSeqRef = useRef(0)
   const animatingRef = useRef(false)
-  const queuedRef = useRef<Direction | null>(null)
+  // 애니메이션 중 들어온 입력. 새 입력이 오면 진행 중 슬라이드를 즉시 확정하고 바로 다음 이동을 처리하므로
+  // 실제로는 거의 비어 있다(MAX_QUEUE는 확정 중 재진입 대비 상한).
+  const queueRef = useRef<Direction[]>([])
+  const slideTimerRef = useRef<number | null>(null)
+  const pendingFinishRef = useRef<(() => void) | null>(null)
   const wonSeenRef = useRef(false)
+  const mutedRef = useRef(muted)
+  useEffect(() => {
+    mutedRef.current = muted
+  }, [muted])
 
   const nextId = useCallback(() => ++idRef.current, [])
   const commitTiles = useCallback((next: Tile[]) => {
@@ -82,26 +173,58 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
     setState(s)
   }, [])
 
+  const cancelSlide = useCallback(() => {
+    if (slideTimerRef.current !== null) window.clearTimeout(slideTimerRef.current)
+    slideTimerRef.current = null
+    pendingFinishRef.current = null
+  }, [])
+
+  // 진행 중 슬라이드를 기다리지 않고 지금 확정(finish가 큐의 다음 이동을 이어서 처리한다).
+  const flushSlide = useCallback(() => {
+    const finish = pendingFinishRef.current
+    cancelSlide()
+    finish?.()
+  }, [cancelSlide])
+
+  useEffect(() => cancelSlide, [cancelSlide])
+
   const restart = useCallback(() => {
+    cancelSlide()
     animatingRef.current = false
-    queuedRef.current = null
+    queueRef.current = []
     wonSeenRef.current = false
     setWonSeen(false)
     newBestRef.current = false
     setNewBest(false)
     recordedRef.current = false
+    setBestTileBefore(bestTileRef.current)
     const s = newGame(Math.random)
     commitState(s)
     commitTiles(tilesFromBoard(s.board, nextId, true))
-  }, [commitState, commitTiles, nextId])
+  }, [cancelSlide, commitState, commitTiles, nextId])
 
   useEffect(() => {
     restart()
-    const stored = Number(localStorage.getItem(storageKey))
+    let stored = 0
+    try {
+      stored = Number(localStorage.getItem(storageKey))
+    } catch {
+      // 저장소 차단 — 기록 없음으로 시작
+    }
     const b = Number.isFinite(stored) ? stored : 0
     setBest(b)
     bestRef.current = b
-  }, [restart, storageKey])
+    if (tileKey) {
+      let t = 0
+      try {
+        t = Number(localStorage.getItem(tileKey)) || 0
+      } catch {
+        // 저장소 차단 — 0으로
+      }
+      bestTileRef.current = t
+      setBestTileBefore(t)
+    }
+  }, [restart, storageKey, tileKey])
 
   useEffect(() => {
     if (state && state.score > best) {
@@ -110,6 +233,20 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
       localStorage.setItem(storageKey, String(state.score))
     }
   }, [state, best, storageKey])
+
+  // 역대 최고 타일: 이번 판 최고가 기록을 넘을 때만 저장(같거나 낮으면 건드리지 않음).
+  useEffect(() => {
+    if (!tileKey || !state) return
+    const m = maxTileOf(state.board)
+    if (m > bestTileRef.current) {
+      bestTileRef.current = m
+      try {
+        localStorage.setItem(tileKey, String(m))
+      } catch {
+        // 저장소 차단 — 화면 표시만
+      }
+    }
+  }, [state, tileKey])
 
   // Measure the tile layer so tiles can be positioned with px transforms.
   useLayoutEffect(() => {
@@ -123,11 +260,11 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   }, [state !== null])
 
   const performMove = useCallback(
-    (dir: Direction) => {
+    (dir: Direction): boolean => {
       const s = stateRef.current
-      if (!s) return
+      if (!s) return false
       const { board: slid, moved } = applyMove(s.board, dir)
-      if (!moved) return
+      if (!moved) return false
       play('move')
 
       const plan = planMove(tilesRef.current, dir)
@@ -154,7 +291,10 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
         // 기록 갱신을 동기적으로 latch — 아래 사운드가 이 값을 바로 읽는다.
         if (newEngine.score > bestRef.current) newBestRef.current = true
 
-        if (plan.merges.length) play('merge')
+        if (plan.merges.length) {
+          play('merge')
+          if (!mutedRef.current) vibrateMerge(Math.max(...plan.merges.map((m) => m.newValue)))
+        }
         if (newEngine.won && !s.won) play('win')
         else if (newEngine.over) play(newBestRef.current ? 'win' : 'lose')
         if (newEngine.over) setNewBest(newBestRef.current)
@@ -167,14 +307,20 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
         }
 
         animatingRef.current = false
-        const queued = queuedRef.current
-        queuedRef.current = null
-        if (queued) performMove(queued)
+        // 판이 끝났거나 승리 오버레이가 입력을 막으면 남은 입력은 버린다.
+        if (newEngine.over || (newEngine.won && !wonSeenRef.current)) {
+          queueRef.current = []
+          return
+        }
+        // 막힌 방향은 건너뛰고 실제로 움직이는 다음 입력까지 진행
+        while (queueRef.current.length) {
+          if (performMove(queueRef.current.shift()!)) break
+        }
       }
 
       if (reducedRef.current) {
         finish()
-        return
+        return true
       }
 
       // Phase 1: slide every tile to its target (values unchanged).
@@ -186,7 +332,15 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
         }),
       )
       // Phase 2: settle (merge pop, remove consumed tiles, spawn new tile).
-      window.setTimeout(finish, SLIDE_MS)
+      // 새 입력이 오면 flushSlide가 이 타이머를 취소하고 finish를 바로 부른다.
+      const settle = () => {
+        slideTimerRef.current = null
+        pendingFinishRef.current = null
+        finish()
+      }
+      pendingFinishRef.current = settle
+      slideTimerRef.current = window.setTimeout(settle, SLIDE_MS)
+      return true
     },
     [commitState, commitTiles, nextId, play, reducedRef, storageKey],
   )
@@ -197,12 +351,14 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
       if (!s || s.over) return
       if (s.won && !wonSeenRef.current) return // win overlay is blocking input
       if (animatingRef.current) {
-        queuedRef.current = dir
+        // 빠른 연타: 입력을 FIFO에 넣고 진행 중 슬라이드를 즉시 확정 → 다음 이동이 바로 시작된다.
+        if (queueRef.current.length < MAX_QUEUE) queueRef.current.push(dir)
+        flushSlide()
         return
       }
       performMove(dir)
     },
-    [performMove],
+    [flushSlide, performMove],
   )
 
   useEffect(() => {
@@ -244,7 +400,8 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   if (!state) {
     return (
       <div className="mx-auto w-full max-w-100 select-none">
-        <div className="mb-3 flex items-center justify-between">
+        {/* 실제 헤더(compactHeader, min-h-11)와 같은 높이 — 하이드레이션 때 판이 튀지 않게 */}
+        <div className="mb-3 flex min-h-11 items-center justify-between">
           <div className="flex gap-2 text-sm">
             <div className="rounded-lg bg-surface px-3 py-1.5">
               Score <span className="font-bold">0</span>
@@ -257,13 +414,35 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
             New Game
           </button>
         </div>
-        <div className="aspect-square w-full rounded-xl bg-surface p-2" data-testid="board-loading" />
+        <div className="aspect-square w-full rounded-xl border-[3px] border-garden-ink bg-garden-cream-2 p-2 shadow-garden-island" data-testid="board-loading" />
+        {/* 사다리 자리를 미리 잡아 로드 뒤 아래 내용이 밀리지 않게(CLS) */}
+        {theme.ladder && theme.names && <EvolutionLadder theme={theme} max={0} />}
         <p className="mt-3 text-center text-sm text-fg-muted">{hint}</p>
       </div>
     )
   }
 
   const winOverlayVisible = state.won && !wonSeen && !state.over
+  const maxTile = maxTileOf(state.board)
+
+  // 결과 오버레이의 '도달한 동물' 한 줄(names가 있는 테마만). 기록을 넘긴 판은 'New animal!'.
+  const reachedLine = (() => {
+    if (!theme.names || maxTile === 0) return null
+    const top = stepOf(theme, maxTile)
+    const next = nextStep(maxTile)
+    const lead = bestTileBefore > 0 && maxTile > bestTileBefore ? 'New animal!' : 'You reached'
+    return (
+      <p data-testid="result-animal" className="text-balance text-[0.95rem] font-bold text-garden-ink">
+        {lead} {top.emoji} {top.name}
+        {next && (
+          <span className="font-semibold text-garden-ink-soft">
+            {' · next: '}
+            {stepOf(theme, next).emoji} {stepOf(theme, next).name}
+          </span>
+        )}
+      </p>
+    )
+  })()
 
   return (
     <GameShell
@@ -275,9 +454,10 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
       muted={muted}
       onToggleMute={toggleMuted}
       hint={hint}
+      compactHeader
     >
       <div
-        className="anim-board-in relative aspect-square w-full rounded-xl bg-surface p-2"
+        className="anim-board-in relative aspect-square w-full rounded-xl border-[3px] border-garden-ink bg-garden-cream-2 p-2 shadow-garden-island"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
         data-testid="board"
@@ -286,7 +466,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
         {/* Background grid — the empty slots (depth) */}
         <div className="grid h-full w-full grid-cols-4 gap-2">
           {Array.from({ length: 16 }, (_, i) => (
-            <div key={i} data-testid="cell" className="rounded-lg bg-white/[0.04] shadow-inner" />
+            <div key={i} data-testid="cell" className="rounded-lg bg-garden-cream-shade shadow-[inset_0_2px_0_rgba(58,36,16,0.14)]" />
           ))}
         </div>
 
@@ -295,7 +475,8 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
           {tiles.map((tile) => {
             const label = theme.tiles[tile.value] ?? String(tile.value)
             const style = TILE_STYLES[tile.value] ?? TILE_STYLES[2048]
-            const glow = tile.value >= 1024 ? 'shadow-[0_0_18px_rgba(245,158,11,0.55)]' : 'shadow-md'
+            const depth = tileDepth(tile.value)
+            const emoji = theme.ladder === true
             return (
               <div
                 key={tile.id}
@@ -310,10 +491,38 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
               >
                 <div
                   key={tile.animKey}
-                  className={`flex h-full w-full items-center justify-center rounded-lg font-bold ${fontSize(label)} ${style} ${glow} ${faceAnimClass(tile.animKey)}`}
-                  style={tile.enterDelay ? { animationDelay: `${tile.enterDelay}ms` } : undefined}
+                  className={`flex h-full w-full items-center justify-center rounded-lg border-2 border-garden-ink font-display font-bold leading-none tabular-nums ${emoji ? 'relative' : fontSize(label)} ${style} ${depth} ${faceAnimClass(tile.animKey)}`}
+                  style={
+                    emoji
+                      ? { fontSize: Math.round(cell * 0.55), ...(tile.enterDelay ? { animationDelay: `${tile.enterDelay}ms` } : {}) }
+                      : tile.enterDelay
+                        ? { animationDelay: `${tile.enterDelay}ms` }
+                        : undefined
+                  }
                 >
-                  {label}
+                  {emoji ? (
+                    <>
+                      {/* 진한 단계(128+)는 크림 원판 위에 — 갈색·회색 동물이 바탕에 묻히지 않게 */}
+                      {tile.value >= 128 && (
+                        <span
+                          aria-hidden="true"
+                          className="absolute rounded-full bg-[#fff3dc]/85"
+                          style={{ width: Math.round(cell * 0.66), height: Math.round(cell * 0.66) }}
+                        />
+                      )}
+                      <span className="relative drop-shadow-[0_1px_1px_rgba(58,36,16,0.45)]">{label}</span>
+                      {/* 단계 값 — 기기마다 이모지 생김이 달라도 몇 단계인지 확정 */}
+                      <span
+                        data-testid="tile-value"
+                        aria-hidden="true"
+                        className="absolute bottom-[3px] right-[5px] font-ui text-[11px] font-extrabold leading-none tracking-tight"
+                      >
+                        {tile.value}
+                      </span>
+                    </>
+                  ) : (
+                    label
+                  )}
                 </div>
               </div>
             )
@@ -325,16 +534,28 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
           variant={newBest ? 'win' : 'lose'}
           title={newBest ? 'New best!' : 'Game over'}
           testId="game-over"
+          tone="cozy"
+          compact={theme.ladder === true}
         >
-          <p className="text-fg-muted">
-            Score: {state.score} · Best: {best}
-          </p>
+          {reachedLine ? (
+            <div className="flex flex-col items-center gap-0.5">
+              {reachedLine}
+              <p className="text-sm font-semibold tabular-nums text-garden-ink-soft">
+                Score: {state.score} · Best: {best}
+              </p>
+            </div>
+          ) : (
+            <p className="font-semibold tabular-nums text-garden-ink-soft">
+              Score: {state.score} · Best: {best}
+            </p>
+          )}
           <GameButton onClick={restart} className="px-4 py-2">
             Try again
           </GameButton>
         </GameOverlay>
 
-        <GameOverlay show={winOverlayVisible} variant="win" title="You win!" testId="you-win">
+        <GameOverlay show={winOverlayVisible} variant="win" title="You win!" testId="you-win" tone="cozy" compact={theme.ladder === true}>
+          {reachedLine}
           <div className="flex gap-2">
             <GameButton variant="ghost" onClick={keepGoing} className="px-4 py-2">
               Keep going
@@ -345,6 +566,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
           </div>
         </GameOverlay>
       </div>
+      {theme.ladder && theme.names && <EvolutionLadder theme={theme} max={maxTile} />}
     </GameShell>
   )
 }

@@ -1,0 +1,17 @@
+{
+  "posts": [
+    {
+      "channel": "bluesky",
+      "lang": "en",
+      "text": "Snake on our site used to swallow quick double turns: tap up then left fast and only one registered. Now the game queues your next two moves, so tight U-turns land every time. The board also got a warm paper look, and a game over tells you how close you came to your best. #webgames #gamedev",
+      "url": "https://quickminigames.site/snake",
+      "images": [{ "path": "docs/marketing/images/2026-11-20-snake-before-after.jpg", "alt": "Snake on a phone, before and after: dark neon grid on the left, warm cream paper board on the right" }]
+    },
+    {
+      "channel": "threads",
+      "text": "스네이크에서 위→왼쪽을 빠르게 누르면 한 번만 먹히던 문제, 고쳤어요.\n이제 다음 두 방향을 미리 받아 둬서 좁은 U턴도 그대로 들어갑니다.\n판은 따뜻한 종이 느낌으로 바꿨고, 게임이 끝나면 내 최고 기록까지 몇 점 남았는지 보여 줘요.\n폰에서 한 판 해 보시고 손맛 어떤지 알려 주세요. #스네이크",
+      "url": "https://quickminigames.site/snake",
+      "images": [{ "path": "docs/marketing/images/2026-11-20-snake-before-after.jpg", "alt": "폰 화면의 스네이크 전후 비교: 왼쪽 어두운 네온 판, 오른쪽 크림색 종이 판" }]
+    }
+  ]
+}
