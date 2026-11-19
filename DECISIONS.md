@@ -86,3 +86,9 @@
 - 오너: "허브 쪽도 Gemini·Higgsfield 다 동원해도 되니, 최고의 기획·디자인 팀을 꾸려서 독보적으로 만들어 보자. 다 동원해도 좋다는 뜻."
 - 적용: 이미지 생성 한도 월 150 → 600장·실행당 12 → 24장. 영상(Veo)·음악(Lyria)·Higgsfield 사용 승인. 샌드랩은 UI·UX 전면 교체, 허브는 '노을 정원' 세계관을 사이트 전체로 확장하는 리디자인을 최고 수준 팀(크리에이티브·아트·모션·UX·카피·비평)으로 진행.
 - 남은 준비: Higgsfield 계정·API 키(오너가 GitHub 시크릿 `HIGGSFIELD_API_KEY`로 등록), 편집 가능한 Figma 파일 링크.
+
+## 2026-11-19 Higgsfield는 쓰지 않는다 — Figma MCP + Gemini + 게임 화면 캡처로 충분(오너)
+- 오너: "Higgsfield 안 쓰고 고퀄리티 UI·UX를 뽑을 방법은 없나? … Figma MCP와 Gemini API로 충분할 것 같다."
+- 결정: Higgsfield 도입 보류(계정·키 불필요). 이미지는 Figma MCP generate_image(추가 비용 없음, 로컬 메인 세션) + Gemini 이미지(gen-assets 워크플로, 클라우드 교대도 사용). 영상은 실제 게임 화면 캡처(Playwright 녹화 → AV1/WebM)가 기본, 생성 영상이 꼭 필요하면 Gemini 영상 모델(Veo 3.1 preview는 10-22 종료 — 후속 모델명은 호출 전 확인). UI 모션은 CSS + motion/mini(모션·에셋 파이프라인 문서).
+- 남은 일: Gemini 잔액 약 ₩10,000 — 파일럿(약 ₩1,070) 이후 2·3차 배치(약 ₩7,000)와 영상 시험 전에 오너가 충전.
+- Higgsfield 조사는 docs/team/research/2026-11-19/higgsfield-adoption.md 에 보관(나중에 필요하면 그대로 도입 가능).
