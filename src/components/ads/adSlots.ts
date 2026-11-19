@@ -19,7 +19,10 @@ export const AD_SLOTS = {
 } as const satisfies Record<string, AdUnit | null>
 
 export type AdSlotName = keyof typeof AD_SLOTS
-export type HomeAdSlotName = 'home-about' | 'home-footer'
+/** 고정 크기(size)가 있는 단위의 자리 이름 — 홈 광고 띠(HomeAdBand)가 받는다. 표에서 계산(손으로 적지 않음). */
+export type HomeAdSlotName = {
+  [K in AdSlotName]: (typeof AD_SLOTS)[K] extends { size: object } ? K : never
+}[AdSlotName]
 
 export function adUnit(slot: AdSlotName): AdUnit | null {
   return AD_SLOTS[slot]

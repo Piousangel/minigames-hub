@@ -736,7 +736,9 @@ test('홈(오너 11-20): 390은 씨앗 도서관 기본 12개(카테고리별 3)
   await expect(grid.locator('li:visible')).toHaveCount(total)
   await page.getByTestId('library-toggle').click()
   await expect(grid.locator('li:visible')).toHaveCount(12)
-  // md(768) 경계: 768부터는 24개
+  // md(768) 경계: 767까지 12개, 768부터 24개
+  await page.setViewportSize({ width: 767, height: 900 })
+  await expect(grid.locator('li:visible')).toHaveCount(12)
   await page.setViewportSize({ width: 768, height: 900 })
   await expect(grid.locator('li:visible')).toHaveCount(24)
 })
