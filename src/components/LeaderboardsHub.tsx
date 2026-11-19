@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { accentVar, DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
-import { LEADERBOARD_GAMES, type ScoreRow } from '@/lib/leaderboard'
+import { LEADERBOARD_GAMES, formatBoardScore, type ScoreRow } from '@/lib/leaderboard'
 import { gamePages } from '@/lib/games/registry'
 import { GameIcon } from '@/components/icons/GameIcon'
 import { orderBoards } from '@/lib/leaderboardOrder'
@@ -71,6 +71,9 @@ export function LeaderboardsHub() {
                   <GameIcon slug={slug} className="h-6 w-6" />
                 </span>
                 <span className="neon-text font-bold">{titleOf(slug)}</span>
+                {LEADERBOARD_GAMES[slug]?.label && LEADERBOARD_GAMES[slug].label !== 'Score' && (
+                  <span className="text-[11px] text-fg-muted">· {LEADERBOARD_GAMES[slug].label}</span>
+                )}
                 {isNew(meta.addedDate, now) && (
                   <span className="rounded-full border border-current px-1.5 py-0.5 text-[9px] font-bold leading-none">NEW</span>
                 )}
@@ -90,7 +93,7 @@ export function LeaderboardsHub() {
                         <span className="truncate text-fg">{r.name}</span>
                       </span>
                       <span className="font-bold" style={{ color }}>
-                        {r.score.toLocaleString()}
+                        {formatBoardScore(slug, r.score)}
                       </span>
                     </li>
                   ))
