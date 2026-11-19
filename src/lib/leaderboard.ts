@@ -116,6 +116,13 @@ export const SCORE_SCALE: Record<string, number> = {
   'aim-trainer': 10,
 }
 
+// 보드에 보여 줄 점수 문자열. 저장값(정수)에 배율이 있는 게임은 나눠서 소수 1자리로 보여 준다
+// (허브가 저장값을 그대로 찍어 에임 트레이너가 8.0이 아니라 80으로 보이던 문제 — 11-19).
+export function formatBoardScore(slug: string, score: number): string {
+  const scale = SCORE_SCALE[slug] ?? 1
+  return scale === 1 ? score.toLocaleString() : (score / scale).toFixed(1)
+}
+
 // 위조 방어(캐주얼): 말도 안 되는 값 컷.
 export const MAX_SCORE = 100_000_000
 // 게임별 현실적인 상한(엔진상 나올 수 없는 값 컷 — curl 한 줄로 1위를 만드는 것 방지, 엔지니어 검수 11-19).

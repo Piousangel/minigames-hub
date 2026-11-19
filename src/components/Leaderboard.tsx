@@ -6,6 +6,7 @@ import {
   LEADERBOARD_GAMES,
   MAX_NAME_LEN,
   SCORE_SCALE,
+  formatBoardScore,
   loadPlayerName,
   loadSubmittedScore,
   saveSubmittedScore,
@@ -24,7 +25,7 @@ import { siteConfig } from '@/lib/siteConfig'
 export function Leaderboard({ slug }: { slug: string }) {
   const meta = LEADERBOARD_GAMES[slug]
   const scale = SCORE_SCALE[slug] ?? 1
-  const fmt = (score: number) => (scale === 1 ? score.toLocaleString() : (score / scale).toFixed(1))
+  const fmt = (score: number) => formatBoardScore(slug, score)
   const [rows, setRows] = useState<ScoreRow[] | null>(null)
   const [week, setWeek] = useState('')
   const [available, setAvailable] = useState(true)

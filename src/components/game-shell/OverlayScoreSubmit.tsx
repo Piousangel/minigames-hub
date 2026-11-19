@@ -7,6 +7,7 @@ import {
   LEADERBOARD_GAMES,
   MAX_NAME_LEN,
   SCORE_SCALE,
+  formatBoardScore,
   loadPlayerName,
   loadSubmittedScore,
   saveSubmittedScore,
@@ -101,8 +102,7 @@ export function OverlayScoreSubmit({ slug, show }: { slug: string; show: boolean
   // React는 루트 컨테이너에서 위임 처리하므로 여기서 멈추면 document/window까지 버블되지 않는다.
   const stopKeys = (e: KeyboardEvent<HTMLInputElement>) => e.stopPropagation()
 
-  const scale = SCORE_SCALE[slug] ?? 1
-  const shown = scale === 1 ? best.toLocaleString() : (best / scale).toFixed(1)
+  const shown = formatBoardScore(slug, best)
   const error = state === 'error' && (
     <span className="text-xs text-neon-amber">Couldn&apos;t submit — try again in a few seconds.</span>
   )
