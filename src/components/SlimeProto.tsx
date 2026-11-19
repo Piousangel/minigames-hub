@@ -5,6 +5,7 @@ import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useSlimeAudio } from '@/lib/sound/useSlimeAudio'
 import { simulate } from '@/lib/games/slime/engine'
 import { sendHit } from '@/lib/hit'
+import { detectInAppBrowser, type InAppBrowser } from '@/lib/inAppBrowser'
 import { scoreOf } from '@/lib/games/slime/daily'
 import { renderTerrainLayer } from '@/lib/games/slime/terrainRender'
 import { paintSkyTheme, slotName, themeOf } from '@/lib/games/slime/theme'
@@ -81,7 +82,7 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
   const [msg, setMsg] = useState('')
   const [copied, setCopied] = useState('')
   const [muted, setMuted] = useState(false)
-  const [inKakao, setInKakao] = useState(false)
+  const [inApp, setInApp] = useState<InAppBrowser | null>(null) // 인앱 브라우저(카톡·인스타 등)면 안내 문구
   const [card, setCard] = useState(false) // 스테이지 진입 타이틀 카드(0.9초)
   const { unlock, play } = useSlimeAudio(muted)
   const gotAcorns = useRef<Set<number>>(new Set())
@@ -143,7 +144,7 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
   }, [lockScroll, w])
   useEffect(() => {
     sendHit(SLUG, 'sl_view')
-    setInKakao(/KAKAOTALK/i.test(navigator.userAgent))
+    setInApp(detectInAppBrowser(navigator.userAgent))
     try {
       setMuted(localStorage.getItem('slime:muted') === '1')
     } catch {
@@ -647,9 +648,9 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
   }, [success, si, reset, fixedStage, SLUG])
   return (
     <div ref={wrap} className="mx-auto w-full max-w-[480px]">
-      {inKakao && (
+      {inApp && (
         <p role="note" className="mb-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-center text-xs text-fg-muted" data-testid="slime-kakao-note">
-          {tx.kakaoNote}<b>{tx.kakaoBold}</b>{tx.kakaoTail}
+          {inApp === 'kakaotalk' ? tx.kakaoNote : tx.inAppNote}<b>{tx.kakaoBold}</b>{tx.kakaoTail}
         </p>
       )}
       <div className="mb-2 flex items-center justify-between text-sm">

@@ -16,6 +16,7 @@ export interface SlimeText {
   tooShort: string
   kakaoNote: string // <b>…</b> 강조 포함 문자열을 쓰지 않도록 앞·강조·뒤로 분리
   kakaoBold: string
+  inAppNote: string // 카톡 외 인앱 브라우저(인스타·네이버 등)용 앞부분. 강조·뒤는 kakaoBold·kakaoTail을 같이 쓴다
   kakaoTail: string
   stageGroup: string
   stageLabel: (n: number) => string
@@ -46,6 +47,7 @@ export const KO: SlimeText = {
   tooShort: '선이 너무 짧아요(40px 이상)',
   kakaoNote: '카카오톡 안에서는 화면이 움직일 수 있어요. 오른쪽 아래 ⋮(또는 공유) → ',
   kakaoBold: '다른 브라우저로 열기',
+  inAppNote: '앱 안 브라우저에서는 화면이 움직일 수 있어요. 메뉴(⋮ 또는 공유) → ',
   kakaoTail: '를 쓰면 더 잘 그려져요.',
   stageGroup: '스테이지 선택',
   stageLabel: (n) => `스테이지 ${n}`,
@@ -76,6 +78,7 @@ export const EN: SlimeText = {
   tooShort: 'That line is too short (40px or more)',
   kakaoNote: 'The page may move while you draw inside KakaoTalk. Tap ⋮ (or Share) at the bottom right, then ',
   kakaoBold: 'Open in another browser',
+  inAppNote: 'The page may move while you draw inside an in-app browser. Open the menu (⋮ or Share), then ',
   kakaoTail: ' for smoother drawing.',
   stageGroup: 'Choose stage',
   stageLabel: (n) => `Stage ${n}`,
