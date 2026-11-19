@@ -365,7 +365,7 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
           g.fillStyle = '#ff4b4b'
           g.strokeStyle = '#5b3a1e'
           g.lineWidth = 4
-          // 독꽃이 아닌 지점(추락·금지 구역)은 보드 가장자리일 수 있어 글자가 잘리지 않게 안쪽으로 당긴다(독꽃 자리는 그대로)
+          // ✕ 지점(ghostMark: 궤적 끝·금지 구역 직전)은 보드 가장자리일 수 있어 글자가 잘리지 않게 13px 안쪽으로 당긴다
           const mx = Math.max(13, Math.min(BOARD_W - 13, mem.x.x))
           const my = Math.max(13, Math.min(BOARD_H - 13, mem.x.y - 34))
           g.strokeText('✕', mx, my)
