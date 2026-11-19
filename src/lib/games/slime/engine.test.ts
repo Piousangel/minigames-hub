@@ -161,3 +161,12 @@ describe('미러 스테이지', () => {
     expect(SLIME_STAGES.map((s) => s.id)).toEqual(['g-slide', 'g-slide-m', 's-spike', 's-spike-m', 'g-wall', 'g-wall-m', 's-wall-b', 's-wall-b-m'])
   })
 })
+
+describe('추천 길은 그리기 구역에서 시작한다', () => {
+  it('시작점이 스크롤 띠(x<20 또는 >370)에 있지 않다', () => {
+    for (const [id, wp] of Object.entries(STAGE_HINTS)) {
+      expect(wp[0].x, id).toBeGreaterThanOrEqual(20)
+      expect(wp[0].x, id).toBeLessThanOrEqual(370)
+    }
+  })
+})
