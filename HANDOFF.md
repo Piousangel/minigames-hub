@@ -1,5 +1,17 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+
+## ▶ 2026-11-20 08시 아침 개발 인계 (브랜치 `shift/08-slime-callback-s`)
+
+**한 줄:** 04시 숙의 v2.1 4장의 S 4건(1~4)을 **일일 풀을 건드리지 않고** 넣었다. 기존 골든 행은 한 줄도 바뀌지 않았다.
+- **① `c-meadow-2`** (`stages.ts` `A2_MEADOW_2` + `BASE_HINTS` 추천 길): `SLIME_STAGES`에는 **넣지 않음**(테스트로 고정). 추천 길로 nest·별 3, g-slide 추천 길·대각선 직선은 둘 다 spiked.
+- **② 골든 보강**: `SHIPPED_EXTRA_STAGES = [c-meadow, s-bounce]`를 별도 표 `GOLDEN_SHIPPED_EXTRA`로 고정(기존 `GOLDEN` 24행 불변, 반전본 없음).
+- **③ `gate.ts` CB-1·CB-2**: `prevPassRate(prev, next, {seed 2026, pop 80, n 80})`(다음 판 잉크·스폰 금지·`segmentInServerZone` 선검사), `hintKilled(prev, next)`. 실측 재현이 정확히 맞는다: c-meadow 0.6, c-meadow-2 0.2375(≤0.35). 테스트 `callback.test.ts`(≈1초).
+- **④ `ghost.ts` `ghostMark(stage, line)`**: 금지 구역에 처음 닿는 선분의 시작점, 아니면 시뮬 궤적의 마지막 점(보드 안으로 clamp), 도착하면 null. `SlimeProto`의 독꽃 전용 ✕를 대체했고 ✕ 글자는 보드 13px 안쪽으로 clamp. 테스트 `ghost.test.ts`(도착·독꽃·추락·금지 구역). 서브에이전트(worktree)가 병렬로 구현했다.
+- **검증**: typecheck 통과 · lint error 0 · vitest 237파일/4728개 통과 · build·check-routes 통과 · 말랑·히어로·결과 시트 e2e 8/8 통과. 독립 리뷰는 PR 본문에 있다.
+- **함정**: 이 세션의 Playwright 고정 버전은 `/opt/pw-browsers`의 헤드리스 셸(1228)을 찾지 못한다 → `launchOptions.executablePath: '/opt/pw-browsers/chromium'`를 넣은 임시 설정(`-c`)으로 돌렸다(설정 파일은 커밋하지 않음). 저장소 prettier 설정이 없어 `prettier --write`를 쓰면 큰따옴표·세미콜론으로 바뀐다 — 쓰지 말 것.
+- **⏭ 다음 교대**: ⑤ 풀 교체(`planForDay` CUTOVER, 배포일+2일 이상)는 리드 결정이 필요하다 — 하면 c-meadow → c-meadow-2. 결정 전에는 PR-6(다중 선 UI, 개발 라우트) → PR-7(빌더·validator·2선 솔버·CB-3·4·5). bugs.md Q1[중](말랑 꽃이 폰 첫 화면 밖)은 아직 열려 있다(상 심각도 버그 0).
+
 ## ▶ 2026-11-20 07시 리디자인 v2 R6 마스코트 배치 인계 (브랜치 `shift/redesign-r6-mascots`)
 
 **한 줄:** 네 마스코트가 '한 마리 = 한 기능' 자리에 앉았다 — 홈 4선반 disc(말랑 Puzzle·토리 Arcade·해씨 Classic(하늘색 disc)·보미 Skill), About 머리 해씨 등불 96px, 씨앗 도서관 빈 상태 해씨 think 80px, 결과 시트 카운트다운 옆 보미 32px, 404 말랑 dizzy(404 페이지 신설).

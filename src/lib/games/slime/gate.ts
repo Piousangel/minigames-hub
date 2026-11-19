@@ -4,6 +4,9 @@ import { solve, waypointsToRaw, runLine } from './solver'
 import { DEFAULT_PHYSICS, type Physics, type Stage } from './types'
 import { mulberry32 } from './rng'
 import type { Pt } from './types'
+import { lineHitsSpawnBan, polyLength } from './strokePipeline'
+import { segmentInServerZone } from './multiline'
+import { STAGE_HINTS } from './stages'
 
 /**
  * 해 클러스터 = 도토리 조합 + 경로 서명(궤적의 33%·66% 지점이 속한 100px 칸). 같은 도토리를 먹어도
@@ -137,4 +140,44 @@ export function checksFor(g: StageGate): Check[] {
   add('실패 원인 한 가지 ≤ 40%(전체 시도 중)', maxFail <= 0.4, pct(maxFail))
   add('도착까지 평균 ≤ 8초', c12.meanSecs <= 8, `${c12.meanSecs.toFixed(1)}s`)
   return out
+}
+
+// ── 콜백 게이트 CB-1·CB-2 (04시 숙의 v2.1 2장, 11-20) ────────────────────────────────────────────
+
+/**
+ * 다음 판이 이 선을 '그을 수 있는' 입력으로 받는가: 잉크 한도·스폰 금지 반경·금지 구역(서버 판정 `segmentInServerZone`).
+ * 앞 판에서 그은 선이 다음 판 규칙에 걸리면 그 선은 다음 판에서 존재할 수 없으므로 '통과 못 함'으로 센다.
+ */
+function drawableOn(stage: Stage, line: Pt[]): boolean {
+  if (polyLength(line) > stage.ink) return false
+  if (lineHitsSpawnBan(line, stage.spawn)) return false
+  if (stage.banZones) for (let i = 1; i < line.length; i++) if (segmentInServerZone(line[i - 1], line[i], stage)) return false
+  return true
+}
+
+/**
+ * CB-1 이전 해 통과율: 앞 판 `solve(seed, pop)`의 도착 해에서 **n개를 균등 간격**으로 뽑아(해가 n개 이하면 전부)
+ * 다음 판에 그대로 그었을 때 도착 비율. 합격선: 같은 땅 콜백 판 ≤35%, 막의 3판째 ≤20%.
+ * n·pop·seed를 바꾸면 값이 바뀐다(n=60이면 c-meadow 50%) — 판끼리 비교하려면 기본값을 쓸 것.
+ */
+export function prevPassRate(prev: Stage, next: Stage, opts: { seed?: number; pop?: number; n?: number } = {}): number {
+  const n = opts.n ?? 80
+  const all = solve(prev, opts.seed ?? 2026, { pop: opts.pop ?? 80 }).solutions.filter((s) => s.res.outcome === 'nest')
+  const sample = all.length <= n ? all : Array.from({ length: n }, (_, i) => all[Math.floor((i * all.length) / n)])
+  if (!sample.length) return 0
+  const pass = sample.filter((s) => drawableOn(next, s.line) && simulate(next, [s.line]).outcome === 'nest').length
+  return pass / sample.length
+}
+
+/**
+ * CB-2 이전 추천 길 실패: 앞 판 추천 길(`STAGE_HINTS[prev.id]`)을 다음 판에 그으면 도착하지 못해야 한다.
+ * 선이 다음 판에서 그을 수 없는 입력이면(runLine null·금지 구역) 그것도 '죽음'(사유 `invalid`/`ban zone`).
+ */
+export function hintKilled(prev: Stage, next: Stage): { killed: boolean; reason: string } {
+  const hint = STAGE_HINTS[prev.id]
+  if (!hint) throw new Error(`hintKilled: ${prev.id}에 추천 길이 없다`)
+  const r = runLine(next, waypointsToRaw(hint))
+  if (!r) return { killed: true, reason: 'invalid' }
+  if (!drawableOn(next, r.line)) return { killed: true, reason: 'ban zone' }
+  return { killed: r.res.outcome !== 'nest', reason: r.res.outcome }
 }

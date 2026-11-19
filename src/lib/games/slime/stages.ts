@@ -158,6 +158,24 @@ export const A2_MEADOW: Stage = {
   ink: 520,
 }
 
+/**
+ * 2단계 legacy 강화안(04시 숙의 v2.1 3-1, 11-20): 같은 g-slide 땅에서 독꽃을 (105,186)·(104,275)로 옮겨
+ * 1단계 해 통과율(CB-1) 60% → 24%, 1단계 추천 길·대각선 직선이 독꽃에 닿는다. id 불변 규칙에 따라 c-meadow를 고치지 않고 새 id.
+ * **아직 풀(`SLIME_STAGES`)에 넣지 않는다** — 일일은 매일 풀 전체를 열고 저장값이 위치 배열이라, 바꾸면 그날 기록·서버 제출이 깨진다
+ * (교체는 `planForDay` CUTOVER와 함께, 스펙 4장 5번).
+ */
+export const A2_MEADOW_2: Stage = {
+  ...GATE_STAGES[0],
+  id: 'c-meadow-2',
+  tier: 1,
+  spikes: [{ x: 105, y: 186 }, { x: 104, y: 275 }],
+  acorns: [{ x: 70, y: 144 }, { x: 70, y: 298 }, { x: 207, y: 442 }],
+  ink: 520,
+}
+
+/** 출시됐지만 골든 원본 목록(KNOWN_LEGACY_STAGES, 반전본 포함)에 없던 스테이지. 골든 표를 따로 둔다(반전본 생성 금지). */
+export const SHIPPED_EXTRA_STAGES: Stage[] = [A2_MEADOW, T2_BOUNCE]
+
 const BASE_STAGES: Stage[] = [GATE_STAGES[0], T1_SPIKE, GATE_STAGES[1], T2_WALL_B]
 /** 이미 출시됐거나 한 번이라도 풀에 있던 스테이지(원본+반전본). 골든 회귀 테스트가 이 집합의 결과를 고정한다. */
 export const KNOWN_LEGACY_STAGES: Stage[] = BASE_STAGES.flatMap((s) => [s, mirrorStage(s)])
@@ -180,6 +198,7 @@ const BASE_HINTS: Record<string, Pt[]> = {
   's-wall-b': [{ x: 22, y: 223 }, { x: 241, y: 268 }, { x: 261, y: 495 }],
   'c-meadow': [{ x: 28, y: 261 }, { x: 93, y: 388 }, { x: 277, y: 533 }],
   's-bounce': [{ x: 40, y: 221 }, { x: 136, y: 252 }, { x: 172, y: 416 }, { x: 269, y: 466 }],
+  'c-meadow-2': [{ x: 30, y: 316 }, { x: 129, y: 410 }, { x: 210, y: 468 }],
 }
 
 /** 추천 길. 미러 스테이지는 원본 추천 길을 좌우 반전해서 쓴다. */
