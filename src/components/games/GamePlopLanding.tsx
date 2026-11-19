@@ -34,6 +34,10 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordFinish } from '@/lib/gameStats'
 import { todayUTC } from '@/lib/dailyDate'
 import { GameOverlay } from '@/components/game-shell'
+import { OverlayScoreSubmit } from '@/components/game-shell/OverlayScoreSubmit'
+import { DailyResultSheet } from '@/components/daily/DailyResultSheet'
+import { recordDoneInBrowser, type DailyResult } from '@/lib/daily/result'
+import { hasLeaderboard } from '@/lib/leaderboard'
 import { roundFont } from '@/app/roundFont'
 import { siteConfig } from '@/lib/siteConfig'
 
@@ -140,6 +144,9 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
   const [ready, setReady] = useState(false)
   const [announce, setAnnounce] = useState('')
   const [showShare, setShowShare] = useState(false)
+  // Daily 판의 결과 시트(R5). 연습 판은 예전 오버레이 그대로.
+  const [daily, setDaily] = useState<DailyResult | null>(null)
+  const [sheetOpen, setSheetOpen] = useState(false)
   const { muted, toggleMuted } = useGameSound()
   const { play, unlock, startBgm } = usePlopAudio(muted)
   const { reduced, reducedRef } = useReducedMotion()
@@ -174,6 +181,8 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
     setArmed(true)
     setNewBest(false)
     setShowShare(false)
+    setDaily(null)
+    setSheetOpen(false)
     setAnnounce('')
     setUi(uiOf(st))
   }, [startBgm])
@@ -643,7 +652,16 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
       setBest(s.score)
       setNewBest(true)
     }
-    return () => clearTimeout(t)
+    // Daily 한 판이 끝남 = 오늘의 정원 완료(R5). 날짜 = 그 판을 받은 UTC 날짜. 시트는 첨벙 뒤 잠깐 있다 올린다(마지막 탭 오입력 방지 — 옛 armed 800ms와 같은 몫)
+    let open: ReturnType<typeof setTimeout> | undefined
+    if (modeRef.current === 'daily' && dayRef.current) {
+      setDaily(recordDoneInBrowser({ slug: 'plop-landing', day: dayRef.current, primary: { label: 'points', value: s.score }, secondary: { label: 'islands', value: String(s.landed) } }))
+      open = setTimeout(() => setSheetOpen(true), 800)
+    }
+    return () => {
+      clearTimeout(t)
+      clearTimeout(open)
+    }
   }, [over, storageKey])
 
   // ── 입력 ──
@@ -864,7 +882,7 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
         </p>
 
         <div style={{ pointerEvents: armed ? 'auto' : 'none' }}>
-          <GameOverlay show={over} variant="lose" title={ui.reason ? END_TEXT[ui.reason] : 'Run over'} testId="game-over" tone="cozy">
+          <GameOverlay show={over && !daily} variant="lose" title={ui.reason ? END_TEXT[ui.reason] : 'Run over'} testId="game-over" tone="cozy">
             <div className="flex flex-col items-center gap-1">
               <p className="text-6xl font-bold leading-none tabular-nums" style={{ color: '#e8643f', textShadow: '0 3px 0 #fff3dc, 0 5px 0 rgba(91,58,30,0.25)' }}>
                 {ui.landed}
@@ -898,6 +916,22 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
           </GameOverlay>
         </div>
       </div>
+      {over && daily && !sheetOpen && (
+        <div className="mt-3 flex items-center justify-center gap-2" data-testid="plop-daily-done">
+          <button onClick={() => setSheetOpen(true)} className={`${btn} bg-[#fff3dc] px-4 text-[#5b3a1e]`} data-testid="open-result-sheet">
+            Today’s result
+          </button>
+          <button onClick={() => deal('daily')} className={`${btn} bg-[#fff3dc] px-4 text-[#5b3a1e]`}>
+            Play again
+          </button>
+        </div>
+      )}
+      {daily && (
+        <DailyResultSheet open={sheetOpen} onClose={() => setSheetOpen(false)} slug="plop-landing" gameTitle="Plop Landing" result={daily} shareText={resultText()}>
+          {newBest && <p className="rounded-full border-2 border-[#5b3a1e] bg-[#fff3dc] px-2.5 py-0.5 text-sm font-bold text-[#5b3a1e]">NEW BEST · {ui.score} pts</p>}
+          {hasLeaderboard('plop-landing') && <OverlayScoreSubmit slug="plop-landing" show={sheetOpen} tone="garden" />}
+        </DailyResultSheet>
+      )}
       <p className="sr-only">Press and hold anywhere to charge the gauge, then release to hop to the next island. Drag up before releasing to cancel. Space also works. Aim for the flower in the middle of each island.</p>
     </div>
   )

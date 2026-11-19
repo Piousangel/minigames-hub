@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { OverlayScoreSubmit } from '@/components/game-shell/OverlayScoreSubmit'
 import { ShareButtons } from '@/components/ShareButtons'
 import { SlimeProto } from '@/components/SlimeProto'
@@ -28,6 +28,8 @@ import { slotName } from '@/lib/games/slime/theme'
 import { SlimeJourney } from '@/components/games/SlimeJourney'
 import { EN } from '@/lib/games/slime/strings'
 import { trackVisit, type VisitTrigger } from '@/lib/games/slime/visits'
+import { DailyResultSheet } from '@/components/daily/DailyResultSheet'
+import { recordDoneInBrowser, type DailyResult } from '@/lib/daily/result'
 
 const SLUG = 'slime-slide'
 const TOTAL = SLIME_STAGES.length
@@ -77,6 +79,14 @@ const failStreakOf = (list: Attempt[]): number => {
   return n
 }
 
+/** 오늘 끝낸 하루의 결과(R5 DailyResult 입력). 일일 규칙·점수는 daily.ts 그대로 — 여기선 숫자만 옮긴다. */
+const doneInput = (day: string, p: DailyProgress) => ({
+  slug: SLUG,
+  day, // 말랑의 '오늘' = 현지 날짜(todayLocal) — 완료 키도 같은 날짜(src/lib/daily/result.ts)
+  primary: { label: 'points', value: dailyTotal(p) },
+  secondary: { label: 'stages', value: `${clearedCount(p)}/${TOTAL}` },
+})
+
 /** 말랑 미끄럼길: 일일(1스테이지를 깨면 다음이 열린다, 스테이지당 3번, 하루 점수는 스테이지별 최고점 합) / 연습. */
 export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: string }) {
   void _storageKey
@@ -86,6 +96,9 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
   const [view, setView] = useState(0) // 지금 보드에 올라간 스테이지
   const [settled, setSettled] = useState(true) // 보드의 재생이 끝났는가(끝나기 전에는 다음 스테이지로 넘기지 않는다)
   const [practiceIdx, setPracticeIdx] = useState(0) // 연습 = 해금된 스테이지 중 하나(점수 반영 없음)
+  const [daily, setDaily] = useState<DailyResult | null>(null) // 오늘 끝냈으면 결과(시트·완료 기록)
+  const [sheetOpen, setSheetOpen] = useState(false)
+  const finishedNow = useRef(false) // 이번 방문에 마지막 시도로 하루를 끝냈다(그때만 시트를 자동으로 올린다)
 
   useEffect(() => {
     const d = todayLocal()
@@ -93,6 +106,8 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
     setDay(d)
     setProgress(p)
     setView(currentStage(p) ?? 0)
+    // 이미 끝낸 날(배포 전에 끝냈거나 다시 연 경우): 완료 기록을 채우고 결과만 준비한다(시트는 자동으로 올리지 않는다)
+    if (dailyOver(p)) setDaily(recordDoneInBrowser(doneInput(d, p)))
     sendHit(SLUG, 'view')
     // 탭을 열어 둔 채 UTC 자정을 넘기면 어제 기록이 오늘 보드로 올라가지 않게, 다시 보일 때 날짜를 확인한다(엔지니어 검수)
     const onVis = () => {
@@ -103,6 +118,8 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
         const np = loadProgress(now)
         setProgress(np)
         setView(currentStage(np) ?? 0)
+        setDaily(dailyOver(np) ? recordDoneInBrowser(doneInput(now, np)) : null)
+        setSheetOpen(false)
         return now
       })
     }
@@ -119,7 +136,10 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
         if (next !== prev) {
           saveProgress(day, next)
           fireVisit(day, 'start')
-          if (dailyOver(next)) fireVisit(day, 'complete') // 기록된 시도로 하루가 끝났다(이미 끝난 날은 recordAttempt가 prev를 돌려준다)
+          if (dailyOver(next)) {
+            fireVisit(day, 'complete') // 기록된 시도로 하루가 끝났다(이미 끝난 날은 recordAttempt가 prev를 돌려준다)
+            finishedNow.current = true
+          }
         }
         return next
       })
@@ -139,6 +159,14 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
   }, [mode, cur, view, settled])
 
   const over = dailyOver(progress)
+
+  // 하루를 끝낸 마지막 시도의 재생이 끝나면(settled): 완료 기록(R5) + 결과 시트
+  useEffect(() => {
+    if (mode !== 'daily' || !day || !over || !settled || !finishedNow.current) return
+    finishedNow.current = false
+    setDaily(recordDoneInBrowser(doneInput(day, progress)))
+    setSheetOpen(true)
+  }, [mode, day, over, settled, progress])
   const state = stageState(progress, view)
   const locked = mode === 'daily' && state !== 'open'
   const total = dailyTotal(progress)
@@ -146,6 +174,15 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
   const share = day ? progressShareText(day, progress, '') : '' // 링크는 ShareButtons가 붙인다
 
   if (!day) return <div className="mx-auto h-[560px] w-full max-w-[480px]" aria-busy="true" />
+  // 리더보드 검증 제출(서버 재생) — 진행 중 칸과 결과 시트가 같은 설정을 쓴다
+  const submit = {
+    score: total,
+    key: `${SLUG}:${day}`,
+    request: (name: string) => {
+      const body = slimeSubmitBody(day, progress, name, visitorId())
+      return body ? { url: '/api/slime/submit', body } : null
+    },
+  }
 
   return (
     <div className="mx-auto w-full max-w-[480px]">
@@ -199,24 +236,32 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
             {clearedCount(progress)}/{TOTAL} stages · {total} pts
           </p>
           {state === 'cleared' && cur !== null && cur !== view && <p className="mt-1 text-xs text-fg-muted">Stage {cur + 1} unlocks in a moment…</p>}
-          {total > 0 && (
-            <div className="mt-2">
-              <ShareButtons slug={SLUG} title="Slime Slide" text={share} />
-            </div>
+          {over && daily ? (
+            // 하루를 끝냈다: 공유·리더보드 제출은 결과 시트 안(R5). 여기선 다시 여는 버튼만
+            <button
+              type="button"
+              onClick={() => setSheetOpen(true)}
+              data-testid="open-result-sheet"
+              className="mt-2 min-h-11 rounded-full border-2 border-[#5b3a1e] bg-[#fff3dc] px-4 text-sm font-bold text-[#5b3a1e]"
+            >
+              Today’s result
+            </button>
+          ) : (
+            <>
+              {total > 0 && (
+                <div className="mt-2">
+                  <ShareButtons slug={SLUG} title="Slime Slide" text={share} />
+                </div>
+              )}
+              <OverlayScoreSubmit slug={SLUG} show={total > 0} verified={submit} />
+            </>
           )}
-          <OverlayScoreSubmit
-            slug={SLUG}
-            show={total > 0}
-            verified={{
-              score: total,
-              key: `${SLUG}:${day}`,
-              request: (name) => {
-                const body = slimeSubmitBody(day, progress, name, visitorId())
-                return body ? { url: '/api/slime/submit', body } : null
-              },
-            }}
-          />
         </section>
+      )}
+      {daily && (
+        <DailyResultSheet open={sheetOpen} onClose={() => setSheetOpen(false)} slug={SLUG} gameTitle="Slime Slide" result={daily} shareText={share}>
+          <OverlayScoreSubmit slug={SLUG} show={sheetOpen && total > 0} verified={submit} tone="garden" />
+        </DailyResultSheet>
       )}
     </div>
   )

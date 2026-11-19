@@ -7,12 +7,18 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePat
 vi.mock('@/lib/hit', () => ({ sendHit: vi.fn() }))
 
 import { gamePages } from '@/lib/games/registry'
+import { GARDEN_DONE_EVENT, doneKey } from '@/lib/daily/result'
 import { HomeHero } from './HomeHero'
 import { SiteHeader } from '@/components/site-chrome/SiteHeader'
 
 // 시계를 2026-11-19 12:00 UTC로 고정(호수 No.125). toFake는 Date만 — 타이머는 진짜로 둔다.
 const NOW = new Date('2026-11-19T12:00:00Z')
-const attempt = { outcome: 'nest', stars: 2, score: 120, hint: false }
+
+/** R5 완료 기록(결과 시트가 남기는 것). 말랑은 현지 날짜, 나머지는 UTC 날짜 키. */
+function markDone(slug: string, value = 58) {
+  const day = slug === 'slime-slide' ? localDay(NOW) : '2026-11-19'
+  localStorage.setItem(doneKey(day, slug), JSON.stringify({ slug, day, primary: { label: 'points', value }, streak: 1, bloomed: true }))
+}
 
 /** 테스트 환경의 현지 날짜(말랑 키는 현지 자정 기준) */
 function localDay(d: Date) {
@@ -86,8 +92,8 @@ describe('홈 히어로(R3)', () => {
     expect(sunSurfaces(container)).toHaveLength(1)
   })
 
-  it('in-progress: 말랑을 했으면 다음 권할 게임은 Plop Landing, 같은 칸 구조', () => {
-    localStorage.setItem(`slime:daily2:${localDay(NOW)}`, JSON.stringify([[attempt], [], []]))
+  it('in-progress: 말랑을 끝냈으면 다음 권할 게임은 Plop Landing, 같은 칸 구조', () => {
+    markDone('slime-slide')
     const { container } = render(<HomeHero />)
     const card = screen.getByTestId('today-card')
     expect(card).toHaveAttribute('data-state', 'in-progress')
@@ -99,8 +105,8 @@ describe('홈 히어로(R3)', () => {
   })
 
   it('complete: 세 송이 → "All three bloomed", Play는 /daily로', () => {
-    localStorage.setItem(`slime:daily2:${localDay(NOW)}`, JSON.stringify([[attempt]]))
-    localStorage.setItem('quest:2026-11-19', JSON.stringify(['plop-landing', 'acorn-hop']))
+    markDone('slime-slide')
+    markDone('plop-landing'); markDone('acorn-hop')
     const { container } = render(<HomeHero />)
     const card = screen.getByTestId('today-card')
     expect(card).toHaveAttribute('data-state', 'complete')
@@ -111,8 +117,8 @@ describe('홈 히어로(R3)', () => {
   })
 
   it('손상된 저장값이어도 카드는 first로 그려진다', () => {
-    localStorage.setItem(`slime:daily2:${localDay(NOW)}`, '{broken')
-    localStorage.setItem('quest:2026-11-19', 'nope')
+    localStorage.setItem(doneKey(localDay(NOW), 'slime-slide'), '{broken')
+    localStorage.setItem(doneKey('2026-11-19', 'plop-landing'), 'nope')
     render(<HomeHero />)
     expect(screen.getByTestId('today-card')).toHaveAttribute('data-state', 'first')
   })
@@ -126,17 +132,52 @@ describe('홈 히어로(R3)', () => {
     const first = render(<HomeHero />)
     const a = shape()
     first.unmount()
-    localStorage.setItem('quest:2026-11-19', JSON.stringify(['plop-landing']))
+    markDone('plop-landing')
     const mid = render(<HomeHero />)
     const b = shape()
     mid.unmount()
-    localStorage.setItem(`slime:daily2:${localDay(NOW)}`, JSON.stringify([[attempt]]))
-    localStorage.setItem('quest:2026-11-19', JSON.stringify(['plop-landing', 'acorn-hop']))
+    markDone('slime-slide')
+    markDone('plop-landing'); markDone('acorn-hop')
     render(<HomeHero />)
     const c = shape()
     expect(b).toBe(a)
     // complete는 썸네일 대신 꽃 아이콘(같은 72px 칸 안) — 칸 바깥 구조는 같다
     expect(c.replace('|h-10', '')).toBe(a)
+  })
+})
+
+describe('데스크톱 히어로 티켓 줄(R5, R4 이월)', () => {
+  const ticketSlugs = () => [0, 1, 2].map((i) => screen.getByTestId(`hero-ticket-${i}`).getAttribute('data-slug'))
+
+  it('정적 HTML = first: Plop · Acorn · Daily, 노란 Play(Slime)와 겹치지 않는다', () => {
+    const html = renderToStaticMarkup(<HomeHero />)
+    expect(html).toContain('href="/plop-landing?ref=hero-ticket"')
+    expect(html).toContain('href="/acorn-hop?ref=hero-ticket"')
+    expect(html).toContain('href="/daily?ref=hero-ticket"')
+    expect(html).not.toContain('href="/slime-slide?ref=hero-ticket"')
+  })
+
+  it('first + 최근 플레이가 있으면 세 번째 = Continue(정원 밖 최근 게임)', () => {
+    localStorage.setItem('recent:games', JSON.stringify(['plop-landing', '2048']))
+    render(<HomeHero />)
+    expect(ticketSlugs()).toEqual(['plop-landing', 'acorn-hop', '2048'])
+  })
+
+  it('in-progress(카드 = Plop): 첫 티켓이 Play CTA와 같지 않다 — Slime(Bloomed · best N) · Acorn · Daily', () => {
+    markDone('slime-slide', 820)
+    render(<HomeHero />)
+    expect(screen.getByTestId('today-play')).toHaveAttribute('href', '/plop-landing?ref=hero-today')
+    expect(ticketSlugs()).toEqual(['slime-slide', 'acorn-hop', 'daily'])
+    expect(screen.getByTestId('hero-ticket-status-0')).toHaveTextContent('Bloomed · best 820')
+    expect(screen.getByTestId('hero-ticket-status-1')).toHaveTextContent('Unplayed')
+  })
+
+  it('complete: 세 정원 게임 모두 Bloomed, 노란 면은 여전히 하나', () => {
+    markDone('slime-slide'); markDone('plop-landing', 58); markDone('acorn-hop', 31)
+    const { container } = render(<HomeHero />)
+    expect(ticketSlugs()).toEqual(['slime-slide', 'plop-landing', 'acorn-hop'])
+    expect(screen.getByTestId('hero-ticket-status-1')).toHaveTextContent('Bloomed · best 58')
+    expect(sunSurfaces(container)).toHaveLength(1)
   })
 })
 
@@ -147,8 +188,8 @@ describe('헤더 오늘 pill(R3 진행 상태)', () => {
   })
 
   it('in-progress: "Today 2/3"', () => {
-    localStorage.setItem(`slime:daily2:${localDay(NOW)}`, JSON.stringify([[attempt]]))
-    localStorage.setItem('quest:2026-11-19', JSON.stringify(['acorn-hop']))
+    markDone('slime-slide')
+    markDone('acorn-hop')
     render(<SiteHeader />)
     const pill = screen.getByTestId('today-pill')
     expect(pill).toHaveTextContent('Today 2/3')
@@ -157,8 +198,8 @@ describe('헤더 오늘 pill(R3 진행 상태)', () => {
   })
 
   it('complete: "Garden full"', () => {
-    localStorage.setItem(`slime:daily2:${localDay(NOW)}`, JSON.stringify([[attempt]]))
-    localStorage.setItem('quest:2026-11-19', JSON.stringify(['acorn-hop', 'plop-landing']))
+    markDone('slime-slide')
+    markDone('acorn-hop'); markDone('plop-landing')
     render(<SiteHeader />)
     expect(screen.getByTestId('today-pill')).toHaveTextContent('Garden full')
   })
@@ -167,7 +208,7 @@ describe('헤더 오늘 pill(R3 진행 상태)', () => {
     render(<SiteHeader />)
     expect(screen.getByTestId('today-pill')).toHaveAttribute('data-state', 'first')
     act(() => {
-      localStorage.setItem('quest:2026-11-19', JSON.stringify(['acorn-hop']))
+      markDone('acorn-hop')
       window.dispatchEvent(new StorageEvent('storage'))
     })
     expect(screen.getByTestId('today-pill')).toHaveTextContent('Today 1/3')
@@ -177,10 +218,26 @@ describe('헤더 오늘 pill(R3 진행 상태)', () => {
     pathname = '/'
     const { rerender } = render(<SiteHeader />)
     expect(screen.getByTestId('today-pill')).toHaveAttribute('data-state', 'first')
-    localStorage.setItem('quest:2026-11-19', JSON.stringify(['plop-landing'])) // 게임 페이지 RecordPlay가 쓴 것
+    markDone('plop-landing') // 게임 페이지 결과 시트가 쓴 것
     pathname = '/plop-landing'
     rerender(<SiteHeader />)
     expect(await screen.findByText('Today 1/3')).toBeInTheDocument()
+  })
+
+  it('같은 탭에서 결과 시트가 완료를 남기면(garden:done 이벤트) pill이 바로 바뀐다(R5)', () => {
+    render(<SiteHeader />)
+    act(() => {
+      markDone('acorn-hop')
+      window.dispatchEvent(new CustomEvent(GARDEN_DONE_EVENT))
+    })
+    expect(screen.getByTestId('today-pill')).toHaveTextContent('Today 1/3')
+  })
+
+  it('페이지를 열기만 한 기록(quest)이나 말랑 시도 기록으로는 피지 않는다(R3 약한 신호 폐기, R5)', () => {
+    localStorage.setItem('quest:2026-11-19', JSON.stringify(['plop-landing', 'acorn-hop', 'slime-slide']))
+    localStorage.setItem(`slime:daily2:${localDay(NOW)}`, JSON.stringify([[{ outcome: 'nest', stars: 2, score: 120, hint: false }]]))
+    render(<SiteHeader />)
+    expect(screen.getByTestId('today-pill')).toHaveAttribute('data-state', 'first')
   })
 
   it('2행 내비에 게임 페이지 숨김 표식(data-site-nav-row)이 있다', () => {

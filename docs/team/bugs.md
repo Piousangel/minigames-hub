@@ -32,6 +32,11 @@
 - e2e `홈: Daily 필터`: Slime Slide가 일일 게임인데 기대 목록에 없음 → 추가.
 - 유닛 `GameBeatline.test.tsx` 노트 위치: 데일리 차트가 날짜 시드라 11-19 시드는 카운트인 후 0.6초 안에 노트가 없어 실패(main에서도 실패) → 노트가 뜰 때까지 100ms씩 진행(상한 4초), 위치 검증은 그대로.
 
+### Q6 [하] 도토리 헤더 버튼 줄이 360px에서 23px 넘친다 — 미수정(R5에서 발견, 2026-11-20)
+- 재현: 360×640, `/acorn-hop` → `document.documentElement.scrollWidth` 383. Score·Best pill + daily/practice + 소리 + 다시 하기가 한 줄(`flex items-center gap-1.5`, 줄바꿈 없음)이라 오른쪽 버튼 묶음이 383px까지 나간다. 뿅 착지는 첫 방문에 daily/practice 묶음이 없어 360에서 넘치지 않는다.
+- R5 결과 시트(fixed, 화면 폭 안)와는 무관 — e2e `result-sheet.spec.ts` 360 검사는 시트 폭만 본다.
+- 제안: 360 미만 폭에서 pill 글자 줄이기(`Best` → 아이콘) 또는 헤더 2줄. 게임 화면 레이아웃이라 퀄리티팀(R7 정원 틀 배치 때) 몫.
+
 ### 점검 통과(문제 없음)
 - 속도: 로컬 기준 DCL 홈 324ms·게임 30~120ms, rAF 프레임 p50/p95 16.7ms(대기·플레이 중 모두 초당 60 → **rAF 루프 중복 없음**).
 - 소리: AudioContext 판당 1개(뿅·다람쥐), 말랑은 그리기 전 0개(지연 생성).

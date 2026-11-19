@@ -1,5 +1,14 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 02시 리디자인 v2 R5 데일리 결과 시트 인계 (브랜치 `shift/redesign-r5-result-sheet`)
+
+**한 줄:** 말랑·뿅·도토리의 Daily를 끝내면 게임 화면 위로 크림 하단 시트가 올라온다 — "Today’s garden *is full.*"/"*is growing.*", 꽃 3칸(점선 궤적), 큰 숫자 3개(coral-text), 공유 카드 미리보기, **노란 Share 하나**, 크림 Next game, "Next edition in hh:mm:ss"(UTC). 끝낸 기록이 `garden:done:<날짜>:<slug>`로 남아 홈 카드·목차·헤더 pill·1280+ 히어로 티켓이 그걸로 핀다.
+- **코드**: `src/lib/daily/`(result = DailyResult·완료 키·streak·prune, countdown, shareCard = canvas PNG), `src/components/daily/DailyResultSheet.tsx`, `src/components/home/HeroTickets.tsx`, `garden.ts`(완료 키만 읽음), `useTodayGarden`(같은 탭 `garden:done` 이벤트), `OverlayScoreSubmit` `tone="garden"`. 세 게임: Daily 종료 → 시트(뿅·도토리 0.8초 뒤), 연습 판은 예전 GameOverlay. 말랑은 하루 끝(5스테이지 모두 지나감) + 재생 끝나면 시트, 그 전엔 보드 아래 칸 그대로. CSS `globals.css` 맨 아래 `.daily-sheet*`·`.home-hero__tickets`(80rem+).
+- **결정**: DECISIONS 11-20 R5(키 날짜 = 그 게임의 일일 날짜, 옛 신호 미호환, No.는 공유 카드에만, 공유 폴백 순서).
+- **측정**: 공유 카드 PNG 188KB(640·540이 250KB를 넘어 440px로 떨어짐 — 키아트가 무거움), 시트 axe 위반 0, 홈 1440 first/complete axe 0, CLS 1440 first 0 / complete 0.0004, 390 in-progress 0.0005, 1280·1920 가로 스크롤 0, 히어로 높이 1280+ 906px(1279 이하 704 그대로). 모션 줄이기 = animation none. 캡처 `docs/design/redesign-v2/r5-sheet/`(390 시트 2/3·3/3, 360 위·아래, 1440 홈 first·complete, 1920, 공유 카드, report.json).
+- **함정**: 시트는 열 때 `history.pushState`(Next 상태를 펼쳐 복사 + `__dailySheet`)로 칸을 하나 넣고, UI로 닫으면 `history.back()` → popstate가 닫는다. 다른 곳에서 pushState를 끼워 넣으면 닫기가 어긋날 수 있다. 뿅은 첫 방문이 연습이라 e2e는 `plop:played=1`을 심는다(섬 배치가 날마다 달라 '한 번에 첨벙'이 안 됨 — 끝날 때까지 뛰고 5섬째는 가라앉기 대기). 3100 포트가 다른 세션에 잡혀 있으면 `PW_PORT=3207 PW_SKIP_BUILD=1 pnpm exec playwright test`(config에 추가). 도토리 헤더 버튼 줄이 360에서 23px 넘침(main부터, bugs.md Q6, 미수정).
+- **⏭ R6**: 마스코트 배치. 결과 시트 보미 자리 = `data-testid="sheet-bomi-slot"`(카운트다운 오른쪽 32×32, 비어 있음, aria-hidden) — 그림을 넣을 때 lazy·≤40KB, 시트 안이라 광고 400px 규칙과 무관. 시안의 말랑 happy가 시트 모서리에 걸터앉는 'peek'(92px)은 D6(한 뷰포트 1마리)과 보미가 겹치니 R6이 하나만 고를 것. 공유 카드 키아트 크롭(`shareCard.ts` ART)은 데스크톱 키아트 오른쪽 — 마스코트 그림이 바뀌면 좌표 확인.
+
 ## ▶ 2026-11-20 01시 리디자인 v2 R4 홈 본문 인계 (브랜치 `shift/redesign-r4-home-body`, PR #182)
 
 **한 줄:** 홈 히어로 아래 전체가 노을 정원 paper 종이가 됐다 — 구름 경계 → Continue 줄(최근 4 / 첫 방문 인기 4) + 오늘의 스포트라이트 한 줄 → Originals 목차(Plop·Acorn) | 4선반 색인 → 씨앗 도서관(All 113, 기본 24 접힘) → About + From the guides → 정원 안내판 → (광고 2곳, 지금은 꺼져 DOM 없음).

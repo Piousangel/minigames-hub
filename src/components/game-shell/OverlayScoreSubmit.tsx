@@ -46,7 +46,30 @@ export interface VerifiedSubmit {
   request: (name: string) => { url: string; body: unknown } | null
 }
 
-export function OverlayScoreSubmit({ slug, show, verified }: { slug: string; show: boolean; verified?: VerifiedSubmit }) {
+/** 글자·버튼 색. 'garden' = 크림 결과 시트(R5) 위에서 대비 AA(네온 cyan은 크림에서 1.6:1). 동작은 같다. */
+const TONE = {
+  neon: {
+    done: 'text-neon-lime',
+    rank: 'text-neon-amber',
+    error: 'text-neon-amber',
+    hint: 'text-neon-cyan',
+    input: 'border-border bg-surface/80 text-fg placeholder:text-fg-muted focus-visible:border-neon-cyan',
+    btn: 'border-neon-cyan/60 bg-neon-cyan/10 text-neon-cyan',
+    link: 'text-fg-muted hover:text-neon-cyan',
+  },
+  garden: {
+    done: 'text-garden-leaf-text',
+    rank: 'text-garden-coral-text',
+    error: 'text-garden-danger-text',
+    hint: 'text-garden-ink',
+    input: 'border-2 border-garden-ink bg-garden-cream-2 text-garden-ink placeholder:text-garden-ink-soft focus-visible:ring-2 focus-visible:ring-garden-ink',
+    btn: 'border-2 border-garden-ink bg-garden-cream-2 text-garden-ink min-h-11',
+    link: 'min-h-11 text-garden-ink-soft hover:text-garden-coral-text',
+  },
+} as const
+
+export function OverlayScoreSubmit({ slug, show, verified, tone = 'neon' }: { slug: string; show: boolean; verified?: VerifiedSubmit; tone?: 'neon' | 'garden' }) {
+  const c = TONE[tone]
   const [best, setBest] = useState(0)
   const [name, setName] = useState('')
   const [editing, setEditing] = useState(false)
@@ -81,10 +104,10 @@ export function OverlayScoreSubmit({ slug, show, verified }: { slug: string; sho
   if (!fresh && state !== 'done') return null
   if (state === 'done') {
     return (
-      <p data-testid="overlay-submit-done" className="text-xs font-semibold text-neon-lime">
+      <p data-testid="overlay-submit-done" className={`text-xs font-semibold ${c.done}`}>
         ✓ Submitted to this week&apos;s board
         {rankInfo && (
-          <span data-testid="overlay-rank" className="mt-0.5 block text-sm font-bold text-neon-amber">
+          <span data-testid="overlay-rank" className={`mt-0.5 block text-sm font-bold ${c.rank}`}>
             {rankLine(rankInfo)}
           </span>
         )}
@@ -127,7 +150,7 @@ export function OverlayScoreSubmit({ slug, show, verified }: { slug: string; sho
 
   const shown = formatBoardScore(slug, best)
   const error = state === 'error' && (
-    <span className="text-xs text-neon-amber">Couldn&apos;t submit — try again in a few seconds.</span>
+    <span className={`text-xs ${c.error}`}>Couldn&apos;t submit — try again in a few seconds.</span>
   )
 
   if (editing) {
@@ -140,7 +163,7 @@ export function OverlayScoreSubmit({ slug, show, verified }: { slug: string; sho
           void submit()
         }}
       >
-        <span className="text-xs font-semibold text-neon-cyan">🏆 Your best {shown} — put it on the board</span>
+        <span className={`text-xs font-semibold ${c.hint}`}>🏆 Your best {shown} — put it on the board</span>
         <div className="flex w-full items-center gap-2">
           <input
             data-testid="overlay-submit-name"
@@ -153,13 +176,13 @@ export function OverlayScoreSubmit({ slug, show, verified }: { slug: string; sho
             aria-label="Your name for the leaderboard"
             autoComplete="nickname"
             enterKeyHint="send"
-            className="min-w-0 flex-1 rounded-lg border border-border bg-surface/80 px-3 py-2 text-sm text-fg placeholder:text-fg-muted focus-visible:border-neon-cyan focus-visible:outline-none"
+            className={`min-w-0 flex-1 rounded-lg border px-3 py-2 text-sm focus-visible:outline-none ${c.input}`}
           />
           <button
             type="submit"
             data-testid="overlay-submit"
             disabled={state === 'sending' || !trimmed}
-            className="btn-press shrink-0 rounded-lg border border-neon-cyan/60 bg-neon-cyan/10 px-3 py-2 text-sm font-semibold text-neon-cyan disabled:opacity-50"
+            className={`btn-press shrink-0 rounded-lg border px-3 py-2 text-sm font-semibold disabled:opacity-50 ${c.btn}`}
           >
             {state === 'sending' ? '…' : 'Submit'}
           </button>
@@ -176,7 +199,7 @@ export function OverlayScoreSubmit({ slug, show, verified }: { slug: string; sho
         data-testid="overlay-submit"
         onClick={submit}
         disabled={state === 'sending'}
-        className="btn-press max-w-full truncate rounded-lg border border-neon-cyan/60 bg-neon-cyan/10 px-4 py-2 text-sm font-semibold text-neon-cyan disabled:opacity-50"
+        className={`btn-press max-w-full truncate rounded-lg border px-4 py-2 text-sm font-semibold disabled:opacity-50 ${c.btn}`}
       >
         {state === 'sending' ? '…' : `🏆 Submit ${shown} as ${trimmed}`}
       </button>
@@ -184,7 +207,7 @@ export function OverlayScoreSubmit({ slug, show, verified }: { slug: string; sho
         type="button"
         data-testid="overlay-submit-rename"
         onClick={() => setEditing(true)}
-        className="text-xs text-fg-muted underline decoration-dotted underline-offset-2 hover:text-neon-cyan"
+        className={`text-xs underline decoration-dotted underline-offset-2 ${c.link}`}
       >
         Not {trimmed}? Change name
       </button>
