@@ -17,7 +17,7 @@ const AD_MARGIN_TOP = 40
 type ContrastFail = { text: string; fg: string; bg: string; ratio: number; need: number }
 
 /** 페이지 안에서 실행: main 안 보이는 글자 요소의 대비를 잰다. */
-async function contrastFailures(page: Page): Promise<{ checked: number; fails: ContrastFail[] }> {
+async function contrastFailures(page: Page): Promise<{ checked: number; skipped: number; fails: ContrastFail[] }> {
   return page.evaluate(() => {
     const cv = document.createElement('canvas')
     cv.width = cv.height = 1
@@ -80,6 +80,7 @@ async function contrastFailures(page: Page): Promise<{ checked: number; fails: C
     const main = document.querySelector('main[data-game-page]')!
     const fails: ContrastFail[] = []
     let checked = 0
+    let skipped = 0 // 그림(url) 배경 위 글자 — 판정 불가, 개수를 보고한다
     for (const el of main.querySelectorAll<HTMLElement>('*')) {
       const own = [...el.childNodes]
         .filter((c) => c.nodeType === Node.TEXT_NODE)
@@ -96,7 +97,10 @@ async function contrastFailures(page: Page): Promise<{ checked: number; fails: C
       for (let n: HTMLElement | null = el; n; n = n.parentElement) op *= Number(getComputedStyle(n).opacity)
       if (op === 0) continue
       const bgs = backgrounds(el)
-      if (!bgs) continue
+      if (!bgs) {
+        skipped++
+        continue
+      }
       checked++
       const size = parseFloat(cs.fontSize)
       const bold = Number(cs.fontWeight) >= 700
@@ -116,7 +120,7 @@ async function contrastFailures(page: Page): Promise<{ checked: number; fails: C
         fails.push({ text: own.slice(0, 40), fg: cs.color, bg: hex(worstBg), ratio: Math.round(worst * 100) / 100, need })
       }
     }
-    return { checked, fails }
+    return { checked, skipped, fails }
   })
 }
 
@@ -170,18 +174,22 @@ test.describe('정원 틀 배치(R7)', () => {
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${width} 가로 스크롤`).toBe(true)
 
         await settle(page)
-        const { checked, fails } = await contrastFailures(page)
+        const { checked, skipped, fails } = await contrastFailures(page)
+        test.info().annotations.push({ type: 'contrast', description: `${slug} ${width}: 검사 ${checked} · 그림 위 건너뜀 ${skipped}` })
         expect(checked, '검사한 글자 요소 수').toBeGreaterThan(20)
         expect(fails, `${slug} ${width} 대비 실패`).toEqual([])
 
         expect(await adGap(page), `${slug} ${width} 게임판 ↔ 광고`).toBeGreaterThanOrEqual(AD_GAP)
       }
 
-      // 첫 입력: 게임판 안 첫 버튼(없으면 판 가운데)을 누르고 방향키 하나 — 페이지 오류 없이 판이 살아 있다
-      const firstButton = page.locator('[data-garden-board] button:visible').first()
-      if ((await firstButton.count()) > 0) await firstButton.click({ trial: false, timeout: 5_000 }).catch(() => {})
-      else await page.locator('[data-garden-board]').click()
+      // 첫 입력: 게임판 가운데(대부분 보드 칸·시작 버튼 자리 — 맨 앞 버튼은 흔히 🔊 음소거라 쓰지 않는다)를 누르고
+      // 방향키·스페이스 — 페이지 오류 없이 판이 살아 있다. 게임별 상태 변화는 smoke.spec.ts의 개별 테스트가 본다.
+      const boardEl = page.locator('[data-garden-board]')
+      const box = (await boardEl.boundingBox())!
+      // force: 판 자식(칸·버튼)이 클릭을 받는 것이 정상이라 가로채기 검사를 끈다(스크롤은 Playwright가 맞춘다)
+      await boardEl.click({ position: { x: box.width / 2, y: box.height / 2 }, force: true })
       await page.keyboard.press('ArrowRight')
+      await page.keyboard.press('Space')
       await page.waitForTimeout(300)
       await expect(page.locator('[data-garden-board]')).toBeVisible()
       expect(errors, `${slug} 페이지 오류`).toEqual([])

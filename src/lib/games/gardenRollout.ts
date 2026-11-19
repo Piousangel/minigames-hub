@@ -5,7 +5,7 @@
 // - 바깥 틀(제목·목표·리액션·다음 게임·하단 섹션) = 크림·ink, 게임판(`[data-garden-board]`) = 밤 정원 남보라(D8).
 // - **되돌리기 = 배열에서 slug 1줄 삭제.** 배치 순서·선정 이유는 docs/plans/2026-11-19-hub-redesign-v2.md 6장.
 // - 선정 규칙(R7a에서 정함): 캔버스로 직접 그리는 게임(getContext)과 하드코딩 색 20개 이상인 게임은 뒤 배치,
-//   그 밖에서 트래픽(docs/daily/metrics) 상위·퀄리티 장부 점검 끝난 게임 먼저.
+//   그 밖에서 퀄리티 장부 점검 끝난 게임(R7a 때 2048·2048-animals·snake 3개 — 전부 넣음) + 트래픽(docs/daily/metrics) 상위 순.
 //   e2e/garden-frame.spec.ts 대비 검사(게임판 안 포함)에서 실패가 나는 게임은 그 게임의 결함을 고친 뒤 넣는다
 //   (R7a 때 chess — 좌표 8px fg-muted/70, mahjong — 막힌 패 #b9bccb 위 색 글자: 둘 다 예전부터 있던 게임 안 하드코딩).
 

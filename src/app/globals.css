@@ -956,7 +956,7 @@ main[data-world='garden'] [data-garden-board] {
   /* 게임판 안 글꼴은 예전 그대로(글자 폭이 바뀌어 보드가 넘치지 않게) */
   font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   position: relative;
-  /* 모바일: main 좌우 여백(16px)까지 판을 넓혀 게임 폭이 예전과 같다 */
+  /* main 좌우 여백(16px)까지 판을 넓혀 게임 폭이 예전과 같다(모든 폭 — 640+에선 판이 아래 섹션보다 16px씩 넓은 '액자'가 된다) */
   margin-inline: -16px;
   padding: 16px;
   background: linear-gradient(180deg, #2e2342, #241c4a);
@@ -966,7 +966,7 @@ main[data-world='garden'] [data-garden-board] {
     border-radius: 20px;
     box-shadow: 0 0 0 3px var(--garden-ink), var(--garden-shadow-island);
     /* 판 그림자(6px + 윤곽 3px)가 바로 아래 'HOW WAS IT?'(mt-4)에 붙지 않게 */
-    margin-bottom: 12px;
+    margin-bottom: 20px;
   }
 }
 
@@ -993,7 +993,7 @@ main[data-world='garden'] .spotlight-card:hover .card-title {
 main[data-world='garden'] .font-pixel:not([data-garden-board] *) {
   font-family: var(--font-ui), system-ui, sans-serif;
   font-weight: 800;
-  font-size: max(0.75rem, 1em);
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
   line-height: 1.3;
 }
@@ -1039,6 +1039,13 @@ main[data-world='garden'] [data-testid^='share-']:is(a, button):not([data-garden
 main[data-world='garden'] [data-testid='objective'] {
   border: 2px solid color-mix(in srgb, var(--garden-ink) 30%, transparent);
   background: var(--garden-cream);
+}
+/* 목표 줄 구분점(text-border)·DailyDock 빈 진행 칸(bg-white/10)은 크림 위에서 사라진다 → 바깥 틀에서 ink 기준으로 */
+main[data-world='garden'] [data-testid='objective'] .text-border {
+  color: var(--garden-ink-soft);
+}
+main[data-world='garden'] .bg-white\/10:not([data-garden-board] *) {
+  background-color: color-mix(in srgb, var(--garden-ink) 20%, transparent);
 }
 /* 관련 게임 카드의 'PLAY ►'(모바일은 늘 보이는 60% 글자) — 크림 위에선 대비 부족이라 정원 틀에선 불투명 */
 @media (max-width: 39.99rem) {
