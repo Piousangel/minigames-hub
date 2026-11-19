@@ -63,6 +63,60 @@ function faceAnimClass(animKey: string): string {
   return ''
 }
 
+// 진화 사다리(theme.ladder): 타일 단계 11칸. 이번 판 최고 타일까지 '도달', 바로 다음 한 칸 '다음'.
+const LADDER = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+
+function maxTileOf(board: number[][]): number {
+  let m = 0
+  for (const row of board) for (const v of row) if (v > m) m = v
+  return m
+}
+
+function nextStep(max: number): number | null {
+  return LADDER.find((v) => v > max) ?? null
+}
+
+/** 이름이 없는 값(4096+)은 최상위 단계 이름으로 — 사다리 밖으로 나간 동물도 '용'으로 읽힌다. */
+function stepOf(theme: Theme2048, value: number): { emoji: string; name: string } {
+  const v = theme.names?.[value] ? value : LADDER.filter((s) => s <= value).pop() ?? 2
+  return { emoji: theme.tiles[v] ?? String(v), name: theme.names?.[v] ?? String(v) }
+}
+
+function EvolutionLadder({ theme, max }: { theme: Theme2048; max: number }) {
+  const next = nextStep(max)
+  const reached = LADDER.filter((v) => v <= max).map((v) => stepOf(theme, v).name)
+  const label = `Evolution: ${reached.join(', ')}${next ? ` — next: ${stepOf(theme, next).name}` : ' — top reached'}`
+  return (
+    <div
+      data-testid="evolution-ladder"
+      role="img"
+      aria-label={label}
+      className="mt-3 flex w-full items-center justify-between gap-0.5 sm:gap-1"
+    >
+      {LADDER.map((v) => {
+        const state = v <= max ? 'reached' : v === next ? 'next' : 'locked'
+        const cls =
+          state === 'reached'
+            ? 'border-garden-ink bg-[#ffe8bd] shadow-[0_2px_0_var(--garden-ink)]'
+            : state === 'next'
+              ? 'border-dashed border-[#c9472a] bg-[#fff8ea]'
+              : 'border-garden-ink/25 bg-garden-cream-2 opacity-45 grayscale'
+        return (
+          <span
+            key={v}
+            aria-hidden="true"
+            data-step={v}
+            data-state={state}
+            className={`flex aspect-square min-w-0 max-w-9 flex-1 items-center justify-center rounded-md border-2 text-[clamp(13px,4.4vw,20px)] leading-none ${cls}`}
+          >
+            {theme.tiles[v]}
+          </span>
+        )
+      })}
+    </div>
+  )
+}
+
 function fontSize(label: string): string {
   if (label.length <= 2) return 'text-[1.625rem]'
   if (label.length === 3) return 'text-[1.375rem]'
@@ -80,6 +134,10 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   const [wonSeen, setWonSeen] = useState(false)
   const [tiles, setTiles] = useState<Tile[]>([])
   const [cell, setCell] = useState(0)
+  // 역대 최고 타일(동물) — 점수 기록(best:<slug>)과 별개의 새 키. names가 있는 테마(animals)만 쓴다.
+  const tileKey = theme.names ? `bestTile:${storageKey.replace(/^best:/, '')}` : null
+  const bestTileRef = useRef(0)
+  const [bestTileBefore, setBestTileBefore] = useState(0) // 이 판 시작 시점의 역대 최고 — 'New animal!' 판정
 
   const { play, muted, toggleMuted } = useGameSound()
   const { reducedRef } = useReducedMotion()
@@ -136,6 +194,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
     newBestRef.current = false
     setNewBest(false)
     recordedRef.current = false
+    setBestTileBefore(bestTileRef.current)
     const s = newGame(Math.random)
     commitState(s)
     commitTiles(tilesFromBoard(s.board, nextId, true))
@@ -147,7 +206,17 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
     const b = Number.isFinite(stored) ? stored : 0
     setBest(b)
     bestRef.current = b
-  }, [restart, storageKey])
+    if (tileKey) {
+      let t = 0
+      try {
+        t = Number(localStorage.getItem(tileKey)) || 0
+      } catch {
+        // 저장소 차단 — 0으로
+      }
+      bestTileRef.current = t
+      setBestTileBefore(t)
+    }
+  }, [restart, storageKey, tileKey])
 
   useEffect(() => {
     if (state && state.score > best) {
@@ -156,6 +225,20 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
       localStorage.setItem(storageKey, String(state.score))
     }
   }, [state, best, storageKey])
+
+  // 역대 최고 타일: 이번 판 최고가 기록을 넘을 때만 저장(같거나 낮으면 건드리지 않음).
+  useEffect(() => {
+    if (!tileKey || !state) return
+    const m = maxTileOf(state.board)
+    if (m > bestTileRef.current) {
+      bestTileRef.current = m
+      try {
+        localStorage.setItem(tileKey, String(m))
+      } catch {
+        // 저장소 차단 — 화면 표시만
+      }
+    }
+  }, [state, tileKey])
 
   // Measure the tile layer so tiles can be positioned with px transforms.
   useLayoutEffect(() => {
@@ -330,6 +413,26 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   }
 
   const winOverlayVisible = state.won && !wonSeen && !state.over
+  const maxTile = maxTileOf(state.board)
+
+  // 결과 오버레이의 '도달한 동물' 한 줄(names가 있는 테마만). 기록을 넘긴 판은 'New animal!'.
+  const reachedLine = (() => {
+    if (!theme.names || maxTile === 0) return null
+    const top = stepOf(theme, maxTile)
+    const next = nextStep(maxTile)
+    const lead = bestTileBefore > 0 && maxTile > bestTileBefore ? 'New animal!' : 'You reached'
+    return (
+      <p data-testid="result-animal" className="whitespace-nowrap text-[0.95rem] font-bold text-garden-ink">
+        {lead} {top.emoji} {top.name}
+        {next && (
+          <span className="font-semibold text-garden-ink-soft">
+            {' · next: '}
+            {stepOf(theme, next).emoji} {stepOf(theme, next).name}
+          </span>
+        )}
+      </p>
+    )
+  })()
 
   return (
     <GameShell
@@ -363,6 +466,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
             const label = theme.tiles[tile.value] ?? String(tile.value)
             const style = TILE_STYLES[tile.value] ?? TILE_STYLES[2048]
             const depth = tileDepth(tile.value)
+            const emoji = theme.ladder === true
             return (
               <div
                 key={tile.id}
@@ -377,10 +481,38 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
               >
                 <div
                   key={tile.animKey}
-                  className={`flex h-full w-full items-center justify-center rounded-lg border-2 border-garden-ink font-display font-bold leading-none tabular-nums ${fontSize(label)} ${style} ${depth} ${faceAnimClass(tile.animKey)}`}
-                  style={tile.enterDelay ? { animationDelay: `${tile.enterDelay}ms` } : undefined}
+                  className={`flex h-full w-full items-center justify-center rounded-lg border-2 border-garden-ink font-display font-bold leading-none tabular-nums ${emoji ? 'relative' : fontSize(label)} ${style} ${depth} ${faceAnimClass(tile.animKey)}`}
+                  style={
+                    emoji
+                      ? { fontSize: Math.round(cell * 0.55), ...(tile.enterDelay ? { animationDelay: `${tile.enterDelay}ms` } : {}) }
+                      : tile.enterDelay
+                        ? { animationDelay: `${tile.enterDelay}ms` }
+                        : undefined
+                  }
                 >
-                  {label}
+                  {emoji ? (
+                    <>
+                      {/* 진한 단계(128+)는 크림 원판 위에 — 갈색·회색 동물이 바탕에 묻히지 않게 */}
+                      {tile.value >= 128 && (
+                        <span
+                          aria-hidden="true"
+                          className="absolute rounded-full bg-[#fff3dc]/85"
+                          style={{ width: Math.round(cell * 0.66), height: Math.round(cell * 0.66) }}
+                        />
+                      )}
+                      <span className="relative drop-shadow-[0_1px_1px_rgba(58,36,16,0.45)]">{label}</span>
+                      {/* 단계 값 — 기기마다 이모지 생김이 달라도 몇 단계인지 확정 */}
+                      <span
+                        data-testid="tile-value"
+                        aria-hidden="true"
+                        className="absolute bottom-[3px] right-[5px] font-ui text-[11px] font-extrabold leading-none tracking-tight"
+                      >
+                        {tile.value}
+                      </span>
+                    </>
+                  ) : (
+                    label
+                  )}
                 </div>
               </div>
             )
@@ -393,16 +525,27 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
           title={newBest ? 'New best!' : 'Game over'}
           testId="game-over"
           tone="cozy"
+          compact={theme.ladder === true}
         >
-          <p className="font-semibold tabular-nums text-garden-ink-soft">
-            Score: {state.score} · Best: {best}
-          </p>
+          {reachedLine ? (
+            <div className="flex flex-col items-center gap-0.5">
+              {reachedLine}
+              <p className="text-sm font-semibold tabular-nums text-garden-ink-soft">
+                Score: {state.score} · Best: {best}
+              </p>
+            </div>
+          ) : (
+            <p className="font-semibold tabular-nums text-garden-ink-soft">
+              Score: {state.score} · Best: {best}
+            </p>
+          )}
           <GameButton onClick={restart} className="px-4 py-2">
             Try again
           </GameButton>
         </GameOverlay>
 
-        <GameOverlay show={winOverlayVisible} variant="win" title="You win!" testId="you-win" tone="cozy">
+        <GameOverlay show={winOverlayVisible} variant="win" title="You win!" testId="you-win" tone="cozy" compact={theme.ladder === true}>
+          {reachedLine}
           <div className="flex gap-2">
             <GameButton variant="ghost" onClick={keepGoing} className="px-4 py-2">
               Keep going
@@ -413,6 +556,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
           </div>
         </GameOverlay>
       </div>
+      {theme.ladder && theme.names && <EvolutionLadder theme={theme} max={maxTile} />}
     </GameShell>
   )
 }

@@ -63,3 +63,20 @@ describe('GameOverlay — leaderboard discovery nudge', () => {
     expect(screen.queryByTestId('overlay-leaderboard')).not.toBeInTheDocument()
   })
 })
+
+describe('GameOverlay — compact (opt-in)', () => {
+  const panel = () => screen.getByText('Game over').parentElement!
+
+  it('keeps the default spacing when compact is not passed', () => {
+    render(<GameOverlay show variant="lose" title="Game over" tone="cozy" />)
+    expect(panel()).toHaveClass('gap-4', 'mx-3', 'px-6', 'py-5')
+    expect(screen.getByText('Game over')).toHaveClass('text-[1.7rem]')
+  })
+
+  it('tightens the panel when compact', () => {
+    render(<GameOverlay show variant="lose" title="Game over" tone="cozy" compact />)
+    expect(panel()).toHaveClass('gap-2', 'mx-2', 'px-4', 'py-3')
+    expect(panel()).not.toHaveClass('gap-4')
+    expect(screen.getByText('Game over')).toHaveClass('text-[1.4rem]')
+  })
+})
