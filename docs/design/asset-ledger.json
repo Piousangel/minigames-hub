@@ -64,8 +64,48 @@
       "out": "public/art/mallang-wave.webp",
       "model": "gemini-3.1-flash-image",
       "at": "2026-11-19T12:29:10+00:00"
+    },
+    "hub-m-h1-edition": {
+      "out": "docs/design/mockups/hub-m-h1-edition.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T12:54:10+00:00"
+    },
+    "hub-m-h2-almanac": {
+      "out": "docs/design/mockups/hub-m-h2-almanac.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T12:54:28+00:00"
+    },
+    "hub-m-h3-diorama": {
+      "out": "docs/design/mockups/hub-m-h3-diorama.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T12:54:44+00:00"
+    },
+    "hub-d-h1-edition": {
+      "out": "docs/design/mockups/hub-d-h1-edition.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T12:55:06+00:00"
+    },
+    "sand-m-s1-glass": {
+      "out": "docs/design/mockups/sand-m-s1-glass.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T12:55:23+00:00"
+    },
+    "sand-m-s2-cabinet": {
+      "out": "docs/design/mockups/sand-m-s2-cabinet.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T12:55:39+00:00"
+    },
+    "sand-m-s3-fieldnotes": {
+      "out": "docs/design/mockups/sand-m-s3-fieldnotes.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T12:55:53+00:00"
+    },
+    "sand-d-s1-glass": {
+      "out": "docs/design/mockups/sand-d-s1-glass.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T12:56:09+00:00"
     }
   },
   "month": "2026-11",
-  "count": 12
+  "count": 20
 }
