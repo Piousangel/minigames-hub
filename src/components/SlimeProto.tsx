@@ -7,7 +7,8 @@ import { simulate } from '@/lib/games/slime/engine'
 import { sendHit } from '@/lib/hit'
 import { scoreOf } from '@/lib/games/slime/daily'
 import { renderTerrainLayer } from '@/lib/games/slime/terrainRender'
-import { paintSkyTheme, slotName, themeOf } from '@/lib/games/slime/theme'
+import { paintSkyStars, paintSkyTheme, paintSkyVeil, skyStarsAnimated, slotName, themeOf } from '@/lib/games/slime/theme'
+import { backingSize, bgLayerKey, canvasDpr, createBoardLayer } from '@/lib/games/slime/canvasLayer'
 import { KO, type SlimeText } from '@/lib/games/slime/strings'
 import { STAGE_HINTS } from '@/lib/games/slime/stages'
 import { runLine, waypointsToRaw } from '@/lib/games/slime/solver'
@@ -108,6 +109,7 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
   const imgIsland = useRef<HTMLImageElement | null>(null)
   const imgFlower = useRef<HTMLImageElement | null>(null)
   const terrainLayer = useRef<{ key: string; cv: HTMLCanvasElement | null } | null>(null)
+  const bgLayer = useRef<{ key: string; cv: HTMLCanvasElement | null } | null>(null) // 하늘(+정적이면 별·지형까지) 오프스크린 캐시
   const imgStar = useRef<HTMLImageElement | null>(null)
   const fx = useRef(new Fx())
   const lastT = useRef(0)
@@ -261,36 +263,65 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
     let raf = 0
     const c = canvas.current
     if (!c) return
+    const g = c.getContext('2d') // 컨텍스트는 캔버스마다 하나뿐이라 한 번만 얻는다(크기를 바꿔도 같은 객체, 상태만 초기화)
+    if (!g) return
     const loop = (t: number) => {
-      const dpr = window.devicePixelRatio || 1
-      const bw = Math.round(w * dpr)
-      const bh = Math.round(w * (BOARD_H / BOARD_W) * dpr)
+      // dpr은 2배로 캡(백킹 스토어·변환 배율·오프스크린 레이어가 모두 같은 값). 창을 다른 모니터로 옮기면 다음 프레임에 맞춰진다
+      const dpr = canvasDpr()
+      const { bw, bh, k } = backingSize(w, dpr)
       if (c.width !== bw) c.width = bw
       if (c.height !== bh) c.height = bh
-      const g = c.getContext('2d')
-      if (g) paint(g, t)
+      paint(g, t, dpr, k)
       raf = requestAnimationFrame(loop)
     }
-    const paint = (g: CanvasRenderingContext2D, t: number) => {
+    const paint = (g: CanvasRenderingContext2D, t: number, dpr: number, k: number) => {
       const dt = Math.min(0.05, Math.max(0, (t - lastT.current) / 1000))
       lastT.current = t
       fx.current.update(dt)
-      const k = (w / BOARD_W) * (window.devicePixelRatio || 1)
       g.setTransform(k, 0, 0, k, 0, 0)
       // 부딪히면 화면이 살짝 흔들린다(움직임 줄이기 설정이면 생략)
       const shake = shakeUntil.current > t && !fx.current.calm ? ((shakeUntil.current - t) / 350) * 5 : 0
       if (shake > 0) g.translate((Math.random() - 0.5) * shake * 2, (Math.random() - 0.5) * shake * 2)
-      drawSky(g, imgBg.current, t, BOARD_W, BOARD_H)
-      paintSkyTheme(g, themeOf(stage.id), BOARD_W, BOARD_H, t, fx.current.calm)
-      g.lineCap = 'round'
-      g.lineJoin = 'round'
       // 지형 v2: 채워진 암석 덩어리를 오프스크린에 한 번 그려 두고 복사(막대기 금지, 오너 11-19). 만들 수 없으면 기존 방식으로 폴백
-      const dpr = Math.min(2, window.devicePixelRatio || 1)
       const tkey = `${stage.id}:${w}:${dpr}`
       if (terrainLayer.current?.key !== tkey) terrainLayer.current = { key: tkey, cv: renderTerrainLayer(stage, w, dpr) }
       const layer = terrainLayer.current.cv
+      // 정적 배경 캐시(§4-5): 하늘 에셋 + 시간대 색 막·해/달을 오프스크린에 한 번 그려 drawImage 1회로 복사.
+      // 별이 반짝이지 않는 시간대(또는 움직임 줄이기)면 별·지형까지 같이 굽는다. 하늘 에셋이 아직 안 왔으면
+      // 반짝이는 기본 배경을 프레임마다 그리고(폴백), 에셋이 도착하면 키(bgReady)가 바뀌어 캐시를 새로 만든다.
+      const theme = themeOf(stage.id)
+      const calm = fx.current.calm
+      const bgImg = imgBg.current
+      const bgReady = !!(bgImg?.complete && bgImg.naturalWidth)
+      const starsLive = skyStarsAnimated(theme, calm)
+      const withTerrain = !starsLive && !!layer
+      let bg: HTMLCanvasElement | null = null
+      if (bgReady) {
+        const bkey = bgLayerKey({ stageId: stage.id, theme, w, dpr, bgReady, calm, withTerrain })
+        if (bgLayer.current?.key !== bkey) {
+          bgLayer.current = {
+            key: bkey,
+            cv: createBoardLayer(w, dpr, (lg) => {
+              drawSky(lg, bgImg, 0, BOARD_W, BOARD_H)
+              paintSkyVeil(lg, theme, BOARD_W, BOARD_H)
+              if (!starsLive) paintSkyStars(lg, theme, BOARD_W, BOARD_H, 0, calm)
+              if (withTerrain && layer) lg.drawImage(layer, 0, 0, BOARD_W, BOARD_H)
+            }),
+          }
+        }
+        bg = bgLayer.current.cv
+      }
+      if (bg) {
+        g.drawImage(bg, 0, 0, BOARD_W, BOARD_H)
+        if (starsLive) paintSkyStars(g, theme, BOARD_W, BOARD_H, t, calm)
+      } else {
+        drawSky(g, bgImg, t, BOARD_W, BOARD_H)
+        paintSkyTheme(g, theme, BOARD_W, BOARD_H, t, calm)
+      }
+      g.lineCap = 'round'
+      g.lineJoin = 'round'
       if (layer) {
-        g.drawImage(layer, 0, 0, BOARD_W, BOARD_H)
+        if (!(bg && withTerrain)) g.drawImage(layer, 0, 0, BOARD_W, BOARD_H)
         drawTerrain(g, stage.bouncy?.map((i) => stage.terrain[i]) ?? [], false, stage.bouncy?.map((_, k) => k) ?? [], t) // 튕기는 벽만 프레임마다(숨 쉬는 쿠션)
       } else {
         const islandsOk = drawIslandFloors(g, imgIsland.current, stage.terrain, stage.bouncy)
