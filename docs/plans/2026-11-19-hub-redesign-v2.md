@@ -112,7 +112,7 @@ export type DailyResult = { slug: string; primary: { label: string; value: numbe
 |---|---|---|---|
 | R1 | 머지 | #178 | 토큰 `--garden-*`·`--color-garden-*`·`--shadow-garden-*`, 폰트 `--font-display`·`--font-ui`(preload 끔, 아직 미적용). 새 폰트 62.5KB. 화면 픽셀 diff 0 |
 | R2 | 머지 | #179 | 크림 헤더(lg 64px 1줄 / 그 아래 56px sticky + 2행 내비 44px)·푸터 정원 안내판, `src/components/site-chrome/`. 검색=홈 GameBrowser `/#search`, Originals=`/collection/original-games`. 내부 링크 감소 0(+3), 크롬 axe 심각 0, 헤더 기인 CLS 0. Figtree preload. R3 몫: pill 진행 상태(`TODAY_PILL`, 높이 유지), Fraunces roman preload 분리, aria-current |
-| R3 | 대기 | | |
+| R3 | 머지 | (PR 번호) | 노을 하늘(헤더 뒤까지)·H1 2단·마스트헤드 No.N(기준일 07-18)·키아트 <picture>·오늘 호 카드 3상태·pill 진행 상태·게임 페이지 모바일 2행 숨김·Fraunces roman만 preload. 링크 168/127 = 전과 같음, CLS 0. LH 모바일 LCP: devtools 스로틀 1.9~2.3s, simulate 3.8s(전 3.6s, JS 번들 몫). R4 몫: 히어로 아래 섹션·티켓 줄(데스크톱 라벤더 띠, 히어로 높이 다시 늘림)·정원 판정을 R5 완료 기록으로 |
 | R4 | 대기 | | |
 | R5 | 대기 | | |
 | R6 | 대기 | | |

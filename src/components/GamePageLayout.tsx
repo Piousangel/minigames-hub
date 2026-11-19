@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { accentVar, DEFAULT_META, gameMeta, GARDEN_GAMES } from '@/lib/games/gameMeta'
-import { roundFont } from '@/app/fonts'
+import { roundFont } from '@/app/roundFont'
 import { GAME_INTROS } from '@/lib/games/gameIntros'
 import { hasLeaderboard } from '@/lib/leaderboard'
 import type { GamePage } from '@/lib/games/registry'
@@ -47,7 +47,7 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
   const related = articlesForGame(page.slug)
   return (
     // --accent를 페이지 스코프로 깔아 게임 컴포넌트 밖(스탯 패널 등)에서도 text-accent가 먹게 한다.
-    <main className="mx-auto max-w-3xl px-4 py-6" style={{ ['--accent' as string]: color }} data-world={garden ? 'garden' : undefined}>
+    <main className="mx-auto max-w-3xl px-4 py-6" style={{ ['--accent' as string]: color }} data-world={garden ? 'garden' : undefined} data-game-page>
       <RecordPlay slug={page.slug} />
       <h1 className={garden ? `garden-title ${roundFont.className} mb-4 text-center text-4xl` : 'neon-text mb-4 text-center text-3xl font-bold'} style={garden ? undefined : { color }}>
         {page.h1}

@@ -54,6 +54,7 @@
   --font-pixel: var(--font-pixel);
   /* 리디자인 v2 폰트(next/font/local이 html에 변수 클래스로 넣음). font-display / font-ui 클래스 */
   --font-display: var(--font-display);
+  --font-display-italic: var(--font-display-italic);
   --font-ui: var(--font-ui);
 
   /* 리디자인 v2 「노을 정원」 색 — 값은 아래 :root의 --garden-* */
@@ -663,6 +664,15 @@ body {
   .synthwave-bg::after {
     animation: none !important;
   }
+
+  /* 리디자인 v2 정원 모션(R3~): 젤리 프레스는 움직임 없이 눌린 상태(그림자 없음)만 */
+  .garden-jelly {
+    transition: none !important;
+  }
+  .garden-jelly:hover,
+  .garden-jelly:active {
+    transform: none !important;
+  }
 }
 
 /* ───────── 노을 정원(Sunset Garden) 세계 — 오리지널 3종(Plop·Acorn·Slime)이 공유 (디자이너 문서 11-19) ───────── */
@@ -720,4 +730,156 @@ body {
 .garden-frame {
   border-radius: 14px;
   box-shadow: 0 0 0 4px var(--garden-ink), 0 9px 0 4px var(--garden-ink-deep);
+}
+
+/* ───────── 리디자인 v2 R3: 홈 히어로 「노을 고정 하늘」 (src/components/home/HomeHero.tsx) ─────────
+   - 섹션을 크롬(헤더) 높이만큼 위로 당겨 하늘이 헤더 뒤까지 이어진다. 헤더 크림 .86이 이 하늘 위에 얹힌다.
+     크롬 높이: lg 미만 = 1행 56 + 2행 내비 46(44 + 테두리 2), lg 이상 = 64 (SiteHeader의 고정 높이와 같아야 한다).
+   - z 41: body.scanlines::after(z 40) 줄무늬가 하늘·카드에 얹히지 않게. 헤더(z 43)·2행 내비(z 42)보다는 아래.
+   - 하늘 = --garden-sky-sunset. 768 미만은 글 영역에 보이는 윗부분만(1100px로 늘려 깐다), 아래 절반은 키아트
+     바닥의 라벤더 구름색으로 채워 카드 옆이 끊기지 않게 한다. */
+.home-hero {
+  --chrome-h: 102px;
+  /* 1100px로 깐 노을 하늘이 모바일 키아트 윗단(y≈150)에서 내는 색 — 페이드 div가 이 색에서 투명으로 간다 */
+  --hero-join: #ffa884;
+  --hero-cloud: #a68ccb; /* hub-hero-mobile.webp 바닥 구름색(실측) */
+  position: relative;
+  z-index: 41;
+  margin-top: calc(-1 * var(--chrome-h));
+  overflow: hidden;
+  background:
+    linear-gradient(var(--hero-cloud), var(--hero-cloud)) 0 100% / 100% 50% no-repeat,
+    var(--garden-sky-sunset) 0 0 / 100% 1100px no-repeat,
+    var(--hero-cloud);
+  color: var(--garden-ink);
+}
+.home-hero__inner {
+  position: relative;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding-bottom: 32px;
+}
+.home-hero__copy {
+  position: relative;
+  z-index: 2;
+  padding: calc(var(--chrome-h) + 8px) 16px 0;
+}
+/* 모바일: 키아트가 글 아래로 이어지고, 윗단(하늘)이 글 뒤로 들어간다. 겹침은 아트 폭에 비례(폭 30%) —
+   큰 해바라기 꼭대기가 아트 높이 28%(=폭 37%)라 부제와 닿지 않는다(320에서 고정 148px이면 부제를 덮었다) */
+.home-hero__art {
+  position: relative;
+  z-index: 1;
+  margin: calc(-0.3 * min(100vw, 640px)) auto 0;
+  max-width: 640px;
+}
+.home-hero__img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.home-hero__fade {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 96px;
+  background: linear-gradient(180deg, var(--hero-join) 0%, color-mix(in srgb, var(--hero-join) 55%, transparent) 45%, transparent 100%);
+  pointer-events: none;
+}
+.home-hero__edge {
+  display: none;
+}
+.home-hero__card {
+  position: relative;
+  z-index: 3;
+  margin: -148px 16px 0;
+}
+@media (min-width: 40rem) {
+  .home-hero__card {
+    max-width: 480px;
+    margin-inline: auto;
+  }
+}
+
+/* 768 이상: 데스크톱 키아트가 섹션 전체(헤더 뒤 포함)를 덮고, 글·카드는 왼쪽 빈 하늘(키아트 왼쪽 40%) 위 */
+@media (min-width: 48rem) {
+  .home-hero {
+    background: var(--garden-sky-sunset);
+  }
+  .home-hero__inner {
+    /* 키아트 바닥의 평평한 라벤더 띠(원본 y 80% 아래)는 R4 티켓 줄 자리 — R3에선 아래를 잘라(object-position top)
+       빈 띠가 160px 남지 않게 한다. 1440에서 약 700px. R4가 티켓 줄을 넣으면 이 높이를 다시 늘린다 */
+    min-height: min(48.6vw, 700px);
+    padding: 0 0 48px;
+  }
+  .home-hero__art {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    max-width: none;
+  }
+  .home-hero__img {
+    height: 100%;
+    object-fit: cover;
+    object-position: right top;
+  }
+  .home-hero__fade {
+    display: none;
+  }
+  .home-hero__copy {
+    width: min(480px, 46%);
+    margin-left: clamp(24px, 6.67vw, 96px);
+    padding: calc(var(--chrome-h) + 24px) 0 0;
+  }
+  .home-hero__card {
+    width: min(480px, 46%);
+    max-width: none;
+    margin: 28px 0 0 clamp(24px, 6.67vw, 96px);
+  }
+}
+@media (min-width: 64rem) {
+  .home-hero {
+    --chrome-h: 64px;
+  }
+  .home-hero__copy {
+    padding-top: calc(var(--chrome-h) + 40px);
+  }
+}
+/* 1440 넘는 화면: 키아트는 1440 틀 안(업스케일 안 함), 틀 좌우 160px을 섹션과 같은 하늘로 녹여 잇는다 */
+@media (min-width: 90.0625rem) {
+  .home-hero__edge {
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 160px;
+    background: var(--garden-sky-sunset);
+    pointer-events: none;
+  }
+  .home-hero__edge--l {
+    left: 0;
+    mask-image: linear-gradient(90deg, #000, transparent);
+  }
+  .home-hero__edge--r {
+    right: 0;
+    mask-image: linear-gradient(270deg, #000, transparent);
+  }
+}
+
+/* 정원 버튼 젤리 프레스(노란 Play 등). 모션 줄이기에선 위 'Reduced motion' 블록이 끈다(계획서 3장 공통 규칙) */
+.garden-jelly {
+  transition:
+    transform 140ms var(--ease-out),
+    box-shadow 140ms var(--ease-out);
+}
+.garden-jelly:hover {
+  transform: translateY(-1px);
+}
+.garden-jelly:active {
+  transform: translateY(3px);
+  box-shadow: none;
+}
+
+/* R3(팀 결정): 모바일 게임 페이지에서는 헤더 2행 내비를 숨긴다 — 게임 첫 화면 우선(1행 로고·pill·검색만 남김).
+   홈·허브 페이지는 그대로. 게임 페이지 표시는 GamePageLayout의 main[data-game-page]. :has 미지원 브라우저는 예전처럼 보인다 */
+body:has(main[data-game-page]) [data-site-nav-row] {
+  display: none;
 }

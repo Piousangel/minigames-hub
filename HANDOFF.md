@@ -1,5 +1,14 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 00시 리디자인 v2 R3 홈 히어로 인계 (브랜치 `shift/redesign-r3-hero`)
+
+**한 줄:** 홈 첫 화면이 노을 정원 표지가 됐다 — 하늘이 헤더 뒤까지, H1 2단("Free online mini games" + "A small garden *that blooms daily.*"), 마스트헤드 "No. N · Thu, Nov 19"(UTC, No.1=2026-07-18), 키아트 `<picture>`, 오늘 호 카드(first/in-progress/complete, 노란 Play 1개), 헤더 pill 진행 상태. 모바일 게임 페이지는 헤더 2행 내비를 숨긴다.
+- **코드**: `src/components/home/`(HomeHero·HeroMasthead·TodayCard), `src/lib/home/`(edition·garden·useTodayGarden), `site-chrome/TodayPill.tsx`·`chromeBase.ts`(registry 없는 크롬 공용값), CSS `globals.css` 맨 아래 `.home-hero*`·`.garden-jelly`·`[data-site-nav-row]` 숨김.
+- **결정**: DECISIONS 11-19 R3(기준일·정원 판정·2행 숨김·1920 틀·폰트 분리).
+- **측정**: 홈 링크 168/127(전과 같음). CLS 0(3상태 Playwright ≤0.0007). Lighthouse 모바일 devtools 스로틀 LCP 1.9~2.3s, simulate 3.8s(main도 3.6s — JS 번들 ~200KB가 LCP 앞에 깔림, R3 밖). 캡처 `docs/design/redesign-v2/r3-hero/`.
+- **함정**: 히어로는 크롬 높이(모바일 102px, lg 64px)만큼 위로 당겨져 있다 — 헤더 높이를 바꾸면 `.home-hero { --chrome-h }`도 같이. 헤더 z 43 / 2행 z 42 / 히어로 z 41 / 스캔라인 z 40. 모바일 키아트 페이드 색 `--hero-join`은 하늘 그라데이션 1100px 기준 근사값.
+- **⏭ R4**: 히어로 아래 섹션(Continue·Originals 목차·4선반·All games·About·광고). 데스크톱 키아트 바닥 라벤더 띠는 티켓 줄 자리(R3에서 잘라 둠 → R4에서 `.home-hero__inner` min-height·object-position 다시). 정원 판정(뿅·도토리 = 연 기록)은 R5 완료 기록으로 교체. aria-current(헤더 현재 위치)는 아직 없음. e2e 기준선 실패 2건(Daily 필터 목록에 Slime Slide 누락, Slime 연습 탭)은 main에서도 실패.
+
 ## ▶ 2026-11-19 22시 야간 개발 B 인계 — 서버 재생 검증·측정·성능·에셋 기준 (브랜치 `shift/22-replay-verify`)
 
 **한 줄:** 말랑 점수를 서버가 선을 재생해 다시 계산한다(`/api/slime/submit`, 옛 `/api/score` 경로는 slime-slide 거부). 기기 단위 일일 퍼널·재방문 이벤트, 인앱 브라우저 10종 판별, 캔버스 dpr 2 캡·배경 오프스크린 캐시, 번들 기준선, 에셋 스타일 기준·검수표.

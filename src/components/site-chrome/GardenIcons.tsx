@@ -107,3 +107,45 @@ export function SearchIcon({ className }: IconProps) {
     </svg>
   )
 }
+
+/** 오늘의 정원: 핀 꽃(시안 #flower). R3 오늘 호 카드·pill. */
+export function FlowerIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...svgProps}>
+      <g stroke="#5b3a1e" strokeWidth="1.6" fill="#ffd966">
+        <circle cx="12" cy="5.5" r="3.6" />
+        <circle cx="18.2" cy="10" r="3.6" />
+        <circle cx="15.8" cy="17.3" r="3.6" />
+        <circle cx="8.2" cy="17.3" r="3.6" />
+        <circle cx="5.8" cy="10" r="3.6" />
+      </g>
+      <circle cx="12" cy="12" r="3.4" fill="#8a5a2b" stroke="#5b3a1e" strokeWidth="1.6" />
+    </svg>
+  )
+}
+
+/** 오늘의 정원: 아직 안 핀 칸 — 점선 원 안 새싹(시안 #bud). */
+export function BudIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...svgProps}>
+      <circle cx="12" cy="12" r="9" fill="none" stroke="#7a5636" strokeWidth="1.6" strokeDasharray="2.6 2.6" />
+      <path d="M12 16.5v-5" stroke="#4f8a3c" strokeWidth="1.8" strokeLinecap="round" />
+      <path
+        d="M12 12.5c-2.6 0-3.6-1.6-3.6-3.4 2.4 0 3.6 1.2 3.6 3.4zM12 11.5c2.4 0 3.4-1.4 3.4-3 -2.2 0-3.4 1-3.4 3z"
+        fill="#7cc26a"
+        stroke="#4f8a3c"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+/** 재생 삼각형(시안 #play). 노란 Play 버튼 전용. */
+export function PlayIcon({ className }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} {...svgProps}>
+      <path d="M8 5.6c0-1 1.1-1.6 2-1.1l9.2 6.4c.8.5.8 1.7 0 2.2L10 19.5c-.9.5-2-.1-2-1.1z" fill="#5b3a1e" />
+    </svg>
+  )
+}

@@ -25,7 +25,7 @@ import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordFinish } from '@/lib/gameStats'
 import { todayUTC } from '@/lib/dailyDate'
 import { GameOverlay } from '@/components/game-shell'
-import { roundFont } from '@/app/fonts'
+import { roundFont } from '@/app/roundFont'
 
 type Mode = 'daily' | 'practice'
 type Sprite = 'bg-sky' | 'cloud-a' | 'cloud-b' | 'star' | 'acorn' | 'bramble' | 'storm' | 'island' | 'tori-idle' | 'tori-aim' | 'tori-fire' | 'tori-happy' | 'tori-dizzy'

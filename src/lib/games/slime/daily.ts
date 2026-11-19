@@ -2,6 +2,8 @@
 import type { Outcome } from './types'
 
 export const DAILY_ATTEMPTS = 3
+/** 일일 기록 저장 키(현지 날짜). 게임과 홈 오늘의 정원(src/lib/home/garden.ts)이 같은 키를 본다. */
+export const slimeDayKey = (iso: string): string => `slime:daily2:${iso}`
 /** 일일 #1 = 출시일(UTC). 뿅 착지와 같은 방식으로 번호를 센다. */
 export const DAILY_EPOCH = Date.UTC(2026, 10, 20)
 
