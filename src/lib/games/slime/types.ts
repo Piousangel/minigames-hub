@@ -1,6 +1,8 @@
 /** 말랑 미끄럼길 공통 타입. 좌표: 논리 390×560 보드, 원점 왼쪽 위, y는 아래로 증가. */
 export type Pt = { x: number; y: number }
 export type Seg = { a: Pt; b: Pt }
+/** 축 정렬 직사각형(보드 좌표, x0<x1·y0<y1). 다중 선 스테이지의 선 금지 구역(강 위 등)에 쓴다. */
+export type Rect = { x0: number; y0: number; x1: number; y1: number }
 
 export const BOARD_W = 390
 export const BOARD_H = 560
@@ -18,6 +20,15 @@ export interface Stage {
   ink: number
   /** 튕기는 벽: 이 스테이지 `terrain`의 인덱스 목록. 반발계수가 높고 마찰이 없다(없으면 기존 계산 그대로). */
   bouncy?: number[]
+  // ── v3 다중 선 선택 필드(스펙 D-1). 엔진은 읽지 않는다(입력·서버 검증 전용) → 없는 스테이지는 결과가 비트 동일.
+  /** 한 시도에 그을 수 있는 선 수 상한(기본 1). */
+  maxLines?: number
+  /** 시작에 필요한 최소 선 수(기본 1). 잉크는 남은 필수 선마다 MIN_LINE만큼 예약된다. */
+  minLines?: number
+  /** true면 손을 떼도 출발하지 않고 시작 ▶ 버튼으로 달린다(기본 false = 손 떼면 출발). */
+  manualStart?: boolean
+  /** 선 금지 구역(스폰 금지 원과 같은 규칙: 선분이 닿으면 그 점은 버린다). */
+  banZones?: Rect[]
 }
 
 export type Outcome = 'nest' | 'spiked' | 'fell' | 'stalled' | 'timeout'

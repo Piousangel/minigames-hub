@@ -125,7 +125,9 @@ export function segmentHitsSpawnBan(a: Pt, b: Pt, spawn: Pt): boolean {
   const dy = b.y - a.y
   const len2 = dx * dx + dy * dy
   const t = len2 === 0 ? 0 : Math.max(0, Math.min(1, ((spawn.x - a.x) * dx + (spawn.y - a.y) * dy) / len2))
-  return Math.hypot(a.x + t * dx - spawn.x, a.y + t * dy - spawn.y) < CONST.SPAWN_BAN_R
+  const ex = a.x + t * dx - spawn.x
+  const ey = a.y + t * dy - spawn.y
+  return ex * ex + ey * ey < CONST.SPAWN_BAN_R * CONST.SPAWN_BAN_R // hypot 대신 제곱 비교(스펙 D-6, 엔진·서버와 같은 연산만)
 }
 
 export function lineHitsSpawnBan(pts: Pt[], spawn: Pt): boolean {
