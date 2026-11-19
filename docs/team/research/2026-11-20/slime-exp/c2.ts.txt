@@ -1,0 +1,11 @@
+import * as L from './lib.ts'
+const ledge = L.chain([[0, 108], [60, 114], [100, 124], [112, 134]])
+const ground = L.chain([[90, 560], [100, 500], [115, 470], [135, 452], [155, 448], [172, 456], [188, 474], [202, 492], [214, 500], [228, 498], [242, 486], [256, 466], [272, 444], [290, 428], [310, 420], [340, 418], [362, 420], [376, 410], [384, 392], [390, 370]])
+const st: L.Stage = { id: 'v3-twin', tier: 2, terrain: [...ledge, ...ground], spawn: { x: 70, y: 100 }, acorns: [{ x: 138, y: 141 }, { x: 207, y: 364 }, { x: 130, y: 300 }], nest: { x: 330, y: 402 }, spikes: [], ink: 480 }
+const tr: L.Pt[] = []; const r = L.simulate(st, [[{ x: 300, y: 60 }, { x: 360, y: 60 }]], undefined, tr)
+console.log('no-line', r, L.r0(tr.filter((_, i) => i % 5 === 0)))
+// 손으로 만든 1선 시도: 떨어지는 말랑이를 y~330에서 받기
+for (const wp of [[[96, 330], [200, 380], [320, 410]], [[100, 320], [220, 370], [330, 405]], [[110, 340], [250, 390], [330, 410]], [[90, 345], [180, 370], [300, 405]]]) {
+  const rr = L.runLine(st, L.waypointsToRaw(wp.map(([x, y]) => ({ x, y }))))
+  console.log(JSON.stringify(wp), rr?.res.outcome, rr?.res.acorns, rr?.res.acornMask)
+}

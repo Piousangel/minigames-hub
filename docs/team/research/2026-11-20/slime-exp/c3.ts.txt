@@ -1,0 +1,15 @@
+import * as L from './lib.ts'
+const ledge = L.chain([[0, 108], [60, 114], [100, 124], [112, 134]])
+const ground = L.chain([[90, 560], [100, 500], [115, 470], [135, 452], [155, 448], [172, 456], [188, 474], [202, 492], [214, 500], [228, 498], [242, 486], [256, 466], [272, 444], [290, 428], [310, 420], [340, 418], [362, 420], [376, 410], [384, 392], [390, 370]])
+const mk = (a3: L.Pt): L.Stage => ({ id: 'v3-twin', tier: 2, terrain: [...ledge, ...ground], spawn: { x: 70, y: 100 }, acorns: [{ x: 138, y: 141 }, { x: 207, y: 364 }, a3], nest: { x: 330, y: 402 }, spikes: [], ink: 480 })
+let found = 0, tot = 0
+const rng = L.mulberry32(3)
+for (const a3 of [{ x: 130, y: 300 }, { x: 130, y: 240 }, { x: 130, y: 210 }, { x: 130, y: 270 }]) {
+  const st = mk(a3); let best: any = null; let n = 0
+  for (let i = 0; i < 3000; i++) { // 되돌이(Z자) 1선 무작위: 받는 점 → 뒤로 꺾는 점(a3 아래) → 둥지
+    const c = { x: 150 + rng() * 80, y: 180 + rng() * 120 }, k = { x: a3.x - 20 + rng() * 30, y: a3.y + 10 + rng() * 20 }, e = { x: 300 + rng() * 40, y: 395 + rng() * 20 }
+    const r = L.runLine(st, L.waypointsToRaw([c, k, e]))
+    if (r && r.res.outcome === 'nest' && r.res.acorns === 3) { n++; if (!best) best = [c, k, e] }
+  }
+  console.log('a3', JSON.stringify(a3), 'Z자 1선 3별 해', n, '/3000', best ? L.r0(best) : '')
+}

@@ -1,0 +1,11 @@
+import { gateStage, checksFor } from '/home/user/minigames-hub/src/lib/games/slime/gate.ts'
+import { SLIME_STAGES } from '/home/user/minigames-hub/src/lib/games/slime/stages.ts'
+for (const id of ['c-meadow', 'g-slide']) {
+  const st = SLIME_STAGES.find((s) => s.id === id)!
+  const t0 = performance.now()
+  const g = gateStage(st)
+  const ms = performance.now() - t0
+  const b = Object.fromEntries(Object.entries(g.bots).map(([k, v]) => [k, `${(v.first * 100).toFixed(0)}/${(v.within3 * 100).toFixed(0)}/${(v.full3 * 100).toFixed(0)}`]))
+  console.log(id, `${(ms / 1000).toFixed(1)}s`, `sol ${g.solutions} robust ${g.robust} clusters ${g.clusters} density ${(g.density * 100).toFixed(1)}%`, JSON.stringify(b))
+  console.log('  ', checksFor(g).map((c) => `${c.pass ? 'PASS' : 'FAIL'} ${c.item}=${c.value}`).join(' | '))
+}
