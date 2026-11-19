@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Hub v2 · No. 37</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,400..800,0..100,0..1;1,9..144,400..800,0..100,0..1&family=Figtree:wght@400;500;600;700&family=Fredoka:wght@600;700&display=block" rel="stylesheet">
+<style>
+:root{
+  --paper:#fffaf0;--cream:#fff3dc;--cream2:#fbeccc;--shade:#f3d9aa;
+  --ink:#5b3a1e;--soft:#7a5636;--deep:#3a2410;
+  --sun:#ffc933;--coral:#e8643f;--coralT:#b3431f;
+  --leaf:#7cc26a;--leafD:#4f8a3c;--leafT:#2f6b4f;
+  --c-puz:#c9b6f2;--c-arc:#ffb27a;--c-cls:#a8d98f;--c-skl:#ffd966;
+  --sky-top:#ff9d7a;--sky-bot:#ffd9b0;--sea:#b79ad9;
+  --hair:#c4a27c;           /* ink 45% on paper, 2.4:1 decorative rule */
+  --plate6:0 6px 0 var(--deep);--plate4:0 4px 0 var(--deep);--plate3:0 3px 0 var(--deep);
+  --hi:inset 0 2px 0 #fff8ea;
+  --art:'art/';
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#e9dcc4;font-family:Figtree,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.board{display:flex;gap:72px;padding:120px 80px 96px;align-items:flex-start;width:max-content}
+.art{position:relative;flex:none}
+.art-label{position:absolute;top:-80px;left:0;white-space:nowrap}
+.art-label b{font:700 22px/1 Figtree;display:block;margin-bottom:10px;color:var(--deep)}
+.art-label span{font:500 13px/1 Figtree;color:var(--soft)}
+.notes{width:300px;flex:none}
+.notes h4{font:700 15px/1.3 Figtree;margin-bottom:12px;color:var(--deep)}
+.notes ol{list-style:none;counter-reset:n}
+.notes li{counter-increment:n;font:400 13px/1.55 Figtree;color:var(--deep);padding:10px 0 10px 28px;border-top:1px solid var(--hair);position:relative}
+.notes li::before{content:counter(n,decimal-leading-zero);position:absolute;left:0;top:12px;font:700 11px/1 Figtree;color:var(--coralT)}
+.notes li b{font-weight:700}
+
+.frame{background:var(--paper);overflow:hidden;position:relative}
+.ic{display:block;flex:none}
+
+/* type */
+.fr{font-family:Fraunces,serif;font-variation-settings:"SOFT" 100,"WONK" 0;font-optical-sizing:auto}
+.wonk{font-variation-settings:"SOFT" 100,"WONK" 1}
+.kick{font:600 12px/16px Figtree;color:var(--coralT)}
+.meta{font:500 13px/18px Figtree;color:var(--soft)}
+
+/* atoms */
+.logo{display:flex;align-items:center;gap:8px;height:44px}
+.wordmark{font:620 20px/1 Fraunces;font-variation-settings:"SOFT" 100,"WONK" 0;letter-spacing:-.01em;color:var(--ink);white-space:nowrap}
+.pill{height:40px;border-radius:999px;background:var(--cream);border:2px solid var(--ink);display:flex;align-items:center;gap:6px;padding:0 12px 0 10px;font:600 14px/1 Figtree;color:var(--ink);white-space:nowrap}
+.pill .div{width:1.5px;height:14px;background:var(--ink);opacity:.35}
+.hit44{min-height:44px;min-width:44px;display:flex;align-items:center;justify-content:center}
+.btn-sun{height:52px;border-radius:999px;background:var(--sun);border:3px solid var(--ink);box-shadow:var(--plate3);display:flex;align-items:center;justify-content:center;gap:10px;font:700 17px/1 Figtree;color:var(--ink);white-space:nowrap}
+.btn-cream{height:52px;border-radius:999px;background:var(--cream);border:3px solid var(--ink);box-shadow:var(--plate3);display:flex;align-items:center;justify-content:center;gap:10px;font:700 17px/1 Figtree;color:var(--ink);white-space:nowrap}
+.card{background:var(--cream);border:4px solid var(--ink);border-radius:24px;box-shadow:var(--hi),var(--plate6)}
+.thumb{border:2px solid var(--ink);border-radius:14px;overflow:hidden;flex:none;background:var(--sea)}
+.thumb img{display:block;width:100%;height:100%;object-fit:cover}
+.status{display:flex;align-items:center;gap:6px;font:600 13px/18px Figtree;white-space:nowrap}
+.st-bloom{color:var(--leafT)}.st-un{color:var(--ink)}.st-soon{color:var(--soft)}
+
+/* edition rule: 2px + 1px newspaper double rule */
+.dbl{height:5px;border-top:2px solid var(--ink);border-bottom:1px solid var(--ink)}
+.rule{height:1px;background:var(--ink)}
+
+/* sky dial */
+.dial{display:flex;align-items:center;gap:10px;font:600 12px/16px Figtree;color:var(--deep);white-space:nowrap}
+.bands{position:relative;flex:1;height:8px;display:flex;border-radius:4px;outline:1.5px solid var(--ink);outline-offset:0}
+.bands i{flex:1;display:block}
+.bands i:first-child{border-radius:4px 0 0 4px}.bands i:last-child{border-radius:0 4px 4px 0}
+.bands .now{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--cream);border:2px solid var(--ink)}
+
+/* ================= M-HOME 390 ================= */
+#m-home{width:390px}
+.m-sky{background:linear-gradient(90deg,#ff916d 0,#ff9a72 60%,#ffa277 100%) top/100% 320px no-repeat,#a88ecc;position:relative;padding-bottom:36px}
+.m-hdr{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 16px}
+.m-nav{display:flex;margin:0 16px}
+.m-nav a{flex:1;height:44px;display:flex;align-items:center;justify-content:center;gap:6px;font:600 11px/1 Figtree;color:var(--deep);letter-spacing:.01em}
+.m-nav a+a{border-left:1px solid rgba(91,58,30,.45)}
+.m-ed{margin:0 16px}
+.m-mast{height:34px;display:flex;align-items:center;justify-content:space-between}
+.mast-l{font:italic 400 15px/20px Fraunces;font-variation-settings:"SOFT" 100,"WONK" 0;color:var(--deep);white-space:nowrap}
+.mast-l b{font-style:normal;font-weight:700}
+.mast-r{font:600 12px/16px Figtree;color:var(--deep)}
+.m-ed .dial{height:32px}
+.m-h1{margin:16px 16px 0;position:relative;z-index:1;font:600 36px/40px Fraunces;letter-spacing:-.02em;color:var(--ink);font-variation-settings:"SOFT" 100,"WONK" 1}
+.m-h1 em{font-style:italic;display:block}
+.m-sub{position:relative;z-index:1;margin:8px 16px 0;font:400 16px/24px Figtree;color:var(--deep)}
+/* art starts at keyart y=0 so its sky meets the header sky; fade 88px */
+.m-art{height:384px;margin-top:-48px;pointer-events:none;position:relative;
+  background:url('../../../public/art/hub-keyart-hero.webp') no-repeat;background-size:688px auto;background-position:-235px 0;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 88px);mask-image:linear-gradient(180deg,transparent 0,#000 88px)}
+.scallop{position:absolute;left:0;bottom:-1px;display:block}
+.m-today{margin:-140px 16px 0;position:relative;z-index:2;padding:16px}
+.t-top{display:flex;justify-content:space-between;align-items:center;height:20px}
+.tg{display:flex;align-items:center;gap:2px;font:700 13px/1 Figtree;color:var(--ink)}.tg b{margin-left:6px}
+.t-main{display:flex;gap:16px;align-items:center;margin-top:12px}
+.t-title{font:600 28px/32px Fraunces;font-variation-settings:"SOFT" 100,"WONK" 0;letter-spacing:-.015em}
+.t-tag{font:italic 400 15px/20px Fraunces;font-variation-settings:"SOFT" 100,"WONK" 0;color:var(--soft);margin-top:2px}
+.garden{margin-top:16px;height:40px;border-radius:12px;background:var(--cream2);display:flex;align-items:center;gap:4px;padding:0 12px 0 8px;font:500 13px/18px Figtree;color:var(--ink);white-space:nowrap}
+.garden .lbl{margin-left:6px}
+.garden .left{margin-left:auto;font-weight:700;color:var(--coralT)}
+.m-today .btn-sun{margin-top:16px;width:100%}
+.t-foot{margin-top:12px;text-align:center;font:500 13px/18px Figtree;color:var(--soft)}
+
+.m-sec{margin:48px 16px 0}
+.h2{font:600 24px/30px Fraunces;font-variation-settings:"SOFT" 100,"WONK" 0;letter-spacing:-.015em;margin-top:4px}
+.h2 em{font-style:italic}
+.toc{margin-top:16px;border-top:1px solid var(--ink)}
+.toc a{display:flex;align-items:center;gap:16px;height:72px;border-bottom:1px solid var(--hair)}
+.toc .thumb{width:64px;height:64px}
+.toc .txt{flex:1;min-width:0}
+.toc .ttl{font:600 19px/24px Fraunces;font-variation-settings:"SOFT" 100,"WONK" 0;letter-spacing:-.01em;white-space:nowrap}
+.toc .meta{white-space:nowrap}
+.toc .thumb.soon{background:var(--cream2);display:flex;align-items:center;justify-content:center;border-style:dashed}
+
+.shelf{margin-top:16px;border-radius:16px;border:3px solid var(--ink);background:var(--cream);box-shadow:var(--hi),var(--plate4);overflow:hidden}
+.shelf a{display:flex;align-items:center;gap:12px;height:52px;padding:0 8px 0 12px}
+.shelf a+a{border-top:1px solid var(--hair)}
+.disc{width:36px;height:36px;border-radius:50%;border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;flex:none}
+.shelf .txt{flex:1;min-width:0}
+.shelf .nm{font:600 16px/20px Figtree;white-space:nowrap}
+.shelf .meta{font-size:12px;line-height:16px;white-space:nowrap}
+.shelf .n{font:600 22px/1 Fraunces;font-variation-settings:"SOFT" 100,"WONK" 0;font-variant-numeric:tabular-nums lining-nums;width:32px;text-align:right}
+.krow{display:flex;align-items:center;justify-content:space-between;height:44px;margin:-14px 0 -14px}
+.toss{display:inline-flex;align-items:center;gap:6px;height:44px;font:600 13px/1 Figtree;color:var(--ink)}
+.toss span{background:radial-gradient(circle,var(--ink) 1px,transparent 1.4px) 0 100%/6px 3px repeat-x;padding-bottom:5px}
+
+.ad{border-radius:12px;border:1px solid rgba(91,58,30,.2);background:var(--cream2);position:relative}
+.ad .lab{position:absolute;left:12px;top:8px;font:500 11px/14px Figtree;color:var(--soft)}
+.ad .res{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:500 12px/16px Figtree;color:var(--soft)}
+.m-ad{margin:48px 16px 0;height:100px}
+.m-foot{margin:48px 0 0;padding:4px 16px 20px;border-top:2px solid var(--ink)}
+.m-foot .row{display:flex;align-items:center;justify-content:space-between}
+.links{display:flex;gap:0}
+.links a{height:44px;display:flex;align-items:center;padding:0 8px;font:500 13px/1 Figtree;color:var(--soft)}
+.copy{font:500 12px/16px Figtree;color:var(--soft);margin-top:4px}
+
+/* ================= D-HOME 1440 ================= */
+#d-home{width:1440px;height:900px;background:#b79ad9}
+.d-key{position:absolute;left:-30px;top:0;width:1612px;height:900px;display:block}
+.d-hdr{position:absolute;left:0;top:0;right:0;height:64px;background:rgba(255,243,220,.9);border-bottom:2px solid var(--ink);display:flex;align-items:center;padding:0 40px 0 48px}
+.d-hdr .wordmark{font-size:22px}
+.d-nav{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:8px}
+.d-nav a{height:44px;display:flex;align-items:center;gap:8px;padding:0 16px 0 14px;border-radius:22px;font:600 15px/1 Figtree;color:var(--ink)}
+.d-nav a.cur{box-shadow:inset 0 -2px 0 var(--ink);border-radius:0}
+.d-hdr .pill{margin-left:auto}
+.d-col{position:absolute;left:96px;top:104px;width:480px}
+.d-mast{height:40px;display:flex;align-items:center;justify-content:space-between}
+.d-mast .mast-l{font-size:18px;line-height:24px}
+.d-mast .mast-r{font-size:13px}
+.d-col .dial{height:36px;font-size:13px}
+.d-h1{margin-top:28px;font:600 56px/60px Fraunces;letter-spacing:-.025em;font-variation-settings:"SOFT" 100,"WONK" 1;color:var(--ink)}
+.d-h1 em{font-style:italic;display:block}
+.d-sub{margin-top:16px;font:400 18px/28px Figtree;color:var(--deep)}
+.d-cta{display:flex;gap:16px;margin-top:28px}
+.d-cta .btn-sun{padding:0 28px 0 24px;height:56px;font-size:18px}
+.d-cta .btn-cream{padding:0 24px 0 20px;height:56px;font-size:18px}
+.d-status{display:inline-flex;align-items:center;gap:4px;margin-top:20px;height:36px;padding:0 14px 0 8px;border-radius:12px;background:rgba(255,243,220,.9);font:500 14px/20px Figtree;color:var(--ink);white-space:nowrap}
+.d-status .lbl{margin-left:6px}
+.d-rail{position:absolute;left:120px;top:704px;width:1200px}
+.d-rail .lab{display:inline-flex;align-items:center;height:28px;padding:0 12px;border-radius:999px;background:var(--cream);border:2px solid var(--ink);font:600 13px/1 Figtree;color:var(--deep)}
+.tickets{display:flex;gap:24px;margin-top:12px}
+.ticket{position:relative;width:384px;height:120px;flex:none}
+.ticket svg.shape{position:absolute;inset:0 0 auto 0;overflow:visible}
+.ticket .in{position:absolute;inset:0;display:flex;align-items:center;padding:0 16px}
+.ticket .thumb{width:88px;height:88px;border-radius:16px}
+.ticket .txt{margin-left:33px;min-width:0;flex:1}
+.ticket .k{font:500 12px/16px Figtree;color:var(--soft);white-space:nowrap}
+.ticket .ttl{font:600 24px/28px Fraunces;font-variation-settings:"SOFT" 100,"WONK" 0;letter-spacing:-.015em;margin:2px 0 4px;white-space:nowrap}
+.ticket.today .k{color:var(--coralT);font-weight:600}
+
+/* ================= M-SHEET 390 ================= */
+#m-sheet{width:390px;height:844px;background:#2d2a4a}
+.g-board{position:absolute;left:0;top:0;width:390px;height:440px;object-fit:cover;object-position:100% 50%}
+.g-hud{position:absolute;left:0;right:0;top:0;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 12px}
+.g-btn{width:44px;height:44px;border-radius:50%;background:var(--cream);border:3px solid var(--ink);box-shadow:var(--plate3);display:flex;align-items:center;justify-content:center}
+.g-title{height:36px;padding:0 14px;border-radius:999px;background:var(--cream);border:2px solid var(--ink);display:flex;align-items:center;font:600 14px/1 Figtree;white-space:nowrap}
+.dim{position:absolute;inset:0;background:rgba(58,36,16,.5)}
+.sheet{position:absolute;left:0;right:0;bottom:0;padding-bottom:34px!important;background:var(--cream);border:4px solid var(--ink);border-bottom:0;border-radius:28px 28px 0 0;box-shadow:0 -2px 0 rgba(91,58,30,.2),var(--hi);padding:20px 16px 0}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--ink);opacity:.3;margin:-8px auto 0}
+.peek{position:absolute;right:24px;top:-70px;width:92px;height:92px}
+.s-h{font:600 30px/34px Fraunces;letter-spacing:-.02em;font-variation-settings:"SOFT" 100,"WONK" 1;margin-top:8px}
+.s-h em{font-style:italic}
+.bloom3{display:flex;align-items:center;margin-top:16px;height:40px}
+.bloom3 .dots{flex:none;width:40px;height:12px}
+.stats{display:flex;margin-top:16px;border-top:1px solid var(--ink);border-bottom:1px solid var(--hair)}
+.stats div{flex:1;padding:12px 0}
+.stats div+div{border-left:1px solid var(--hair);padding-left:16px}
+.stats b{display:block;font:700 32px/36px Fredoka;color:var(--coral);font-variant-numeric:tabular-nums}
+.stats span{font:500 12px/16px Figtree;color:var(--soft)}
+.share-card{margin-top:16px;border-radius:16px;border:2px solid var(--ink);background:var(--paper);padding:12px 14px;display:flex;align-items:center;gap:14px}
+.share-card .sw{width:64px;height:64px;border-radius:12px;border:2px solid var(--ink);overflow:hidden;flex:none;position:relative;background:linear-gradient(#ff9d7a,#ffd9b0 70%,#b79ad9 70%)}
+.share-card .sw .sun{position:absolute;left:34px;top:22px;width:18px;height:18px;border-radius:50%;background:var(--sun);border:2px solid var(--ink)}
+.share-card .sw .isl{position:absolute;left:8px;top:30px}
+.share-card .ln1{font:600 15px/20px Fraunces;font-variation-settings:"SOFT" 100,"WONK" 0;white-space:nowrap}
+.share-card .ln2{font:500 12px/16px Figtree;color:var(--soft);white-space:nowrap;margin-top:2px}
+.share-card .bands{height:6px;margin-top:8px;width:160px;flex:none}
+.sheet .btn-sun{width:100%;margin-top:20px}
+.s-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.s-row a{height:44px;display:flex;align-items:center;gap:6px;font:600 15px/1 Figtree}
+.next{font:500 13px/18px Figtree;color:var(--soft);white-space:nowrap}
+.next b{color:var(--ink);font-weight:700}
+</style></head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+ <symbol id="logo" viewBox="0 0 32 32"><circle cx="22.5" cy="9" r="5.2" fill="#ffd966" stroke="#5b3a1e" stroke-width="2"/><path d="M4 16.5c0-2.2 5.4-3.8 12-3.8s12 1.6 12 3.8c0 1.2-1.4 2-3.2 2.6L17.6 29c-.8 1.1-2.4 1.1-3.2 0L7.2 19.1C5.4 18.5 4 17.7 4 16.5z" fill="#9aa08f" stroke="#5b3a1e" stroke-width="2" stroke-linejoin="round"/><path d="M4 16.5c0-2.2 5.4-3.8 12-3.8s12 1.6 12 3.8c0 1.4-2 2.4-4.6 3-.4 1.6-1.8 1.6-2.2 0-1.6.3-3.4.4-5.2.4s-3.4-.1-5-.4c-.4 1.8-2 1.8-2.4 0C5.8 18.9 4 17.9 4 16.5z" fill="#7cc26a" stroke="#5b3a1e" stroke-width="2" stroke-linejoin="round"/></symbol>
+ <symbol id="flower" viewBox="0 0 24 24"><g stroke="#5b3a1e" stroke-width="1.6" fill="#ffd966"><circle cx="12" cy="5.5" r="3.6"/><circle cx="18.2" cy="10" r="3.6"/><circle cx="15.8" cy="17.3" r="3.6"/><circle cx="8.2" cy="17.3" r="3.6"/><circle cx="5.8" cy="10" r="3.6"/></g><circle cx="12" cy="12" r="3.4" fill="#8a5a2b" stroke="#5b3a1e" stroke-width="1.6"/></symbol>
+ <symbol id="bud" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="#7a5636" stroke-width="1.6" stroke-dasharray="2.6 2.6"/><path d="M12 16.5v-5" stroke="#4f8a3c" stroke-width="1.8" stroke-linecap="round"/><path d="M12 12.5c-2.6 0-3.6-1.6-3.6-3.4 2.4 0 3.6 1.2 3.6 3.4zM12 11.5c2.4 0 3.4-1.4 3.4-3 -2.2 0-3.4 1-3.4 3z" fill="#7cc26a" stroke="#4f8a3c" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+ <symbol id="play" viewBox="0 0 24 24"><path d="M8 5.6c0-1 1.1-1.6 2-1.1l9.2 6.4c.8.5.8 1.7 0 2.2L10 19.5c-.9.5-2-.1-2-1.1z" fill="#5b3a1e"/></symbol>
+ <symbol id="seed" viewBox="0 0 24 24"><path d="M12 3.5c3 2.4 5 5.6 5 9a5 5 0 0 1-10 0c0-3.4 2-6.6 5-9z" fill="#ffd966" stroke="#5b3a1e" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v8" stroke="#5b3a1e" stroke-width="1.4" stroke-linecap="round"/></symbol>
+ <symbol id="isle" viewBox="0 0 24 24"><path d="M3.5 12.5c0-1.6 3.8-2.8 8.5-2.8s8.5 1.2 8.5 2.8c0 .9-1 1.5-2.4 1.9L13.2 20.6c-.6.8-1.8.8-2.4 0L5.9 14.4C4.5 14 3.5 13.4 3.5 12.5z" fill="#7cc26a" stroke="#5b3a1e" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9.7V5.2" stroke="#4f8a3c" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="4.6" r="2" fill="#ffd966" stroke="#5b3a1e" stroke-width="1.5"/></symbol>
+ <symbol id="packet" viewBox="0 0 24 24"><path d="M5 7.5l1.75-2 1.75 2 1.75-2 1.75 2 1.75-2 1.75 2 1.75-2L19 7.5V19a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 5 19z" fill="#fff3dc" stroke="#5b3a1e" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 17.5v-4" stroke="#4f8a3c" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="12" r="2.2" fill="#ffd966" stroke="#5b3a1e" stroke-width="1.4"/></symbol>
+ <symbol id="well" viewBox="0 0 24 24"><path d="M12 2.8l1.2 2.5 2.7.3-2 1.8.6 2.6L12 8.7l-2.5 1.3.6-2.6-2-1.8 2.7-.3z" fill="#ffd966" stroke="#5b3a1e" stroke-width="1.5" stroke-linejoin="round"/><path d="M5.5 13h13v5.5a2.5 2.5 0 0 1-2.5 2.5H8a2.5 2.5 0 0 1-2.5-2.5z" fill="#fff3dc" stroke="#5b3a1e" stroke-width="1.8" stroke-linejoin="round"/><path d="M5.5 16.5h13" stroke="#5b3a1e" stroke-width="1.5"/></symbol>
+ <symbol id="sunI" viewBox="0 0 24 24"><g stroke="#5b3a1e" stroke-width="1.8" stroke-linecap="round"><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/></g><circle cx="12" cy="12" r="4.6" fill="#ffd966" stroke="#5b3a1e" stroke-width="1.8"/></symbol>
+ <!-- category: bellflower (puzzle), star-flower (arcade), clover (classic), sun (skill) -->
+ <symbol id="c-bell" viewBox="0 0 24 24"><path d="M12 3v2.2" stroke="#4f8a3c" stroke-width="1.8" stroke-linecap="round"/><path d="M7.4 9.2C7.4 6.8 9.4 5.2 12 5.2s4.6 1.6 4.6 4v4.6l1.9 3.2c-1 .9-2 .9-3 0-.9.9-2 .9-3 0-.9.9-2 .9-3 0-.9.9-2 .9-3 0l1.9-3.2z" fill="#c9b6f2" stroke="#5b3a1e" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 17.4v3" stroke="#5b3a1e" stroke-width="1.8" stroke-linecap="round"/></symbol>
+ <symbol id="c-star" viewBox="0 0 24 24"><path d="M12 3.6l2.5 5.2 5.6.7-4.1 3.9 1 5.6L12 16.3 7 19l1-5.6-4.1-3.9 5.6-.7z" fill="#ffb27a" stroke="#5b3a1e" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="11.8" r="1.8" fill="#5b3a1e"/></symbol>
+ <symbol id="c-clover" viewBox="0 0 24 24"><path d="M12 13.2c1 3 2.4 5.4 4.6 7.2" fill="none" stroke="#4f8a3c" stroke-width="1.8" stroke-linecap="round"/><g fill="#a8d98f" stroke="#5b3a1e" stroke-width="1.8"><circle cx="12" cy="7.4" r="3.6"/><circle cx="7.6" cy="12.6" r="3.6"/><circle cx="16.4" cy="12.6" r="3.6"/></g><circle cx="12" cy="11" r="1.4" fill="#5b3a1e"/></symbol>
+ <symbol id="c-sun" viewBox="0 0 24 24"><g stroke="#5b3a1e" stroke-width="1.8" stroke-linecap="round"><path d="M12 2.8v2.6M12 18.6v2.6M2.8 12h2.6M18.6 12h2.6M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M5.5 18.5l1.8-1.8M16.7 7.3l1.8-1.8"/></g><circle cx="12" cy="12" r="4.6" fill="#ffd966" stroke="#5b3a1e" stroke-width="1.8"/></symbol>
+ <symbol id="chev" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6" fill="none" stroke="#5b3a1e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+ <symbol id="lock" viewBox="0 0 24 24"><rect x="5.5" y="10.5" width="13" height="9.5" rx="2.5" fill="#fff3dc" stroke="#7a5636" stroke-width="1.8"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5" fill="none" stroke="#7a5636" stroke-width="1.8" stroke-linecap="round"/><path d="M15.5 8c1.6-.2 2.6-1.2 2.8-2.8-1.6.1-2.6 1.1-2.8 2.8z" fill="#7cc26a" stroke="#4f8a3c" stroke-width="1.1" stroke-linejoin="round"/></symbol>
+ <symbol id="share" viewBox="0 0 24 24"><path d="M3.8 11.2L19.6 4.4c.6-.3 1.2.3.9.9l-6.8 15.8c-.3.6-1.2.6-1.4-.1l-1.8-5.8-5.8-1.8c-.7-.2-.7-1.1-.1-1.4z" fill="#fff3dc" stroke="#5b3a1e" stroke-width="1.8" stroke-linejoin="round"/><path d="M10.5 13.5l4.6-4.6" stroke="#5b3a1e" stroke-width="1.6" stroke-linecap="round"/></symbol>
+ <symbol id="back" viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6" fill="none" stroke="#5b3a1e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+ <symbol id="shell" viewBox="0 0 24 24"><path d="M5 17.5c0-6 3.2-11 7-11s7 5 7 11z" fill="#fff3dc" stroke="#5b3a1e" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 7v10.5M8.8 9.2l1.2 8.3M15.2 9.2L14 17.5" stroke="#5b3a1e" stroke-width="1.4" stroke-linecap="round"/><path d="M4 17.5h16" stroke="#5b3a1e" stroke-width="1.8" stroke-linecap="round"/></symbol>
+ <symbol id="sprout" viewBox="0 0 24 24"><path d="M12 20v-7" stroke="#4f8a3c" stroke-width="2" stroke-linecap="round"/><path d="M12 13.5c-4 0-5.6-2.4-5.6-5.4 3.8 0 5.6 2 5.6 5.4zM12 12c3.6 0 5.2-2.2 5.2-4.8-3.4 0-5.2 1.8-5.2 4.8z" fill="#7cc26a" stroke="#5b3a1e" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+</defs></svg>
+
+<div class="board">
+
+<!-- ============ 1. M-HOME ============ -->
+<div class="art">
+ <div class="art-label"><b>허브 v2 · Home 390 — 「No. 37 오늘 발행된 하늘」</b><span>신문 마스트헤드 + 날씨 귀퉁이 = 하늘 다이얼 · 노란색은 Play 하나</span></div>
+ <div class="frame" id="m-home">
+  <div class="m-sky">
+   <header class="m-hdr">
+    <a class="logo" href="#"><svg class="ic" width="32" height="32"><use href="#logo"/></svg><span class="wordmark">Quick MiniGames</span></a>
+    <button class="hit44" aria-label="Day 37, 2 flowers bloomed today"><span class="pill"><svg class="ic" width="18" height="18"><use href="#sunI"/></svg>Day 37<i class="div"></i><svg class="ic" width="16" height="16"><use href="#flower"/></svg>2</span></button>
+   </header>
+   <nav class="m-nav" aria-label="Main">
+    <a href="#"><svg class="ic" width="20" height="20"><use href="#isle"/></svg>Islands</a>
+    <a href="#"><svg class="ic" width="20" height="20"><use href="#packet"/></svg>Seed Library</a>
+    <a href="#"><svg class="ic" width="20" height="20"><use href="#well"/></svg>Leaderboards</a>
+   </nav>
+   <div class="m-ed">
+    <div class="dbl"></div>
+    <div class="m-mast"><span class="mast-l"><b>No. 37</b> — Thursday, November 19</span><span class="mast-r">Sunset edition</span></div>
+    <div class="rule"></div>
+    <div class="dial"><span>Sunset now</span><span class="bands" data-now="4"></span><span>sets 5:21 pm</span></div>
+    <div class="rule"></div>
+   </div>
+   <h1 class="m-h1">A small garden <em>that blooms daily.</em></h1>
+   <p class="m-sub">Free online mini games — 113 and growing.</p>
+   <div class="m-art" role="img" aria-label="Mallang and Tori on a sunflower island at sunset"></div>
+
+  <section class="card m-today" aria-label="Today's puzzle">
+   <div class="t-top"><span class="kick">Today's puzzle · about 2 min</span><span class="tg" aria-label="Today's garden: 2 of 3 bloomed"><svg class="ic" width="18" height="18"><use href="#flower"/></svg><svg class="ic" width="18" height="18"><use href="#flower"/></svg><svg class="ic" width="18" height="18"><use href="#bud"/></svg><b>2/3</b></span></div>
+   <div class="t-main">
+    <div class="thumb" style="width:72px;height:72px;border-radius:16px"><img src="../../../public/art/slime-slide-cover.webp" alt="Slime Slide island at sunset" style="width:172px;height:96px;max-width:none;margin:-2px 0 0 -38px"></div>
+    <div><div class="t-title">Slime Slide</div><div class="t-tag">One line, one jelly, one flower.</div></div>
+   </div>
+   <a class="btn-sun" href="#"><svg class="ic" width="22" height="22"><use href="#play"/></svg>Play today's Slime Slide</a>
+  </section>
+  <svg class="scallop" data-w="390" data-n="13" data-r="15" data-fill="#fffaf0"></svg>
+  </div>
+
+  <section class="m-sec">
+   <div class="kick">No. 37 · also inside</div>
+   <h2 class="h2">The rest of <em>today's sky</em></h2>
+   <div class="toc">
+    <a href="#"><div class="thumb"><img src="../../../public/art/plop-landing-cover.webp" alt="Plop Landing islands at dawn" style="object-position:62% 40%;transform:scale(1.3)"></div><div class="txt"><div class="ttl">Plop Landing</div><div class="meta">Dawn sky · best 58</div></div><span class="status st-bloom"><svg class="ic" width="16" height="16"><use href="#flower"/></svg>Bloomed</span></a>
+    <a href="#"><div class="thumb"><img src="../../../public/art/acorn-hop-cover.webp" alt="Acorn Hop at night" style="object-position:68% 20%;transform:scale(1.35);transform-origin:68% 25%"></div><div class="txt"><div class="ttl">Acorn Hop</div><div class="meta">Night sky · 3 min</div></div><span class="status st-bloom"><svg class="ic" width="16" height="16"><use href="#flower"/></svg>Bloomed</span></a>
+    <a href="#"><div class="thumb soon"><svg class="ic" width="32" height="32"><use href="#sprout"/></svg></div><div class="txt"><div class="ttl">Flower Fence</div><div class="meta">A new island rises Dec 1</div></div><span class="status st-soon"><svg class="ic" width="16" height="16"><use href="#lock"/></svg>Soon</span></a>
+   </div>
+  </section>
+
+  <section class="m-sec">
+   <div class="krow"><span class="kick">Seed library · 113 games</span><a class="toss" href="#"><svg class="ic" width="18" height="18"><use href="#seed"/></svg><span>Toss a random seed</span></a></div>
+   <h2 class="h2">What kind of <em>five minutes?</em></h2>
+   <div class="shelf">
+    <a href="#"><span class="disc" style="background:#f1eafd"><svg class="ic" width="24" height="24"><use href="#c-bell"/></svg></span><span class="txt"><div class="nm">Wake my brain</div><div class="meta">Puzzle · logic, words, numbers</div></span><span class="n">49</span><svg class="ic" width="20" height="20"><use href="#chev"/></svg></a>
+    <a href="#"><span class="disc" style="background:#ffeedd"><svg class="ic" width="24" height="24"><use href="#c-star"/></svg></span><span class="txt"><div class="nm">Busy hands</div><div class="meta">Arcade · quick reflex rounds</div></span><span class="n">31</span><svg class="ic" width="20" height="20"><use href="#chev"/></svg></a>
+    <a href="#"><span class="disc" style="background:#eef7e6"><svg class="ic" width="24" height="24"><use href="#c-clover"/></svg></span><span class="txt"><div class="nm">Slow &amp; classic</div><div class="meta">Classic · cards, boards, tiles</div></span><span class="n">18</span><svg class="ic" width="20" height="20"><use href="#chev"/></svg></a>
+    <a href="#"><span class="disc" style="background:#fff5d6"><svg class="ic" width="24" height="24"><use href="#c-sun"/></svg></span><span class="txt"><div class="nm">Steady aim</div><div class="meta">Skill · timing and touch</div></span><span class="n">15</span><svg class="ic" width="20" height="20"><use href="#chev"/></svg></a>
+   </div>
+  </section>
+
+  <div class="ad m-ad" aria-label="Advertisement"><span class="lab">Advertisement</span><span class="res">320 × 100 · height reserved</span></div>
+
+  <footer class="m-foot">
+   <nav class="links" aria-label="Footer" style="margin-left:-8px"><a href="#">About</a><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Contact</a></nav>
+   <div class="copy" style="display:flex;align-items:center;gap:6px"><svg class="ic" width="18" height="18"><use href="#logo"/></svg>© 2026 Quick MiniGames · Printed daily since No. 1</div>
+  </footer>
+ </div>
+</div>
+<div class="notes"><h4>설계 의도 · Home 390</h4><ol>
+ <li><b>하나의 생각: 오늘 발행된 하늘 한 장.</b> 헤더 아래 2px+1px 신문 이중 괘선 → 마스트헤드 "No. 37 — Thursday, November 19 · Sunset edition" → 신문 날씨 귀퉁이 자리에 하늘 8칸 다이얼. 발행 번호·날짜·하늘이 한 블록이라 캡처 한 장으로 "매일 새 호가 나오는 정원"이 읽힌다.</li>
+ <li><b>3내비를 마스트헤드 위 한 줄로.</b> 아이콘 20 + 11px 라벨, 각 칸 44px, 칸 사이 세로 헤어라인. 메뉴 버튼 없이 세 경로가 첫 화면에 보인다.</li>
+ <li><b>노란색은 Play 하나.</b> 헤더 pill·꽃 아이콘은 해바라기 카테고리색(#ffd966)이고 sun-gold #ffc933은 버튼 면에만 쓴다. "1 left"(coral-text)가 남은 한 송이를 가리켜 버튼까지 시선을 민다.</li>
+ <li><b>상태가 이야기를 맞춘다.</b> 정원 2/3 = Plop·Acorn Bloomed, Slime Unplayed(오늘 호 카드). Figma v2의 "Acorn Unplayed" 모순을 고쳤다.</li>
+ <li><b>높이 1927 → 1690.</b> 정원 띠를 카드 머리줄(꽃 2/3)로 합치고, Toss는 버튼에서 씨앗 도서관 머리줄의 점선 밑줄 링크로, 광고는 320×100 높이 예약(앞뒤 48), 부제는 SEO 한 줄만 남겼다. 섹션 간격은 64 대신 48(토큰 개정 제안).</li>
+ <li><b>오늘 호 카드는 구름바다 위에 뜬다.</b> 키아트 아래 라벤더 #a88ecc(키아트 바닥 실측색)가 카드 뒤로 이어지고, 그 끝을 반지름 15 혹 13개 규칙 SVG 구름 경계로 끊는다(직선 크롭 금지). 키아트 하늘은 y=0부터 써서 헤더 하늘과 이음매가 없다. 썸네일은 object-position으로 주인공(말랑이·토리)이 보이게 잘랐다. 숫자 전부 tabular-nums.</li>
+</ol></div>
+
+<!-- ============ 2. D-HOME ============ -->
+<div class="art">
+ <div class="art-label"><b>허브 v2 · Home 1440 첫 화면 (1440 × 900)</b><span>키아트 풀블리드 · 왼쪽 1/3 하늘 = 발행면 · 구름 위 오늘 호 티켓 3장</span></div>
+ <div class="frame" id="d-home">
+  <img class="d-key" src="../../../public/art/hub-keyart-hero.webp" alt="" aria-hidden="true">
+  <header class="d-hdr">
+   <a class="logo" href="#"><svg class="ic" width="36" height="36"><use href="#logo"/></svg><span class="wordmark">Quick MiniGames</span></a>
+   <nav class="d-nav" aria-label="Main">
+    <a href="#"><svg class="ic" width="20" height="20"><use href="#isle"/></svg>Islands</a>
+    <a href="#"><svg class="ic" width="20" height="20"><use href="#packet"/></svg>Seed Library</a>
+    <a href="#"><svg class="ic" width="20" height="20"><use href="#well"/></svg>Leaderboards</a>
+   </nav>
+   <button class="hit44" aria-label="Day 37, 2 flowers bloomed today" style="margin-left:auto"><span class="pill"><svg class="ic" width="18" height="18"><use href="#sunI"/></svg>Day 37<i class="div"></i><svg class="ic" width="16" height="16"><use href="#flower"/></svg>2</span></button>
+  </header>
+  <div class="d-col">
+   <div class="dbl"></div>
+   <div class="d-mast"><span class="mast-l"><b>No. 37</b> — Thursday, November 19</span><span class="mast-r">Sunset edition</span></div>
+   <div class="rule"></div>
+   <div class="dial"><span>Sunset now</span><span class="bands" data-now="4"></span><span>sets 5:21 pm</span></div>
+   <div class="rule"></div>
+   <h1 class="d-h1">A small garden <em>that blooms daily.</em></h1>
+   <p class="d-sub">Free online mini games — 113 and growing.<br>No sign-up, no downloads, no rush.</p>
+   <div class="d-cta">
+    <a class="btn-sun" href="#"><svg class="ic" width="22" height="22"><use href="#play"/></svg>Play today's Slime Slide</a>
+    <a class="btn-cream" href="#"><svg class="ic" width="20" height="20"><use href="#seed"/></svg>Toss a seed</a>
+   </div>
+   <div class="d-status"><svg class="ic" width="20" height="20"><use href="#flower"/></svg><svg class="ic" width="20" height="20"><use href="#flower"/></svg><svg class="ic" width="20" height="20"><use href="#bud"/></svg><span class="lbl">Today's garden · 2 of 3 bloomed · 1 left</span></div>
+  </div>
+  <div class="d-rail">
+   <span class="lab">Also in today's edition · No. 37</span>
+   <div class="tickets">
+    <a class="ticket today" href="#"><svg class="shape" data-ticket></svg><div class="in"><div class="thumb"><img src="../../../public/art/slime-slide-cover.webp" alt="Slime Slide island at sunset" style="width:210px;height:117px;max-width:none;margin:-2px 0 0 -46px"></div><div class="txt"><div class="k">Today's puzzle · Sunset sky</div><div class="ttl">Slime Slide</div><span class="status st-un"><svg class="ic" width="16" height="16"><use href="#bud"/></svg>Unplayed</span></div></div></a>
+    <a class="ticket" href="#"><svg class="shape" data-ticket></svg><div class="in"><div class="thumb"><img src="../../../public/art/plop-landing-cover.webp" alt="Plop Landing islands at dawn" style="object-position:62% 40%;transform:scale(1.3)"></div><div class="txt"><div class="k">Dawn sky · Daily #37</div><div class="ttl">Plop Landing</div><span class="status st-bloom"><svg class="ic" width="16" height="16"><use href="#flower"/></svg>Bloomed · best 58</span></div></div></a>
+    <a class="ticket" href="#"><svg class="shape" data-ticket></svg><div class="in"><div class="thumb"><img src="../../../public/art/acorn-hop-cover.webp" alt="Acorn Hop at night" style="object-position:68% 20%;transform:scale(1.35);transform-origin:68% 25%"></div><div class="txt"><div class="k">Night sky · Daily #37</div><div class="ttl">Acorn Hop</div><span class="status st-bloom"><svg class="ic" width="16" height="16"><use href="#flower"/></svg>Bloomed · 3 min</span></div></div></a>
+   </div>
+  </div>
+ </div>
+</div>
+<div class="notes"><h4>설계 의도 · Home 1440</h4><ol>
+ <li><b>풀블리드.</b> 키아트 1376×768을 1612×900 cover로 깔아 좌우 빈 공간 0. 섬 중심 x≈1003, 왼쪽 0~576은 하늘과 크림 구름뿐이라 제목 자리가 된다(월드 바이블 9장).</li>
+ <li><b>발행면 블록을 390과 같은 문법으로.</b> 이중 괘선 → No. 37 마스트헤드 → 하늘 다이얼 → H1. 해(오른쪽 뒤)와 다이얼의 현재 마커(노을 칸)가 같은 시간을 말한다.</li>
+ <li><b>토큰대로 H1 56/60.</b> Figma 1440의 64를 토큰 값으로 되돌렸다. WONK 1은 H1에만, 나머지 제목은 SOFT 100·WONK 0.</li>
+ <li><b>티켓 3장.</b> 사각 카드가 아니라 절취 홈 + 점선 절취선이 있는 '오늘 호 티켓'. SVG 한 경로라 4px 윤곽과 6px 판 그림자가 홈을 따라 꺾인다. 구름띠 위에 놓여 섬 밑동을 구름처럼 덮는다.</li>
+ <li><b>노란색은 Play 하나.</b> Toss는 크림 보조 버튼. 헤더 중앙 내비 3개(44px), 오른쪽 오늘 pill.</li>
+ <li><b>대비.</b> 하늘 위 글자는 ink/ink-deep만(노을 상단 ink 5.0:1). 라벤더 구름 위 라벨은 크림 칩에 올렸다.</li>
+</ol></div>
+
+<!-- ============ 3. M-SHEET ============ -->
+<div class="art">
+ <div class="art-label"><b>허브 v2 · Daily 결과 시트 390 (No. 37 완성)</b><span>게임 화면 위 하단 시트 · 노란색은 Share 하나 · 광고 없음</span></div>
+ <div class="frame" id="m-sheet">
+  <img class="g-board" src="../../../public/art/slime-slide-cover.webp" alt="" aria-hidden="true">
+  <div class="g-hud"><a class="g-btn" href="#" aria-label="Back"><svg class="ic" width="22" height="22"><use href="#back"/></svg></a><span class="g-title">Slime Slide · No. 37</span><a class="g-btn" href="#" aria-label="Sound off"><svg class="ic" width="22" height="22"><use href="#shell"/></svg></a></div>
+  <div class="dim"></div>
+  <section class="sheet" aria-label="Result">
+   <img class="peek" src="../../../public/art/mallang-happy.webp" alt="" aria-hidden="true">
+   <div class="grab"></div>
+   <div class="kick" style="margin-top:16px">No. 37 · Slime Slide · Bloomed</div>
+   <h2 class="s-h">Today's garden <em>is full.</em></h2>
+   <div class="bloom3">
+    <svg class="ic" width="36" height="36"><use href="#flower"/></svg><svg class="dots" viewBox="0 0 40 12"><g fill="#7a5636"><circle cx="6" cy="8" r="1.6"/><circle cx="14" cy="5" r="1.6"/><circle cx="22" cy="4" r="1.6"/><circle cx="30" cy="5" r="1.6"/></g></svg>
+    <svg class="ic" width="36" height="36"><use href="#flower"/></svg><svg class="dots" viewBox="0 0 40 12"><g fill="#7a5636"><circle cx="6" cy="8" r="1.6"/><circle cx="14" cy="5" r="1.6"/><circle cx="22" cy="4" r="1.6"/><circle cx="30" cy="5" r="1.6"/></g></svg>
+    <svg class="ic" width="36" height="36"><use href="#flower"/></svg>
+    <span class="meta" style="margin-left:12px">3 of 3 bloomed</span>
+   </div>
+   <div class="stats">
+    <div><b>3</b><span>strokes · par 4</span></div>
+    <div><b>1:42</b><span>time</span></div>
+    <div><b>5</b><span>day streak</span></div>
+   </div>
+   <div class="share-card">
+    <div class="sw" style="background:url(../../../public/art/hub-keyart-hero.webp) -118px -12px/236px auto no-repeat"></div>
+    <div style="min-width:0"><div class="ln1">Quick MiniGames · No. 37</div><div class="ln2">Slime Slide in 3 · garden 3/3</div><span class="bands" data-now="4" style="display:flex"></span></div>
+   </div>
+   <a class="btn-sun" href="#"><svg class="ic" width="22" height="22"><use href="#share"/></svg>Share today's garden</a>
+   <div class="s-row"><a href="#"><svg class="ic" width="20" height="20"><use href="#back"/></svg>Back to the garden</a><span class="next">No. 38 in <b>14:22:05</b></span></div>
+  </section>
+ </div>
+</div>
+<div class="notes"><h4>설계 의도 · Daily 결과</h4><ol>
+ <li><b>결과도 '호'의 언어.</b> 킥커 "No. 37 · Slime Slide · Bloomed", 제목 "Today's garden is full." — 세 송이가 크림 점선 궤적(시그니처 3)으로 이어진다.</li>
+ <li><b>공유물 = 하늘 한 장.</b> 미리보기 카드에 No. 37 + 하늘 8칸 띠 + 3/3. Wordle의 격자 대신 '오늘 하늘 띠'가 우리 공유 문법이다(이모지 없이 OG 이미지로 생성).</li>
+ <li><b>노란색은 Share 하나.</b> 다시 하기는 없앴다(데일리는 하루 한 번). 다음 호 카운트다운 "No. 38 in 14:22:05"(tabular)가 내일 재방문 이유다.</li>
+ <li><b>큰 숫자만 coral.</b> Fredoka 32 bold(≥24 규칙). 라벨은 ink-soft 12.</li>
+ <li><b>시트 규격.</b> 상단 28 radius, 4px 윤곽, 위쪽 ink 20% 2px 선, 블러 0. 말랑이 happy가 시트 모서리에 걸터앉는다. 게임 화면 안 광고 없음.</li>
+</ol></div>
+
+</div>
+<script>
+// sky dial bands (8 time-of-day tokens: dawn..starry, sky-top values)
+const SKY=['#f2b8c6','#ffe3b8','#8fd3ff','#ffc07a','#ff9d7a','#c86a8a','#3d3170','#241c4a'];
+document.querySelectorAll('.bands').forEach(b=>{const now=+b.dataset.now;SKY.forEach(c=>{const i=document.createElement('i');i.style.background=c;b.appendChild(i)});
+  const m=document.createElement('span');m.className='now';m.style.left=((now+.5)/8*100)+'%';b.appendChild(m)});
+// regular scalloped cloud edge: n equal arcs of radius r
+document.querySelectorAll('svg.scallop').forEach(s=>{const w=+s.dataset.w,n=+s.dataset.n,r=+s.dataset.r,seg=w/n,h=r+4;
+  s.setAttribute('width',w);s.setAttribute('height',h);s.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  let d=`M0 ${h}`;let top=`M0 ${h-2}`;d+=` L0 ${h-2}`;
+  for(let i=0;i<n;i++){const x0=i*seg,x1=x0+seg;d+=` A ${seg/2} ${r} 0 0 1 ${x1} ${h-2}`;top+=` A ${seg/2} ${r} 0 0 1 ${x1} ${h-2}`}
+  d+=` L${w} ${h} Z`;
+  s.innerHTML=`<path d="${d}" fill="${s.dataset.fill}"/><path d="${top}" fill="none" stroke="#5b3a1e" stroke-width="2.5" stroke-linejoin="round"/>`});
+// ticket: rounded rect with top/bottom notches at the perforation, plate shadow offset 6
+document.querySelectorAll('svg[data-ticket]').forEach(s=>{const W=384,H=120,R=22,px=120,nr=9,sw=4;
+  const p=(o)=>{const t=o, b=H-o; const l=o, r=W-o; const rr=R-o<4?4:R-o;
+   return `M${l+rr} ${t} H${px-nr} A${nr} ${nr} 0 0 0 ${px+nr} ${t} H${r-rr} A${rr} ${rr} 0 0 1 ${r} ${t+rr} V${b-rr} A${rr} ${rr} 0 0 1 ${r-rr} ${b} H${px+nr} A${nr} ${nr} 0 0 0 ${px-nr} ${b} H${l+rr} A${rr} ${rr} 0 0 1 ${l} ${b-rr} V${t+rr} A${rr} ${rr} 0 0 1 ${l+rr} ${t} Z`};
+  s.setAttribute('width',W);s.setAttribute('height',H+6);s.setAttribute('viewBox',`0 0 ${W} ${H+6}`);
+  const d=p(sw/2);
+  s.innerHTML=`<path d="${d}" transform="translate(0 6)" fill="#3a2410"/><path d="${d}" fill="#fff3dc" stroke="#5b3a1e" stroke-width="${sw}"/>
+   <path d="M${px} ${nr+6} V${H-nr-6}" stroke="#7a5636" stroke-width="2" stroke-dasharray="0.1 7" stroke-linecap="round"/>
+   <path d="M${R} ${sw+1.5} H${px-nr-2}" stroke="#fff8ea" stroke-width="2"/>`});
+</script>
+</body></html>
