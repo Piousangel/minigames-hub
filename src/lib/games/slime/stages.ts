@@ -146,6 +146,18 @@ export const T2_BOUNCE: Stage = {
   bouncy: [3],
 }
 
+/**
+ * 2단계(콜백): 1단계의 언덕 그대로 + 독꽃 2개. '아까 내가 그은 길'이 독꽃에 막히게 한 판(진행 설계 A2, 11-19).
+ * 별 3·추천 길 σ12 생존 1.0, 길 모르는 무작위 선 성공률 6%. 1단계의 흔한 대각선 직선은 여기서 독꽃에 닿는다(테스트).
+ */
+export const A2_MEADOW: Stage = {
+  ...GATE_STAGES[0],
+  id: 'c-meadow',
+  acorns: [{ x: 70, y: 131 }, { x: 70, y: 269 }, { x: 187, y: 433 }],
+  spikes: [{ x: 120, y: 200 }, { x: 190, y: 320 }],
+  ink: 520,
+}
+
 const BASE_STAGES: Stage[] = [GATE_STAGES[0], T1_SPIKE, GATE_STAGES[1], T2_WALL_B]
 /** 이미 출시됐거나 한 번이라도 풀에 있던 스테이지(원본+반전본). 골든 회귀 테스트가 이 집합의 결과를 고정한다. */
 export const KNOWN_LEGACY_STAGES: Stage[] = BASE_STAGES.flatMap((s) => [s, mirrorStage(s)])
@@ -155,7 +167,7 @@ export const KNOWN_LEGACY_STAGES: Stage[] = BASE_STAGES.flatMap((s) => [s, mirro
  * 일일 #N = N번째 스테이지(12개까지 난도 순, 이후 팀이 하루 1개씩 끝에 추가 — 오너 11-19). **새 스테이지는 항상 끝에만** 붙여 지난 날짜의 결과가 바뀌지 않게 한다.
  * tier3(g-gap)는 9조합 불안정으로 제외(DECISIONS 11-19).
  */
-export const SLIME_STAGES: Stage[] = [GATE_STAGES[0], T1_SPIKE, GATE_STAGES[1], T2_WALL_B, T2_BOUNCE] // 고유 스테이지만(좌우 반전본 제외, 오너 11-19). 난도 순: 슬라이드 30% → 독꽃 13% → 벽 4% → 낮은 벽 3% → 튕기는 벽 1%(길 모르는 무작위 선 성공률)
+export const SLIME_STAGES: Stage[] = [GATE_STAGES[0], A2_MEADOW, GATE_STAGES[1], T2_WALL_B, T2_BOUNCE] // 고유 스테이지만(좌우 반전본 제외, 오너 11-19). 난도 순: 슬라이드 30% → 독꽃 13% → 벽 4% → 낮은 벽 3% → 튕기는 벽 1%(길 모르는 무작위 선 성공률)
 
 /**
  * 스테이지별 추천 길(웨이포인트). scripts/slime-hints.ts가 강건 해 중 별 3개·σ12 생존율 최고를 뽑은 것.
@@ -166,6 +178,7 @@ const BASE_HINTS: Record<string, Pt[]> = {
   's-spike': [{ x: 36, y: 303 }, { x: 92, y: 391 }, { x: 233, y: 484 }],
   'g-wall': [{ x: 26, y: 168 }, { x: 195, y: 249 }, { x: 320, y: 521 }],
   's-wall-b': [{ x: 22, y: 223 }, { x: 241, y: 268 }, { x: 261, y: 495 }],
+  'c-meadow': [{ x: 28, y: 261 }, { x: 93, y: 388 }, { x: 277, y: 533 }],
   's-bounce': [{ x: 40, y: 221 }, { x: 136, y: 252 }, { x: 172, y: 416 }, { x: 269, y: 466 }],
 }
 
