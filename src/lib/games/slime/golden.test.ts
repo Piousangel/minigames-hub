@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { runLine, waypointsToRaw } from './solver'
-import { SLIME_STAGES, STAGE_HINTS } from './stages'
+import { KNOWN_LEGACY_STAGES, STAGE_HINTS } from './stages'
 
 /**
  * 골든 회귀(11-19): 엔진에 기믹(튕기는 벽 등)을 더해도 **기존 스테이지의 결과는 한 비트도 바뀌지 않는다**.
@@ -37,7 +37,7 @@ const GOLDEN: string[] = [
 describe('엔진 골든 회귀', () => {
   it('기존 스테이지 × 고정 선 3종의 결과(결과·스텝·별·근접도)가 같다', () => {
     const rows: string[] = []
-    for (const st of SLIME_STAGES.filter((s) => !s.bouncy)) {
+    for (const st of KNOWN_LEGACY_STAGES) {
       const lines: [string, { x: number; y: number }[]][] = [
         ['hint', waypointsToRaw(STAGE_HINTS[st.id])],
         ['diag', [{ x: 50, y: 150 }, { x: 315, y: 488 }]],

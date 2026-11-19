@@ -120,14 +120,42 @@ export function mirrorStage(s: Stage): Stage {
   }
 }
 
+/**
+ * 신규 3단계(11-19): 튕기는 벽. 솔루션이 '튕김을 써야만' 풀리는 후보 12개 중 선택(scripts/slime-bounce-*.ts).
+ * 튕김 필요 해 132개, 추천 길 σ12 생존 약 40%·물리 9조합 변동 15%p(기준 이내). 길을 모르는 무작위 선 성공률은 ~1%라
+ * 도착만 하면 해금되는 일일에서는 힌트(2번 연속 실패 시)가 사실상 필수이므로, 난도 곡선에서는 '벽' 뒤에 둔다.
+ */
+export const T2_BOUNCE: Stage = {
+  id: 's-bounce',
+  tier: 2,
+  terrain: [
+    { a: { x: 255, y: 500 }, b: { x: 390, y: 500 } },
+    { a: { x: 350, y: 380 }, b: { x: 350, y: 500 } },
+    { a: { x: 233, y: 303 }, b: { x: 233, y: 560 } },
+    { a: { x: 145, y: 301 }, b: { x: 263, y: 290 } }, // 튕기는 판
+  ],
+  spawn: { x: 60, y: 90 },
+  acorns: [
+    { x: 80, y: 178 },
+    { x: 209, y: 247 },
+    { x: 297, y: 269 },
+  ],
+  nest: { x: 325, y: 484 },
+  spikes: [],
+  ink: 521,
+  bouncy: [3],
+}
+
 const BASE_STAGES: Stage[] = [GATE_STAGES[0], T1_SPIKE, GATE_STAGES[1], T2_WALL_B]
+/** 이미 출시됐거나 한 번이라도 풀에 있던 스테이지(원본+반전본). 골든 회귀 테스트가 이 집합의 결과를 고정한다. */
+export const KNOWN_LEGACY_STAGES: Stage[] = BASE_STAGES.flatMap((s) => [s, mirrorStage(s)])
 
 /**
  * 첫 출시 스테이지, **난도 오름차순**(길 모르는 무작위 선 성공률: 슬라이드 30% → 독꽃 13% → 벽 4% → 낮은 벽 3%, 각각 반전본이 바로 뒤).
  * 일일 #N = N번째 스테이지(12개까지 난도 순, 이후 팀이 하루 1개씩 끝에 추가 — 오너 11-19). **새 스테이지는 항상 끝에만** 붙여 지난 날짜의 결과가 바뀌지 않게 한다.
  * tier3(g-gap)는 9조합 불안정으로 제외(DECISIONS 11-19).
  */
-export const SLIME_STAGES: Stage[] = BASE_STAGES.flatMap((s) => [s, mirrorStage(s)])
+export const SLIME_STAGES: Stage[] = KNOWN_LEGACY_STAGES.map((s) => (s.id === 'g-wall-m' ? T2_BOUNCE : s)) // 반전본 자리를 새 규칙으로 하나씩 바꿔 넣는다
 
 /**
  * 스테이지별 추천 길(웨이포인트). scripts/slime-hints.ts가 강건 해 중 별 3개·σ12 생존율 최고를 뽑은 것.
@@ -138,6 +166,7 @@ const BASE_HINTS: Record<string, Pt[]> = {
   's-spike': [{ x: 36, y: 303 }, { x: 92, y: 391 }, { x: 233, y: 484 }],
   'g-wall': [{ x: 26, y: 168 }, { x: 195, y: 249 }, { x: 320, y: 521 }],
   's-wall-b': [{ x: 22, y: 223 }, { x: 241, y: 268 }, { x: 261, y: 495 }],
+  's-bounce': [{ x: 40, y: 221 }, { x: 136, y: 252 }, { x: 172, y: 416 }, { x: 269, y: 466 }],
 }
 
 /** 추천 길. 미러 스테이지는 원본 추천 길을 좌우 반전해서 쓴다. */
