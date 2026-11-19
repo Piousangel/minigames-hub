@@ -41,3 +41,58 @@ export function shareText(iso: string, attempts: Attempt[], url: string): string
   const tail = best && best.score > 0 ? `${'⭐'.repeat(best.stars)}${'☆'.repeat(3 - best.stars)} ${best.score} pts` : 'No landing yet'
   return [`${head} ${tail}${hinted}`, `${marks} ${attempts.length}/${DAILY_ATTEMPTS}`, url].filter(Boolean).join('\n')
 }
+
+// ───────── 순차 해금 일일(오너 11-19): 1스테이지를 깨야 2스테이지가 열린다 ─────────
+/** 하루 진행: 스테이지 순서대로의 시도 기록. progress[i] = i번째 스테이지의 시도들(최대 DAILY_ATTEMPTS). */
+export type DailyProgress = Attempt[][]
+export type StageState = 'locked' | 'open' | 'cleared' | 'failed'
+
+export const emptyProgress = (total: number): DailyProgress => Array.from({ length: total }, () => [])
+
+const clearedAt = (p: DailyProgress, i: number): boolean => (p[i] ?? []).some((a) => a.outcome === 'nest')
+
+/**
+ * 스테이지 상태. 앞 스테이지를 모두 깨야 열린다. 한 스테이지에서 시도를 3번 다 쓰고도 못 깨면 'failed'(그날은 거기서 끝, 점수는 그때까지의 합).
+ */
+export function stageState(p: DailyProgress, i: number): StageState {
+  for (let k = 0; k < i; k++) if (!clearedAt(p, k)) return 'locked'
+  if (clearedAt(p, i)) return 'cleared'
+  return (p[i] ?? []).length >= DAILY_ATTEMPTS ? 'failed' : 'open'
+}
+
+/** 지금 플레이할 스테이지 인덱스. 하루가 끝났으면(전부 깼거나 어딘가에서 실패) null. */
+export function currentStage(p: DailyProgress): number | null {
+  for (let i = 0; i < p.length; i++) {
+    const s = stageState(p, i)
+    if (s === 'open') return i
+    if (s === 'failed') return null
+  }
+  return null
+}
+
+/** 시도를 기록한다(불변). 열려 있지 않은 스테이지·이미 깬 스테이지·시도 소진 후의 기록은 무시한다. */
+export function recordAttempt(p: DailyProgress, i: number, a: Attempt): DailyProgress {
+  if (stageState(p, i) !== 'open') return p
+  return p.map((list, k) => (k === i ? [...list, a] : list))
+}
+
+/** 하루 점수 = 스테이지별 최고점의 합. */
+export const dailyTotal = (p: DailyProgress): number => p.reduce((sum, list) => sum + (bestOf(list)?.score ?? 0), 0)
+export const clearedCount = (p: DailyProgress): number => p.filter((_, i) => clearedAt(p, i)).length
+export const dailyOver = (p: DailyProgress): boolean => currentStage(p) === null
+export const usedHint = (p: DailyProgress): boolean => p.some((l) => l.some((a) => a.hint))
+
+/** 스포일러 없는 하루 공유 문구: 스테이지별 한 칸(🌟 별3 / ⭐ 도착 / 💥 막힘 / ⬜ 못 감). 경로는 담지 않는다. */
+export function progressShareText(iso: string, p: DailyProgress, url = ''): string {
+  const marks = p
+    .map((list, i) => {
+      const s = stageState(p, i)
+      if (s === 'locked') return '⬜'
+      const best = bestOf(list.filter((a) => a.outcome === 'nest'))
+      if (!best) return list.length > 0 ? '💥' : '⬜' // 시도했지만 못 깼으면 💥, 열렸지만 아직 안 해 봤으면 ⬜
+      return best.stars === 3 ? '🌟' : '⭐'
+    })
+    .join('')
+  const head = `Slime Slide #${dailyNumber(iso)} · ${clearedCount(p)}/${p.length} stages · ${dailyTotal(p)} pts${usedHint(p) ? ' (used a hint)' : ''}`
+  return [head, marks, url].filter(Boolean).join('\n')
+}
