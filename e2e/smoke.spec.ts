@@ -1097,3 +1097,14 @@ test('Slime Slide: 일일/연습 탭과 시도 수가 보이고 캔버스가 뜬
   await expect(page.getByTestId('slime-canvas')).toBeVisible()
   await expect(page.getByText(/tries left/)).toHaveCount(0)
 })
+
+test('2048-animals: 진화 사다리는 animals에만, classic /2048에는 없다', async ({ page }) => {
+  await page.goto('/2048-animals')
+  await expect(page.getByTestId('board').getByTestId('tile').first()).toBeVisible()
+  const ladder = page.getByTestId('evolution-ladder')
+  await expect(ladder).toBeVisible()
+  await expect(ladder).toHaveAttribute('aria-label', /Evolution: .*next: /)
+  await page.goto('/2048')
+  await expect(page.getByTestId('board').getByTestId('tile').first()).toBeVisible()
+  await expect(page.getByTestId('evolution-ladder')).toHaveCount(0)
+})

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor, within } from '@testing-library/react'
 import { Game2048 } from './Game2048'
 import { loadStats } from '@/lib/gameStats'
 import { themes2048 } from '@/lib/games/g2048/themes'
@@ -191,5 +191,88 @@ describe('Game2048 merge vibration', () => {
     await screen.findByTestId('board')
     fireEvent.keyDown(window, { key: 'ArrowLeft' })
     await waitFor(() => expect(screen.getByTestId('score')).toHaveTextContent('4'))
+  })
+})
+
+// ── animals 전용: 진화 사다리 · 도달한 동물 결과 줄 · 역대 최고 타일(bestTile:<slug>) ──
+const animals = themes2048.animals
+const classic = themes2048.classic
+// 한 번의 ArrowLeft로 2+2가 합쳐지고 빈칸 하나에 스폰 → 더 둘 곳이 없다(게임오버). 최고 타일 512(🐯 Tiger).
+const LAST_MOVE_512: Board = [
+  [2, 2, 8, 16],
+  [32, 64, 128, 256],
+  [4, 8, 16, 32],
+  [64, 128, 256, 512],
+]
+
+async function playLastMoveAs(t: typeof animals, key: string) {
+  const r = render(<Game2048 theme={t} storageKey={key} />)
+  await screen.findByTestId('board')
+  fireEvent.keyDown(window, { key: 'ArrowLeft' })
+  const over = await screen.findByTestId('game-over')
+  return { over, unmount: r.unmount }
+}
+
+describe('Game2048 animals evolution ladder and result', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    vi.stubGlobal('ResizeObserver', NoopResizeObserver)
+  })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    opening.board = null
+  })
+
+  it('ladder marks steps up to the best tile on the board as reached and the following one as next', async () => {
+    opening.board = [
+      [16, 4, 0, 0],
+      [2, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 0, 0, 0],
+    ]
+    render(<Game2048 theme={animals} storageKey="best:2048-animals" />)
+    const ladder = await screen.findByTestId('evolution-ladder')
+    const states = Array.from(ladder.querySelectorAll('[data-step]')).map((el) => el.getAttribute('data-state'))
+    expect(states).toEqual(['reached', 'reached', 'reached', 'reached', 'next', ...Array(6).fill('locked')])
+    expect(ladder).toHaveAttribute('aria-label', 'Evolution: Mouse, Hamster, Rabbit, Fox — next: Cat')
+    // 각 타일 모서리에 단계 값
+    expect(screen.getAllByTestId('tile-value').map((el) => el.textContent).sort()).toEqual(['16', '2', '4'])
+  })
+
+  it('game over shows the reached animal and the next one, and stores bestTile', async () => {
+    opening.board = LAST_MOVE_512
+    const { over } = await playLastMoveAs(animals, 'best:2048-animals')
+    expect(within(over).getByTestId('result-animal')).toHaveTextContent('You reached 🐯 Tiger · next: 🐻 Bear')
+    await waitFor(() => expect(localStorage.getItem('bestTile:2048-animals')).toBe('512'))
+  })
+
+  it('bestTile only moves up on a record; a record run says "New animal!"', async () => {
+    localStorage.setItem('bestTile:2048-animals', '1024')
+    opening.board = LAST_MOVE_512
+    const first = await playLastMoveAs(animals, 'best:2048-animals')
+    expect(within(first.over).getByTestId('result-animal')).toHaveTextContent(/^You reached 🐯 Tiger/)
+    expect(localStorage.getItem('bestTile:2048-animals')).toBe('1024')
+    first.unmount()
+
+    localStorage.setItem('bestTile:2048-animals', '256')
+    const second = await playLastMoveAs(animals, 'best:2048-animals')
+    expect(within(second.over).getByTestId('result-animal')).toHaveTextContent(/^New animal! 🐯 Tiger/)
+    await waitFor(() => expect(localStorage.getItem('bestTile:2048-animals')).toBe('512'))
+  })
+
+  it('keeps the score record (best:<slug>) a score, separate from the tile record', async () => {
+    opening.board = LAST_MOVE_512
+    await playLastMoveAs(animals, 'best:2048-animals')
+    await waitFor(() => expect(localStorage.getItem('best:2048-animals')).toBe('4'))
+  })
+
+  it('classic 2048 has no ladder, no tile values, no animal result line and no bestTile key', async () => {
+    opening.board = LAST_MOVE_512
+    const { over } = await playLastMoveAs(classic, 'best:2048')
+    expect(screen.queryByTestId('evolution-ladder')).toBeNull()
+    expect(screen.queryByTestId('tile-value')).toBeNull()
+    expect(within(over).queryByTestId('result-animal')).toBeNull()
+    await waitFor(() => expect(over).toHaveTextContent('Score: 4 · Best: 4'))
+    expect(Object.keys(localStorage).filter((k) => k.startsWith('bestTile:'))).toEqual([])
   })
 })
