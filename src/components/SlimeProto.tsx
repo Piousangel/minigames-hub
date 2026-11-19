@@ -7,6 +7,7 @@ import { simulate } from '@/lib/games/slime/engine'
 import { sendHit } from '@/lib/hit'
 import { scoreOf } from '@/lib/games/slime/daily'
 import { renderTerrainLayer } from '@/lib/games/slime/terrainRender'
+import { paintSkyTheme, themeOf } from '@/lib/games/slime/theme'
 import { KO, type SlimeText } from '@/lib/games/slime/strings'
 import { STAGE_HINTS } from '@/lib/games/slime/stages'
 import { runLine, waypointsToRaw } from '@/lib/games/slime/solver'
@@ -235,6 +236,7 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
       const shake = shakeUntil.current > t && !fx.current.calm ? ((shakeUntil.current - t) / 350) * 5 : 0
       if (shake > 0) g.translate((Math.random() - 0.5) * shake * 2, (Math.random() - 0.5) * shake * 2)
       drawSky(g, imgBg.current, t, BOARD_W, BOARD_H)
+      paintSkyTheme(g, themeOf(stage.id), BOARD_W, BOARD_H, t, fx.current.calm)
       g.lineCap = 'round'
       g.lineJoin = 'round'
       // 지형 v2: 채워진 암석 덩어리를 오프스크린에 한 번 그려 두고 복사(막대기 금지, 오너 11-19). 만들 수 없으면 기존 방식으로 폴백
