@@ -14,6 +14,17 @@ export function simulate(stage: Stage, lines: Pt[][], phys: Physics = DEFAULT_PH
   for (const t of stage.terrain) push(t)
   for (const line of lines) for (let i = 0; i + 1 < line.length; i++) push({ a: line[i], b: line[i + 1] })
   const n = segs.length / 4
+  // 선분별 경계 상자(조기 탈출용): 공 중심이 상자에서 D0보다 멀면 최근접 거리도 D0 이상이라 충돌 계산 결과는 어차피 '충돌 없음'이다.
+  // 건너뛰기만 하므로 결과는 비트 단위로 같다(골든 테스트가 증명). 여유 1e-6은 부동소수 오차 방어.
+  const bb = new Float64Array(n * 4)
+  const MARGIN = CONST.D0 + 1e-6
+  for (let s = 0; s < n; s++) {
+    const o = s * 4
+    bb[o] = Math.min(segs[o], segs[o + 2]) - MARGIN
+    bb[o + 1] = Math.min(segs[o + 1], segs[o + 3]) - MARGIN
+    bb[o + 2] = Math.max(segs[o], segs[o + 2]) + MARGIN
+    bb[o + 3] = Math.max(segs[o + 1], segs[o + 3]) + MARGIN
+  }
   // 튕기는 벽(terrain 인덱스): 기믹이 없는 스테이지는 이 배열이 비어 기존 계산 경로 그대로다
   const bouncy = stage.bouncy && stage.bouncy.length ? stage.bouncy : null
 
@@ -44,6 +55,7 @@ export function simulate(stage: Stage, lines: Pt[][], phys: Physics = DEFAULT_PH
     for (let it = 0; it < 2; it++) {
       for (let s = 0; s < n; s++) {
         const o = s * 4
+        if (x < bb[o] || y < bb[o + 1] || x > bb[o + 2] || y > bb[o + 3]) continue
         const ax = segs[o]
         const ay = segs[o + 1]
         const dx = segs[o + 2] - ax
