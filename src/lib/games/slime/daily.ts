@@ -39,5 +39,5 @@ export function shareText(iso: string, attempts: Attempt[], url: string): string
   const marks = attempts.map(MARK).join('')
   const hinted = attempts.some((a) => a.hint) ? ' (used a hint)' : ''
   const tail = best && best.score > 0 ? `${'⭐'.repeat(best.stars)}${'☆'.repeat(3 - best.stars)} ${best.score} pts` : 'No landing yet'
-  return `${head} ${tail}${hinted}\n${marks} ${attempts.length}/${DAILY_ATTEMPTS}\n${url}`
+  return [`${head} ${tail}${hinted}`, `${marks} ${attempts.length}/${DAILY_ATTEMPTS}`, url].filter(Boolean).join('\n')
 }
