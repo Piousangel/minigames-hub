@@ -84,3 +84,7 @@ export function paintSkyTheme(g: CanvasRenderingContext2D, theme: Theme, W: numb
     g.fillRect(x, y, 2 + (i % 3 === 0 ? 1 : 0), 2 + (i % 3 === 0 ? 1 : 0))
   }
 }
+
+/** 일일 8칸의 타이틀 카드·공유 이름(슬롯 번호 기준, 확정 스펙 B장). 슬롯의 지형이 바뀌어도 이름은 슬롯에 붙는다. */
+export const SLOT_NAMES = ['First Light', 'Morning Meadow', 'Stone Steps', 'Twin Hills', 'Two Banks', 'Jelly Hollow', 'Windy Ridge', 'Lantern Gate']
+export const slotName = (i: number): string => SLOT_NAMES[i] ?? `Stage ${i + 1}`

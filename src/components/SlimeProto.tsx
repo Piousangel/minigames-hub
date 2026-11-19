@@ -7,7 +7,7 @@ import { simulate } from '@/lib/games/slime/engine'
 import { sendHit } from '@/lib/hit'
 import { scoreOf } from '@/lib/games/slime/daily'
 import { renderTerrainLayer } from '@/lib/games/slime/terrainRender'
-import { paintSkyTheme, themeOf } from '@/lib/games/slime/theme'
+import { paintSkyTheme, slotName, themeOf } from '@/lib/games/slime/theme'
 import { KO, type SlimeText } from '@/lib/games/slime/strings'
 import { STAGE_HINTS } from '@/lib/games/slime/stages'
 import { runLine, waypointsToRaw } from '@/lib/games/slime/solver'
@@ -70,6 +70,7 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
   const [copied, setCopied] = useState('')
   const [muted, setMuted] = useState(false)
   const [inKakao, setInKakao] = useState(false)
+  const [card, setCard] = useState(false) // 스테이지 진입 타이틀 카드(0.9초)
   const { unlock, play } = useSlimeAudio(muted)
   const gotAcorns = useRef<Set<number>>(new Set())
   const lockScroll = useCallback((on: boolean) => {
@@ -181,6 +182,13 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
       mq?.removeEventListener?.('change', onMq)
     }
   }, [])
+
+  // 스테이지에 들어올 때 이름 카드를 잠깐 보여 준다(입력하면 바로 사라진다)
+  useEffect(() => {
+    setCard(true)
+    const id = window.setTimeout(() => setCard(false), 900)
+    return () => window.clearTimeout(id)
+  }, [si])
 
   // 한 판의 연출 상태 초기화(reset·놓기에서 공통)
   const resetRunFx = useCallback(() => {
@@ -484,6 +492,7 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
       setMsg(tx.banNear)
       return
     }
+    setCard(false)
     unlock()
     play('draw')
     lockScroll(true)
@@ -631,6 +640,12 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
       <div className="relative" style={{ width: w, height: Math.round(w * (BOARD_H / BOARD_W)) }}>
         <canvas ref={canvas} style={{ width: w, height: Math.round(w * (BOARD_H / BOARD_W)), touchAction: 'pan-y' }} className="garden-frame block" role="img" aria-label={tx.canvasLabel} data-testid="slime-canvas" />
         {/* 그리기 구역: 가로 90%·세로 84%. 스크롤용 띠는 위·아래 8%·좌우 5%만 남긴다(오너 11-19: 띠가 넓어 선이 안 그려지는 곳이 많았음). 위로 빠르게 쓸어올리는 스크롤 손짓은 onUp 필터가 선으로 세지 않는다 */}
+        {card && (
+          <div className="pointer-events-none absolute inset-x-0 top-[14%] z-[5] flex flex-col items-center" aria-hidden="true" data-testid="slime-title-card">
+            <span className="rounded-full border-[3px] border-[#5b3a1e] bg-[#fff3dc] px-4 py-1 text-xs font-bold tracking-wide text-[#5b3a1e] shadow-[0_3px_0_#3a2410]">STAGE {si + 1}</span>
+            <span className="mt-1 rounded-2xl border-[3px] border-[#5b3a1e] bg-[#ffc933] px-5 py-1.5 text-xl font-extrabold text-[#5b3a1e] shadow-[0_4px_0_#3a2410]">{slotName(si)}</span>
+          </div>
+        )}
         <PlayZone top={0.08} bottom={0.08} left={0.05} right={0.05} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onCancel} data-testid="slime-zone" />
       </div>
       <p role="status" aria-live="polite" className="mt-6 min-h-6 text-center text-sm font-semibold">{msg || (phase === 'draw' ? tx.startStatus : phase === 'run' ? tx.running : '')}</p>
