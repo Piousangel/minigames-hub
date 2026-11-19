@@ -30,7 +30,8 @@ export function Reactions({ slug }: { slug: string }) {
         return res.json() as Promise<{ counts: ReactionCounts }>
       })
       .then((data) => {
-        if (!cancelled) setCounts(data.counts)
+        // 200인데 counts가 없는 응답(프록시·캐시 오염)에도 게임 페이지 전체가 죽지 않게 숨김 처리
+        if (!cancelled) setCounts(data && typeof data.counts === 'object' && data.counts ? data.counts : null)
       })
       .catch(() => {
         if (!cancelled) setAvailable(false)
@@ -58,7 +59,9 @@ export function Reactions({ slug }: { slug: string }) {
         if (!res.ok) throw new Error('bad')
         return res.json() as Promise<{ counts: ReactionCounts }>
       })
-      .then((data) => setCounts(data.counts))
+      .then((data) => {
+        if (data && typeof data.counts === 'object' && data.counts) setCounts(data.counts)
+      })
       .catch(() => {
         // 실패해도 롤백 안 함 — dedup 플래그는 이미 남았고(재시도해도 서버가 카운트 안 함),
         // 낙관적 카운트를 되돌리면 "방금 눌렀는데 왜 취소됐지"라는 혼란만 더한다.
