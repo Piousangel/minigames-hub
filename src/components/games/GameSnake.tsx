@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { changeDir, GRID, newSnakeGame, tick, type Dir, type SnakeState } from '@/lib/games/snake/engine'
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
+import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
@@ -16,6 +17,22 @@ const KEY_DIRS: Record<string, Dir> = {
 }
 
 const TICK_MS = 130
+/** 죽은 칸을 보여 줄 시간 — 이 뒤에 결과 오버레이(reduced-motion이면 즉시). */
+export const DEATH_REVEAL_MS = 600
+
+const STEP: Record<Dir, { x: number; y: number }> = {
+  up: { x: 0, y: -1 },
+  down: { x: 0, y: 1 },
+  left: { x: -1, y: 0 },
+  right: { x: 1, y: 0 },
+}
+// 머리 눈 2점 — 진행 방향 쪽으로 쏠린다(칸 크기 대비 %).
+const EYES: Record<Dir, { left: string; top: string }[]> = {
+  right: [{ left: '56%', top: '16%' }, { left: '56%', top: '62%' }],
+  left: [{ left: '22%', top: '16%' }, { left: '22%', top: '62%' }],
+  up: [{ left: '16%', top: '22%' }, { left: '62%', top: '22%' }],
+  down: [{ left: '16%', top: '56%' }, { left: '62%', top: '56%' }],
+}
 
 export function GameSnake({ storageKey }: { storageKey: string }) {
   // SSR 불일치 방지: 초기 상태는 클라이언트에서만 생성
@@ -31,8 +48,23 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
   // 경신이 실제로 일어나는 지점에서 플래그를 세운다(GameTowerStack과 같은 방식).
   const newBestRef = useRef(false)
   const [newBest, setNewBest] = useState(false)
+  const { reducedRef } = useReducedMotion()
+  // 죽는 순간 판을 바로 덮지 않는다: 충돌 칸이 깜빡이는 동안(DEATH_REVEAL_MS) 오버레이를 미룬다.
+  const [overlayShown, setOverlayShown] = useState(false)
+  const overlayTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // 먹은 직후 머리 칸 펄스 — 먹은 그 칸 좌표. 다음 틱에 머리가 옮겨 가면 자연히 꺼진다.
+  const [gulpAt, setGulpAt] = useState<string | null>(null)
+
+  const clearOverlayTimer = () => {
+    if (overlayTimer.current) clearTimeout(overlayTimer.current)
+    overlayTimer.current = null
+  }
+  useEffect(() => clearOverlayTimer, [])
 
   const restart = useCallback(() => {
+    clearOverlayTimer()
+    setOverlayShown(false)
+    setGulpAt(null)
     setState(newSnakeGame(Math.random))
     setRunning(false)
     prevScore.current = 0
@@ -74,16 +106,32 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
   // Sound cues driven off state transitions.
   useEffect(() => {
     if (!state) return
-    if (state.score > prevScore.current) play('eat')
+    if (state.score > prevScore.current) {
+      play('eat')
+      setGulpAt(`${state.snake[0].x},${state.snake[0].y}`)
+    } else {
+      // 펄스는 먹은 그 틱에만. 남겨 두면 나중에 같은 칸을 지날 때 다시 재생된다.
+      setGulpAt((g) => (g === null ? g : null))
+    }
     prevScore.current = state.score
     if (state.over && !prevOver.current) {
       // 이 effect는 위의 best 갱신 effect보다 뒤에 선언돼 있어 플래그가 이미 서 있다.
       setNewBest(newBestRef.current)
       play(newBestRef.current ? 'win' : 'lose')
       recordFinish(storageKey.replace(/^best:/, ''))
+      if (!muted) {
+        try {
+          navigator.vibrate?.(60)
+        } catch {
+          /* 진동 미지원·차단 — 무시 */
+        }
+      }
+      clearOverlayTimer()
+      if (reducedRef.current) setOverlayShown(true)
+      else overlayTimer.current = setTimeout(() => setOverlayShown(true), DEATH_REVEAL_MS)
     }
     prevOver.current = state.over
-  }, [state, play, storageKey])
+  }, [state, play, storageKey, muted, reducedRef])
 
   const steer = useCallback((dir: Dir) => {
     setRunning(true)
@@ -92,7 +140,18 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (isTypingTarget(e.target)) return
+      if (isTypingTarget(e.target)) return // 리더보드 이름 입력 등
+      if (e.key === 'Enter' || e.key === ' ') {
+        // 게임오버 결과가 떠 있을 때만 재시작. 버튼·링크에 포커스가 있으면 그쪽 기본 동작
+        // (Try again 클릭, Next 링크 이동)에 맡긴다 — 이중 재시작·링크 가로채기 방지.
+        if (e.target instanceof Element && e.target.closest('button, a')) return
+        // 플레이 중·죽음 연출 중 Space가 페이지를 스크롤하지 않게 막는다(판이 화면 밖으로 밀림).
+        if (e.key === ' ' && (running || over)) e.preventDefault()
+        if (!over || !overlayShown) return
+        e.preventDefault()
+        restart()
+        return
+      }
       const dir = KEY_DIRS[e.key]
       if (dir) {
         e.preventDefault()
@@ -101,7 +160,7 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [steer])
+  }, [steer, restart, over, overlayShown, running])
 
   const onTouchStart = (e: React.TouchEvent) => {
     if (!inPlayZone(e)) {
@@ -123,9 +182,15 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
   }
 
   const hint =
-    running && !over
-      ? 'Eat the food to grow — avoid the walls and your own tail.'
-      : 'Swipe, use the D-pad, or press an arrow key to start.'
+    running && !over ? (
+      'Eat the food to grow — avoid the walls and your own tail.'
+    ) : (
+      <>
+        {/* D-pad는 sm 미만에만 있다 */}
+        <span className="sm:hidden">Swipe, use the D-pad, or press an arrow key to start.</span>
+        <span className="hidden sm:inline">Press an arrow key to start.</span>
+      </>
+    )
 
   if (!state) {
     return (
@@ -140,13 +205,19 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
         onToggleMute={toggleMuted}
         hint={hint}
       >
-        <div className="aspect-square rounded-xl bg-surface" data-testid="snake-loading" />
+        <div className="aspect-square rounded-xl bg-garden-cream-shade" data-testid="snake-loading" />
       </GameShell>
     )
   }
 
   const occupied = new Map<string, 'head' | 'body'>()
   state.snake.forEach((p, i) => occupied.set(`${p.x},${p.y}`, i === 0 ? 'head' : 'body'))
+  const head = state.snake[0]
+  // 충돌 칸: 머리가 가려던 칸. 판 안이면 부딪힌 몸통, 밖이면 벽(머리만 깜빡).
+  const crash = { x: head.x + STEP[state.dir].x, y: head.y + STEP[state.dir].y }
+  const crashKey = state.over && crash.x >= 0 && crash.x < GRID && crash.y >= 0 && crash.y < GRID ? `${crash.x},${crash.y}` : null
+  const dying = state.over && !overlayShown
+  const shortBy = best - state.score
 
   return (
     <GameShell
@@ -160,8 +231,8 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
       hint={hint}
     >
       <div
-        className="anim-board-in relative grid aspect-square gap-px rounded-xl bg-surface p-2"
-        style={{ gridTemplateColumns: `repeat(${GRID}, minmax(0, 1fr))` }}
+        className="anim-board-in relative grid aspect-square gap-px rounded-xl bg-garden-cream-shade p-2"
+        style={{ gridTemplateColumns: `repeat(${GRID}, minmax(0, 1fr))`, gridTemplateRows: `repeat(${GRID}, minmax(0, 1fr))` }}
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         data-testid="snake-board"
@@ -170,35 +241,77 @@ export function GameSnake({ storageKey }: { storageKey: string }) {
         {Array.from({ length: GRID * GRID }, (_, i) => {
           const x = i % GRID
           const y = Math.floor(i / GRID)
-          const kind = occupied.get(`${x},${y}`)
+          const key = `${x},${y}`
+          const kind = occupied.get(key)
           const isFood = state.food.x === x && state.food.y === y
+          if (kind === 'head') {
+            return (
+              <div
+                key={i}
+                data-testid="snake-head"
+                data-dir={state.dir}
+                className={`relative rounded-[4px] ${state.over ? 'bg-garden-danger-text' : 'bg-garden-leaf-text'} ${
+                  dying ? 'anim-snake-blink' : !state.over && gulpAt === key ? 'anim-snake-gulp' : ''
+                }`}
+              >
+                {state.over ? (
+                  // 죽은 머리: 색만으로 구분하지 않도록 눈 대신 × (모션 줄이기에서도 보인다)
+                  <span aria-hidden="true" className="absolute inset-0 flex items-center justify-center text-[0.7rem] font-black leading-none text-garden-cream">
+                    ×
+                  </span>
+                ) : (
+                  EYES[state.dir].map((p, j) => (
+                    <span key={j} aria-hidden="true" className="absolute h-[24%] w-[24%] rounded-full bg-garden-cream" style={p} />
+                  ))
+                )}
+              </div>
+            )
+          }
+          const crashed = key === crashKey
           return (
             <div
               key={i}
+              data-testid={crashed ? 'snake-crash' : undefined}
               className={
-                kind === 'head'
-                  ? 'rounded-[3px] bg-accent shadow-[0_0_8px_rgba(245,158,11,0.6)]'
-                  : kind === 'body'
-                    ? 'rounded-[2px] bg-accent/70'
-                    : isFood
-                      ? 'anim-pop rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]'
-                      : 'rounded-[2px] bg-white/[0.04]'
+                kind === 'body'
+                  ? `rounded-[3px] bg-garden-leaf-deep ${crashed ? `ring-[3px] ring-inset ring-garden-ink ${dying ? 'anim-snake-blink' : ''}` : ''}`
+                  : isFood
+                    ? 'anim-pop rounded-full border-2 border-garden-ink bg-[radial-gradient(circle_at_35%_35%,var(--garden-apricot)_0%,var(--garden-apricot)_30%,var(--garden-coral)_75%)]'
+                    : 'rounded-[2px] bg-garden-cream-2'
               }
             />
           )
         })}
         <GameOverlay
-          show={state.over}
+          show={state.over && overlayShown}
           variant={newBest ? 'win' : 'lose'}
           title={newBest ? 'New best!' : 'Game over'}
           testId="game-over"
+          tone="cozy"
         >
-          <p className="text-fg-muted">
+          <p className="font-semibold tabular-nums">
             Score: {state.score} · Best: {best}
+            {/* 같은 줄에 붙여 390에서 시트가 판보다 커지지 않게 한다 */}
+            {!newBest && shortBy > 0 && (
+              <span data-testid="snake-short-of-best" className="block text-sm font-bold text-garden-coral-text">
+                {shortBy} short of your best
+              </span>
+            )}
+            {!newBest && shortBy === 0 && state.score > 0 && (
+              <span data-testid="snake-short-of-best" className="block text-sm font-bold text-garden-coral-text">
+                Tied your best!
+              </span>
+            )}
           </p>
-          <GameButton onClick={restart} className="px-4 py-2">
+          <button
+            type="button"
+            onClick={restart}
+            autoFocus
+            className="btn-press inline-flex h-11 items-center justify-center rounded-full border-[3px] border-garden-ink bg-garden-sun px-5 text-sm font-bold text-garden-ink shadow-garden-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-garden-coral-text focus-visible:ring-offset-2"
+          >
             Try again
-          </GameButton>
+          </button>
+          <p className="hidden text-xs text-garden-ink-soft sm:block">or press Enter</p>
         </GameOverlay>
       </div>
 
