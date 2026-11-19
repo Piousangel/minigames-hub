@@ -104,8 +104,33 @@
       "out": "docs/design/mockups/sand-d-s1-glass.webp",
       "model": "gemini-3-pro-image",
       "at": "2026-11-19T12:56:09+00:00"
+    },
+    "mascot3-a-bee-courier": {
+      "out": "docs/design/mascots/mascot3-a-bee-courier.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:06:37+00:00"
+    },
+    "mascot3-b-turtle-gardener": {
+      "out": "docs/design/mascots/mascot3-b-turtle-gardener.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:06:55+00:00"
+    },
+    "mascot3-c-owl-editor": {
+      "out": "docs/design/mascots/mascot3-c-owl-editor.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:07:10+00:00"
+    },
+    "mascot3-d-sunseed-sprite": {
+      "out": "docs/design/mascots/mascot3-d-sunseed-sprite.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:07:29+00:00"
+    },
+    "mascot3-e-cloud-whale": {
+      "out": "docs/design/mascots/mascot3-e-cloud-whale.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-19T13:07:46+00:00"
     }
   },
   "month": "2026-11",
-  "count": 20
+  "count": 25
 }
