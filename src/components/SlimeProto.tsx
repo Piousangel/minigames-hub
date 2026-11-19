@@ -227,8 +227,8 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
       drawSky(g, imgBg.current, t, BOARD_W, BOARD_H)
       g.lineCap = 'round'
       g.lineJoin = 'round'
-      const islandsOk = drawIslandFloors(g, imgIsland.current, stage.terrain) // 바닥 = 풀 섬 그림
-      drawTerrain(g, stage.terrain, islandsOk) // 벽 = 바위 기둥(그림이 아직 없으면 바닥도 선으로)
+      const islandsOk = drawIslandFloors(g, imgIsland.current, stage.terrain, stage.bouncy) // 바닥 = 풀 섬 그림
+      drawTerrain(g, stage.terrain, islandsOk, stage.bouncy, t) // 벽 = 바위 기둥(그림이 아직 없으면 바닥도 선으로)
       // 스폰 금지 링
       g.setLineDash([4, 6])
       const rf = ringFlash.current > t ? (ringFlash.current - t) / 400 : 0

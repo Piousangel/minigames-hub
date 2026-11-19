@@ -16,6 +16,8 @@ export interface Stage {
   spikes: Pt[]
   /** 잉크 한도(px): 파이프라인 후 폴리라인 길이. */
   ink: number
+  /** 튕기는 벽: 이 스테이지 `terrain`의 인덱스 목록. 반발계수가 높고 마찰이 없다(없으면 기존 계산 그대로). */
+  bouncy?: number[]
 }
 
 export type Outcome = 'nest' | 'spiked' | 'fell' | 'stalled' | 'timeout'
@@ -56,4 +58,5 @@ export const CONST = {
   START_DELAY: 60, // 손을 뗀 뒤 0.5초
   MIN_LINE: 40,
   SPAWN_BAN_R: 34,
+  BOUNCE_E1: 1.85, // 튕기는 벽의 1 + 반발계수(0.85)
 } as const
