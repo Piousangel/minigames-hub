@@ -861,3 +861,11 @@ body:has(main[data-game-page]) [data-site-nav-row] {
     width: 1200px;
   }
 }
+
+/* R6 마스코트(D6 한 뷰포트 1마리): 씨앗 도서관이 빈 상태(검색 0·My games 비어 있음)일 때는 생각하는 해씨가 안내를 맡는다.
+   빈 상태 칸은 선반 바로 아래·About 바로 위라 다른 마스코트(선반 disc 4장, About 해씨)와 한 화면에 든다 → 그동안 그 그림만
+   visibility로 접는다(자리·disc 바탕색은 그대로라 CLS 0). 검색을 지우면 돌아온다. */
+.home-body:has([data-testid='browse-empty']) .home-about__guide,
+.home-body:has([data-testid='browse-empty']) [data-mascot-group] img {
+  visibility: hidden;
+}

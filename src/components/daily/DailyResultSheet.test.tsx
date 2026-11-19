@@ -91,11 +91,19 @@ describe('DailyResultSheet', () => {
     expect(screen.getByText('slot')).toBeInTheDocument() // 게임별 칸(리더보드 제출 등)
   })
 
-  it('카운트다운: 다음 UTC 자정까지 hh:mm:ss + 보미 자리 32px(비어 있음)', () => {
+  it('카운트다운: 다음 UTC 자정까지 hh:mm:ss + 보미 countdown 32px(R6, 시트의 마스코트는 이 1마리)', () => {
     render(<Sheet />)
     expect(screen.getByTestId('sheet-countdown')).toHaveTextContent('Next edition in 14:22:05')
-    expect(screen.getByTestId('sheet-bomi-slot').className).toMatch(/h-8 w-8/)
-    expect(screen.getByTestId('sheet-bomi-slot')).toBeEmptyDOMElement()
+    const slot = screen.getByTestId('sheet-bomi-slot')
+    expect(slot.className).toMatch(/h-8 w-8/)
+    const imgs = screen.getByTestId(SHEET_TEST_ID).querySelectorAll('img[data-mascot]')
+    expect(imgs).toHaveLength(1)
+    expect(slot.querySelector('img')).toBe(imgs[0])
+    expect(imgs[0]).toHaveAttribute('data-mascot', 'bomi-countdown')
+    expect(imgs[0]).toHaveAttribute('width', '32')
+    expect(imgs[0]).toHaveAttribute('height', '32')
+    expect(imgs[0]).toHaveAttribute('loading', 'lazy')
+    expect(imgs[0]).toHaveAttribute('alt', '')
   })
 
   it('max-height 85dvh + 안쪽 스크롤', () => {

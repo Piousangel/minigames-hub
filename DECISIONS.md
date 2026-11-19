@@ -151,3 +151,16 @@
 - **티켓 줄(R4 이월)**: 1280 이상에서만(3×384 + 48 = 1,200px). 노란 Play가 가리키는 게임은 빼고 정원 순서대로, 모자라면 세 번째 = Continue(정원 밖 최근 게임) → 없으면 Daily puzzles. first = Plop·Acorn·Daily(정적 HTML), 1280 이상 히어로 inner min-height 900·키아트 object-position 70% 100%(바닥 라벤더 띠가 티켓 자리). 칸 위치로 key, 크기 고정 → CLS 0. 그 아래 폭은 `display:none`(링크는 HTML에 남음, 홈 내부 링크 +3).
 - 버린 안: 완료 날짜를 모든 게임 UTC로 통일(말랑을 현지 아침에 끝낸 사람이 홈에서 Unplayed로 보임), 옛 신호 하위 호환(위 이유), 시트 안 Play again 노란 버튼(데일리 = 하루 한 번 문법, 다시 하기는 크림 버튼·헤더 ↻), 티켓을 1024부터 줄여 보이기(홈·절취선 비율이 깨짐).
 - 리뷰 반영(독립 리뷰 11-20, 6.5/10): ① Next game은 시트 history 칸을 `router.replace`로 바꿔 끼우고, UI 밖 이유로 닫히면 남은 칸을 뺀다(뒤로 가기 두 번 방지) ② Daily 종료 때 옛 오버레이가 한 프레임 뜨며 `next_show`가 두 번 세지던 것 → 오버레이는 `mode !== 'daily'`로 같은 렌더에서 판정, 시트 `next_show`는 판마다 1회 ③ 터치 공유 카드는 시트가 열릴 때 미리 만든다(클릭 뒤 await로 사용자 활성화 만료 방지), 계측은 성공 뒤 1건 ④ 배경 `inert` ⑤ 옛 오버레이의 'See this week’s leaderboard' 링크를 시트에 되살림 — goal hint·RUN 넛지는 데일리 시트 문법(하루 한 번)과 맞지 않아 뺐다(연습 판 오버레이엔 그대로) ⑥ 시트 연속 라벨 = "days in a row"(이 게임 연속; 같은 페이지 DailyDock 🔥는 사이트 연속이라 이름을 달리) ⑦ 큰 숫자 5글자 이상은 24px. 시트의 공유 카드 미리보기에 보이는 No. N은 '공유 카드'의 일부로 본다(계획서 0장 2곳 중 하나).
+
+## 2026-11-20 리디자인 v2 R6 마스코트 배치: 선반 disc 묶음 예외·광고 1 이동·About 한 단·시트 보미만(팀)
+- 맥락: 계획서 R6(D5 1:1, D6 한 뷰포트 1마리·광고 띠 400px 안 금지·한 마리 = 한 기능)를 실제 자리에 넣으며 규칙끼리 부딪히는 곳이 생겼다.
+- **선반 disc 4장 = '1마리'로 센다(예외)**: 4선반 행의 40px disc(말랑 Puzzle·토리 Arcade·해씨 Classic·보미 Skill, idle)는 34px 정보 아이콘(선반 주인 표시)이라 한 묶음(`data-mascot-group`)으로 1마리 취급. 해씨는 갈색·크림 몸이 크림 UI에 묻혀 disc 바탕만 하늘색 `#bfe6ff`(나머지는 카테고리 wash 그대로). 카테고리 꽃 아이콘 4종(CategoryIcon)은 쓰는 곳이 없어져 삭제.
+- **광고 1 이동: 선반 아래 → About 아래**(슬롯 이름 `home-shelves` → `home-about`, 고정 크기·DOM 미렌더 규칙 그대로). 선반 아래(disc와 48px)는 물론, '한 섹션 아래'(씨앗 도서관 아래)도 안 됐다: ① 검색 0 빈 상태에선 도서관이 ~250px로 줄어 빈 상태 해씨와 광고가 붙고 ② 1440에서 도서관 아래~푸터 광고 사이가 ~700px뿐이라 About 해씨를 두 광고 모두에서 400px 띄울 수 없다. About 아래면 선반·빈 상태와는 도서관·About만큼, About 해씨와는 About 블록 높이만큼 떨어진다. 대가: 1440에서 광고 1·2 사이가 정원 안내판 하나(약 160px).
+- **About을 1024+에서도 한 단으로**(본문 최대 720px + 가이드 3칸 줄). 두 단(본문 | 가이드 360px)일 때 1440 About 높이가 430px뿐이라 머리 해씨 ↔ 광고 1 = 292px(불합격). 한 단으로 641px → 503px. 390은 원래 한 단.
+- **빈 상태에선 해씨 think만**: 빈 상태 칸이 선반 바로 아래·About 바로 위라 다른 마스코트와 한 화면에 든다 → `.home-body:has([data-testid=browse-empty])`일 때 선반 disc 그림·About 해씨를 `visibility:hidden`(자리·disc 바탕 유지, CLS 0, 검색을 지우면 복귀). JS 없음. Continue 줄은 늘 4칸(최근 → 즐겨찾기 → 인기)이라 '빈 Continue'는 생기지 않는다 — 빈 상태 = 검색 0·My games 비어 있음.
+- **결과 시트 = 보미 countdown 32px 하나**(카운트다운 옆, 소식 담당). 시안의 말랑 happy 모서리 걸터앉기(92px)는 넣지 않는다 — 시트 한 화면에 두 마리(D6), 말랑은 Puzzle 담당이지 결과 담당이 아님.
+- **리더보드 머리 보미 deliver는 R7로**: /leaderboards가 아직 네온 틀이라 정원 그림을 머리에만 얹으면 틀이 섞인다. R7 배치에서 페이지를 정원 틀로 옮길 때 넣는다(자리 = H1 위, 96px, 사본 `bomi-deliver-192.webp`는 그때 생성).
+- **404 신설**(`src/app/not-found.tsx` → out/404.html, wrangler `404-page`): 지금까지 Next 기본 404였다. 정원 paper + 크림 카드 + 말랑 dizzy 128px(첫 화면이라 eager) + 홈·전체 게임·Daily 링크, noindex.
+- 그림 파일: 표시 크기 2배 webp 사본 `public/art/mascots/<이름>-<px>.webp`(원본 512px은 그대로). 합계 29KB(가장 큰 haessi-guide-192 8.4KB). lazy·width/height·alt="" 고정(`src/components/Mascot.tsx`).
+- 검사: `e2e/mascots.spec.ts`가 390·1440에서 뷰포트 높이 간격으로 보이는 마스코트 ≤ 1, 광고 띠 ↔ 마스코트 ≥ 400px를 잰다. 광고가 꺼져 DOM이 없을 때는 광고 바로 앞 블록 `[data-ad-after]` 아랫변을 선으로 잰다(켜졌을 때 실제 거리의 하한).
+- 버린 안: 광고 1을 도서관 아래(위 ①②), 빈 상태 칸에 min-height 520px을 줘 광고를 밀어내기(빈 화면이 과하게 큼), 해씨를 정원 안내판으로(요청 자리 = About, 안내판은 광고 2와 48px), disc 그림을 원본 512px 그대로(행 하나에 40KB×4).

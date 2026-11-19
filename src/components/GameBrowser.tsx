@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { CATEGORIES, type GameCategory } from '@/lib/games/gameMeta'
 import { FAVORITES_EVENT, loadFavorites } from '@/lib/favorites'
 import { LIBRARY_PREVIEW, libraryOrder } from '@/lib/home/shelves'
+import { Mascot } from '@/components/Mascot'
 import { SeedCard } from '@/components/home/SeedCard'
 import { SeedIcon } from '@/components/home/HomeIcons'
 import { ALL_GAMES_ANCHOR, SEARCH_ANCHOR } from '@/components/site-chrome/anchors'
@@ -203,11 +204,15 @@ export function GameBrowser({ items, heading }: { items: BrowseItem[]; heading?:
           </ul>
         </div>
       ) : (
-        <p className="py-10 text-center text-[15px] text-garden-ink-soft">
-          {filter === 'My games' && !q
-            ? 'No saved games yet — tap the heart on any game to keep it here.'
-            : `No games match “${query}”. Try another word, or toss a random seed.`}
-        </p>
+        // 빈 상태(검색 0·My games 비어 있음): 생각하는 해씨(안내 담당 D5) 80px + 한 줄 — R6
+        <div className="flex flex-col items-center gap-3 py-8 text-center" data-testid="browse-empty">
+          <Mascot art="haessi-think" size={80} />
+          <p className="text-[15px] text-garden-ink-soft">
+            {filter === 'My games' && !q
+              ? 'No saved games yet — tap the heart on any game to keep it here.'
+              : `No games match “${query}”. Try another word, or toss a random seed.`}
+          </p>
+        </div>
       )}
       {/* 결과 수 안내(스크린리더). live 영역은 늘 렌더해 두고 글만 바꾼다 — 새로 붙는 live 영역은 안 읽히는 경우가 많다 */}
       <p aria-live="polite" className="sr-only" data-testid="browse-status">

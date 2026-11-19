@@ -1,0 +1,46 @@
+{
+  "lcp-390": {
+    "tag": "IMG",
+    "src": "http://localhost:3216/art/hub-hero-mobile.webp",
+    "mascot": null,
+    "t": 112
+  },
+  "mascot-requests-before-scroll-390": [
+    "mallang-idle-80.webp",
+    "tori-idle-80.webp",
+    "haessi-idle-80.webp",
+    "bomi-idle-80.webp",
+    "haessi-guide-192.webp"
+  ],
+  "cls-390-home-scrolled": 0,
+  "axe-home-390": [],
+  "axe-empty-390": [],
+  "404-status-390": 404,
+  "axe-404-390": [],
+  "sheet-mascots-390": [
+    "bomi-countdown"
+  ],
+  "axe-sheet-390": [],
+  "lcp-1440": {
+    "tag": "EM",
+    "src": null,
+    "mascot": null,
+    "t": 132
+  },
+  "mascot-requests-before-scroll-1440": [
+    "mallang-idle-80.webp",
+    "tori-idle-80.webp",
+    "haessi-idle-80.webp",
+    "bomi-idle-80.webp",
+    "haessi-guide-192.webp"
+  ],
+  "cls-1440-home-scrolled": 0,
+  "axe-home-1440": [],
+  "axe-empty-1440": [],
+  "404-status-1440": 404,
+  "axe-404-1440": [],
+  "sheet-mascots-1440": [
+    "bomi-countdown"
+  ],
+  "axe-sheet-1440": []
+}
