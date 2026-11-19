@@ -1,0 +1,72 @@
+[
+  {
+    "id": "haessi-sheet",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 1800,
+    "out": "docs/design/mascots/haessi-sheet.webp",
+    "refs": [
+      "docs/design/mascots/mascot3-d-sunseed-sprite.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration, warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no text, no watermark. Exactly match the line weight, proportions and colour treatment of the reference characters (Mallang the jelly, Tori the squirrel). CHARACTER: Haessi, a sunflower-seed sprite — plump teardrop seed-shaped body with vertical stripes in warm seed-brown (#6b4a2e) and cream (#f3e6c8), a small sunflower bloom crown on top with gold petals (#ffc933) and a brown centre, two small leaf-shaped arms (leaf green #7cc26a), tiny stubby feet, rosy cheeks, simple dot eyes and small smile, carries a little brass lantern glowing with soft sunset-peach light (flat, no bloom). Chibi, readable at 48px. Make a clean CHARACTER MODEL SHEET on a flat warm cream paper background (#fff3dc): top row turnaround (front, three-quarter, side, back) at the same scale with a thin baseline; bottom row six expressions as head-and-body busts: happy, cheering with lantern raised, thinking, sleepy, sad with a tiny tear, surprised. Plus a small colour swatch strip of the 5 palette colours (no labels). Evenly spaced, consistent design in every view."
+  },
+  {
+    "id": "haessi-idle",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "out": "public/art/haessi-idle.webp",
+    "refs": [
+      "docs/design/mascots/mascot3-d-sunseed-sprite.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/mallang-wave.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration, warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no text, no watermark. Exactly match the line weight, proportions and colour treatment of the reference characters (Mallang the jelly, Tori the squirrel). CHARACTER: Haessi, a sunflower-seed sprite — plump teardrop seed-shaped body with vertical stripes in warm seed-brown (#6b4a2e) and cream (#f3e6c8), a small sunflower bloom crown on top with gold petals (#ffc933) and a brown centre, two small leaf-shaped arms (leaf green #7cc26a), tiny stubby feet, rosy cheeks, simple dot eyes and small smile, carries a little brass lantern glowing with soft sunset-peach light (flat, no bloom). Chibi, readable at 48px. Single full-body character, centred, pose: standing calmly, holding the lantern at its side, gentle smile, facing the viewer three-quarter. Plain solid magenta (#ff00ff) background filling the whole image for keying, no shadow on the background, no other objects."
+  },
+  {
+    "id": "haessi-cheer",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "out": "public/art/haessi-cheer.webp",
+    "refs": [
+      "docs/design/mascots/mascot3-d-sunseed-sprite.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/mallang-wave.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration, warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no text, no watermark. Exactly match the line weight, proportions and colour treatment of the reference characters (Mallang the jelly, Tori the squirrel). CHARACTER: Haessi, a sunflower-seed sprite — plump teardrop seed-shaped body with vertical stripes in warm seed-brown (#6b4a2e) and cream (#f3e6c8), a small sunflower bloom crown on top with gold petals (#ffc933) and a brown centre, two small leaf-shaped arms (leaf green #7cc26a), tiny stubby feet, rosy cheeks, simple dot eyes and small smile, carries a little brass lantern glowing with soft sunset-peach light (flat, no bloom). Chibi, readable at 48px. Single full-body character, centred, pose: jumping with joy, both leaf arms up, lantern raised high, eyes closed happily, a couple of small gold petals floating. Plain solid magenta (#ff00ff) background filling the whole image for keying, no shadow on the background, no other objects."
+  },
+  {
+    "id": "haessi-think",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "out": "public/art/haessi-think.webp",
+    "refs": [
+      "docs/design/mascots/mascot3-d-sunseed-sprite.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/mallang-wave.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration, warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no text, no watermark. Exactly match the line weight, proportions and colour treatment of the reference characters (Mallang the jelly, Tori the squirrel). CHARACTER: Haessi, a sunflower-seed sprite — plump teardrop seed-shaped body with vertical stripes in warm seed-brown (#6b4a2e) and cream (#f3e6c8), a small sunflower bloom crown on top with gold petals (#ffc933) and a brown centre, two small leaf-shaped arms (leaf green #7cc26a), tiny stubby feet, rosy cheeks, simple dot eyes and small smile, carries a little brass lantern glowing with soft sunset-peach light (flat, no bloom). Chibi, readable at 48px. Single full-body character, centred, pose: thinking, one leaf hand on its chin, looking up, lantern held low. Plain solid magenta (#ff00ff) background filling the whole image for keying, no shadow on the background, no other objects."
+  },
+  {
+    "id": "haessi-sad",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "out": "public/art/haessi-sad.webp",
+    "refs": [
+      "docs/design/mascots/mascot3-d-sunseed-sprite.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/mallang-wave.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration, warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no text, no watermark. Exactly match the line weight, proportions and colour treatment of the reference characters (Mallang the jelly, Tori the squirrel). CHARACTER: Haessi, a sunflower-seed sprite — plump teardrop seed-shaped body with vertical stripes in warm seed-brown (#6b4a2e) and cream (#f3e6c8), a small sunflower bloom crown on top with gold petals (#ffc933) and a brown centre, two small leaf-shaped arms (leaf green #7cc26a), tiny stubby feet, rosy cheeks, simple dot eyes and small smile, carries a little brass lantern glowing with soft sunset-peach light (flat, no bloom). Chibi, readable at 48px. Single full-body character, centred, pose: sad, droopy crown petals, small tear, lantern dimmed, looking down. Plain solid magenta (#ff00ff) background filling the whole image for keying, no shadow on the background, no other objects."
+  }
+]
