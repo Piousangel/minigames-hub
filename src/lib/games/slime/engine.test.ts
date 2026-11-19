@@ -148,7 +148,7 @@ import { BOARD_W } from './types'
 describe('미러 스테이지', () => {
   it('원본과 반전본에서 같은(반전한) 선이 같은 결과를 낸다', () => {
     const mx = (p: { x: number; y: number }) => ({ x: BOARD_W - p.x, y: p.y })
-    for (const st of SLIME_STAGES.filter((s) => !s.id.endsWith('-m'))) {
+    for (const st of SLIME_STAGES.filter((s) => !s.id.endsWith('-m') && !s.bouncy)) {
       const hint = waypointsToRaw(STAGE_HINTS[st.id])
       const a = runLine(st, hint)
       const b = runLine(mirrorStage(st), hint.map(mx))
@@ -156,9 +156,9 @@ describe('미러 스테이지', () => {
       expect(b?.res.acorns, st.id).toBe(a?.res.acorns)
     }
   })
-  it('스테이지 id가 모두 다르고, 각 원본 바로 뒤에 반전본이 온다', () => {
+  it('스테이지 id가 모두 다르고, 새 규칙 스테이지가 반전본 자리를 대체한다', () => {
     expect(new Set(SLIME_STAGES.map((s) => s.id)).size).toBe(SLIME_STAGES.length)
-    expect(SLIME_STAGES.map((s) => s.id)).toEqual(['g-slide', 'g-slide-m', 's-spike', 's-spike-m', 'g-wall', 'g-wall-m', 's-wall-b', 's-wall-b-m'])
+    expect(SLIME_STAGES.map((s) => s.id)).toEqual(['g-slide', 'g-slide-m', 's-spike', 's-spike-m', 'g-wall', 's-bounce', 's-wall-b', 's-wall-b-m'])
   })
 })
 
@@ -168,5 +168,21 @@ describe('추천 길은 그리기 구역에서 시작한다', () => {
       expect(wp[0].x, id).toBeGreaterThanOrEqual(20)
       expect(wp[0].x, id).toBeLessThanOrEqual(370)
     }
+  })
+})
+
+describe('3단계 튕기는 벽', () => {
+  const st = SLIME_STAGES.find((s) => s.id === 's-bounce')!
+  it('추천 길로 별 3개를 먹고 도착하며, 튕김을 빼면 같은 선이 실패한다(튕김이 정말 필요)', () => {
+    const r = runLine(st, waypointsToRaw(STAGE_HINTS['s-bounce']))
+    expect(r?.res.outcome).toBe('nest')
+    expect(r?.res.acorns).toBe(3)
+    expect(simulate({ ...st, bouncy: undefined }, [r!.line]).outcome).not.toBe('nest')
+  })
+  it('같은 입력은 항상 같은 결과(결정성)', () => {
+    const line = runLine(st, waypointsToRaw(STAGE_HINTS['s-bounce']))!.line
+    const a = simulate(st, [line])
+    const b = simulate(st, [line])
+    expect(b).toEqual(a)
   })
 })
