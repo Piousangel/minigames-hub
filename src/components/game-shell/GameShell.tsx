@@ -19,8 +19,9 @@ interface FloatItem {
   delta: number
 }
 
-/** A single Score/Best-style stat that pulses on change and can float "+N". */
-function Stat({ label, value, testId, float }: StatSpec) {
+/** A single Score/Best-style stat that pulses on change and can float "+N".
+ * compact: 라벨을 값 위 작은 글씨로 쌓아(고정 높이) 자릿수가 늘어도 헤더가 줄바꿈되지 않게 한다. */
+function Stat({ label, value, testId, float, compact = false }: StatSpec & { compact?: boolean }) {
   const [pulseKey, setPulseKey] = useState(0)
   const [floats, setFloats] = useState<FloatItem[]>([])
   const prev = useRef(value)
@@ -39,12 +40,20 @@ function Stat({ label, value, testId, float }: StatSpec) {
   }, [value, float])
 
   return (
-    <div className="relative rounded-lg border border-border bg-surface/80 px-3 py-1.5 shadow-[inset_0_0_10px_rgba(140,140,200,0.08)]">
-      <span className="text-fg-muted">{label}</span>{' '}
+    <div
+      className={`relative rounded-lg border border-border bg-surface/80 shadow-[inset_0_0_10px_rgba(140,140,200,0.08)] ${
+        compact ? 'flex min-w-14 flex-col items-center whitespace-nowrap px-2 py-0.5 leading-tight sm:px-3' : 'px-3 py-1.5'
+      }`}
+    >
+      <span className={compact ? 'text-[0.6875rem] font-semibold uppercase tracking-wide text-fg-muted' : 'text-fg-muted'}>
+        {label}
+      </span>
+      {/* compact(flex-col)에서는 레이아웃에 영향 없음 — 접근성 이름 'Score 440' 유지 */}
+      {' '}
       <span
         key={pulseKey}
         data-testid={testId}
-        className={`neon-text inline-block font-bold text-accent ${pulseKey > 0 ? 'anim-pulse' : ''}`}
+        className={`neon-text inline-block font-bold text-accent ${compact ? 'tabular-nums' : ''} ${pulseKey > 0 ? 'anim-pulse' : ''}`}
       >
         {value}
       </span>
@@ -115,6 +124,7 @@ export function GameShell({
   hint,
   children,
   maxWidthClassName = 'max-w-100',
+  compactHeader = false,
 }: {
   stats: StatSpec[]
   headerExtra?: ReactNode
@@ -127,23 +137,34 @@ export function GameShell({
   children: ReactNode
   /** Override the container width (default matches the square boards). */
   maxWidthClassName?: string
+  /** opt-in: 좁은 화면에서도 헤더를 한 줄·고정 높이로 유지(줄바꿈 없음, 라벨을 값 위에 쌓은 stat, tabular-nums).
+   * 점수 자릿수가 늘 때 헤더가 접혀 판이 튀는 게임(2048)용. 기본 false = 기존 동작 그대로. */
+  compactHeader?: boolean
 }) {
   return (
     <div className={`mx-auto w-full ${maxWidthClassName} select-none`}>
       <div
-        className="mb-3 flex items-center justify-between gap-2"
+        data-testid="game-shell-header"
+        className={`mb-3 flex items-center justify-between gap-2 ${compactHeader ? 'min-h-11 flex-nowrap' : ''}`}
         onMouseDown={preventPointerFocus}
         onClick={blurAfterPointerClick}
       >
-        <div className="flex flex-wrap items-center gap-2 text-sm">
+        <div
+          data-testid="game-shell-stats"
+          className={`flex items-center text-sm ${compactHeader ? 'min-w-0 flex-nowrap gap-1.5 sm:gap-2' : 'flex-wrap gap-2'}`}
+        >
           {stats.map((s) => (
-            <Stat key={s.label} {...s} />
+            <Stat key={s.label} {...s} compact={compactHeader} />
           ))}
           {headerExtra}
         </div>
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center ${compactHeader ? 'shrink-0 gap-1.5 sm:gap-2' : 'gap-2'}`}>
           <MuteButton muted={muted} onToggle={onToggleMute} />
-          <GameButton onClick={onNewGame} disabled={newGameDisabled} className="min-h-11">
+          <GameButton
+            onClick={onNewGame}
+            disabled={newGameDisabled}
+            className={compactHeader ? 'min-h-11 whitespace-nowrap' : 'min-h-11'}
+          >
             {newGameLabel}
           </GameButton>
         </div>

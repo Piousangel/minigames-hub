@@ -21,19 +21,41 @@ const KEY_DIRS: Record<string, Direction> = {
 const GAP = 8 // px — matches the board's gap-2 background grid
 const SLIDE_MS = 130
 
+// 노을 정원 타일: 값이 오를수록 한 방향으로만 진해진다(크림 → 살구 → 주황 → 산호 → 적갈 → 노을 자주).
+// 글자 대비(WCAG, 실제 hex로 계산): 2 9.6 · 4 8.5 · 8 7.1 · 16 8.3 · 32 6.7 · 64 5.1 · 128 4.5 · 256 5.9 ·
+// 512 7.7 · 1024 8.6 · 2048 8.9 — 전 단계 4.5:1 이상.
 const TILE_STYLES: Record<number, string> = {
-  2: 'bg-amber-100 text-stone-800',
-  4: 'bg-amber-200 text-stone-800',
-  8: 'bg-orange-300 text-stone-900',
-  16: 'bg-orange-400 text-white',
-  32: 'bg-orange-500 text-white',
-  64: 'bg-red-500 text-white',
-  128: 'bg-yellow-400 text-stone-900',
-  256: 'bg-yellow-500 text-stone-900',
-  512: 'bg-yellow-600 text-white',
-  1024: 'bg-amber-600 text-white',
-  2048: 'bg-accent text-stone-900',
+  2: 'bg-[#fff8ea] text-garden-ink',
+  4: 'bg-[#ffe8bd] text-garden-ink',
+  8: 'bg-[#ffd27a] text-garden-ink',
+  16: 'bg-[#ffb461] text-garden-ink-deep',
+  32: 'bg-[#ff9550] text-garden-ink-deep',
+  64: 'bg-[#f2733f] text-garden-ink-deep',
+  128: 'bg-[#c9472a] text-[#fff8ea]',
+  256: 'bg-[#ad3826] text-[#fff8ea]',
+  512: 'bg-[#8f2d26] text-[#fff8ea]',
+  1024: 'bg-[#70263a] text-[#ffe9a8]',
+  2048: 'bg-[#4a2560] text-garden-sunflower',
 }
+
+/** 상위 단계(1024+)는 네온 글로우 대신 해바라기 테두리 + 정원 그림자로 구분. 2048은 더 두껍게. */
+function tileDepth(value: number): string {
+  if (value >= 2048) return 'shadow-[0_0_0_3px_var(--garden-sunflower),0_4px_0_3px_var(--garden-ink-deep)]'
+  if (value >= 1024) return 'shadow-[0_0_0_2px_var(--garden-sunflower),0_3px_0_2px_var(--garden-ink-deep)]'
+  return 'shadow-garden-button'
+}
+
+/** 합치기 진동: 128 이상은 조금 길게. 음소거·미지원 환경에서는 아무것도 하지 않는다. */
+function vibrateMerge(maxValue: number) {
+  try {
+    if (typeof navigator === 'undefined' || typeof navigator.vibrate !== 'function') return
+    navigator.vibrate(maxValue >= 128 ? 18 : 8)
+  } catch {
+    // 일부 브라우저는 사용자 제스처 밖 호출이나 권한 정책으로 throw — 무시
+  }
+}
+
+const MAX_QUEUE = 3
 
 function faceAnimClass(animKey: string): string {
   if (animKey.startsWith('m')) return 'anim-pop'
@@ -42,9 +64,9 @@ function faceAnimClass(animKey: string): string {
 }
 
 function fontSize(label: string): string {
-  if (label.length <= 2) return 'text-2xl'
-  if (label.length === 3) return 'text-xl'
-  return 'text-base'
+  if (label.length <= 2) return 'text-[1.625rem]'
+  if (label.length === 3) return 'text-[1.375rem]'
+  return 'text-[1.1875rem]'
 }
 
 export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: string }) {
@@ -69,8 +91,15 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   const idRef = useRef(0)
   const animSeqRef = useRef(0)
   const animatingRef = useRef(false)
-  const queuedRef = useRef<Direction | null>(null)
+  // 애니메이션 중 들어온 입력(FIFO, 최대 MAX_QUEUE). 새 입력이 오면 진행 중 슬라이드를 즉시 확정한다.
+  const queueRef = useRef<Direction[]>([])
+  const slideTimerRef = useRef<number | null>(null)
+  const pendingFinishRef = useRef<(() => void) | null>(null)
   const wonSeenRef = useRef(false)
+  const mutedRef = useRef(muted)
+  useEffect(() => {
+    mutedRef.current = muted
+  }, [muted])
 
   const nextId = useCallback(() => ++idRef.current, [])
   const commitTiles = useCallback((next: Tile[]) => {
@@ -82,9 +111,25 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
     setState(s)
   }, [])
 
+  const cancelSlide = useCallback(() => {
+    if (slideTimerRef.current !== null) window.clearTimeout(slideTimerRef.current)
+    slideTimerRef.current = null
+    pendingFinishRef.current = null
+  }, [])
+
+  // 진행 중 슬라이드를 기다리지 않고 지금 확정(finish가 큐의 다음 이동을 이어서 처리한다).
+  const flushSlide = useCallback(() => {
+    const finish = pendingFinishRef.current
+    cancelSlide()
+    finish?.()
+  }, [cancelSlide])
+
+  useEffect(() => cancelSlide, [cancelSlide])
+
   const restart = useCallback(() => {
+    cancelSlide()
     animatingRef.current = false
-    queuedRef.current = null
+    queueRef.current = []
     wonSeenRef.current = false
     setWonSeen(false)
     newBestRef.current = false
@@ -93,7 +138,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
     const s = newGame(Math.random)
     commitState(s)
     commitTiles(tilesFromBoard(s.board, nextId, true))
-  }, [commitState, commitTiles, nextId])
+  }, [cancelSlide, commitState, commitTiles, nextId])
 
   useEffect(() => {
     restart()
@@ -123,11 +168,11 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   }, [state !== null])
 
   const performMove = useCallback(
-    (dir: Direction) => {
+    (dir: Direction): boolean => {
       const s = stateRef.current
-      if (!s) return
+      if (!s) return false
       const { board: slid, moved } = applyMove(s.board, dir)
-      if (!moved) return
+      if (!moved) return false
       play('move')
 
       const plan = planMove(tilesRef.current, dir)
@@ -154,7 +199,10 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
         // 기록 갱신을 동기적으로 latch — 아래 사운드가 이 값을 바로 읽는다.
         if (newEngine.score > bestRef.current) newBestRef.current = true
 
-        if (plan.merges.length) play('merge')
+        if (plan.merges.length) {
+          play('merge')
+          if (!mutedRef.current) vibrateMerge(Math.max(...plan.merges.map((m) => m.newValue)))
+        }
         if (newEngine.won && !s.won) play('win')
         else if (newEngine.over) play(newBestRef.current ? 'win' : 'lose')
         if (newEngine.over) setNewBest(newBestRef.current)
@@ -167,14 +215,20 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
         }
 
         animatingRef.current = false
-        const queued = queuedRef.current
-        queuedRef.current = null
-        if (queued) performMove(queued)
+        // 판이 끝났거나 승리 오버레이가 입력을 막으면 남은 입력은 버린다.
+        if (newEngine.over || (newEngine.won && !wonSeenRef.current)) {
+          queueRef.current = []
+          return
+        }
+        // 막힌 방향은 건너뛰고 실제로 움직이는 다음 입력까지 진행
+        while (queueRef.current.length) {
+          if (performMove(queueRef.current.shift()!)) break
+        }
       }
 
       if (reducedRef.current) {
         finish()
-        return
+        return true
       }
 
       // Phase 1: slide every tile to its target (values unchanged).
@@ -186,7 +240,15 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
         }),
       )
       // Phase 2: settle (merge pop, remove consumed tiles, spawn new tile).
-      window.setTimeout(finish, SLIDE_MS)
+      // 새 입력이 오면 flushSlide가 이 타이머를 취소하고 finish를 바로 부른다.
+      const settle = () => {
+        slideTimerRef.current = null
+        pendingFinishRef.current = null
+        finish()
+      }
+      pendingFinishRef.current = settle
+      slideTimerRef.current = window.setTimeout(settle, SLIDE_MS)
+      return true
     },
     [commitState, commitTiles, nextId, play, reducedRef, storageKey],
   )
@@ -197,12 +259,14 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
       if (!s || s.over) return
       if (s.won && !wonSeenRef.current) return // win overlay is blocking input
       if (animatingRef.current) {
-        queuedRef.current = dir
+        // 빠른 연타: 입력을 FIFO에 넣고 진행 중 슬라이드를 즉시 확정 → 다음 이동이 바로 시작된다.
+        if (queueRef.current.length < MAX_QUEUE) queueRef.current.push(dir)
+        flushSlide()
         return
       }
       performMove(dir)
     },
-    [performMove],
+    [flushSlide, performMove],
   )
 
   useEffect(() => {
@@ -244,7 +308,8 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   if (!state) {
     return (
       <div className="mx-auto w-full max-w-100 select-none">
-        <div className="mb-3 flex items-center justify-between">
+        {/* 실제 헤더(compactHeader, min-h-11)와 같은 높이 — 하이드레이션 때 판이 튀지 않게 */}
+        <div className="mb-3 flex min-h-11 items-center justify-between">
           <div className="flex gap-2 text-sm">
             <div className="rounded-lg bg-surface px-3 py-1.5">
               Score <span className="font-bold">0</span>
@@ -257,7 +322,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
             New Game
           </button>
         </div>
-        <div className="aspect-square w-full rounded-xl bg-surface p-2" data-testid="board-loading" />
+        <div className="aspect-square w-full rounded-xl border-[3px] border-garden-ink bg-garden-cream-2 p-2 shadow-garden-island" data-testid="board-loading" />
         <p className="mt-3 text-center text-sm text-fg-muted">{hint}</p>
       </div>
     )
@@ -275,9 +340,10 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
       muted={muted}
       onToggleMute={toggleMuted}
       hint={hint}
+      compactHeader
     >
       <div
-        className="anim-board-in relative aspect-square w-full rounded-xl bg-surface p-2"
+        className="anim-board-in relative aspect-square w-full rounded-xl border-[3px] border-garden-ink bg-garden-cream-2 p-2 shadow-garden-island"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
         data-testid="board"
@@ -286,7 +352,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
         {/* Background grid — the empty slots (depth) */}
         <div className="grid h-full w-full grid-cols-4 gap-2">
           {Array.from({ length: 16 }, (_, i) => (
-            <div key={i} data-testid="cell" className="rounded-lg bg-white/[0.04] shadow-inner" />
+            <div key={i} data-testid="cell" className="rounded-lg bg-garden-cream-shade shadow-[inset_0_2px_0_rgba(58,36,16,0.14)]" />
           ))}
         </div>
 
@@ -295,7 +361,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
           {tiles.map((tile) => {
             const label = theme.tiles[tile.value] ?? String(tile.value)
             const style = TILE_STYLES[tile.value] ?? TILE_STYLES[2048]
-            const glow = tile.value >= 1024 ? 'shadow-[0_0_18px_rgba(245,158,11,0.55)]' : 'shadow-md'
+            const depth = tileDepth(tile.value)
             return (
               <div
                 key={tile.id}
@@ -310,7 +376,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
               >
                 <div
                   key={tile.animKey}
-                  className={`flex h-full w-full items-center justify-center rounded-lg font-bold ${fontSize(label)} ${style} ${glow} ${faceAnimClass(tile.animKey)}`}
+                  className={`flex h-full w-full items-center justify-center rounded-lg border-2 border-garden-ink font-display font-bold leading-none tabular-nums ${fontSize(label)} ${style} ${depth} ${faceAnimClass(tile.animKey)}`}
                   style={tile.enterDelay ? { animationDelay: `${tile.enterDelay}ms` } : undefined}
                 >
                   {label}
@@ -325,8 +391,9 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
           variant={newBest ? 'win' : 'lose'}
           title={newBest ? 'New best!' : 'Game over'}
           testId="game-over"
+          tone="cozy"
         >
-          <p className="text-fg-muted">
+          <p className="font-semibold tabular-nums text-garden-ink-soft">
             Score: {state.score} · Best: {best}
           </p>
           <GameButton onClick={restart} className="px-4 py-2">
@@ -334,7 +401,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
           </GameButton>
         </GameOverlay>
 
-        <GameOverlay show={winOverlayVisible} variant="win" title="You win!" testId="you-win">
+        <GameOverlay show={winOverlayVisible} variant="win" title="You win!" testId="you-win" tone="cozy">
           <div className="flex gap-2">
             <GameButton variant="ghost" onClick={keepGoing} className="px-4 py-2">
               Keep going
