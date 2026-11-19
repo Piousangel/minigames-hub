@@ -162,6 +162,7 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
 
   // 하루를 끝낸 마지막 시도의 재생이 끝나면(settled): 완료 기록(R5) + 결과 시트
   useEffect(() => {
+    if (mode !== 'daily') finishedNow.current = false // 재생 중 연습으로 바꿨다가 돌아와도 시트가 갑자기 뜨지 않게(버튼으로 연다)
     if (mode !== 'daily' || !day || !over || !settled || !finishedNow.current) return
     finishedNow.current = false
     setDaily(recordDoneInBrowser(doneInput(day, progress)))
@@ -259,7 +260,7 @@ export function GameSlimeSlide({ storageKey: _storageKey }: { storageKey?: strin
         </section>
       )}
       {daily && (
-        <DailyResultSheet open={sheetOpen} onClose={() => setSheetOpen(false)} slug={SLUG} gameTitle="Slime Slide" result={daily} shareText={share}>
+        <DailyResultSheet open={sheetOpen} onClose={() => setSheetOpen(false)} slug={SLUG} gameTitle="Slime Slide" result={daily} shareText={share} leaderboard>
           <OverlayScoreSubmit slug={SLUG} show={sheetOpen && total > 0} verified={submit} tone="garden" />
         </DailyResultSheet>
       )}

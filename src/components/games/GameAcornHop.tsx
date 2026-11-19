@@ -662,7 +662,7 @@ export function GameAcornHop({ storageKey }: { storageKey: string }) {
         </p>
 
         <div style={{ pointerEvents: armed ? 'auto' : 'none' }}>
-          <GameOverlay show={over && !daily} variant="lose" title={s.endReason ? END_TEXT[s.endReason] : 'Run over'} testId="game-over" tone="cozy">
+          <GameOverlay show={over && mode !== 'daily'} variant="lose" title={s.endReason ? END_TEXT[s.endReason] : 'Run over'} testId="game-over" tone="cozy">
             <div className="flex flex-col items-center gap-1">
               <p className="text-5xl font-bold leading-none tabular-nums">
                 {m}
@@ -697,7 +697,7 @@ export function GameAcornHop({ storageKey }: { storageKey: string }) {
         </div>
       )}
       {daily && (
-        <DailyResultSheet open={sheetOpen} onClose={() => setSheetOpen(false)} slug="acorn-hop" gameTitle="Acorn Hop" result={daily} shareText={`Acorn Hop · ${m} m · ★${s.stars} · ${s.score} pts`}>
+        <DailyResultSheet open={sheetOpen} onClose={() => setSheetOpen(false)} slug="acorn-hop" gameTitle="Acorn Hop" leaderboard={hasLeaderboard('acorn-hop')} result={daily} shareText={`Acorn Hop · ${m} m · ★${s.stars} · ${s.score} pts`}>
           {newBest && <p className="rounded-full border-2 border-[#5b3a1e] bg-[#fff3dc] px-2.5 py-0.5 text-sm font-bold text-[#5b3a1e]">NEW BEST · {s.score} pts</p>}
           {hasLeaderboard('acorn-hop') && <OverlayScoreSubmit slug="acorn-hop" show={sheetOpen} tone="garden" />}
         </DailyResultSheet>

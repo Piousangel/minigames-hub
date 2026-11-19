@@ -39,6 +39,11 @@ test.describe('결과 시트(R5)', () => {
     await expect(next).toBeVisible()
     await next.click()
     await expect(page).toHaveURL(/\?ref=next$/)
+    // 시트 history 칸을 바꿔 끼웠다: 뒤로 가기 한 번이면 도토리로(두 번 눌러야 하는 빈 칸 없음)
+    await page.goBack()
+    await expect(page).toHaveURL(/\/acorn-hop$/)
+    await page.goBack()
+    await expect(page).not.toHaveURL(/\/acorn-hop$/)
   })
 
   test('뿅 착지: Daily 한 판 끝 → 시트, Esc·뒤로 가기로 닫히고 다시 열린다', async ({ page }) => {

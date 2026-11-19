@@ -1,11 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { act, fireEvent, render, screen } from '@testing-library/react'
 
-vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => '/plop-landing' }))
+const replace = vi.fn()
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), replace }), usePathname: () => '/plop-landing' }))
 vi.mock('@/lib/hit', () => ({ sendHit: vi.fn() }))
 vi.mock('@/app/roundFont', () => ({ roundFont: { className: 'font-round' } })) // next/font/local은 빌드 때만
 
 import { GameNavProvider } from '@/components/GameNav'
+import { sendHit } from '@/lib/hit'
 import { doneKey, recordDone, type DailyResult } from '@/lib/daily/result'
 import { DailyResultSheet, SHEET_TEST_ID, sheetShareText } from './DailyResultSheet'
 import { editionFor } from '@/lib/home/edition'
@@ -20,11 +22,11 @@ function done(slug: string) {
   recordDone(localStorage, { slug, day, primary: { label: 'points', value: 10 } })
 }
 
-function Sheet({ open = true, onClose = () => {} }: { open?: boolean; onClose?: () => void }) {
+function Sheet({ open = true, onClose = () => {}, r = result }: { open?: boolean; onClose?: () => void; r?: DailyResult }) {
   return (
     <GameNavProvider slug="plop-landing">
       <button type="button">before</button>
-      <DailyResultSheet open={open} onClose={onClose} slug="plop-landing" gameTitle="Plop Landing" result={result} shareText="Plop Landing #3 ✅7 🌸2">
+      <DailyResultSheet open={open} onClose={onClose} slug="plop-landing" gameTitle="Plop Landing" result={r} shareText="Plop Landing #3 ✅7 🌸2" leaderboard>
         <p>slot</p>
       </DailyResultSheet>
     </GameNavProvider>
@@ -82,7 +84,10 @@ describe('DailyResultSheet', () => {
     const sun = sunButtons()
     expect(sun).toHaveLength(1)
     expect(sun[0]).toBe(screen.getByTestId('sheet-share'))
-    expect(screen.getByTestId(SHEET_TEST_ID).querySelector('ins.adsbygoogle, [data-ad-slot], [data-testid^="ad-"]')).toBeNull()
+    // 광고 0: AdSlot이 그리는 <ins class="adsbygoogle">·광고 띠 라벨이 시트 안에 없다
+    const sheetEl = screen.getByTestId(SHEET_TEST_ID)
+    expect(sheetEl.querySelector('.adsbygoogle')).toBeNull()
+    expect(sheetEl).not.toHaveTextContent(/Advertisement/i)
     expect(screen.getByText('slot')).toBeInTheDocument() // 게임별 칸(리더보드 제출 등)
   })
 
@@ -100,28 +105,94 @@ describe('DailyResultSheet', () => {
     expect(sheet.className).toContain('overflow-y-auto')
   })
 
-  it('열리면 시트로 포커스, Esc로 닫힌다(onClose)', () => {
-    const onClose = vi.fn()
-    render(<Sheet onClose={onClose} />)
+  it('열리면 시트로 포커스 + history 칸 1개, Esc는 그 칸을 뒤로 가기로 뺀다(popstate 없이 Esc만)', () => {
+    const back = vi.spyOn(window.history, 'back').mockImplementation(() => {})
+    render(<Sheet />)
     const sheet = screen.getByTestId(SHEET_TEST_ID)
     expect(sheet.contains(document.activeElement)).toBe(true)
-    act(() => {
-      // pushState로 넣은 칸이 맨 위 — 닫기는 history.back()(popstate가 onClose)
-      fireEvent.keyDown(document, { key: 'Escape' })
-      window.dispatchEvent(new PopStateEvent('popstate'))
-    })
-    expect(onClose).toHaveBeenCalledTimes(1)
+    expect((window.history.state as Record<string, unknown>).__dailySheet).toBe(1)
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(back).toHaveBeenCalledTimes(1)
+    back.mockRestore()
   })
 
-  it('Tab은 시트 안에서 돈다(마지막 → 처음)', () => {
+  it('Tab은 시트 안에서 돈다: 마지막 → 처음, Shift+Tab 처음 → 마지막', () => {
     render(<Sheet />)
     const sheet = screen.getByTestId(SHEET_TEST_ID)
     const items = [...sheet.querySelectorAll<HTMLElement>('a[href], button')]
+    expect(items.length).toBeGreaterThan(2)
     items[items.length - 1].focus()
     fireEvent.keyDown(document, { key: 'Tab' })
-    // jsdom은 offsetParent가 늘 null이라 거름 없이 첫 칸으로 간다
-    expect(sheet.contains(document.activeElement)).toBe(true)
-    expect(document.activeElement).not.toBe(screen.getByText('before'))
+    expect(document.activeElement).toBe(items[0])
+    fireEvent.keyDown(document, { key: 'Tab', shiftKey: true })
+    expect(document.activeElement).toBe(items[items.length - 1])
+  })
+
+  it('배경은 inert, 닫히면 풀린다', () => {
+    const { rerender } = render(<Sheet />)
+    const others = [...document.body.children].filter((n) => !n.querySelector(`[data-testid="${SHEET_TEST_ID}"]`))
+    expect(others.length).toBeGreaterThan(0)
+    for (const n of others) expect(n).toHaveAttribute('inert')
+    rerender(<Sheet open={false} />)
+    for (const n of others) expect(n).not.toHaveAttribute('inert')
+  })
+
+  it('UI 밖 이유로 닫히면(open=false) 남은 history 칸을 뺀다 — 뒤로 가기 두 번 방지', () => {
+    const back = vi.spyOn(window.history, 'back').mockImplementation(() => {})
+    const { rerender } = render(<Sheet />)
+    rerender(<Sheet open={false} />)
+    expect(back).toHaveBeenCalledTimes(1)
+    back.mockRestore()
+  })
+
+  it('Next game 클릭은 시트 history 칸을 바꿔 끼운다(router.replace), next_show는 판마다 1번', async () => {
+    replace.mockClear()
+    vi.mocked(sendHit).mockClear()
+    const { rerender } = render(<Sheet />)
+    const next = await screen.findByTestId('sheet-next-game')
+    fireEvent.click(next)
+    expect(replace).toHaveBeenCalledWith(next.getAttribute('href'))
+    const shows = () => vi.mocked(sendHit).mock.calls.filter((c) => c[1] === 'next_show').length
+    expect(shows()).toBe(1)
+    rerender(<Sheet open={false} />)
+    rerender(<Sheet open />) // 'Today’s result'로 다시 열기 — 같은 판
+    expect(shows()).toBe(1)
+    rerender(<Sheet open r={{ ...result, primary: { label: 'points', value: 60 } }} />) // 새 판
+    expect(shows()).toBe(2)
+  })
+
+  it('데스크톱 Share: 문구+URL 복사 → "Copied", 채널 줄 펼침', async () => {
+    const write = vi.fn().mockResolvedValue(undefined)
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: write }, configurable: true })
+    render(<Sheet />)
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('sheet-share'))
+    })
+    expect(write).toHaveBeenCalledWith(expect.stringMatching(/Plop Landing #3[\s\S]*Today's garden 0\/3 · No\. 126\nhttps:\/\/quickminigames\.site\/plop-landing\?ref=share-native$/))
+    expect(screen.getByText('Copied — paste it anywhere.')).toBeInTheDocument()
+    expect(screen.getByTestId('share-buttons')).toBeInTheDocument()
+  })
+
+  it('복사가 막히면 "Copy was blocked" + 채널 줄', async () => {
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText: vi.fn().mockRejectedValue(new Error('no')) }, configurable: true })
+    render(<Sheet />)
+    await act(async () => {
+      fireEvent.click(screen.getByTestId('sheet-share'))
+    })
+    expect(screen.getByText('Copy was blocked — pick an app below.')).toBeInTheDocument()
+    expect(screen.getByTestId('share-buttons')).toBeInTheDocument()
+  })
+
+  it('리더보드 링크(옛 오버레이의 See this week’s leaderboard)', () => {
+    render(<Sheet />)
+    expect(screen.getByTestId('sheet-leaderboard')).toHaveAttribute('href', '#leaderboard')
+  })
+
+  it('큰 숫자가 5글자 이상이면 24px로 줄인다(360 세 칸)', () => {
+    render(<Sheet r={{ ...result, secondary: { label: 'height', value: '1024 m' } }} />)
+    const dd = screen.getByText('1024 m')
+    expect(dd.className).toContain('text-[24px]')
+    expect(screen.getByText('58').className).toContain('text-[32px]')
   })
 
   it('브라우저 뒤로 가기(popstate)로 닫힌다', () => {

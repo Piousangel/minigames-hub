@@ -79,17 +79,6 @@ export function readDone(storage: Pick<Storage, 'getItem'>, day: string, slug: s
   }
 }
 
-/** 지금 연속 일수(오늘 또는 어제 끝냈으면 이어지는 중, 그보다 오래면 0). */
-export function readStreak(storage: Pick<Storage, 'getItem'>, slug: string, day: string): number {
-  try {
-    const v = parse(storage.getItem(streakKey(slug))) as { last?: unknown; n?: unknown } | null
-    if (!v || typeof v.last !== 'string' || !ISO.test(v.last) || !isNum(v.n) || v.n < 1) return 0
-    return v.last === day || v.last === shiftDay(day, -1) ? Math.floor(v.n) : 0
-  } catch {
-    return 0
-  }
-}
-
 /** 오늘 끝냈을 때의 연속 일수: 오늘 이미 셌으면 그대로, 어제 끝냈으면 +1, 아니면 1. */
 export function nextStreak(prev: { last: string; n: number } | null, day: string): number {
   if (!prev) return 1

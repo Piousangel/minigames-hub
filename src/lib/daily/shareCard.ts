@@ -15,7 +15,7 @@ export const SKY_NOW = 4
 export type ShareCardInput = {
   editionNo: number
   gameTitle: string
-  /** 둘째 줄: 예) "Slime Slide · 820 pts · garden 2/3" */
+  /** 둘째 줄: 예) "Slime Slide · garden 2/3" */
   line: string
   bloomed: boolean[] // 3칸
   displayFont: string // font-family(Fraunces)

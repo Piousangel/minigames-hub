@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DONE_KEEP_DAYS, asDoneRecord, doneKey, nextStreak, pruneDone, readDone, readStreak, recordDone, shiftDay, streakKey } from './result'
+import { DONE_KEEP_DAYS, asDoneRecord, doneKey, nextStreak, pruneDone, readDone, recordDone, shiftDay, streakKey } from './result'
 
 /** Map 기반 Storage(key·length·removeItem까지). */
 function mem(init: Record<string, string> = {}) {
@@ -50,8 +50,6 @@ describe('recordDone (DailyResult)', () => {
     recordDone(s, plop('2026-11-18', 10))
     expect(recordDone(s, plop('2026-11-19', 10)).streak).toBe(2)
     expect(recordDone(s, plop('2026-11-20', 10)).streak).toBe(3)
-    expect(readStreak(s, 'plop-landing', '2026-11-21')).toBe(3) // 오늘 아직 안 했어도 어제까지 이어짐
-    expect(readStreak(s, 'plop-landing', '2026-11-22')).toBe(0)
     expect(recordDone(s, plop('2026-11-22', 10)).streak).toBe(1)
   })
 

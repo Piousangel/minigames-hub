@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { Fragment, useCallback, useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { useRouter } from 'next/navigation'
+import { Fragment, useCallback, useEffect, useId, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { roundFont } from '@/app/roundFont'
 import { useGameNav } from '@/components/GameNav'
@@ -69,6 +70,7 @@ export function DailyResultSheet({
   result,
   shareText,
   closeLabel = 'Back to game',
+  leaderboard = false,
   children,
 }: {
   open: boolean
@@ -79,6 +81,8 @@ export function DailyResultSheet({
   /** 게임의 원래 결과 공유 문구(링크 제외). */
   shareText: string
   closeLabel?: string
+  /** 페이지 아래 리더보드(#leaderboard)로 가는 링크(옛 오버레이의 'See this week's leaderboard'). */
+  leaderboard?: boolean
   children?: ReactNode
 }) {
   const [mounted, setMounted] = useState(false)
@@ -91,6 +95,10 @@ export function DailyResultSheet({
   const sheetRef = useRef<HTMLDivElement>(null)
   const returnFocus = useRef<HTMLElement | null>(null)
   const pushed = useRef(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const card = useRef<File | null>(null) // 터치 기기: 시트가 열릴 때 미리 만든 공유 카드(클릭 뒤 await가 길면 사용자 활성화가 만료된다)
+  const nextShownFor = useRef<DailyResult | null>(null)
+  const router = useRouter()
   const onCloseRef = useRef(onClose)
   useEffect(() => {
     onCloseRef.current = onClose
@@ -116,10 +124,40 @@ export function DailyResultSheet({
     }
   }, [open, slug])
 
-  // 옛 오버레이와 같은 분모: Next 버튼이 실제로 보일 때 1회(next_show)
+  // 옛 오버레이와 같은 분모: Next 버튼이 실제로 보일 때 판마다 1회(next_show) — 'Today’s result'로 다시 열어도 다시 세지 않는다
   useEffect(() => {
-    if (open && nav.slug && nav.nextSlug) sendHit(nav.slug, 'next_show')
-  }, [open, nav.slug, nav.nextSlug])
+    if (!open || !nav.slug || !nav.nextSlug || nextShownFor.current === result) return
+    nextShownFor.current = result
+    sendHit(nav.slug, 'next_show')
+  }, [open, nav.slug, nav.nextSlug, result])
+
+  // 터치 기기 + Web Share: 공유 카드 PNG를 미리 만들어 둔다(정원 칸이 바뀌면 다시)
+  useEffect(() => {
+    card.current = null
+    if (!open || !now || typeof navigator.share !== 'function' || !window.matchMedia?.('(pointer: coarse)').matches) return
+    let alive = true
+    const { edition, garden } = now
+    void (async () => {
+      try {
+        const { makeShareCard } = await import('@/lib/daily/shareCard')
+        const css = getComputedStyle(document.documentElement)
+        const blob = await makeShareCard({
+          editionNo: edition.no,
+          gameTitle,
+          line: sheetCopy(garden, gameTitle).shareLine,
+          bloomed: garden.slots.map((x) => x.status === 'bloomed'),
+          displayFont: css.getPropertyValue('--font-display').trim() || 'serif',
+          uiFont: css.getPropertyValue('--font-ui').trim() || 'sans-serif',
+        })
+        if (alive && blob) card.current = new File([blob], `quickminigames-no${edition.no}.png`, { type: 'image/png' })
+      } catch {
+        /* 카드 없이 문구만 공유 */
+      }
+    })()
+    return () => {
+      alive = false
+    }
+  }, [open, now, gameTitle])
 
   /** UI로 닫기: 우리가 넣은 history 칸이 맨 위면 뒤로 가기로 빼고(popstate가 닫는다), 아니면 바로 닫는다. */
   const requestClose = useCallback(() => {
@@ -156,7 +194,7 @@ export function DailyResultSheet({
         return
       }
       if (e.key !== 'Tab' || !el) return
-      const items = [...el.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((n) => n.offsetParent !== null || n === document.activeElement)
+      const items = [...el.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((n) => !n.closest('[hidden], [inert], [aria-hidden="true"]'))
       if (!items.length) {
         e.preventDefault()
         return
@@ -175,12 +213,22 @@ export function DailyResultSheet({
     const root = document.documentElement
     const prevOverflow = root.style.overflow
     root.style.overflow = 'hidden'
+    // 배경을 inert로: 스크린 리더가 시트 밖으로 나가지 않게(iOS VoiceOver는 aria-modal만으로 부족)
+    const inerted = [...document.body.children].filter((n): n is HTMLElement => n instanceof HTMLElement && n !== rootRef.current && !n.hasAttribute('inert'))
+    inerted.forEach((n) => n.setAttribute('inert', ''))
     window.addEventListener('popstate', onPop)
     document.addEventListener('keydown', onKey, true)
     return () => {
       window.removeEventListener('popstate', onPop)
       document.removeEventListener('keydown', onKey, true)
       root.style.overflow = prevOverflow
+      inerted.forEach((n) => n.removeAttribute('inert'))
+      // UI 밖 이유로 닫혔다(날짜 바뀜 등): 우리가 넣은 history 칸이 맨 위에 남아 있으면 빼서 '뒤로 가기 두 번'을 막는다
+      if (pushed.current && (window.history.state as Record<string, unknown> | null)?.[HISTORY_MARK]) {
+        pushed.current = false
+        window.history.back()
+      }
+      pushed.current = false
       returnFocus.current?.focus?.({ preventScroll: true })
     }
   }, [open, mounted, requestClose])
@@ -198,26 +246,12 @@ export function DailyResultSheet({
     const touch = window.matchMedia?.('(pointer: coarse)').matches
     try {
       if (touch && typeof navigator.share === 'function') {
-        // 터치 기기: 카드 이미지 + 문구(파일 공유 미지원이면 문구만). 데스크톱 공유창엔 보통 메신저가 없어 아래 복사로(예전 규칙)
-        let files: File[] | undefined
-        try {
-          const { makeShareCard } = await import('@/lib/daily/shareCard')
-          const css = getComputedStyle(document.documentElement)
-          const blob = await makeShareCard({
-            editionNo: edition.no,
-            gameTitle,
-            line: copy.shareLine,
-            bloomed: garden.slots.map((s) => s.status === 'bloomed'),
-            displayFont: css.getPropertyValue('--font-display').trim() || 'serif',
-            uiFont: css.getPropertyValue('--font-ui').trim() || 'sans-serif',
-          })
-          const file = blob ? new File([blob], `quickminigames-no${edition.no}.png`, { type: 'image/png' }) : null
-          if (file && navigator.canShare?.({ files: [file] })) files = [file]
-        } catch {
-          files = undefined
-        }
-        sendHit(slug, files ? 'share_card' : 'share_native')
+        // 터치 기기: 미리 만든 카드 이미지 + 문구(파일 공유 미지원·카드 없음이면 문구만). 클릭 뒤 바로 share — 활성화 만료 방지.
+        // 데스크톱 공유창엔 보통 메신저가 없어 아래 복사로(예전 규칙)
+        const file = card.current
+        const files = file && navigator.canShare?.({ files: [file] }) ? [file] : undefined
         await navigator.share(files ? { files, text: `${text}\n${url}` } : { text, url })
+        sendHit(slug, files ? 'share_card' : 'share_native')
         setShare('shared')
         return
       }
@@ -228,7 +262,6 @@ export function DailyResultSheet({
       }
       // 그 밖의 실패(인앱 브라우저 등)는 복사로
     }
-    sendHit(slug, 'share_copy')
     let ok = false
     try {
       await navigator.clipboard.writeText(`${text}\n${url}`)
@@ -236,16 +269,35 @@ export function DailyResultSheet({
     } catch {
       ok = false
     }
+    sendHit(slug, ok ? 'share_copy' : 'share_copy_fail')
     setShare(ok ? 'copied' : 'failed')
     setChannels(true) // 채널 줄(Threads·Facebook·카카오톡…)을 펼친다 — 예전 결과 화면의 공유 줄
   }
 
-  const big = `${roundFont.className} block text-[32px] leading-9 font-bold tabular-nums text-garden-coral-text`
+  const nextHref = nav.nextSlug ? `/${nav.nextSlug}?ref=next` : ''
+  const onNext = (e: ReactMouseEvent<HTMLAnchorElement>) => {
+    sendHit(nav.slug, 'next_ovl')
+    // 시트 history 칸 위에 새 페이지를 쌓지 않고 그 칸을 바꿔 끼운다(뒤로 가기 한 번 = 게임 페이지)
+    if (pushed.current && (window.history.state as Record<string, unknown> | null)?.[HISTORY_MARK] && !e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) {
+      e.preventDefault()
+      pushed.current = false
+      router.replace(nextHref)
+    }
+  }
+  const toLeaderboard = (e: ReactMouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault()
+    requestClose()
+    window.setTimeout(() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150)
+  }
+
+  // 큰 숫자: 5글자 이상(예: '1024 m')은 24px로 — 360에서 세 칸(약 97px)을 넘지 않게
+  const big = (v: string | number) =>
+    `${roundFont.className} block whitespace-nowrap font-bold tabular-nums text-garden-coral-text leading-9 ${String(v).length > 4 ? 'text-[24px]' : 'text-[32px]'}`
   const lbl = 'block text-[12px] leading-4 font-medium text-garden-ink-soft'
   const flowers = garden.slots.map((s) => s.status === 'bloomed')
 
   return createPortal(
-    <div className="daily-sheet-root font-ui fixed inset-0 z-[60] flex items-end justify-center" data-testid={`${SHEET_TEST_ID}-root`}>
+    <div ref={rootRef} className="daily-sheet-root font-ui fixed inset-0 z-[60] flex items-end justify-center" data-testid={`${SHEET_TEST_ID}-root`}>
       <div aria-hidden="true" className="daily-sheet__dim absolute inset-0 bg-[rgba(58,36,16,0.5)]" onClick={requestClose} />
       <div
         ref={sheetRef}
@@ -286,17 +338,18 @@ export function DailyResultSheet({
         </div>
 
         <dl className="mt-3 grid grid-cols-3 border-t border-b border-t-garden-ink border-b-[#c4a27c]" data-testid="sheet-stats">
-          <div className="flex flex-col-reverse py-3">
+          <div className="flex min-w-0 flex-col-reverse py-3">
             <dt className={lbl}>{result.primary.label}</dt>
-            <dd className={big}>{result.primary.value}</dd>
+            <dd className={big(result.primary.value)}>{result.primary.value}</dd>
           </div>
-          <div className="flex flex-col-reverse border-l border-[#c4a27c] py-3 pl-3">
+          <div className="flex min-w-0 flex-col-reverse border-l border-[#c4a27c] py-3 pl-3">
             <dt className={lbl}>{result.secondary?.label ?? ''}</dt>
-            <dd className={big}>{result.secondary?.value ?? '—'}</dd>
+            <dd className={big(result.secondary?.value ?? '—')}>{result.secondary?.value ?? '—'}</dd>
           </div>
-          <div className="flex flex-col-reverse border-l border-[#c4a27c] py-3 pl-3">
-            <dt className={lbl}>day streak</dt>
-            <dd className={big} data-testid="sheet-streak">
+          <div className="flex min-w-0 flex-col-reverse border-l border-[#c4a27c] py-3 pl-3">
+            {/* 이 게임을 연달아 끝낸 날 수(게임별). 아래 DailyDock 🔥는 사이트 연속이라 이름을 달리 둔다 */}
+            <dt className={lbl}>days in a row</dt>
+            <dd className={big(result.streak)} data-testid="sheet-streak">
               {result.streak}
             </dd>
           </div>
@@ -321,6 +374,7 @@ export function DailyResultSheet({
           type="button"
           onClick={onShare}
           data-testid="sheet-share"
+          aria-busy={share === 'busy'}
           aria-describedby={share !== 'idle' ? `${titleId}-share` : undefined}
           className="garden-jelly mt-4 flex h-[52px] w-full items-center justify-center gap-2.5 rounded-full border-[3px] border-garden-ink bg-garden-sun text-[17px] leading-none font-bold text-garden-ink shadow-garden-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-garden-ink focus-visible:ring-offset-2 focus-visible:ring-offset-garden-cream"
         >
@@ -334,8 +388,8 @@ export function DailyResultSheet({
 
         {nav.nextSlug && nav.nextTitle && (
           <Link
-            href={`/${nav.nextSlug}?ref=next`}
-            onClick={() => sendHit(nav.slug, 'next_ovl')}
+            href={nextHref}
+            onClick={onNext}
             data-testid="sheet-next-game"
             className="garden-jelly mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full border-[3px] border-garden-ink bg-garden-cream px-4 text-[16px] leading-none font-bold text-garden-ink shadow-garden-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-garden-ink focus-visible:ring-offset-2 focus-visible:ring-offset-garden-cream"
           >
@@ -345,6 +399,13 @@ export function DailyResultSheet({
         )}
 
         {children && <div className="mt-3 flex flex-col items-center gap-2 text-center">{children}</div>}
+        {leaderboard && (
+          <p className="mt-1 text-center">
+            <a href="#leaderboard" onClick={toLeaderboard} data-testid="sheet-leaderboard" className="inline-flex min-h-11 items-center text-[13px] font-semibold text-garden-ink-soft underline decoration-dotted underline-offset-4 hover:text-garden-coral-text">
+              See this week’s leaderboard
+            </a>
+          </p>
+        )}
 
         <div className="mt-2 flex flex-wrap items-center justify-between gap-x-2">
           <button

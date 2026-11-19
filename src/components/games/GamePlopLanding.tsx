@@ -882,7 +882,7 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
         </p>
 
         <div style={{ pointerEvents: armed ? 'auto' : 'none' }}>
-          <GameOverlay show={over && !daily} variant="lose" title={ui.reason ? END_TEXT[ui.reason] : 'Run over'} testId="game-over" tone="cozy">
+          <GameOverlay show={over && mode !== 'daily'} variant="lose" title={ui.reason ? END_TEXT[ui.reason] : 'Run over'} testId="game-over" tone="cozy">
             <div className="flex flex-col items-center gap-1">
               <p className="text-6xl font-bold leading-none tabular-nums" style={{ color: '#e8643f', textShadow: '0 3px 0 #fff3dc, 0 5px 0 rgba(91,58,30,0.25)' }}>
                 {ui.landed}
@@ -927,7 +927,7 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
         </div>
       )}
       {daily && (
-        <DailyResultSheet open={sheetOpen} onClose={() => setSheetOpen(false)} slug="plop-landing" gameTitle="Plop Landing" result={daily} shareText={resultText()}>
+        <DailyResultSheet open={sheetOpen} onClose={() => setSheetOpen(false)} slug="plop-landing" gameTitle="Plop Landing" result={daily} shareText={resultText()} leaderboard={hasLeaderboard('plop-landing')}>
           {newBest && <p className="rounded-full border-2 border-[#5b3a1e] bg-[#fff3dc] px-2.5 py-0.5 text-sm font-bold text-[#5b3a1e]">NEW BEST · {ui.score} pts</p>}
           {hasLeaderboard('plop-landing') && <OverlayScoreSubmit slug="plop-landing" show={sheetOpen} tone="garden" />}
         </DailyResultSheet>
