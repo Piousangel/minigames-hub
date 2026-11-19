@@ -76,3 +76,8 @@
   2. **기억 장치**: 클리어한 이전 스테이지의 내 선을 흐린 고스트로 다음 스테이지에 남겨 '내 선이 어디서 막히는지' 보게 한다. 3·4번째 이후에는 앞에서 쓴 기믹(독꽃·벽·쿠션)이 조합되어 나온다(예: 독꽃+튕기는 벽).
   3. **누적 난도**: 규칙 하나씩 더하고, 앞 기믹은 사라지지 않고 쌓인다. 반전·재탕 금지.
 - 필요 데이터: 스테이지별 클리어한 선 저장(진행 객체에 lines 추가, 서버 검증 입력과 동일 형식), 파생 스테이지 정의(base + patch).
+
+## 2026-11-19 참고 오픈소스 라이선스 규칙(참고 레포 조사)
+- 코드 재사용 가능(MIT·Apache 등): react-spring, Motion, screen-shake, ZzFX, canvas-confetti, matter-js, planck.js, sandspiel(MIT) 등 — 라이선스 고지 유지.
+- **코드 금지·아이디어만**: Sandboxels(R74n, 광고 포함 상업 이용 금지), Sand Game JS(README에 "법적으로 오픈소스 아님"), GPL·AGPL 계열(Powder Toy, lichess, Hextris). AdSense 사이트이므로 한 줄도 가져오지 않는다.
+- 근거: docs/team/research/2026-11-19/reference-repos-uiux.md(46개 레포·별 수·라이선스 11-19 GitHub API 확인).
