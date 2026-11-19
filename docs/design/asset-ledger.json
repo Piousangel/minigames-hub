@@ -1,5 +1,11 @@
 {
-  "items": {},
+  "items": {
+    "slime-slide-cover-1119": {
+      "kind": "composite",
+      "note": "뿅 착지 에셋(plop-bg·island·flower·mallang-happy·star) 조합 + 코드로 선·독꽃 합성. 생성 비용 0",
+      "file": "public/art/slime-slide-cover.webp"
+    }
+  },
   "month": "2026-11",
   "count": 0
 }

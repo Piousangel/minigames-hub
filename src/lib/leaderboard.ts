@@ -38,6 +38,7 @@ export const LEADERBOARD_GAMES: Record<string, { label: string }> = {
   'space-shooter': { label: 'Score' },
   'tower-stack': { label: 'Height' },
   'plop-landing': { label: 'Score' },
+  'slime-slide': { label: 'Score' },
   'gem-match': { label: 'Score' },
   'bubble-shooter': { label: 'Score' },
   'whack-a-mole': { label: 'Score' },

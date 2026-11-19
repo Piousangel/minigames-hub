@@ -79,6 +79,7 @@ const GameStrata = dynamic(() => import('@/components/games/GameStrata').then((m
 const GameBankshot = dynamic(() => import('@/components/games/GameBankshot').then((m) => m.GameBankshot), { ssr: false, loading: Loading })
 const GameMorseRelay = dynamic(() => import('@/components/games/GameMorseRelay').then((m) => m.GameMorseRelay), { ssr: false, loading: Loading })
 const GameLagline = dynamic(() => import('@/components/games/GameLagline').then((m) => m.GameLagline), { ssr: false, loading: Loading })
+const GameSlimeSlide = dynamic(() => import('@/components/games/GameSlimeSlide').then((m) => m.GameSlimeSlide), { ssr: false, loading: Loading })
 const GamePlopLanding = dynamic(() => import('@/components/games/GamePlopLanding').then((m) => m.GamePlopLanding), { ssr: false, loading: Loading })
 const GameAcornHop = dynamic(() => import('@/components/games/GameAcornHop').then((m) => m.GameAcornHop), { ssr: false, loading: Loading })
 const GameRecoil = dynamic(() => import('@/components/games/GameRecoil').then((m) => m.GameRecoil), { ssr: false, loading: Loading })
@@ -330,6 +331,8 @@ export function GameRenderer({ page }: { page: GamePage }) {
       return <GameLagline storageKey={`best:${page.slug}`} />
     case 'plop-landing':
       return <GamePlopLanding storageKey={`best:${page.slug}`} />
+    case 'slime-slide':
+      return <GameSlimeSlide storageKey={`best:${page.slug}`} />
     case 'acorn-hop':
       return <GameAcornHop storageKey={`best:${page.slug}`} />
     case 'recoil':

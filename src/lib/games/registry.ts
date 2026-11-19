@@ -124,6 +124,7 @@ export type GamePage = GamePageBase &
     | { game: 'polarity' }
     | { game: 'acorn-hop' }
     | { game: 'plop-landing' }
+    | { game: 'slime-slide' }
   )
 
 export const gamePages: GamePage[] = [
@@ -3222,6 +3223,32 @@ export const gamePages: GamePage[] = [
       { q: 'How is Plop Landing scored?', a: 'Each Good landing is worth 1 point and each Perfect is worth 2, multiplied by a streak bonus that starts at ×1 and climbs by 0.25 for every Perfect in a row, up to ×3. A Good landing lowers the streak by one step instead of wiping it.' },
       { q: 'What is the difference between Daily and Practice?', a: 'Daily gives everyone the same chain of islands, winds and sky colours each UTC day, so scores are comparable with friends. Practice deals a new random course every run. Your first run on a new device is always Practice, and your best score is shared between the two.' },
       { q: 'Why did my island sink?', a: 'From the fifth island on, an island starts sinking if you have not begun charging within a few seconds of landing. The timer pauses the moment you press, and the time limit shrinks slowly as you go further, so start charging earlier rather than rushing the release.' },
+    ],
+  },
+  {
+    slug: 'slime-slide',
+    game: 'slime-slide',
+    title: 'Play Slime Slide Online — Draw One Line, Slide the Jelly to the Flower',
+    h1: 'Slime Slide',
+    metaDescription:
+      'Play Slime Slide free online: draw a single line and Mallang the jelly slides along it, collecting stars and avoiding poison flowers on the way to the golden flower. A new daily stage every day.',
+    shortDescription: 'Draw one line, watch Mallang slide to the flower. Grab the stars, dodge the poison flowers, save ink.',
+    howToPlay: [
+      'Put your finger below Mallang and draw one line from there to the flower. When you lift your finger the line becomes a slide and Mallang starts moving after a very short pause.',
+      'You have a limited amount of ink, shown as a bar above the board. A longer line uses more ink, and the ink you have left at the end is worth bonus points. You cannot draw inside the dotted circle around Mallang.',
+      'Slide through the stars for 100 points each. Touching a purple poison flower, falling off the board or getting stuck ends the try, and the board shows where it went wrong.',
+      'To scroll the page, swipe on the strips along the top, bottom and sides of the board. If you fail twice in a row on a stage, a dotted hint shows one path that works.',
+    ],
+    strategy: [
+      'Think about where Mallang will be going, not where it starts. A gentle slope builds speed gradually, while a steep line sends Mallang flying past the flower.',
+      'Use walls as brakes. Mallang slows down when it bumps into a wall, so a line that ends against a wall is often safer than one that ends in mid-air.',
+      'Chase the stars with curves, not detours. Bending your line slightly through a star costs very little ink, and the ink bonus still adds up.',
+      'Draw smoothly. Shaky lines make bumps that Mallang feels, so one steady stroke usually beats a nervous zigzag.',
+    ],
+    faq: [
+      { q: 'How is Slime Slide scored?', a: 'Each star is worth 100 points, plus up to 100 bonus points for the ink you did not use. A try that does not reach the flower scores zero.' },
+      { q: 'What is the difference between Daily and Practice?', a: 'Daily gives everyone the same stage each UTC day with three tries, and your best score of the day goes to the leaderboard. Practice lets you play every stage as often as you like and does not count toward the leaderboard.' },
+      { q: 'What is the hint?', a: 'After two failed tries in a row on a stage, a dotted line shows one path that works. Using it is marked in your shared result so friends know.' },
     ],
   },
 ]

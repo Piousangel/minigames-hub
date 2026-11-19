@@ -981,3 +981,13 @@ for (const vp of [{ name: '390', width: 390, height: 844 }, { name: '1366', widt
     await expect(page).toHaveURL(/ref=next/)
   })
 }
+
+test('Slime Slide: 일일/연습 탭과 시도 수가 보이고 캔버스가 뜬다', async ({ page }) => {
+  await page.goto('/slime-slide')
+  await expect(page.getByRole('tab', { name: /Daily #/ })).toBeVisible()
+  await expect(page.getByRole('tab', { name: 'Practice' })).toBeVisible()
+  await expect(page.getByText(/3 tries left/)).toBeVisible()
+  await expect(page.getByTestId('slime-canvas')).toBeVisible()
+  await page.getByRole('tab', { name: 'Practice' }).click()
+  await expect(page.getByRole('group', { name: 'Choose stage' })).toBeVisible()
+})
