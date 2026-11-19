@@ -75,7 +75,7 @@ describe('GameOverlay — compact (opt-in)', () => {
 
   it('tightens the panel when compact', () => {
     render(<GameOverlay show variant="lose" title="Game over" tone="cozy" compact />)
-    expect(panel()).toHaveClass('gap-2', 'mx-2', 'px-4', 'py-3')
+    expect(panel()).toHaveClass('gap-2', 'mx-2', 'px-4', 'py-2.5')
     expect(panel()).not.toHaveClass('gap-4')
     expect(screen.getByText('Game over')).toHaveClass('text-[1.4rem]')
   })

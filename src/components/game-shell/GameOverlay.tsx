@@ -71,7 +71,7 @@ export function GameOverlay({
       {(variant === 'win' || runMilestone) && <Confetti active={show} />}
       <div
         style={cozy ? { color: '#5b3a1e', background: 'linear-gradient(#fff3dc, #f3d9aa)', border: '4px solid #5b3a1e', boxShadow: '0 5px 0 #3a2410, inset 0 0 0 3px #fbeccc' } : { color: neon }}
-        className={`anim-overlay-in flex flex-col items-center rounded-2xl text-center ${compact ? 'gap-2' : 'gap-4'} ${cozy ? (compact ? 'mx-2 px-4 py-3' : 'mx-3 px-6 py-5') : compact ? 'neon-box border border-current/40 bg-bg-2/85 px-5 py-4' : 'neon-box border border-current/40 bg-bg-2/85 px-8 py-6'}`}
+        className={`anim-overlay-in flex flex-col items-center rounded-2xl text-center ${compact ? 'gap-2' : 'gap-4'} ${cozy ? (compact ? 'mx-2 px-4 py-2.5' : 'mx-3 px-6 py-5') : compact ? 'neon-box border border-current/40 bg-bg-2/85 px-5 py-4' : 'neon-box border border-current/40 bg-bg-2/85 px-8 py-6'}`}
       >
         <p className={cozy ? `${compact ? 'text-[1.4rem]' : 'text-[1.7rem]'} font-bold leading-tight tracking-tight` : `neon-text-strong ${compact ? 'text-2xl' : 'text-3xl'} font-extrabold tracking-tight`}>
           {title}

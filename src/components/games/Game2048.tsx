@@ -100,7 +100,10 @@ function EvolutionLadder({ theme, max }: { theme: Theme2048; max: number }) {
             ? 'border-garden-ink bg-[#ffe8bd] shadow-[0_2px_0_var(--garden-ink)]'
             : state === 'next'
               ? 'border-dashed border-[#c9472a] bg-[#fff8ea]'
-              : 'border-garden-ink/25 bg-garden-cream-2 opacity-45 grayscale'
+              : v === LADDER[LADDER.length - 1]
+                ? // 최종 목표(용)는 잠겨 있어도 알아볼 수 있게 — GOAL 문구가 말하는 바로 그 동물
+                  'border-garden-ink/40 bg-garden-cream-2 opacity-80'
+                : 'border-garden-ink/25 bg-garden-cream-2 opacity-60 grayscale'
         return (
           <span
             key={v}
@@ -202,7 +205,12 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
 
   useEffect(() => {
     restart()
-    const stored = Number(localStorage.getItem(storageKey))
+    let stored = 0
+    try {
+      stored = Number(localStorage.getItem(storageKey))
+    } catch {
+      // 저장소 차단 — 기록 없음으로 시작
+    }
     const b = Number.isFinite(stored) ? stored : 0
     setBest(b)
     bestRef.current = b
@@ -407,6 +415,8 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
           </button>
         </div>
         <div className="aspect-square w-full rounded-xl border-[3px] border-garden-ink bg-garden-cream-2 p-2 shadow-garden-island" data-testid="board-loading" />
+        {/* 사다리 자리를 미리 잡아 로드 뒤 아래 내용이 밀리지 않게(CLS) */}
+        {theme.ladder && theme.names && <EvolutionLadder theme={theme} max={0} />}
         <p className="mt-3 text-center text-sm text-fg-muted">{hint}</p>
       </div>
     )
@@ -422,7 +432,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
     const next = nextStep(maxTile)
     const lead = bestTileBefore > 0 && maxTile > bestTileBefore ? 'New animal!' : 'You reached'
     return (
-      <p data-testid="result-animal" className="whitespace-nowrap text-[0.95rem] font-bold text-garden-ink">
+      <p data-testid="result-animal" className="text-balance text-[0.95rem] font-bold text-garden-ink">
         {lead} {top.emoji} {top.name}
         {next && (
           <span className="font-semibold text-garden-ink-soft">
