@@ -1,0 +1,155 @@
+[
+  {
+    "id": "hub-keyart-hero",
+    "model": "gemini-3.1-flash-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 1600,
+    "refs": [
+      "docs/design/plop-landing/direction/target.jpg",
+      "public/art/plop-landing-cover.webp",
+      "public/art/plop-bg.webp",
+      "public/art/mallang-idle.webp",
+      "public/art/tori-idle.webp"
+    ],
+    "prompt": "STYLE LOCK — \"Sunset Garden\" world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Matte cel shading with exactly two tones (light + one hard-edged shadow), no airbrush. Thick, slightly hand-wobbly dark-brown outline #5b3a1e on every shape, inner detail lines thinner and lighter brown. Single light source: a low warm sun from the back-right, giving every object a cream-apricot rim light on its right/top edge; shadows lean lavender #b79ad9, never grey. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, moss #7cc26a, leaf shadow #4f8a3c, sun gold #ffc933, outline brown #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff, squirrel amber #d98b3a, suit mint #a8e6c8. Plump rounded friendly shapes. Islands have a mossy top with moss dripping over the edge and a pointed rocky underside. Match the line weight, shading and colors of the reference images exactly. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks anywhere (signboards and flags stay blank). No 3D render, no plastic gloss, no lens flare, no neon, no pixel art, no white sticker border, no drop shadow blur. Original design; do not imitate any existing game, brand or character. Home page hero key art, wide 16:9 banner, sunset time. The LEFT ONE-THIRD of the image must be empty calm coral-to-peach sky and soft distant clouds only (reserved for a title added later in code): no characters, no islands, no objects there. In the center-right: the largest island, 'Sunflower Knoll', a round mossy island with three tall sunflowers all turning their heads toward the low sun at the right horizon, and a small blank wooden signboard. On it, Mallang (cyan-to-violet jelly, white oval eyes, brown outline) waves happily, and Tori (squirrel astronaut with bubble helmet and mint suit, big curled tail, no weapon) stands beside him pointing toward the sky. Behind them, smaller islands float at different depths: a row of small flat stepping-stone islands with sunflowers (left-back), a tall island with an acorn tree reaching up into the first evening stars (right-back), and a winding cloud brook between islands with a cream line drawn across it (front). A cream dotted arc of 7 dots links the islands. Lavender sea of clouds below. Sun is a soft disc just above the horizon on the right. 40% of the image is quiet sky. SCENE: full-bleed illustration, no border, no frame, no UI elements, no text, no letters. Keep the specified empty area as calm low-contrast sky only."
+  },
+  {
+    "id": "mallang-wave",
+    "model": "gemini-3.1-flash-image",
+    "aspect": "1:1",
+    "key": "green",
+    "size": 512,
+    "refs": [
+      "public/art/mallang-idle.webp",
+      "public/art/mallang-happy.webp",
+      "public/art/plop-island-small.webp"
+    ],
+    "prompt": "STYLE LOCK — \"Sunset Garden\" world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Matte cel shading with exactly two tones (light + one hard-edged shadow), no airbrush. Thick, slightly hand-wobbly dark-brown outline #5b3a1e on every shape, inner detail lines thinner and lighter brown. Single light source: a low warm sun from the back-right, giving every object a cream-apricot rim light on its right/top edge; shadows lean lavender #b79ad9, never grey. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, moss #7cc26a, leaf shadow #4f8a3c, sun gold #ffc933, outline brown #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff, squirrel amber #d98b3a, suit mint #a8e6c8. Plump rounded friendly shapes. Islands have a mossy top with moss dripping over the edge and a pointed rocky underside. Match the line weight, shading and colors of the reference images exactly. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks anywhere (signboards and flags stay blank). No 3D render, no plastic gloss, no lens flare, no neon, no pixel art, no white sticker border, no drop shadow blur. Original design; do not imitate any existing game, brand or character. The character is Mallang from the reference: an upside-down-teardrop jelly body, rounded top and wider bottom with two short stubby feet, no separate limbs (arms only bulge out of the body when needed), white oval eyes without pupils, small curved mouth, body gradient jelly cyan #7fe3ff at top to jelly violet #9b7bff at bottom, one or two soft cream highlights at top-left only (less glossy than the reference, matte-leaning). IMPORTANT: outline is dark brown #5b3a1e like the island reference, NOT navy and NOT black. Same proportions as the reference (height to width about 1.15 to 1). Pose: greeting. Mallang stands upright, a small arm bulges out of the right side of the body and waves high, body leans slightly toward the wave, eyes happy closed arcs (^^), mouth open small smile, light pink blush, a little stretch upward. Full body. SPRITE: one isolated subject, full body, centered, about 12% empty margin on every side, nothing touching the edges, no ground shadow, no extra objects. The ENTIRE background is one perfectly flat solid pure green #00FF00 with no gradient, no texture, no vignette. Do not use pure green #00FF00 or any similar hue anywhere on the subject. No text."
+  },
+  {
+    "id": "mallang-sleepy",
+    "model": "gemini-3.1-flash-image",
+    "aspect": "1:1",
+    "key": "green",
+    "size": 512,
+    "refs": [
+      "public/art/mallang-idle.webp",
+      "public/art/mallang-happy.webp",
+      "public/art/plop-island-small.webp"
+    ],
+    "prompt": "STYLE LOCK — \"Sunset Garden\" world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Matte cel shading with exactly two tones (light + one hard-edged shadow), no airbrush. Thick, slightly hand-wobbly dark-brown outline #5b3a1e on every shape, inner detail lines thinner and lighter brown. Single light source: a low warm sun from the back-right, giving every object a cream-apricot rim light on its right/top edge; shadows lean lavender #b79ad9, never grey. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, moss #7cc26a, leaf shadow #4f8a3c, sun gold #ffc933, outline brown #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff, squirrel amber #d98b3a, suit mint #a8e6c8. Plump rounded friendly shapes. Islands have a mossy top with moss dripping over the edge and a pointed rocky underside. Match the line weight, shading and colors of the reference images exactly. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks anywhere (signboards and flags stay blank). No 3D render, no plastic gloss, no lens flare, no neon, no pixel art, no white sticker border, no drop shadow blur. Original design; do not imitate any existing game, brand or character. The character is Mallang from the reference: an upside-down-teardrop jelly body, rounded top and wider bottom with two short stubby feet, no separate limbs (arms only bulge out of the body when needed), white oval eyes without pupils, small curved mouth, body gradient jelly cyan #7fe3ff at top to jelly violet #9b7bff at bottom, one or two soft cream highlights at top-left only (less glossy than the reference, matte-leaning). IMPORTANT: outline is dark brown #5b3a1e like the island reference, NOT navy and NOT black. Same proportions as the reference (height to width about 1.15 to 1). Pose: sleepy and cozy, for loading screens and empty states. Mallang is squashed wider and lower (resting), eyes are half-closed crescent lines, tiny round 'o' mouth, body slightly tilted, a small cream curled leaf blanket over the bottom edge. No 'Z' letters, no symbols. Full body. SPRITE: one isolated subject, full body, centered, about 12% empty margin on every side, nothing touching the edges, no ground shadow, no extra objects. The ENTIRE background is one perfectly flat solid pure green #00FF00 with no gradient, no texture, no vignette. Do not use pure green #00FF00 or any similar hue anywhere on the subject. No text."
+  },
+  {
+    "id": "mallang-sad",
+    "model": "gemini-3.1-flash-image",
+    "aspect": "1:1",
+    "key": "green",
+    "size": 512,
+    "refs": [
+      "public/art/mallang-idle.webp",
+      "public/art/mallang-happy.webp",
+      "public/art/plop-island-small.webp"
+    ],
+    "prompt": "STYLE LOCK — \"Sunset Garden\" world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Matte cel shading with exactly two tones (light + one hard-edged shadow), no airbrush. Thick, slightly hand-wobbly dark-brown outline #5b3a1e on every shape, inner detail lines thinner and lighter brown. Single light source: a low warm sun from the back-right, giving every object a cream-apricot rim light on its right/top edge; shadows lean lavender #b79ad9, never grey. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, moss #7cc26a, leaf shadow #4f8a3c, sun gold #ffc933, outline brown #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff, squirrel amber #d98b3a, suit mint #a8e6c8. Plump rounded friendly shapes. Islands have a mossy top with moss dripping over the edge and a pointed rocky underside. Match the line weight, shading and colors of the reference images exactly. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks anywhere (signboards and flags stay blank). No 3D render, no plastic gloss, no lens flare, no neon, no pixel art, no white sticker border, no drop shadow blur. Original design; do not imitate any existing game, brand or character. The character is Mallang from the reference: an upside-down-teardrop jelly body, rounded top and wider bottom with two short stubby feet, no separate limbs (arms only bulge out of the body when needed), white oval eyes without pupils, small curved mouth, body gradient jelly cyan #7fe3ff at top to jelly violet #9b7bff at bottom, one or two soft cream highlights at top-left only (less glossy than the reference, matte-leaning). IMPORTANT: outline is dark brown #5b3a1e like the island reference, NOT navy and NOT black. Same proportions as the reference (height to width about 1.15 to 1). Pose: gently sad, for failure and 'nothing here' states. Mallang droops and sags a little (shorter, wider at the bottom), eyebrows slanted down, eyes still white ovals but looking down, one single small light-cyan teardrop on the cheek, mouth a small downward curve. Cute and soft, not dramatic. Full body. SPRITE: one isolated subject, full body, centered, about 12% empty margin on every side, nothing touching the edges, no ground shadow, no extra objects. The ENTIRE background is one perfectly flat solid pure green #00FF00 with no gradient, no texture, no vignette. Do not use pure green #00FF00 or any similar hue anywhere on the subject. No text."
+  },
+  {
+    "id": "tori-think",
+    "model": "gemini-3.1-flash-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "refs": [
+      "public/art/tori-idle.webp",
+      "public/art/tori-happy.webp"
+    ],
+    "prompt": "STYLE LOCK — \"Sunset Garden\" world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Matte cel shading with exactly two tones (light + one hard-edged shadow), no airbrush. Thick, slightly hand-wobbly dark-brown outline #5b3a1e on every shape, inner detail lines thinner and lighter brown. Single light source: a low warm sun from the back-right, giving every object a cream-apricot rim light on its right/top edge; shadows lean lavender #b79ad9, never grey. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, moss #7cc26a, leaf shadow #4f8a3c, sun gold #ffc933, outline brown #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff, squirrel amber #d98b3a, suit mint #a8e6c8. Plump rounded friendly shapes. Islands have a mossy top with moss dripping over the edge and a pointed rocky underside. Match the line weight, shading and colors of the reference images exactly. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks anywhere (signboards and flags stay blank). No 3D render, no plastic gloss, no lens flare, no neon, no pixel art, no white sticker border, no drop shadow blur. Original design; do not imitate any existing game, brand or character. The character is Tori from the reference: a chibi squirrel astronaut with an oversized S-curled fluffy tail that is half of the silhouette, amber fur #d98b3a, cream belly #f6dcb0, mint space suit #a8e6c8, a round transparent bubble helmet with a cream rim highlight, pink cheek blush, big round brown eyes with a small white shine, dark brown outline #5b3a1e. No weapon pointed at anything; the acorn launcher is NOT shown. Pose: thinking. Tori stands, one paw under the chin (touching the outside of the helmet), the other paw on the hip, eyes looking up and to the side, mouth a small lopsided smile, tail curled high behind. Full body. SPRITE: one isolated subject, full body, centered, about 12% empty margin on every side, nothing touching the edges, no ground shadow, no extra objects. The ENTIRE background is one perfectly flat solid pure magenta #FF00FF with no gradient, no texture, no vignette. Do not use pure magenta #FF00FF or any similar hue anywhere on the subject. No text."
+  },
+  {
+    "id": "tori-cheer",
+    "model": "gemini-3.1-flash-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "refs": [
+      "public/art/tori-idle.webp",
+      "public/art/tori-happy.webp"
+    ],
+    "prompt": "STYLE LOCK — \"Sunset Garden\" world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Matte cel shading with exactly two tones (light + one hard-edged shadow), no airbrush. Thick, slightly hand-wobbly dark-brown outline #5b3a1e on every shape, inner detail lines thinner and lighter brown. Single light source: a low warm sun from the back-right, giving every object a cream-apricot rim light on its right/top edge; shadows lean lavender #b79ad9, never grey. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, moss #7cc26a, leaf shadow #4f8a3c, sun gold #ffc933, outline brown #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff, squirrel amber #d98b3a, suit mint #a8e6c8. Plump rounded friendly shapes. Islands have a mossy top with moss dripping over the edge and a pointed rocky underside. Match the line weight, shading and colors of the reference images exactly. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks anywhere (signboards and flags stay blank). No 3D render, no plastic gloss, no lens flare, no neon, no pixel art, no white sticker border, no drop shadow blur. Original design; do not imitate any existing game, brand or character. The character is Tori from the reference: a chibi squirrel astronaut with an oversized S-curled fluffy tail that is half of the silhouette, amber fur #d98b3a, cream belly #f6dcb0, mint space suit #a8e6c8, a round transparent bubble helmet with a cream rim highlight, pink cheek blush, big round brown eyes with a small white shine, dark brown outline #5b3a1e. No weapon pointed at anything; the acorn launcher is NOT shown. Pose: celebrating for the leaderboard. Tori jumps with both feet off the ground, both arms up holding one big shiny brown acorn #8a5a2b with a textured cap above the head, eyes happy closed arcs, mouth wide open smile, tail flared out. No trophy, no crown, no confetti. Full body. SPRITE: one isolated subject, full body, centered, about 12% empty margin on every side, nothing touching the edges, no ground shadow, no extra objects. The ENTIRE background is one perfectly flat solid pure magenta #FF00FF with no gradient, no texture, no vignette. Do not use pure magenta #FF00FF or any similar hue anywhere on the subject. No text."
+  },
+  {
+    "id": "cat-island-daily",
+    "model": "gemini-3.1-flash-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "refs": [
+      "public/art/plop-island-small.webp",
+      "public/art/plop-flower.webp",
+      "public/art/island.webp"
+    ],
+    "prompt": "STYLE LOCK — \"Sunset Garden\" world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Matte cel shading with exactly two tones (light + one hard-edged shadow), no airbrush. Thick, slightly hand-wobbly dark-brown outline #5b3a1e on every shape, inner detail lines thinner and lighter brown. Single light source: a low warm sun from the back-right, giving every object a cream-apricot rim light on its right/top edge; shadows lean lavender #b79ad9, never grey. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, moss #7cc26a, leaf shadow #4f8a3c, sun gold #ffc933, outline brown #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff, squirrel amber #d98b3a, suit mint #a8e6c8. Plump rounded friendly shapes. Islands have a mossy top with moss dripping over the edge and a pointed rocky underside. Match the line weight, shading and colors of the reference images exactly. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks anywhere (signboards and flags stay blank). No 3D render, no plastic gloss, no lens flare, no neon, no pixel art, no white sticker border, no drop shadow blur. Original design; do not imitate any existing game, brand or character. A single floating garden island icon seen from slightly above (15 degrees), the island fills about 70% of the canvas width, mossy flat top #7cc26a with moss dripping over the edge, pointed rocky underside like the reference island, same angle, scale and back-right lighting for every icon in this set. One signature prop only, readable when shrunk to 48 pixels: one large golden sunflower #ffc933 with a short stem and two leaves standing in the center of the island, its head turned toward the right, plus two tiny flower buds beside it. Category icon for 'Daily'. SPRITE: one isolated subject, full body, centered, about 12% empty margin on every side, nothing touching the edges, no ground shadow, no extra objects. The ENTIRE background is one perfectly flat solid pure magenta #FF00FF with no gradient, no texture, no vignette. Do not use pure magenta #FF00FF or any similar hue anywhere on the subject. No text."
+  },
+  {
+    "id": "cat-island-puzzle",
+    "model": "gemini-3.1-flash-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "refs": [
+      "public/art/plop-island-small.webp",
+      "public/art/plop-flower.webp",
+      "public/art/island.webp"
+    ],
+    "prompt": "STYLE LOCK — \"Sunset Garden\" world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Matte cel shading with exactly two tones (light + one hard-edged shadow), no airbrush. Thick, slightly hand-wobbly dark-brown outline #5b3a1e on every shape, inner detail lines thinner and lighter brown. Single light source: a low warm sun from the back-right, giving every object a cream-apricot rim light on its right/top edge; shadows lean lavender #b79ad9, never grey. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, moss #7cc26a, leaf shadow #4f8a3c, sun gold #ffc933, outline brown #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff, squirrel amber #d98b3a, suit mint #a8e6c8. Plump rounded friendly shapes. Islands have a mossy top with moss dripping over the edge and a pointed rocky underside. Match the line weight, shading and colors of the reference images exactly. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks anywhere (signboards and flags stay blank). No 3D render, no plastic gloss, no lens flare, no neon, no pixel art, no white sticker border, no drop shadow blur. Original design; do not imitate any existing game, brand or character. A single floating garden island icon seen from slightly above (15 degrees), the island fills about 70% of the canvas width, mossy flat top #7cc26a with moss dripping over the edge, pointed rocky underside like the reference island, same angle, scale and back-right lighting for every icon in this set. One signature prop only, readable when shrunk to 48 pixels: a low hedge maze made of rounded leafy vine walls (leaf #7cc26a, shadow #4f8a3c) on top of the island, three or four simple turns, with one cream-white daisy bud at the maze center. Category icon for 'Puzzle'. SPRITE: one isolated subject, full body, centered, about 12% empty margin on every side, nothing touching the edges, no ground shadow, no extra objects. The ENTIRE background is one perfectly flat solid pure magenta #FF00FF with no gradient, no texture, no vignette. Do not use pure magenta #FF00FF or any similar hue anywhere on the subject. No text."
+  },
+  {
+    "id": "cat-island-arcade",
+    "model": "gemini-3.1-flash-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "refs": [
+      "public/art/plop-island-small.webp",
+      "public/art/island.webp",
+      "public/art/star.webp"
+    ],
+    "prompt": "STYLE LOCK — \"Sunset Garden\" world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Matte cel shading with exactly two tones (light + one hard-edged shadow), no airbrush. Thick, slightly hand-wobbly dark-brown outline #5b3a1e on every shape, inner detail lines thinner and lighter brown. Single light source: a low warm sun from the back-right, giving every object a cream-apricot rim light on its right/top edge; shadows lean lavender #b79ad9, never grey. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, moss #7cc26a, leaf shadow #4f8a3c, sun gold #ffc933, outline brown #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff, squirrel amber #d98b3a, suit mint #a8e6c8. Plump rounded friendly shapes. Islands have a mossy top with moss dripping over the edge and a pointed rocky underside. Match the line weight, shading and colors of the reference images exactly. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks anywhere (signboards and flags stay blank). No 3D render, no plastic gloss, no lens flare, no neon, no pixel art, no white sticker border, no drop shadow blur. Original design; do not imitate any existing game, brand or character. A single floating garden island icon seen from slightly above (15 degrees), the island fills about 70% of the canvas width, mossy flat top #7cc26a with moss dripping over the edge, pointed rocky underside like the reference island, same angle, scale and back-right lighting for every icon in this set. One signature prop only, readable when shrunk to 48 pixels: one big plump bouncy mushroom with a coral #ff9d7a cap with cream spots, slightly squashed as if it was just bounced on, with one small golden star #ffc933 floating just above it. Category icon for 'Arcade'. SPRITE: one isolated subject, full body, centered, about 12% empty margin on every side, nothing touching the edges, no ground shadow, no extra objects. The ENTIRE background is one perfectly flat solid pure magenta #FF00FF with no gradient, no texture, no vignette. Do not use pure magenta #FF00FF or any similar hue anywhere on the subject. No text."
+  },
+  {
+    "id": "hub-404-drifted-islet",
+    "model": "gemini-3.1-flash-image",
+    "aspect": "4:3",
+    "key": "none",
+    "size": 1200,
+    "refs": [
+      "public/art/plop-bg.webp",
+      "public/art/plop-island-small.webp",
+      "public/art/mallang-idle.webp"
+    ],
+    "prompt": "STYLE LOCK — \"Sunset Garden\" world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Matte cel shading with exactly two tones (light + one hard-edged shadow), no airbrush. Thick, slightly hand-wobbly dark-brown outline #5b3a1e on every shape, inner detail lines thinner and lighter brown. Single light source: a low warm sun from the back-right, giving every object a cream-apricot rim light on its right/top edge; shadows lean lavender #b79ad9, never grey. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, moss #7cc26a, leaf shadow #4f8a3c, sun gold #ffc933, outline brown #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff, squirrel amber #d98b3a, suit mint #a8e6c8. Plump rounded friendly shapes. Islands have a mossy top with moss dripping over the edge and a pointed rocky underside. Match the line weight, shading and colors of the reference images exactly. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks anywhere (signboards and flags stay blank). No 3D render, no plastic gloss, no lens flare, no neon, no pixel art, no white sticker border, no drop shadow blur. Original design; do not imitate any existing game, brand or character. Empty-state and 404 scene, 'the drifted islet', dusk time: sky deep rose #c86a8a at top fading to warm apricot #f0a080 near the horizon, sea of clouds darker lavender #7a5fa8. The TOP 30% of the image is calm empty sky (reserved for a message added later in code). In the lower center, a tiny lonely floating island (only a little bigger than the character) drifting alone far from anything, with one tuft of grass, one closed flower bud and a small tilted wooden signboard that is completely BLANK. Mallang (cyan-to-violet jelly, white oval eyes, brown outline #5b3a1e) sits on the edge of the island with his little feet dangling, looking toward the far horizon where very small silhouettes of other islands and a low sun disc are visible. A short trail of three cream dots fades behind the islet. Gentle, a little lonely, but warm and hopeful. SCENE: full-bleed illustration, no border, no frame, no UI elements, no text, no letters. Keep the specified empty area as calm low-contrast sky only."
+  },
+  {
+    "id": "hub-og-bg",
+    "model": "gemini-3.1-flash-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 1600,
+    "refs": [
+      "docs/design/plop-landing/direction/target.jpg",
+      "public/art/plop-bg.webp",
+      "public/art/mallang-happy.webp",
+      "public/art/tori-happy.webp"
+    ],
+    "prompt": "STYLE LOCK — \"Sunset Garden\" world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Matte cel shading with exactly two tones (light + one hard-edged shadow), no airbrush. Thick, slightly hand-wobbly dark-brown outline #5b3a1e on every shape, inner detail lines thinner and lighter brown. Single light source: a low warm sun from the back-right, giving every object a cream-apricot rim light on its right/top edge; shadows lean lavender #b79ad9, never grey. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, moss #7cc26a, leaf shadow #4f8a3c, sun gold #ffc933, outline brown #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff, squirrel amber #d98b3a, suit mint #a8e6c8. Plump rounded friendly shapes. Islands have a mossy top with moss dripping over the edge and a pointed rocky underside. Match the line weight, shading and colors of the reference images exactly. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks anywhere (signboards and flags stay blank). No 3D render, no plastic gloss, no lens flare, no neon, no pixel art, no white sticker border, no drop shadow blur. Original design; do not imitate any existing game, brand or character. Background for social share (Open Graph) images, will be cropped to 1200x630, sunset time. The LEFT 55% must be calm empty low-contrast coral-to-peach sky with only a few soft flat clouds (game name and score will be overlaid later in code), keep it very quiet. In the right 45%: one medium round mossy island with two sunflowers facing the sun; Mallang (happy, hugging a golden star) and Tori (squirrel astronaut, bubble helmet, mint suit, big tail, waving, no weapon) sit side by side on it. Low sun disc just above the horizon behind the island, lavender sea of clouds at the bottom. Keep everything important at least 8% away from all edges (safe area). SCENE: full-bleed illustration, no border, no frame, no UI elements, no text, no letters. Keep the specified empty area as calm low-contrast sky only."
+  },
+  {
+    "id": "hub-home-critique-pilot",
+    "type": "critique",
+    "refs": [
+      "docs/design/shots/hub-home-390-1119.png"
+    ],
+    "_todo": "머지 전 390px 홈 캡처를 docs/design/shots/hub-home-<날짜>.png로 올리고 refs에 그 경로를 넣는다. 비운 채로 머지하면 이미지 없이 평가돼 1회분이 낭비된다.",
+    "prompt": "당신은 Nintendo·Studio Ghibli·Monument Valley 수준의 까다로운 아트 디렉터입니다. 첨부한 것은 무료 웹게임 허브의 모바일 390px 홈 화면 캡처입니다. 이 사이트의 목표 세계관은 '노을 정원'(구름 위 작은 정원 섬들, 해는 늘 지기 직전, 갈색 #5b3a1e 윤곽, 크림 #fff3dc, 황금 #ffc933, 젤리 말랑이와 우주 다람쥐 토리)입니다. 한국어로 혹평해 주세요: (1) 이 화면이 그 세계관으로 읽히는지 10점 척도, (2) 세계관과 충돌하는 요소 5가지(예: 아케이드·네온·픽셀 폰트·회색 카드·이모지 아이콘) 위치와 함께, (3) 첫 화면에 일러스트가 들어가야 할 자리 3곳과 각 자리의 크기·구도 지시, (4) 다른 포털(Poki·CrazyGames)과 구분되는 점과 구분되지 않는 점, (5) 가장 먼저 고칠 1가지. 마지막 줄에 '총점 N/10'."
+  }
+]
