@@ -72,3 +72,43 @@ describe('GameShell header controls — pointer clicks do not keep focus', () =>
     expect(document.activeElement).toBe(ng)
   })
 })
+
+// compactHeader(opt-in, 2048): 점수 자릿수가 늘어도 헤더가 줄바꿈되지 않게 — 기본값은 기존 레이아웃 그대로.
+describe('GameShell compactHeader', () => {
+  function renderWith(compactHeader?: boolean) {
+    return render(
+      <GameShell
+        stats={[
+          { label: 'Score', value: 12345, testId: 'score' },
+          { label: 'Best', value: 23456 },
+        ]}
+        onNewGame={vi.fn()}
+        muted={false}
+        onToggleMute={vi.fn()}
+        compactHeader={compactHeader}
+      >
+        <div />
+      </GameShell>,
+    )
+  }
+
+  it('off by default: stats row wraps as before', () => {
+    renderWith()
+    const stats = screen.getByTestId('game-shell-stats')
+    expect(stats).toHaveClass('flex-wrap')
+    expect(stats).not.toHaveClass('flex-nowrap')
+  })
+
+  it('on: header and stats never wrap, values use tabular-nums, New Game stays on one line', () => {
+    renderWith(true)
+    expect(screen.getByTestId('game-shell-header')).toHaveClass('flex-nowrap', 'min-h-11')
+    const stats = screen.getByTestId('game-shell-stats')
+    expect(stats).toHaveClass('flex-nowrap', 'min-w-0')
+    expect(stats).not.toHaveClass('flex-wrap')
+    expect(screen.getByTestId('score')).toHaveClass('tabular-nums')
+    expect(screen.getByTestId('score').parentElement).toHaveClass('whitespace-nowrap')
+    expect(screen.getByRole('button', { name: 'New Game' })).toHaveClass('whitespace-nowrap')
+    // 접근성 이름("Score 12345")은 그대로
+    expect(screen.getByTestId('score').parentElement).toHaveTextContent('Score 12345')
+  })
+})
