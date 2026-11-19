@@ -1,0 +1,127 @@
+# 허브 리디자인 v2 「오늘 호 표지」 구현 계획 (2026-11-19)
+
+오너 확정(11-19): 방향 = v2 「오늘 호 표지」, 마스코트 4마리, 113개 게임 전체를 세계관 틀로. "기획·계획 꼼꼼하게", "쉬지 말고 계속 발전".
+시안: `docs/design/redesign-v2/hub-v2.html` + 캡처. 근거: `docs/team/research/2026-11-19/hub-redesign-concept.md`(디자인 시스템 3장), `docs/design/world/world-bible.md`.
+독립 전문가 리뷰(11-19, 6.0/10)의 차단 9건·권고를 전부 이 계획에 반영했다. 리뷰 원문 요지는 부록 A.
+
+---
+
+## 0. 목표 · 하지 않을 것 · 완료 기준
+
+**목표**: 홈과 113개 게임 화면이 하나의 '노을 정원' 세계로 보이고, 처음 온 사람이 3초 안에 "무료 미니게임 사이트, 오늘의 퍼즐부터"를 알며, 단골은 지금보다 빨리 자기 게임에 닿는다.
+
+**하지 않을 것**
+- slug·공유 URL 변경, 게임 규칙·점수 체계 변경, 게임 화면 안 광고, AdSense 재심사 신청.
+- 홈 '살아 있는 하늘'(시간대별 하늘): 세계관("해는 늘 지평선에 붙잡혀 있다 = 언제나 노을")과 충돌 → **홈은 노을 고정**. 시간대는 게임별 '방'(Plop 새벽, Slime 노을, Acorn 밤)에만. 밤 정원·다크모드는 8단계(보류).
+- "sets 5:21 pm" 같은 위치 의존 문구, 하늘 다이얼 8칸(공유 카드 시그니처로만 남김), "No. 37" 반복(마스트헤드·공유 카드 2곳만).
+- 런타임 JS로 그리는 장식(티켓·스캘럽) — 정적 인라인 SVG/CSS mask만.
+
+**완료 기준(전체)**
+- 홈 390 Lighthouse 모바일: LCP < 2.5s, CLS < 0.05, 접근성 ≥ 95. 폰트 합계 ≤ 130KB(실측).
+- 홈 내부 링크 수가 지금보다 줄지 않는다(전후 비교 스크립트).
+- 113개 게임 모두 정원 틀로 렌더되고, 배치마다 Playwright 전후 캡처 + 게임별 e2e 스모크 초록.
+- 광고 off(`adsenseEnabled: false`)일 때 빈 광고 박스 0, on일 때 CLS 0.
+
+---
+
+## 1. 확정 결정 (리뷰 반영)
+
+| # | 결정 | 이유 |
+|---|---|---|
+| D1 | **H1 = "Free online mini games" 키워드 + 세계관 문장 2단 조판**(둘 다 `<h1>` 안: 윗줄 Figtree 600 18px, 아랫줄 Fraunces "a small garden that blooms daily.") | 리뷰 B4. 지금 H1 키워드 유지(SEO) + 시안 표정 유지 |
+| D2 | **정적 HTML 기본 상태 = 첫 방문(first)**. 진행·완료 상태는 클라이언트에서 localStorage로 바꾸되 같은 높이를 예약 | 리뷰 B3. 하이드레이션 불일치·깜빡임 방지 |
+| D3 | 날짜·호수(No. N)는 **기존 데일리 리셋 기준(UTC 자정, `src/lib/dailyDate.ts` todayUTC)** 으로 클라이언트 계산, 고정 높이 + tabular-nums | 리뷰 B9. 빌드 시각 고정 방지. 말랑 미끄럼길만 로컬 자정(todayLocal) — 홈 카드의 '오늘 호'는 UTC로 통일하고 말랑 카드 상태는 그 게임 키를 읽는다 |
+| D4 | **카테고리 수·전체 게임 수는 항상 계산**(`gamePages`·`gameMeta`), 하드코딩 금지 + 집계 단위 테스트 | 리뷰 B1. 실제 Puzzle 49 / Arcade 21 / Classic 19 / Skill 25 |
+| D5 | **마스코트 ↔ 카테고리 1:1**: 말랑이 = Puzzle, 토리 = Arcade, 해씨 = Classic(+오늘의 정원·안내), **보미 = Skill(정밀 비행·타이밍) + 소식(데일리 배달·리더보드·공유)** | 리뷰가 Skill 담당 공백 지적. 4마리 ↔ 4카테고리로 정리(팀 결정, 오너에게 보고) |
+| D6 | **마스코트 배치 규칙**: 한 뷰포트에 1마리(히어로 키아트 제외), 광고 띠 400px 안에는 두지 않음, 한 마리 = 한 기능 | 리뷰 마스코트 배치안 |
+| D7 | 세계관 틀 적용은 **`data-world="garden"` 스코프 안에서만** `--neon-*` 재매핑, 20개씩 배치. 전역 `color-scheme: dark`(globals.css 58행)는 건드리지 않는다 | 리뷰 9. 113개 동시 회귀 위험 |
+| D8 | 게임판은 1차에 **'밤 정원' 짙은 남보라 바탕 유지**(네온 글자 대비 안전), 바깥 틀만 크림. 게임판 크림화는 퀄리티팀이 게임별로 | 대비 회귀 방지 |
+| D9 | 폰트: Fraunces **정적 인스턴스 2개**(roman 600, italic 600, SOFT 100 고정, opsz 72 고정, WONK 없음, 라틴 서브셋) + Figtree variable, `next/font/local` self-host, `display: swap` + `adjustFontFallback`. 픽셀 폰트는 은퇴(콘솔 이스터에그만) | 리뷰 B7 |
+| D10 | 키아트는 `<img fetchpriority="high">` + srcset, **모바일 전용 크롭(780w ≤ 60KB)·데스크톱 1920w(≤ 150KB)** 별도 생성. 썸네일은 전용 정사각(128/256) | 리뷰 B8 |
+| D11 | 광고: 고정 크기 슬롯 + `min-height` 예약, 비활성이면 DOM 미렌더(지금 AdSlot 동작 유지), 1440 첫 화면 광고 없음, 게임 페이지 광고는 보드에서 150px 이상 | 리뷰 B6 |
+| D12 | nav 라벨: **Originals · All games (113) · Leaderboards**, 13px 이상 + 헤더 검색 아이콘 44px | 리뷰 B2·권고 2 |
+
+---
+
+## 2. 데이터 모양 (먼저 정한다)
+
+```ts
+// src/lib/home/edition.ts — 오늘 호(UTC 자정 기준)
+export type Edition = { no: number; dateUTC: string /* YYYY-MM-DD */; label: string /* "Thu, Nov 19" */ }
+export function editionFor(d: Date): Edition            // No.1 = 사이트 데일리 시작일(상수, DECISIONS 기록)
+
+// 오늘의 정원 상태 — 오리지널 3종의 오늘 결과에서 계산
+export type GardenState = 'first' | 'in-progress' | 'complete'
+export type GardenSlot = { slug: 'slime-slide' | 'plop-landing' | 'acorn-hop'; status: 'unplayed' | 'bloomed' }
+export function readGarden(storage: Pick<Storage,'getItem'>, today: Edition): { state: GardenState; slots: GardenSlot[] }
+
+// 카테고리 선반 — 계산값만
+export type Shelf = { category: 'Puzzle'|'Arcade'|'Classic'|'Skill'; count: number; host: 'mallang'|'tori'|'haessi'|'bomi'; icon: 'bell'|'star'|'clover'|'sun' }
+export function shelves(pages: GamePage[], meta: typeof gameMeta): Shelf[]
+
+// 결과 시트 공통 스키마(오리지널 3종)
+export type DailyResult = { slug: string; primary: { label: string; value: number }; secondary?: { label: string; value: string }; streak: number; bloomed: boolean }
+```
+테스트(vitest engine): `editionFor` 경계(UTC 23:59/00:00), `readGarden` 3상태·손상된 저장값, `shelves` 합계 = gamePages.length.
+
+---
+
+## 3. PR 순서 (위험 낮고 효과 큰 것부터)
+
+각 PR: 브랜치 `shift/<시각>-redesign-<n>`, M 이하, `pnpm test && pnpm typecheck` + 해당 e2e 초록, **고친 사람 ≠ 리뷰어**(독립 서브에이전트 리뷰), 전후 캡처를 PR 본문에. 머지 후 라이브 확인(URL 200 + 실제 화면).
+
+| # | PR | 범위 | 검증 | 되돌리기 |
+|---|---|---|---|---|
+| R1 | **토큰·폰트 기반** | `--garden-*` 토큰(콘셉트 3장) 추가, Fraunces 2인스턴스·Figtree self-host(`src/app/fonts.ts`), 아직 화면 변화 없음(neon 미변경) | 폰트 합계 ≤130KB 실측표, CLS 측정, typecheck·vitest·playwright 스모크 | 파일 추가만 → revert 1커밋 |
+| R2 | **크롬: 헤더·푸터** | 크림 헤더(로고 마크·wordmark·nav 3·검색 아이콘·오늘 pill=`/daily` 링크), 푸터 '정원 안내판'(Daily·Collections·Guides·카테고리 4·About·Privacy·Terms·Contact) | 홈·게임 페이지 내부 링크 수 전후(감소 0), axe 심각 0, 390/1440 캡처 | 헤더/푸터 컴포넌트 교체만 |
+| R3 | **홈 히어로** | 노을 고정 하늘, D1 H1, 키아트 `<img>`(모바일 크롭·데스크톱 자산), 오늘 호 카드(first 기본, D2·D3), 마스트헤드 1줄("No. 37 · Thu, Nov 19") | Lighthouse LCP<2.5s·CLS<0.05, first/in-progress/complete 3상태 캡처, edition·garden 단위 테스트 | page.tsx 히어로 블록만 |
+| R4 | **홈 본문** | Continue 줄(RecentlyPlayed 재사용, 없으면 인기 4), Originals 목차(Plop·Acorn + Soon은 출시 1주 전만), 4선반(D4·D5, 해씨 안내), All games 목록(접힘 + HTML 링크 전부), About 편집 블록 120~200단어 + From the guides 3링크, 광고 고정 슬롯(D11) | shelves 단위 테스트, e2e "검색 → 2048 진입", 광고 off 빈 박스 0, 홈 높이 390 ≤ 2,600px | 섹션 단위 |
+| R5 | **데일리 결과 시트**(오리지널 3종) | DailyResult 스키마, Share(노란색 하나), Next game 보조 버튼(NextRail 재사용), 카운트다운(UTC), 공유 카드(하늘 띠 시그니처), 85dvh + 내부 스크롤, 결과 숫자 coralT | 컴포넌트 테스트(streak·bloomed), 360×640 캡처, 시트 안 광고 0 | 시트 컴포넌트만 |
+| R6 | **마스코트 배치** | 해씨(선반 Classic·About·빈 상태), 보미(결과 시트 카운트다운 32px·리더보드 머리·Skill 선반), 말랑이·토리(각 선반), 404 말랑 dizzy. lazy, 각 ≤40KB, 해씨 뒤 하늘색 disc | D6 체크리스트, 캡처 | 이미지 추가만 |
+| R7a~f | **113개 게임 정원 틀 배치 적용**(20개씩 6배치) | `GARDEN_GAMES` → `data-world="garden"` 스코프로 일반화, 스코프 안 `--neon-*` → 정원 팔레트 매핑, 게임판 밤 정원(D8), `neon-text` 글로우 제거, 게임 페이지 광고 150px | 배치마다 Playwright 390·1440 전후 스크린샷 diff(사람 눈 확인 목록), 게임별 e2e 스모크 전부, 대비 자동 검사 | 배치 목록에서 slug 제거 1줄 |
+| R8 | (보류) 밤 정원·다크모드 | 밤 전용 키아트 생성 후 | 밤 대비 AA, reduced-motion | — |
+
+**모션 줄이기**(전 PR 공통): 젤리 프레스·꽃 피기는 `prefers-reduced-motion`에서 즉시 상태로. globals.css 580행 블록에 합친다.
+
+---
+
+## 4. 필요한 그림 (Gemini 2차, gen-assets 워크플로)
+
+| id | 자리 | 규격 | 비고 |
+|---|---|---|---|
+| hub-hero-mobile | R3 모바일 히어로 | 9:10 마스터 1200×1320 → 780w webp ≤60KB | 위 40% 빈 노을 하늘(제목 자리), 아래 섬·말랑이·토리, 바닥 25% 평평한 라벤더 구름(#a88ecc, 카드 자리) |
+| hub-hero-desktop | R3 데스크톱 | 16:9 마스터 2400×1350 → 1920w ≤150KB | 왼쪽 40% 빈 하늘, 나무 섬 x 85% 안, 섬 밑동 y 75% 위에서 끝 |
+| thumb-{slime,plop,acorn} | 목차·티켓 | 1:1 512 → 128/256 | 주인공·고유 소품 가운데, 48px 판독 |
+| haessi-guide, bomi-countdown | R6 | 1:1 512 마젠타 키 | 해씨 등불 안내 포즈, 보미 '내일 호' 들고 날기 |
+| bomi-sheet v2 | 문서 | 16:9 | 표정 6개 모두 우체부 모자(1차에 4개 누락) |
+
+---
+
+## 5. 교대 배정 (ROTA 연결)
+
+- **16시 사이트 개발** → R1 → R2 → R3 → R4 순서(앞 PR 머지 후 다음).
+- **18시 저녁 개발** → R5 → R6.
+- **22시 야간 개발 B** → 4장 그림 요청 PR(gen-assets) + R7 배치 준비(스코프 일반화·캡처 비교 스크립트).
+- **02시 야간 개발 A** → R7 배치 a~f(하루 1~2배치).
+- **00시 심야 QA** → 전날 머지된 R-PR 라이브 전수 점검(390 터치·Lighthouse·내부 링크 수).
+- **03·15시 퀄리티 전담팀** → R7 배치를 지난 게임부터 게임판 안쪽 정원화·결 다듬기(QUALITY.md 8항목 '세계관').
+- 각 교대는 이 문서 3장 표의 다음 미완료 PR을 고르고, 시작 시 `gh pr list`로 겹침을 피한다. 완료하면 아래 진행표를 같은 PR에서 갱신한다.
+
+## 6. 진행표
+| PR | 상태 | PR 번호 | 메모 |
+|---|---|---|---|
+| R1 | 대기 | | |
+| R2 | 대기 | | |
+| R3 | 대기 | | |
+| R4 | 대기 | | |
+| R5 | 대기 | | |
+| R6 | 대기 | | |
+| R7a~f | 대기 | | |
+
+---
+
+## 부록 A. 독립 리뷰(11-19) 요지
+- 총평 6.0/10: 그림·색·판 그림자는 지금보다 훨씬 좋고 독창성 기준은 넘음. "신문 호" 장치 과다(No.·edition·다이얼·pill·카운트다운), H1에서 games 키워드 빠짐.
+- 차단: B1 카테고리 숫자 하드코딩, B2 검색·단골 동선 소실, B3 첫 방문 상태 부재, B4 H1·내부 링크 퇴행, B5 AdSense 고유 콘텐츠 0, B6 광고 자리 규칙 부재, B7 폰트 전 축 로딩(FOIT), B8 키아트 CSS 배경(LCP)·업스케일, B9 날짜 문구 정적 export에서 틀어짐.
+- 권고: 크롬 5겹 → 1줄로(약 60px), nav 13px+·"All games", pill 동작 정의, 결과 시트에 Next game, 공통 스탯 스키마, coral 대비, 모션 줄이기 명세, 홈 노을 고정(세계관), `data-world` 스코프 배치 적용, 1440 하단 설계.
+- 뺄 것: No. 반복, Sunset edition·다이얼·일몰 시각, 잠긴 Soon 줄(출시 1주 전만), 1440 상태 칩 중복, JS 장식, WONK 축.
