@@ -5,6 +5,7 @@ import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useSlimeAudio } from '@/lib/sound/useSlimeAudio'
 import { simulate } from '@/lib/games/slime/engine'
 import { sendHit } from '@/lib/hit'
+import { KO, type SlimeText } from '@/lib/games/slime/strings'
 import { STAGE_HINTS } from '@/lib/games/slime/stages'
 import { runLine, waypointsToRaw } from '@/lib/games/slime/solver'
 import { drawBubble, drawFailMark, drawFlowerGoal, drawGoalGlow, drawIslandFloors, drawPoisonFlower, drawSky, drawStar, drawTerrain } from '@/lib/games/slime/draw'
@@ -23,21 +24,13 @@ interface Rec {
   ms: number
 }
 
-const OUTCOME_TEXT: Record<Outcome, string> = {
-  nest: '도착!',
-  spiked: '독꽃에 닿았어요',
-  fell: '떨어졌어요',
-  stalled: '멈췄어요',
-  timeout: '시간이 다 됐어요',
-}
-const FAIL_BUBBLE: Record<Outcome, string> = { nest: '', spiked: '앗, 독꽃!', fell: '떨어졌어요', stalled: '멈췄어요', timeout: '멈췄어요' }
 const TRACE_MS = 50 // 트레이스 한 칸 = 6스텝 = 50ms
 const START_VIS_MS = 220 // 놓은 뒤 말랑이가 움직이기까지(엔진 시뮬의 0.5초 대기는 그대로, 화면만 앞당김). 그 사이 웅크리는 예비 동작
 const SLUG = 'slime-proto' // 측정 슬러그(정식 출시 전이라 slime-slide와 분리)
 const clampPt = (p: Pt): Pt => ({ x: Math.max(18, Math.min(BOARD_W - 18, p.x)), y: Math.max(26, Math.min(BOARD_H - 34, p.y)) })
 
 /** 비공개 시험판: 그리기 → 시뮬 재생 → 결과. 사이트에 연결하지 않았고, 플레이 기록을 복사해 난이도 조정에 쓴다. */
-export function SlimeProto() {
+export function SlimeProto({ text: tx = KO }: { text?: SlimeText } = {}) {
   const [si, setSi] = useState(0)
   const stage = SLIME_STAGES[si]
   const wrap = useRef<HTMLDivElement>(null)
@@ -246,7 +239,7 @@ export function SlimeProto() {
         g.setLineDash([2, 12])
         drawLine(g, hintLine.current, 'rgba(255,243,220,0.95)', 6)
         g.restore()
-        drawBubble(g, '이 길로 그어 보세요 (힌트)', BOARD_W / 2, 52)
+        drawBubble(g, tx.hintBubble, BOARD_W / 2, 52)
       }
       // 지난 시도(고스트)·내 선(분필: 은은한 빛 + 선명한 선)
       if (ghost.current && phase !== 'run') drawLine(g, ghost.current, 'rgba(91,58,30,0.28)', 5)
@@ -276,7 +269,7 @@ export function SlimeProto() {
         g.textBaseline = 'middle'
         g.fillText('👆', hx + 6, hy + 14)
         g.restore()
-        drawBubble(g, '말랑이 아래에서 꽃까지 선을 그어요', BOARD_W / 2, 52)
+        drawBubble(g, tx.startBubble, BOARD_W / 2, 52)
       }
       // 말랑이
       let sp: Pt = stage.spawn
@@ -301,7 +294,7 @@ export function SlimeProto() {
         sp = clampPt(sp) // 보드 밖으로 떨어져도 어지러운 얼굴과 ✕가 보이게 가장자리에 남긴다
         if (failAt.current && t - failAt.current < 2400) {
           drawFailMark(g, { x: sp.x, y: sp.y + 4 }, (t - failAt.current) / 1000)
-          drawBubble(g, FAIL_BUBBLE[result.current?.outcome ?? 'fell'], Math.max(80, Math.min(BOARD_W - 80, sp.x)), Math.max(30, sp.y - 54), 200)
+          drawBubble(g, tx.failBubble[result.current?.outcome ?? 'fell'], Math.max(80, Math.min(BOARD_W - 80, sp.x)), Math.max(30, sp.y - 54), 200)
         }
       }
       if (phase === 'run') {
@@ -400,7 +393,7 @@ export function SlimeProto() {
         fx.current.confetti(stage.nest.x, stage.nest.y - 10, 48)
         fx.current.stars(stage.nest.x, stage.nest.y - 10, 10)
         fx.current.ring(stage.nest.x, stage.nest.y, '#ffd86b', 72, 0.75)
-        fx.current.text(stage.nest.x, stage.nest.y - 46, r.acorns === 3 ? '완벽해요!' : '도착!', '#ffe27a', 24, 1.3)
+        fx.current.text(stage.nest.x, stage.nest.y - 46, r.acorns === 3 ? tx.perfect : tx.win, '#ffe27a', 24, 1.3)
         if (typeof navigator !== 'undefined') navigator.vibrate?.([20, 40, 30])
       } else {
         failAt.current = now
@@ -418,7 +411,7 @@ export function SlimeProto() {
       const ink = line.current ? polyLength(line.current) : 0
       recs.current.push({ stage: stage.id, outcome: r.outcome, acorns: r.acorns, ink: Math.round(ink), pts: (line.current ?? []).map((p) => [Math.round(p.x * 2), Math.round(p.y * 2)]), ms: Math.round(performance.now() - downAt.current) })
       const inkBonus = Math.round((100 * (stage.ink - ink)) / stage.ink)
-      setMsg(r.outcome === 'nest' ? `${OUTCOME_TEXT.nest} ${'⭐'.repeat(r.acorns)}${'☆'.repeat(3 - r.acorns)} 별 ${r.acorns * 100} + 잉크 ${inkBonus} = ${r.acorns * 100 + inkBonus}점` : OUTCOME_TEXT[r.outcome])
+      setMsg(r.outcome === 'nest' ? tx.scoreLine(r.acorns, r.acorns * 100, inkBonus, r.acorns * 100 + inkBonus) : tx.outcome[r.outcome])
       sendHit(SLUG, r.outcome === 'nest' ? `sl_win_s${si + 1}` : `sl_f_${r.outcome}_s${si + 1}`)
       if (r.outcome === 'nest') {
         failStreak.current = 0
@@ -434,7 +427,7 @@ export function SlimeProto() {
     }
     raf = requestAnimationFrame(loop)
     return () => cancelAnimationFrame(raf)
-  }, [w, stage, phase, play, si])
+  }, [w, stage, phase, play, si, tx])
 
   const pt = (e: React.PointerEvent): Pt => {
     const r = canvas.current!.getBoundingClientRect()
@@ -445,7 +438,7 @@ export function SlimeProto() {
     const p = pt(e)
     if (dist(p, stage.spawn) < CONST.SPAWN_BAN_R) {
       ringFlash.current = performance.now() + 400
-      setMsg('말랑이 바로 근처(점선 안)에는 못 그어요')
+      setMsg(tx.banNear)
       return
     }
     unlock()
@@ -482,7 +475,7 @@ export function SlimeProto() {
     if (dy < -60 && Math.abs(dy) > 2 * Math.abs(dx) && performance.now() - downAt.current < 450) {
       raw.current = []
       sendHit(SLUG, 'sl_cancel_scroll')
-      setMsg('스크롤은 보드 바깥(위·아래·옆 띠)에서 해요')
+      setMsg(tx.scrollNote)
       force((n) => n + 1)
       return
     }
@@ -491,7 +484,7 @@ export function SlimeProto() {
       raw.current = []
       play('invalid')
       sendHit(SLUG, 'sl_cancel_short')
-      setMsg('선이 너무 짧아요(40px 이상)')
+      setMsg(tx.tooShort)
       return
     }
     line.current = l
@@ -521,9 +514,9 @@ export function SlimeProto() {
     const payload = JSON.stringify({ v: 1, canvasW: w, dpr: window.devicePixelRatio, touch: navigator.maxTouchPoints, vp: [window.innerWidth, window.innerHeight], recs: recs.current })
     try {
       await navigator.clipboard.writeText(payload)
-      setCopied(`${recs.current.length}판 기록을 복사했어요`)
+      setCopied(tx.copied(recs.current.length))
     } catch {
-      setCopied('복사 실패 — 아래 상자를 길게 눌러 복사해 주세요')
+      setCopied(tx.copyFail)
     }
   }
 
@@ -543,16 +536,16 @@ export function SlimeProto() {
     <div ref={wrap} className="mx-auto w-full max-w-[390px]">
       {inKakao && (
         <p role="note" className="mb-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-center text-xs text-fg-muted" data-testid="slime-kakao-note">
-          카카오톡 안에서는 화면이 움직일 수 있어요. 오른쪽 아래 ⋮(또는 공유) → <b>다른 브라우저로 열기</b>를 쓰면 더 잘 그려져요.
+          {tx.kakaoNote}<b>{tx.kakaoBold}</b>{tx.kakaoTail}
         </p>
       )}
       <div className="mb-2 flex items-center justify-between text-sm">
-        <span className="flex items-center gap-1.5" role="group" aria-label="스테이지 선택">
+        <span className="flex items-center gap-1.5" role="group" aria-label={tx.stageGroup}>
           {SLIME_STAGES.map((st, i) => (
             <button
               key={st.id}
               type="button"
-              aria-label={`스테이지 ${i + 1}`}
+              aria-label={tx.stageLabel(i + 1)}
               aria-current={i === si ? 'true' : undefined}
               disabled={phase === 'run'}
               onClick={() => {
@@ -566,10 +559,10 @@ export function SlimeProto() {
           ))}
         </span>
         <span className="flex items-center gap-3 text-fg-muted">
-          잉크 {left}%
+          {tx.ink(left)}
           <button
             type="button"
-            aria-label={muted ? '소리 켜기' : '소리 끄기'}
+            aria-label={muted ? tx.soundOn : tx.soundOff}
             aria-pressed={muted}
             className="rounded-lg border border-white/15 px-2 py-1 text-base"
             onClick={() => {
@@ -591,24 +584,24 @@ export function SlimeProto() {
         <div className="h-full rounded-full bg-[#f4f0ff] transition-[width]" style={{ width: `${left}%` }} />
       </div>
       <div className="relative" style={{ width: w, height: Math.round(w * (BOARD_H / BOARD_W)) }}>
-        <canvas ref={canvas} style={{ width: w, height: Math.round(w * (BOARD_H / BOARD_W)), touchAction: 'pan-y' }} className="block rounded-xl border border-white/15" role="img" aria-label="말랑 미끄럼길 게임판. 손가락으로 선을 그어 말랑이를 꽃까지 보내요" data-testid="slime-canvas" />
+        <canvas ref={canvas} style={{ width: w, height: Math.round(w * (BOARD_H / BOARD_W)), touchAction: 'pan-y' }} className="block rounded-xl border border-white/15" role="img" aria-label={tx.canvasLabel} data-testid="slime-canvas" />
         {/* 그리기 구역: 가로 76%·세로 68% (위·아래 16%·좌우 12% 띠는 스크롤용 — 11-19 오너 피드백으로 확대) */}
         <PlayZone top={0.16} bottom={0.16} left={0.12} right={0.12} onPointerDown={onDown} onPointerMove={onMove} onPointerUp={onUp} onPointerCancel={onCancel} data-testid="slime-zone" />
       </div>
-      <p role="status" aria-live="polite" className="mt-3 min-h-6 text-center text-sm font-semibold">{msg || (phase === 'draw' ? '말랑이 아래에서 시작해 꽃까지 선을 그어요' : phase === 'run' ? '미끄러지는 중…' : '')}</p>
+      <p role="status" aria-live="polite" className="mt-3 min-h-6 text-center text-sm font-semibold">{msg || (phase === 'draw' ? tx.startStatus : phase === 'run' ? tx.running : '')}</p>
       <div className="mt-2 flex items-center justify-center gap-2 text-sm">
         <button type="button" className="min-h-11 rounded-lg border border-white/15 px-4 py-2" onClick={() => {
             sendHit(SLUG, 'sl_retry')
             reset()
-          }} disabled={phase === 'run'}>다시 그리기</button>
+          }} disabled={phase === 'run'}>{tx.retry}</button>
         {success && si + 1 < SLIME_STAGES.length && <button type="button" className="min-h-11 rounded-lg bg-accent px-4 py-2 font-semibold text-black" onClick={() => {
             sendHit(SLUG, 'sl_next')
             reset(si + 1)
-          }}>다음 스테이지</button>}
-        {success && si + 1 === SLIME_STAGES.length && <span className="font-semibold">모두 클리어! 🎉</span>}
+          }}>{tx.next}</button>}
+        {success && si + 1 === SLIME_STAGES.length && <span className="font-semibold">{tx.allClear}</span>}
       </div>
       <div className="mt-5 text-center text-xs text-fg-muted">
-        <button type="button" className="min-h-11 rounded-lg border border-white/15 px-4 py-2" onClick={copy}>플레이 기록 복사 ({recs.current.length}판)</button>
+        <button type="button" className="min-h-11 rounded-lg border border-white/15 px-4 py-2" onClick={copy}>{tx.copy(recs.current.length)}</button>
         <p className="mt-1">{copied}</p>
       </div>
     </div>
