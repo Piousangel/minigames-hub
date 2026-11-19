@@ -1,0 +1,74 @@
+[
+  {
+    "id": "hub-hero-desktop-4f-a",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 2400,
+    "out": "public/art/hub-hero-desktop-4f-a.webp",
+    "refs": [
+      "public/art/hub-hero-desktop.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/haessi-cheer.webp",
+      "docs/design/mascots/haessi-sheet.webp",
+      "public/art/bomi-deliver.webp",
+      "docs/design/mascots/bomi-sheet-v2.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style and character designs of the references. FOUR FRIENDS, all clearly visible, similar size, none hidden or cropped, each with a readable full-body silhouette and a happy expression, standing together on ONE main floating island, slightly overlapping at most: Mallang (mint-to-lavender matte jelly blob, waving), Tori (squirrel in a glass space helmet and mint suit, holding an acorn up), Haessi (sunflower-seed sprite: striped seed-brown and cream teardrop body, sunflower crown, leaf arms, holding a small brass lantern), Bomi (round bumblebee mail courier: honey-yellow and cocoa stripes, cream postal cap, satchel of rolled newspapers, hovering slightly above the grass holding up a rolled newspaper). Arrange them in a friendly arc: Haessi and Mallang on the left side of the group, Tori and Bomi on the right, Bomi a little higher. Wide composition for a 1440px desktop home hero. LEFT 40%: open sunset sky only (space for headline and buttons) — the island and all four friends sit in the RIGHT 60%, fully inside the frame with margin. The main island's bottom tip ends above 75% of the height. BOTTOM 20%: a flat lavender cloud band (#a88ecc) with nothing on it. An acorn tree on the right edge of the island, sunflowers growing along the island edge."
+  },
+  {
+    "id": "hub-hero-mobile-4f-a",
+    "model": "gemini-3-pro-image",
+    "aspect": "3:4",
+    "key": "none",
+    "size": 1320,
+    "out": "public/art/hub-hero-mobile-4f-a.webp",
+    "refs": [
+      "public/art/hub-hero-desktop.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/haessi-cheer.webp",
+      "docs/design/mascots/haessi-sheet.webp",
+      "public/art/bomi-deliver.webp",
+      "docs/design/mascots/bomi-sheet-v2.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style and character designs of the references. FOUR FRIENDS, all clearly visible, similar size, none hidden or cropped, each with a readable full-body silhouette and a happy expression, standing together on ONE main floating island, slightly overlapping at most: Mallang (mint-to-lavender matte jelly blob, waving), Tori (squirrel in a glass space helmet and mint suit, holding an acorn up), Haessi (sunflower-seed sprite: striped seed-brown and cream teardrop body, sunflower crown, leaf arms, holding a small brass lantern), Bomi (round bumblebee mail courier: honey-yellow and cocoa stripes, cream postal cap, satchel of rolled newspapers, hovering slightly above the grass holding up a rolled newspaper). Arrange them in a friendly arc: Haessi and Mallang on the left side of the group, Tori and Bomi on the right, Bomi a little higher. Portrait composition for a 390px-wide mobile home hero. TOP 38%: open calm sunset sky (space for the headline). MIDDLE: the main island with all four friends centred and large enough to read (the group spans about 80% of the width). BOTTOM 22%: a flat calm lavender cloud sea (#a88ecc) with no objects. An acorn tree on the right edge of the island, sunflowers growing along the island edge."
+  },
+  {
+    "id": "hub-hero-desktop-4f-b",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "none",
+    "size": 2400,
+    "out": "public/art/hub-hero-desktop-4f-b.webp",
+    "refs": [
+      "public/art/hub-hero-desktop.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/haessi-cheer.webp",
+      "docs/design/mascots/haessi-sheet.webp",
+      "public/art/bomi-deliver.webp",
+      "docs/design/mascots/bomi-sheet-v2.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style and character designs of the references. FOUR FRIENDS, all clearly visible, similar size, none hidden or cropped, each with a readable full-body silhouette and a happy expression, standing together on ONE main floating island, slightly overlapping at most: Mallang (mint-to-lavender matte jelly blob, waving), Tori (squirrel in a glass space helmet and mint suit, holding an acorn up), Haessi (sunflower-seed sprite: striped seed-brown and cream teardrop body, sunflower crown, leaf arms, holding a small brass lantern), Bomi (round bumblebee mail courier: honey-yellow and cocoa stripes, cream postal cap, satchel of rolled newspapers, hovering slightly above the grass holding up a rolled newspaper). Arrange them in a friendly arc: Haessi and Mallang on the left side of the group, Tori and Bomi on the right, Bomi a little higher. Wide composition for a 1440px desktop home hero. LEFT 40%: open sunset sky only (space for headline and buttons) — the island and all four friends sit in the RIGHT 60%, fully inside the frame with margin. The main island's bottom tip ends above 75% of the height. BOTTOM 20%: a flat lavender cloud band (#a88ecc) with nothing on it. A few tall sunflowers behind the group holding up the sun like a lantern, small stepping-stone islands leading in from the left."
+  },
+  {
+    "id": "hub-hero-mobile-4f-b",
+    "model": "gemini-3-pro-image",
+    "aspect": "3:4",
+    "key": "none",
+    "size": 1320,
+    "out": "public/art/hub-hero-mobile-4f-b.webp",
+    "refs": [
+      "public/art/hub-hero-desktop.webp",
+      "public/art/mallang-wave.webp",
+      "public/art/tori-cheer.webp",
+      "public/art/haessi-cheer.webp",
+      "docs/design/mascots/haessi-sheet.webp",
+      "public/art/bomi-deliver.webp",
+      "docs/design/mascots/bomi-sheet-v2.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world. Cozy hand-drawn storybook illustration for a top-tier mobile casual game brand. Small floating garden islands above a lavender sea of clouds; the sun is always just above the horizon. Warm dark-brown ink outlines (#5b3a1e) of even weight, matte two-tone cel shading, no airbrush, no glow, no neon, no text, no watermark. Exactly match the art style and character designs of the references. FOUR FRIENDS, all clearly visible, similar size, none hidden or cropped, each with a readable full-body silhouette and a happy expression, standing together on ONE main floating island, slightly overlapping at most: Mallang (mint-to-lavender matte jelly blob, waving), Tori (squirrel in a glass space helmet and mint suit, holding an acorn up), Haessi (sunflower-seed sprite: striped seed-brown and cream teardrop body, sunflower crown, leaf arms, holding a small brass lantern), Bomi (round bumblebee mail courier: honey-yellow and cocoa stripes, cream postal cap, satchel of rolled newspapers, hovering slightly above the grass holding up a rolled newspaper). Arrange them in a friendly arc: Haessi and Mallang on the left side of the group, Tori and Bomi on the right, Bomi a little higher. Portrait composition for a 390px-wide mobile home hero. TOP 38%: open calm sunset sky (space for the headline). MIDDLE: the main island with all four friends centred and large enough to read (the group spans about 80% of the width). BOTTOM 22%: a flat calm lavender cloud sea (#a88ecc) with no objects. A few tall sunflowers behind the group holding up the sun like a lantern, small stepping-stone islands leading in from the left."
+  }
+]
