@@ -58,6 +58,23 @@ describe('GameTyping', () => {
     expect(localStorage.getItem(KEY)).toBe('50')
   })
 
+  it('저장된 최고가 있으면 결과 덮개가 한 프레임도 First record를 그리지 않는다', () => {
+    localStorage.setItem(KEY, '50')
+    // 동기 act 사이엔 관찰 콜백이 돌지 않으니 기록을 모아 본다: 바뀌기 전 글자(oldValue)·지워진 노드·더해진 노드 모두.
+    const mo = new MutationObserver(() => {})
+    mo.observe(document.body, { subtree: true, childList: true, characterData: true, characterDataOldValue: true })
+    render(<GameTyping storageKey={KEY} />)
+    typeWords(25)
+    finishRound()
+    const seen = mo
+      .takeRecords()
+      .flatMap((r) => [r.oldValue ?? '', ...[...r.addedNodes, ...r.removedNodes].map((n) => n.textContent ?? '')])
+    mo.disconnect()
+    expect(seen.some((t) => t.includes('WPM short of your best'))).toBe(true)
+    expect(seen.some((t) => t.includes('First record'))).toBe(false)
+    expect(screen.getByTestId('typing-best-compare').textContent).toBe('30 WPM short of your best 50')
+  })
+
   it('신기록이면 직전 최고 대비 +차이를 보여 주고 저장한다', () => {
     localStorage.setItem(KEY, '10')
     render(<GameTyping storageKey={KEY} />)

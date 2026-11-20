@@ -106,7 +106,6 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
       // 손가락 기기: 키보드를 내려 결과 패널이 가려지지 않게(Try again이 다시 포커스).
       // 데스크톱은 포커스를 그대로 둔다 — 풀면 60초 순간 치고 있던 스페이스가 body로 가 페이지가 한 화면 내려간다.
       if (window.matchMedia?.('(pointer: coarse)').matches) inputRef.current?.blur()
-      setPrevBest(best)
       if (wpm > best) {
         setResultBest(true)
         setBest(wpm)
@@ -129,6 +128,8 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
       setRunning(true)
       setStartAt(t)
       setNow(t)
+      // 판 시작 때 잡는다 — 종료 effect에서 잡으면 결과 덮개 첫 프레임이 낡은 값(0)으로 'First record'를 잠깐 그렸다.
+      setPrevBest(best)
       endAtRef.current = t + TEST_SECONDS * 1000
     }
     if (value.endsWith(' ')) {
@@ -241,9 +242,10 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
       hint={hint}
       maxWidthClassName="max-w-2xl"
     >
-      {/* 결과 덮개는 이 상자(단어 판+입력칸)를 채운다. 끝나면 결과 패널(≈400px)이 들어가도록 높이를 확보 —
-          예전엔 128px 단어 판에만 덮여 패널이 목표 띠·입력칸·페이지 위로 넘쳤다(390). */}
-      <div className={`relative ${finished ? 'min-h-[27rem]' : ''}`} data-testid="typing-area">
+      {/* 결과 덮개는 이 상자(단어 판+입력칸)를 채운다. 결과 패널(≈400px)이 들어가도록 높이를 확보 —
+          예전엔 128px 단어 판에만 덮여 패널이 목표 띠·입력칸·페이지 위로 넘쳤다(390).
+          높이는 첫 입력 직후(running)에 미리 잡는다: 끝날 때 늘리면 입력 없는 레이아웃 밀림(CLS ≈0.07~0.09)이 됐다. */}
+      <div className={`relative ${running || finished ? 'min-h-[27rem]' : ''}`} data-testid="typing-area">
         <div
           className="anim-board-in flex min-h-28 cursor-text flex-wrap content-start items-baseline gap-x-2 gap-y-1 rounded-xl bg-surface p-4 text-lg leading-relaxed"
           data-testid="typing-words"
