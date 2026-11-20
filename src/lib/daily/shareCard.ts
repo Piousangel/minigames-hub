@@ -25,7 +25,8 @@ export type ShareCardInput = {
 const INK = '#5b3a1e'
 const SOFT = '#7a5636'
 const PAPER = '#fffaf0'
-const ART = { src: '/art/hub-hero-desktop.webp', sx: 640, sy: 30, sw: 736, sh: 410 } // 섬·말랑이·토리가 들어오는 오른쪽 구역
+// 4친구판(오너 11-20): 해씨 잎(x 525)부터 보미 날개(x 1330)·발(y 580)까지 넷이 다 드는 오른쪽 구역. 칸 비율 584:330에 맞춤
+const ART = { src: '/art/hub-hero-desktop-4f-d3.webp', sx: 440, sy: 70, sw: 936, sh: 529 }
 
 function loadImage(src: string): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {

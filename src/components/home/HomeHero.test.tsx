@@ -72,8 +72,8 @@ describe('홈 히어로(R3)', () => {
 
   it('키아트: <picture> + <img fetchpriority="high"> + 크기 속성(CSS 배경 아님)', () => {
     const html = renderToStaticMarkup(<HomeHero />)
-    expect(html).toMatch(/<picture><source media="\(min-width: 768px\)" srcSet="\/art\/hub-hero-desktop\.webp" width="1376" height="768"\/>/i)
-    expect(html).toMatch(/<img[^>]*src="\/art\/hub-hero-mobile\.webp"[^>]*srcSet="[^"]*hub-hero-mobile-720\.webp 720w[^"]*"[^>]*width="896"[^>]*height="1200"[^>]*fetchPriority="high"[^>]*decoding="async"/i)
+    expect(html).toMatch(/<picture><source media="\(min-width: 768px\)" srcSet="\/art\/hub-hero-desktop-4f-d3\.webp" width="1376" height="768"\/>/i)
+    expect(html).toMatch(/<img[^>]*src="\/art\/hub-hero-mobile-4f-a\.webp"[^>]*srcSet="[^"]*hub-hero-mobile-4f-a-720\.webp 720w[^"]*"[^>]*width="896"[^>]*height="1200"[^>]*fetchPriority="high"[^>]*decoding="async"/i)
     expect(html).not.toMatch(/background(-image)?:\s*url/i)
   })
 
