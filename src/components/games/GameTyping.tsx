@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { computeAccuracy, computeWpm, sampleWords } from '@/lib/games/typing/engine'
+import { compareToBest, computeAccuracy, computeWpm, liveWpm, sampleWords } from '@/lib/games/typing/engine'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
@@ -28,11 +28,16 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
   const [finished, setFinished] = useState(false)
   const [best, setBest] = useState(0)
   const [resultBest, setResultBest] = useState(false)
+  // 이번 판 직전의 최고 — 결과 화면 '최고 대비' 줄(diff)용. best는 종료 시 갱신되므로 따로 잡아 둔다.
+  const [prevBest, setPrevBest] = useState(0)
+  const [startAt, setStartAt] = useState<number | null>(null)
+  const [now, setNow] = useState(0)
   const [inputErr, setInputErr] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const endAtRef = useRef<number | null>(null)
   const errTimer = useRef<number | null>(null)
   const finishedRef = useRef(false)
+  const autoFocusedRef = useRef(false)
 
   const { play, muted, toggleMuted } = useGameSound()
 
@@ -44,6 +49,7 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
     setRunning(false)
     setFinished(false)
     setResultBest(false)
+    setStartAt(null)
     setInputErr(false)
     endAtRef.current = null
     finishedRef.current = false
@@ -62,6 +68,7 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
     if (!running || finished) return
     const id = setInterval(() => {
       const endAt = endAtRef.current
+      setNow(Date.now())
       if (endAt !== null) setSecondsLeft(Math.max(0, Math.ceil((endAt - Date.now()) / 1000)))
     }, 250)
     return () => clearInterval(id)
@@ -78,8 +85,17 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
     if (!finished) inputRef.current?.focus()
   }, [finished])
 
-  const elapsedMs = (TEST_SECONDS - secondsLeft) * 1000
-  const wpm = computeWpm(progress.correctChars, finished ? TEST_SECONDS * 1000 : elapsedMs)
+  // 첫 진입 자동 포커스: 위 효과는 마운트 때 입력칸이 아직 없어(words null) 헛돌았다 → 데스크톱에서 클릭부터 해야 했다.
+  // 손가락 기기는 제외(포커스만 가고 키보드는 안 떠 혼란 — 판·입력칸 탭으로 연다).
+  useEffect(() => {
+    if (!words || autoFocusedRef.current) return
+    autoFocusedRef.current = true
+    if (window.matchMedia?.('(pointer: fine)').matches) inputRef.current?.focus({ preventScroll: true })
+  }, [words])
+
+  // 최종 점수는 예전 그대로 60초 기준. 진행 중 표시만 실제 경과 ms로(초반 튐은 '—').
+  const wpm = computeWpm(progress.correctChars, TEST_SECONDS * 1000)
+  const shownWpm = finished ? wpm : running && startAt !== null ? (liveWpm(progress.correctChars, now - startAt) ?? '—') : 0
   const accuracy = computeAccuracy(progress.correctChars, progress.typedChars)
 
   // 종료 시 결과 처리: 리절트 차임 + 최고 WPM 기록/컨피티 판정 (한 번만)
@@ -87,6 +103,9 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
     if (finished && !finishedRef.current) {
       finishedRef.current = true
       play('win')
+      // 손가락 기기: 키보드를 내려 결과 패널이 가려지지 않게(Try again이 다시 포커스).
+      // 데스크톱은 포커스를 그대로 둔다 — 풀면 60초 순간 치고 있던 스페이스가 body로 가 페이지가 한 화면 내려간다.
+      if (window.matchMedia?.('(pointer: coarse)').matches) inputRef.current?.blur()
       if (wpm > best) {
         setResultBest(true)
         setBest(wpm)
@@ -105,8 +124,13 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
   const handleChange = (value: string) => {
     if (finished || !words) return
     if (!running && value.length > 0) {
+      const t = Date.now()
       setRunning(true)
-      endAtRef.current = Date.now() + TEST_SECONDS * 1000
+      setStartAt(t)
+      setNow(t)
+      // 판 시작 때 잡는다 — 종료 effect에서 잡으면 결과 덮개 첫 프레임이 낡은 값(0)으로 'First record'를 잠깐 그렸다.
+      setPrevBest(best)
+      endAtRef.current = t + TEST_SECONDS * 1000
     }
     if (value.endsWith(' ')) {
       const typed = value.trim()
@@ -139,7 +163,7 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
 
   const stats = [
     { label: 'Time', value: secondsLeft, testId: 'typing-timer' },
-    { label: 'WPM', value: wpm, testId: 'wpm' },
+    { label: 'WPM', value: shownWpm, testId: 'wpm' },
     { label: 'Best', value: best },
   ]
 
@@ -163,6 +187,20 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
     )
   }
 
+  const correctWords = progress.results.filter(Boolean).length
+  const missedWords = progress.results.length - correctWords
+  // 결과 화면 '한 판 더' 줄: 최고 대비 차이·다음 목표(예전엔 신기록일 때만 'New best!', 아니면 최고와의 거리가 안 보였다).
+  const cmp = compareToBest(wpm, prevBest)
+  const bestLine =
+    cmp.kind === 'new'
+      ? `New best! +${cmp.diff} over ${prevBest}`
+      : cmp.kind === 'first'
+        ? 'First record — now beat it'
+        : cmp.kind === 'tie'
+          ? prevBest > 0
+            ? `Tied your best ${prevBest} — 1 more to beat it`
+            : 'No correct words yet — one more?'
+          : `${cmp.diff} WPM short of your best ${prevBest}`
   const current = words[progress.wordIndex] ?? ''
   const upcoming = words.slice(progress.wordIndex + 1, progress.wordIndex + 18)
   const recent = progress.results.slice(-6)
@@ -204,53 +242,68 @@ export function GameTyping({ storageKey }: { storageKey: string }) {
       hint={hint}
       maxWidthClassName="max-w-2xl"
     >
-      <div className="relative">
+      {/* 결과 덮개는 이 상자(단어 판+입력칸)를 채운다. 결과 패널(≈400px)이 들어가도록 높이를 확보 —
+          예전엔 128px 단어 판에만 덮여 패널이 목표 띠·입력칸·페이지 위로 넘쳤다(390).
+          높이는 첫 입력 직후(running)에 미리 잡는다: 끝날 때 늘리면 입력 없는 레이아웃 밀림(CLS ≈0.07~0.09)이 됐다. */}
+      <div className={`relative ${running || finished ? 'min-h-[27rem]' : ''}`} data-testid="typing-area">
         <div
-          className="anim-board-in flex min-h-28 flex-wrap content-start items-baseline gap-x-2 gap-y-1 rounded-xl bg-surface p-4 text-lg leading-relaxed"
+          className="anim-board-in flex min-h-28 cursor-text flex-wrap content-start items-baseline gap-x-2 gap-y-1 rounded-xl bg-surface p-4 text-lg leading-relaxed"
           data-testid="typing-words"
+          // 단어 판을 눌러도 입력칸이 잡힌다(모바일: 첫 탭이 단어 쪽이어도 키보드가 뜬다).
+          onClick={() => inputRef.current?.focus()}
         >
           {recent.map((ok, i) => (
             <span key={`r${i}`} className={ok ? 'text-green-400/60' : 'text-red-400/60'}>
               {ok ? '✓' : '✗'}
             </span>
           ))}
-          <span className="rounded bg-accent/25 px-1 font-semibold whitespace-pre">{currentChars}</span>
+          <span className="rounded bg-accent/25 px-1 font-semibold whitespace-pre" data-testid="typing-current">
+            {currentChars}
+          </span>
           {upcoming.map((w, i) => (
             <span key={progress.wordIndex + 1 + i} className="text-fg-muted">
               {w}
             </span>
           ))}
         </div>
+        <input
+          ref={inputRef}
+          value={input}
+          onChange={(e) => handleChange(e.target.value)}
+          placeholder="Start typing here…"
+          aria-label="Typing test input"
+          autoComplete="off"
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
+          data-testid="typing-input"
+          className={`mt-3 w-full select-text rounded-lg bg-surface px-4 py-3 text-lg outline-none transition-shadow ${
+            // 끝난 뒤엔 링을 끈다 — 덮개(70% 투명) 밑으로 밝은 포커스 링이 비쳐 보였다.
+            finished ? '' : inputErr ? 'anim-shake ring-2 ring-red-500' : 'ring-accent focus:ring-2'
+          }`}
+        />
         <GameOverlay
           show={finished}
           variant={resultBest ? 'win' : 'lose'}
           title={`${wpm} WPM`}
           testId="typing-results"
+          tone="cozy"
+          compact
         >
-          <p className="text-fg-muted">
-            Accuracy {accuracy}% · {progress.results.filter(Boolean).length} words
-            {resultBest && <span className="ml-1 font-semibold text-accent">· New best!</span>}
+          <p className="font-semibold tabular-nums text-garden-ink-soft">
+            Accuracy {accuracy}% · {correctWords} words{missedWords > 0 ? ` · ${missedWords} missed` : ''}
+          </p>
+          <p
+            data-testid="typing-best-compare"
+            className={`text-sm font-bold tabular-nums ${cmp.kind === 'new' || cmp.kind === 'first' ? 'text-garden-coral-text' : ''}`}
+          >
+            {bestLine}
           </p>
           <GameButton onClick={restart} className="px-4 py-2">
             Try again
           </GameButton>
         </GameOverlay>
       </div>
-      <input
-        ref={inputRef}
-        value={input}
-        onChange={(e) => handleChange(e.target.value)}
-        placeholder="Start typing here…"
-        aria-label="Typing test input"
-        autoComplete="off"
-        autoCapitalize="off"
-        autoCorrect="off"
-        spellCheck={false}
-        data-testid="typing-input"
-        className={`mt-3 w-full select-text rounded-lg bg-surface px-4 py-3 text-lg outline-none transition-shadow ${
-          inputErr ? 'anim-shake ring-2 ring-red-500' : 'ring-accent focus:ring-2'
-        }`}
-      />
     </GameShell>
   )
 }
