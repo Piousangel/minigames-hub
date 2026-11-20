@@ -487,7 +487,7 @@ export function GamePolytap({ storageKey }: { storageKey: string }) {
                 }}
               >
                 <span className="text-2xl">{meta.label}</span>
-                <span className="text-xs opacity-80">×{clock ? clock.periodBeats : '—'} beats</span>
+                <span className="text-xs">×{clock ? clock.periodBeats : '—'} beats</span>
               </button>
             )
           })}

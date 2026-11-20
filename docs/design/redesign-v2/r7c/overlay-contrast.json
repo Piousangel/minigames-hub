@@ -1,0 +1,424 @@
+{
+  "mastermind-390": {
+    "checked": 5,
+    "skipped": 0,
+    "fails": [
+      {
+        "text": "Out of guesses",
+        "fg": "rgb(255, 161, 132)",
+        "bg": "#29214f",
+        "ratio": 7.52,
+        "need": 3
+      },
+      {
+        "text": "The code was",
+        "fg": "rgb(205, 189, 232)",
+        "bg": "#29214f",
+        "ratio": 8.48,
+        "need": 4.5
+      },
+      {
+        "text": "Try again",
+        "fg": "oklch(0.216 0.006 56.043)",
+        "bg": "#c9b6f2",
+        "ratio": 9.54,
+        "need": 4.5
+      },
+      {
+        "text": "🗓️ 2 more games for Daily Three — one m",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "Next: Overload",
+        "fg": "rgb(181, 227, 156)",
+        "bg": "#2e2342",
+        "ratio": 10.06,
+        "need": 4.5
+      }
+    ]
+  },
+  "number-memory-390": {
+    "checked": 7,
+    "skipped": 0,
+    "fails": [
+      {
+        "text": "Reached level 0",
+        "fg": "rgb(255, 161, 132)",
+        "bg": "#29214f",
+        "ratio": 7.52,
+        "need": 3
+      },
+      {
+        "text": "The number was",
+        "fg": "rgb(205, 189, 232)",
+        "bg": "#29214f",
+        "ratio": 8.48,
+        "need": 4.5
+      },
+      {
+        "text": "6",
+        "fg": "rgb(255, 243, 220)",
+        "bg": "#29214f",
+        "ratio": 13.45,
+        "need": 4.5
+      },
+      {
+        "text": "Try again",
+        "fg": "oklch(0.216 0.006 56.043)",
+        "bg": "#c9b6f2",
+        "ratio": 9.54,
+        "need": 4.5
+      },
+      {
+        "text": "🗓️ 2 more games for Daily Three — one m",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "Next: Flywheel",
+        "fg": "rgb(181, 227, 156)",
+        "bg": "#2e2342",
+        "ratio": 10.06,
+        "need": 4.5
+      },
+      {
+        "text": "🏆 See this week's leaderboard",
+        "fg": "rgb(205, 189, 232)",
+        "bg": "#29214f",
+        "ratio": 8.48,
+        "need": 4.5
+      }
+    ]
+  },
+  "pinwheel-390": {
+    "checked": 6,
+    "skipped": 0,
+    "fails": [
+      {
+        "text": "Off the board!",
+        "fg": "rgb(255, 161, 132)",
+        "bg": "#29214f",
+        "ratio": 7.52,
+        "need": 3
+      },
+      {
+        "text": "Retry",
+        "fg": "oklch(0.216 0.006 56.043)",
+        "bg": "#c9b6f2",
+        "ratio": 9.54,
+        "need": 4.5
+      },
+      {
+        "text": "New board",
+        "fg": "rgb(255, 243, 220)",
+        "bg": "#2e2342",
+        "ratio": 13.31,
+        "need": 4.5
+      },
+      {
+        "text": "🗓️ 2 more games for Daily Three — one m",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "Next: Overload",
+        "fg": "rgb(181, 227, 156)",
+        "bg": "#2e2342",
+        "ratio": 10.06,
+        "need": 4.5
+      },
+      {
+        "text": "🏆 See this week's leaderboard",
+        "fg": "rgb(205, 189, 232)",
+        "bg": "#29214f",
+        "ratio": 8.48,
+        "need": 4.5
+      }
+    ]
+  },
+  "fix-polytap-390": [
+    {
+      "text": "Cycle 1 / 4 · next collision in 4 beats",
+      "fg": "rgb(205, 189, 232)",
+      "bg": "#2e2342",
+      "ratio": 8.39,
+      "need": 4.5
+    },
+    {
+      "text": "×4 beats",
+      "fg": "rgb(255, 158, 203)",
+      "bg": "#473253",
+      "ratio": 5.96,
+      "need": 4.5
+    },
+    {
+      "text": "F is every 3 beats, J every 4 — keep bot",
+      "fg": "rgb(205, 189, 232)",
+      "bg": "#2e2342",
+      "ratio": 8.39,
+      "need": 4.5
+    }
+  ],
+  "fix-duplex-390": [
+    {
+      "text": "⇄ Horizontal",
+      "fg": "rgb(201, 182, 242)",
+      "bg": "#2e2342",
+      "ratio": 7.98,
+      "need": 4.5
+    },
+    {
+      "text": "Horizontal",
+      "fg": "rgb(201, 182, 242)",
+      "bg": "#45395c",
+      "ratio": 5.76,
+      "need": 4.5
+    },
+    {
+      "text": "🔒 Vertical",
+      "fg": "rgb(205, 189, 232)",
+      "bg": "#2e2342",
+      "ratio": 8.41,
+      "need": 4.5
+    },
+    {
+      "text": "🔒 Point",
+      "fg": "rgb(205, 189, 232)",
+      "bg": "#2e2342",
+      "ratio": 8.41,
+      "need": 4.5
+    },
+    {
+      "text": "🔒 Diagonal",
+      "fg": "rgb(205, 189, 232)",
+      "bg": "#2e2342",
+      "ratio": 8.41,
+      "need": 4.5
+    },
+    {
+      "text": "🔒 Anti-Diagonal",
+      "fg": "rgb(205, 189, 232)",
+      "bg": "#2e2342",
+      "ratio": 8.41,
+      "need": 4.5
+    }
+  ],
+  "mastermind-1440": {
+    "checked": 5,
+    "skipped": 0,
+    "fails": [
+      {
+        "text": "Out of guesses",
+        "fg": "rgb(255, 161, 132)",
+        "bg": "#29214f",
+        "ratio": 7.52,
+        "need": 3
+      },
+      {
+        "text": "The code was",
+        "fg": "rgb(205, 189, 232)",
+        "bg": "#29214f",
+        "ratio": 8.48,
+        "need": 4.5
+      },
+      {
+        "text": "Try again",
+        "fg": "oklch(0.216 0.006 56.043)",
+        "bg": "#c9b6f2",
+        "ratio": 9.54,
+        "need": 4.5
+      },
+      {
+        "text": "🗓️ 2 more games for Daily Three — one m",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "Next: Overload",
+        "fg": "rgb(181, 227, 156)",
+        "bg": "#2e2342",
+        "ratio": 10.06,
+        "need": 4.5
+      }
+    ]
+  },
+  "number-memory-1440": {
+    "checked": 7,
+    "skipped": 0,
+    "fails": [
+      {
+        "text": "Reached level 0",
+        "fg": "rgb(255, 161, 132)",
+        "bg": "#29214f",
+        "ratio": 7.52,
+        "need": 3
+      },
+      {
+        "text": "The number was",
+        "fg": "rgb(205, 189, 232)",
+        "bg": "#29214f",
+        "ratio": 8.48,
+        "need": 4.5
+      },
+      {
+        "text": "1",
+        "fg": "rgb(255, 243, 220)",
+        "bg": "#29214f",
+        "ratio": 13.45,
+        "need": 4.5
+      },
+      {
+        "text": "Try again",
+        "fg": "oklch(0.216 0.006 56.043)",
+        "bg": "#c9b6f2",
+        "ratio": 9.54,
+        "need": 4.5
+      },
+      {
+        "text": "🗓️ 2 more games for Daily Three — one m",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "Next: Flywheel",
+        "fg": "rgb(181, 227, 156)",
+        "bg": "#2e2342",
+        "ratio": 10.06,
+        "need": 4.5
+      },
+      {
+        "text": "🏆 See this week's leaderboard",
+        "fg": "rgb(205, 189, 232)",
+        "bg": "#29214f",
+        "ratio": 8.48,
+        "need": 4.5
+      }
+    ]
+  },
+  "pinwheel-1440": {
+    "checked": 6,
+    "skipped": 0,
+    "fails": [
+      {
+        "text": "Off the board!",
+        "fg": "rgb(255, 161, 132)",
+        "bg": "#29214f",
+        "ratio": 7.52,
+        "need": 3
+      },
+      {
+        "text": "Retry",
+        "fg": "oklch(0.216 0.006 56.043)",
+        "bg": "#c9b6f2",
+        "ratio": 9.54,
+        "need": 4.5
+      },
+      {
+        "text": "New board",
+        "fg": "rgb(255, 243, 220)",
+        "bg": "#2e2342",
+        "ratio": 13.31,
+        "need": 4.5
+      },
+      {
+        "text": "🗓️ 2 more games for Daily Three — one m",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "Next: Overload",
+        "fg": "rgb(181, 227, 156)",
+        "bg": "#2e2342",
+        "ratio": 10.06,
+        "need": 4.5
+      },
+      {
+        "text": "🏆 See this week's leaderboard",
+        "fg": "rgb(205, 189, 232)",
+        "bg": "#29214f",
+        "ratio": 8.48,
+        "need": 4.5
+      }
+    ]
+  },
+  "fix-polytap-1440": [
+    {
+      "text": "Cycle 1 / 4 · next collision in 4 beats",
+      "fg": "rgb(205, 189, 232)",
+      "bg": "#2e2342",
+      "ratio": 8.39,
+      "need": 4.5
+    },
+    {
+      "text": "×4 beats",
+      "fg": "rgb(255, 158, 203)",
+      "bg": "#473253",
+      "ratio": 5.96,
+      "need": 4.5
+    },
+    {
+      "text": "F is every 3 beats, J every 4 — keep bot",
+      "fg": "rgb(205, 189, 232)",
+      "bg": "#2e2342",
+      "ratio": 8.39,
+      "need": 4.5
+    }
+  ],
+  "fix-duplex-1440": [
+    {
+      "text": "⇄ Horizontal",
+      "fg": "rgb(201, 182, 242)",
+      "bg": "#2e2342",
+      "ratio": 7.98,
+      "need": 4.5
+    },
+    {
+      "text": "Horizontal",
+      "fg": "rgb(201, 182, 242)",
+      "bg": "#45395c",
+      "ratio": 5.76,
+      "need": 4.5
+    },
+    {
+      "text": "🔒 Vertical",
+      "fg": "rgb(205, 189, 232)",
+      "bg": "#2e2342",
+      "ratio": 8.41,
+      "need": 4.5
+    },
+    {
+      "text": "🔒 Point",
+      "fg": "rgb(205, 189, 232)",
+      "bg": "#2e2342",
+      "ratio": 8.41,
+      "need": 4.5
+    },
+    {
+      "text": "🔒 Diagonal",
+      "fg": "rgb(205, 189, 232)",
+      "bg": "#2e2342",
+      "ratio": 8.41,
+      "need": 4.5
+    },
+    {
+      "text": "🔒 Anti-Diagonal",
+      "fg": "rgb(205, 189, 232)",
+      "bg": "#2e2342",
+      "ratio": 8.41,
+      "need": 4.5
+    }
+  ]
+}

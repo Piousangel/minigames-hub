@@ -454,7 +454,7 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
               key={`cc-${c}`}
               className={`flex min-h-8 flex-col items-center justify-end gap-0.5 pb-1 text-xs font-bold tabular-nums transition-colors ${
                 hot ? 'bg-accent/10' : ''
-              } ${done ? 'text-fg-muted/45' : 'text-fg'}`}
+              } ${done ? 'text-fg-muted/75' : 'text-fg'}`}
               style={{ minHeight: `${maxColClue * 1.05 + 0.5}rem` }}
             >
               {clue.map((n, i) => (
@@ -474,7 +474,7 @@ export function GameNonogram({ storageKey }: { storageKey: string }) {
               <div
                 className={`flex items-center justify-end gap-1 pr-1.5 text-xs font-bold tabular-nums transition-colors ${
                   rHot ? 'bg-accent/10' : ''
-                } ${rDone ? 'text-fg-muted/45' : 'text-fg'}`}
+                } ${rDone ? 'text-fg-muted/75' : 'text-fg'}`}
                 style={{ minWidth: `${maxRowClue * 0.85 + 0.5}rem` }}
               >
                 {rClue.map((n, i) => (
