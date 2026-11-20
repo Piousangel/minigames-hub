@@ -1,5 +1,15 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 리디자인 v2 R7f 정원 틀 마지막 배치 f 인계 (브랜치 `shift/redesign-r7f-batch6`)
+
+**한 줄:** 전 게임 정원 틀 완료 — 정원 틀 110 + 오리지널 방 3 = 113, 미적용 0(`gardenPending(gamePages.map(p => p.slug))` → `[]`, `gardenRollout.test.ts` '전 게임 정원 틀'). 배치 f 12개: ticker·unblock + 캔버스 10종(breakout·pong·bubble-shooter·flappy·space-shooter·tower-stack·flywheel·ripple·latch·backspace). 게임 안 색 수정 0.
+- **캔버스 처리**: 판 밖 DOM(점수 칩·버튼·안내·시작 덮개)만 정원 토큰으로 바뀌고 캔버스 그림은 그대로(색 상수 수정 필요 없었음). 캔버스 뒤 `bg-surface`가 남보라 #2e2342로 비침. `GARDEN_CANVAS` 목록 + 테스트가 소스의 getContext와 대조.
+- **캔버스 글자 대비**: `node scripts/garden-canvas-contrast.mjs --url <빌드> [--slugs …] [--out json] [--shots 폴더]` — fillText 직전 글자 상자 픽셀 대 글자색, 중앙값 판정, 몇 초 플레이 + ready·play 캡처. 결과 `docs/design/redesign-v2/r7f/canvas-contrast.json`(flywheel 6.23·ripple 10.44·backspace 11.19, 미달 0, 나머지 6종 캔버스 글자 없음).
+- **짧은 판 모달**: 공용 `GameOverlay`가 상자 > 덮개일 때만 덮개 자리(부모) min-height = 상자 + 24px(닫으면 복구) + 안전망 `overflow-y-auto justify-center-safe`. slotter 판 밖 보이는 넘침 272 → 0px, ticker·flappy도 넘치던 것 판 안(`r7f/overlay-*.jpg`, `r7f/overlay-contrast-{390,1440}.json`). 유닛 `GameOverlay.test.tsx` 2건.
+- **검증**: 게이트 배치 f `--repeat-each=3` 36/36, 배치 밖(f 아닌 101게임 전부 = R7a~e 98 + 오리지널 3) × 390·1440 = 202항목 픽셀 diff — 202항목 중 200항목 0px, 나머지 2항목(slotter 390·overdub 390)은 main↔main 흔들림과 같은 크기(타이머 화면) — 다시 찍으면 0px, base↔base 단독 실행에서도 같은 흔들림(overdub 10302·12783px) → 변화 0(`r7f/diff-outside.json`), 승패 모달 6레시피 × 390·1440 미달 0(최저 7.52), 전후 캡처 `r7f/<slug>-<390|1440>-<before|after>.jpg`, 캔버스 플레이 캡처 `r7f/canvas-<slug>-<폭>-<ready|play>.jpg`.
+- **함정**: ① 캔버스 스크립트는 fillText만 본다(strokeText·그림자·조건부 글자 — tower-stack 'PERFECT ×N'은 운) ② 판 위 PlayZone이 누름을 받아 Playwright `click()`은 가로채기로 멈춘다 → `force: true` 또는 좌표 클릭 ③ 덮개가 뜬 동안 판이 늘어나는 게임(slotter·ticker·flappy 등)은 아래 내용이 내려간다 — 결과 순간이라 CLS 밖이지만, 게임 쪽이 판 크기를 ResizeObserver로 다시 재는 캔버스 게임이 생기면 덮개 동안 다시 그리기가 일어날 수 있다(지금 10종은 끝난 판이라 무해) ④ diff 스크립트는 타이머 게임(overdub·slotter 등)에서 main↔main 흔들림이 있다 — main↔branch가 흔들림과 같으면 변화 0으로 본다 ⑤ 포트: 이번엔 3881 head·3882 base(base = 머지 전 main `out/` 복사본).
+- **⏭ 다음 R8(정리 단계) 제안**: ① `gameWorld()`의 null(네온) 갈래가 게임 페이지에서 죽은 코드 — GamePageLayout 네온 제목·SectionHeading 네온 색 갈래, globals.css의 게임 페이지 네온 전용 규칙 제거(미적용 0 테스트가 안전망) ② 배치 배열은 되돌리기 수단으로 남기되 '전 게임' 상수로 단순화할지 결정 ③ **전역화는 아직 불가**: /category·/collection(s)·/guides·/daily·/about·/privacy·/terms·/unblocked·/contact가 여전히 네온 — 정원 토큰을 :root로 올리려면 이 페이지들을 먼저 정원으로(R9 '게임 밖 페이지' 배치, /leaderboards의 garden-hub 방식) ④ 장부 손 확인: flappy 덮개 동안 캔버스 세로 늘어남, tower-stack PERFECT 글자, unblock select 14px(UX 표).
+
 ## ▶ 2026-11-20 리디자인 v2 R7e 정원 틀 배치 e 인계 (브랜치 `shift/redesign-r7e-batch5`, #219)
 
 **한 줄:** 정원 틀 게임이 98개가 됐다 — 남은 DOM 18개 전부(offbeat·prismbox·gravwell·loopgrid·bisect·slotter·carousel·gridlock·strata·bankshot·morse-relay·lagline·recoil·hunch·fizzbeat·siteswap·shadowfit·slosh). 바뀐 코드는 `GARDEN_BATCHES.e` + `GameLoopgrid`·`GameCarousel` 색 1줄씩(bandInk) + `bandInk.test.ts` 표 + `garden-overlay-contrast.mjs` 승리 레시피 + e2e 배치 밖 기준 slug.

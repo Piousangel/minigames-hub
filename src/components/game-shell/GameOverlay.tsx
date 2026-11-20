@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import { Confetti } from './Confetti'
 import { useGameNav } from '@/components/GameNav'
@@ -54,6 +54,29 @@ export function GameOverlay({
     // Next 링크가 실제로 뜰 때만 센다(추천 없음·하이드레이션 전은 분모에서 제외).
     if (show && nav.slug && nav.nextSlug) sendHit(nav.slug, 'next_show')
   }, [show, nav.slug, nav.nextSlug])
+  // 판이 짧은 게임(R7e slotter: 덮개 168px에 상자 440px)은 상자가 판 밖 크림 위로 넘쳤다. 상자가 덮개보다 클 때만
+  // 덮개의 자리(부모, absolute inset-0의 기준) 최소 높이를 상자 + 위아래 12px로 늘려 판 안에 들게 한다 — 판이 그만큼 길어지고
+  // 덮개가 닫히면 원래대로. 상자가 들어가는 게임은 아무것도 바꾸지 않는다(픽셀 그대로). 상자 높이가 바뀌면(넛지·점수 제출 칸) 다시 잰다.
+  const rootRef = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    const root = rootRef.current
+    const parent = root?.parentElement
+    const panel = root?.querySelector<HTMLElement>('[data-overlay-panel]')
+    if (!show || !root || !parent || !panel) return
+    const prev = parent.style.minHeight
+    const fit = () => {
+      parent.style.minHeight = prev
+      const need = panel.offsetHeight // transform(등장 scale)과 무관한 레이아웃 높이
+      if (need > root.clientHeight) parent.style.minHeight = `${need + 24}px`
+    }
+    fit()
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(fit)
+    ro?.observe(panel)
+    return () => {
+      ro?.disconnect()
+      parent.style.minHeight = prev
+    }
+  }, [show])
   if (!show) return null
   // 승/패/무에 따른 색 — 컨테이너 currentColor 로 .neon-box 발광. 무승부는 중립(본문색).
   const neon = variant === 'win' ? 'var(--neon-green)' : variant === 'lose' ? 'var(--neon-red)' : 'var(--fg-muted)'
@@ -62,14 +85,18 @@ export function GameOverlay({
   const runMilestone = run >= 3 && (run === 3 || run === 5 || run === 10 || run === 20 || run % 25 === 0)
   return (
     <div
+      ref={rootRef}
       data-testid={testId}
       role="alertdialog"
       aria-label={title}
-      className={`anim-backdrop-in absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 rounded-xl ${cozy ? 'bg-[#14123a]/70' : 'bg-bg/75'}`}
+      // 위 최소 높이로도 못 들어가는 경우(부모 높이가 고정 등)의 안전망: 덮개 안 스크롤 + justify-center-safe
+      // (넘칠 때만 위에서부터 쌓아 제목·첫 버튼이 잘리지 않게, 넘치지 않으면 예전과 같은 가운데 — 픽셀 그대로).
+      className={`anim-backdrop-in absolute inset-0 z-10 flex flex-col items-center justify-center-safe gap-3 overflow-y-auto rounded-xl ${cozy ? 'bg-[#14123a]/70' : 'bg-bg/75'}`}
     >
       {/* 승리 + 세션 RUN 마일스톤에 축하 — 세션 길이 자체를 보상해 '한 판 더'를 강화(체류↑). */}
       {(variant === 'win' || runMilestone) && <Confetti active={show} />}
       <div
+        data-overlay-panel
         style={cozy ? { color: '#5b3a1e', background: 'linear-gradient(#fff3dc, #f3d9aa)', border: '4px solid #5b3a1e', boxShadow: '0 5px 0 #3a2410, inset 0 0 0 3px #fbeccc' } : { color: neon }}
         className={`anim-overlay-in flex flex-col items-center rounded-2xl text-center ${compact ? 'gap-2' : 'gap-4'} ${cozy ? (compact ? 'mx-2 px-4 py-2.5' : 'mx-3 px-6 py-5') : compact ? 'neon-box border border-current/40 bg-bg-2/85 px-5 py-4' : 'neon-box border border-current/40 bg-bg-2/85 px-8 py-6'}`}
       >

@@ -54,6 +54,39 @@ const RECIPES = {
     init: () => localStorage.setItem('best:slotter', '999'),
     play: slotterBreakRow,
   },
+  // R7f(캔버스·DOM 배치 f): ticker = 고를 수 있는 마지막 선택지(CASH)를 계속 눌러 런 끝까지(덮개 줄이 가장 많은 DOM 게임)
+  ticker: async (page) => {
+    const over = page.getByTestId('game-over')
+    for (let i = 0; i < 120 && !(await over.isVisible()); i++) {
+      await page.getByTestId('ticker-choice').last().evaluate((el) => el.click()).catch(() => {})
+      await page.waitForTimeout(120)
+    }
+    return over
+  },
+  // flappy(캔버스): 최고 기록 999를 심고 한 번 눌러 시작 → 아무것도 안 하면 떨어져 'Game over'(패배 변형)
+  flappy: {
+    slug: 'flappy',
+    init: () => localStorage.setItem('best:flappy', '999'),
+    play: async (page) => {
+      // 판 위 조작 구역(PlayZone)이 누름을 받는다 — 좌표 클릭(force)
+      await page.locator('[data-garden-board] canvas').first().click({ force: true })
+      const over = page.getByTestId('game-over')
+      await over.waitFor({ timeout: 15000 }).catch(() => {})
+      return over
+    },
+  },
+  // tower-stack(캔버스) 첫 판: 0.45초마다 내려놓아 어긋나 끝날 때까지 — 높이 > 0이라 'New best!'(승리 변형, Confetti)
+  'tower-stack-win': {
+    slug: 'tower-stack',
+    play: async (page) => {
+      const over = page.getByTestId('game-over')
+      for (let i = 0; i < 120 && !(await over.isVisible()); i++) {
+        await page.locator('[data-garden-board] canvas').first().click({ force: true }).catch(() => {})
+        await page.waitForTimeout(450)
+      }
+      return over
+    },
+  },
 }
 
 /** slotter: 카드 2장은 맞는 자리에, 그다음 틀린 자리에 넣어 줄을 깬다(점수는 마감 보너스가 붙어 0보다 큼 — 첫 판이면 New best). */
@@ -193,14 +226,25 @@ for (const name of slugs) {
   }
   await page.waitForTimeout(500) // 덮개 등장 애니메이션
   const rows = await measure(overlay)
+  // 넘침(R7e 함정 ③ → R7f에서 덮개 자리 최소 높이로 고침): 상자가 덮개 밖으로 '보이게' 나간 px. 덮개가 스크롤 상자면 0(잘려 안 보임).
+  const fit = await overlay.evaluate((el) => {
+    const o = el.getBoundingClientRect()
+    const panel = (el.querySelector('[data-overlay-panel]') ?? el.querySelector(':scope > div'))?.getBoundingClientRect() ?? o
+    const clips = getComputedStyle(el).overflowY !== 'visible'
+    const out = Math.max(0, o.top - panel.top) + Math.max(0, panel.bottom - o.bottom)
+    return { overlayH: Math.round(o.height), panelH: Math.round(panel.height), scrolls: clips && el.scrollHeight > el.clientHeight + 1, visibleOutsidePx: clips ? 0 : Math.round(out) }
+  })
   if (shots) await page.screenshot({ path: join(shots, `overlay-${name}-${width}.jpg`), type: 'jpeg', quality: 72 })
   if (rows.length === 0) throw new Error(`${name}: 덮개 안에서 잰 글자가 0개 — 측정이 빈 통과가 되지 않게 실패`)
   const fails = rows.filter((r) => r.ratio < r.need)
   bad += fails.length
   const min = Math.min(...rows.map((r) => r.ratio))
   const title = await overlay.getAttribute('aria-label')
-  report[`${name}-${width}`] = { title, checked: rows.length, min, fails: fails.length, rows }
-  console.log(`${name} ${width} '${title}': 글자 ${rows.length}개 · 최저 ${min}:1 · 미달 ${fails.length}`)
+  report[`${name}-${width}`] = { title, checked: rows.length, min, fails: fails.length, fit, rows }
+  console.log(
+    `${name} ${width} '${title}': 글자 ${rows.length}개 · 최저 ${min}:1 · 미달 ${fails.length}` +
+      ` · 덮개 ${fit.overlayH}px/상자 ${fit.panelH}px${fit.scrolls ? ' (덮개 안 스크롤)' : ''} · 판 밖 보이는 넘침 ${fit.visibleOutsidePx}px`,
+  )
   await ctx.close()
 }
 await browser.close()
