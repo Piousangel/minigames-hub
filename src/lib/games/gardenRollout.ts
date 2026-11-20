@@ -12,7 +12,7 @@
 /** 오리지널 3종: 자기 '방'(하늘·섬)을 직접 그리는 게임. 정원 제목만 쓰고 틀 매핑은 아직 하지 않는다(R7 뒤 배치에서 따로). */
 export const GARDEN_ORIGINALS = ['plop-landing', 'acorn-hop', 'slime-slide'] as const
 
-/** 배치별 목록. 새 배치는 키를 하나 늘린다(b~f). */
+/** 배치별 목록(a~f, R7f로 113개 전부 — 오리지널 3 + 정원 틀 110). 새 게임은 마지막 배치에 넣거나 새 키를 늘린다. */
 export const GARDEN_BATCHES = {
   a: [
     '2048',
@@ -135,7 +135,38 @@ export const GARDEN_BATCHES = {
     'shadowfit',
     'slosh',
   ],
+  // R7f(11-20, 마지막 배치): 하드코딩 색이 많은 DOM 2개(ticker 25·unblock 20) + 캔버스로 직접 그리는 10종.
+  // 캔버스 게임은 판 밖 틀(배경·헤더·버튼·GOAL — DOM)만 정원으로 바뀌고, 캔버스 안 그림은 원칙상 그대로다(D8: 판은 밤 정원이라
+  // 예전 어두운 바탕 기준 색이 그대로 읽힌다). 캔버스 안 글자 대비는 DOM 게이트가 못 보므로 scripts/garden-canvas-contrast.mjs로 잰다.
+  f: [
+    'ticker',
+    'unblock',
+    'breakout',
+    'pong',
+    'bubble-shooter',
+    'flappy',
+    'space-shooter',
+    'tower-stack',
+    'flywheel',
+    'ripple',
+    'latch',
+    'backspace',
+  ],
 } as const satisfies Record<string, readonly string[]>
+
+/** 캔버스(getContext)로 판을 직접 그리는 게임 — 정원 틀은 판 밖 DOM만 바꾼다. gardenRollout.test.ts가 소스와 대조한다. */
+export const GARDEN_CANVAS = [
+  'breakout',
+  'pong',
+  'bubble-shooter',
+  'flappy',
+  'space-shooter',
+  'tower-stack',
+  'flywheel',
+  'ripple',
+  'latch',
+  'backspace',
+] as const
 
 export type GardenBatch = keyof typeof GARDEN_BATCHES
 
@@ -148,6 +179,14 @@ export function gardenBatchOf(slug: string): GardenBatch | null {
     if (slugs.includes(slug)) return batch
   }
   return null
+}
+
+/**
+ * 아직 정원 틀도 오리지널 방도 아닌 게임 slug(레지스트리 순). R7f로 전 게임이 끝나 **빈 배열이어야 한다**
+ * (gardenRollout.test.ts '전 게임 정원 틀' 한 줄 검사). 새 게임을 레지스트리에 넣으면 여기 잡혀 테스트가 배치 추가를 요구한다.
+ */
+export function gardenPending(allSlugs: readonly string[]): string[] {
+  return allSlugs.filter((s) => gameWorld(s) === null)
 }
 
 /**

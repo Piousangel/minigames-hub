@@ -1,0 +1,298 @@
+{
+  "breakout-390": {
+    "status": "no-canvas-text",
+    "measured": 0,
+    "skipped": 0,
+    "min": null,
+    "fails": 0,
+    "errors": [],
+    "rows": []
+  },
+  "breakout-1440": {
+    "status": "no-canvas-text",
+    "measured": 0,
+    "skipped": 0,
+    "min": null,
+    "fails": 0,
+    "errors": [],
+    "rows": []
+  },
+  "pong-390": {
+    "status": "no-canvas-text",
+    "measured": 0,
+    "skipped": 0,
+    "min": null,
+    "fails": 0,
+    "errors": [],
+    "rows": []
+  },
+  "pong-1440": {
+    "status": "no-canvas-text",
+    "measured": 0,
+    "skipped": 0,
+    "min": null,
+    "fails": 0,
+    "errors": [],
+    "rows": []
+  },
+  "bubble-shooter-390": {
+    "status": "no-canvas-text",
+    "measured": 0,
+    "skipped": 0,
+    "min": null,
+    "fails": 0,
+    "errors": [],
+    "rows": []
+  },
+  "bubble-shooter-1440": {
+    "status": "no-canvas-text",
+    "measured": 0,
+    "skipped": 0,
+    "min": null,
+    "fails": 0,
+    "errors": [],
+    "rows": []
+  },
+  "flappy-390": {
+    "status": "no-canvas-text",
+    "measured": 0,
+    "skipped": 0,
+    "min": null,
+    "fails": 0,
+    "errors": [],
+    "rows": []
+  },
+  "flappy-1440": {
+    "status": "no-canvas-text",
+    "measured": 0,
+    "skipped": 0,
+    "min": null,
+    "fails": 0,
+    "errors": [],
+    "rows": []
+  },
+  "space-shooter-390": {
+    "status": "no-canvas-text",
+    "measured": 0,
+    "skipped": 0,
+    "min": null,
+    "fails": 0,
+    "errors": [],
+    "rows": []
+  },
+  "space-shooter-1440": {
+    "status": "no-canvas-text",
+    "measured": 0,
+    "skipped": 0,
+    "min": null,
+    "fails": 0,
+    "errors": [],
+    "rows": []
+  },
+  "tower-stack-390": {
+    "status": "unmeasured-conditional",
+    "measured": 0,
+    "skipped": 0,
+    "min": null,
+    "fails": 0,
+    "errors": [],
+    "rows": []
+  },
+  "tower-stack-1440": {
+    "status": "unmeasured-conditional",
+    "measured": 0,
+    "skipped": 0,
+    "min": null,
+    "fails": 0,
+    "errors": [],
+    "rows": []
+  },
+  "flywheel-390": {
+    "status": "measured",
+    "measured": 2,
+    "skipped": 0,
+    "min": 6.23,
+    "fails": 0,
+    "errors": [],
+    "rows": [
+      {
+        "text": "40",
+        "fill": "#6ab3fb",
+        "font": "bold 74px system-ui, sans-serif",
+        "cssPx": 66.2,
+        "samples": 12,
+        "ratio": 6.23,
+        "p10": 6.21,
+        "bg": "#202c4b",
+        "need": 3
+      },
+      {
+        "text": "RPM",
+        "fill": "rgba(220, 230, 255, 0.7)",
+        "font": "bold 20px system-ui, sans-serif",
+        "cssPx": 17.9,
+        "samples": 12,
+        "ratio": 6.28,
+        "p10": 6.22,
+        "bg": "#202b4a",
+        "need": 4.5
+      }
+    ]
+  },
+  "flywheel-1440": {
+    "status": "measured",
+    "measured": 2,
+    "skipped": 0,
+    "min": 6.23,
+    "fails": 0,
+    "errors": [],
+    "rows": [
+      {
+        "text": "40",
+        "fill": "#6ab3fb",
+        "font": "bold 74px system-ui, sans-serif",
+        "cssPx": 74,
+        "samples": 12,
+        "ratio": 6.23,
+        "p10": 6.21,
+        "bg": "#202c4b",
+        "need": 3
+      },
+      {
+        "text": "RPM",
+        "fill": "rgba(220, 230, 255, 0.7)",
+        "font": "bold 20px system-ui, sans-serif",
+        "cssPx": 20,
+        "samples": 12,
+        "ratio": 6.28,
+        "p10": 6.22,
+        "bg": "#202b4a",
+        "need": 3
+      }
+    ]
+  },
+  "ripple-390": {
+    "status": "measured",
+    "measured": 2,
+    "skipped": 0,
+    "min": 11.21,
+    "fails": 0,
+    "errors": [],
+    "rows": [
+      {
+        "text": "1",
+        "fill": "rgba(220, 235, 255, 0.85)",
+        "font": "9px sans-serif",
+        "cssPx": 8.1,
+        "samples": 3,
+        "ratio": 11.21,
+        "p10": 11.13,
+        "bg": "#0e1229",
+        "need": 4.5
+      },
+      {
+        "text": "Chain 1",
+        "fill": "rgba(220, 240, 255, 0.95)",
+        "font": "bold 12px sans-serif",
+        "cssPx": 10.7,
+        "samples": 5,
+        "ratio": 14.78,
+        "p10": 13.46,
+        "bg": "#080a18",
+        "need": 4.5
+      }
+    ]
+  },
+  "ripple-1440": {
+    "status": "measured",
+    "measured": 2,
+    "skipped": 0,
+    "min": 9.79,
+    "fails": 0,
+    "errors": [],
+    "rows": [
+      {
+        "text": "1",
+        "fill": "rgba(220, 235, 255, 0.85)",
+        "font": "9px sans-serif",
+        "cssPx": 9,
+        "samples": 3,
+        "ratio": 9.79,
+        "p10": 1.84,
+        "bg": "#131c36",
+        "need": 4.5
+      },
+      {
+        "text": "Chain 1",
+        "fill": "rgba(220, 240, 255, 0.95)",
+        "font": "bold 12px sans-serif",
+        "cssPx": 12,
+        "samples": 5,
+        "ratio": 14.95,
+        "p10": 13.46,
+        "bg": "#090b1a",
+        "need": 4.5
+      }
+    ]
+  },
+  "latch-390": {
+    "status": "no-canvas-text",
+    "measured": 0,
+    "skipped": 0,
+    "min": null,
+    "fails": 0,
+    "errors": [],
+    "rows": []
+  },
+  "latch-1440": {
+    "status": "no-canvas-text",
+    "measured": 0,
+    "skipped": 0,
+    "min": null,
+    "fails": 0,
+    "errors": [],
+    "rows": []
+  },
+  "backspace-390": {
+    "status": "measured",
+    "measured": 1,
+    "skipped": 0,
+    "min": 11.19,
+    "fails": 0,
+    "errors": [],
+    "rows": [
+      {
+        "text": "Tap a side to start",
+        "fill": "rgba(224, 242, 254, 0.85)",
+        "font": "600 18px system-ui, sans-serif",
+        "cssPx": 16.1,
+        "samples": 3,
+        "ratio": 11.19,
+        "p10": 11.16,
+        "bg": "#1b1630",
+        "need": 4.5
+      }
+    ]
+  },
+  "backspace-1440": {
+    "status": "measured",
+    "measured": 1,
+    "skipped": 0,
+    "min": 11.19,
+    "fails": 0,
+    "errors": [],
+    "rows": [
+      {
+        "text": "Tap a side to start",
+        "fill": "rgba(224, 242, 254, 0.85)",
+        "font": "600 18px system-ui, sans-serif",
+        "cssPx": 18,
+        "samples": 2,
+        "ratio": 11.19,
+        "p10": 11.16,
+        "bg": "#1b1630",
+        "need": 4.5
+      }
+    ]
+  }
+}

@@ -80,3 +80,83 @@ describe('GameOverlay — compact (opt-in)', () => {
     expect(screen.getByText('Game over')).toHaveClass('text-[1.4rem]')
   })
 })
+
+// R7f: 판이 짧아 상자가 덮개보다 크면 덮개 자리(부모) 최소 높이를 상자 + 24px로 — 들어가면 아무것도 안 바꾼다(R7e 함정 ③)
+describe('GameOverlay — 짧은 판에서 상자가 판 밖으로 넘치지 않게', () => {
+  function layout(panelH: number, overlayH: number) {
+    const off = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight')!
+    const client = Object.getOwnPropertyDescriptor(Element.prototype, 'clientHeight')!
+    const offParent = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetParent')!
+    Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.parentElement
+      },
+    })
+    Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.hasAttribute('data-overlay-panel') ? panelH : 0
+      },
+    })
+    Object.defineProperty(Element.prototype, 'clientHeight', {
+      configurable: true,
+      get(this: Element) {
+        return this.getAttribute('role') === 'alertdialog' ? overlayH : 0
+      },
+    })
+    return () => {
+      Object.defineProperty(HTMLElement.prototype, 'offsetHeight', off)
+      Object.defineProperty(Element.prototype, 'clientHeight', client)
+      Object.defineProperty(HTMLElement.prototype, 'offsetParent', offParent)
+    }
+  }
+  const ui = (show: boolean) => (
+    <div data-testid="seat" style={{ minHeight: '10px' }}>
+      <GameOverlay show={show} variant="lose" title="Game over" testId="game-over" />
+    </div>
+  )
+
+  it('상자(440) > 덮개(168): 부모 최소 높이 464px, 닫으면 원래 값으로', () => {
+    const restore = layout(440, 168)
+    try {
+      const { rerender } = render(ui(true))
+      expect(screen.getByTestId('seat').style.minHeight).toBe('464px')
+      rerender(ui(false))
+      expect(screen.getByTestId('seat').style.minHeight).toBe('10px')
+    } finally {
+      restore()
+    }
+  })
+
+  it('같은 자리에 덮개 둘이 동시에 떠도 마지막이 닫힐 때 원래 값으로', () => {
+    const restore = layout(440, 168)
+    const two = (a: boolean, b: boolean) => (
+      <div data-testid="seat" style={{ minHeight: '10px' }}>
+        <GameOverlay show={a} variant="lose" title="A" />
+        <GameOverlay show={b} variant="win" title="B" />
+      </div>
+    )
+    try {
+      const { rerender } = render(two(true, false))
+      rerender(two(true, true))
+      expect(screen.getByTestId('seat').style.minHeight).toBe('464px')
+      rerender(two(false, true))
+      expect(screen.getByTestId('seat').style.minHeight).toBe('464px')
+      rerender(two(false, false))
+      expect(screen.getByTestId('seat').style.minHeight).toBe('10px')
+    } finally {
+      restore()
+    }
+  })
+
+  it('상자가 들어가면(252 ≤ 386) 부모를 건드리지 않는다', () => {
+    const restore = layout(252, 386)
+    try {
+      render(ui(true))
+      expect(screen.getByTestId('seat').style.minHeight).toBe('10px')
+    } finally {
+      restore()
+    }
+  })
+})

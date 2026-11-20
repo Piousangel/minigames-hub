@@ -1,0 +1,261 @@
+{
+  "slotter-1440": {
+    "title": "Row broken!",
+    "checked": 13,
+    "min": 7.52,
+    "fails": 0,
+    "fit": {
+      "overlayH": 168,
+      "panelH": 420,
+      "scrolls": false,
+      "outsidePx": 252
+    },
+    "rows": [
+      {
+        "text": "Row broken!",
+        "fg": "rgb(255, 161, 132)",
+        "bg": "#29214f",
+        "ratio": 7.52,
+        "need": 3
+      },
+      {
+        "text": "Score",
+        "fg": "rgb(255, 243, 220)",
+        "bg": "#29214f",
+        "ratio": 13.45,
+        "need": 4.5
+      },
+      {
+        "text": "93",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "Streak  · Best streak",
+        "fg": "rgb(255, 243, 220)",
+        "bg": "#29214f",
+        "ratio": 13.45,
+        "need": 4.5
+      },
+      {
+        "text": "3",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "3",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "Placed",
+        "fg": "rgb(255, 243, 220)",
+        "bg": "#29214f",
+        "ratio": 13.45,
+        "need": 4.5
+      },
+      {
+        "text": "3",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "Play again",
+        "fg": "oklch(0.216 0.006 56.043)",
+        "bg": "#ffd966",
+        "ratio": 12.8,
+        "need": 4.5
+      },
+      {
+        "text": "🗓️ 2 more games for Daily Three — one m",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "Next: Flywheel",
+        "fg": "rgb(181, 227, 156)",
+        "bg": "#2e2342",
+        "ratio": 10.06,
+        "need": 4.5
+      },
+      {
+        "text": "🏆 Your best 999 — put it on the board",
+        "fg": "rgb(143, 211, 255)",
+        "bg": "#29214f",
+        "ratio": 9.1,
+        "need": 4.5
+      },
+      {
+        "text": "🏆 See this week's leaderboard",
+        "fg": "rgb(205, 189, 232)",
+        "bg": "#29214f",
+        "ratio": 8.48,
+        "need": 4.5
+      }
+    ]
+  },
+  "slotter-win-1440": {
+    "title": "New best!",
+    "checked": 14,
+    "min": 8.48,
+    "fails": 0,
+    "fit": {
+      "overlayH": 168,
+      "panelH": 452,
+      "scrolls": false,
+      "outsidePx": 284
+    },
+    "rows": [
+      {
+        "text": "New best!",
+        "fg": "rgb(143, 217, 138)",
+        "bg": "#29214f",
+        "ratio": 8.77,
+        "need": 3
+      },
+      {
+        "text": "Score",
+        "fg": "rgb(255, 243, 220)",
+        "bg": "#29214f",
+        "ratio": 13.45,
+        "need": 4.5
+      },
+      {
+        "text": "94",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "Streak  · Best streak",
+        "fg": "rgb(255, 243, 220)",
+        "bg": "#29214f",
+        "ratio": 13.45,
+        "need": 4.5
+      },
+      {
+        "text": "3",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "3",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "Placed",
+        "fg": "rgb(255, 243, 220)",
+        "bg": "#29214f",
+        "ratio": 13.45,
+        "need": 4.5
+      },
+      {
+        "text": "3",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "Play again",
+        "fg": "oklch(0.216 0.006 56.043)",
+        "bg": "#ffd966",
+        "ratio": 12.8,
+        "need": 4.5
+      },
+      {
+        "text": "⚡ 2 more games for Marathon — one more?",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "Next: Latch",
+        "fg": "rgb(181, 227, 156)",
+        "bg": "#2e2342",
+        "ratio": 10.06,
+        "need": 4.5
+      },
+      {
+        "text": "🏆 Your best 94 — put it on the board",
+        "fg": "rgb(143, 211, 255)",
+        "bg": "#29214f",
+        "ratio": 9.1,
+        "need": 4.5
+      },
+      {
+        "text": "🏆 See this week's leaderboard",
+        "fg": "rgb(205, 189, 232)",
+        "bg": "#29214f",
+        "ratio": 8.48,
+        "need": 4.5
+      },
+      {
+        "text": "☕ On a roll — support the site?",
+        "fg": "rgb(205, 189, 232)",
+        "bg": "#29214f",
+        "ratio": 8.48,
+        "need": 4.5
+      }
+    ]
+  },
+  "dots-and-boxes-1440": {
+    "title": "Computer wins",
+    "checked": 4,
+    "min": 7.52,
+    "fails": 0,
+    "fit": {
+      "overlayH": 476,
+      "panelH": 232,
+      "scrolls": false,
+      "outsidePx": 0
+    },
+    "rows": [
+      {
+        "text": "Computer wins",
+        "fg": "rgb(255, 161, 132)",
+        "bg": "#29214f",
+        "ratio": 7.52,
+        "need": 3
+      },
+      {
+        "text": "Try again",
+        "fg": "oklch(0.216 0.006 56.043)",
+        "bg": "#ff9ecb",
+        "ratio": 9.16,
+        "need": 4.5
+      },
+      {
+        "text": "🗓️ 2 more games for Daily Three — one m",
+        "fg": "rgb(255, 217, 102)",
+        "bg": "#29214f",
+        "ratio": 10.82,
+        "need": 4.5
+      },
+      {
+        "text": "Next: Chess",
+        "fg": "rgb(181, 227, 156)",
+        "bg": "#2e2342",
+        "ratio": 10.06,
+        "need": 4.5
+      }
+    ]
+  }
+}

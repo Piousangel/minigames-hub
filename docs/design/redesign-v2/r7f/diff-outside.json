@@ -1,0 +1,1253 @@
+{
+  "note": "R7f 배치 밖 = f가 아닌 101게임(R7a~e 98 + 오리지널 3) × 390·1440. pixels = main↔branch, noise = main↔main(같은 빌드 두 번). 타이머 게임 3항목은 pixels가 noise와 같은 크기 — recheck(다시 찍음)와 base↔base 단독 실행(overdub 390 10302·1440 12783)으로 타이밍 흔들림 확인.",
+  "rows": [
+    {
+      "slug": "2048",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "2048",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "2048-animals",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "2048-animals",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "snake",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "snake",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "minesweeper",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "minesweeper",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "memory-game",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "memory-game",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "typing-test",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "typing-test",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "tetris",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "tetris",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "sliding-puzzle",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "sliding-puzzle",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "word-guess",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "word-guess",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "tic-tac-toe",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "tic-tac-toe",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "reaction-time",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "reaction-time",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "connect-four",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "connect-four",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "hangman",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "hangman",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "simon",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "simon",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "whack-a-mole",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "whack-a-mole",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "aim-trainer",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "aim-trainer",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "sudoku",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "sudoku",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "rock-paper-scissors",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "rock-paper-scissors",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "lights-out",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "lights-out",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "mastermind",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "mastermind",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "nonogram",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "nonogram",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "sokoban",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "sokoban",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "dots-and-boxes",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "dots-and-boxes",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "checkers",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "checkers",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "maze",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "maze",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "number-memory",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "number-memory",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "word-search",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "word-search",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "reversi",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "reversi",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "gem-match",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "gem-match",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "prospector",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "prospector",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "zero-hour",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "zero-hour",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "overload",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "overload",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "ricochet",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "ricochet",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "stackpot",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "stackpot",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "overfold",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "overfold",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "splice",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "splice",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "quarry",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "quarry",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "decant",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "decant",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "duplex",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "duplex",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "overdub",
+      "width": 390,
+      "pixels": 10302,
+      "noise": 10302
+    },
+    {
+      "slug": "overdub",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "pinwheel",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "pinwheel",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "cleave",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "cleave",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "umbra",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "umbra",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "fuse",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "fuse",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "polytap",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "polytap",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "deepdive",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "deepdive",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "sonar",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "sonar",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "handful",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "handful",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "flapjack",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "flapjack",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "interlock",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "interlock",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "clusters",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "clusters",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "quadle",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "quadle",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "equate",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "equate",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "reactor",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "reactor",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "solitaire",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "solitaire",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "freecell",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "freecell",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "spider",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "spider",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "pyramid",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "pyramid",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "tripeaks",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "tripeaks",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "mahjong",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "mahjong",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "chess",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "chess",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "golf-solitaire",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "golf-solitaire",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "dominoes",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "dominoes",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "jigsaw",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "jigsaw",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "yukon-solitaire",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "yukon-solitaire",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "gomoku",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "gomoku",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "flow",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "flow",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "yahtzee",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "yahtzee",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "mancala",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "mancala",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "battleship",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "battleship",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "kakuro",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "kakuro",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "beatline",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "beatline",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "skew",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "skew",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "turntile",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "turntile",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "stakehouse",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "stakehouse",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "grasp",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "grasp",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "countcircle",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "countcircle",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "offbeat",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "offbeat",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "hogline",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "hogline",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "prismbox",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "prismbox",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "gravwell",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "gravwell",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "loopgrid",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "loopgrid",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "bisect",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "bisect",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "slotter",
+      "width": 390,
+      "pixels": 1930,
+      "noise": 1930
+    },
+    {
+      "slug": "slotter",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 2039
+    },
+    {
+      "slug": "carousel",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "carousel",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "gridlock",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "gridlock",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "bearing",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "bearing",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "strata",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "strata",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "bankshot",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "bankshot",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "morse-relay",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "morse-relay",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "lagline",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "lagline",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "recoil",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "recoil",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "hunch",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "hunch",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "fizzbeat",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "fizzbeat",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "siteswap",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "siteswap",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "shadowfit",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "shadowfit",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "slosh",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "slosh",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "polarity",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "polarity",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "acorn-hop",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "acorn-hop",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "plop-landing",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "plop-landing",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "slime-slide",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "slime-slide",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    }
+  ],
+  "recheck": [
+    {
+      "slug": "slotter",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "slotter",
+      "width": 1440,
+      "pixels": 2039,
+      "noise": 0
+    },
+    {
+      "slug": "overdub",
+      "width": 390,
+      "pixels": 0,
+      "noise": 0
+    },
+    {
+      "slug": "overdub",
+      "width": 1440,
+      "pixels": 0,
+      "noise": 0
+    }
+  ],
+  "baseVsBaseOverdub": [
+    {
+      "width": 390,
+      "pixels": 10302
+    },
+    {
+      "width": 1440,
+      "pixels": 12783
+    }
+  ]
+}
