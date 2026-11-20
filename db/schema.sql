@@ -48,3 +48,15 @@ CREATE TABLE IF NOT EXISTS slime_daily (
   updated_at INTEGER NOT NULL,
   PRIMARY KEY (day, player)
 );
+
+-- 오늘 방문자 수 — db/migrations/0002_visitors.sql과 같다(src/lib/visitors.ts).
+CREATE TABLE IF NOT EXISTS visit_days (
+  day TEXT PRIMARY KEY,
+  visitors INTEGER NOT NULL DEFAULT 0,
+  salt TEXT
+);
+CREATE TABLE IF NOT EXISTS visit_seen (
+  day TEXT NOT NULL,
+  h TEXT NOT NULL,
+  PRIMARY KEY (day, h)
+);

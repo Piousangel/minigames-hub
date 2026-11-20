@@ -15,6 +15,7 @@ import { HomeAbout } from '@/components/home/HomeAbout'
 import { GardenSignboard } from '@/components/home/GardenSignboard'
 import { HomeAdBand } from '@/components/home/HomeAdBand'
 import { SeedIcon } from '@/components/home/HomeIcons'
+import { TodayVisitors } from '@/components/home/TodayVisitors'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/' },
@@ -56,6 +57,10 @@ export default function Home() {
           <CloudEdge />
         </div>
         <div className="mx-auto max-w-[1200px] px-4 pt-8 pb-12 sm:px-6 lg:pt-12">
+          {/* 오늘 방문자 한 줄(오너 11-20) — 높이 예약(h-5), 실패하면 빈 줄. 광고 밴드는 본문 맨 아래 */}
+          <div className="mb-4">
+            <TodayVisitors />
+          </div>
           {/* Continue 줄 + 오늘의 스포트라이트(어제 게임 페이지에서 예고한 게임) */}
           <ContinueRow curated={curated} items={slim} />
           <div className="mt-3 min-h-14">

@@ -8,8 +8,19 @@ Figtree-Variable.woff2
   from the Google Fonts source (google/fonts ofl/figtree).
 Copyright 2022 The Figtree Project Authors (https://github.com/erikdkennedy/figtree)
 
-Both fonts are licensed under the SIL Open Font License, Version 1.1 (below).
-No Reserved Font Names are declared by either project.
+Fredoka.woff2
+  Variable (wght 300-700), Latin subset (230 glyphs), Version 2.001,
+  from the Google Fonts source (google/fonts ofl/fredoka).
+Copyright 2016 The Fredoka Project Authors (https://github.com/hafontia/Fredoka-One)
+
+PressStart2P.woff2
+  Regular 400, Latin subset (225 glyphs), Version 3.000,
+  from the Google Fonts source (google/fonts ofl/pressstart2p).
+Copyright 2012 The Press Start 2P Project Authors (cody@zone38.net), with Reserved Font Name "Press Start 2P".
+
+All four fonts are licensed under the SIL Open Font License, Version 1.1 (below).
+Fraunces, Figtree and Fredoka declare no Reserved Font Names.
+Press Start 2P declares the Reserved Font Name "Press Start 2P".
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
 This license is copied below, and is also available with a FAQ at:

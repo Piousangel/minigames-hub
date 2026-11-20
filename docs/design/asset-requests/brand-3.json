@@ -1,0 +1,158 @@
+[
+ {
+  "id": "brand3-v1-app1",
+  "model": "gemini-3-pro-image",
+  "aspect": "1:1",
+  "key": "none",
+  "size": 1024,
+  "out": "docs/design/brand-3/v1-app1.webp",
+  "refs": [
+   "public/art/mallang-happy.webp",
+   "public/art/mallang-wave.webp"
+  ],
+  "prompt": "PREMIUM APP ICON, refined and minimal, the polish level of an Apple Design Award winning casual game icon. CHARACTER LOCK: Mallang the jelly exactly as in the reference images — a glossy translucent jelly blob, smooth sky-cyan (#7fe3ff) top to violet (#9b7bff) bottom gradient, plump upside-down-drop silhouette, closed happy crescent eyes (^ ^), small open smile, soft pink cheeks, thin cream offset rim along its edge like the reference. RENDERING: clean hand-drawn storybook illustration, ONE uniform thin outline weight (about 1.5% of canvas width) used consistently on every shape, no thick or wobbly strokes, smooth flat fills, minimal shading. FORMAT: square 1:1, background fills the whole canvas edge to edge, no rounded corners, no frame, no tile outline. ALL important content (sun disc and character) sits inside the central circle of 66% canvas diameter (Android adaptive icon safe zone); nothing important near the edges. The character's body must NEVER touch or straddle an outline: it is either cleanly contained inside the disc (clipped by the disc edge with a clean cut) or clearly in front of it — no awkward tangent contact points. FORBIDDEN: any text, letters, numbers, logo, signature, watermark; clouds, horizon, ground, stars, sparkles, lens flare, glow, vignette, border, sticker border, drop shadow blur, 3D render, plastic bevel, gradient banding, noise texture. Maximum 5 colours. Original design, do not imitate any existing app icon. SUBJECT V1 'Sunset solo, big bust': background a single smooth vertical gradient from warm coral (#ff9d7a) at the top to soft peach (#ffd9b0) at the bottom, nothing else in the background. A large flat sun-gold (#ffc933) disc, 62% of canvas diameter, centred. Mallang shown as a large bust fully INSIDE the disc, filling its lower 60%, the bust bottom cleanly cut by the disc's circular edge; one small arm raised waving with a clearly readable silhouette. Face large and centred so the smiling eyes read at 16 pixels."
+ },
+ {
+  "id": "brand3-v1-app2",
+  "model": "gemini-3-pro-image",
+  "aspect": "1:1",
+  "key": "none",
+  "size": 1024,
+  "out": "docs/design/brand-3/v1-app2.webp",
+  "refs": [
+   "public/art/mallang-happy.webp",
+   "public/art/mallang-wave.webp"
+  ],
+  "prompt": "PREMIUM APP ICON, refined and minimal, the polish level of an Apple Design Award winning casual game icon. CHARACTER LOCK: Mallang the jelly exactly as in the reference images — a glossy translucent jelly blob, smooth sky-cyan (#7fe3ff) top to violet (#9b7bff) bottom gradient, plump upside-down-drop silhouette, closed happy crescent eyes (^ ^), small open smile, soft pink cheeks, thin cream offset rim along its edge like the reference. RENDERING: clean hand-drawn storybook illustration, ONE uniform thin outline weight (about 1.5% of canvas width) used consistently on every shape, no thick or wobbly strokes, smooth flat fills, minimal shading. FORMAT: square 1:1, background fills the whole canvas edge to edge, no rounded corners, no frame, no tile outline. ALL important content (sun disc and character) sits inside the central circle of 66% canvas diameter (Android adaptive icon safe zone); nothing important near the edges. The character's body must NEVER touch or straddle an outline: it is either cleanly contained inside the disc (clipped by the disc edge with a clean cut) or clearly in front of it — no awkward tangent contact points. FORBIDDEN: any text, letters, numbers, logo, signature, watermark; clouds, horizon, ground, stars, sparkles, lens flare, glow, vignette, border, sticker border, drop shadow blur, 3D render, plastic bevel, gradient banding, noise texture. Maximum 5 colours. Original design, do not imitate any existing app icon. SUBJECT V1 'Sunset solo, big bust': background a single smooth vertical gradient from warm coral (#ff9d7a) at the top to soft peach (#ffd9b0) at the bottom, nothing else in the background. A large flat sun-gold (#ffc933) disc, 62% of canvas diameter, centred. Mallang shown as a large bust fully INSIDE the disc, filling its lower 60%, the bust bottom cleanly cut by the disc's circular edge; one small arm raised waving with a clearly readable silhouette. Face large and centred so the smiling eyes read at 16 pixels. Variation B: the bust slightly larger, eyes a little bigger, waving arm on the left side."
+ },
+ {
+  "id": "brand3-v2-app1",
+  "model": "gemini-3-pro-image",
+  "aspect": "1:1",
+  "key": "none",
+  "size": 1024,
+  "out": "docs/design/brand-3/v2-app1.webp",
+  "refs": [
+   "public/art/mallang-happy.webp",
+   "public/art/mallang-wave.webp"
+  ],
+  "prompt": "PREMIUM APP ICON, refined and minimal, the polish level of an Apple Design Award winning casual game icon. CHARACTER LOCK: Mallang the jelly exactly as in the reference images — a glossy translucent jelly blob, smooth sky-cyan (#7fe3ff) top to violet (#9b7bff) bottom gradient, plump upside-down-drop silhouette, closed happy crescent eyes (^ ^), small open smile, soft pink cheeks, thin cream offset rim along its edge like the reference. RENDERING: clean hand-drawn storybook illustration, ONE uniform thin outline weight (about 1.5% of canvas width) used consistently on every shape, no thick or wobbly strokes, smooth flat fills, minimal shading. FORMAT: square 1:1, background fills the whole canvas edge to edge, no rounded corners, no frame, no tile outline. ALL important content (sun disc and character) sits inside the central circle of 66% canvas diameter (Android adaptive icon safe zone); nothing important near the edges. The character's body must NEVER touch or straddle an outline: it is either cleanly contained inside the disc (clipped by the disc edge with a clean cut) or clearly in front of it — no awkward tangent contact points. FORBIDDEN: any text, letters, numbers, logo, signature, watermark; clouds, horizon, ground, stars, sparkles, lens flare, glow, vignette, border, sticker border, drop shadow blur, 3D render, plastic bevel, gradient banding, noise texture. Maximum 5 colours. Original design, do not imitate any existing app icon. SUBJECT V2 'Gold ring emblem with generous margin': background flat muted warm coral (#f2967a, slightly desaturated, calm). A sun disc of 56% canvas diameter, centred, filled with soft sun gold (#ffc933) and outlined by ONE thin deep-ochre ring (#c98a1e, about 1% of canvas width) — no brown outline on the disc, no inner shadow crescent, no second ring. Mallang as a bust fully contained inside the ring like an emblem, cleanly clipped at the bottom by the ring, one arm raised waving, never touching the ring with the head or hand. Wide calm empty margin around the emblem."
+ },
+ {
+  "id": "brand3-v2-app2",
+  "model": "gemini-3-pro-image",
+  "aspect": "1:1",
+  "key": "none",
+  "size": 1024,
+  "out": "docs/design/brand-3/v2-app2.webp",
+  "refs": [
+   "public/art/mallang-happy.webp",
+   "public/art/mallang-wave.webp"
+  ],
+  "prompt": "PREMIUM APP ICON, refined and minimal, the polish level of an Apple Design Award winning casual game icon. CHARACTER LOCK: Mallang the jelly exactly as in the reference images — a glossy translucent jelly blob, smooth sky-cyan (#7fe3ff) top to violet (#9b7bff) bottom gradient, plump upside-down-drop silhouette, closed happy crescent eyes (^ ^), small open smile, soft pink cheeks, thin cream offset rim along its edge like the reference. RENDERING: clean hand-drawn storybook illustration, ONE uniform thin outline weight (about 1.5% of canvas width) used consistently on every shape, no thick or wobbly strokes, smooth flat fills, minimal shading. FORMAT: square 1:1, background fills the whole canvas edge to edge, no rounded corners, no frame, no tile outline. ALL important content (sun disc and character) sits inside the central circle of 66% canvas diameter (Android adaptive icon safe zone); nothing important near the edges. The character's body must NEVER touch or straddle an outline: it is either cleanly contained inside the disc (clipped by the disc edge with a clean cut) or clearly in front of it — no awkward tangent contact points. FORBIDDEN: any text, letters, numbers, logo, signature, watermark; clouds, horizon, ground, stars, sparkles, lens flare, glow, vignette, border, sticker border, drop shadow blur, 3D render, plastic bevel, gradient banding, noise texture. Maximum 5 colours. Original design, do not imitate any existing app icon. SUBJECT V2 'Gold ring emblem with generous margin': background flat muted warm coral (#f2967a, slightly desaturated, calm). A sun disc of 56% canvas diameter, centred, filled with soft sun gold (#ffc933) and outlined by ONE thin deep-ochre ring (#c98a1e, about 1% of canvas width) — no brown outline on the disc, no inner shadow crescent, no second ring. Mallang as a bust fully contained inside the ring like an emblem, cleanly clipped at the bottom by the ring, one arm raised waving, never touching the ring with the head or hand. Wide calm empty margin around the emblem. Variation B: the same emblem, background a slightly deeper dusk rose (#e88a72), Mallang a touch smaller with more gold visible above the head."
+ },
+ {
+  "id": "brand3-v3-app1",
+  "model": "gemini-3-pro-image",
+  "aspect": "1:1",
+  "key": "none",
+  "size": 1024,
+  "out": "docs/design/brand-3/v3-app1.webp",
+  "refs": [
+   "public/art/mallang-happy.webp",
+   "public/art/mallang-wave.webp"
+  ],
+  "prompt": "PREMIUM APP ICON, refined and minimal, the polish level of an Apple Design Award winning casual game icon. CHARACTER LOCK: Mallang the jelly exactly as in the reference images — a glossy translucent jelly blob, smooth sky-cyan (#7fe3ff) top to violet (#9b7bff) bottom gradient, plump upside-down-drop silhouette, closed happy crescent eyes (^ ^), small open smile, soft pink cheeks, thin cream offset rim along its edge like the reference. RENDERING: clean hand-drawn storybook illustration, ONE uniform thin outline weight (about 1.5% of canvas width) used consistently on every shape, no thick or wobbly strokes, smooth flat fills, minimal shading. FORMAT: square 1:1, background fills the whole canvas edge to edge, no rounded corners, no frame, no tile outline. ALL important content (sun disc and character) sits inside the central circle of 66% canvas diameter (Android adaptive icon safe zone); nothing important near the edges. The character's body must NEVER touch or straddle an outline: it is either cleanly contained inside the disc (clipped by the disc edge with a clean cut) or clearly in front of it — no awkward tangent contact points. FORBIDDEN: any text, letters, numbers, logo, signature, watermark; clouds, horizon, ground, stars, sparkles, lens flare, glow, vignette, border, sticker border, drop shadow blur, 3D render, plastic bevel, gradient banding, noise texture. Maximum 5 colours. Original design, do not imitate any existing app icon. SUBJECT V3 'Front smile, no hands': background a single smooth vertical gradient coral (#ff9d7a) to peach (#ffd9b0). A flat sun-gold disc 60% of canvas diameter, centred. Mallang front-facing and perfectly symmetrical, both arms down / no arms visible, no hand wave, no props, no plants, sitting as a bust inside the disc cleanly clipped by its lower edge. The face (closed crescent eyes, tiny smile, pink cheeks) is the single focal point."
+ },
+ {
+  "id": "brand3-v3-app2",
+  "model": "gemini-3-pro-image",
+  "aspect": "1:1",
+  "key": "none",
+  "size": 1024,
+  "out": "docs/design/brand-3/v3-app2.webp",
+  "refs": [
+   "public/art/mallang-happy.webp",
+   "public/art/mallang-wave.webp"
+  ],
+  "prompt": "PREMIUM APP ICON, refined and minimal, the polish level of an Apple Design Award winning casual game icon. CHARACTER LOCK: Mallang the jelly exactly as in the reference images — a glossy translucent jelly blob, smooth sky-cyan (#7fe3ff) top to violet (#9b7bff) bottom gradient, plump upside-down-drop silhouette, closed happy crescent eyes (^ ^), small open smile, soft pink cheeks, thin cream offset rim along its edge like the reference. RENDERING: clean hand-drawn storybook illustration, ONE uniform thin outline weight (about 1.5% of canvas width) used consistently on every shape, no thick or wobbly strokes, smooth flat fills, minimal shading. FORMAT: square 1:1, background fills the whole canvas edge to edge, no rounded corners, no frame, no tile outline. ALL important content (sun disc and character) sits inside the central circle of 66% canvas diameter (Android adaptive icon safe zone); nothing important near the edges. The character's body must NEVER touch or straddle an outline: it is either cleanly contained inside the disc (clipped by the disc edge with a clean cut) or clearly in front of it — no awkward tangent contact points. FORBIDDEN: any text, letters, numbers, logo, signature, watermark; clouds, horizon, ground, stars, sparkles, lens flare, glow, vignette, border, sticker border, drop shadow blur, 3D render, plastic bevel, gradient banding, noise texture. Maximum 5 colours. Original design, do not imitate any existing app icon. SUBJECT V3 'Front smile, no hands': background a single smooth vertical gradient coral (#ff9d7a) to peach (#ffd9b0). A flat sun-gold disc 60% of canvas diameter, centred. Mallang front-facing and perfectly symmetrical, both arms down / no arms visible, no hand wave, no props, no plants, sitting as a bust inside the disc cleanly clipped by its lower edge. The face (closed crescent eyes, tiny smile, pink cheeks) is the single focal point. Variation B: Mallang head slightly tilted 8 degrees, still no arms, still symmetrical composition."
+ },
+ {
+  "id": "brand3-v4-app1",
+  "model": "gemini-3-pro-image",
+  "aspect": "1:1",
+  "key": "none",
+  "size": 1024,
+  "out": "docs/design/brand-3/v4-app1.webp",
+  "refs": [
+   "public/art/mallang-happy.webp",
+   "public/art/mallang-wave.webp"
+  ],
+  "prompt": "PREMIUM APP ICON, refined and minimal, the polish level of an Apple Design Award winning casual game icon. CHARACTER LOCK: Mallang the jelly exactly as in the reference images — a glossy translucent jelly blob, smooth sky-cyan (#7fe3ff) top to violet (#9b7bff) bottom gradient, plump upside-down-drop silhouette, closed happy crescent eyes (^ ^), small open smile, soft pink cheeks, thin cream offset rim along its edge like the reference. RENDERING: clean hand-drawn storybook illustration, ONE uniform thin outline weight (about 1.5% of canvas width) used consistently on every shape, no thick or wobbly strokes, smooth flat fills, minimal shading. FORMAT: square 1:1, background fills the whole canvas edge to edge, no rounded corners, no frame, no tile outline. ALL important content (sun disc and character) sits inside the central circle of 66% canvas diameter (Android adaptive icon safe zone); nothing important near the edges. The character's body must NEVER touch or straddle an outline: it is either cleanly contained inside the disc (clipped by the disc edge with a clean cut) or clearly in front of it — no awkward tangent contact points. FORBIDDEN: any text, letters, numbers, logo, signature, watermark; clouds, horizon, ground, stars, sparkles, lens flare, glow, vignette, border, sticker border, drop shadow blur, 3D render, plastic bevel, gradient banding, noise texture. Maximum 5 colours. Original design, do not imitate any existing app icon. SUBJECT V4 'Refined gloss, original P1 pose': background a single smooth vertical gradient coral (#ff9d7a) to peach (#ffd9b0), no clouds. A sun disc 62% of canvas diameter with flat sun-gold fill and ONE soft deeper-gold shadow band along the bottom only. Mallang as a bust in front of the lower half of the disc, cleanly clipped by the disc edge, one arm raised waving. Gloss refined: EXACTLY ONE cream oval highlight at Mallang's upper-left, no secondary highlights, no sparkles; minimal two-step shading. Outlines thin, uniform and soft (warm dark tone, not heavy brown)."
+ },
+ {
+  "id": "brand3-v4-app2",
+  "model": "gemini-3-pro-image",
+  "aspect": "1:1",
+  "key": "none",
+  "size": 1024,
+  "out": "docs/design/brand-3/v4-app2.webp",
+  "refs": [
+   "public/art/mallang-happy.webp",
+   "public/art/mallang-wave.webp"
+  ],
+  "prompt": "PREMIUM APP ICON, refined and minimal, the polish level of an Apple Design Award winning casual game icon. CHARACTER LOCK: Mallang the jelly exactly as in the reference images — a glossy translucent jelly blob, smooth sky-cyan (#7fe3ff) top to violet (#9b7bff) bottom gradient, plump upside-down-drop silhouette, closed happy crescent eyes (^ ^), small open smile, soft pink cheeks, thin cream offset rim along its edge like the reference. RENDERING: clean hand-drawn storybook illustration, ONE uniform thin outline weight (about 1.5% of canvas width) used consistently on every shape, no thick or wobbly strokes, smooth flat fills, minimal shading. FORMAT: square 1:1, background fills the whole canvas edge to edge, no rounded corners, no frame, no tile outline. ALL important content (sun disc and character) sits inside the central circle of 66% canvas diameter (Android adaptive icon safe zone); nothing important near the edges. The character's body must NEVER touch or straddle an outline: it is either cleanly contained inside the disc (clipped by the disc edge with a clean cut) or clearly in front of it — no awkward tangent contact points. FORBIDDEN: any text, letters, numbers, logo, signature, watermark; clouds, horizon, ground, stars, sparkles, lens flare, glow, vignette, border, sticker border, drop shadow blur, 3D render, plastic bevel, gradient banding, noise texture. Maximum 5 colours. Original design, do not imitate any existing app icon. SUBJECT V4 'Refined gloss, original P1 pose': background a single smooth vertical gradient coral (#ff9d7a) to peach (#ffd9b0), no clouds. A sun disc 62% of canvas diameter with flat sun-gold fill and ONE soft deeper-gold shadow band along the bottom only. Mallang as a bust in front of the lower half of the disc, cleanly clipped by the disc edge, one arm raised waving. Gloss refined: EXACTLY ONE cream oval highlight at Mallang's upper-left, no secondary highlights, no sparkles; minimal two-step shading. Outlines thin, uniform and soft (warm dark tone, not heavy brown). Variation B: identical idea with the waving arm reaching slightly higher and the highlight a little smaller and more elegant."
+ },
+ {
+  "id": "brand3-v2-mark",
+  "model": "gemini-3-pro-image",
+  "aspect": "1:1",
+  "key": "magenta",
+  "size": 512,
+  "out": "docs/design/brand-3/v2-mark.webp",
+  "refs": [
+   "docs/design/brand-3/v2-app1.webp",
+   "public/art/mallang-happy.webp"
+  ],
+  "prompt": "Redraw the FIRST reference image (an app icon) as a standalone LOGO MARK cut-out for a website header next to a wordmark. Keep EXACTLY the same character, pose, face, colours, line weight and the same sun disc with its ring — identical art, only the square background is removed. Output: just the round sun-disc emblem with Mallang inside it, centred, filling about 92% of the canvas, on a plain solid flat magenta (#ff00ff) background filling the whole image for keying. Nothing outside the disc: no background gradient, no shadow, no glow, no halo, no sticker border. FORBIDDEN: any text, letters, numbers, logo, watermark, clouds, sparkles, 3D render."
+ },
+ {
+  "id": "brand3-v1-mark",
+  "model": "gemini-3-pro-image",
+  "aspect": "1:1",
+  "key": "magenta",
+  "size": 512,
+  "out": "docs/design/brand-3/v1-mark.webp",
+  "refs": [
+   "docs/design/brand-3/v1-app1.webp",
+   "public/art/mallang-happy.webp"
+  ],
+  "prompt": "Redraw the FIRST reference image (an app icon) as a standalone LOGO MARK cut-out for a website header next to a wordmark. Keep EXACTLY the same character, pose, face, colours, line weight and the same sun disc with its ring — identical art, only the square background is removed. Output: just the round sun-disc emblem with Mallang inside it, centred, filling about 92% of the canvas, on a plain solid flat magenta (#ff00ff) background filling the whole image for keying. Nothing outside the disc: no background gradient, no shadow, no glow, no halo, no sticker border. FORBIDDEN: any text, letters, numbers, logo, watermark, clouds, sparkles, 3D render."
+ },
+ {
+  "id": "brand3-v2r-app1",
+  "model": "gemini-3-pro-image",
+  "aspect": "1:1",
+  "key": "none",
+  "size": 1024,
+  "out": "docs/design/brand-3/v2r-app1.webp",
+  "refs": [
+   "docs/design/brand-3/v2-app1.webp",
+   "public/art/mallang-happy.webp"
+  ],
+  "prompt": "PREMIUM APP ICON, refined and minimal, the polish level of an Apple Design Award winning casual game icon. CHARACTER LOCK: Mallang the jelly exactly as in the reference images — a glossy translucent jelly blob, smooth sky-cyan (#7fe3ff) top to violet (#9b7bff) bottom gradient, plump upside-down-drop silhouette, closed happy crescent eyes (^ ^), small open smile, soft pink cheeks, thin cream offset rim along its edge like the reference. RENDERING: clean hand-drawn storybook illustration, ONE uniform thin outline weight (about 1.5% of canvas width) used consistently on every shape, no thick or wobbly strokes, smooth flat fills, minimal shading. FORMAT: square 1:1, background fills the whole canvas edge to edge, no rounded corners, no frame, no tile outline. ALL important content (sun disc and character) sits inside the central circle of 66% canvas diameter (Android adaptive icon safe zone); nothing important near the edges. The character's body must NEVER touch or straddle an outline: it is either cleanly contained inside the disc (clipped by the disc edge with a clean cut) or clearly in front of it — no awkward tangent contact points. FORBIDDEN: any text, letters, numbers, logo, signature, watermark; clouds, horizon, ground, stars, sparkles, lens flare, glow, vignette, border, sticker border, drop shadow blur, 3D render, plastic bevel, gradient banding, noise texture. Maximum 5 colours. Original design, do not imitate any existing app icon. SUBJECT V2 REFINED — redraw the FIRST reference image (our approved icon) keeping EXACTLY the same style, colours, character face, waving pose, thin uniform outline and the single thin deep-ochre ring (#c98a1e) around the flat sun-gold disc, same disc size (about 74% of canvas diameter, centred). ONE CHANGE ONLY: raise Mallang about 5% of the canvas higher inside the disc so that Mallang's body bottom no longer touches or runs along the ring. Mallang's bottom is now its own soft rounded closed contour (two tiny stubby feet allowed), floating inside the disc with a clean, even band of sun-gold visible between the body bottom and the lower inner edge of the ring (gap about 4-5% of canvas). The body outline and the ring never touch anywhere; the waving hand also keeps a small gap from the ring. Background outside the disc: flat warm coral."
+ },
+ {
+  "id": "brand3-v2r-app2",
+  "model": "gemini-3-pro-image",
+  "aspect": "1:1",
+  "key": "none",
+  "size": 1024,
+  "out": "docs/design/brand-3/v2r-app2.webp",
+  "refs": [
+   "docs/design/brand-3/v2-app1.webp",
+   "public/art/mallang-happy.webp"
+  ],
+  "prompt": "PREMIUM APP ICON, refined and minimal, the polish level of an Apple Design Award winning casual game icon. CHARACTER LOCK: Mallang the jelly exactly as in the reference images — a glossy translucent jelly blob, smooth sky-cyan (#7fe3ff) top to violet (#9b7bff) bottom gradient, plump upside-down-drop silhouette, closed happy crescent eyes (^ ^), small open smile, soft pink cheeks, thin cream offset rim along its edge like the reference. RENDERING: clean hand-drawn storybook illustration, ONE uniform thin outline weight (about 1.5% of canvas width) used consistently on every shape, no thick or wobbly strokes, smooth flat fills, minimal shading. FORMAT: square 1:1, background fills the whole canvas edge to edge, no rounded corners, no frame, no tile outline. ALL important content (sun disc and character) sits inside the central circle of 66% canvas diameter (Android adaptive icon safe zone); nothing important near the edges. The character's body must NEVER touch or straddle an outline: it is either cleanly contained inside the disc (clipped by the disc edge with a clean cut) or clearly in front of it — no awkward tangent contact points. FORBIDDEN: any text, letters, numbers, logo, signature, watermark; clouds, horizon, ground, stars, sparkles, lens flare, glow, vignette, border, sticker border, drop shadow blur, 3D render, plastic bevel, gradient banding, noise texture. Maximum 5 colours. Original design, do not imitate any existing app icon. SUBJECT V2 REFINED — redraw the FIRST reference image (our approved icon) keeping EXACTLY the same style, colours, character face, waving pose, thin uniform outline and the single thin deep-ochre ring (#c98a1e) around the flat sun-gold disc, same disc size (about 74% of canvas diameter, centred). ONE CHANGE ONLY: raise Mallang about 5% of the canvas higher inside the disc so that Mallang's body bottom no longer touches or runs along the ring. Mallang's bottom is now its own soft rounded closed contour (two tiny stubby feet allowed), floating inside the disc with a clean, even band of sun-gold visible between the body bottom and the lower inner edge of the ring (gap about 4-5% of canvas). The body outline and the ring never touch anywhere; the waving hand also keeps a small gap from the ring. Background outside the disc: flat warm coral. Variation B: Mallang about 6% smaller overall so the gold gap below and beside the body is a little wider and perfectly even; the waving hand stays well inside the ring."
+ }
+]

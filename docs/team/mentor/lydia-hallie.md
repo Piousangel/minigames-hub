@@ -67,7 +67,7 @@
 3. **샌드랩 P10 콘텐츠 보존**(P10 교대): Learn·Materials·About의 단어 수와 JSON-LD를 전후 비교하고, 줄어들면 exit 1을 낸다.
 4. **샌드랩 P12 컷오버 게이트 묶음**(P12 교대): 공유 링크 골든셋 + prod HTML diff + 프리뷰 READ_ONLY curl을 한 명령으로 묶는다.
 5. **post-social.mjs 미래 날짜 큐 경고**(lauren-tan.md P2 ②에서 이월, 16시 사이트 교대).
-6. **(제안 E가 승인되면) hook 스크립트**: `Stop`에서 `pnpm typecheck && pnpm vitest related --run <바꾼 파일>`을 돌리고, 실패하면 exit 2를 낸다.
+6. ~~(제안 E) Stop에서 typecheck·관련 테스트~~ → 넣지 않음. 같은 검사를 PR CI(C)가 모든 PR에 돌리고, Stop에 넣으면 교대마다 수 분씩 늘어난다. 대신 Stop은 '저장 안 된 작업' 검사만 한다(E 실행 기록).
 
 ## 7. 오너 결정 제안 — 통합 목록 (lauren-tan.md 5장 A~E를 합쳐 다시 번호를 붙임)
 
@@ -79,10 +79,29 @@
 - **B. '하루 1출시'의 정의 조정**: 신작과 큰 기능은 퀄리티팀 8항목 평균 2점 이상, 그리고 48시간 내부 써 보기를 통과한 뒤에만 공개한다. 그날의 출시는 리뉴얼·버그·성능으로 채워도 된다. (P8)
 - **C. 테스트 부채 0 + PR 단계 CI**: 1~2일 동안 신작 교대를 멈추고 만성 실패 테스트(허브 약 34건, 샌드랩 verify.test)를 고친다. 그다음 PR마다 typecheck·lint·전체 test를 돌린다. Lydia는 이것을 "가장 중요한 조각"이라고 부른다. (P2·P8·H6·H7)
 - **D. 위험 비례 리뷰·머지(신규)**: 문서·스토리 PR은 CI 통과와 가벼운 리뷰 1회로 머지한다. 일반 제품 PR은 독립 리뷰 1회다. 고위험 PR(광고 위치, 공유 URL·slug·레벨 id, 서버·D1 쓰기, 컷오버)은 독립 리뷰 2회와 재현 검증을 거친다. (H7)
-- **E. 저장소 안전 설정 커밋(신규)**: 두 저장소에 `.claude/settings.json`을 커밋한다. 내용은 deny 규칙(`Read(./.env*)`, `Bash(git push --force*)`, `Bash(git reset --hard*)`, main 직접 푸시)과 hook(PostToolUse 린트, Stop 관련 테스트, 실패 시 exit 2)이다. 26개 루틴의 동작이 바뀌는 설정이라 오너가 정한다. 클라우드 루틴이 저장소의 hook을 실제로 실행하는지는 **확인 못 함**이므로, 첫 교대에서 시험한다. (H3·H4·H6)
+- **E. 저장소 안전 설정 커밋(신규)**: 두 저장소에 `.claude/settings.json`을 커밋한다. 내용은 deny 규칙(`Read(./.env*)`, `Bash(git push --force*)`, `Bash(git reset --hard*)`, main 직접 푸시)과 hook(PostToolUse 린트, Stop 관련 테스트, 실패 시 exit 2)이다. 26개 루틴의 동작이 바뀌는 설정이라 오너가 정한다. 클라우드 루틴이 저장소의 hook을 실제로 실행하는지는 **확인 못 함**이므로, 첫 교대에서 시험한다. (H3·H4·H6) → **11-20 구현**(아래 'E 실행 기록').
 - **F. 자동화의 방향**(옛 D): 다음 자동화 투자는 '피드백·콘솔 에러 → 자동 재현 → 수정 PR' 같은 유지보수에 쓴다. 신작 자동 생산에는 쓰지 않는다. (P8·H7의 버그 재현 에이전트)
 - **G. 산문 다이어트**(옛 E + prompt-audit): 끝난 '최우선' 박스를 걷어낼지 정해 주면 팀이 정리한다. 오너가 로컬에서 `/doctor prompt-audit`를 한 번 돌려 두 저장소 CLAUDE.md·스킬의 불필요한 지시를 찾는다. 루틴 안에서도 이 명령을 쓸 수 있는지는 **확인 못 함**. (P2·H1·H2)
 - **H. 오케스트레이터 1세션(신규, A 다음 단계)**: 26개 독립 루틴 대신, 팀마다 오케스트레이터가 일을 나누고 결과를 검증해 되돌려 보내는 구조(Claude Code Projects, 강연 당시 베타)를 시험한다. 비용·플랜 조건과 루틴에서 쓸 수 있는지는 **확인 못 함**. A의 신뢰 지표가 안정된 뒤에 한다. (P1·H7)
+
+### E 실행 기록 (11-20, 16시 교대 몫을 앞당김)
+
+**문서 대조**(조회 2026-11-20, code.claude.com/docs/en/ `hooks`·`permissions`·`settings`·`routines`, 로컬 CLI 2.1.328):
+- **확인**: hook 이벤트 `PreToolUse`·`PostToolUse`·`Stop`·`SubagentStop`·`TaskCompleted` 모두 있다. exit 2 = PreToolUse는 도구 호출을 막고 stderr를 Claude에게 이유로 준다, Stop은 종료를 막고 이어 간다, TaskCompleted는 완료 표시를 막는다. Stop 입력에 `stop_hook_active`가 있고 연속 이어 가기는 8회가 상한이다. hook 환경 변수 `CLAUDE_PROJECT_DIR`(세션을 연 저장소 루트), 클라우드에서만 `CLAUDE_CODE_REMOTE=true`. 명령 hook `timeout`은 초 단위다.
+- **deny 문법**: `Bash(git push *)`처럼 쓴다(공백+`*`는 단어 경계, `:*`도 같다). `&&`·`;`·`|`·`$( )`·`for` 안의 하위 명령에도 deny가 걸리고, `timeout`·`nohup`·앞쪽 환경 변수 대입은 벗겨서 본다. 순서는 deny → ask → allow. 문서가 밝힌 한계: `git -C . push`·`/usr/bin/git`·`sh -c '…'`는 deny가 못 잡는다 → PreToolUse hook이 보강한다. hook의 exit 2는 allow 규칙보다 먼저 막는다.
+- **파일 위치**: `.claude/settings.json`(팀 공유, 커밋) / `.claude/settings.local.json`(개인, 커밋 안 함). 목록 키는 파일끼리 합쳐진다. deny·ask는 폴더 신뢰 확인 없이 바로 적용된다.
+- **클라우드·루틴**: 루틴(문서 이름 'scheduled task')은 새 클론에서 도는 클라우드 세션이고 auto mode로 시작한다. **저장소 1개**인 클라우드 세션은 클론의 `.claude/settings.json`(권한·hook)을 읽는다. **저장소 여러 개**를 고른 세션(클론들 위에서 시작)과 Projects 스레드는 권한·hook을 읽지 않는다. 문서는 푸시 통제를 GitHub 브랜치 보호·ruleset에 맡기라고 한다.
+- **확인 못 함**: 우리 26개 루틴이 각각 저장소 1개인지(이 세션에서 루틴 설정을 열지 않음), 클라우드 컨테이너에 node가 있는지(pnpm 프로젝트라 있을 것으로 추정. 없으면 hook은 오류로 건너뛰고 deny만 남는다), `autoMode.environment`(이번에 쓰지 않음).
+
+**넣은 것**(두 저장소 같은 파일): `.github/workflows/deploy.yml` 배포 job을 main ref에서만, `.claude/settings.json` deny 규칙 + `scripts/hooks/guard-bash.mjs`(PreToolUse·Bash, exit 2) + `scripts/hooks/stop-unsaved-work.mjs`(Stop, 클라우드에서만, exit 2 한 번). 막는 목록과 이유는 guard-bash.mjs 머리 주석과 DECISIONS 11-20 항목.
+
+**로컬 실측**(임시 저장소, `claude -p`): `git -C . reset --hard` → hook이 막고 스테이징 파일 보존. `git push origin main` → hook이 막고, hook을 끈 상태(`disableAllHooks`)에서도 deny 규칙이 막음. `CLAUDE_CODE_REMOTE=true` + 커밋 안 된 파일 → Stop hook이 한 번 막고, 이유를 답한 뒤 종료됨.
+
+**독립 리뷰 2회**(팀 운영 오탐 / 우회 시도) 반영 내용은 DECISIONS 11-20 'E' 항목. 리뷰가 찾은 가장 큰 구멍은 hook 밖에 있었다 — deploy.yml의 수동 실행이 아무 브랜치나 프로덕션에 올릴 수 있었다(`if: github.ref == 'refs/heads/main'`으로 막음).
+
+**넣지 않은 것**: PostToolUse 린트·Stop 테스트·TaskCompleted 테스트(무겁고 PR CI가 함), ask 규칙(루틴은 auto mode라 ask에서 사람 응답을 기다리며 멈춘다), `wrangler rollback` 차단(비상 복구 경로).
+
+**남은 일**: ① 첫 클라우드 교대(허브 16시·샌드랩 10시)가 시작 직후 `git reset --hard HEAD`를 한 번 시도해(깨끗한 새 클론이라 막히지 않아도 잃을 것이 없다) 막혔는지 HANDOFF에 한 줄. 안 막히면 그 루틴이 여러 저장소인지 확인한다. ② 진짜 경계는 GitHub 브랜치 보호(main 직접 푸시·force push 금지, 필수 CI 체크)다. 켜는 것은 오너 몫.
 
 ## 8. 출처
 
@@ -95,7 +114,7 @@
 | L5 | Ship with AI Lab(Substack) — https://shipwithailab.substack.com/p/anthropic-stopped-approving-claude | 2026-11-18 | 강연 내용과 글쓴이 의견을 구분해서 씀. 의견 부분은 쓰지 않음 |
 | L6 | AI Engineer CODE 2026 연사 페이지 — https://ai.engineer/code/2026/talks/lydia-hallie | 2026-11-11 행사 | 연사·소속·날짜·첫 문장 |
 
-**확인 못 한 것**: 자막 원문·슬라이드·영상 설명란, 업로드일. 수치(하루 2,500→30,000, 14%·89%, 1,053명)는 모두 Anthropic의 자기 보고이고 원 연구 문서는 열지 않았다. `TaskCompleted` hook 이벤트 이름과 `autoMode.environment` 설정 키는 요약에만 나오고 공식 문서로 대조하지 않았다. 따라서 제안 E를 실행하기 전에 Claude Code 문서로 확인해야 한다. 우리 클라우드 루틴에서 Projects·`/doctor prompt-audit`·저장소 hook을 쓸 수 있는지도 확인하지 못했다.
+**확인 못 한 것**: 자막 원문·슬라이드·영상 설명란, 업로드일. 수치(하루 2,500→30,000, 14%·89%, 1,053명)는 모두 Anthropic의 자기 보고이고 원 연구 문서는 열지 않았다. `TaskCompleted` hook 이벤트는 11-20 공식 문서로 확인했다(7장 E 실행 기록). `autoMode.environment` 설정 키는 대조하지 않았다. 우리 클라우드 루틴에서 Projects·`/doctor prompt-audit`를 쓸 수 있는지, 루틴이 저장소 hook을 실제로 실행하는지는 아직 확인하지 못했다(E 남은 일 ①).
 
 ## 9. 프로덕트에 바로 쓸 3가지 (오너: "우리 프로덕트 진짜 잘 만들어 보자")
 

@@ -8,6 +8,13 @@
 - **함정**: ① `bandInk`는 hsl 밴드 전용 — 밴드 색 공식을 바꾸면 `bandInk.test.ts`의 (sat, light, darkSat) 표도 같이 ② 덮개 스크립트의 카드 게임은 카드가 겹쳐 좌표 클릭이 다른 카드에 맞는다 → `el.click()`으로 직접(RECIPES 주석) ③ 게이트·덮개 스크립트 모두 disabled 컨트롤은 건너뛴다 — pyramid 막힌 카드(회색 면 + 빨강 3.05)는 disabled라 예외로 남겨 둠 ④ 포트 3100·3197·3198·3311·3461·3555~3557·3631·3632는 다른 세션(이번엔 3741 head·3742 base).
 - **⏭ R7e가 알아야 할 것**: ① 남은 DOM은 정확히 18개 — offbeat·prismbox·gravwell·loopgrid·bisect·slotter·carousel·gridlock·strata·bankshot·morse-relay·lagline·recoil·hunch·fizzbeat·siteswap·shadowfit·slosh(전부 getContext 0·hex <20). R7e = 이 18개(20 미만이라 한 배치로 끝), R7f = ticker·unblock + 캔버스 10종(breakout·pong·bubble-shooter·flappy·space-shooter·tower-stack·flywheel·ripple·latch·backspace) ② **loopgrid(`hsl(h 62% 52%)`/`70% 12%`)·carousel(`hsl(h 70% 52%)`/`80% 12%`)도 같은 색 밴드 결함** — `bandInk(hue, 62, 52, 70)`·`bandInk(hue, 70, 52, 80)`로 바꾸고 `bandInk.test.ts` 표에 한 줄씩 ③ slosh가 들어가면 e2e '배치 밖 게임' 기준 slug를 캔버스 아닌 남은 게임(ticker·unblock)으로 — R7f 뒤엔 그 테스트 자체를 지우거나 오리지널 검사로 ④ 대표 3게임 덮개는 `garden-overlay-contrast.mjs`의 RECIPES에 그 배치 게임 하나 이상 추가해 돌릴 것 — 지금 레시피는 전부 패배·막힘 쪽이라 **승리 변형(Confetti·초록 제목·호박색 runMilestone)을 띄우는 레시피 하나**를 같이 넣을 것(R7d 리뷰) ⑤ 판 운 결함: 이번엔 3회 반복으로 새 판 운 실패 0 — R7e도 `--repeat-each=3`으로.
 
+## ▶ 2026-11-20 13시 신작 꽃담 정원(가칭) G1 + 비공개 터치 프로토 인계 (브랜치 `game/fence-garden-g1-touch-proto`)
+
+**한 줄:** 신작 퍼즐안의 규칙을 '뛰고 담 치기'로 고정했다(0~2칸 뛰고 → 선 칸의 한 변에 울타리 강제, 목표 = 말랑이 영역에 꽃 전부·잡초 0, 별 = 최소 턴). 정적 가두기(v1)는 enclose.horse와 같아 버림. 비공개 프로토 `/tools/fence-proto`(noindex·robots disallow·미연결).
+- **코드**: `src/lib/games/fencegarden/engine.ts`(울타리 id·`regions`·`hitEdge` nearest/strip·`solveHop` BFS·`fenceSetsAtMin`·`planlessBotRate`·`hopStars`·시험 퍼즐 3), `src/components/FenceProto.tsx`(퍼즐 v2 + 탭 정확도 시험 JSON 복사), `scripts/fence-touch-sim.mts`(`node --experimental-strip-types`로 실행 — `.mts`라 tsconfig 밖, 엔진 import는 `.ts` 확장자), e2e `e2e/fence-proto.spec.ts`(CI 스모크 grep `fence-proto` 추가).
+- **함정**: ① 쐐기 정확도는 조준점 의존(0.5칸 = 자유 선 탭과 같음) — 화살표 손잡이(0.85칸)가 실제로 조준을 끄는지는 사람 손 JSON 전까지 미확인 ② `solveHop`은 5턴 이상·홉 1이면 상태 수십만~150만(수 초) — 생성기는 3~4턴 중심, 최소 턴은 퍼즐 데이터에 미리 계산 ③ 시험 퍼즐 2·3은 계획 없는 봇 51%·74%로 얕다(테스트가 기록) — 출시 퍼즐로 쓰지 말 것 ④ 이름은 가칭(상표 검색 전), 'Wall Go·벽바둑·데블스 플랜·enclose/horse/면적' 문구 금지.
+- **⏭ 다음(13시 G2)**: ① 오너·팀 손 탭 JSON → spec 9장 ② 생성기 후보 200개 분포(최소 턴 ≥3·집합 ≤3·봇 <20%), 합격 10% 미만이면 지형(물웅덩이·고정 담) → 그래도 미달이면 퍼즐안 보류·대결형 재검토 ③ G3에서 화살표 손잡이 크게·이모지 → Gemini 에셋.
+
 ## ▶ 2026-11-20 리디자인 v2 R7c 정원 틀 배치 c 인계 (브랜치 `shift/redesign-r7c-batch3`, #207)
 
 **한 줄:** 정원 틀 게임이 60개가 됐다(배치 c 20개: mastermind·maze·number-memory·word-search·gem-match·prospector·zero-hour·overload·ricochet·stackpot·overfold·splice·duplex·overdub·pinwheel·cleave·umbra·fuse·polytap·deepdive). 바뀐 코드는 `GARDEN_BATCHES.c` 추가 + 게임 안 수정 4파일(색·클립만, nonogram은 R7b·sudoku는 R7a 게임 — 판 운 결함).
