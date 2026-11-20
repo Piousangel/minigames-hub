@@ -86,6 +86,19 @@ for (const [label, q] of QUERIES) {
   }
 }
 
+// 오늘 방문자(홈 공개 줄과 같은 숫자 — 워커가 같은 날 같은 IP를 한 번만 센 고유 방문자, 봇 UA 제외, UTC 날짜).
+// 보고 형식(OPERATING·SESSION-GUIDE): '방문자(UTC): 어제 N / 오늘 지금까지 N'.
+try {
+  const today = new Date(now).toISOString().slice(0, 10)
+  const yday = new Date(now - DAY).toISOString().slice(0, 10)
+  const rows = await d1(`SELECT day, visitors FROM visit_days WHERE day >= '${new Date(now - 7 * DAY).toISOString().slice(0, 10)}' ORDER BY day`)
+  const v = (d) => rows.find((r) => r.day === d)?.visitors ?? 0
+  console.log(`\n방문자(UTC, 사이트 집계): 어제 ${v(yday)} / 오늘 지금까지 ${v(today)} (${new Date(now).toISOString().slice(11, 16)} UTC 기준)`)
+  console.log(`방문자 7일: ${rows.map((r) => `${r.day.slice(5)}=${r.visitors}`).join(' · ') || '없음'}`)
+} catch (e) {
+  console.log(`\n방문자: 실패 (${one(e.message)})`)
+}
+
 try {
   const rows = await d1(`SELECT game k, COUNT(*) n FROM scores WHERE created_at > ${d7Since} GROUP BY game ORDER BY n DESC LIMIT 10`)
   console.log(`\n점수 등록 상위 게임 (7일): ${rows.map((r) => `${r.k}=${r.n}`).join(' · ') || '없음'}`)

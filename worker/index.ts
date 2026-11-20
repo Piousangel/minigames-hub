@@ -28,6 +28,7 @@ import { isValidGameSlug } from '../src/lib/slug'
 import { RATE_LIMIT_PRUNE_BATCH, rateLimitPruneCutoff, shouldPruneRateLimits } from '../src/lib/rateLimitPrune'
 import { buildPopularSql, createTtlCache, parsePopularRows, type PopularResponse } from '../src/lib/popular'
 import { SUBMIT_MAX_BYTES, dayAcceptable, verifyDay } from '../src/lib/games/slime/verify'
+import { readVisitors, recordVisit, type VisitorsPayload } from '../src/lib/visitors'
 
 // 최소 타입(CF 타입 의존 없이) — 번들은 wrangler(esbuild)가 처리.
 interface D1Stmt {
@@ -148,6 +149,47 @@ async function popularResponse(request: Request, env: Env, defer: Defer): Promis
   })
   if (cache) defer(cache.put(key, response.clone()).catch(() => {}))
   return response
+}
+
+// 오늘 방문자(src/lib/visitors.ts). 엣지 60초 + isolate 15초 캐시 — 홈을 여는 사람마다 D1을 읽지 않는다.
+const VISITORS_TTL_SEC = 60
+const VISITORS_ISOLATE_MS = 15_000
+let visitorsIsolate: { at: number; day: string; body: VisitorsPayload } | null = null
+
+async function visitorsResponse(request: Request, env: Env, defer: Defer): Promise<Response> {
+  const cache = edgeCache()
+  const key = new Request(new URL('/api/visitors?v=1', request.url).toString(), { method: 'GET' })
+  if (cache) {
+    try {
+      const hit = await cache.match(key)
+      if (hit) {
+        // 존 'Browser Cache TTL'이 적중 응답 max-age를 늘리지 않게 다시 지정(/api/leaderboards와 같은 이유)
+        const headers = new Headers(hit.headers)
+        headers.set('Cache-Control', `public, max-age=${VISITORS_TTL_SEC}`)
+        return new Response(hit.body, { status: hit.status, headers })
+      }
+    } catch {
+      // 캐시 장애는 무시하고 원본 조회
+    }
+  }
+  const now = Date.now()
+  const day = new Date(now).toISOString().slice(0, 10)
+  let body: VisitorsPayload
+  if (visitorsIsolate && visitorsIsolate.day === day && now - visitorsIsolate.at < VISITORS_ISOLATE_MS) {
+    body = visitorsIsolate.body
+  } else {
+    body = await readVisitors(env.DB, now)
+    if (body.today != null) visitorsIsolate = { at: now, day, body }
+  }
+  const res = new Response(JSON.stringify(body), {
+    headers: {
+      'content-type': 'application/json; charset=utf-8',
+      // 실패(null)는 캐시하지 않는다 — 마이그레이션 직후 곧바로 보이게
+      'cache-control': body.today == null ? 'no-store' : `public, max-age=${VISITORS_TTL_SEC}`,
+    },
+  })
+  if (cache && body.today != null) defer(cache.put(key, res.clone()).catch(() => {}))
+  return res
 }
 
 function json(data: unknown, status = 200): Response {
@@ -527,6 +569,10 @@ export default {
       return popularResponse(request, env, defer)
     }
 
+    if (url.pathname === '/api/visitors' && request.method === 'GET') {
+      return visitorsResponse(request, env, defer)
+    }
+
     // 1st-party 분석 비콘: 게임별 조회('view')·체류('dwell', 초)를 Analytics Engine에 기록.
     // sendBeacon(POST, same-origin)로 논블로킹. 실패해도 UX에 영향 없게 항상 204.
     if (url.pathname === '/api/hit' && request.method === 'POST') {
@@ -540,6 +586,19 @@ export default {
         const ref = (b.ref != null ? String(b.ref) : request.headers.get('referer') ?? '').slice(0, 200)
         const vid = String(b.vid ?? '').slice(0, 64)
         const tag = String(b.tag ?? '').slice(0, 20)
+        // 오늘 방문자: 모든 페이지가 보내는 'pageview'(RecordPageView, 사람이 연 페이지의 JS 비콘)만 센다.
+        // 같은 날 같은 IP는 한 번(IP 원문 미저장, src/lib/visitors.ts). 응답 뒤에 돌려 204를 늦추지 않는다.
+        if (event === 'pageview' && env.DB) {
+          defer(
+            recordVisit(env.DB, {
+              ip: request.headers.get('CF-Connecting-IP'),
+              ua: request.headers.get('user-agent'),
+              now: Date.now(),
+              secret: env.RATE_SALT,
+              defer,
+            }).catch((e: unknown) => console.warn('visit count failed', e)),
+          )
+        }
         if (slug) {
           // blobs: event, country, referrer, 익명 방문자 id(vid), 유입 태그(?ref=, 예: share).
           // vid로 재방문·방문당 플레이 계산.
