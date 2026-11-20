@@ -13,6 +13,9 @@ const decantHues = [4, 5, 6].flatMap((k) => Array.from({ length: k }, (_, i) => 
 const interlockHues = [0, 1, 2, 3].map((i) => Math.round((i * 300) / 4))
 /** turntile: hue = round(face*360/S), S = 3·4·5 / flapjack: hue = round(40+(rank-1)*280/(n-1)), n = 5·7·9 */
 const turntileHues = [3, 4, 5].flatMap((S) => Array.from({ length: S }, (_, f) => Math.round((f * 360) / S)))
+/** loopgrid: hue = round((c-1)*300/(n-1)), n = 4·5·6 / carousel: 같은 공식, k = 4·5·6 색(R7e) */
+const loopgridHues = [4, 5, 6].flatMap((n) => Array.from({ length: n }, (_, i) => Math.round((i * 300) / (n - 1))))
+const carouselHues = loopgridHues
 const flapjackHues = [5, 7, 9].flatMap((n) => Array.from({ length: n }, (_, r) => Math.round(40 + (r * 280) / (n - 1))))
 
 describe('bandInk(R7d 대비)', () => {
@@ -26,6 +29,8 @@ describe('bandInk(R7d 대비)', () => {
     ['interlock', interlockHues, 62, 52, 75],
     ['turntile', turntileHues, 62, 52, 70],
     ['flapjack', flapjackHues, 68, 54, 72],
+    ['loopgrid', loopgridHues, 62, 52, 70],
+    ['carousel', carouselHues, 70, 52, 80],
   ] as const)('%s 밴드 숫자는 모든 실제 색상에서 4.5:1 이상', (_name, hues, sat, light, darkSat) => {
     for (const h of hues) {
       const ink = bandInk(h, sat, light, darkSat)
@@ -34,9 +39,10 @@ describe('bandInk(R7d 대비)', () => {
   })
 
   it.each([
-    ['decant·interlock·turntile', 62, 52, 70],
+    ['decant·interlock·turntile·loopgrid', 62, 52, 70],
     ['interlock', 62, 52, 75],
     ['flapjack', 68, 54, 72],
+    ['carousel', 70, 52, 80],
   ] as const)('%s: 0~360 모든 색상에서 4.5:1 이상(8비트 반올림 RGB)', (_name, sat, light, darkSat) => {
     for (let h = 0; h <= 360; h++) {
       const ink = bandInk(h, sat, light, darkSat)

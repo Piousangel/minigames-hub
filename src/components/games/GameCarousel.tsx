@@ -16,6 +16,7 @@ import { useGameSound, type SoundName } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { bandInk } from '@/lib/games/bandInk'
 
 type Difficulty = 'easy' | 'normal' | 'hard'
 
@@ -31,7 +32,8 @@ const COLOR_NAMES = ['Ruby', 'Amber', 'Lime', 'Cyan', 'Violet', 'Rose']
 /** Fixed HSL hue per color rank so marbles are legible in light + dark. */
 function marbleStyle(rank: Color, k: number): { bg: string; fg: string } {
   const hue = k <= 1 ? 200 : Math.round(((rank - 1) * 300) / (k - 1))
-  return { bg: `hsl(${hue} 70% 52%)`, fg: `hsl(${hue} 80% 12%)` }
+  // R7e 대비: 짙은 글자(L 12%)가 4.5 미만인 밴드만 흰 글자로(bandInk, 밴드 색 그대로)
+  return { bg: `hsl(${hue} 70% 52%)`, fg: bandInk(hue, 70, 52, 80) }
 }
 
 function colorName(rank: Color): string {

@@ -1,5 +1,13 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 리디자인 v2 R7e 정원 틀 배치 e 인계 (브랜치 `shift/redesign-r7e-batch5`, #PRNUM)
+
+**한 줄:** 정원 틀 게임이 98개가 됐다 — 남은 DOM 18개 전부(offbeat·prismbox·gravwell·loopgrid·bisect·slotter·carousel·gridlock·strata·bankshot·morse-relay·lagline·recoil·hunch·fizzbeat·siteswap·shadowfit·slosh). 바뀐 코드는 `GARDEN_BATCHES.e` + `GameLoopgrid`·`GameCarousel` 색 1줄씩(bandInk) + `bandInk.test.ts` 표 + `garden-overlay-contrast.mjs` 승리 레시피 + e2e 배치 밖 기준 slug.
+- **수정(색만, 규칙·점수·레이아웃 0)**: loopgrid 정답 줄 숫자 `bandInk(hue, 62, 52, 70)`(파랑 2.43 → 7.87, 빨강 3.64 → 4.85, 자홍 4.19 → 4.79), carousel 구슬 숫자 `bandInk(hue, 70, 52, 80)`(파랑 2.33 → 8.27, 빨강 3.72 → 4.74, 자홍 4.34 → 5.00). 나머지 16개는 수정 없이 통과.
+- **검증**: 게이트 배치 e `--repeat-each=3` 54/54(대비 실패 0·광고 ≥150px·가로 스크롤 0·첫 입력 오류 0), 배치 밖 29곳 × 390·1440 = 58항목 픽셀 diff 0(`docs/design/redesign-v2/r7e/diff-outside.json` — R7a~d 14·남은 DOM ticker·unblock·캔버스 10·오리지널 3), 승패 모달 slotter 승리 'New best!' 8.48·패배 'Row broken!' 7.52(390·1440, `r7e/overlay-contrast.json`, 화면 `r7e/overlay-slotter*-*.jpg`), 전후 캡처 `r7e/<slug>-<390|1440>-<before|after>.jpg`.
+- **함정**: ① 덮개 스크립트 레시피는 이제 `{ slug, init, play }` 객체도 받는다(같은 게임의 다른 결과 — `init`은 addInitScript라 storage를 심을 때) ② 승리 레시피에서 runMilestone(세션 3판)을 심어도 목표 넛지가 가까우면 '🔥 3-game run!' 줄 대신 '⚡ N more games…' 넛지가 뜬다(같은 `text-neon-amber`, Confetti·☕ 줄은 milestone으로 뜸) ③ **판이 짧은 게임은 390·1440 모두 승패 모달 상자가 판 밖 크림 위로 넘친다**(slotter 실측 — 덮개가 판 높이보다 큼). 크림 비침은 ~4%라 대비는 통과지만 보기에 '판 안 모달'이 아님. 공용 GameOverlay라(바텀 시트 PR #218이 시트·모달 공통 컴포넌트를 다루는 중) 이 배치에서 손대지 않음 ④ 포트 3100은 다른 세션(이번엔 3871 head·3872 base, base 빌드는 `git archive origin/main`을 scratchpad에 풀어서).
+- **⏭ R7f가 알아야 할 것**: ① 남은 것 = ticker(하드코딩 색 25)·unblock(20) + 캔버스 10종(breakout·pong·bubble-shooter·flappy·space-shooter·tower-stack·flywheel·ripple·latch·backspace) — `gardenRollout.test.ts`의 'getContext 0·색 <20' 검사를 배치 f만 예외로 하거나 캔버스용 다른 규칙으로 바꿔야 한다 ② 캔버스는 대비 게이트가 캔버스 안 글자를 못 본다(`svg, canvas` 건너뜀) — 캔버스 안 색은 캡처·손으로 ③ e2e '배치 밖 게임' 테스트 기준이 ticker라, R7f에서 ticker가 들어가면 그 테스트를 지우거나 오리지널(`garden-room`) 검사로 바꿀 것 ④ 위 함정 ③(모달 판 밖 넘침)은 #218 머지 뒤 공용 모달에서 '판 안에 맞추기/스크롤' 결정 — 오너 확인 대상 아님(표현 조정) ⑤ 승리 레시피가 생겼으니 R7f 대표 게임도 승·패 둘 다 잴 것.
+
 ## ▶ 2026-11-20 리디자인 v2 R7d 정원 틀 배치 d 인계 (브랜치 `shift/redesign-r7d-batch4`, #216)
 
 **한 줄:** 정원 틀 게임이 80개가 됐다(배치 d 20개: dots-and-boxes·decant·sonar·handful·flapjack·interlock·quadle·equate·reactor·pyramid·tripeaks·golf-solitaire·dominoes·yukon-solitaire·gomoku·kakuro·skew·turntile·stakehouse·grasp). 바뀐 코드는 `GARDEN_BATCHES.d` + 게임 안 색 수정 6파일 + 공용 `src/lib/games/bandInk.ts`(+test) + `scripts/garden-overlay-contrast.mjs`(신설).

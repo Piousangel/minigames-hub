@@ -230,6 +230,14 @@
 - **덮개 대비를 스크립트로 승격**: R7c는 손으로 계산 → 두 번째라 `scripts/garden-overlay-contrast.mjs`(게임별 '덮개 뜰 때까지 두는 법' RECIPES, 미달 시 exit 1). 대표 3게임 dots-and-boxes 패배·tripeaks/golf 'No moves left' 최저 7.52:1(패배·막힘 쪽만 — 승리·무승부 변형은 안 잼). 비활성 Submit(이름 빈칸, opacity-50)은 게이트와 같이 예외.
 - e2e '배치 밖 게임' 기준: kakuro가 들어가 slosh(레지스트리 맨 끝 DOM)로.
 
+## 2026-11-20 리디자인 v2 R7e 정원 틀 배치 e: 남은 DOM 18개 한 배치로, 색 밴드 2개 bandInk, 승리 모달 측정(팀)
+- 맥락: R7d 인계 — 남은 DOM은 정확히 18개(전부 getContext 0·하드코딩 색 <20, `gardenRollout.test.ts`가 확인). 20 미만이라 한 배치(e)로 끝내고, ticker(색 25)·unblock(색 20) + 캔버스 10종은 R7f.
+- **loopgrid·carousel = R7d와 같은 색 밴드 숫자 결함 → 같은 `bandInk`**: loopgrid `bandInk(hue, 62, 52, 70)`(최저 2.43 → 4.79), carousel `bandInk(hue, 70, 52, 80)`(2.33 → 4.74). 원래 짙은 글자가 4.5 이상인 밝은 밴드는 픽셀 그대로, 밴드 색 그대로. `bandInk.test.ts` 실제 색상 표에 두 줄 + carousel 0~360° 일괄. 버린 안: 밴드 밝히기(R7c 계산상 색이 바뀜).
+- 나머지 16개는 수정 없이 게이트 통과(3회 반복 54/54). 대비 결함을 '표현 바꿔야 하는 것'으로 미룬 게임 0.
+- **승패 모달 승리 변형 측정**: `garden-overlay-contrast.mjs` RECIPES를 `{ slug, init, play }` 객체도 받게 넓히고 slotter 두 레시피 — `slotter-win`(첫 판 + 세션 판 수 2 심음 → 'New best!' variant win·Confetti·runMilestone 3판) 최저 8.48, `slotter`(최고 기록 999 심음 → 'Row broken!' 패배) 7.52, 390·1440 둘 다. 호박색 줄은 runMilestone 줄 대신 목표 넛지('⚡ 2 more games for Marathon')가 떴다 — 같은 `text-neon-amber` 클래스라 같은 색을 잰 것. `--shots`로 모달 화면 저장.
+- 발견(미룸): 판이 짧은 게임(slotter)은 390·1440 모두 모달 상자가 판 밖(크림 바탕 — 위 GOAL 상자·아래 Play next 카드) 위로 넘친다. 덮개 바탕(남보라 75%) + 상자(85%)가 겹쳐 크림 비침은 ~4%라 대비 영향은 작지만 '판 안 모달'로 안 보임. 공용 GameOverlay(바텀 시트 PR #218 영역)라 이 배치에서 손대지 않고 HANDOFF·장부에.
+- e2e '배치 밖 게임' 기준: slosh가 들어가 ticker로(R7f 뒤엔 지우거나 오리지널 검사로).
+
 ## 2026-11-20 PR 단계 CI 도입, 만성 실패 테스트 0 (오너 승인 제안 C)
 - 맥락: 전체 vitest가 늘 빨개서(문서상 ~34건) 배포 게이트에서 빠져 있었고, 머지 전 검사는 루틴이 `vitest related`로만 했다. 스승님 원칙 통합 목록 C(docs/team/mentor/lydia-hallie.md 7장)를 오너가 11-20 "다 추천대로" 승인.
 - 원인 분류(11-20 main, Node 22): 27건 전부 **부하 타임아웃**(1,000시드 퍼징·BFS 레벨 검증·가짜 타이머로 한 판 끝까지 도는 컴포넌트 테스트가 기본 5초 초과, 로컬 load 40+에서). 진짜 버그 0, 시간 의존 0, 낡은 기대값 0(GameMahjong 'step back'은 앞 테스트 타임아웃의 여파, 한도만 늘리면 통과). 이와 별도로 **Node 25+**(로컬 Node 26)에서는 전역 localStorage가 jsdom 것을 가려 368건이 깨졌다.

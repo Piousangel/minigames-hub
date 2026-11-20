@@ -1,13 +1,15 @@
 // 리디자인 v2 R7 정원 틀: 진행 중에만 생기는 덮개(승패 모달 GameOverlay) 위 글자 대비를 실제 판을 끝까지 두어 잰다.
 // 게이트(e2e/garden-frame.spec.ts)는 로드 직후 화면만 보므로 덮개는 이 스크립트로 확인한다(R7c는 손으로, R7d에서 스크립트로 승격).
 //
-//   node scripts/garden-overlay-contrast.mjs --url http://localhost:3741 --slugs dots-and-boxes,tripeaks,golf-solitaire \
-//        [--out docs/design/redesign-v2/r7d/overlay-contrast.json]
+//   node scripts/garden-overlay-contrast.mjs --url http://localhost:3741 --slugs dots-and-boxes,tripeaks,golf-solitaire,slotter,slotter-win \
+//        [--out docs/design/redesign-v2/r7e/overlay-contrast.json] [--shots docs/design/redesign-v2/r7e] [--width 390]
 //
 // 게임마다 아래 RECIPES에 '덮개가 뜰 때까지 두는 법'을 적는다(새 배치에서 대표 게임을 바꾸면 여기에 추가).
+// 레시피 이름이 slug와 다르면(같은 게임의 다른 결과) { slug, init?, play } 객체로 쓴다 — 예: 'slotter-win'.
 // 출력: 덮개 안 보이는 글자 전부의 대비(통과한 것도 기록)와 기준(4.5, 큰 글자 3) 미달 수. 미달이 있거나 잰 글자가 0개면 exit 1.
-// 한계: 레시피가 띄우는 결과 한 종류만 잰다(지금은 전부 패배·막힘 쪽 — 승리 Confetti·무승부 변형은 안 잼),
-// 배경은 조상만 합성한다(덮개 뒤 형제 카드는 무시 — 패널 bg-bg-2/85라 지금 여유 안에서는 무해).
+// 한계: 레시피가 띄우는 결과 한 종류만 잰다(R7d까지는 패배·막힘 쪽만, R7e에서 승리 변형 'slotter-win' 추가 —
+// 무승부 변형은 아직 안 잼), 배경은 조상만 합성한다(덮개 뒤 형제 카드는 무시 — 패널 bg-bg-2/85라 지금 여유 안에서는 무해).
+// Confetti 조각은 글자가 아니라 측정 대상이 아니다(글자 위를 지나가는 순간 가림은 이 스크립트가 보지 않음 — 캡처로 확인).
 import { chromium } from '@playwright/test'
 import { writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -21,6 +23,7 @@ const opt = (name, def) => {
 const url = opt('url')
 const slugs = (opt('slugs') ?? '').split(',').filter(Boolean)
 const out = opt('out')
+const shots = opt('shots') // 덮개 화면 저장 폴더(선택) — <이름>-<폭>.jpg
 const width = Number(opt('width', 390))
 
 /** 덮개를 띄우는 법: page → 덮개 locator. 무작위 판이라 '끝날 때까지 반복' 형태로 쓴다. */
@@ -38,6 +41,43 @@ const RECIPES = {
   // 낼 수 있는 판 카드(data-playable)를 먼저 내고, 없으면 덱을 넘긴다 — 막힐 때까지('No moves left' 또는 승리)
   tripeaks: (page) => playUntilOver(page, '[data-testid="tableau-card"][data-playable="true"]'),
   'golf-solitaire': (page) => playUntilOver(page, '[data-testid="exposed-card"][data-playable="true"]'),
+  // R7e 승리 변형: 첫 판(최고 기록 0)에서 카드를 맞는 자리에 2장 넣고 일부러 틀린 자리 → 'New best!'(variant win:
+  // 초록 제목 + Confetti). 세션 연속 판 수를 2로 심어 이번 판이 3번째 → runMilestone(호박색 '🔥 3-game run!' 줄 + Confetti)도 같이 뜬다.
+  'slotter-win': {
+    slug: 'slotter',
+    init: () => sessionStorage.setItem('run:count', '2'),
+    play: slotterBreakRow,
+  },
+  // 같은 판 두기, 최고 기록 999를 심어 패배 변형('Row broken!', 빨강 제목, Confetti 없음)
+  slotter: {
+    slug: 'slotter',
+    init: () => localStorage.setItem('best:slotter', '999'),
+    play: slotterBreakRow,
+  },
+}
+
+/** slotter: 카드 2장은 맞는 자리에, 그다음 틀린 자리에 넣어 줄을 깬다(점수는 마감 보너스가 붙어 0보다 큼 — 첫 판이면 New best). */
+async function slotterBreakRow(page) {
+  const over = page.getByTestId('game-over')
+  let placed = 0
+  for (let i = 0; i < 60 && !(await over.isVisible()); i++) {
+    const card = page.getByTestId('slotter-card')
+    if (!(await card.count())) {
+      // 시작 전이면 판 아무 데나 눌러 시작(첫 gap 클릭이 시작을 겸하는 경우도 있음)
+      await page.getByTestId('gap').first().evaluate((el) => el.click()).catch(() => {})
+      await page.waitForTimeout(150)
+      continue
+    }
+    const v = Number(await card.textContent())
+    const row = (await page.getByTestId('slot-value').allTextContents()).map(Number)
+    const right = row.filter((x) => x < v).length
+    // 2장은 맞게, 그다음은 틀린 자리(맞는 자리가 맨 앞이면 맨 끝, 아니면 맨 앞 — 줄에 2장 이상이라 늘 다름)
+    const gap = placed < 2 || row.length === 0 ? right : right === 0 ? row.length : 0
+    const ok = await page.getByTestId('gap').nth(gap).evaluate((el) => el.click()).then(() => true, () => false)
+    if (ok) placed++
+    await page.waitForTimeout(150)
+  }
+  return over
 }
 
 async function playUntilOver(page, playable) {
@@ -135,28 +175,32 @@ if (!url || slugs.length === 0) {
 const browser = await chromium.launch()
 const report = {}
 let bad = 0
-for (const slug of slugs) {
-  const recipe = RECIPES[slug]
-  if (!recipe) throw new Error(`RECIPES에 ${slug} 없음`)
+for (const name of slugs) {
+  const entry = RECIPES[name]
+  if (!entry) throw new Error(`RECIPES에 ${name} 없음`)
+  const { slug, init, play } = typeof entry === 'function' ? { slug: name, play: entry } : entry
   const ctx = await browser.newContext({ viewport: { width, height: 844 }, reducedMotion: 'reduce' })
+  if (init) await ctx.addInitScript(init)
   const page = await ctx.newPage()
   await page.route('**/api/**', (r) => r.fulfill({ status: 404, body: '' }))
   await page.goto(`${url}/${slug}`)
   await page.locator('[data-garden-board]').waitFor()
-  const overlay = await recipe(page)
+  const overlay = await play(page)
   if (!(await overlay.isVisible())) {
-    const shot = join(tmpdir(), `garden-overlay-${slug}-fail.png`) // 저장소에 섞이지 않게
+    const shot = join(tmpdir(), `garden-overlay-${name}-fail.png`) // 저장소에 섞이지 않게
     await page.screenshot({ path: shot })
-    throw new Error(`${slug}: 덮개가 뜨지 않음(덮개 ${await overlay.count()}개, 화면 ${shot})`)
+    throw new Error(`${name}: 덮개가 뜨지 않음(덮개 ${await overlay.count()}개, 화면 ${shot})`)
   }
   await page.waitForTimeout(500) // 덮개 등장 애니메이션
   const rows = await measure(overlay)
-  if (rows.length === 0) throw new Error(`${slug}: 덮개 안에서 잰 글자가 0개 — 측정이 빈 통과가 되지 않게 실패`)
+  if (shots) await page.screenshot({ path: join(shots, `overlay-${name}-${width}.jpg`), type: 'jpeg', quality: 72 })
+  if (rows.length === 0) throw new Error(`${name}: 덮개 안에서 잰 글자가 0개 — 측정이 빈 통과가 되지 않게 실패`)
   const fails = rows.filter((r) => r.ratio < r.need)
   bad += fails.length
   const min = Math.min(...rows.map((r) => r.ratio))
-  report[`${slug}-${width}`] = { checked: rows.length, min, fails: fails.length, rows }
-  console.log(`${slug} ${width}: 글자 ${rows.length}개 · 최저 ${min}:1 · 미달 ${fails.length}`)
+  const title = await overlay.getAttribute('aria-label')
+  report[`${name}-${width}`] = { title, checked: rows.length, min, fails: fails.length, rows }
+  console.log(`${name} ${width} '${title}': 글자 ${rows.length}개 · 최저 ${min}:1 · 미달 ${fails.length}`)
   await ctx.close()
 }
 await browser.close()
