@@ -1,5 +1,13 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 10시 리뉴얼 R1 아케이드 시작 게이트 인계 (브랜치 `renewal/r1-arcade-gate`)
+
+**한 줄:** pong·space-shooter·tetris·flappy가 로드 즉시 시작하지 않고(수정 전 8초 방치: 퐁 0-7 패배·슈터 목숨 3→1), 탭 숨김 시 멈춰 기다리며(자동 재개 없음) Resume 3·2·1(1.2초), P·헤더 ⏸, 퐁 재서브 0.9초.
+- **공용**: `src/lib/useGameGate.ts`(phase ready/countdown/running/paused, 게임오버는 훅 밖·`canPause`), `src/components/game-shell/GatePanel.tsx`(`GatePanel`·`PauseButton`), `GameShell.headerActions`. 루프는 게임 소유 — `phaseRef.current==='running'`일 때만 step, 아니면 lastTs=0.
+- **입력 규약**: ready 첫 입력 = 시작+적용(테트리스 Space/Enter는 시작만), paused·countdown 입력 무시, 버튼 포커스 Space/Enter는 버튼에게. P는 `e.code`(한글 자판), Ctrl/Cmd+P 무시.
+- **함정**: ① 상태 따라 생기는 헤더 버튼은 390px 헤더를 줄바꿈시킨다 → `PauseButton`은 자리를 항상 차지(invisible). ② 정원 틀 e2e의 nonogram 390 대비가 간헐 실패(수정 전 빌드도 재실행 통과). ③ 이 컨테이너 Playwright는 `-c` 임시 설정 + `executablePath:/opt/pw-browsers/chromium` 필요(커밋 안 함).
+- **⏭ 다음**: 훅 재사용 = P1 나머지(beatline·offbeat·gridlock·zero-hour·whack-a-mole·morse-relay). 축 C 다음 배치 R2. 홍보 문안·전후 이미지 spec 10장 → 20시가 11-21 큐로. 11-27 판정(portfolio).
+
 ## ▶ 2026-11-20 리디자인 v2 R7b 정원 틀 배치 b 인계 (브랜치 `shift/redesign-r7b-batch2`)
 
 **한 줄:** 정원 틀 게임이 40개가 됐다(배치 b 20개: chess·mahjong·memory-game·tetris·tic-tac-toe·connect-four·yahtzee·freecell·spider·jigsaw·sliding-puzzle·reaction-time·hangman·simon·whack-a-mole·rock-paper-scissors·lights-out·nonogram·checkers·reversi). 바뀐 코드는 `GARDEN_BATCHES.b` 추가 + 게임 안 대비 결함 3건(색·크기만).

@@ -18,10 +18,12 @@ import {
 } from '@/lib/games/pong/engine'
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useReducedMotion } from '@/lib/useReducedMotion'
+import { useGameGate } from '@/lib/useGameGate'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
+import { GatePanel, PauseButton } from '@/components/game-shell/GatePanel'
 
 interface Trail {
   x: number
@@ -29,6 +31,8 @@ interface Trail {
 }
 
 const KEY_PADDLE_SPEED = 9 // 화살표 한 프레임당 패들 이동량(논리 단위)
+/** 득점 후 재서브 대기(ms). 공만 중앙에 멈추고 패들은 계속 움직인다(R1 리서치 2: 1~2초, 논블로킹). */
+export const SERVE_HOLD_MS = 900
 
 export function GamePong({ storageKey }: { storageKey: string }) {
   const [best, setBest] = useState(0)
@@ -52,6 +56,21 @@ export function GamePong({ storageKey }: { storageKey: string }) {
   const cssSizeRef = useRef(FIELD_W)
   const difficultyRef = useRef<Difficulty>('easy')
   const playerTargetRef = useRef(FIELD_H / 2) // 마우스/키보드가 갱신하는 목표 y
+  const serveHoldRef = useRef(0) // 남은 재서브 대기(ms)
+
+  // 시작 게이트 + 일시정지(R1). 로드 즉시 공이 움직이던 문제(8초 방치 0-7 패배) 수정.
+  const gate = useGameGate({
+    canPause: () => !gameRef.current?.over,
+    onPause: () => keysRef.current.clear(),
+    onBlur: () => keysRef.current.clear(),
+  })
+  // 첫 시작에도 재서브 대기를 둔다 — 시작 탭 직후 공이 바로 날아오지 않게(리뷰 5).
+  const startGame = useCallback(() => {
+    if (gate.phaseRef.current !== 'ready') return
+    serveHoldRef.current = SERVE_HOLD_MS
+    gate.start()
+  }, [gate])
+  const gatePhaseRef = gate.phaseRef
 
   // ---- HUD 동기화 (값이 바뀔 때만 리렌더) ----
   const syncHud = useCallback((s: PongState) => {
@@ -147,6 +166,13 @@ export function GamePong({ storageKey }: { storageKey: string }) {
       rafRef.current = requestAnimationFrame(frame)
       return
     }
+    if (gatePhaseRef.current !== 'running') {
+      // 대기·일시정지·카운트다운: 진행하지 않고, 재개 첫 프레임이 멈춘 시간만큼 점프하지 않게 기준 시각을 버린다.
+      lastTsRef.current = 0
+      draw()
+      rafRef.current = requestAnimationFrame(frame)
+      return
+    }
     const last = lastTsRef.current || ts
     lastTsRef.current = ts
     let dt = (ts - last) / (1000 / 60)
@@ -157,6 +183,16 @@ export function GamePong({ storageKey }: { storageKey: string }) {
       const keys = keysRef.current
       if (keys.has('ArrowUp')) playerTargetRef.current = clampPaddle(playerTargetRef.current - KEY_PADDLE_SPEED * dt)
       if (keys.has('ArrowDown')) playerTargetRef.current = clampPaddle(playerTargetRef.current + KEY_PADDLE_SPEED * dt)
+
+      if (serveHoldRef.current > 0) {
+        // 재서브 대기: 공은 중앙에 멈춰 있고 양쪽 패들만 움직인다.
+        serveHoldRef.current -= dt * (1000 / 60)
+        const held = cpuTrack(g, dt, difficultyRef.current)
+        gameRef.current = { ...held, playerY: clampPaddle(playerTargetRef.current) }
+        draw()
+        rafRef.current = requestAnimationFrame(frame)
+        return
+      }
 
       let s = cpuTrack(g, dt, difficultyRef.current)
       s = step(s, { dt, playerPaddleY: playerTargetRef.current })
@@ -171,7 +207,10 @@ export function GamePong({ storageKey }: { storageKey: string }) {
       }
       if (ev.scored) {
         trailRef.current = []
-        if (!s.over) play(ev.scored === 'player' ? 'eat' : 'error')
+        if (!s.over) {
+          play(ev.scored === 'player' ? 'eat' : 'error')
+          serveHoldRef.current = SERVE_HOLD_MS
+        }
       }
       if (s.over) play(s.winner === 'player' ? 'win' : 'lose')
 
@@ -189,7 +228,7 @@ export function GamePong({ storageKey }: { storageKey: string }) {
 
     draw()
     rafRef.current = requestAnimationFrame(frame)
-  }, [draw, play, reducedRef, syncHud])
+  }, [draw, gatePhaseRef, play, reducedRef, syncHud])
 
   // ---- 캔버스 크기(반응형 + DPR) ----
   const resize = useCallback(() => {
@@ -212,11 +251,13 @@ export function GamePong({ storageKey }: { storageKey: string }) {
     playerFlashRef.current = 0
     cpuFlashRef.current = 0
     playerTargetRef.current = FIELD_H / 2
+    serveHoldRef.current = SERVE_HOLD_MS
     lastTsRef.current = 0
     setHud({ player: 0, cpu: 0 })
     setPhase('playing')
+    gate.reset('running') // Play again·New Game은 게이트를 다시 거치지 않는다
     draw()
-  }, [draw])
+  }, [draw, gate])
 
   // ---- 초기화(클라이언트 전용) ----
   useEffect(() => {
@@ -241,12 +282,23 @@ export function GamePong({ storageKey }: { storageKey: string }) {
   const onPointerMove = useCallback((e: React.PointerEvent<HTMLElement>) => {
     // 터치는 가운데 조작 구역에서 시작한 드래그만 패들을 움직인다(좌우 가장자리 띠는 페이지 스크롤용). 마우스는 어디서든 따라간다.
     if (e.pointerType === 'touch' && !inPlayZone(e)) return
+    if (gatePhaseRef.current === 'paused') return // 일시정지 패널 위 마우스가 패들 목표를 바꾸지 않게
     const canvas = canvasRef.current
     if (!canvas) return
     const rect = canvas.getBoundingClientRect()
     const fy = ((e.clientY - rect.top) / rect.height) * FIELD_H
     playerTargetRef.current = clampPaddle(fy)
-  }, [])
+  }, [gatePhaseRef])
+
+  // 터치·클릭으로 시작(마우스를 보드 위에 올려 둔 것만으로는 시작하지 않는다). 그 누름의 위치도 패들 목표로 쓴다.
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent<HTMLElement>) => {
+      if (gatePhaseRef.current === 'ready') startGame()
+      else if (gatePhaseRef.current === 'paused' || gatePhaseRef.current === 'countdown') return
+      onPointerMove(e)
+    },
+    [gatePhaseRef, onPointerMove, startGame],
+  )
 
   // ---- 키보드 ----
   useEffect(() => {
@@ -254,7 +306,12 @@ export function GamePong({ storageKey }: { storageKey: string }) {
       if (isTypingTarget(e.target)) return
       if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         e.preventDefault()
+        if (gatePhaseRef.current === 'ready') startGame() // 첫 입력은 시작이면서 그대로 조작이다
+        else if (gatePhaseRef.current === 'paused' || gatePhaseRef.current === 'countdown') return
         keysRef.current.add(e.key)
+      } else if ((e.key === 'Enter' || e.key === ' ') && gatePhaseRef.current === 'ready' && e.target === document.body) {
+        e.preventDefault()
+        startGame()
       }
     }
     const onKeyUp = (e: KeyboardEvent) => {
@@ -266,7 +323,7 @@ export function GamePong({ storageKey }: { storageKey: string }) {
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
     }
-  }, [])
+  }, [gatePhaseRef, startGame])
 
   const setDiff = useCallback((d: Difficulty) => {
     difficultyRef.current = d
@@ -308,6 +365,7 @@ export function GamePong({ storageKey }: { storageKey: string }) {
           ))}
         </div>
       }
+      headerActions={<PauseButton phase={gate.phase} show={phase === 'playing'} onPause={() => gate.pause('manual')} />}
       onNewGame={restart}
       newGameDisabled={!ready}
       muted={muted}
@@ -326,7 +384,16 @@ export function GamePong({ storageKey }: { storageKey: string }) {
           aria-label="Pong game board"
         />
         {/* 조작 구역: 패들은 세로 드래그라 위·아래는 그대로 조작하고 왼쪽·오른쪽 12%를 페이지 스크롤 띠로 비운다. 좌표는 canvasRef rect로 계산한다. */}
-        <PlayZone top={0} bottom={0} left={0.12} right={0.12} className="cursor-pointer" />
+        <PlayZone top={0} bottom={0} left={0.12} right={0.12} className="cursor-pointer" onPointerDown={onPointerDown} />
+        <GatePanel
+          phase={gate.phase}
+          count={gate.count}
+          onStart={startGame}
+          onResume={gate.resume}
+          passThrough
+          title="Tap or press ↑ ↓ to serve"
+          hint={`Drag the left paddle (or ↑ ↓). First to ${WIN_SCORE} wins. P pauses.`}
+        />
         <GameOverlay show={phase === 'won'} variant="win" title="You win!" testId="game-over">
           <p className="text-fg-muted">
             {hud.player} – {hud.cpu}

@@ -116,6 +116,7 @@ function blurAfterPointerClick(e: MouseEvent<HTMLDivElement>) {
 export function GameShell({
   stats,
   headerExtra,
+  headerActions,
   onNewGame,
   newGameLabel = 'New Game',
   newGameDisabled = false,
@@ -128,6 +129,8 @@ export function GameShell({
 }: {
   stats: StatSpec[]
   headerExtra?: ReactNode
+  /** 음소거 앞에 놓는 버튼(예: 일시정지). 헤더 버튼 포커스 규칙(preventPointerFocus)을 그대로 받는다. */
+  headerActions?: ReactNode
   onNewGame: () => void
   newGameLabel?: string
   newGameDisabled?: boolean
@@ -159,6 +162,7 @@ export function GameShell({
           {headerExtra}
         </div>
         <div className={`flex items-center ${compactHeader ? 'shrink-0 gap-1.5 sm:gap-2' : 'gap-2'}`}>
+          {headerActions}
           <MuteButton muted={muted} onToggle={onToggleMute} />
           <GameButton
             onClick={onNewGame}

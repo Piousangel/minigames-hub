@@ -1,6 +1,8 @@
 'use client'
 
 import { PlayZone } from '@/components/game-shell/PlayZone'
+import { GatePanel, PauseButton } from '@/components/game-shell/GatePanel'
+import { useGameGate } from '@/lib/useGameGate'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   BULLET_H,
@@ -69,6 +71,19 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
   const shakeRef = useRef(0)
   const cssSizeRef = useRef(FIELD_W)
   const bestRef = useRef(0)
+
+  // 시작 게이트 + 일시정지(R1). 로드 즉시 적탄이 날아오던 문제(8초 방치 3→1목숨) 수정.
+  const gate = useGameGate({
+    canPause: () => !gameRef.current?.over,
+    onPause: () => {
+      // 숨김 사이 놓친 keyup·pointerup으로 키·자동 발사가 눌린 채 남지 않게 비운다.
+      keysRef.current.clear()
+      pointerRef.current.active = false
+      autoFireRef.current = false
+    },
+    onBlur: () => keysRef.current.clear(),
+  })
+  const gatePhaseRef = gate.phaseRef
 
   // ---- HUD 동기화 (값이 바뀔 때만 리렌더) ----
   const syncHud = useCallback(
@@ -215,6 +230,13 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
     (ts: number) => {
       const g = gameRef.current
       if (!g) return
+      if (gatePhaseRef.current !== 'running') {
+        // 대기·일시정지·카운트다운: 진행 없이 그리기만. 재개 첫 프레임 점프 방지.
+        lastTsRef.current = 0
+        draw()
+        rafRef.current = requestAnimationFrame(frame)
+        return
+      }
       const last = lastTsRef.current || ts
       lastTsRef.current = ts
       let dt = (ts - last) / (1000 / 60)
@@ -290,7 +312,7 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
       draw()
       rafRef.current = requestAnimationFrame(frame)
     },
-    [draw, play, reducedRef, spawnExplosion, syncHud, storageKey],
+    [draw, gatePhaseRef, play, reducedRef, spawnExplosion, syncHud, storageKey],
   )
 
   // ---- 캔버스 크기(반응형 + DPR) ----
@@ -319,8 +341,9 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
     setHud({ score: 0, lives: gameRef.current.lives, wave: 1 })
     setIsBest(false)
     setPhase('playing')
+    gate.reset('running') // Play again·New Game은 게이트를 다시 거치지 않는다
     draw()
-  }, [draw, seedStars])
+  }, [draw, gate, seedStars])
 
   // ---- 초기화(클라이언트 전용) ----
   useEffect(() => {
@@ -356,11 +379,13 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
     (e: React.PointerEvent<HTMLElement>) => {
       const g = gameRef.current
       if (!g || g.over) return
+      if (gatePhaseRef.current === 'ready') gate.start() // 첫 누름은 시작이면서 그대로 이동·발사
+      else if (gatePhaseRef.current === 'paused' || gatePhaseRef.current === 'countdown') return
       pointerRef.current = { active: true, x: pointerX(e.clientX) }
       autoFireRef.current = true // 누르는 동안 자동 발사
       e.currentTarget.setPointerCapture(e.pointerId)
     },
-    [pointerX],
+    [gate, gatePhaseRef, pointerX],
   )
 
   const onPointerMove = useCallback(
@@ -382,7 +407,13 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
       if (isTypingTarget(e.target)) return
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Spacebar') {
         e.preventDefault()
+        if (e.target instanceof HTMLButtonElement && (e.key === ' ' || e.key === 'Spacebar')) return // 포커스된 Resume·⏸는 Space로 눌려야 한다
+        if (gatePhaseRef.current === 'ready') gate.start() // 첫 입력은 시작이면서 그대로 조작이다
+        else if (gatePhaseRef.current === 'paused' || gatePhaseRef.current === 'countdown') return
         keysRef.current.add(e.key)
+      } else if (e.key === 'Enter' && gatePhaseRef.current === 'ready' && e.target === document.body) {
+        e.preventDefault()
+        gate.start()
       }
     }
     const onKeyUp = (e: KeyboardEvent) => {
@@ -394,7 +425,7 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
       window.removeEventListener('keydown', onKeyDown)
       window.removeEventListener('keyup', onKeyUp)
     }
-  }, [])
+  }, [gate, gatePhaseRef])
 
   const hint =
     phase === 'over'
@@ -409,6 +440,7 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
         { label: 'Lives', value: hud.lives },
         { label: 'Wave', value: hud.wave },
       ]}
+      headerActions={<PauseButton phase={gate.phase} show={phase === 'playing'} onPause={() => gate.pause('manual')} />}
       onNewGame={restart}
       newGameDisabled={!ready}
       muted={muted}
@@ -435,6 +467,15 @@ export function GameSpaceShooter({ storageKey }: { storageKey: string }) {
           onPointerMove={onPointerMove}
           onPointerUp={endPointer}
           onPointerCancel={endPointer}
+        />
+        <GatePanel
+          phase={gate.phase}
+          count={gate.count}
+          onStart={gate.start}
+          onResume={gate.resume}
+          passThrough
+          title="Tap or press ← → to launch"
+          hint="Drag to steer — holding fires. Keys: ← → move, Space fires, P pauses."
         />
         <GameOverlay
           show={phase === 'over'}

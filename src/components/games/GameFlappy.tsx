@@ -1,6 +1,8 @@
 'use client'
 
 import { PlayZone } from '@/components/game-shell/PlayZone'
+import { GatePanel, PauseButton } from '@/components/game-shell/GatePanel'
+import { useGameGate } from '@/lib/useGameGate'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   BIRD_R,
@@ -45,6 +47,16 @@ export function GameFlappy({ storageKey }: { storageKey: string }) {
   const scrollRef = useRef(0) // parallax scroll offset
   const cssSizeRef = useRef(FIELD_W)
   const bestRef = useRef(0)
+
+  // 일시정지(R1). 시작 게이트는 원래 있던 idle(첫 탭 = 시작 + 날갯짓)을 그대로 쓰고,
+  // 탭 숨김·P·⏸로 멈춘 뒤 돌아오면 Resume + 짧은 카운트다운을 거친다(옛 코드는 경고 없이 이어졌다).
+  const gate = useGameGate({
+    canPause: () => phaseRef.current === 'playing',
+    onPause: () => {
+      flapQueuedRef.current = false
+    },
+  })
+  const gatePhaseRef = gate.phaseRef
 
   // ---- Draw ----
   const draw = useCallback(() => {
@@ -176,6 +188,13 @@ export function GameFlappy({ storageKey }: { storageKey: string }) {
         rafRef.current = requestAnimationFrame(frame)
         return
       }
+      if (gatePhaseRef.current !== 'running') {
+        // paused·countdown: 진행 없이 그리기만. 재개 첫 프레임 점프 방지.
+        lastTsRef.current = 0
+        draw()
+        rafRef.current = requestAnimationFrame(frame)
+        return
+      }
       const last = lastTsRef.current || ts
       lastTsRef.current = ts
       let dt = (ts - last) / (1000 / 60)
@@ -223,7 +242,7 @@ export function GameFlappy({ storageKey }: { storageKey: string }) {
       draw()
       rafRef.current = requestAnimationFrame(frame)
     },
-    [draw, play, storageKey],
+    [draw, gatePhaseRef, play, storageKey],
   )
 
   // ---- Responsive canvas (DPR + ResizeObserver) ----
@@ -245,12 +264,15 @@ export function GameFlappy({ storageKey }: { storageKey: string }) {
     const g = gameRef.current
     if (!g) return
     if (phaseRef.current === 'over') return
+    const gp = gatePhaseRef.current
+    if (gp === 'paused' || gp === 'countdown') return // 멈춘 동안의 탭은 날갯짓이 아니다
     if (phaseRef.current === 'idle') {
       phaseRef.current = 'playing'
       setPhase('playing')
+      gate.start()
     }
     flapQueuedRef.current = true
-  }, [])
+  }, [gate, gatePhaseRef])
 
   const restart = useCallback(() => {
     gameRef.current = newGame()
@@ -264,8 +286,9 @@ export function GameFlappy({ storageKey }: { storageKey: string }) {
     setNewBest(false)
     setScore(0)
     setPhase('idle')
+    gate.reset('ready') // flappy는 새 판도 '첫 탭 = 시작 + 날갯짓'(기존 동작 유지)
     draw()
-  }, [draw])
+  }, [draw, gate])
 
   // ---- Init (client only, SSR-safe) ----
   useEffect(() => {
@@ -291,6 +314,7 @@ export function GameFlappy({ storageKey }: { storageKey: string }) {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (isTypingTarget(e.target)) return
+      if (e.target instanceof HTMLButtonElement && e.key === ' ') return // 포커스된 Resume·⏸는 Space로 눌려야 한다
       if (e.key === ' ' || e.key === 'Spacebar' || e.key === 'ArrowUp') {
         e.preventDefault()
         doFlap()
@@ -313,7 +337,7 @@ export function GameFlappy({ storageKey }: { storageKey: string }) {
       ? 'Press New Game to fly again.'
       : phase === 'idle'
         ? 'Tap, click, or press Space to flap and take off.'
-        : 'Tap / click / Space to flap. Thread the gaps!'
+        : 'Tap / click / Space to flap. Thread the gaps! P pauses.'
 
   return (
     <GameShell
@@ -321,6 +345,7 @@ export function GameFlappy({ storageKey }: { storageKey: string }) {
         { label: 'Score', value: score, testId: 'score', float: true },
         { label: 'Best', value: best },
       ]}
+      headerActions={<PauseButton phase={gate.phase} show={phase === 'playing'} onPause={() => gate.pause('manual')} />}
       onNewGame={restart}
       newGameDisabled={!ready}
       muted={muted}
@@ -342,6 +367,17 @@ export function GameFlappy({ storageKey }: { storageKey: string }) {
         <PlayZone top={0.12} bottom={0} className="cursor-pointer"
           onPointerDown={onPointerDown}
         />
+        {phase !== 'over' && (
+          <GatePanel
+            phase={gate.phase}
+            count={gate.count}
+            onStart={doFlap}
+            onResume={gate.resume}
+            passThrough
+            title="Tap to fly"
+            hint="Tap, click, or press Space to flap. Thread the gaps!"
+          />
+        )}
         <GameOverlay
           show={phase === 'over'}
           variant={newBest ? 'win' : 'lose'}
