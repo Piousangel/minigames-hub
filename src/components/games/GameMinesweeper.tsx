@@ -46,6 +46,8 @@ const LONG_PRESS_MS = 350
 const LONG_PRESS_SLOP = 10 // px
 // 진행 중 판에서 New Game을 한 번 누르면 'Restart?'로 바뀌고, 이 시간 안에 한 번 더 눌러야 판을 버린다(실수 방지).
 const RESTART_CONFIRM_MS = 3000
+// 패배 직후 결과 창을 늦게 띄운다 — 덮개(흐림)가 밟은 칸 💥·틀린 깃발 ❌을 가리기 전에 판을 보여 준다.
+const LOSE_OVERLAY_DELAY_MS = 900
 
 // 개인 베스트(클리어 시간, 낮을수록 좋음) 전용 키. 리더보드엔 넣지 않는다 —
 // 리더보드는 "높을수록 좋은 정수" 규약이라 시간(낮을수록 좋음)과 맞지 않는다.
@@ -77,6 +79,9 @@ export function GameMinesweeper() {
   const [prevBest, setPrevBest] = useState<number | null>(null)
   const [confirmRestart, setConfirmRestart] = useState(false)
   const confirmTimerRef = useRef<number | null>(null)
+  // 결과 창 표시(승리는 즉시, 패배는 LOSE_OVERLAY_DELAY_MS 뒤)
+  const [showOverlay, setShowOverlay] = useState(false)
+  const overlayTimerRef = useRef<number | null>(null)
   const elapsedRef = useRef(0)
   const bestRef = useRef<number | null>(null)
   const timerRef = useRef<number | null>(null)
@@ -130,15 +135,22 @@ export function GameMinesweeper() {
     setConfirmRestart(false)
   }, [])
 
+  const clearOverlayTimer = useCallback(() => {
+    if (overlayTimerRef.current !== null) window.clearTimeout(overlayTimerRef.current)
+    overlayTimerRef.current = null
+  }, [])
+
   const restart = useCallback(() => {
     clearConfirm()
+    clearOverlayTimer()
+    setShowOverlay(false)
     originRef.current = null
     stopTimer()
     elapsedRef.current = 0
     setElapsed(0)
     commit(newMinesweeper())
     setFlagMode(false)
-  }, [clearConfirm, commit, stopTimer])
+  }, [clearConfirm, clearOverlayTimer, commit, stopTimer])
 
   // 헤더 New Game: 진행 중(첫 칸을 연 뒤, 끝나기 전)이면 두 번 눌러야 판을 버린다. 시작 전·종료 후는 바로.
   const onNewGame = useCallback(() => {
@@ -162,6 +174,7 @@ export function GameMinesweeper() {
     return () => {
       stopTimer()
       if (confirmTimerRef.current !== null) window.clearTimeout(confirmTimerRef.current)
+      if (overlayTimerRef.current !== null) window.clearTimeout(overlayTimerRef.current)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -200,9 +213,15 @@ export function GameMinesweeper() {
             return prev
           })
           play('win')
+          setShowOverlay(true)
         } else {
           play('lose')
           buzz(40)
+          clearOverlayTimer()
+          overlayTimerRef.current = window.setTimeout(() => {
+            overlayTimerRef.current = null
+            setShowOverlay(true)
+          }, LOSE_OVERLAY_DELAY_MS)
         }
         // 개인 기록: 완료 판수/승수 누적 → 게임 페이지 스탯 패널이 읽는다.
         recordResult('minesweeper', { won: next.won })
@@ -212,7 +231,7 @@ export function GameMinesweeper() {
       }
       commit(next)
     },
-    [buzz, clearConfirm, commit, play, startTimer, stopTimer],
+    [buzz, clearConfirm, clearOverlayTimer, commit, play, startTimer, stopTimer],
   )
 
   // 길게 누르기(터치·펜) → 깃발. 깃발이 꽂히면 뒤따르는 click(공개)은 버린다.
@@ -331,7 +350,8 @@ export function GameMinesweeper() {
       stats={[
         {
           label: 'Mines',
-          value: MS_MINES - flagCount(state),
+          // 이기면 판에 지뢰 자리 깃발이 다 보이므로 0
+          value: state.won ? 0 : MS_MINES - flagCount(state),
           testId: 'mines-left',
         },
       ]}
@@ -356,6 +376,19 @@ export function GameMinesweeper() {
             const face = cell.revealed ? 'r' : cell.flagged ? 'f' : 'e'
             const isExploded = !!exploded && exploded[0] === x && exploded[1] === y
             const wrongFlag = lost && cell.flagged && !cell.mine
+            // 스크린리더용 칸 상태: 'hidden' / 'flagged' / 'empty' / 숫자 / 'mine' / 'wrong flag'
+            const cellState =
+              (state.won && cell.mine) || (cell.flagged && !wrongFlag && !cell.revealed)
+                ? 'flagged'
+                : wrongFlag
+                  ? 'wrong flag'
+                  : !cell.revealed
+                    ? 'hidden'
+                    : cell.mine
+                      ? 'mine'
+                      : cell.adjacent > 0
+                        ? String(cell.adjacent)
+                        : 'empty'
 
             let content = ''
             let faceAnim = ''
@@ -387,7 +420,7 @@ export function GameMinesweeper() {
                 key={`${x},${y}`}
                 data-testid="ms-cell"
                 data-revealed={cell.revealed}
-                aria-label={`cell ${x + 1}, ${y + 1}`}
+                aria-label={`cell ${x + 1}, ${y + 1}: ${cellState}`}
                 onPointerDown={(e) => onCellPointerDown(e, x, y)}
                 onPointerMove={onCellPointerMove}
                 onPointerUp={cancelPress}
@@ -412,7 +445,7 @@ export function GameMinesweeper() {
           }),
         )}
         <GameOverlay
-          show={state.over}
+          show={state.over && showOverlay}
           variant={state.won ? 'win' : 'lose'}
           title={state.won ? 'You win!' : 'Boom!'}
           testId="game-over"

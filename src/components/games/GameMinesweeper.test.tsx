@@ -37,8 +37,11 @@ describe('GameMinesweeper', () => {
     })
     fireEvent.pointerUp(cell, { pointerType: 'touch' })
     fireEvent.click(cell)
+    // Android는 길게 누르기에 contextmenu도 쏜다 — 깃발이 다시 뽑히면 안 된다
+    fireEvent.contextMenu(cell)
     expect(cell.textContent).toContain('🚩')
     expect(cell.getAttribute('data-revealed')).toBe('false')
+    expect(cell.getAttribute('aria-label')).toBe('cell 5, 5: flagged')
     expect(screen.getByTestId('mines-left').textContent).toBe('9')
   })
 
@@ -75,12 +78,36 @@ describe('GameMinesweeper', () => {
     expect(screen.getByRole('button', { name: 'New Game' })).toBeTruthy()
   })
 
-  it('패배: 밟은 칸 💥, 결과에 연 칸/남은 칸', async () => {
-    await mount()
+  it('패배 뒤 결과 창이 뜨기 전에 새 판을 시작하면 늦은 덮개가 새 판을 덮지 않는다', async () => {
+    vi.useFakeTimers()
+    render(<GameMinesweeper />)
+    await act(async () => {})
     fireEvent.click(cellAt(0, 0))
     fireEvent.click(cellAt(1, 1))
-    await screen.findByTestId('game-over')
+    fireEvent.click(screen.getByRole('button', { name: 'New Game' })) // 종료 후라 확인 없이 바로
+    act(() => {
+      vi.advanceTimersByTime(2000)
+    })
+    expect(screen.queryByTestId('game-over')).toBeNull()
+    expect(cellAt(0, 0).getAttribute('data-revealed')).toBe('false')
+  })
+
+  it('패배: 밟은 칸 💥이 먼저 보이고 결과 창은 늦게(연 칸/남은 칸)', async () => {
+    vi.useFakeTimers()
+    render(<GameMinesweeper />)
+    await act(async () => {})
+    fireEvent.click(cellAt(0, 0))
+    expect(cellAt(0, 0).getAttribute('aria-label')).toBe('cell 1, 1: 3')
+    expect(cellAt(4, 4).getAttribute('aria-label')).toBe('cell 5, 5: hidden')
+    fireEvent.click(cellAt(1, 1))
     expect(cellAt(1, 1).textContent).toContain('💥')
+    expect(cellAt(1, 1).getAttribute('aria-label')).toBe('cell 2, 2: mine')
+    // 패배 직후엔 덮개가 판을 가리지 않는다
+    expect(screen.queryByTestId('game-over')).toBeNull()
+    act(() => {
+      vi.advanceTimersByTime(900)
+    })
+    expect(screen.getByTestId('game-over')).toBeTruthy()
     expect(screen.getByTestId('ms-result').textContent).toMatch(/1\/71 safe squares cleared · 70 to go/)
     expect(loadStats('minesweeper')).toMatchObject({ plays: 1, wins: 0 })
   })
@@ -98,7 +125,9 @@ describe('GameMinesweeper', () => {
       fireEvent.contextMenu(cellAt(fx, fy))
     expect(screen.getByTestId('mines-left').textContent).toBe('6')
     fireEvent.click(cellAt(2, 1)) // 코드
-    await screen.findByTestId('game-over')
+    // 승리는 결과 창 즉시, Mines는 0(판에 지뢰 자리 깃발이 다 보인다)
+    expect(screen.getByTestId('game-over')).toBeTruthy()
+    expect(screen.getByTestId('mines-left').textContent).toBe('0')
     expect(screen.getByTestId('ms-result').textContent).toMatch(/Cleared in 00:00 · First clear!/)
     await waitFor(() => expect(localStorage.getItem('best:minesweeper:time')).toBe('0'))
     expect(loadStats('minesweeper')).toMatchObject({ plays: 1, wins: 1 })
