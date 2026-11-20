@@ -25,6 +25,7 @@ import { useGameSound, type SoundName } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { bandInk } from '@/lib/games/bandInk'
 
 type Mode = 'daily' | 'practice'
 type Difficulty = 'easy' | 'normal' | 'hard'
@@ -153,7 +154,7 @@ function freshSeed(): number {
 function bandColor(rank: Color): { bg: string; fg: string } {
   if (rank >= K) return { bg: 'hsl(0 0% 70%)', fg: 'hsl(0 0% 15%)' }
   const hue = Math.round(((rank - 1) * 300) / (K - 1))
-  return { bg: `hsl(${hue} 62% 52%)`, fg: `hsl(${hue} 75% 12%)` }
+  return { bg: `hsl(${hue} 62% 52%)`, fg: bandInk(hue, 62, 52, 75) }
 }
 
 const COLOR_NAME: Record<number, string> = {
