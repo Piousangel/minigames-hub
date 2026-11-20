@@ -74,7 +74,9 @@ export function GameMemory({ storageKey }: { storageKey: string }) {
   const [state, setState] = useState<MemoryState | null>(null)
   const [best, setBest] = useState(0) // 최소 moves. 0 = 기록 없음
   const bestRef = useRef(0)
-  const [summary, setSummary] = useState<WinSummary | null>(null)
+  // 이 판을 시작할 때의 최고 기록 — 결과 요약을 렌더 중 계산할 기준(승리 저장으로 best가 바뀌어도 그대로)
+  const [runBest, setRunBest] = useState(0)
+  const boardRef = useRef<HTMLDivElement>(null)
   // 판 중간 New Game 직전 판(되돌리기용). null = Undo 없음
   const [undoSnap, setUndoSnap] = useState<MemoryState | null>(null)
   const undoTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -109,7 +111,7 @@ export function GameMemory({ storageKey }: { storageKey: string }) {
     dropUndo()
     const s = newMemoryGame(Math.random)
     syncPrev(s)
-    setSummary(null)
+    setRunBest(bestRef.current)
     setState(s)
   }, [dropUndo, syncPrev])
 
@@ -119,6 +121,7 @@ export function GameMemory({ storageKey }: { storageKey: string }) {
     const b = Number.isFinite(stored) && stored > 0 ? stored : 0
     bestRef.current = b
     setBest(b)
+    setRunBest(b)
   }, [restart, storageKey])
 
   useEffect(
@@ -147,6 +150,8 @@ export function GameMemory({ storageKey }: { storageKey: string }) {
     syncPrev(undoSnap) // 되돌린 판으로 소리 기준을 맞춘다(되돌리기에 'match' 소리가 나지 않게)
     setState(undoSnap)
     dropUndo()
+    // Undo 버튼이 사라지므로 포커스가 body로 새지 않게 판으로 옮긴다(체크리스트 4번)
+    requestAnimationFrame(() => boardRef.current?.focus())
   }, [undoSnap, dropUndo, syncPrev])
 
   // Sound cues driven off state transitions (win > match > mismatch > flip).
@@ -158,7 +163,6 @@ export function GameMemory({ storageKey }: { storageKey: string }) {
     if (state.won && !prevWon.current) {
       play('win')
       const prevBest = bestRef.current
-      setSummary(winSummary(state.moves, prevBest))
       if (prevBest === 0 || state.moves < prevBest) {
         bestRef.current = state.moves
         setBest(state.moves)
@@ -205,16 +209,19 @@ export function GameMemory({ storageKey }: { storageKey: string }) {
     { label: 'Moves', value: state?.moves ?? 0, testId: 'moves' },
     { label: 'Best', value: best > 0 ? best : '—', testId: 'best' },
   ]
-  // 두 문구 모두 44px 높이 — Undo가 나타나고 사라질 때 아래 페이지가 튀지 않게
-  const hint = undoSnap ? (
-    <span className="inline-flex min-h-11 items-center gap-2" data-testid="memory-undo-bar">
-      New board dealt.
-      <GameButton variant="ghost" onClick={undoNewGame} data-testid="memory-undo" className="min-h-11 px-4">
-        Undo
-      </GameButton>
+  // 늘 44px 높이 — Undo가 나타나고 사라질 때 아래 페이지가 튀지 않게.
+  // 문구는 항상 렌더되는 live region 안에서만 바꿔 스크린리더가 'New board dealt.'를 읽는다.
+  const hint = (
+    <span className="inline-flex min-h-11 items-center gap-2" data-testid={undoSnap ? 'memory-undo-bar' : undefined}>
+      <span role="status" aria-live="polite">
+        {undoSnap ? 'New board dealt.' : 'Flip two cards and find every matching pair.'}
+      </span>
+      {undoSnap && (
+        <GameButton variant="ghost" onClick={undoNewGame} data-testid="memory-undo" className="min-h-11 px-4">
+          Undo
+        </GameButton>
+      )}
     </span>
-  ) : (
-    <span className="inline-flex min-h-11 items-center">Flip two cards and find every matching pair.</span>
   )
 
   if (!state) {
@@ -226,11 +233,15 @@ export function GameMemory({ storageKey }: { storageKey: string }) {
   }
 
   const mismatched = state.faceUp.length === 2
+  // 렌더 중 계산: 승리 첫 프레임부터 제목·문구가 확정된다(나중에 'You win!' → 'New best!'로 바뀌지 않게)
+  const summary = state.won ? winSummary(state.moves, runBest) : null
 
   return (
     <GameShell stats={stats} onNewGame={onNewGame} muted={muted} onToggleMute={toggleMuted} hint={hint}>
       <div
-        className="anim-board-in relative grid aspect-square grid-cols-4 gap-2 rounded-xl bg-surface p-2"
+        ref={boardRef}
+        tabIndex={-1}
+        className="anim-board-in relative grid aspect-square grid-cols-4 gap-2 rounded-xl bg-surface p-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-garden-sunflower"
         data-testid="memory-board"
       >
         {state.cards.map((card, i) => {
@@ -238,7 +249,8 @@ export function GameMemory({ storageKey }: { storageKey: string }) {
           const shown = card.matched || open
           const shaking = mismatched && open
           // 뒤집힌 카드 테두리: 고르는 중 = 해바라기, 틀림 = 산호, 맞힘 = 잎 + ✓ 배지(색만으로 구분하지 않게)
-          const ring = card.matched ? 'ring-[3px] ring-[#b5e39c]' : shaking ? 'ring-[3px] ring-garden-danger' : 'ring-[3px] ring-garden-sunflower'
+          // ring-inset: 카드 안쪽에 그려 2px 간격에서 이웃 카드와 붙어 보이지 않게
+          const ring = `ring-[3px] ring-inset ${card.matched ? 'ring-[#b5e39c]' : shaking ? 'ring-garden-danger' : 'ring-garden-sunflower'}`
           return (
             <button
               key={card.id}
