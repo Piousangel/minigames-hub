@@ -25,7 +25,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm lint
-      # 전체 vitest는 기존 실패(~34건, 5초 타임아웃 등)가 있어 게이트에서 뺀다 — 루틴이 바꾼 파일 관련 테스트를 머지 전에 돌린다
+      # 전체 vitest·e2e 스모크는 PR 단계 CI(ci.yml)가 머지 전에 돈다(11-20, 만성 실패 0). 배포에서는 다시 돌리지 않는다.
       # 추가 전용·멱등 D1 마이그레이션(CREATE TABLE IF NOT EXISTS만). 기존 표·행은 건드리지 않는다.
       # 실패해도 배포는 진행한다 — 워커가 slime_daily 없이도 동작(검증된 점수를 scores에 추가하는 폴백).
       - name: D1 additive migrations

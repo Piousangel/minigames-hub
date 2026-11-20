@@ -206,3 +206,10 @@
 - **CLS**: 예전 페이지는 데이터가 오면 0.53~0.65(390·1440, 400ms 지연 흉내). ① li key = 자리 번호(slug key면 화면 밖 카드가 위로 '이동'으로 잡힘), 카드 key = slug(다른 게임이 되면 새로 마운트 — 포커스·New 뱃지가 이전 게임 것으로 남지 않게, 새 노드는 shift로 안 셈) ② 주 라벨 56px 고정 ③ 허브(실패 카드 포함) 최소 높이 100svh — 보드가 적거나 0이거나 실패해도 FAQ가 첫 화면으로 끌려오지 않는다. e2e가 네 경우(보드 3·1·0·실패) CLS ≤ 0.05를 고정.
 - 리뷰 반영(독립 리뷰 11-20, 7.5/10): 실패 상태 CLS 구멍, 빈 주 85장 빈 카드(390 약 19,000px·빈 줄 255번 낭독) → 펼친 목록, key 부작용, 카드 제목 h2, 흐린 메달 aria-hidden + '2nd place:' 읽기 글자, 정렬 순서 단언·CLS 회귀 e2e. 대비 검사 함수 공용화(garden-frame.spec과 중복)는 R7c가 그 파일을 쓰는 중이라 다음으로.
 - 버린 안: 빈 주에 모든 보드를 빈 카드로(위 리뷰), 개념서의 꽃 단상(포디움) 일러스트(새 그림 필요 — 그림 예산 밖, 다음 후보), 게임별 탭(한 화면에 보드 전부가 지금 허브의 역할), garden 스코프 재사용(게임 페이지 게이트·토큰 재매핑과 섞임).
+
+## 2026-11-20 PR 단계 CI 도입, 만성 실패 테스트 0 (오너 승인 제안 C)
+- 맥락: 전체 vitest가 늘 빨개서(문서상 ~34건) 배포 게이트에서 빠져 있었고, 머지 전 검사는 루틴이 `vitest related`로만 했다. 스승님 원칙 통합 목록 C(docs/team/mentor/lydia-hallie.md 7장)를 오너가 11-20 "다 추천대로" 승인.
+- 원인 분류(11-20 main, Node 22): 27건 전부 **부하 타임아웃**(1,000시드 퍼징·BFS 레벨 검증·가짜 타이머로 한 판 끝까지 도는 컴포넌트 테스트가 기본 5초 초과, 로컬 load 40+에서). 진짜 버그 0, 시간 의존 0, 낡은 기대값 0(GameMahjong 'step back'은 앞 테스트 타임아웃의 여파, 한도만 늘리면 통과). 이와 별도로 **Node 25+**(로컬 Node 26)에서는 전역 localStorage가 jsdom 것을 가려 368건이 깨졌다.
+- 선택: vitest.config.ts에서 testTimeout·hookTimeout 60초(검증 범위 그대로, 멈춘 테스트는 60초에 실패), 워커에 `--no-experimental-webstorage`. `.github/workflows/ci.yml`(pull_request): typecheck·lint / 전체 vitest / build·check-routes·e2e 스모크(garden-frame·result-sheet·홈 63건) 세 job 병렬, 캐시(pnpm·.next/cache·Playwright). 첫 측정 벽시계 약 3분 40초.
+- 버린 안: 무거운 테스트 skip·축소(테스트 약화), 전체 e2e를 PR마다(smoke.spec 게임별 158건 — 스모크로 충분, 전체는 기존대로 루틴·로컬), deploy.yml에 vitest 재추가(PR CI와 중복).
+- 남은 것: 로컬 과부하(load 45+)에서 vitest가 드물게 `[vitest-worker]: Timeout calling "onTaskUpdate"`(러너 RPC 타임아웃, 테스트는 전부 통과)로 exit 1을 낼 수 있다 — 테스트 코드 문제 아님, CI에선 재현 안 됨. 브랜치 보호에 CI 필수 체크를 켜는 것은 오너 할 일.
