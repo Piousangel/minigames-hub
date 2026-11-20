@@ -1,0 +1,94 @@
+# PR 단계 CI(오너 11-20 승인 제안 C — docs/team/mentor/lydia-hallie.md 7장).
+# PR마다 typecheck·lint·전체 vitest·build·check-routes·e2e 스모크를 돈다. 초록이 머지 조건이다(SESSION-GUIDE 검증 관문).
+# 시크릿은 쓰지 않는다(포크 PR에서도 안전). 배포는 deploy.yml(main push)이 그대로 맡는다.
+# 세 job이 병렬로 돌아 벽시계 시간은 가장 긴 job(build+e2e)에 맞춰진다. 목표 ≤ 15분.
+name: ci
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+jobs:
+  checks:
+    name: typecheck · lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+
+  test:
+    name: vitest
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # 전체 vitest(제외 없음). 만성 실패 0 기준선(11-20) — 새 실패는 이 PR이 만든 것이다.
+      - run: pnpm test
+
+  build-e2e:
+    name: build · check-routes · e2e smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Next.js 빌드 캐시
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: next-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-${{ hashFiles('src/**', 'public/**', 'next.config.*') }}
+          restore-keys: next-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}-
+      - run: pnpm build
+      - run: node scripts/check-routes.mjs
+      - name: Playwright 브라우저 캐시
+        id: pw-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - if: steps.pw-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+      - if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: pnpm exec playwright install-deps chromium
+      # PR 스모크: 정원 틀(R7)·결과 시트(R5)·홈 히어로. 전체 e2e(smoke.spec 게임별 158건 등)는 기존대로 루틴·로컬에서 돈다.
+      # PW_SKIP_BUILD: 위에서 만든 out/을 그대로 서빙(두 번 빌드하지 않음).
+      - name: e2e smoke
+        run: pnpm exec playwright test e2e/garden-frame.spec.ts e2e/result-sheet.spec.ts e2e/smoke.spec.ts --grep "garden-frame|result-sheet|홈" --reporter=line
+        env:
+          CI: '1'
+          PW_SKIP_BUILD: '1'
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: test-results/
+          retention-days: 7
