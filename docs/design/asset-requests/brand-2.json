@@ -1,0 +1,212 @@
+[
+  {
+    "id": "brand2-p1-app1",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "none",
+    "size": 1024,
+    "out": "docs/design/brand-2/p1-app1.webp",
+    "refs": [
+      "public/art/mallang-wave.webp",
+      "public/art/hub-hero-desktop-4f-d3.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. FORMAT: a single premium APP ICON artwork, square 1:1, the background colour fills the WHOLE canvas edge to edge (the operating system will round the corners later, so do NOT draw rounded corners, frames, borders or a tile outline). The main subject sits inside the central 72% safe area with calm margins, one bold readable silhouette that still reads when shrunk to 32 pixels, minimal small detail, maximum 6 colours plus ink. SUBJECT: 'Sun disc' — a large round setting sun disc in sun gold (#ffc933) with a slightly deeper orange lower edge, about 72% of the canvas width, centred slightly low. In front of the bottom half of the sun, Mallang the jelly (exactly the reference character: cyan-to-violet jelly, white crescent smiling eyes, small open smile, pink cheeks) peeks up from the bottom edge as a bust, one little arm raised waving. Mallang's head stays inside the sun disc outline so sun + Mallang form ONE compact shape. Background: flat coral (#ff9d7a) to peach sky, a single soft lavender cloud band only along the very bottom."
+  },
+  {
+    "id": "brand2-p1-app2",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "none",
+    "size": 1024,
+    "out": "docs/design/brand-2/p1-app2.webp",
+    "refs": [
+      "public/art/mallang-wave.webp",
+      "public/art/hub-hero-desktop-4f-d3.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. FORMAT: a single premium APP ICON artwork, square 1:1, the background colour fills the WHOLE canvas edge to edge (the operating system will round the corners later, so do NOT draw rounded corners, frames, borders or a tile outline). The main subject sits inside the central 72% safe area with calm margins, one bold readable silhouette that still reads when shrunk to 32 pixels, minimal small detail, maximum 6 colours plus ink. SUBJECT: 'Sun disc' — a large round setting sun disc in sun gold (#ffc933) with a slightly deeper orange lower edge, about 72% of the canvas width, centred slightly low. In front of the bottom half of the sun, Mallang the jelly (exactly the reference character: cyan-to-violet jelly, white crescent smiling eyes, small open smile, pink cheeks) peeks up from the bottom edge as a bust, one little arm raised waving. Mallang's head stays inside the sun disc outline so sun + Mallang form ONE compact shape. Background: flat coral (#ff9d7a) to peach sky, a single soft lavender cloud band only along the very bottom. Variation B: a slightly different, simpler composition with a bigger subject."
+  },
+  {
+    "id": "brand2-p2-app1",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "none",
+    "size": 1024,
+    "out": "docs/design/brand-2/p2-app1.webp",
+    "refs": [
+      "public/art/mallang-wave.webp",
+      "public/art/hub-hero-desktop-4f-d3.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. FORMAT: a single premium APP ICON artwork, square 1:1, the background colour fills the WHOLE canvas edge to edge (the operating system will round the corners later, so do NOT draw rounded corners, frames, borders or a tile outline). The main subject sits inside the central 72% safe area with calm margins, one bold readable silhouette that still reads when shrunk to 32 pixels, minimal small detail, maximum 6 colours plus ink. SUBJECT: 'Mallang face close-up' — Mallang the jelly (exactly the reference character) shown as a big friendly face and upper body filling about 85% of the canvas, the top of the head very slightly cropped by the top edge, happy crescent eyes, small open smile, pink cheeks, ONE soft cream highlight upper-left, plump rounded silhouette (not a ghost, not white). Background: flat warm cream (#fff4df), no pattern."
+  },
+  {
+    "id": "brand2-p2-app2",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "none",
+    "size": 1024,
+    "out": "docs/design/brand-2/p2-app2.webp",
+    "refs": [
+      "public/art/mallang-wave.webp",
+      "public/art/hub-hero-desktop-4f-d3.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. FORMAT: a single premium APP ICON artwork, square 1:1, the background colour fills the WHOLE canvas edge to edge (the operating system will round the corners later, so do NOT draw rounded corners, frames, borders or a tile outline). The main subject sits inside the central 72% safe area with calm margins, one bold readable silhouette that still reads when shrunk to 32 pixels, minimal small detail, maximum 6 colours plus ink. SUBJECT: 'Mallang face close-up' — Mallang the jelly (exactly the reference character) shown as a big friendly face and upper body filling about 85% of the canvas, the top of the head very slightly cropped by the top edge, happy crescent eyes, small open smile, pink cheeks, ONE soft cream highlight upper-left, plump rounded silhouette (not a ghost, not white). Background: flat warm cream (#fff4df), no pattern. Variation B: a slightly different, simpler composition with a bigger subject."
+  },
+  {
+    "id": "brand2-p3-app1",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "none",
+    "size": 1024,
+    "out": "docs/design/brand-2/p3-app1.webp",
+    "refs": [
+      "public/art/mallang-wave.webp",
+      "public/art/hub-hero-desktop-4f-d3.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. FORMAT: a single premium APP ICON artwork, square 1:1, the background colour fills the WHOLE canvas edge to edge (the operating system will round the corners later, so do NOT draw rounded corners, frames, borders or a tile outline). The main subject sits inside the central 72% safe area with calm margins, one bold readable silhouette that still reads when shrunk to 32 pixels, minimal small detail, maximum 6 colours plus ink. SUBJECT: 'Horizon' — a tiny storybook scene as an app icon: lower third is a lavender sea of soft clouds, a big half-set gold sun on the horizon in the centre, and in front of it one small floating garden island (mossy top with 2-3 moss drips, pointed rocky underside, no wider than 40% of the canvas) with ONE sunflower facing the sun and Mallang the jelly sitting on the island edge seen from behind-side, looking at the sun. Sky coral to peach. Very calm, very few elements."
+  },
+  {
+    "id": "brand2-p3-app2",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "none",
+    "size": 1024,
+    "out": "docs/design/brand-2/p3-app2.webp",
+    "refs": [
+      "public/art/mallang-wave.webp",
+      "public/art/hub-hero-desktop-4f-d3.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. FORMAT: a single premium APP ICON artwork, square 1:1, the background colour fills the WHOLE canvas edge to edge (the operating system will round the corners later, so do NOT draw rounded corners, frames, borders or a tile outline). The main subject sits inside the central 72% safe area with calm margins, one bold readable silhouette that still reads when shrunk to 32 pixels, minimal small detail, maximum 6 colours plus ink. SUBJECT: 'Horizon' — a tiny storybook scene as an app icon: lower third is a lavender sea of soft clouds, a big half-set gold sun on the horizon in the centre, and in front of it one small floating garden island (mossy top with 2-3 moss drips, pointed rocky underside, no wider than 40% of the canvas) with ONE sunflower facing the sun and Mallang the jelly sitting on the island edge seen from behind-side, looking at the sun. Sky coral to peach. Very calm, very few elements. Variation B: a slightly different, simpler composition with a bigger subject."
+  },
+  {
+    "id": "brand2-p4a-app1",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "none",
+    "size": 1024,
+    "out": "docs/design/brand-2/p4a-app1.webp",
+    "refs": [
+      "public/art/bomi-idle.webp",
+      "public/art/hub-hero-desktop-4f-d3.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. FORMAT: a single premium APP ICON artwork, square 1:1, the background colour fills the WHOLE canvas edge to edge (the operating system will round the corners later, so do NOT draw rounded corners, frames, borders or a tile outline). The main subject sits inside the central 72% safe area with calm margins, one bold readable silhouette that still reads when shrunk to 32 pixels, minimal small detail, maximum 6 colours plus ink. SUBJECT: 'Sunset stamp' — a cream paper postage stamp, slightly tilted 4 degrees, with large chunky perforated scalloped edges (6-7 scallops per side), a thin ink frame inside. Inside the stamp: a half-set gold sun sitting on a lavender sea of clouds under a coral sky, one tiny floating island silhouette. NO numbers, NO letters, NO postmark text. Subtle paper grain only. Background behind the stamp: flat deep coral (#e8643f)."
+  },
+  {
+    "id": "brand2-p4b-app1",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "none",
+    "size": 1024,
+    "out": "docs/design/brand-2/p4b-app1.webp",
+    "refs": [
+      "public/art/bomi-idle.webp",
+      "public/art/hub-hero-desktop-4f-d3.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. FORMAT: a single premium APP ICON artwork, square 1:1, the background colour fills the WHOLE canvas edge to edge (the operating system will round the corners later, so do NOT draw rounded corners, frames, borders or a tile outline). The main subject sits inside the central 72% safe area with calm margins, one bold readable silhouette that still reads when shrunk to 32 pixels, minimal small detail, maximum 6 colours plus ink. SUBJECT: 'Sunset stamp with Bomi' — a cream paper postage stamp, slightly tilted 4 degrees, with large chunky perforated scalloped edges (6-7 scallops per side), a thin ink frame inside. Inside the stamp: a half-set gold sun on a lavender sea of clouds under a coral sky; Bomi the courier bee (exactly the reference character: round fluffy gold-and-brown bee, cream courier cap, satchel) flies small in the lower right corner of the stamp picture. NO numbers, NO letters, NO postmark text. Background behind the stamp: flat sky lavender (#b79ad9)."
+  },
+  {
+    "id": "brand2-p5-app1",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "none",
+    "size": 1024,
+    "out": "docs/design/brand-2/p5-app1.webp",
+    "refs": [
+      "public/art/haessi-idle.webp",
+      "public/art/hub-hero-desktop-4f-d3.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. FORMAT: a single premium APP ICON artwork, square 1:1, the background colour fills the WHOLE canvas edge to edge (the operating system will round the corners later, so do NOT draw rounded corners, frames, borders or a tile outline). The main subject sits inside the central 72% safe area with calm margins, one bold readable silhouette that still reads when shrunk to 32 pixels, minimal small detail, maximum 6 colours plus ink. SUBJECT: 'Haessi face' — Haessi the sunflower-seed sprite (exactly the reference character) as a big bust: plump seed body with 4 bold vertical stripes in seed brown (#6b4a2e) and cream, a LARGE sunflower bloom crown on top taking the upper 30% of the canvas (gold petals, brown centre), simple dot eyes, small smile, pink cheeks. No lantern, no leaf hands. Background: flat soft sky blue-lavender (#c9d8f2) for contrast with the brown body."
+  },
+  {
+    "id": "brand2-p5-app2",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "none",
+    "size": 1024,
+    "out": "docs/design/brand-2/p5-app2.webp",
+    "refs": [
+      "public/art/haessi-idle.webp",
+      "public/art/hub-hero-desktop-4f-d3.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. FORMAT: a single premium APP ICON artwork, square 1:1, the background colour fills the WHOLE canvas edge to edge (the operating system will round the corners later, so do NOT draw rounded corners, frames, borders or a tile outline). The main subject sits inside the central 72% safe area with calm margins, one bold readable silhouette that still reads when shrunk to 32 pixels, minimal small detail, maximum 6 colours plus ink. SUBJECT: 'Haessi face' — Haessi the sunflower-seed sprite (exactly the reference character) as a big bust: plump seed body with 4 bold vertical stripes in seed brown (#6b4a2e) and cream, a LARGE sunflower bloom crown on top taking the upper 30% of the canvas (gold petals, brown centre), simple dot eyes, small smile, pink cheeks. No lantern, no leaf hands. Background: flat soft sky blue-lavender (#c9d8f2) for contrast with the brown body. Variation B: a slightly different, simpler composition with a bigger subject."
+  },
+  {
+    "id": "brand2-p1-mark",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "green",
+    "size": 512,
+    "out": "docs/design/brand-2/p1-mark.webp",
+    "refs": [
+      "public/art/mallang-wave.webp",
+      "public/art/hub-hero-desktop-4f-d3.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. FORMAT: the same mark as a standalone LOGO MARK cut-out for a website header next to a wordmark: just the subject, no background scene, no tile, centred, filling ~90% of the canvas, on a plain solid chroma green (#00ff00) background filling the whole image for keying, no shadow on the background. SUBJECT: 'Sun disc' — a large round setting sun disc in sun gold (#ffc933) with a slightly deeper orange lower edge, about 72% of the canvas width, centred slightly low. In front of the bottom half of the sun, Mallang the jelly (exactly the reference character: cyan-to-violet jelly, white crescent smiling eyes, small open smile, pink cheeks) peeks up from the bottom edge as a bust, one little arm raised waving. Mallang's head stays inside the sun disc outline so sun + Mallang form ONE compact shape. "
+  },
+  {
+    "id": "brand2-p2-mark",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "green",
+    "size": 512,
+    "out": "docs/design/brand-2/p2-mark.webp",
+    "refs": [
+      "public/art/mallang-wave.webp",
+      "public/art/hub-hero-desktop-4f-d3.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. FORMAT: the same mark as a standalone LOGO MARK cut-out for a website header next to a wordmark: just the subject, no background scene, no tile, centred, filling ~90% of the canvas, on a plain solid chroma green (#00ff00) background filling the whole image for keying, no shadow on the background. SUBJECT: 'Mallang face close-up' — Mallang the jelly (exactly the reference character) shown as a big friendly face and upper body filling about 85% of the canvas, the top of the head very slightly cropped by the top edge, happy crescent eyes, small open smile, pink cheeks, ONE soft cream highlight upper-left, plump rounded silhouette (not a ghost, not white). "
+  },
+  {
+    "id": "brand2-p4a-mark",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "out": "docs/design/brand-2/p4a-mark.webp",
+    "refs": [
+      "public/art/bomi-idle.webp",
+      "public/art/hub-hero-desktop-4f-d3.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. FORMAT: the same mark as a standalone LOGO MARK cut-out for a website header next to a wordmark: just the subject, no background scene, no tile, centred, filling ~90% of the canvas, on a plain solid magenta (#ff00ff) background filling the whole image for keying, no shadow on the background. SUBJECT: 'Sunset stamp' — a cream paper postage stamp, slightly tilted 4 degrees, with large chunky perforated scalloped edges (6-7 scallops per side), a thin ink frame inside. Inside the stamp: a half-set gold sun sitting on a lavender sea of clouds under a coral sky, one tiny floating island silhouette. NO numbers, NO letters, NO postmark text. Subtle paper grain only. "
+  },
+  {
+    "id": "brand2-p5-mark",
+    "model": "gemini-3-pro-image",
+    "aspect": "1:1",
+    "key": "magenta",
+    "size": 512,
+    "out": "docs/design/brand-2/p5-mark.webp",
+    "refs": [
+      "public/art/haessi-idle.webp",
+      "public/art/hub-hero-desktop-4f-d3.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. FORMAT: the same mark as a standalone LOGO MARK cut-out for a website header next to a wordmark: just the subject, no background scene, no tile, centred, filling ~90% of the canvas, on a plain solid magenta (#ff00ff) background filling the whole image for keying, no shadow on the background. SUBJECT: 'Haessi face' — Haessi the sunflower-seed sprite (exactly the reference character) as a big bust: plump seed body with 4 bold vertical stripes in seed brown (#6b4a2e) and cream, a LARGE sunflower bloom crown on top taking the upper 30% of the canvas (gold petals, brown centre), simple dot eyes, small smile, pink cheeks. No lantern, no leaf hands. "
+  },
+  {
+    "id": "brand2-nav-sheet1",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "magenta",
+    "size": 2400,
+    "out": "docs/design/brand-2/nav-sheet1.webp",
+    "refs": [
+      "public/art/plop-flower.webp",
+      "public/art/star.webp",
+      "public/art/haessi-idle.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. SUBJECT: a matching set of FIVE small website navigation icons as cute storybook stickers, arranged in one evenly spaced horizontal row, same size, same line weight, each a single simple object with a chunky silhouette that reads at 20 pixels, no faces, no characters: 1) Originals = a small sunflower bloom in a terracotta pot; 2) All games = four rounded cream tiles in a 2x2 grid like a tiny game board, one tile gold; 3) Leaderboards = a plump gold star rising out of a small round stone well; 4) Search = a wooden-rimmed magnifying glass with a pale lavender lens; 5) Today = a half-set gold sun on a little lavender cloud. Very few details, max 3 colours each plus ink, thick ink outline. Plain solid magenta (#ff00ff) background filling the whole image for keying, generous empty space between icons, no shadow on the background."
+  },
+  {
+    "id": "brand2-nav-sheet2",
+    "model": "gemini-3-pro-image",
+    "aspect": "16:9",
+    "key": "magenta",
+    "size": 2400,
+    "out": "docs/design/brand-2/nav-sheet2.webp",
+    "refs": [
+      "public/art/plop-flower.webp",
+      "public/art/star.webp",
+      "public/art/haessi-idle.webp"
+    ],
+    "prompt": "STYLE LOCK — 'Sunset Garden' world of the reference images. Premium hand-drawn storybook illustration for a top-tier mobile casual game, matching the reference characters EXACTLY: thick, even, slightly hand-wobbly dark-brown ink outline (#5b3a1e) on every shape (outline weight about 3% of the image width), inner detail lines thinner. Shading exactly like the references: Mallang the jelly keeps its smooth cyan (#7fe3ff) to violet (#9b7bff) vertical gradient with ONE soft cream highlight at upper-left and pink cheeks; everything else uses clean two-tone cel shading with a warm apricot rim light. Palette only: coral #ff9d7a, peach #ffd9b0, lavender #b79ad9, cream #fff3dc, sun gold #ffc933, deep orange #e8643f, moss #7cc26a, ink #5b3a1e, jelly cyan #7fe3ff, jelly violet #9b7bff. ABSOLUTELY NO text, letters, numbers, logos, signatures or watermarks. No 3D render, no plastic bevel, no lens flare, no sparkles, no glow, no neon, no white sticker border, no drop-shadow blur. Original design; do not imitate any existing brand or app icon. SUBJECT: a matching set of FIVE small website navigation icons as cute storybook stickers, arranged in one evenly spaced horizontal row, same size, same line weight, each a single simple object with a chunky silhouette that reads at 20 pixels, no faces, no characters: 1) Originals = a small sunflower bloom in a terracotta pot; 2) All games = four rounded cream tiles in a 2x2 grid like a tiny game board, one tile gold; 3) Leaderboards = a plump gold star rising out of a small round stone well; 4) Search = a wooden-rimmed magnifying glass with a pale lavender lens; 5) Today = a half-set gold sun on a little lavender cloud. Very few details, max 3 colours each plus ink, thick ink outline. Plain solid magenta (#ff00ff) background filling the whole image for keying, generous empty space between icons, no shadow on the background. Variation: slightly simpler, flatter shapes."
+  }
+]
