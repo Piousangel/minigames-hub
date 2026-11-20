@@ -137,6 +137,9 @@
 - **⏭ 08시 개발(문서 4장, 전부 S·풀 불변)**: ① `c-meadow-2` 정의+테스트 3 ② 골든에 c-meadow·s-bounce 행 추가 ③ `gate.ts` `prevPassRate`·`hintKilled`(정확값 테스트 0.6 / 0.2375) ④ `ghost.ts` `ghostMark`(금지 구역 첫 접점 → 아니면 simulate trace 끝점) — 그다음 PR-6·PR-7(2선 솔버 + CB-3~5).
 - **⏭ 다음 04시**: 3단계 2단 계단·6단계 젤리 잉크 A/B·5단계 건너편 둑 실측(`slime-exp/b.ts`·`d.ts` 출발), 또는 우선순위 ②(신작 브리프 v2)·③(Acorn·Plop 심화).
 
+## ▶ 2026-11-20 15시 게임 퀄리티팀 (장부 docs/team/quality/ledger.md)
+- memory-game 15→21: 결과에 이전 최고 비교·다음 목표(`winSummary`, 키·점수 체계 불변), 정원 꽃 카드 뒷면·크림 앞면·맞힘 ✓ 배지·틀림 산호 테두리·진동(음소거 따름)·누름 모양, cozy 결과, 판 중간 New Game 6초 Undo(포커스 판으로·role=status 알림). 독립 리뷰 반영(포커스·aria-live·ring-inset·렌더 중 요약). **오너 결정 요청: 판 크기·시간 모드**(6×6·시간 기록은 기록 체계가 바뀜). 남은 것: 과일 이모지 → 정원 그림·마스코트 반응(세계관 3점), 375×667에서 Undo 줄이 화면 끝(657/667).
+
 ## ▶ 2026-11-20 03시 게임 퀄리티팀 (장부 docs/team/quality/ledger.md)
 - 2048-animals 12→18: 판 아래 진화 사다리 🐭→🐉(이번 판 최고·다음 단계), 타일 모서리 단계 값, 이모지 cell×0.55 + 진한 타일 크림 원판, 결과 "You reached 🦁 Lion · next: 🐯 Tiger"/"New animal!"(새 키 `bestTile:2048-animals`, 기존 점수 기록 불변), 공용 `GameOverlay compact`(opt-in, animals만). 남은 것: 동물 진화 순간 연출 없음, 기기별 이모지 차이(자체 SVG는 M+), 결과 패널 7요소로 빽빽(공통).
 - 2048 16→20: 판 안 노을 정원 타일(한 방향 진해짐, 전 단계 글자 4.5:1+), cozy 결과, `GameShell compactHeader`(opt-in, 2048·animals만 — 390에서 점수 자릿수 늘 때 판 32px 튐 제거), 연타 12/12(새 입력이 진행 중 슬라이드를 즉시 확정), 합치기 진동. 남은 것: 128~1024 어두운 단계끼리 명도 근접(animals는 이모지만이라 더 불리), 결과 카드가 판보다 큼, 가로 회전 잘림, 진행 중 판 저장 없음.
