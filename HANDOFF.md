@@ -127,6 +127,9 @@
 - **⏭ 08시 개발(문서 4장, 전부 S·풀 불변)**: ① `c-meadow-2` 정의+테스트 3 ② 골든에 c-meadow·s-bounce 행 추가 ③ `gate.ts` `prevPassRate`·`hintKilled`(정확값 테스트 0.6 / 0.2375) ④ `ghost.ts` `ghostMark`(금지 구역 첫 접점 → 아니면 simulate trace 끝점) — 그다음 PR-6·PR-7(2선 솔버 + CB-3~5).
 - **⏭ 다음 04시**: 3단계 2단 계단·6단계 젤리 잉크 A/B·5단계 건너편 둑 실측(`slime-exp/b.ts`·`d.ts` 출발), 또는 우선순위 ②(신작 브리프 v2)·③(Acorn·Plop 심화).
 
+## ▶ 2026-11-20 15시 게임 퀄리티팀 (장부 docs/team/quality/ledger.md)
+- minesweeper 12→21: 길게 누르기 350ms = 깃발(10px 이동 취소·Android contextmenu 이중 토글 막음)·숫자 탭 chord(엔진 `chord()`, 하나씩 연 것과 같은 결과)·Dig/Flag 스위치 판 아래 44px, 라벤더 돌/밤색 흙 칸(닫힌/열린 대비 1.16 → 3.07)·숫자 18px, 💥·❌ 표시 + 패배 결과 창 900ms 지연, 결과 "Cleared in 00:07 · New best!"/"42/71 safe · 29 to go", 진행 중 New Game "Restart?" 3초 확인, 칸 aria-label에 상태. 키 `best:minesweeper:time` 불변. **오너 결정 요청: 첫 클릭 3×3 빈 터 보장**(배치 규칙이 바뀌어 기존 최고 시간과 비교가 어긋남). 남은 것: 💣🚩 이모지·공용 오버레이(세계관 3점), 칸 37px(9열 한계), iOS 진동 없음.
+
 ## ▶ 2026-11-20 03시 게임 퀄리티팀 (장부 docs/team/quality/ledger.md)
 - 2048-animals 12→18: 판 아래 진화 사다리 🐭→🐉(이번 판 최고·다음 단계), 타일 모서리 단계 값, 이모지 cell×0.55 + 진한 타일 크림 원판, 결과 "You reached 🦁 Lion · next: 🐯 Tiger"/"New animal!"(새 키 `bestTile:2048-animals`, 기존 점수 기록 불변), 공용 `GameOverlay compact`(opt-in, animals만). 남은 것: 동물 진화 순간 연출 없음, 기기별 이모지 차이(자체 SVG는 M+), 결과 패널 7요소로 빽빽(공통).
 - 2048 16→20: 판 안 노을 정원 타일(한 방향 진해짐, 전 단계 글자 4.5:1+), cozy 결과, `GameShell compactHeader`(opt-in, 2048·animals만 — 390에서 점수 자릿수 늘 때 판 32px 튐 제거), 연타 12/12(새 입력이 진행 중 슬라이드를 즉시 확정), 합치기 진동. 남은 것: 128~1024 어두운 단계끼리 명도 근접(animals는 이모지만이라 더 불리), 결과 카드가 판보다 큼, 가로 회전 잘림, 진행 중 판 저장 없음.
