@@ -1,3 +1,4 @@
+import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { gamePages } from '@/lib/games/registry'
@@ -32,7 +33,7 @@ export const metadata: Metadata = {
   description: META_DESC,
   alternates: { canonical: '/unblocked' },
   robots: thinPageRobots,
-  openGraph: { title: TITLE, description: META_DESC, url: '/unblocked', siteName: siteConfig.name, type: 'website' },
+  openGraph: { title: TITLE, description: META_DESC, url: '/unblocked', siteName: siteConfig.name, type: 'website', images: ogImage() },
   twitter: { card: 'summary_large_image', title: TITLE, description: META_DESC },
 }
 

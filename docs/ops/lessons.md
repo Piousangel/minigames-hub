@@ -26,3 +26,9 @@
 - 규칙: 터치 시뮬은 조준점·치우침(손가락 오프셋)·방향을 변수로 함께 표에 적는다. UI가 조준점을 바꾸려면(화살표 손잡이) 그것을 사람 손 기록으로 확인하기 전에는 '해결'이라 쓰지 않는다.
 - 덤: 솔버의 '해 개수'는 무엇을 세는지(수순·최종 상태·울타리 집합) 이름에 박는다(`fenceSetsAtMin`). 대칭 순서가 '해 2개'로 부풀었다.
 - 검사 불가 사유: 시뮬 가정의 타당성은 린트·테스트로 막을 수 없다 — 대신 시뮬 스크립트가 조준점 두 값 이상을 항상 출력하게 했다(`scripts/fence-touch-sim.mts`).
+
+## 2026-11-20 페이지가 openGraph를 주면 루트 공유 카드가 사라진다 (미니게임허브 16시, 축 B)
+- Next metadata는 객체 단위로 덮는다: 페이지가 `openGraph`를 주면 layout의 `siteName`도, 루트 `opengraph-image`도 물려받지 않는다. 가이드 22편·daily·정책 쪽이 몇 달 동안 og:image 없이 나갔고, 홈은 `twitter: { title }`만 줘서 card가 summary로 떨어졌다. 리디자인이 끝나도 '밖에서 보이는 모습'(OG·파비콘·theme-color)은 아무 교대의 범위에도 없어 네온으로 남았다.
+- 검사로 승격: `scripts/check-seo.mjs`(CI·deploy) — og:image 파일 존재·og:site_name·twitter:card 큰 카드·title/description 중복·홈 WebSite. 새 페이지에 openGraph를 쓰면 `ogImage()`(src/lib/og/ogImage.ts)를 같이 준다.
+- 덤: Satori(next/og)는 webp·woff2·가변 글꼴 축을 못 읽는다 — 빌드 전용 JPEG·PNG·정적 TTF 사본(src/lib/og/assets).
+

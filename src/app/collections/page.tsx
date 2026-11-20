@@ -1,3 +1,4 @@
+import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { COLLECTIONS, COLLECTION_SLUGS } from '@/lib/games/collections'
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
   description: META_DESC,
   alternates: { canonical: '/collections' },
   robots: thinPageRobots,
-  openGraph: { title: TITLE, description: META_DESC, url: '/collections', siteName: siteConfig.name, type: 'website' },
+  openGraph: { title: TITLE, description: META_DESC, url: '/collections', siteName: siteConfig.name, type: 'website', images: ogImage() },
   twitter: { card: 'summary_large_image', title: TITLE, description: META_DESC },
 }
 

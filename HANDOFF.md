@@ -1,5 +1,10 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 16시 사이트(축 B) 인계 — 밖에서 보이는 정원 (브랜치 `shift/16-site-b`)
+- **한 일**: 공유 카드(OG) 홈·113게임 정원화(`src/lib/og/gardenCard.tsx`, 표지 6종은 표지+가운데 띠), openGraph를 직접 주는 쪽에 `ogImage()`(가이드 22편·daily·정책 4쪽 등 og:image 복구), 홈 title 키워드 먼저 + WebSite JSON-LD, 정책 4쪽 description, 파비콘·애플·PWA 아이콘 = 헤더 `GardenLogoMark`, theme-color·manifest `#fff3dc`. 검사: `scripts/check-seo.mjs`(ci.yml·deploy), `scripts/og-compress.mjs`(build에 연결, 400KB 상한). spec `docs/team/specs/2026-11-20-share-preview-garden.md`.
+- **함정**: ① Satori는 webp·woff2·가변 축 불가 → `src/lib/og/assets/`(README에 재생성법). 표지를 새로 달면 `COVER_SLUGS`+사본(테스트가 잡음). ② 페이지 `openGraph`/`twitter` 객체는 layout 것을 통째로 덮는다 — siteName·images·card를 다시 줘야 한다(check-seo가 잡음). ③ `pnpm build`가 이제 og-compress까지 돈다(sharp devDependency). ④ 카톡·Bluesky 이미 올린 링크는 옛 카드 유지.
+- **⏭ 다음**: 12-04 `?ref=threads·bluesky` 유입 전후(n<30 보류), 대표 클래식 10개 스크린샷 카드, R7f 머지 뒤 전역 `colorScheme: 'dark'`·`statusBarStyle` 정리. 오너 선택: 카톡 URL 캐시 초기화, Search Console 홈 재색인.
+
 ## ▶ 2026-11-20 리디자인 v2 R7e 정원 틀 배치 e 인계 (브랜치 `shift/redesign-r7e-batch5`, #219)
 
 **한 줄:** 정원 틀 게임이 98개가 됐다 — 남은 DOM 18개 전부(offbeat·prismbox·gravwell·loopgrid·bisect·slotter·carousel·gridlock·strata·bankshot·morse-relay·lagline·recoil·hunch·fizzbeat·siteswap·shadowfit·slosh). 바뀐 코드는 `GARDEN_BATCHES.e` + `GameLoopgrid`·`GameCarousel` 색 1줄씩(bandInk) + `bandInk.test.ts` 표 + `garden-overlay-contrast.mjs` 승리 레시피 + e2e 배치 밖 기준 slug.

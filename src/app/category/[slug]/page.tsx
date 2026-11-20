@@ -1,3 +1,4 @@
+import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -101,6 +102,7 @@ export async function generateMetadata({
       url: `/category/${slug}`,
       siteName: siteConfig.name,
       type: 'website',
+      images: ogImage(),
     },
     twitter: { card: 'summary_large_image', title: hub.title, description: hub.metaDescription },
   }

@@ -1,3 +1,4 @@
+import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
@@ -21,7 +22,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: { absolute: `${title} — ${siteConfig.name}` },
     description,
     alternates: { canonical: `/guides/${slug}` },
-    openGraph: { title, description, url: `/guides/${slug}`, siteName: siteConfig.name, type: 'article' },
+    // 공략·기사는 다루는 게임의 카드(공략 = 그 게임, 기사 = 첫 관련 게임), 없으면 홈 카드
+    openGraph: { title, description, url: `/guides/${slug}`, siteName: siteConfig.name, type: 'article', images: ogImage(gamePages.find((g) => g.slug === (c.type === 'guide' ? c.entry.slug : c.entry.relatedGames?.[0]))?.slug) },
     twitter: { card: 'summary_large_image', title, description },
   }
 }

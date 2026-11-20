@@ -6,10 +6,10 @@ type IconProps = { className?: string }
 
 const svgProps = { 'aria-hidden': true, focusable: false } as const
 
-/** 로고 마크: 해바라기 해 + 떠 있는 섬(시안 #logo). */
-export function GardenLogoMark({ className }: IconProps) {
+/** 로고 마크: 해바라기 해 + 떠 있는 섬(시안 #logo). `size`는 Satori(공유 카드·파비콘)용 — CSS 클래스를 못 읽어 width/height 속성이 필요하다. */
+export function GardenLogoMark({ className, size }: IconProps & { size?: number }) {
   return (
-    <svg viewBox="0 0 32 32" className={className} {...svgProps}>
+    <svg viewBox="0 0 32 32" className={className} width={size} height={size} {...svgProps}>
       <circle cx="22.5" cy="9" r="5.2" fill="#ffd966" stroke="#5b3a1e" strokeWidth="2" />
       <path
         d="M4 16.5c0-2.2 5.4-3.8 12-3.8s12 1.6 12 3.8c0 1.2-1.4 2-3.2 2.6L17.6 29c-.8 1.1-2.4 1.1-3.2 0L7.2 19.1C5.4 18.5 4 17.7 4 16.5z"

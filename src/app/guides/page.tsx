@@ -1,3 +1,4 @@
+import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ARTICLES, GUIDES, readingMinutes } from '@/content'
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
   title: { absolute: `${TITLE} — ${siteConfig.name}` },
   description: DESCRIPTION,
   alternates: { canonical: '/guides' },
-  openGraph: { title: TITLE, description: DESCRIPTION, url: '/guides', siteName: siteConfig.name, type: 'website' },
+  openGraph: { title: TITLE, description: DESCRIPTION, url: '/guides', siteName: siteConfig.name, type: 'website', images: ogImage() },
 }
 
 function Card({ href, title, description, meta }: { href: string; title: string; description: string; meta: string }) {

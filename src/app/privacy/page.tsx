@@ -1,3 +1,4 @@
+import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ProsePage } from '@/components/ProsePage'
@@ -6,7 +7,9 @@ import { siteConfig } from '@/lib/siteConfig'
 export const metadata: Metadata = {
   title: 'Privacy Policy',
   alternates: { canonical: '/privacy' },
-  openGraph: { url: '/privacy' },
+  description: 'How Quick MiniGames handles your data: scores, streaks and settings stay in your own browser, plus anonymous usage stats, leaderboards, comments and cookies.',
+  // 페이지 openGraph는 layout 것을 덮는다 → siteName을 다시 준다(og:site_name 누락 방지)
+  openGraph: { url: '/privacy', type: 'website', siteName: siteConfig.name, images: ogImage() },
 }
 
 export default function PrivacyPage() {

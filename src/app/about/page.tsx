@@ -1,3 +1,4 @@
+import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ProsePage } from '@/components/ProsePage'
@@ -9,7 +10,9 @@ import { LEADERBOARD_GAMES } from '@/lib/leaderboard'
 export const metadata: Metadata = {
   title: 'About',
   alternates: { canonical: '/about' },
-  openGraph: { url: '/about' },
+  description: 'Who makes Quick MiniGames: one indie developer, 100+ free browser games written for the site, daily puzzles and weekly leaderboards — no accounts, no downloads.',
+  // 페이지 openGraph는 layout 것을 덮는다 → siteName을 다시 준다(og:site_name 누락 방지)
+  openGraph: { url: '/about', type: 'website', siteName: siteConfig.name, images: ogImage() },
 }
 
 // 수치는 하드코딩하지 않고 레지스트리에서 계산 — 게임이 늘어도 About이 거짓말을 하지 않게.
