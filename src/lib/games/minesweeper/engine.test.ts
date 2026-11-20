@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
+  chord,
   flagCount,
   MS_MINES,
   MS_SIZE,
   newMinesweeper,
   reveal,
+  safeLeft,
   toggleFlag,
   type MsState,
 } from './engine'
@@ -80,5 +82,85 @@ describe('toggleFlag / flagCount', () => {
     expect(flagCount(f1)).toBe(1)
     expect(flagCount(toggleFlag(f1, 5, 5))).toBe(0)
     expect(toggleFlag(first, 0, 0)).toBe(first) // (0,0)은 공개됨
+  })
+})
+
+describe('exploded — 밟은 지뢰 칸', () => {
+  it('패배 state에 밟은 칸 좌표가 남고, 진행 중·승리에는 없다', () => {
+    const first = reveal(newMinesweeper(), 0, 0, () => 0)
+    expect(first.exploded).toBeUndefined()
+    expect(reveal(first, 1, 1, () => 0).exploded).toEqual([1, 1])
+    expect(reveal(newMinesweeper(), 0, 0, () => 0.999999).exploded).toBeUndefined()
+  })
+})
+
+describe('chord', () => {
+  // rng()=>0: 지뢰 = (1..8,0),(0,1),(1,1). (0,0)=3.  (2,1)의 이웃 지뢰 = (1,0),(2,0),(3,0),(1,1) → 4
+  const base = () => reveal(newMinesweeper(), 0, 0, () => 0)
+
+  it('깃발 수 = 숫자이면 깃발 없는 닫힌 이웃을 연다(이웃을 하나씩 연 것과 같은 결과)', () => {
+    let s = reveal(base(), 2, 1, () => 0)
+    expect(s.grid[1][2].adjacent).toBe(4)
+    for (const [fx, fy] of [
+      [1, 0],
+      [2, 0],
+      [3, 0],
+      [1, 1],
+    ] as const)
+      s = toggleFlag(s, fx, fy)
+    const c = chord(s, 2, 1)
+    expect(c).not.toBe(s)
+    // (3,2)가 0이라 flood가 나머지 안전 칸을 다 연다 → 이 판은 코드 한 번으로 승리
+    expect(c.won).toBe(true)
+    expect(c.exploded).toBeUndefined()
+    for (const [ox, oy] of [
+      [3, 1],
+      [1, 2],
+      [2, 2],
+      [3, 2],
+    ] as const)
+      expect(c.grid[oy][ox].revealed).toBe(true)
+    let manual = s
+    for (const [ox, oy] of [
+      [3, 1],
+      [1, 2],
+      [2, 2],
+      [3, 2],
+    ] as const)
+      manual = reveal(manual, ox, oy, () => 0)
+    expect(c.grid).toEqual(manual.grid)
+    expect(safeLeft(c)).toBe(safeLeft(manual))
+  })
+
+  it('깃발 수가 모자라거나 숫자가 아닌 칸·닫힌 칸·종료 후에는 같은 state', () => {
+    const s = reveal(base(), 2, 1, () => 0)
+    expect(chord(s, 2, 1)).toBe(s) // 깃발 0개
+    expect(chord(s, 5, 5)).toBe(s) // 닫힌 칸
+    const won = reveal(newMinesweeper(), 0, 0, () => 0.999999)
+    expect(chord(won, 0, 0)).toBe(won) // 종료
+  })
+
+  it('깃발이 틀렸으면 이웃 지뢰를 밟아 진다(exploded = 밟은 칸)', () => {
+    let s = reveal(base(), 2, 1, () => 0)
+    // 진짜 지뢰 (1,1) 대신 안전한 (2,2)에 깃발 → (1,1)이 열려 패배
+    for (const [fx, fy] of [
+      [1, 0],
+      [2, 0],
+      [3, 0],
+      [2, 2],
+    ] as const)
+      s = toggleFlag(s, fx, fy)
+    const c = chord(s, 2, 1)
+    expect(c.over).toBe(true)
+    expect(c.won).toBe(false)
+    expect(c.exploded).toEqual([1, 1])
+  })
+})
+
+describe('safeLeft', () => {
+  it('처음은 81-10=71, 승리하면 0', () => {
+    expect(safeLeft(newMinesweeper())).toBe(MS_SIZE * MS_SIZE)
+    expect(safeLeft(reveal(newMinesweeper(), 0, 0, () => 0))).toBe(MS_SIZE * MS_SIZE - MS_MINES - 1)
+    expect(safeLeft(reveal(newMinesweeper(), 0, 0, () => 0.999999))).toBe(0)
   })
 })

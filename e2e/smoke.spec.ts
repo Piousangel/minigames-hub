@@ -78,6 +78,34 @@ test('minesweeper: 첫 클릭 → 안전 공개', async ({ page }) => {
   await expect(page.getByTestId('game-over')).not.toBeVisible()
 })
 
+test.describe('minesweeper 390 터치', () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true })
+  test('길게 누르기 → 깃발(칸은 안 열림), 진행 중 New Game은 Restart? 확인', async ({ page, context }) => {
+    await page.goto('/minesweeper')
+    const cells = page.getByTestId('ms-cell')
+    await cells.nth(40).tap()
+    await expect.poll(async () => page.locator('[data-revealed="true"]').count()).toBeGreaterThanOrEqual(1)
+    const closed = page.locator('[data-testid="ms-cell"][data-revealed="false"]').first()
+    const box = await closed.boundingBox()
+    if (!box) throw new Error('no closed cell')
+    // 진짜 터치 시퀀스(touchStart → 450ms → touchEnd)는 CDP로만 낼 수 있다(page.tap은 짧은 탭)
+    const cdp = await context.newCDPSession(page)
+    const pt = { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [pt] })
+    await page.waitForTimeout(450)
+    await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] })
+    await expect(closed).toContainText('🚩')
+    await expect(closed).toHaveAttribute('data-revealed', 'false')
+    await expect(page.getByTestId('mines-left')).toHaveText('9')
+    // 판을 지우는 버튼: 한 번은 확인 문구, 두 번째에 새 판
+    await page.getByRole('button', { name: 'New Game' }).tap()
+    await expect(page.getByRole('button', { name: 'Restart?' })).toBeVisible()
+    await expect(page.locator('[data-revealed="true"]').first()).toBeVisible()
+    await page.getByRole('button', { name: 'Restart?' }).tap()
+    await expect(page.locator('[data-revealed="true"]')).toHaveCount(0)
+  })
+})
+
 test('memory: 두 장 뒤집기 → moves 1', async ({ page }) => {
   await page.goto('/memory-game')
   await expect(page.getByTestId('memory-board')).toBeVisible()

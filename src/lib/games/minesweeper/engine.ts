@@ -15,6 +15,8 @@ export interface MsState {
   minesPlaced: boolean
   over: boolean
   won: boolean
+  /** 패배 때 밟은 지뢰 칸 [x, y] — 화면이 그 칸만 빨갛게 칠한다. 진행 중·승리는 없음. */
+  exploded?: [number, number]
 }
 
 export function newMinesweeper(): MsState {
@@ -70,7 +72,7 @@ export function reveal(state: MsState, x: number, y: number, rng: Rng): MsState 
         if (c.mine) c.revealed = true
       }
     }
-    return { grid, minesPlaced: true, over: true, won: false }
+    return { grid, minesPlaced: true, over: true, won: false, exploded: [x, y] }
   }
   const stack: Array<[number, number]> = [[x, y]]
   while (stack.length > 0) {
@@ -98,4 +100,30 @@ export function toggleFlag(state: MsState, x: number, y: number): MsState {
 
 export function flagCount(state: MsState): number {
   return state.grid.flat().filter((c) => c.flagged).length
+}
+
+/**
+ * 코드(chord): 공개된 숫자 칸 주변 깃발 수가 그 숫자와 같으면, 깃발 없는 닫힌 이웃을 한 번에 연다.
+ * 이웃을 하나씩 reveal한 것과 결과가 같다(규칙은 그대로, 탭 수만 줄인다). 깃발이 틀렸으면 지뢰를 밟는다.
+ * 조건이 안 맞으면(숫자 아님·깃발 수 불일치·열 칸 없음·종료) 같은 state를 돌려준다.
+ */
+export function chord(state: MsState, x: number, y: number): MsState {
+  if (state.over) return state
+  const c = state.grid[y][x]
+  if (!c.revealed || c.adjacent === 0) return state
+  const ns = neighbors(x, y)
+  const flags = ns.filter(([nx, ny]) => state.grid[ny][nx].flagged).length
+  if (flags !== c.adjacent) return state
+  let next = state
+  for (const [nx, ny] of ns) {
+    // 지뢰는 첫 reveal 뒤라 이미 배치돼 있어 rng는 쓰이지 않는다.
+    next = reveal(next, nx, ny, Math.random)
+    if (next.over) break
+  }
+  return next
+}
+
+/** 아직 열지 않은 안전 칸 수(패배 화면의 '남은 칸', 진행률). */
+export function safeLeft(state: MsState): number {
+  return state.grid.flat().filter((c) => !c.mine && !c.revealed).length
 }
