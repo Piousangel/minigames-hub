@@ -303,6 +303,22 @@ body {
   transform: scale(0.94);
 }
 
+/* 누르는 영역만 44×44 이상으로(보이는 크기·레이아웃은 그대로). 11-20 사용자 친화성 점검 — GameButton(34px)·
+   카드 하트(36px)처럼 화면에선 작게 두어야 하는 공통 버튼용. 이미 absolute/fixed면 그 자체가 기준 상자라 position을 건드리지 않는다.
+   e2e(bottom-sheet.spec '공통 컴포넌트 누르는 영역')는 크기가 아니라 elementFromPoint로 실제 눌리는 범위를 잰다. */
+.hit-44:not(.absolute):not(.fixed):not(.sticky) {
+  position: relative;
+}
+.hit-44::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: max(100%, 44px);
+  height: max(100%, 44px);
+  transform: translate(-50%, -50%);
+}
+
 /* ---------------------------------------------------------------------------
    Memory — 3D card flip + match/mismatch feedback
 --------------------------------------------------------------------------- */
@@ -874,30 +890,78 @@ body:has(main[data-game-page]) [data-site-nav-row] {
   pointer-events: none;
 }
 
-/* ───────── 리디자인 v2 R5: 데일리 결과 시트 (src/components/daily/DailyResultSheet.tsx) ─────────
-   - 아래에서 올라오는 시트 + 꽃이 차례로 핀다. 모션 줄이기면 둘 다 없이 최종 상태(계획서 3장 공통 규칙).
+/* ───────── 공통 하단 시트 (src/components/sheet/BottomSheet.tsx, 11-20 오너 "손잡이를 잡고 당길 수 있게") ─────────
+   - 767 이하: 아래에서 올라오는 시트(손잡이 끌어 닫기). 768 이상: 가운데 카드(끌기 없음) — DECISIONS 11-20.
+   - 열기 280ms·닫기 240ms, iOS 감속 곡선. 열기는 animation(backwards — 끝난 뒤 인라인 transform이 끌기를 이어받는다),
+     닫기는 data-state=closing의 transition(끌던 자리에서 그대로 이어서 내려간다). 모션 줄이기면 즉시.
+   - 키보드: BottomSheet가 --sheet-kb(가린 높이)·--sheet-vh(보이는 높이)를 넣는다.
    - z 60: 헤더(43)·게임 보드(41)보다 위. 시트 안 광고 없음. */
-.daily-sheet {
-  animation: daily-sheet-up 320ms var(--ease-out) both;
+:root {
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 }
-.daily-sheet__dim {
-  animation: daily-sheet-fade 220ms ease-out both;
+.sheet-root {
+  position: fixed;
+  inset: 0 0 var(--sheet-kb, 0px) 0;
 }
-.daily-sheet__flower.is-bloomed {
-  animation: daily-sheet-bloom 420ms var(--ease-out) both;
+.sheet-panel {
+  max-height: min(var(--sheet-max, 85dvh), calc(var(--sheet-vh, 100dvh) - 16px));
+  animation: sheet-up 280ms var(--ease-sheet) backwards;
+  will-change: transform;
 }
-@keyframes daily-sheet-up {
+.sheet-dim {
+  animation: sheet-fade 280ms var(--ease-sheet) backwards;
+  transition: opacity 240ms var(--ease-sheet);
+  touch-action: none;
+}
+.sheet-root[data-state='closing'] .sheet-dim {
+  opacity: 0;
+}
+.sheet-root[data-state='closing'] .sheet-panel {
+  transform: translate3d(0, 100%, 0);
+  transition: transform 240ms var(--ease-sheet);
+  pointer-events: none;
+}
+@keyframes sheet-up {
   from {
-    transform: translateY(100%);
-  }
-  to {
-    transform: none;
+    transform: translate3d(0, 100%, 0);
   }
 }
-@keyframes daily-sheet-fade {
+@keyframes sheet-pop {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(0.97);
+  }
+}
+@keyframes sheet-fade {
   from {
     opacity: 0;
   }
+}
+@media (min-width: 768px) {
+  .sheet-panel {
+    animation-name: sheet-pop;
+  }
+  .sheet-root[data-state='closing'] .sheet-panel {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0) scale(0.97);
+    transition:
+      opacity 200ms var(--ease-sheet),
+      transform 240ms var(--ease-sheet);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sheet-panel,
+  .sheet-dim,
+  .sheet-root[data-state='closing'] .sheet-panel,
+  .sheet-root[data-state='closing'] .sheet-dim {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* 리디자인 v2 R5 데일리 결과 시트(BottomSheet 안): 꽃이 차례로 핀다. 모션 줄이기면 최종 상태. */
+.daily-sheet__flower.is-bloomed {
+  animation: daily-sheet-bloom 420ms var(--ease-out) both;
 }
 @keyframes daily-sheet-bloom {
   0% {
@@ -913,8 +977,6 @@ body:has(main[data-game-page]) [data-site-nav-row] {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .daily-sheet,
-  .daily-sheet__dim,
   .daily-sheet__flower.is-bloomed {
     animation: none !important;
   }

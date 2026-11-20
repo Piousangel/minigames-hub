@@ -8,6 +8,16 @@
 - **함정**: ① 덮개 스크립트 레시피는 이제 `{ slug, init, play }` 객체도 받는다(같은 게임의 다른 결과 — `init`은 addInitScript라 storage를 심을 때) ② 승리 레시피에서 runMilestone(세션 3판)을 심어도 목표 넛지가 가까우면 '🔥 3-game run!' 줄 대신 '⚡ N more games…' 넛지가 뜬다(같은 `text-neon-amber`, Confetti·☕ 줄은 milestone으로 뜸) ③ **판이 짧은 게임은 390·1440 모두 승패 모달 상자가 판 밖 크림 위로 넘친다**(slotter 실측 — 덮개가 판 높이보다 큼). 크림 비침은 ~4%라 대비는 통과지만 보기에 '판 안 모달'이 아님. 공용 GameOverlay라(바텀 시트 PR #218이 시트·모달 공통 컴포넌트를 다루는 중) 이 배치에서 손대지 않음 ④ 포트 3100은 다른 세션(이번엔 3871 head·3872 base, base 빌드는 `git archive origin/main`을 scratchpad에 풀어서).
 - **⏭ R7f가 알아야 할 것**: ① 남은 것 = ticker(하드코딩 색 25)·unblock(20) + 캔버스 10종(breakout·pong·bubble-shooter·flappy·space-shooter·tower-stack·flywheel·ripple·latch·backspace) — `gardenRollout.test.ts`의 'getContext 0·색 <20' 검사를 배치 f만 예외로 하거나 캔버스용 다른 규칙으로 바꿔야 한다 ② 캔버스는 대비 게이트가 캔버스 안 글자를 못 본다(`svg, canvas` 건너뜀) — 캔버스 안 색은 캡처·손으로 ③ e2e '배치 밖 게임' 테스트 기준이 ticker라, R7f에서 ticker가 들어가면 그 테스트를 지우거나 오리지널(`garden-room`) 검사로 바꿀 것 ④ 위 함정 ③(모달 판 밖 넘침)은 #218 머지 뒤 공용 모달에서 '판 안에 맞추기/스크롤' 결정 — 오너 확인 대상 아님(표현 조정) ⑤ 승리 레시피가 생겼으니 R7f 대표 게임도 승·패 둘 다 잴 것.
 
+## ▶ 2026-11-20 공통 BottomSheet + UX 친화성 인계 (브랜치 `feat/bottom-sheet-ux`)
+
+**한 줄:** 오너 "손잡이가 있는데 배경 탭으로만 닫힌다, 모든 부분을 사용자 친화적으로" → `src/components/sheet/BottomSheet.tsx` 하나로 모달 통일. 손잡이 끌어 닫기(높이 25% 또는 0.5px/ms 튕김, 아니면 300ms 복귀), 손잡이 = `Close` 버튼, 배경 탭·Esc·뒤로 가기·닫기 버튼이 같은 퇴장 모션·같은 onClose. 768+는 가운데 카드(끌기 없음).
+- **코드**: 규칙 숫자는 `sheetGesture.ts`(순수, 테스트). 내용 쪽은 `children(api)`로 `api.close(after?)`·`api.takeHistory()`(Next game이 history 칸을 바꿔 끼울 때). CSS `globals.css` '공통 하단 시트'(`--ease-sheet`, `--sheet-kb`·`--sheet-vh`·`--sheet-max`). 결과 시트(`DailyResultSheet`)는 내용만.
+- **공통 친화성 수정**: `.hit-44`(보이는 크기 그대로 누르는 영역만 44) — GameButton·카드 하트·/daily 빵 부스러기, 다른 게임 아이콘 40 → 44, 모음·카테고리 칩 34 → 44, 시트 안 공유 채널 36 → 44, 입력칸(리더보드 이름·직접 복사) 16px(iOS 확대), 결과 시트를 연 'Today’s result' 버튼을 시트가 열린 동안 지우지 않음(포커스 복귀 + 시트 창 CLS 0.023 → 0.008).
+- **검사**: `e2e/bottom-sheet.spec.ts`(CDP 터치로 짧게→복귀·길게→닫힘·튕김→닫힘, 내용 끌기·안쪽 스크롤 충돌, 배경 탭·Esc·뒤로 가기·포커스 복귀, 스크롤 잠금, 44px·16px, 모션 줄이기, 데스크톱 카드, 공통 컴포넌트 누르는 영역 elementFromPoint). 점검 도구 `node scripts/ux-audit.mjs http://localhost:<포트> [/경로]`. QUALITY.md 5장 체크리스트 10항목, 게임별 넘긴 것은 ledger 맨 아래 'UX 친화성' 표.
+- **증거**: `docs/design/bottom-sheet/`(390 시트·끄는 중·닫힌 뒤, 360, 1440, `sheet-drag-390.webm` 녹화, report.json axe 0·0).
+- **함정**: ① CDP 터치 이벤트 간격이 ~30ms(부하 걸리면 100ms+)라 '튕김' e2e는 120px/4이벤트로 넉넉히 — 느린 기기 대비로 표본이 성기면 바로 앞 표본까지 쓴다 ② 시트 열림 애니메이션은 `backwards` — `both`로 바꾸면 끝난 뒤에도 transform을 잡아 끌기가 안 따라온다 ③ body `position:fixed` 잠금으로 바꾸지 말 것(sticky 헤더 CLS) ④ 연 버튼을 시트가 열린 동안 지우면 포커스가 body로 샌다.
+- **⏭ 다음**: iOS Safari 실기기에서 끌기·키보드(visualViewport) 확인 + playwright webkit 프로젝트(이 컨테이너엔 없음), ledger 'UX 친화성' 표(chess 토글 28px·beatline 탭·unblock select 14px·slime 소리 토글·solitaire), /acorn-hop 로드 중 CLS(share-buttons·next-rail·daily-dock 0.05+, 라이브에서도 같음 — 이 PR 밖), 샌드랩 결과 카드(SpillResult·ResultCard `role="dialog"`)에 같은 시트 적용.
+
 ## ▶ 2026-11-20 리디자인 v2 R7d 정원 틀 배치 d 인계 (브랜치 `shift/redesign-r7d-batch4`, #216)
 
 **한 줄:** 정원 틀 게임이 80개가 됐다(배치 d 20개: dots-and-boxes·decant·sonar·handful·flapjack·interlock·quadle·equate·reactor·pyramid·tripeaks·golf-solitaire·dominoes·yukon-solitaire·gomoku·kakuro·skew·turntile·stakehouse·grasp). 바뀐 코드는 `GARDEN_BATCHES.d` + 게임 안 색 수정 6파일 + 공용 `src/lib/games/bandInk.ts`(+test) + `scripts/garden-overlay-contrast.mjs`(신설).

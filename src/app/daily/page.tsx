@@ -75,7 +75,7 @@ export default function DailyHub() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <nav aria-label="Breadcrumb" className="mb-4 text-sm text-fg-muted">
-        <Link href="/" className="hover:text-fg">
+        <Link href="/" className="hit-44 hover:text-fg">
           Home
         </Link>
         <span aria-hidden="true"> / </span>
@@ -113,7 +113,7 @@ export default function DailyHub() {
           <Link
             key={c}
             href={`/category/${c}`}
-            className="rounded-lg border border-border bg-surface px-3 py-1.5 capitalize text-fg-muted hover:text-fg"
+            className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-3 py-1.5 capitalize text-fg-muted hover:text-fg"
           >
             {c} games
           </Link>

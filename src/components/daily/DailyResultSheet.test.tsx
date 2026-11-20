@@ -62,7 +62,7 @@ describe('DailyResultSheet', () => {
     expect(sheet).toHaveAttribute('aria-modal', 'true')
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Today’s garden is full.')
     expect(screen.getByTestId('sheet-garden')).toHaveAccessibleName("Today's garden: 3 of 3 bloomed")
-    expect(sheet).toHaveAttribute('data-full', 'true')
+    expect(screen.getByTestId('sheet-body')).toHaveAttribute('data-full', 'true')
   })
 
   it('진행 중이면 "is growing." + n of 3', () => {
@@ -106,10 +106,10 @@ describe('DailyResultSheet', () => {
     expect(imgs[0]).toHaveAttribute('alt', '')
   })
 
-  it('max-height 85dvh + 안쪽 스크롤', () => {
+  it('max-height 85dvh(공통 시트 --sheet-max) + 안쪽 스크롤', () => {
     render(<Sheet />)
     const sheet = screen.getByTestId(SHEET_TEST_ID)
-    expect(sheet.style.maxHeight).toBe('85dvh')
+    expect(sheet.style.getPropertyValue('--sheet-max')).toBe('85dvh')
     expect(sheet.className).toContain('overflow-y-auto')
   })
 
@@ -203,13 +203,45 @@ describe('DailyResultSheet', () => {
     expect(screen.getByText('58').className).toContain('text-[32px]')
   })
 
-  it('브라우저 뒤로 가기(popstate)로 닫힌다', () => {
+  it('브라우저 뒤로 가기(popstate)로 닫힌다(퇴장 모션 240ms 뒤 onClose)', async () => {
     const onClose = vi.fn()
     render(<Sheet onClose={onClose} />)
     act(() => {
       window.dispatchEvent(new PopStateEvent('popstate'))
     })
+    expect(onClose).not.toHaveBeenCalled()
+    expect(screen.getByTestId(`${SHEET_TEST_ID}-root`)).toHaveAttribute('data-state', 'closing')
+    await act(async () => {
+      await new Promise((r) => setTimeout(r, 300))
+    })
     expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
+  it('손잡이는 "Close" 버튼(키보드 Enter/Space = 클릭) — 누르면 history 칸을 뒤로 가기로 뺀다', () => {
+    const back = vi.spyOn(window.history, 'back').mockImplementation(() => {})
+    render(<Sheet />)
+    const handle = screen.getByTestId('sheet-handle')
+    expect(handle.tagName).toBe('BUTTON')
+    expect(handle).toHaveAccessibleName('Close')
+    expect(handle.className).toContain('h-11') // 44px 터치 영역
+    fireEvent.click(handle)
+    expect(back).toHaveBeenCalledTimes(1)
+    back.mockRestore()
+  })
+
+  it('배경(어둠) 탭도 같은 길로 닫는다', () => {
+    const back = vi.spyOn(window.history, 'back').mockImplementation(() => {})
+    render(<Sheet />)
+    fireEvent.click(screen.getByTestId('sheet-dim'))
+    expect(back).toHaveBeenCalledTimes(1)
+    back.mockRestore()
+  })
+
+  it('열린 동안 배경 스크롤 잠금(html overflow hidden), 닫히면 풀린다', () => {
+    const { rerender } = render(<Sheet />)
+    expect(document.documentElement.style.overflow).toBe('hidden')
+    rerender(<Sheet open={false} />)
+    expect(document.documentElement.style.overflow).toBe('')
   })
 
   it('공유 문구 = 게임 원래 문구 + 정원·호수, 개인 정보(이름·기기 id) 없음', () => {

@@ -9,7 +9,7 @@ const btn =
   'inline-flex min-h-11 items-center justify-center rounded-lg border border-white/15 bg-surface px-3 py-2 text-sm font-semibold text-fg transition-colors hover:border-accent/60 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent'
 // 오버레이(밝은 크림 배경) 안에서 읽히는 작은 버튼
 const btnCompact =
-  'inline-flex min-h-9 items-center justify-center rounded-lg border-2 border-[#5b3a1e] bg-[#fff3dc] px-2.5 py-1 text-xs font-bold text-[#5b3a1e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b3a1e]'
+  'inline-flex min-h-11 items-center justify-center rounded-lg border-2 border-[#5b3a1e] bg-[#fff3dc] px-2.5 py-1 text-xs font-bold text-[#5b3a1e] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5b3a1e]'
 
 /** 클립보드 API가 막힌 환경(인앱 브라우저·권한 거부)용 폴백: 숨은 textarea + execCommand. */
 function legacyCopy(text: string): boolean {
@@ -166,7 +166,7 @@ export function ShareButtons({
           value={manual}
           onFocus={(e) => e.currentTarget.select()}
           onClick={(e) => e.currentTarget.select()}
-          className={compact ? 'mt-1 w-full rounded-lg border-2 border-[#5b3a1e] bg-white px-2 py-1 text-xs text-[#5b3a1e]' : 'mt-2 w-full rounded-lg border border-white/15 bg-surface px-3 py-2 text-xs text-fg'}
+          className={compact ? 'mt-1 min-h-11 w-full rounded-lg border-2 border-[#5b3a1e] bg-white px-2 py-1 text-[16px] text-[#5b3a1e]' : 'mt-2 w-full rounded-lg border border-white/15 bg-surface px-3 py-2 text-[16px] text-fg'}
           aria-label="Link to copy"
           data-testid="share-manual"
         />

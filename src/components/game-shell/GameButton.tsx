@@ -25,7 +25,7 @@ export function GameButton({
   return (
     <button
       {...props}
-      className={`btn-press rounded-lg px-3 py-1.5 text-sm font-semibold disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg ${VARIANTS[variant]} ${className}`}
+      className={`btn-press hit-44 rounded-lg px-3 py-1.5 text-sm font-semibold disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg ${VARIANTS[variant]} ${className}`}
     />
   )
 }

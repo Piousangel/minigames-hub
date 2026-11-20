@@ -118,3 +118,15 @@
 | acorn-hop | - | - | - | - | - | - | - | - | 미점검 | |
 | plop-landing | - | - | - | - | - | - | - | - | 미점검 | |
 | slime-slide | - | - | - | - | - | - | - | - | 미점검 | |
+
+## UX 친화성 점검에서 넘긴 게임별 항목 (11-20, `scripts/ux-audit.mjs` 390 터치 · [QUALITY.md 5장](../QUALITY.md))
+공통 원인(GameButton 34px·카드 하트 36px·다른 게임 아이콘 40px·모음 칩 34px·결과 시트·리더보드 이름칸 14px)은 PR feat/bottom-sheet-ux에서 고쳤다. 아래는 게임 안쪽이라 퀄리티팀 몫 — 그 게임을 점검할 때 같이 고치고 줄을 지운다.
+
+| slug | 항목 | 근거(390) |
+|---|---|---|
+| chess | 모드·색·난이도 토글 7개 높이 28px(`rounded-md px-2 py-1`) — 오터치 | vs CPU 64×28 등 |
+| beatline | Daily/Practice 탭 높이 32px | 54×32 · 76×32 |
+| unblock | 레벨 `<select>` 글자 14px(iOS 포커스 확대) + 높이 33px | level-select 197×33 |
+| slime-slide | 소리 토글 38×34(게임 안 버튼, GameShell 음소거와 별개) | Turn sound off |
+| solitaire | 카드 42×58 — 7열이라 폭은 한계, 높이는 충분. 겹친 카드 경계에서 탭 판정이 엇갈리는지 손으로 확인 | Stock·tableau |
+| 판을 지우는 버튼이 있는 게임 전부 | New game·Reset·End round가 확인 없이 판을 지우는지(체크리스트 8번) | 점검 때 |
