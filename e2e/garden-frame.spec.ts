@@ -196,13 +196,17 @@ test.describe('정원 틀 배치(R7)', () => {
     })
   }
 
-  test('배치 밖 게임은 예전 그대로(스코프 없음, 어두운 바탕)', async ({ page }) => {
-    await page.goto('/ticker') // 남은 DOM 게임(R7e에서 slosh가 배치에 들어가 바꿈 — R7f 뒤엔 이 테스트를 지우거나 오리지널 검사로)
-    const main = page.locator('main[data-game-page]')
-    await expect(main).not.toHaveAttribute('data-world', /.+/)
+  // R7f로 배치 밖 게임이 0개가 됐다(gardenRollout.test.ts '전 게임 정원 틀'). 예전 '배치 밖 = 어두운 바탕' 검사(ticker 기준)는
+  // 오리지널 방 검사로 바꾼다: 오리지널은 틀 매핑이 없고, 정원 틀 페이지에서도 전역 토큰은 그대로다(D7).
+  test('오리지널 방은 틀 매핑 없음(어두운 바탕·main 토큰 그대로), 정원 틀 페이지도 전역 토큰은 그대로', async ({ page }) => {
+    await page.goto('/plop-landing')
+    await expect(page.locator('main[data-game-page]')).toHaveAttribute('data-world', 'garden-room')
     await expect(page.locator('[data-garden-board]')).toHaveCount(0)
+    // 정원 틀 페이지는 body가 크림(paper) — 오리지널 방은 예전 어두운 바탕
     expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe('rgb(8, 8, 15)')
-    // 전역 토큰은 그대로(D7)
+    expect(await page.evaluate(() => getComputedStyle(document.querySelector('main')!).getPropertyValue('--neon-cyan').trim())).toBe('#22d3ee')
+    await page.goto('/breakout')
+    await expect(page.locator('main[data-game-page]')).toHaveAttribute('data-world', 'garden')
     expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--neon-cyan').trim())).toBe('#22d3ee')
     expect(await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme)).toBe('dark')
   })
