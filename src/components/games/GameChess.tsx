@@ -565,12 +565,12 @@ export function GameChess({ storageKey }: { storageKey: string }) {
                   )}
                   {/* file / rank coordinate hints on the edge squares */}
                   {c === 0 && (
-                    <span className="pointer-events-none absolute left-0.5 top-0 text-[8px] font-bold text-fg-muted/70">
+                    <span className="pointer-events-none absolute left-0.5 top-0 text-[10px] font-bold text-fg">
                       {rank + 1}
                     </span>
                   )}
                   {r === 7 && (
-                    <span className="pointer-events-none absolute bottom-0 right-0.5 text-[8px] font-bold text-fg-muted/70">
+                    <span className="pointer-events-none absolute bottom-0 right-0.5 text-[10px] font-bold text-fg">
                       {'abcdefgh'[file]}
                     </span>
                   )}

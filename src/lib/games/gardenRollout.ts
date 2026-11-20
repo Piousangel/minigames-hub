@@ -36,6 +36,30 @@ export const GARDEN_BATCHES = {
     'flow',
     'clusters',
   ],
+  // R7b(11-20): chess·mahjong(대비 결함 수정 뒤 투입) + 캔버스 없음·하드코딩 색 <20인 고전 18개.
+  // 트래픽은 chess·mahjong 말고 전부 0(11-15~21 지표)이라 HANDOFF R7a 후보 → 레지스트리 순(오래된 고전·검색 유입 대상) 순서.
+  b: [
+    'chess',
+    'mahjong',
+    'memory-game',
+    'tetris',
+    'tic-tac-toe',
+    'connect-four',
+    'yahtzee',
+    'freecell',
+    'spider',
+    'jigsaw',
+    'sliding-puzzle',
+    'reaction-time',
+    'hangman',
+    'simon',
+    'whack-a-mole',
+    'rock-paper-scissors',
+    'lights-out',
+    'nonogram',
+    'checkers',
+    'reversi',
+  ],
 } as const satisfies Record<string, readonly string[]>
 
 export type GardenBatch = keyof typeof GARDEN_BATCHES

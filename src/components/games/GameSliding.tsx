@@ -19,10 +19,11 @@ const KEY_DIRS: Record<string, Direction> = {
 
 // Depth/color: cool-to-warm gradient so the number tiles read as a set while
 // still being easy to scan individually. Correctly-placed tiles get a lift.
+// sky-600 시작: 흰 숫자(24px 굵게)가 그라데이션 가장 밝은 쪽에서도 3:1 이상(R7b 대비 수정 — 예전 sky-500 2.7:1).
 function tileFace(value: number, correct: boolean): string {
   const base = correct
     ? 'bg-accent text-stone-900 shadow-[0_0_16px_rgba(245,158,11,0.45)] ring-1 ring-white/40'
-    : 'bg-gradient-to-br from-sky-500 to-indigo-600 text-white shadow-md ring-1 ring-white/10'
+    : 'bg-gradient-to-br from-sky-600 to-indigo-600 text-white shadow-md ring-1 ring-white/10'
   return base
 }
 
