@@ -1,6 +1,6 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
-## ▶ 2026-11-20 리디자인 v2 R7e 정원 틀 배치 e 인계 (브랜치 `shift/redesign-r7e-batch5`, #PRNUM)
+## ▶ 2026-11-20 리디자인 v2 R7e 정원 틀 배치 e 인계 (브랜치 `shift/redesign-r7e-batch5`, #219)
 
 **한 줄:** 정원 틀 게임이 98개가 됐다 — 남은 DOM 18개 전부(offbeat·prismbox·gravwell·loopgrid·bisect·slotter·carousel·gridlock·strata·bankshot·morse-relay·lagline·recoil·hunch·fizzbeat·siteswap·shadowfit·slosh). 바뀐 코드는 `GARDEN_BATCHES.e` + `GameLoopgrid`·`GameCarousel` 색 1줄씩(bandInk) + `bandInk.test.ts` 표 + `garden-overlay-contrast.mjs` 승리 레시피 + e2e 배치 밖 기준 slug.
 - **수정(색만, 규칙·점수·레이아웃 0)**: loopgrid 정답 줄 숫자 `bandInk(hue, 62, 52, 70)`(파랑 2.43 → 7.87, 빨강 3.64 → 4.85, 자홍 4.19 → 4.79), carousel 구슬 숫자 `bandInk(hue, 70, 52, 80)`(파랑 2.33 → 8.27, 빨강 3.72 → 4.74, 자홍 4.34 → 5.00). 나머지 16개는 수정 없이 통과.
