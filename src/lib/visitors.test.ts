@@ -7,6 +7,7 @@ import {
   isSameSite,
   todayFromPayload,
   prevDay,
+  pruneBefore,
   readVisitors,
   recordVisit,
   resetVisitCache,
@@ -105,6 +106,13 @@ describe('recordVisit', () => {
     resetVisitCache() // 다른 isolate
     expect(await visit('203.0.113.7', d)).toBe('stale')
     expect(raw.prepare("SELECT visitors, salt FROM visit_days WHERE day = '2026-11-20'").all()[0]).toEqual({ visitors: 1, salt: null })
+  })
+
+  it('자정 경쟁: 솔트를 캐시한 isolate가 정리 뒤에 지난 날로 넣어도 숫자는 오르지 않는다', async () => {
+    await visit('203.0.113.7', T0)
+    await pruneBefore(db, '2026-11-21') // 다른 isolate가 다음 날 정리를 끝냄(이 isolate 솔트 캐시는 그대로)
+    expect(await visit('203.0.113.7', T0 + 1000)).toBe('stale')
+    expect(raw.prepare("SELECT visitors FROM visit_days WHERE day = '2026-11-20'").all()[0].visitors).toBe(1)
   })
 
   it('IP가 없으면 세지 않는다', async () => {

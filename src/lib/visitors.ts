@@ -91,7 +91,7 @@ async function daySalt(db: VisitDb, day: string, defer: (p: Promise<unknown>) =>
     .prepare('INSERT OR IGNORE INTO visit_days (day, visitors, salt) VALUES (?, 0, ?)')
     .bind(day, randomSalt())
     .run()
-  // 오늘 행을 처음 만든 요청이 지난 날 해시를 정리한다(응답 뒤). 실패해도 다음 날 정리가 day < 오늘로 다시 잡는다.
+  // 오늘 행을 처음 만든 요청이 지난 날 해시를 정리한다(defer — 허브는 응답 뒤 waitUntil, 샌드랩 비콘은 응답 전에 기다린다). 실패해도 다음 날 정리가 day < 오늘로 다시 잡는다.
   if ((created.meta?.changes ?? 0) > 0) defer(pruneBefore(db, day))
   const { results } = await db.prepare('SELECT salt FROM visit_days WHERE day = ?').bind(day).all<{ salt: string | null }>()
   const salt = results[0]?.salt ?? null
@@ -163,8 +163,9 @@ export async function recordVisit(
   const h = await visitorHash(bucket, salt, opts.secret)
   const ins = await db.prepare('INSERT OR IGNORE INTO visit_seen (day, h) VALUES (?, ?)').bind(day, h).run()
   if ((ins.meta?.changes ?? 0) === 0) return 'seen'
-  await db.prepare('UPDATE visit_days SET visitors = visitors + 1 WHERE day = ?').bind(day).run()
-  return 'counted'
+  // salt IS NOT NULL: 다른 isolate가 그사이 이 날을 정리했다면(자정 경쟁) 올리지 않는다 — 부풀림을 코드로 막는다
+  const up = await db.prepare('UPDATE visit_days SET visitors = visitors + 1 WHERE day = ? AND salt IS NOT NULL').bind(day).run()
+  return (up.meta?.changes ?? 0) > 0 ? 'counted' : 'stale'
 }
 
 export interface VisitorsPayload {
