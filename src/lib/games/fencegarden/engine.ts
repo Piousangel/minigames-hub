@@ -344,13 +344,19 @@ export function initialState(p: HopPuzzle): HopState {
   return { pos: p.start, fences: new Set(p.fixed) }
 }
 
-export type HopSolution = { min: number | null; solutionsAtMin: number; states: number; line: HopMove[] | null }
+/**
+ * fenceSetsAtMin: 최소 턴 해의 **서로 다른 최종 울타리 집합** 수(같은 울타리를 다른 순서로 놓은 해·대칭 순서는 1개로 센다).
+ * 리뷰(11-20): 예전 값은 '중복 제거된 직전 상태 × 수' 쌍이라 해 개수로 쓰면 부풀었다(퍼즐2 20 → 실제 집합 12).
+ */
+export type HopSolution = { min: number | null; fenceSetsAtMin: number; states: number; line: HopMove[] | null }
 
-/** 너비 우선 전수 탐색(상태 = 위치 + 울타리 집합, 중복 제거). 최소 턴·최소 턴 해의 수(경로 기준)·해 한 줄. */
+const fenceKey = (f: ReadonlySet<EdgeId>) => [...f].sort((a, b) => a - b).join(',')
+
+/** 너비 우선 전수 탐색(상태 = 위치 + 울타리 집합, 중복 제거). */
 export function solveHop(p: HopPuzzle, maxTurns = p.turns): HopSolution {
-  const key = (s: HopState) => `${s.pos}|${[...s.fences].sort((a, b) => a - b).join(',')}`
+  const key = (s: HopState) => `${s.pos}|${fenceKey(s.fences)}`
   const start = initialState(p)
-  if (hopGoal(p, start)) return { min: 0, solutionsAtMin: 1, states: 1, line: [] }
+  if (hopGoal(p, start)) return { min: 0, fenceSetsAtMin: 1, states: 1, line: [] }
   type Node = { s: HopState; line: HopMove[] }
   let layer: Node[] = [{ s: start, line: [] }]
   const seen = new Set([key(start)])
@@ -358,12 +364,12 @@ export function solveHop(p: HopPuzzle, maxTurns = p.turns): HopSolution {
   for (let t = 1; t <= maxTurns; t++) {
     const next: Node[] = []
     let found: HopMove[] | null = null
-    let count = 0
+    const goalSets = new Set<string>()
     for (const node of layer) {
       for (const m of legalMoves(p, node.s)) {
         const s2 = applyMove(node.s, m)
         if (hopGoal(p, s2)) {
-          count++
+          goalSets.add(fenceKey(s2.fences))
           if (!found) found = [...node.line, m]
           continue
         }
@@ -374,13 +380,41 @@ export function solveHop(p: HopPuzzle, maxTurns = p.turns): HopSolution {
         next.push({ s: s2, line: [...node.line, m] })
       }
     }
-    if (found) return { min: t, solutionsAtMin: count, states, line: found }
+    if (found) return { min: t, fenceSetsAtMin: goalSets.size, states, line: found }
     layer = next
   }
-  return { min: null, solutionsAtMin: 0, states, line: null }
+  return { min: null, fenceSetsAtMin: 0, states, line: null }
 }
 
-/** 프로토 시험 퍼즐 3개(손으로 만든 뒤 solveHop으로 최소 턴 확인 — 테스트가 고정). */
+/**
+ * 계획 없는 봇(리뷰 11-20 깊이 지표): 매 턴 합법 수 중 '꽃을 말랑이 영역에서 떼어 내지 않는 수'를 고르게 무작위로,
+ * 그중 잡초 칸에 붙은 변이 있으면 그것만. 턴 한도 안에 목표에 닿는 비율. G2 생성기 합격 기준 후보: < 20%.
+ */
+export function planlessBotRate(p: HopPuzzle, trials: number, seed: number): number {
+  const rnd = mulberry32(seed)
+  const weeds = new Set(p.weeds)
+  let win = 0
+  for (let i = 0; i < trials; i++) {
+    let s = initialState(p)
+    for (let t = 0; t < p.turns; t++) {
+      let ms = legalMoves(p, s).filter((m) => {
+        const reg = regions(p.n, applyMove(s, m).fences)
+        return p.flowers.every((f) => reg[f] === reg[m.to])
+      })
+      const touching = ms.filter((m) => edgeCells(p.n, m.fence).some((c) => weeds.has(c)))
+      if (touching.length) ms = touching
+      if (!ms.length) break
+      s = applyMove(s, ms[Math.floor(rnd() * ms.length)])
+      if (hopGoal(p, s)) {
+        win++
+        break
+      }
+    }
+  }
+  return win / trials
+}
+
+/** 프로토 시험 퍼즐 3개(손으로 만든 뒤 solveHop으로 최소 턴 확인 — 테스트가 고정). 턴 한도 = 최소 + 2(별 ★1~3이 모두 가능). */
 export const HOP_PROTO_PUZZLES: HopPuzzle[] = [
   // 1) 튜토리얼: 가운데 세로 담의 빈 한 칸을 메운다(1턴).
   {
@@ -390,10 +424,15 @@ export const HOP_PROTO_PUZZLES: HopPuzzle[] = [
     flowers: [0, 10, 20],
     weeds: [4, 14, 24],
     fixed: [vEdge(5, 0, 2), vEdge(5, 1, 2), vEdge(5, 3, 2), vEdge(5, 4, 2)],
-    turns: 2,
+    turns: 3,
   },
   // 2) 오른쪽 위 모서리 잡초 — 두 변을 막아야 하는데 가운데에서 출발해 뛰는 거리가 모자란다.
-  { id: 'p2-corner', n: 5, start: 12, flowers: [0, 20, 24], weeds: [4], fixed: [], turns: 3 },
+  { id: 'p2-corner', n: 5, start: 12, flowers: [0, 20, 24], weeds: [4], fixed: [], turns: 5 },
   // 3) 위 테두리 가운데 잡초 — 세 변. 바로 위 변부터 막으면 돌아가는 길이 길어진다(순서가 답).
-  { id: 'p3-order', n: 5, start: 7, flowers: [0, 4, 20, 24], weeds: [2], fixed: [], turns: 3 },
+  { id: 'p3-order', n: 5, start: 7, flowers: [0, 4, 20, 24], weeds: [2], fixed: [], turns: 5 },
 ]
+
+/** 별: 최소 턴 ★3, 최소+1 ★2, 그 밖(한도 안) ★1. */
+export function hopStars(turnsUsed: number, min: number): 1 | 2 | 3 {
+  return turnsUsed <= min ? 3 : turnsUsed === min + 1 ? 2 : 1
+}

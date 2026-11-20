@@ -10,7 +10,9 @@ import {
   hitEdge,
   hitStats,
   hopGoal,
+  hopStars,
   initialState,
+  legalMoves,
   mulberry32,
   reachable,
   regions,
@@ -121,6 +123,7 @@ function TapTest() {
     setI(0)
     setRound((r) => r + 1)
     setPreview(null)
+    down.current = null
   }
 
   const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
@@ -204,6 +207,7 @@ function TapTest() {
         onPointerMove={onMove}
         onPointerUp={onUp}
         onPointerCancel={() => ((down.current = null), setPreview(null))}
+        onLostPointerCapture={() => ((down.current = null), setPreview(null))}
         role="img"
         aria-label={`${n}×${n} 정원 판`}
       >
@@ -253,39 +257,52 @@ function TapTest() {
 
 const SIDE_NAMES = ['위', '오른쪽', '아래', '왼쪽'] as const
 
-/** 말랑이 칸 중심 기준 방향(상하좌우 큰 영역). 없는 변·이미 막힌 변이면 null. */
-function sideFromPoint(n: number, s: HopState, x: number, y: number): number | null {
+/** 화살표 손잡이 거리(칸). 리뷰 11-20: 점선(0.5칸)을 노리면 쐐기 정확도가 자유 선 탭과 같아진다 → 조준점을 바깥으로 끈다. */
+const HANDLE = 0.85
+
+type SidePick = { side: number; ok: boolean } | null
+
+/** 말랑이 칸 중심 기준 방향(상하좌우 쐐기). 판 밖(0..n 밖)·말랑이 몸 한가운데면 null(=취소), 막힌 변·테두리면 ok:false. */
+function sideFromPoint(n: number, s: HopState, x: number, y: number): SidePick {
+  if (x < 0 || y < 0 || x > n || y > n) return null // 판 밖에서 떼면 취소(리뷰 11-20)
   const cx = (s.pos % n) + 0.5
   const cy = Math.floor(s.pos / n) + 0.5
   const dx = x - cx
   const dy = y - cy
-  if (Math.hypot(dx, dy) < 0.25) return null // 말랑이 몸 한가운데는 판정 안 함
+  if (Math.hypot(dx, dy) < 0.25) return null
   const side = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 1 : 3) : dy > 0 ? 2 : 0
   const e = cellSides(n, s.pos)[side]
-  return e === null || s.fences.has(e) ? null : side
+  return { side, ok: !(e === null || s.fences.has(e)) }
 }
 
 function HopPuzzleView() {
   const [pi, setPi] = useState(0)
   const p = HOP_PROTO_PUZZLES[pi]
   const n = p.n
+  // 시험 퍼즐 3개는 5×5·최소 3턴이라 수십 ms. 생성기 퍼즐은 최소 턴을 데이터로 미리 계산해 싣는다(G2).
   const best = useMemo(() => solveHop(p).min, [p])
   const [hist, setHist] = useState<HopState[]>(() => [initialState(p)])
   /** 뛴 칸(울타리를 놓기 전). null이면 뛸 칸을 고르는 단계. */
   const [pending, setPending] = useState<number | null>(null)
   const phase = pending === null ? 'hop' : 'fence'
-  const [preview, setPreview] = useState<number | null>(null)
+  const [preview, setPreview] = useState<SidePick>(null)
   const [log, setLog] = useState<{ puzzle: string; moves: HopMove[]; cleared: boolean; turns: number; undo: number }[]>([])
   const undoCount = useRef(0)
   const moves = useRef<HopMove[]>([])
   const pressing = useRef<number | null>(null)
+  /** 뛰기: 누른 칸(떼는 칸이 같아야 확정). */
+  const hopDown = useRef<number | null>(null)
+  /** 이번 판(load 이후) 기록을 이미 남겼는가 — 되돌리기 후 재완료로 중복 기록 방지(리뷰 11-20). */
+  const logged = useRef(false)
   const { ref, toCell } = useBoardPointer(n)
 
   const committed = hist[hist.length - 1]
   const s: HopState = useMemo(() => (pending === null ? committed : { pos: pending, fences: committed.fences }), [pending, committed])
   const turnsUsed = hist.length - 1
+  // 시험 퍼즐은 턴 0에 목표가 아님(테스트 고정) → 0턴 완료는 없다.
   const cleared = hopGoal(p, s) && turnsUsed > 0
-  const outOfTurns = !cleared && turnsUsed >= p.turns
+  const stuck = !cleared && phase === 'hop' && legalMoves(p, committed).length === 0
+  const outOfTurns = !cleared && (turnsUsed >= p.turns || stuck)
   const reach = useMemo(() => (phase === 'hop' ? new Set(reachable(p, s)) : new Set<number>()), [p, s, phase])
   const reg = useMemo(() => regions(n, s.fences), [n, s])
 
@@ -294,25 +311,40 @@ function HopPuzzleView() {
     setPi(k)
     setHist([initialState(q)])
     setPending(null)
+    setPreview(null)
+    pressing.current = null
+    hopDown.current = null
     moves.current = []
     undoCount.current = 0
+    logged.current = false
   }
   useEffect(() => {
-    if (cleared || outOfTurns) setLog((l) => [...l, { puzzle: p.id, moves: [...moves.current], cleared, turns: turnsUsed, undo: undoCount.current }])
+    if (!(cleared || outOfTurns) || logged.current) return
+    logged.current = true
+    setLog((l) => [...l, { puzzle: p.id, moves: [...moves.current], cleared, turns: turnsUsed, undo: undoCount.current }])
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cleared, outOfTurns])
+  const cancelPress = () => {
+    pressing.current = null
+    hopDown.current = null
+    setPreview(null)
+  }
+  const cellAt = (x: number, y: number) => {
+    const c = Math.floor(x)
+    const r = Math.floor(y)
+    return c < 0 || r < 0 || c >= n || r >= n ? null : r * n + c
+  }
 
   const onDown = (e: React.PointerEvent<SVGSVGElement>) => {
     if (cleared || outOfTurns || pressing.current !== null) return
     const pt = toCell(e.clientX, e.clientY)
     if (phase === 'hop') {
-      const c = Math.floor(pt.x)
-      const r = Math.floor(pt.y)
-      if (c < 0 || r < 0 || c >= n || r >= n) return
-      const cell = r * n + c
-      if (!reach.has(cell)) return
-      // 울타리를 놓아야 턴이 끝난다
-      setPending(cell)
+      const cell = cellAt(pt.x, pt.y)
+      if (cell === null || !reach.has(cell)) return
+      // 뛰기도 떼는 순간 확정(같은 칸에서 떼야 함) — 울타리 입력과 같은 문법(리뷰 11-20)
+      e.currentTarget.setPointerCapture(e.pointerId)
+      pressing.current = e.pointerId
+      hopDown.current = cell
       return
     }
     e.currentTarget.setPointerCapture(e.pointerId)
@@ -320,18 +352,22 @@ function HopPuzzleView() {
     setPreview(sideFromPoint(n, s, pt.x, pt.y))
   }
   const onMove = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (pressing.current !== e.pointerId) return
+    if (pressing.current !== e.pointerId || hopDown.current !== null) return
     const pt = toCell(e.clientX, e.clientY)
     setPreview(sideFromPoint(n, s, pt.x, pt.y))
   }
   const onUp = (e: React.PointerEvent<SVGSVGElement>) => {
     if (pressing.current !== e.pointerId) return
-    pressing.current = null
     const pt = toCell(e.clientX, e.clientY)
-    const side = sideFromPoint(n, s, pt.x, pt.y)
-    setPreview(null)
-    if (side === null) return
-    const e2 = cellSides(n, s.pos)[side]!
+    const hopCell = hopDown.current
+    cancelPress()
+    if (hopCell !== null) {
+      if (cellAt(pt.x, pt.y) === hopCell) setPending(hopCell) // 울타리를 놓아야 턴이 끝난다
+      return
+    }
+    const pick = sideFromPoint(n, s, pt.x, pt.y)
+    if (pick === null || !pick.ok) return
+    const e2 = cellSides(n, s.pos)[pick.side]!
     const m: HopMove = { to: s.pos, fence: e2 }
     moves.current.push(m)
     setHist((h) => [...h, applyMove(committed, m)])
@@ -349,7 +385,7 @@ function HopPuzzleView() {
     }
   }
 
-  const stars = cleared && best !== null ? (turnsUsed <= best ? 3 : turnsUsed <= best + 1 ? 2 : 1) : 0
+  const stars = cleared && best !== null ? hopStars(turnsUsed, best) : 0
   const sides = phase === 'fence' ? cellSides(n, s.pos) : []
   const px = (s.pos % n) + 0.5
   const py = Math.floor(s.pos / n) + 0.5
@@ -358,7 +394,7 @@ function HopPuzzleView() {
     <section aria-label="퍼즐 v2">
       <div className="mb-2 flex flex-wrap justify-center gap-2 text-sm">
         {HOP_PROTO_PUZZLES.map((q, k) => (
-          <button key={q.id} type="button" onClick={() => load(k)} className={`min-h-11 min-w-11 rounded-full px-3 ${k === pi ? 'bg-amber-300 text-black' : 'bg-surface'}`}>
+          <button key={q.id} type="button" onClick={() => pressing.current === null && load(k)} className={`min-h-11 min-w-11 rounded-full px-3 ${k === pi ? 'bg-amber-300 text-black' : 'bg-surface'}`}>
             {k + 1}
           </button>
         ))}
@@ -367,10 +403,12 @@ function HopPuzzleView() {
         {cleared
           ? `정원 완성! ${'★'.repeat(stars)}${'☆'.repeat(3 - stars)} (${turnsUsed}턴 · 최소 ${best}턴)`
           : outOfTurns
-            ? '턴을 다 썼어요. 되돌리기나 다시 하기.'
+            ? stuck
+              ? '말랑이가 갇혔어요. 되돌리기나 다시 하기.'
+              : '턴을 다 썼어요. 되돌리기나 다시 하기.'
             : phase === 'hop'
               ? `① 뛸 칸을 누르세요 (0~2칸, 제자리도 OK) · 턴 ${turnsUsed + 1}/${p.turns}`
-              : '② 말랑이 주변을 누른 채 방향을 고르고 떼면 그쪽 변에 담이 생겨요'}
+              : '② 화살표 쪽으로 누른 채 고르고 떼면 담이 생겨요 (판 밖에서 떼면 취소)'}
       </p>
       <p className="mb-2 text-center text-xs text-fg-muted">목표: 말랑이(🟠) 쪽에 꽃(🌸) 전부, 잡초(🌿)는 하나도 없게.</p>
       <svg
@@ -380,7 +418,8 @@ function HopPuzzleView() {
         onPointerDown={onDown}
         onPointerMove={onMove}
         onPointerUp={onUp}
-        onPointerCancel={() => ((pressing.current = null), setPreview(null))}
+        onPointerCancel={cancelPress}
+        onLostPointerCapture={cancelPress}
         role="img"
         aria-label="뛰고 담 치기 판"
       >
@@ -397,20 +436,32 @@ function HopPuzzleView() {
         {[...s.fences].filter((e) => !p.fixed.includes(e)).map((e) => (
           <Edge key={`p${e}`} n={n} e={e} color={C.fence} />
         ))}
-        {sides.map((e, k) =>
-          e !== null && !s.fences.has(e) ? <Edge key={`s${k}`} n={n} e={e} color={k === preview ? C.preview : 'rgba(255,224,138,0.35)'} w={k === preview ? 0.24 : 0.1} dash={k === preview ? undefined : '0.15 0.1'} /> : null,
-        )}
         {p.flowers.map((f) => (
           <text key={`fl${f}`} x={(f % n) + 0.5} y={Math.floor(f / n) + 0.68} fontSize={0.5} textAnchor="middle">🌸</text>
         ))}
         {p.weeds.map((w) => (
           <text key={`w${w}`} x={(w % n) + 0.5} y={Math.floor(w / n) + 0.68} fontSize={0.5} textAnchor="middle">🌿</text>
         ))}
+        {sides.map((e, k) => {
+          if (e === null || s.fences.has(e)) return null
+          const on = !!preview?.ok && preview.side === k
+          const hx = px + (k === 1 ? HANDLE : k === 3 ? -HANDLE : 0)
+          const hy = py + (k === 2 ? HANDLE : k === 0 ? -HANDLE : 0)
+          const rot = [0, 90, 180, 270][k]
+          return (
+            <g key={`s${k}`}>
+              <Edge n={n} e={e} color={on ? C.preview : 'rgba(255,224,138,0.35)'} w={on ? 0.24 : 0.1} dash={on ? undefined : '0.15 0.1'} />
+              <path d="M -0.13 0.07 L 0 -0.1 L 0.13 0.07 Z" transform={`translate(${hx} ${hy}) rotate(${rot})`} fill={on ? C.preview : 'rgba(255,224,138,0.55)'} />
+            </g>
+          )
+        })}
         <circle cx={px} cy={py} r={0.3} fill="#ff9f5a" stroke="#5a2d12" strokeWidth={0.05} />
         <circle cx={px - 0.09} cy={py - 0.05} r={0.04} fill="#2a1408" />
         <circle cx={px + 0.09} cy={py - 0.05} r={0.04} fill="#2a1408" />
       </svg>
-      <p className="mt-1 text-center text-xs text-fg-muted">{preview !== null ? `${SIDE_NAMES[preview]} 변` : ' '}</p>
+      <p className="mt-1 text-center text-xs text-fg-muted" aria-live="polite">
+        {preview === null ? '\u00a0' : preview.ok ? `${SIDE_NAMES[preview.side]} 변` : `${SIDE_NAMES[preview.side]} 변은 막혀 있어요`}
+      </p>
       <div className="mt-2 flex justify-center gap-2 text-sm">
         <button type="button" onClick={undo} disabled={hist.length <= 1 && phase === 'hop'} className="min-h-11 rounded-full bg-surface px-4 disabled:opacity-60">
           되돌리기

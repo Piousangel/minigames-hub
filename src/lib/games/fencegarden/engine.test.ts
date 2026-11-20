@@ -22,6 +22,8 @@ import {
   reachable,
   solveHop,
   type HopPuzzle,
+  hopStars,
+  planlessBotRate,
 } from './engine'
 
 describe('울타리 번호', () => {
@@ -180,18 +182,19 @@ describe('규칙 v2 뛰고 담 치기', () => {
     const sealed = { pos: 12, fences: new Set([cellSides(n, 24)[0]!, cellSides(n, 24)[3]!]) }
     expect(hopGoal(p, sealed)).toBe(true)
   })
-  it('시험 퍼즐 3개: 최소 턴이 한도 안이고 한 턴 적으면 못 푼다(별 기준 고정)', () => {
+  it('시험 퍼즐 3개: 최소 턴·서로 다른 울타리 집합 수 고정, 한 턴 적으면 못 푼다, 한도 = 최소 + 2', () => {
     const expected: Record<string, [number, number]> = {
       'p1-split': [1, 1],
-      'p2-corner': [3, 20],
-      'p3-order': [3, 2],
+      'p2-corner': [3, 12],
+      // 좌우 대칭 순서 2개는 같은 울타리 집합 → 1(리뷰 11-20)
+      'p3-order': [3, 1],
     }
     for (const p of HOP_PROTO_PUZZLES) {
       const sol = solveHop(p)
-      expect([sol.min, sol.solutionsAtMin], p.id).toEqual(expected[p.id])
-      expect(sol.min!).toBeLessThanOrEqual(p.turns)
+      expect([sol.min, sol.fenceSetsAtMin], p.id).toEqual(expected[p.id])
+      expect(p.turns, p.id).toBe(sol.min! + 2)
+      expect(hopGoal(p, initialState(p)), p.id).toBe(false)
       expect(solveHop(p, sol.min! - 1).min, p.id).toBeNull()
-      // 찾은 해를 다시 적용하면 목표 달성
       let s = initialState(p)
       for (const m of sol.line!) {
         expect(legalMoves(p, s)).toContainEqual(m)
@@ -199,5 +202,22 @@ describe('규칙 v2 뛰고 담 치기', () => {
       }
       expect(hopGoal(p, s)).toBe(true)
     }
+  })
+  it('같은 울타리를 다른 순서로 놓은 해는 한 집합으로 센다', () => {
+    // 잡초가 왼쪽 위 모서리, 말랑이가 (1,1): 위 변·왼 변 두 개를 어느 순서로 놓아도 같은 집합
+    const p: HopPuzzle = { id: 'sym', n: 5, start: 6, flowers: [24], weeds: [0], fixed: [], turns: 2 }
+    const sol = solveHop(p)
+    expect(sol.min).toBe(2)
+    expect(sol.fenceSetsAtMin).toBe(1)
+  })
+  it('별: 최소 ★3, +1 ★2, 그 이상 ★1', () => {
+    expect([hopStars(3, 3), hopStars(4, 3), hopStars(5, 3)]).toEqual([3, 2, 1])
+  })
+  it('계획 없는 봇 성공률은 결정적이고 0~1 범위(값 자체는 G2 지표 — 퍼즐2·3이 50%+라 얕다는 리뷰 지적의 근거)', () => {
+    const rates = HOP_PROTO_PUZZLES.map((p) => planlessBotRate(p, 200, 11))
+    expect(rates).toEqual(HOP_PROTO_PUZZLES.map((p) => planlessBotRate(p, 200, 11)))
+    for (const r of rates) expect(r >= 0 && r <= 1).toBe(true)
+    // 순서 퍼즐(p3)은 계획 없이도 절반 넘게 풀린다 — 깊이 부족을 테스트로 기록(생성기 합격선 < 20%의 반례)
+    expect(rates[2]).toBeGreaterThan(0.5)
   })
 })
