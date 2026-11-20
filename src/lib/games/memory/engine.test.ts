@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { clearMismatch, flip, MEMORY_EMOJI, newMemoryGame, type MemoryState } from './engine'
+import { clearMismatch, flip, MEMORY_EMOJI, newMemoryGame, PERFECT_MOVES, winSummary, type MemoryState } from './engine'
 
 // 4장짜리 미니 상태로 flip 로직을 검증 (엔진은 카드 수에 무관)
 const mini = (): MemoryState => ({
@@ -71,5 +71,23 @@ describe('clearMismatch', () => {
     expect(clearMismatch(two).faceUp).toEqual([])
     const one = flip(mini(), 0)
     expect(clearMismatch(one)).toBe(one)
+  })
+})
+
+describe('winSummary', () => {
+  it('기록이 없으면 first', () => {
+    expect(winSummary(14, 0)).toEqual({ kind: 'first', moves: 14, prevBest: 0, gap: 0, perfect: false })
+  })
+  it('더 적은 moves면 best, gap은 줄인 만큼(음수)', () => {
+    expect(winSummary(11, 14)).toEqual({ kind: 'best', moves: 11, prevBest: 14, gap: -3, perfect: false })
+  })
+  it('같으면 tie, 더 많으면 short + 모자란 만큼', () => {
+    expect(winSummary(12, 12).kind).toBe('tie')
+    expect(winSummary(15, 12)).toEqual({ kind: 'short', moves: 15, prevBest: 12, gap: 3, perfect: false })
+  })
+  it('PERFECT_MOVES는 쌍 수와 같고, 그만큼이면 perfect', () => {
+    expect(PERFECT_MOVES).toBe(MEMORY_EMOJI.length)
+    expect(winSummary(PERFECT_MOVES, 10).perfect).toBe(true)
+    expect(winSummary(PERFECT_MOVES + 1, 10).perfect).toBe(false)
   })
 })
