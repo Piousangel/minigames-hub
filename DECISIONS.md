@@ -304,6 +304,13 @@
 - 선택: 보고 메일 규칙은 '연결된 Gmail 계정 본인 주소(받는 사람 = 보내는 사람) 외 발송 금지'로 바꾸고, 루틴이 Gmail 커넥터의 최근 보낸 보고 메일 From으로 주소를 확인하게 했다. 기록성 문장은 주소만 지우거나 '오너'로 바꿨다.
 - 한계: 주소는 git 기록(과거 커밋)에는 남는다. 기록 재작성(force push)은 하지 않는다.
 
+## 2026-11-20 브랜드 마크 최종 = 3차 V2 최종판 A '밝게' (오너 승인 "그래 가자 최종 판으로")
+- 맥락: 브랜드 3차 보드(로컬 scratchpad brand3/board.html, 저장소 사본 `docs/design/brand-3/`)에서 V2 금빛 링 엠블럼 + 말랑이가 최고안, 링 외곽선 마감 3안(현재·얇게·밝게) 중 디자이너가 '밝게'(링 #ba7b1a → #e8a048, 로컬 보정·생성 0)를 채택.
+- 선택: 사이트 전체 브랜드 마크를 이것으로. 탭 16 = 손 단순판(정면 말랑이, 링 stroke #e8a048), 탭 32·48·구글 96 = 원판 원형 크롭(바깥 투명), iOS 180·PWA 192/512 any = 노을 타일(불투명), PWA maskable = 엠블럼 지름 66%로 줄인 별도 판, 헤더·푸터 = 원형 크롭 96px webp(3.8KB) 한 장. 원본은 `docs/design/brand-3/final/`(무손실), 생성은 `scripts/brand-icons.py`(보드와 같은 축소 방식이라 보드 픽셀과 같다 — 180·512·32 차이 0 확인).
+- URL 유지: /favicon.ico·/icon·/apple-icon·/icons/pwa-192·/icons/pwa-512는 그대로, 새 경로는 /icons/pwa-maskable-512 하나(_headers image/png).
+- 남김: 공유 카드(OG)는 아직 옛 해+섬 마크(`GardenLogoMark`) — OG 리브랜드는 다음 작업(HANDOFF). 디자이너 판정은 여전히 '정돈된 캐주얼', 더 올리려면 원판·배경 방향 결정(오너).
+- 되돌리기: 이 PR revert(아이콘 라우트가 다시 Satori 렌더로).
+
 
 ## 2026-11-20 리디자인 v2 R9 게임 밖 허브 페이지 정원 틀 — /leaderboards 방식(garden-hub) + 공용 부품 하나(팀)
 - 맥락: R7f로 게임 113개가 정원이 됐지만 /category·/collection(s)·/guides(·글)·/daily·/about·/privacy·/terms·/unblocked·/contact는 네온 틀(neon-text 제목·GameCard·text-fg-muted·text-accent)이었다. 토큰 전역화와 R8(네온 코드 삭제)의 선행 조건.

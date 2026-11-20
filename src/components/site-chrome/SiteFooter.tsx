@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { siteConfig } from '@/lib/siteConfig'
 import { FOOTER_GROUPS, chromeFocus } from './chromeLinks'
-import { GardenLogoMark } from './GardenIcons'
+import { BrandMark } from './BrandMark'
 
 /**
  * 푸터 '정원 안내판'(리디자인 v2 R2). 크림 바탕 · ink 글자 · 2단 그리드(lg에서 3단, 모바일에선 사이트 안내가 아래 한 줄).
@@ -51,7 +51,7 @@ export function SiteFooter() {
         )}
 
         <p className="mt-6 flex items-center gap-2 border-t border-garden-ink/30 pt-4 text-[13px] text-garden-ink-soft">
-          <GardenLogoMark className="h-[18px] w-[18px] shrink-0" />
+          <BrandMark size={18} className="h-[18px] w-[18px] shrink-0" />
           <span>© 2026 {siteConfig.name}. All games are free to play.</span>
         </p>
       </div>
