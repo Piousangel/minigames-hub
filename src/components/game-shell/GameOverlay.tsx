@@ -11,6 +11,9 @@ import { sendHit } from '@/lib/hit'
 import { isEndless } from '@/lib/games/gameMeta'
 import { OverlayScoreSubmit } from './OverlayScoreSubmit'
 
+/** 덮개 자리(offsetParent)별: 덮개 전 min-height와 지금 떠 있는 덮개 수(R7f 짧은 판 최소 높이). */
+const seats = new WeakMap<HTMLElement, { prev: string; open: number }>()
+
 /**
  * Shared win/lose/draw overlay: blurred backdrop, entrance animation, optional
  * confetti on win. Fills its positioned parent (`absolute inset-0`).
@@ -55,26 +58,32 @@ export function GameOverlay({
     if (show && nav.slug && nav.nextSlug) sendHit(nav.slug, 'next_show')
   }, [show, nav.slug, nav.nextSlug])
   // 판이 짧은 게임(R7e slotter: 덮개 168px에 상자 440px)은 상자가 판 밖 크림 위로 넘쳤다. 상자가 덮개보다 클 때만
-  // 덮개의 자리(부모, absolute inset-0의 기준) 최소 높이를 상자 + 위아래 12px로 늘려 판 안에 들게 한다 — 판이 그만큼 길어지고
-  // 덮개가 닫히면 원래대로. 상자가 들어가는 게임은 아무것도 바꾸지 않는다(픽셀 그대로). 상자 높이가 바뀌면(넛지·점수 제출 칸) 다시 잰다.
+  // 덮개의 자리(absolute inset-0의 기준 = offsetParent) 최소 높이를 상자 + 위아래 12px로 늘려 판 안에 들게 한다 — 판이 그만큼
+  // 길어지고 덮개가 닫히면 원래대로. 상자가 들어가는 게임은 아무것도 바꾸지 않는다(픽셀 그대로). 상자 높이가 바뀌면(넛지·점수 제출 칸) 다시 잰다.
   const rootRef = useRef<HTMLDivElement>(null)
   useLayoutEffect(() => {
     const root = rootRef.current
-    const parent = root?.parentElement
+    const seat = root?.offsetParent
     const panel = root?.querySelector<HTMLElement>('[data-overlay-panel]')
-    if (!show || !root || !parent || !panel) return
-    const prev = parent.style.minHeight
+    if (!show || !root || !(seat instanceof HTMLElement) || !panel) return
+    // 같은 자리에 덮개가 둘 이상 동시에 떠도 원래 값을 한 번만 기억하고, 마지막 덮개가 닫힐 때 되돌린다
+    const entry = seats.get(seat) ?? { prev: seat.style.minHeight, open: 0 }
+    entry.open++
+    seats.set(seat, entry)
     const fit = () => {
-      parent.style.minHeight = prev
+      seat.style.minHeight = entry.prev
       const need = panel.offsetHeight // transform(등장 scale)과 무관한 레이아웃 높이
-      if (need > root.clientHeight) parent.style.minHeight = `${need + 24}px`
+      if (need > root.clientHeight) seat.style.minHeight = `${need + 24}px`
     }
     fit()
     const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(fit)
     ro?.observe(panel)
     return () => {
       ro?.disconnect()
-      parent.style.minHeight = prev
+      if (--entry.open === 0) {
+        seat.style.minHeight = entry.prev
+        seats.delete(seat)
+      }
     }
   }, [show])
   if (!show) return null
@@ -89,9 +98,9 @@ export function GameOverlay({
       data-testid={testId}
       role="alertdialog"
       aria-label={title}
-      // 위 최소 높이로도 못 들어가는 경우(부모 높이가 고정 등)의 안전망: 덮개 안 스크롤 + justify-center-safe
-      // (넘칠 때만 위에서부터 쌓아 제목·첫 버튼이 잘리지 않게, 넘치지 않으면 예전과 같은 가운데 — 픽셀 그대로).
-      className={`anim-backdrop-in absolute inset-0 z-10 flex flex-col items-center justify-center-safe gap-3 overflow-y-auto rounded-xl ${cozy ? 'bg-[#14123a]/70' : 'bg-bg/75'}`}
+      // justify-center-safe: 위 최소 높이로도 못 들어가는 경우(자리 높이가 고정 등) 위로는 넘치지 않게(제목·첫 버튼 보존).
+      // 넘치지 않으면 예전 가운데와 같다. overflow는 건드리지 않는다(auto면 상자 발광이 덮개 경계에서 잘려 픽셀이 바뀐다 — R7f 리뷰).
+      className={`anim-backdrop-in absolute inset-0 z-10 flex flex-col items-center justify-center-safe gap-3 rounded-xl ${cozy ? 'bg-[#14123a]/70' : 'bg-bg/75'}`}
     >
       {/* 승리 + 세션 RUN 마일스톤에 축하 — 세션 길이 자체를 보상해 '한 판 더'를 강화(체류↑). */}
       {(variant === 'win' || runMilestone) && <Confetti active={show} />}

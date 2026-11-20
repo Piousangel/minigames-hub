@@ -8,7 +8,7 @@
       "overlayH": 168,
       "panelH": 420,
       "scrolls": false,
-      "visibleOutsidePx": 252
+      "outsidePx": 252
     },
     "rows": [
       {
@@ -113,7 +113,7 @@
       "overlayH": 168,
       "panelH": 452,
       "scrolls": false,
-      "visibleOutsidePx": 284
+      "outsidePx": 284
     },
     "rows": [
       {
@@ -225,7 +225,7 @@
       "overlayH": 476,
       "panelH": 232,
       "scrolls": false,
-      "visibleOutsidePx": 0
+      "outsidePx": 0
     },
     "rows": [
       {
@@ -252,8 +252,8 @@
       {
         "text": "Next: Chess",
         "fg": "rgb(181, 227, 156)",
-        "bg": "#373457",
-        "ratio": 8.03,
+        "bg": "#2e2342",
+        "ratio": 10.06,
         "need": 4.5
       }
     ]

@@ -8,7 +8,7 @@
       "overlayH": 444,
       "panelH": 420,
       "scrolls": false,
-      "visibleOutsidePx": 0
+      "outsidePx": 0
     },
     "rows": [
       {
@@ -26,7 +26,7 @@
         "need": 4.5
       },
       {
-        "text": "93",
+        "text": "94",
         "fg": "rgb(255, 217, 102)",
         "bg": "#29214f",
         "ratio": 10.82,
@@ -113,7 +113,7 @@
       "overlayH": 476,
       "panelH": 452,
       "scrolls": false,
-      "visibleOutsidePx": 0
+      "outsidePx": 0
     },
     "rows": [
       {
@@ -225,7 +225,7 @@
       "overlayH": 476,
       "panelH": 232,
       "scrolls": false,
-      "visibleOutsidePx": 0
+      "outsidePx": 0
     },
     "rows": [
       {
@@ -267,7 +267,7 @@
       "overlayH": 510,
       "panelH": 486,
       "scrolls": false,
-      "visibleOutsidePx": 0
+      "outsidePx": 0
     },
     "rows": [
       {
@@ -299,21 +299,21 @@
         "need": 4.5
       },
       {
-        "text": "1194",
+        "text": "1331",
         "fg": "rgb(143, 217, 138)",
         "bg": "#29214f",
         "ratio": 8.77,
         "need": 4.5
       },
       {
-        "text": "Short by 1094",
+        "text": "Short by 1231",
         "fg": "rgb(255, 161, 132)",
         "bg": "#29214f",
         "ratio": 7.52,
         "need": 4.5
       },
       {
-        "text": "You sat in cash a tick early — C still h",
+        "text": "You sat in cash a tick early — A still h",
         "fg": "rgb(205, 189, 232)",
         "bg": "#29214f",
         "ratio": 8.48,
@@ -327,7 +327,7 @@
         "need": 4.5
       },
       {
-        "text": "757961040",
+        "text": "545341766",
         "fg": "rgb(205, 189, 232)",
         "bg": "#29214f",
         "ratio": 8.48,
@@ -386,7 +386,7 @@
       "overlayH": 400,
       "panelH": 380,
       "scrolls": false,
-      "visibleOutsidePx": 0
+      "outsidePx": 0
     },
     "rows": [
       {
@@ -449,7 +449,7 @@
       "overlayH": 550,
       "panelH": 380,
       "scrolls": false,
-      "visibleOutsidePx": 0
+      "outsidePx": 0
     },
     "rows": [
       {

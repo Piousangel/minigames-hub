@@ -201,6 +201,8 @@ test.describe('정원 틀 배치(R7)', () => {
   test('오리지널 방은 틀 매핑 없음(어두운 바탕·main 토큰 그대로), 정원 틀 페이지도 전역 토큰은 그대로', async ({ page }) => {
     await page.goto('/plop-landing')
     await expect(page.locator('main[data-game-page]')).toHaveAttribute('data-world', 'garden-room')
+    await expect(page.locator('[data-garden-board]')).toHaveCount(0)
+    // 정원 틀 페이지는 body가 크림(paper) — 오리지널 방은 예전 어두운 바탕
     expect(await page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe('rgb(8, 8, 15)')
     expect(await page.evaluate(() => getComputedStyle(document.querySelector('main')!).getPropertyValue('--neon-cyan').trim())).toBe('#22d3ee')
     await page.goto('/breakout')

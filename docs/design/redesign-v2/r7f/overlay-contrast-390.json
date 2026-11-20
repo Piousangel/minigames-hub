@@ -8,7 +8,7 @@
       "overlayH": 464,
       "panelH": 440,
       "scrolls": false,
-      "visibleOutsidePx": 0
+      "outsidePx": 0
     },
     "rows": [
       {
@@ -113,7 +113,7 @@
       "overlayH": 496,
       "panelH": 472,
       "scrolls": false,
-      "visibleOutsidePx": 0
+      "outsidePx": 0
     },
     "rows": [
       {
@@ -225,7 +225,7 @@
       "overlayH": 386,
       "panelH": 252,
       "scrolls": false,
-      "visibleOutsidePx": 0
+      "outsidePx": 0
     },
     "rows": [
       {
@@ -267,7 +267,7 @@
       "overlayH": 530,
       "panelH": 506,
       "scrolls": false,
-      "visibleOutsidePx": 0
+      "outsidePx": 0
     },
     "rows": [
       {
@@ -299,14 +299,14 @@
         "need": 4.5
       },
       {
-        "text": "1214",
+        "text": "2417",
         "fg": "rgb(143, 217, 138)",
         "bg": "#29214f",
         "ratio": 8.77,
         "need": 4.5
       },
       {
-        "text": "Short by 1114",
+        "text": "Short by 2317",
         "fg": "rgb(255, 161, 132)",
         "bg": "#29214f",
         "ratio": 7.52,
@@ -327,7 +327,7 @@
         "need": 4.5
       },
       {
-        "text": "86475487",
+        "text": "69525975",
         "fg": "rgb(205, 189, 232)",
         "bg": "#29214f",
         "ratio": 8.48,
@@ -386,7 +386,7 @@
       "overlayH": 424,
       "panelH": 400,
       "scrolls": false,
-      "visibleOutsidePx": 0
+      "outsidePx": 0
     },
     "rows": [
       {
@@ -449,7 +449,7 @@
       "overlayH": 492,
       "panelH": 400,
       "scrolls": false,
-      "visibleOutsidePx": 0
+      "outsidePx": 0
     },
     "rows": [
       {

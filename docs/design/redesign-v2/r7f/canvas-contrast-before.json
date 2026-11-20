@@ -1,0 +1,172 @@
+{
+  "flywheel-390": {
+    "status": "measured",
+    "measured": 2,
+    "skipped": 0,
+    "min": 6.72,
+    "fails": 0,
+    "errors": [],
+    "rows": [
+      {
+        "text": "40",
+        "fill": "#6ab3fb",
+        "font": "bold 74px system-ui, sans-serif",
+        "cssPx": 66.2,
+        "samples": 12,
+        "ratio": 6.84,
+        "p10": 6.83,
+        "bg": "#152640",
+        "need": 3
+      },
+      {
+        "text": "RPM",
+        "fill": "rgba(220, 230, 255, 0.7)",
+        "font": "bold 20px system-ui, sans-serif",
+        "cssPx": 17.9,
+        "samples": 12,
+        "ratio": 6.72,
+        "p10": 6.67,
+        "bg": "#15253f",
+        "need": 4.5
+      }
+    ]
+  },
+  "flywheel-1440": {
+    "status": "measured",
+    "measured": 2,
+    "skipped": 0,
+    "min": 6.72,
+    "fails": 0,
+    "errors": [],
+    "rows": [
+      {
+        "text": "40",
+        "fill": "#6ab3fb",
+        "font": "bold 74px system-ui, sans-serif",
+        "cssPx": 74,
+        "samples": 12,
+        "ratio": 6.84,
+        "p10": 6.83,
+        "bg": "#152640",
+        "need": 3
+      },
+      {
+        "text": "RPM",
+        "fill": "rgba(220, 230, 255, 0.7)",
+        "font": "bold 20px system-ui, sans-serif",
+        "cssPx": 20,
+        "samples": 12,
+        "ratio": 6.72,
+        "p10": 6.67,
+        "bg": "#15253f",
+        "need": 3
+      }
+    ]
+  },
+  "ripple-390": {
+    "status": "measured",
+    "measured": 2,
+    "skipped": 0,
+    "min": 10.55,
+    "fails": 0,
+    "errors": [],
+    "rows": [
+      {
+        "text": "1",
+        "fill": "rgba(220, 235, 255, 0.85)",
+        "font": "9px sans-serif",
+        "cssPx": 8.1,
+        "samples": 2,
+        "ratio": 10.55,
+        "p10": 10.53,
+        "bg": "#131937",
+        "need": 4.5
+      },
+      {
+        "text": "Chain 1",
+        "fill": "rgba(220, 240, 255, 0.95)",
+        "font": "bold 12px sans-serif",
+        "cssPx": 10.7,
+        "samples": 6,
+        "ratio": 13.79,
+        "p10": 3.31,
+        "bg": "#0e1628",
+        "need": 4.5
+      }
+    ]
+  },
+  "ripple-1440": {
+    "status": "measured",
+    "measured": 2,
+    "skipped": 0,
+    "min": 10.85,
+    "fails": 0,
+    "errors": [],
+    "rows": [
+      {
+        "text": "1",
+        "fill": "rgba(220, 235, 255, 0.85)",
+        "font": "9px sans-serif",
+        "cssPx": 9,
+        "samples": 2,
+        "ratio": 10.85,
+        "p10": 10.85,
+        "bg": "#111631",
+        "need": 4.5
+      },
+      {
+        "text": "Chain 1",
+        "fill": "rgba(220, 240, 255, 0.95)",
+        "font": "bold 12px sans-serif",
+        "cssPx": 12,
+        "samples": 5,
+        "ratio": 14.09,
+        "p10": 5.27,
+        "bg": "#0f182a",
+        "need": 4.5
+      }
+    ]
+  },
+  "backspace-390": {
+    "status": "measured",
+    "measured": 1,
+    "skipped": 0,
+    "min": 11.86,
+    "fails": 0,
+    "errors": [],
+    "rows": [
+      {
+        "text": "Tap a side to start",
+        "fill": "rgba(224, 242, 254, 0.85)",
+        "font": "600 18px system-ui, sans-serif",
+        "cssPx": 16.1,
+        "samples": 2,
+        "ratio": 11.86,
+        "p10": 11.83,
+        "bg": "#101025",
+        "need": 4.5
+      }
+    ]
+  },
+  "backspace-1440": {
+    "status": "measured",
+    "measured": 1,
+    "skipped": 0,
+    "min": 11.86,
+    "fails": 0,
+    "errors": [],
+    "rows": [
+      {
+        "text": "Tap a side to start",
+        "fill": "rgba(224, 242, 254, 0.85)",
+        "font": "600 18px system-ui, sans-serif",
+        "cssPx": 18,
+        "samples": 2,
+        "ratio": 11.86,
+        "p10": 11.83,
+        "bg": "#101025",
+        "need": 4.5
+      }
+    ]
+  }
+}

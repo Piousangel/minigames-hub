@@ -1,5 +1,6 @@
 {
   "breakout-390": {
+    "status": "no-canvas-text",
     "measured": 0,
     "skipped": 0,
     "min": null,
@@ -8,6 +9,7 @@
     "rows": []
   },
   "breakout-1440": {
+    "status": "no-canvas-text",
     "measured": 0,
     "skipped": 0,
     "min": null,
@@ -16,6 +18,7 @@
     "rows": []
   },
   "pong-390": {
+    "status": "no-canvas-text",
     "measured": 0,
     "skipped": 0,
     "min": null,
@@ -24,6 +27,7 @@
     "rows": []
   },
   "pong-1440": {
+    "status": "no-canvas-text",
     "measured": 0,
     "skipped": 0,
     "min": null,
@@ -32,6 +36,7 @@
     "rows": []
   },
   "bubble-shooter-390": {
+    "status": "no-canvas-text",
     "measured": 0,
     "skipped": 0,
     "min": null,
@@ -40,6 +45,7 @@
     "rows": []
   },
   "bubble-shooter-1440": {
+    "status": "no-canvas-text",
     "measured": 0,
     "skipped": 0,
     "min": null,
@@ -48,6 +54,7 @@
     "rows": []
   },
   "flappy-390": {
+    "status": "no-canvas-text",
     "measured": 0,
     "skipped": 0,
     "min": null,
@@ -56,6 +63,7 @@
     "rows": []
   },
   "flappy-1440": {
+    "status": "no-canvas-text",
     "measured": 0,
     "skipped": 0,
     "min": null,
@@ -64,6 +72,7 @@
     "rows": []
   },
   "space-shooter-390": {
+    "status": "no-canvas-text",
     "measured": 0,
     "skipped": 0,
     "min": null,
@@ -72,6 +81,7 @@
     "rows": []
   },
   "space-shooter-1440": {
+    "status": "no-canvas-text",
     "measured": 0,
     "skipped": 0,
     "min": null,
@@ -80,6 +90,7 @@
     "rows": []
   },
   "tower-stack-390": {
+    "status": "unmeasured-conditional",
     "measured": 0,
     "skipped": 0,
     "min": null,
@@ -88,6 +99,7 @@
     "rows": []
   },
   "tower-stack-1440": {
+    "status": "unmeasured-conditional",
     "measured": 0,
     "skipped": 0,
     "min": null,
@@ -96,6 +108,7 @@
     "rows": []
   },
   "flywheel-390": {
+    "status": "measured",
     "measured": 2,
     "skipped": 0,
     "min": 6.23,
@@ -127,6 +140,7 @@
     ]
   },
   "flywheel-1440": {
+    "status": "measured",
     "measured": 2,
     "skipped": 0,
     "min": 6.23,
@@ -158,9 +172,10 @@
     ]
   },
   "ripple-390": {
+    "status": "measured",
     "measured": 2,
     "skipped": 0,
-    "min": 10.44,
+    "min": 11.21,
     "fails": 0,
     "errors": [],
     "rows": [
@@ -169,10 +184,10 @@
         "fill": "rgba(220, 235, 255, 0.85)",
         "font": "9px sans-serif",
         "cssPx": 8.1,
-        "samples": 2,
-        "ratio": 10.44,
-        "p10": 8.54,
-        "bg": "#141a39",
+        "samples": 3,
+        "ratio": 11.21,
+        "p10": 11.13,
+        "bg": "#0e1229",
         "need": 4.5
       },
       {
@@ -180,18 +195,19 @@
         "fill": "rgba(220, 240, 255, 0.95)",
         "font": "bold 12px sans-serif",
         "cssPx": 10.7,
-        "samples": 6,
-        "ratio": 14.95,
-        "p10": 12.97,
-        "bg": "#090b1a",
+        "samples": 5,
+        "ratio": 14.78,
+        "p10": 13.46,
+        "bg": "#080a18",
         "need": 4.5
       }
     ]
   },
   "ripple-1440": {
+    "status": "measured",
     "measured": 2,
     "skipped": 0,
-    "min": 11.13,
+    "min": 9.79,
     "fails": 0,
     "errors": [],
     "rows": [
@@ -200,10 +216,10 @@
         "fill": "rgba(220, 235, 255, 0.85)",
         "font": "9px sans-serif",
         "cssPx": 9,
-        "samples": 2,
-        "ratio": 11.13,
-        "p10": 11.12,
-        "bg": "#0f132b",
+        "samples": 3,
+        "ratio": 9.79,
+        "p10": 1.84,
+        "bg": "#131c36",
         "need": 4.5
       },
       {
@@ -211,15 +227,16 @@
         "fill": "rgba(220, 240, 255, 0.95)",
         "font": "bold 12px sans-serif",
         "cssPx": 12,
-        "samples": 6,
-        "ratio": 14.79,
-        "p10": 13.1,
-        "bg": "#080a18",
+        "samples": 5,
+        "ratio": 14.95,
+        "p10": 13.46,
+        "bg": "#090b1a",
         "need": 4.5
       }
     ]
   },
   "latch-390": {
+    "status": "no-canvas-text",
     "measured": 0,
     "skipped": 0,
     "min": null,
@@ -228,6 +245,7 @@
     "rows": []
   },
   "latch-1440": {
+    "status": "no-canvas-text",
     "measured": 0,
     "skipped": 0,
     "min": null,
@@ -236,6 +254,7 @@
     "rows": []
   },
   "backspace-390": {
+    "status": "measured",
     "measured": 1,
     "skipped": 0,
     "min": 11.19,
@@ -247,7 +266,7 @@
         "fill": "rgba(224, 242, 254, 0.85)",
         "font": "600 18px system-ui, sans-serif",
         "cssPx": 16.1,
-        "samples": 2,
+        "samples": 3,
         "ratio": 11.19,
         "p10": 11.16,
         "bg": "#1b1630",
@@ -256,6 +275,7 @@
     ]
   },
   "backspace-1440": {
+    "status": "measured",
     "measured": 1,
     "skipped": 0,
     "min": 11.19,

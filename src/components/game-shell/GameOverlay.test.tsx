@@ -86,6 +86,13 @@ describe('GameOverlay — 짧은 판에서 상자가 판 밖으로 넘치지 않
   function layout(panelH: number, overlayH: number) {
     const off = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetHeight')!
     const client = Object.getOwnPropertyDescriptor(Element.prototype, 'clientHeight')!
+    const offParent = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetParent')!
+    Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
+      configurable: true,
+      get(this: HTMLElement) {
+        return this.parentElement
+      },
+    })
     Object.defineProperty(HTMLElement.prototype, 'offsetHeight', {
       configurable: true,
       get(this: HTMLElement) {
@@ -101,6 +108,7 @@ describe('GameOverlay — 짧은 판에서 상자가 판 밖으로 넘치지 않
     return () => {
       Object.defineProperty(HTMLElement.prototype, 'offsetHeight', off)
       Object.defineProperty(Element.prototype, 'clientHeight', client)
+      Object.defineProperty(HTMLElement.prototype, 'offsetParent', offParent)
     }
   }
   const ui = (show: boolean) => (
@@ -115,6 +123,27 @@ describe('GameOverlay — 짧은 판에서 상자가 판 밖으로 넘치지 않
       const { rerender } = render(ui(true))
       expect(screen.getByTestId('seat').style.minHeight).toBe('464px')
       rerender(ui(false))
+      expect(screen.getByTestId('seat').style.minHeight).toBe('10px')
+    } finally {
+      restore()
+    }
+  })
+
+  it('같은 자리에 덮개 둘이 동시에 떠도 마지막이 닫힐 때 원래 값으로', () => {
+    const restore = layout(440, 168)
+    const two = (a: boolean, b: boolean) => (
+      <div data-testid="seat" style={{ minHeight: '10px' }}>
+        <GameOverlay show={a} variant="lose" title="A" />
+        <GameOverlay show={b} variant="win" title="B" />
+      </div>
+    )
+    try {
+      const { rerender } = render(two(true, false))
+      rerender(two(true, true))
+      expect(screen.getByTestId('seat').style.minHeight).toBe('464px')
+      rerender(two(false, true))
+      expect(screen.getByTestId('seat').style.minHeight).toBe('464px')
+      rerender(two(false, false))
       expect(screen.getByTestId('seat').style.minHeight).toBe('10px')
     } finally {
       restore()

@@ -8,7 +8,7 @@
       "overlayH": 168,
       "panelH": 440,
       "scrolls": false,
-      "visibleOutsidePx": 272
+      "outsidePx": 272
     },
     "rows": [
       {
@@ -26,7 +26,7 @@
         "need": 4.5
       },
       {
-        "text": "93",
+        "text": "94",
         "fg": "rgb(255, 217, 102)",
         "bg": "#29214f",
         "ratio": 10.82,
@@ -113,7 +113,7 @@
       "overlayH": 168,
       "panelH": 472,
       "scrolls": false,
-      "visibleOutsidePx": 304
+      "outsidePx": 304
     },
     "rows": [
       {
@@ -225,7 +225,7 @@
       "overlayH": 386,
       "panelH": 252,
       "scrolls": false,
-      "visibleOutsidePx": 0
+      "outsidePx": 0
     },
     "rows": [
       {

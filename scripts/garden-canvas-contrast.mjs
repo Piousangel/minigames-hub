@@ -35,9 +35,11 @@ const WIDTHS = (opt('widths', '390,1440')).split(',').map(Number)
 /** 게임판 캔버스(덮개 Confetti 캔버스는 role=alertdialog 안이라 첫 번째가 아님) */
 const BOARD_CANVAS = 'main[data-game-page] canvas:not([role="alertdialog"] canvas)'
 
-/** 0개여도 실패가 아닌 게임(소스 grep fillText로 확인): 캔버스에 글자를 아예 쓰지 않는 6종(점수·안내는 전부 DOM HUD)
- * + tower-stack(캔버스 글자는 연속 완벽 쌓기 때만 뜨는 'PERFECT ×N' 하나 — 몇 초 막 누르기로는 운에 달림). */
-const NO_CANVAS_TEXT = new Set(['breakout', 'pong', 'bubble-shooter', 'flappy', 'space-shooter', 'latch', 'tower-stack'])
+/** 캔버스에 글자를 아예 쓰지 않는 게임(소스에 fillText 0 — 점수·안내는 전부 DOM HUD, 게이트가 봄): 0개여도 통과. */
+const NO_CANVAS_TEXT = new Set(['breakout', 'pong', 'bubble-shooter', 'flappy', 'space-shooter', 'latch'])
+/** 캔버스 글자가 조건부라 몇 초 막 누르기로는 안 뜰 수 있는 게임: 0개면 통과가 아니라 '미측정'으로 따로 보고(손 확인 대상).
+ * tower-stack = 연속 완벽 쌓기 때만 뜨는 'PERFECT ×N'. */
+const CONDITIONAL_TEXT = new Set(['tower-stack'])
 
 /** 몇 초 플레이: 판 가운데를 누르고(시작), 좌우·스페이스·위를 번갈아, 판 여기저기를 누른다. 규칙과 무관한 '사람 손' 흉내. */
 async function play(page, ms) {
@@ -209,13 +211,14 @@ for (const slug of slugs) {
     )
     const measured = rows.filter((r) => r.ratio !== null)
     const fails = measured.filter((r) => r.ratio < r.need)
-    const empty = measured.length === 0 && !NO_CANVAS_TEXT.has(slug)
+    const unmeasured = measured.length === 0 && CONDITIONAL_TEXT.has(slug)
+    const empty = measured.length === 0 && !NO_CANVAS_TEXT.has(slug) && !unmeasured
     bad += fails.length + (empty ? 1 : 0) + errors.length
     const min = measured.length ? Math.min(...measured.map((r) => r.ratio)) : null
-    report[`${slug}-${width}`] = { measured: measured.length, skipped: rows.length - measured.length, min, fails: fails.length, errors, rows }
+    report[`${slug}-${width}`] = { status: unmeasured ? 'unmeasured-conditional' : NO_CANVAS_TEXT.has(slug) ? 'no-canvas-text' : 'measured', measured: measured.length, skipped: rows.length - measured.length, min, fails: fails.length, errors, rows }
     console.log(
       `${slug} ${width}: 캔버스 글자 ${measured.length}종${rows.length - measured.length ? ` (그라데이션 등 건너뜀 ${rows.length - measured.length})` : ''}` +
-        ` · 최저 ${min ?? '-'}:1 · 미달 ${fails.length}${empty ? ' · 잰 글자 0(목록 밖) ✗' : ''}${errors.length ? ` · 페이지 오류 ${errors.length}` : ''}`,
+        ` · 최저 ${min ?? '-'}:1 · 미달 ${fails.length}${empty ? ' · 잰 글자 0(목록 밖) ✗' : ''}${unmeasured ? ' · 미측정(조건부 글자 — 손 확인)' : ''}${errors.length ? ` · 페이지 오류 ${errors.length}` : ''}`,
     )
     for (const f of fails) console.log(`   ✗ '${f.text}' ${f.fill} on ${f.bg} = ${f.ratio} < ${f.need} (${f.cssPx}px)`)
     await ctx.close()

@@ -226,13 +226,14 @@ for (const name of slugs) {
   }
   await page.waitForTimeout(500) // 덮개 등장 애니메이션
   const rows = await measure(overlay)
-  // 넘침(R7e 함정 ③ → R7f에서 덮개 자리 최소 높이로 고침): 상자가 덮개 밖으로 '보이게' 나간 px. 덮개가 스크롤 상자면 0(잘려 안 보임).
+  // 넘침(R7e 함정 ③ → R7f에서 덮개 자리 최소 높이로 고침): 상자가 덮개 사각형 밖으로 나간 px(덮개의 overflow와 무관하게 실측),
+  // 덮개 안 스크롤 여부. 판 안에 든다 = outsidePx 0 + scrolls false + 덮개 높이 ≥ 상자 높이.
   const fit = await overlay.evaluate((el) => {
     const o = el.getBoundingClientRect()
     const panel = (el.querySelector('[data-overlay-panel]') ?? el.querySelector(':scope > div'))?.getBoundingClientRect() ?? o
     const clips = getComputedStyle(el).overflowY !== 'visible'
     const out = Math.max(0, o.top - panel.top) + Math.max(0, panel.bottom - o.bottom)
-    return { overlayH: Math.round(o.height), panelH: Math.round(panel.height), scrolls: clips && el.scrollHeight > el.clientHeight + 1, visibleOutsidePx: clips ? 0 : Math.round(out) }
+    return { overlayH: Math.round(o.height), panelH: Math.round(panel.height), scrolls: clips && el.scrollHeight > el.clientHeight + 1, outsidePx: Math.round(out) }
   })
   if (shots) await page.screenshot({ path: join(shots, `overlay-${name}-${width}.jpg`), type: 'jpeg', quality: 72 })
   if (rows.length === 0) throw new Error(`${name}: 덮개 안에서 잰 글자가 0개 — 측정이 빈 통과가 되지 않게 실패`)
@@ -243,7 +244,7 @@ for (const name of slugs) {
   report[`${name}-${width}`] = { title, checked: rows.length, min, fails: fails.length, fit, rows }
   console.log(
     `${name} ${width} '${title}': 글자 ${rows.length}개 · 최저 ${min}:1 · 미달 ${fails.length}` +
-      ` · 덮개 ${fit.overlayH}px/상자 ${fit.panelH}px${fit.scrolls ? ' (덮개 안 스크롤)' : ''} · 판 밖 보이는 넘침 ${fit.visibleOutsidePx}px`,
+      ` · 덮개 ${fit.overlayH}px/상자 ${fit.panelH}px${fit.scrolls ? ' (덮개 안 스크롤)' : ''} · 상자가 덮개 밖으로 ${fit.outsidePx}px`,
   )
   await ctx.close()
 }
