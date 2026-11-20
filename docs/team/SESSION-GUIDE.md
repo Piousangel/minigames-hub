@@ -18,6 +18,7 @@
    - 접근 불가 출처(로그인·차단)는 우회하지 말고 '접근 불가'로 적고 다른 출처로 채운다. 숫자·순위는 출처와 날짜를 쓰고 확인 못 한 것은 '추정'.
 3. **출시 = 사용자에게 보이는 것**(OPERATING '일일 출시 원칙'). PR 전 `git status --short`로 의도한 파일만 들어갔는지 본다. 머지 뒤 `gh run list --workflow deploy.yml`로 배포 성공과 라이브 URL을 확인한다.
 4. **검증 관문(모두 통과해야 머지)**: pnpm install --frozen-lockfile · pnpm typecheck · pnpm lint(error 0) · pnpm vitest related --run <바꾼 파일> · pnpm build && node scripts/check-routes.mjs. 게임은 G4(혹평 6.5 이상, 멍청한 사용 시험)도. 실패하면 머지하지 말고 PR에 원인을 적고 열어 둔다. 직접 배포하지 않는다(main 머지 시 Actions가 배포).
+   - **PR CI(`.github/workflows/ci.yml`) 초록이 머지 조건이다** — typecheck·lint·전체 vitest·build·check-routes·e2e 스모크를 PR마다 돈다(11-20 도입, 만성 실패 0 기준선). 빨간 체크를 두고 머지하지 않는다. Vercel 체크는 이 저장소 배포와 무관하다(Cloudflare 전용).
 5. **기록**: cycle.md 갱신, 오늘 회의록 맨 아래 '<시간> 실행' 3줄, docs/daily/log.md 한 줄, 배운 점은 docs/ops/lessons.md. 같은 PR에 넣는다. 커밋은 한국어 conventional + `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`, PR 끝에 `🤖 Generated with [Claude Code](https://claude.com/claude-code)`.
 6. **금지**: main 직접 푸시, force push, 테스트 약화·삭제, 공유 URL·게임 slug 변경, 광고를 게임·캔버스 화면에 넣기, AdSense 재심사 신청, 원작의 이름·캐릭터·아트·레벨을 따라 하기, 시크릿 노출, 메일 답장. 게임을 사이트에서 내리는 것은 오너 확인 후.
 7. 이미지·시안은 [GEMINI.md](./GEMINI.md) 절차, 오디오는 DESIGN-PROCESS 7번(PM·디자이너).

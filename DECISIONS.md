@@ -221,3 +221,10 @@
 - 진행 중에만 생기는 덮개 위 글자(공통 GameOverlay 승패 모달): mastermind 패배·number-memory 게임오버·pinwheel 'Off the board!'를 실제로 일으켜 같은 대비 계산을 돌림 — 최저 7.52:1(제목, 큰 글자 기준 3), 본문 최저 8.48:1. 모달 패널은 `bg-bg-2/85` 위라 아래 판이 15%만 비쳐 여유가 크다.
 - **nonogram(R7b 배치) 끝난 줄 단서 `text-fg-muted/45` → `/75`**: 무작위 판에 단서 0인 줄이 있으면 로드 직후부터 '끝난 줄'로 흐려져(2.9:1) 게이트가 판에 따라 걸렸다(R7b 때는 운 좋게 통과). 활성 단서 `text-fg`(13:1)와의 구분은 남기고 5.4:1로. duplex 판의 등장 3D 뒤집기도 main에서 이미 390에서 순간 가로 넘침(최대 402px)이 있던 것을 `overflow-x-clip` 상자로 막았다.
 - **sudoku(R7a 배치) 다 쓴 숫자 패드 `text-fg-muted opacity-50` → `opacity-75`**: nonogram과 같은 '판 운' 결함 — 한 숫자가 9개 다 주어진 판이면 로드 직후 3.2:1로 게이트가 걸렸다(R7c 리베이스 뒤 전체 e2e에서 1회 발생, 10회 반복에선 재현 안 됨). 5.4:1로, 활성 숫자(`text-fg`)와 구분은 유지.
+
+## 2026-11-20 PR 단계 CI 도입, 만성 실패 테스트 0 (오너 승인 제안 C)
+- 맥락: 전체 vitest가 늘 빨개서(문서상 ~34건) 배포 게이트에서 빠져 있었고, 머지 전 검사는 루틴이 `vitest related`로만 했다. 스승님 원칙 통합 목록 C(docs/team/mentor/lydia-hallie.md 7장)를 오너가 11-20 "다 추천대로" 승인.
+- 원인 분류(11-20 main, Node 22): 27건 전부 **부하 타임아웃**(1,000시드 퍼징·BFS 레벨 검증·가짜 타이머로 한 판 끝까지 도는 컴포넌트 테스트가 기본 5초 초과, 로컬 load 40+에서). 진짜 버그 0, 시간 의존 0, 낡은 기대값 0(GameMahjong 'step back'은 앞 테스트 타임아웃의 여파, 한도만 늘리면 통과). 이와 별도로 **Node 25+**(로컬 Node 26)에서는 전역 localStorage가 jsdom 것을 가려 368건이 깨졌다.
+- 선택: vitest.config.ts에서 testTimeout·hookTimeout CI 15초·로컬 60초(검증 범위 그대로), deploy.yml에 전체 vitest 복귀(브랜치 보호 전 안전망), 워커에 `--no-experimental-webstorage`. `.github/workflows/ci.yml`(pull_request): typecheck·lint / 전체 vitest / build·check-routes·e2e 스모크(garden-frame·result-sheet·홈 63건) 세 job 병렬, 캐시(pnpm·.next/cache·Playwright). 첫 측정 벽시계 약 3분 40초.
+- 버린 안: 무거운 테스트 skip·축소(테스트 약화), 전체 e2e를 PR마다(smoke.spec 게임별 158건 — 스모크로 충분, 전체는 기존대로 루틴·로컬), 전역 60초를 CI에도(리뷰: 실제 필요의 20배 — CI는 15초).
+- 남은 것: 로컬 과부하(load 45+)에서 vitest가 드물게 `[vitest-worker]: Timeout calling "onTaskUpdate"`(러너 RPC 타임아웃, 테스트는 전부 통과)로 exit 1을 낼 수 있다 — 테스트 코드 문제 아님, CI에선 재현 안 됨. 브랜치 보호에 CI 필수 체크를 켜는 것은 오너 할 일.
