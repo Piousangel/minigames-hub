@@ -48,7 +48,7 @@ export function FavoriteHeart({
       aria-pressed={ready ? fav : undefined}
       aria-label={fav ? `Remove ${title} from My Games` : `Add ${title} to My Games`}
       title={fav ? 'In My Games' : 'Add to My Games'}
-      className={variant === 'garden' ? GARDEN_CLASS : `absolute right-1.5 top-1.5 z-10 flex h-9 w-9 items-center justify-center rounded-full text-lg leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 focus-visible:ring-offset-bg ${
+      className={variant === 'garden' ? GARDEN_CLASS : `hit-44 absolute right-1.5 top-1.5 z-10 flex h-9 w-9 items-center justify-center rounded-full text-lg leading-none transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current focus-visible:ring-offset-2 focus-visible:ring-offset-bg ${
         fav
           ? 'text-neon-magenta opacity-100'
           : // 모바일(hover 없음)엔 항상 은은히 보여 탭 가능하게, 데스크톱(sm+)은 hover 시 노출.

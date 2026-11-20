@@ -96,10 +96,10 @@ export default function UnblockedPage() {
       </section>
 
       <nav aria-label="Browse more" className="mb-12 flex flex-wrap gap-3 text-sm">
-        <Link href="/daily" className="rounded-lg border border-border bg-surface px-3 py-1.5 text-fg-muted hover:text-fg">Daily games</Link>
-        <Link href="/collections" className="rounded-lg border border-border bg-surface px-3 py-1.5 text-fg-muted hover:text-fg">Collections</Link>
+        <Link href="/daily" className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-3 py-1.5 text-fg-muted hover:text-fg">Daily games</Link>
+        <Link href="/collections" className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-3 py-1.5 text-fg-muted hover:text-fg">Collections</Link>
         {['puzzle', 'arcade', 'classic', 'skill'].map((c) => (
-          <Link key={c} href={`/category/${c}`} className="rounded-lg border border-border bg-surface px-3 py-1.5 capitalize text-fg-muted hover:text-fg">
+          <Link key={c} href={`/category/${c}`} className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-3 py-1.5 capitalize text-fg-muted hover:text-fg">
             {c} games
           </Link>
         ))}

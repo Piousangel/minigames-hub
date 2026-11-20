@@ -135,7 +135,7 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
           <Link
             key={s}
             href={`/collection/${s}`}
-            className="rounded-lg border border-border bg-surface px-3 py-1.5 text-fg-muted hover:text-fg"
+            className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-3 py-1.5 text-fg-muted hover:text-fg"
           >
             {COLLECTIONS[s].h1}
           </Link>

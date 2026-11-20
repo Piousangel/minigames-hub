@@ -2,12 +2,12 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Fragment, useCallback, useEffect, useId, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
-import { createPortal } from 'react-dom'
+import { Fragment, useEffect, useId, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
 import { roundFont } from '@/app/roundFont'
 import { useGameNav } from '@/components/GameNav'
 import { Mascot } from '@/components/Mascot'
 import { ShareButtons } from '@/components/ShareButtons'
+import { BottomSheet, type SheetApi } from '@/components/sheet/BottomSheet'
 import { BudIcon, FlowerIcon, PlayIcon } from '@/components/site-chrome/GardenIcons'
 import { todayLocal } from '@/lib/dailyDate'
 import { nextEditionLabel } from '@/lib/daily/countdown'
@@ -53,14 +53,12 @@ function readNow(): { edition: Edition; garden: Garden } {
   return { edition, garden }
 }
 
-const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])'
-
 /**
  * 데일리 결과 시트(오리지널 3종 공통, 리디자인 v2 R5 — 시안 hub-v2.html M-SHEET).
  * - 게임 화면 위 하단 시트: max-height 85dvh + 안쪽 스크롤, 광고 없음, 노란 버튼은 Share 하나.
  * - 보조: Next game(크림, GameNavProvider의 다음 게임 = NextRail·옛 오버레이와 같은 픽), 닫기(게임으로 돌아가기).
- * - 접근성: role=dialog aria-modal, 열리면 시트로 포커스·Tab 가둠·Esc·브라우저 뒤로 가기로 닫힘, 닫히면 포커스 복귀.
- * - 모션 줄이기: 올라오기·꽃 피기 애니메이션 없이 최종 상태(globals.css .daily-sheet).
+ * - 열기·닫기·끌어 닫기·포커스·history·스크롤 잠금은 공통 BottomSheet(src/components/sheet). 여기는 내용만.
+ * - 모션 줄이기: 꽃 피기 애니메이션 없이 최종 상태(globals.css .daily-sheet__flower).
  * - 리더보드 제출(OverlayScoreSubmit) 등 게임별 칸은 children으로 받는다(흐름은 게임 그대로).
  */
 export function DailyResultSheet({
@@ -93,17 +91,9 @@ export function DailyResultSheet({
   const [channels, setChannels] = useState(false)
   const nav = useGameNav()
   const titleId = useId()
-  const sheetRef = useRef<HTMLDivElement>(null)
-  const returnFocus = useRef<HTMLElement | null>(null)
-  const pushed = useRef(false)
-  const rootRef = useRef<HTMLDivElement>(null)
   const card = useRef<File | null>(null) // 터치 기기: 시트가 열릴 때 미리 만든 공유 카드(클릭 뒤 await가 길면 사용자 활성화가 만료된다)
   const nextShownFor = useRef<DailyResult | null>(null)
   const router = useRouter()
-  const onCloseRef = useRef(onClose)
-  useEffect(() => {
-    onCloseRef.current = onClose
-  }, [onClose])
 
   useEffect(() => setMounted(true), [])
 
@@ -160,80 +150,6 @@ export function DailyResultSheet({
     }
   }, [open, now, gameTitle])
 
-  /** UI로 닫기: 우리가 넣은 history 칸이 맨 위면 뒤로 가기로 빼고(popstate가 닫는다), 아니면 바로 닫는다. */
-  const requestClose = useCallback(() => {
-    if (pushed.current && (window.history.state as Record<string, unknown> | null)?.[HISTORY_MARK]) {
-      window.history.back()
-      return
-    }
-    pushed.current = false
-    onCloseRef.current()
-  }, [])
-
-  // 포커스 가둠·Esc·뒤로 가기·배경 스크롤 잠금
-  useEffect(() => {
-    if (!open || !mounted) return
-    returnFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
-    const el = sheetRef.current
-    el?.focus({ preventScroll: true })
-    try {
-      window.history.pushState({ ...(window.history.state ?? {}), [HISTORY_MARK]: 1 }, '')
-      pushed.current = true
-    } catch {
-      pushed.current = false
-    }
-    const onPop = () => {
-      if (!pushed.current) return
-      pushed.current = false
-      onCloseRef.current()
-    }
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        e.stopPropagation()
-        requestClose()
-        return
-      }
-      if (e.key !== 'Tab' || !el) return
-      const items = [...el.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((n) => !n.closest('[hidden], [inert], [aria-hidden="true"]'))
-      if (!items.length) {
-        e.preventDefault()
-        return
-      }
-      const first = items[0]
-      const last = items[items.length - 1]
-      const active = document.activeElement
-      if (e.shiftKey && (active === first || active === el || !el.contains(active))) {
-        e.preventDefault()
-        last.focus()
-      } else if (!e.shiftKey && (active === last || !el.contains(active))) {
-        e.preventDefault()
-        first.focus()
-      }
-    }
-    const root = document.documentElement
-    const prevOverflow = root.style.overflow
-    root.style.overflow = 'hidden'
-    // 배경을 inert로: 스크린 리더가 시트 밖으로 나가지 않게(iOS VoiceOver는 aria-modal만으로 부족)
-    const inerted = [...document.body.children].filter((n): n is HTMLElement => n instanceof HTMLElement && n !== rootRef.current && !n.hasAttribute('inert'))
-    inerted.forEach((n) => n.setAttribute('inert', ''))
-    window.addEventListener('popstate', onPop)
-    document.addEventListener('keydown', onKey, true)
-    return () => {
-      window.removeEventListener('popstate', onPop)
-      document.removeEventListener('keydown', onKey, true)
-      root.style.overflow = prevOverflow
-      inerted.forEach((n) => n.removeAttribute('inert'))
-      // UI 밖 이유로 닫혔다(날짜 바뀜 등): 우리가 넣은 history 칸이 맨 위에 남아 있으면 빼서 '뒤로 가기 두 번'을 막는다
-      if (pushed.current && (window.history.state as Record<string, unknown> | null)?.[HISTORY_MARK]) {
-        pushed.current = false
-        window.history.back()
-      }
-      pushed.current = false
-      returnFocus.current?.focus?.({ preventScroll: true })
-    }
-  }, [open, mounted, requestClose])
-
   if (!open || !mounted) return null
 
   const { edition, garden } = now ?? readNow()
@@ -276,19 +192,18 @@ export function DailyResultSheet({
   }
 
   const nextHref = nav.nextSlug ? `/${nav.nextSlug}?ref=next` : ''
-  const onNext = (e: ReactMouseEvent<HTMLAnchorElement>) => {
+  const onNext = (e: ReactMouseEvent<HTMLAnchorElement>, sheet: SheetApi) => {
     sendHit(nav.slug, 'next_ovl')
     // 시트 history 칸 위에 새 페이지를 쌓지 않고 그 칸을 바꿔 끼운다(뒤로 가기 한 번 = 게임 페이지)
-    if (pushed.current && (window.history.state as Record<string, unknown> | null)?.[HISTORY_MARK] && !e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0) {
+    if (!e.metaKey && !e.ctrlKey && !e.shiftKey && e.button === 0 && sheet.takeHistory()) {
       e.preventDefault()
-      pushed.current = false
       router.replace(nextHref)
     }
   }
-  const toLeaderboard = (e: ReactMouseEvent<HTMLAnchorElement>) => {
+  const toLeaderboard = (e: ReactMouseEvent<HTMLAnchorElement>, sheet: SheetApi) => {
     e.preventDefault()
-    requestClose()
-    window.setTimeout(() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 150)
+    // 시트가 다 닫히고 스크롤 잠금이 풀린 뒤에 내려간다(잠금 중에 스크롤하면 풀릴 때 제자리로 돌아온다)
+    sheet.close(() => document.getElementById('leaderboard')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
   }
 
   // 큰 숫자: 5글자 이상(예: '1024 m')은 24px로 — 360에서 세 칸(약 97px)을 넘지 않게
@@ -297,22 +212,19 @@ export function DailyResultSheet({
   const lbl = 'block text-[12px] leading-4 font-medium text-garden-ink-soft'
   const flowers = garden.slots.map((s) => s.status === 'bloomed')
 
-  return createPortal(
-    <div ref={rootRef} className="daily-sheet-root font-ui fixed inset-0 z-[60] flex items-end justify-center" data-testid={`${SHEET_TEST_ID}-root`}>
-      <div aria-hidden="true" className="daily-sheet__dim absolute inset-0 bg-[rgba(58,36,16,0.5)]" onClick={requestClose} />
-      <div
-        ref={sheetRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        tabIndex={-1}
-        data-testid={SHEET_TEST_ID}
-        data-full={copy.full ? 'true' : 'false'}
-        className="daily-sheet relative w-full max-w-[480px] overflow-y-auto overscroll-contain rounded-t-[28px] border-4 border-b-0 border-garden-ink bg-garden-cream px-4 pt-3 pb-[max(20px,env(safe-area-inset-bottom))] text-garden-ink shadow-[inset_0_2px_0_#fff8ea,var(--garden-shadow-sheet)] outline-none"
-        style={{ maxHeight: '85dvh' }}
-      >
-        <div aria-hidden="true" className="mx-auto h-1 w-10 rounded-full bg-garden-ink/30" />
-        <p className="mt-3 truncate text-[12px] leading-4 font-semibold text-garden-coral-text">{copy.kicker}</p>
+  return (
+    <BottomSheet
+      open={open}
+      onClose={onClose}
+      labelledBy={titleId}
+      testId={SHEET_TEST_ID}
+      rootTestId={`${SHEET_TEST_ID}-root`}
+      historyMark={HISTORY_MARK}
+      className="px-4"
+    >
+      {(sheet) => (
+      <div data-full={copy.full ? 'true' : 'false'} data-testid="sheet-body">
+        <p className="truncate text-[12px] leading-4 font-semibold text-garden-coral-text">{copy.kicker}</p>
         <h2 id={titleId} className="font-display mt-1 text-[28px] leading-8 font-semibold tracking-[-0.02em] min-[380px]:text-[30px] min-[380px]:leading-[34px]">
           {copy.titleLead} <em className="font-display-italic italic">{copy.titleTail}</em>
         </h2>
@@ -390,7 +302,7 @@ export function DailyResultSheet({
         {nav.nextSlug && nav.nextTitle && (
           <Link
             href={nextHref}
-            onClick={onNext}
+            onClick={(e) => onNext(e, sheet)}
             data-testid="sheet-next-game"
             className="garden-jelly mt-2 flex h-12 w-full items-center justify-center gap-2 rounded-full border-[3px] border-garden-ink bg-garden-cream px-4 text-[16px] leading-none font-bold text-garden-ink shadow-garden-button focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-garden-ink focus-visible:ring-offset-2 focus-visible:ring-offset-garden-cream"
           >
@@ -402,7 +314,7 @@ export function DailyResultSheet({
         {children && <div className="mt-3 flex flex-col items-center gap-2 text-center">{children}</div>}
         {leaderboard && (
           <p className="mt-1 text-center">
-            <a href="#leaderboard" onClick={toLeaderboard} data-testid="sheet-leaderboard" className="inline-flex min-h-11 items-center text-[13px] font-semibold text-garden-ink-soft underline decoration-dotted underline-offset-4 hover:text-garden-coral-text">
+            <a href="#leaderboard" onClick={(e) => toLeaderboard(e, sheet)} data-testid="sheet-leaderboard" className="inline-flex min-h-11 items-center text-[13px] font-semibold text-garden-ink-soft underline decoration-dotted underline-offset-4 hover:text-garden-coral-text">
               See this week’s leaderboard
             </a>
           </p>
@@ -411,7 +323,7 @@ export function DailyResultSheet({
         <div className="mt-2 flex flex-wrap items-center justify-between gap-x-2">
           <button
             type="button"
-            onClick={requestClose}
+            onClick={() => sheet.close()}
             data-testid="sheet-close"
             className="flex h-11 items-center gap-1.5 whitespace-nowrap rounded-md px-1 text-[15px] leading-none font-semibold text-garden-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-garden-ink"
           >
@@ -431,8 +343,8 @@ export function DailyResultSheet({
           </p>
         </div>
       </div>
-    </div>,
-    document.body,
+      )}
+    </BottomSheet>
   )
 }
 

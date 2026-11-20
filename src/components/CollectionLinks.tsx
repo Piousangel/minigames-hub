@@ -17,7 +17,7 @@ export function CollectionLinks({ slug }: { slug: string }) {
         <Link
           key={c.slug}
           href={`/collection/${c.slug}`}
-          className="rounded-lg border border-border bg-surface px-3 py-1.5 text-sm text-fg-muted transition-colors hover:text-fg"
+          className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-3 py-1.5 text-sm text-fg-muted transition-colors hover:text-fg"
           style={{ color: accentVar(c.accent) }}
         >
           {c.h1}

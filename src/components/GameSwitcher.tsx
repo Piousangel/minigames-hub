@@ -40,7 +40,7 @@ export function GameSwitcher({ currentSlug }: { currentSlug: string }) {
           href={`/${g.slug}`}
           aria-label={g.h1}
           title={g.h1}
-          className="neon-icon flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface text-fg-muted transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+          className="neon-icon flex h-11 w-11 items-center justify-center rounded-lg border border-border bg-surface text-fg-muted transition-colors hover:text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-neon-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
         >
           <GameIcon slug={g.slug} className="h-6 w-6" />
         </Link>

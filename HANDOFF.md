@@ -1,5 +1,15 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 공통 BottomSheet + UX 친화성 인계 (브랜치 `feat/bottom-sheet-ux`)
+
+**한 줄:** 오너 "손잡이가 있는데 배경 탭으로만 닫힌다, 모든 부분을 사용자 친화적으로" → `src/components/sheet/BottomSheet.tsx` 하나로 모달 통일. 손잡이 끌어 닫기(높이 25% 또는 0.5px/ms 튕김, 아니면 300ms 복귀), 손잡이 = `Close` 버튼, 배경 탭·Esc·뒤로 가기·닫기 버튼이 같은 퇴장 모션·같은 onClose. 768+는 가운데 카드(끌기 없음).
+- **코드**: 규칙 숫자는 `sheetGesture.ts`(순수, 테스트). 내용 쪽은 `children(api)`로 `api.close(after?)`·`api.takeHistory()`(Next game이 history 칸을 바꿔 끼울 때). CSS `globals.css` '공통 하단 시트'(`--ease-sheet`, `--sheet-kb`·`--sheet-vh`·`--sheet-max`). 결과 시트(`DailyResultSheet`)는 내용만.
+- **공통 친화성 수정**: `.hit-44`(보이는 크기 그대로 누르는 영역만 44) — GameButton·카드 하트·/daily 빵 부스러기, 다른 게임 아이콘 40 → 44, 모음·카테고리 칩 34 → 44, 시트 안 공유 채널 36 → 44, 입력칸(리더보드 이름·직접 복사) 16px(iOS 확대), 결과 시트를 연 'Today’s result' 버튼을 시트가 열린 동안 지우지 않음(포커스 복귀 + 시트 창 CLS 0.023 → 0.008).
+- **검사**: `e2e/bottom-sheet.spec.ts`(CDP 터치로 짧게→복귀·길게→닫힘·튕김→닫힘, 내용 끌기·안쪽 스크롤 충돌, 배경 탭·Esc·뒤로 가기·포커스 복귀, 스크롤 잠금, 44px·16px, 모션 줄이기, 데스크톱 카드, 공통 컴포넌트 누르는 영역 elementFromPoint). 점검 도구 `node scripts/ux-audit.mjs http://localhost:<포트> [/경로]`. QUALITY.md 5장 체크리스트 10항목, 게임별 넘긴 것은 ledger 맨 아래 'UX 친화성' 표.
+- **증거**: `docs/design/bottom-sheet/`(390 시트·끄는 중·닫힌 뒤, 360, 1440, `sheet-drag-390.webm` 녹화, report.json axe 0·0).
+- **함정**: ① CDP 터치 이벤트 간격이 ~30ms(부하 걸리면 100ms+)라 '튕김' e2e는 120px/4이벤트로 넉넉히 — 느린 기기 대비로 표본이 성기면 바로 앞 표본까지 쓴다 ② 시트 열림 애니메이션은 `backwards` — `both`로 바꾸면 끝난 뒤에도 transform을 잡아 끌기가 안 따라온다 ③ body `position:fixed` 잠금으로 바꾸지 말 것(sticky 헤더 CLS) ④ 연 버튼을 시트가 열린 동안 지우면 포커스가 body로 샌다.
+- **⏭ 다음**: iOS Safari 실기기에서 끌기·키보드(visualViewport) 확인 + playwright webkit 프로젝트(이 컨테이너엔 없음), ledger 'UX 친화성' 표(chess 토글 28px·beatline 탭·unblock select 14px·slime 소리 토글·solitaire), /acorn-hop 로드 중 CLS(share-buttons·next-rail·daily-dock 0.05+, 라이브에서도 같음 — 이 PR 밖), 샌드랩 결과 카드(SpillResult·ResultCard `role="dialog"`)에 같은 시트 적용.
+
 ## ▶ 2026-11-20 13시 신작 꽃담 정원(가칭) G1 + 비공개 터치 프로토 인계 (브랜치 `game/fence-garden-g1-touch-proto`)
 
 **한 줄:** 신작 퍼즐안의 규칙을 '뛰고 담 치기'로 고정했다(0~2칸 뛰고 → 선 칸의 한 변에 울타리 강제, 목표 = 말랑이 영역에 꽃 전부·잡초 0, 별 = 최소 턴). 정적 가두기(v1)는 enclose.horse와 같아 버림. 비공개 프로토 `/tools/fence-proto`(noindex·robots disallow·미연결).
