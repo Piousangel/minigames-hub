@@ -9,3 +9,4 @@
 | 홈 PLAY NOW 오리지널화 E1 | 11-17(#82) | - | 판정 11-24(n<30 보류, 상한 12-01) | hero_play 계측 시작 |
 | 모바일 보드 스크롤 35종 | 11-17(#79·#83·#84) | - | 7일: 실기기(iOS·Android) 확인 · 알려진 한계 4건 후속 | - |
 | 오버레이 1클릭 제출 | 11-17 | - | 7일 11-24 lb_submit_overlay 판정 | lb_submit 13(오버레이 10) |
+| 아케이드 시작 게이트 R1 (pong·space-shooter·tetris·flappy) | 11-20 | 시작 게이트·탭 숨김 일시정지·재개 1.2초 카운트다운·퐁 재서브 0.9초(`useGameGate`) | 7일 11-27: 네 게임 AE 플레이 수·퐁 승률 전후 비교(게이트 이탈 추정) · 다음 재사용: P1 나머지(beatline·offbeat·gridlock·zero-hour·whack-a-mole·morse-relay) · 별건: 테트리스 락 딜레이, 슈터 피격 무적 | 전: 8초 방치 퐁 0-7·슈터 목숨 3→1 |

@@ -76,3 +76,5 @@
 - **06시 11-20(회의)**: meetings/2026-11-20.md. 출시 계획: 08시 말랑 S 4건, **10시 R1 게이트 출시(사흘째 밀림, 다른 일 금지)**, 13시 벽 한 수 퍼즐 G1+터치 프로토, **16시 리디자인 R6 마스코트 배치**(리서치1+v1 완료: specs/2026-11-20-r6-mascots.md → 리서치2부터), 18시 bugs Q1·R7 스코프 준비. 마케팅 11-17 이후 0건 → snake 리뉴얼 큐(11-20) 재개.
 
 - **08시 11-20(아침 개발)**: 04시 v2.1 4장 S 1~4 — `c-meadow-2` 정의(풀 밖)·골든 보강(c-meadow·s-bounce 별도 표)·`gate.ts` CB-1 `prevPassRate`(c-meadow 0.6 / c-meadow-2 0.2375 정확 재현)·CB-2 `hintKilled`·`ghost.ts` `ghostMark`(SlimeProto ✕ 일반화). 풀·골든 기존 행 불변. 열린 PR은 #44(오래됨, 미접촉)뿐, bugs.md 상 심각도 0. **다음**: 풀 교체 CUTOVER(리드 결정) 또는 PR-6 다중 선 UI → PR-7.
+
+- **10시 11-20(축 C)**: **R1 아케이드 시작 게이트 출시 PR**(pong·space-shooter·tetris·flappy, 공용 `useGameGate`·`GatePanel`·`GameShell.headerActions`). 라운드 전부 완료(리서치2·v2·리뷰 5/10 응답·구현 후 혹평 리뷰) — spec 5~10장. 홍보 문안·`docs/design/renewal/r1/pong-before-after.jpg` → 20시가 11-21 큐로. **다음 축 C = R2**(solitaire 계열 점수·표시 정직화, renewal-queue 재검증부터). 훅 재사용 후보: beatline·offbeat·gridlock·zero-hour·whack-a-mole·morse-relay.

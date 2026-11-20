@@ -1128,3 +1128,42 @@ test('2048-animals: 진화 사다리는 animals에만, classic /2048에는 없�
   await expect(page.getByTestId('board').getByTestId('tile').first()).toBeVisible()
   await expect(page.getByTestId('evolution-ladder')).toHaveCount(0)
 })
+
+// 리뉴얼 R1: 아케이드 4종은 로드 즉시 시작하지 않고, 탭 숨김 시 멈춘 채 기다린다.
+for (const [slug, board] of [
+  ['pong', 'pong-board'],
+  ['space-shooter', 'space-board'],
+  ['tetris', 'tetris-board'],
+  ['flappy', 'flappy-board'],
+] as const) {
+  test(`${slug}: 시작 게이트 — 3초 방치해도 진행 안 함, 시작 후 숨김 → Paused 유지`, async ({ page }) => {
+    await page.goto(`/${slug}`)
+    await expect(page.getByTestId(board)).toBeVisible()
+    await expect(page.getByTestId('gate-ready')).toBeVisible()
+    // 점수는 진행돼도 0일 수 있다(테트리스 낙하·flappy) → 판 자체도 본다
+    const snap = async () =>
+      slug === 'tetris'
+        ? page.getByTestId('tetris-board').locator('> div').first().innerHTML()
+        : page.getByTestId(board).evaluate((c) => (c as HTMLCanvasElement).toDataURL())
+    const before = await page.getByTestId('game-shell-stats').innerText()
+    const board0 = await snap()
+    await page.waitForTimeout(3000)
+    expect(await page.getByTestId('game-shell-stats').innerText()).toBe(before)
+    await expect(page.getByTestId('gate-ready')).toBeVisible()
+    if (slug !== 'space-shooter') expect(await snap()).toBe(board0) // 슈터는 대기 중에도 별이 흐른다(장식)
+    await page.getByTestId('gate-start').click()
+    await expect(page.getByTestId('gate-ready')).toHaveCount(0)
+    await expect(page.getByTestId('gate-pause')).toBeVisible()
+    await page.evaluate(() => {
+      Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' })
+      document.dispatchEvent(new Event('visibilitychange'))
+      Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'visible' })
+      document.dispatchEvent(new Event('visibilitychange'))
+    })
+    await expect(page.getByTestId('gate-paused')).toBeVisible()
+    await page.waitForTimeout(1500)
+    await expect(page.getByTestId('gate-paused')).toBeVisible() // 자동 재개 없음
+    await page.getByTestId('gate-resume').click()
+    await expect(page.getByTestId('gate-paused')).toHaveCount(0)
+  })
+}

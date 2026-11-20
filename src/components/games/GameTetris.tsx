@@ -20,6 +20,8 @@ import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordFinish } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { GatePanel, PauseButton } from '@/components/game-shell/GatePanel'
+import { useGameGate, type GatePhase } from '@/lib/useGameGate'
 
 // 조각 id(1..7) → 색상. 위쪽 하이라이트 + 아래쪽 그림자로 입체감.
 const PIECE_STYLE: Record<number, string> = {
@@ -93,7 +95,6 @@ function previewCells(type: TetrisState['next']): number[] {
 export function GameTetris({ storageKey }: { storageKey: string }) {
   // SSR 불일치 방지: 초기 상태는 클라이언트에서만 생성
   const [state, setState] = useState<TetrisState | null>(null)
-  const [running, setRunning] = useState(false)
   const [best, setBest] = useState(0)
   const newBestRef = useRef(false)
   const [newBest, setNewBest] = useState(false)
@@ -102,6 +103,11 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
   const { play, muted, toggleMuted } = useGameSound()
   const { reducedRef } = useReducedMotion()
   const stateRef = useRef<TetrisState | null>(null)
+
+  // 시작 게이트 + 일시정지(R1). 로드 즉시 조각이 떨어지던 문제와, 탭 복귀 뒤 아무 키가
+  // '재개 + 조각 이동'을 동시에 하던 문제(옛 act의 setRunning(true))를 고친다.
+  const gate = useGameGate({ canPause: () => !stateRef.current?.over })
+  const gatePhaseRef = gate.phaseRef
 
   const commit = useCallback((updater: (s: TetrisState) => TetrisState) => {
     setState((s) => {
@@ -112,39 +118,37 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
     })
   }, [])
 
-  const restart = useCallback(() => {
+  const fresh = useCallback(() => {
     const s = newGame(Math.random)
     stateRef.current = s
     setState(s)
-    setRunning(true)
     newBestRef.current = false
     setNewBest(false)
   }, [])
 
+  // Play again·New Game은 게이트를 다시 거치지 않는다.
+  const restart = useCallback(() => {
+    fresh()
+    gate.reset('running')
+  }, [fresh, gate])
+
+  // 마운트: 판만 만들고 ready에서 기다린다.
   useEffect(() => {
-    restart()
+    fresh()
     const stored = Number(localStorage.getItem(storageKey))
     setBest(Number.isFinite(stored) ? stored : 0)
-  }, [restart, storageKey])
+  }, [fresh, storageKey])
 
   const over = state?.over ?? false
   const level = state?.level ?? 1
 
-  // 중력 루프 — 레벨에 따라 간격이 짧아진다.
+  // 중력 루프 — 레벨에 따라 간격이 짧아진다. running일 때만(탭 숨김 정지는 useGameGate가 맡는다).
+  const running = gate.phase === 'running'
   useEffect(() => {
     if (!running || over) return
     const id = setInterval(() => commit((s) => (s.over ? s : tick(s, Math.random))), gravityMs(level))
     return () => clearInterval(id)
   }, [running, over, level, commit])
-
-  // 탭이 숨겨지면 일시정지.
-  useEffect(() => {
-    const onVisibility = () => {
-      if (document.hidden) setRunning(false)
-    }
-    document.addEventListener('visibilitychange', onVisibility)
-    return () => document.removeEventListener('visibilitychange', onVisibility)
-  }, [])
 
   // Best 저장. 죽는 순간에 score와 best를 비교하면 안 된다 — 그땐 이미 같아져 있다.
   // 경신이 실제로 일어나는 이 지점에서 플래그를 세운다(GameTowerStack과 같은 방식).
@@ -178,7 +182,9 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
   // --- 액션(사운드 즉시 반응) ---
   const act = useCallback(
     (fn: (s: TetrisState) => TetrisState, sound?: boolean) => {
-      setRunning(true)
+      const p = gatePhaseRef.current
+      if (p === 'paused' || p === 'countdown') return // 멈춘 동안의 입력은 버린다(재개는 Resume·P만)
+      if (p === 'ready') gate.start() // 첫 입력은 시작이면서 그대로 조작이다(Space·Enter 제외, 아래)
       let changed = false
       commit((s) => {
         if (s.over) return s
@@ -188,7 +194,7 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
       })
       if (changed && sound) play('move')
     },
-    [commit, play],
+    [commit, gate, gatePhaseRef, play],
   )
 
   const doMoveLeft = useCallback(() => act((s) => moveHorizontal(s, -1), true), [act])
@@ -200,6 +206,7 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (isTypingTarget(e.target)) return
+      if (e.target instanceof HTMLButtonElement && (e.key === ' ' || e.key === 'Enter')) return // 포커스된 Resume·⏸는 Space/Enter로 눌려야 한다
       switch (e.key) {
         case 'ArrowLeft':
           e.preventDefault()
@@ -219,15 +226,24 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
           break
         case ' ':
           e.preventDefault()
-          doHardDrop()
+          // ready에서 Space는 '시작'이 1순위 의도 — 첫 조각을 하드드롭하지 않는다(리뷰 4).
+          if (gatePhaseRef.current === 'ready') gate.start()
+          else doHardDrop()
+          break
+        case 'Enter':
+          if (gatePhaseRef.current === 'ready' && e.target === document.body) {
+            e.preventDefault()
+            gate.start()
+          }
           break
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [doMoveLeft, doMoveRight, doRotate, doSoftDrop, doHardDrop])
+  }, [doMoveLeft, doMoveRight, doRotate, doSoftDrop, doHardDrop, gate, gatePhaseRef])
 
-  const hint = 'Arrow keys move/rotate, Down soft-drops, Space hard-drops. Use the buttons on mobile.'
+  const hint = 'Arrow keys move/rotate, Down soft-drops, Space hard-drops, P pauses. Use the buttons on mobile.'
+  const pauseBtn = <PauseButton phase={gate.phase} show={!over} onPause={() => gate.pause('manual')} />
 
   const stats = [
     { label: 'Score', value: state?.score ?? 0, testId: 'score', float: true },
@@ -256,7 +272,7 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
   const preview = previewCells(state.next)
 
   return (
-    <GameShell stats={stats} onNewGame={restart} muted={muted} onToggleMute={toggleMuted} hint={hint}>
+    <GameShell stats={stats} headerActions={pauseBtn} onNewGame={restart} muted={muted} onToggleMute={toggleMuted} hint={hint}>
       <div className="flex items-start justify-center gap-3">
         {/* 보드 */}
         <div
@@ -286,6 +302,16 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
             })}
           </div>
 
+          {!state.over && (
+            <GatePanel
+              phase={gate.phase}
+              count={gate.count}
+              onStart={gate.start}
+              onResume={gate.resume}
+              title="Ready?"
+              hint="Tap Play or press any arrow key. ← → move, ↑ rotates, Space drops."
+            />
+          )}
           <GameOverlay
             show={state.over}
             variant={newBest ? 'win' : 'lose'}
@@ -319,23 +345,25 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
 
       {/* 모바일 터치 컨트롤 */}
       <div className="mx-auto mt-3 grid max-w-72 grid-cols-3 gap-2">
-        <TouchButton label="◀" aria="Move left" onPress={doMoveLeft} repeat />
-        <TouchButton label="⟳" aria="Rotate" onPress={doRotate} />
-        <TouchButton label="▶" aria="Move right" onPress={doMoveRight} repeat />
-        <TouchButton label="▼" aria="Soft drop" onPress={doSoftDrop} repeat />
-        <TouchButton label="⤓" aria="Hard drop" onPress={doHardDrop} className="col-span-2" />
+        <TouchButton phase={gate.phase} label="◀" aria="Move left" onPress={doMoveLeft} repeat />
+        <TouchButton phase={gate.phase} label="⟳" aria="Rotate" onPress={doRotate} />
+        <TouchButton phase={gate.phase} label="▶" aria="Move right" onPress={doMoveRight} repeat />
+        <TouchButton phase={gate.phase} label="▼" aria="Soft drop" onPress={doSoftDrop} repeat />
+        <TouchButton phase={gate.phase} label="⤓" aria="Hard drop" onPress={doHardDrop} className="col-span-2" />
       </div>
     </GameShell>
   )
 }
 
 function TouchButton({
+  phase,
   label,
   aria,
   onPress,
   className = '',
   repeat = false,
 }: {
+  phase: GatePhase
   label: string
   aria: string
   onPress: () => void
@@ -359,6 +387,10 @@ function TouchButton({
 
   // 언마운트 시 인터벌 누수 방지(세션 넘어 잔존 금지).
   useEffect(() => clear, [clear])
+  // 누른 채로 일시정지(탭 숨김 등)되면 pointerup을 놓칠 수 있다 — 반복을 끊어 재개 뒤 저절로 움직이지 않게(리뷰 2).
+  useEffect(() => {
+    if (phase !== 'running' && phase !== 'ready') clear()
+  }, [phase, clear])
 
   if (!repeat) {
     return (
