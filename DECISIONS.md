@@ -188,7 +188,7 @@
 
 ## 2026-11-20 리디자인 v2 R7b 정원 틀 배치 b: chess·mahjong 대비 수정 후 투입·선정 순서·sliding 수정(팀)
 - 맥락: R7a 규칙 4개(캔버스 제외, 하드코딩 색 ≥20 제외, 장부·트래픽 우선, 대비 결함은 고친 뒤 투입)로 두 번째 20개.
-- **chess·mahjong 대비 수정(규칙·점수 변경 0, 색·크기만)**: 체스 좌표 `text-[8px] text-fg-muted/70`(3.1:1) → `text-[10px] text-fg`(마지막 수 노랑·선택 하늘 덮개 위에서도 네온 ≥5.2·정원 ≥4.8). 마작 패 글자 = 짙은 단계(점 #164e63·대 #064e3b·萬 #7c2d12·바람 #4c1d95·中 #881337·發 #14532d·白 #334155 그대로), 막힌 패 `opacity 0.85` 제거(바탕 #b9bccb 불투명 — 자유 패 #f4f5fb와 구분은 그대로), 萬 보조 글자 `opacity-80` 제거 → 막힌 패 위 최저 2.0 → 4.8. 패 색은 하드코딩이라 네온·정원 같은 값.
+- **chess·mahjong 대비 수정(규칙·점수 변경 0, 색·크기만)**: 체스 좌표 `text-[8px] text-fg-muted/70`(칸 바탕에 따라 3.1~4.0:1) → `text-[10px] text-fg`(마지막 수 노랑·선택 하늘 덮개 위에서도 네온 ≥5.2·정원 ≥4.8). 마작 패 글자 = 짙은 단계(점 #164e63·대 #064e3b·萬 #7c2d12·바람 #4c1d95·中 #881337·發 #14532d·白 #334155 그대로), 막힌 패 `opacity 0.85` 제거(바탕 #b9bccb 불투명). **대가: 자유/막힌 패 밝기 구분이 약 2.2:1 → 1.74:1로 약해짐** — 바탕을 더 어둡게 하면 글자 4.5:1이 깨져(#164e63 3.7) 글자 대비를 택하고 감수(캡처상 구분은 됨, 퀄리티팀이 모바일 손 확인), 萬 보조 글자 `opacity-80` 제거 → 막힌 패 위 최저 2.0 → 4.8. 패 색은 하드코딩이라 네온·정원 같은 값.
 - **sliding-puzzle도 같은 종류 결함**(흰 숫자 24px 굵게 on sky-500 2.7:1, 예전 네온에서도 같음) → 그라데이션 시작 sky-600(4.1:1). 한 단어 수정이라 미루지 않고 고쳐 넣었다.
-- **선정 순서**: 11-15~21 지표에서 chess(64)·mahjong(14) 말고 남은 DOM 후보는 트래픽 0 → HANDOFF R7a 후보 8개(tetris·yahtzee·freecell·spider·jigsaw·memory-game·tic-tac-toe·connect-four) + 레지스트리 앞쪽(오래된 고전 = 검색 유입 대상) 10개. unblock(hex 20)·ticker(25)는 규칙상 계속 뒤.
+- **선정 순서**: 11-15~21 지표에서 chess(64)·mahjong(14) 말고 남은 DOM 후보는 트래픽 0 → HANDOFF R7a 후보 8개(tetris·yahtzee·freecell·spider·jigsaw·memory-game·tic-tac-toe·connect-four) + 레지스트리 앞쪽 고전(검색 유입 대상) 10개. 레지스트리 순서상 앞인 mastermind·dots-and-boxes·maze·number-memory·word-search는 제외 사유 없이 R7c 첫 순서로 넘겼다(보드 게임 checkers·reversi를 chess와, nonogram을 퍼즐 묶음으로 먼저 넣음). unblock(hex 20)·ticker(25)는 규칙상 계속 뒤.
 - e2e '배치 밖 게임은 예전 그대로' 기준 게임을 tic-tac-toe(배치 b로 들어감) → kakuro로 바꿨다.

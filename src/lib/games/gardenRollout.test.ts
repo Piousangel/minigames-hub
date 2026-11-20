@@ -22,6 +22,7 @@ describe('정원 틀 배치 목록(R7)', () => {
     expect(gameWorld('slime-slide')).toBe('room')
     expect(gameWorld(all[0])).toBe('garden')
     expect(gardenBatchOf(all[0])).toBe('a')
+    expect(gardenBatchOf('chess')).toBe('b')
     const outside = gamePages.find((p) => !GARDEN_FRAMED.has(p.slug) && !(GARDEN_ORIGINALS as readonly string[]).includes(p.slug))!
     expect(gameWorld(outside.slug)).toBeNull()
     expect(gardenBatchOf(outside.slug)).toBeNull()
@@ -44,6 +45,10 @@ describe('정원 틀 배치 목록(R7)', () => {
     for (const slug of [...GARDEN_BATCHES.a, ...GARDEN_BATCHES.b]) {
       const src = readFileSync(join(__dirname, '../../components/games', `${file[slug]}.tsx`), 'utf8')
       expect(src.includes('getContext'), slug).toBe(false)
+      // 선정 규칙 ②: 하드코딩 색(hex·rgba) 20개 미만(배치 a의 2048·2048-animals는 장부 점검 끝난 예외)
+      if ((GARDEN_BATCHES.b as readonly string[]).includes(slug)) {
+        expect((src.match(/#[0-9a-fA-F]{3,8}\b|rgba?\(/g) ?? []).length, slug).toBeLessThan(20)
+      }
     }
   })
 })

@@ -37,7 +37,8 @@ export const GARDEN_BATCHES = {
     'clusters',
   ],
   // R7b(11-20): chess·mahjong(대비 결함 수정 뒤 투입) + 캔버스 없음·하드코딩 색 <20인 고전 18개.
-  // 트래픽은 chess·mahjong 말고 전부 0(11-15~21 지표)이라 HANDOFF R7a 후보 → 레지스트리 순(오래된 고전·검색 유입 대상) 순서.
+  // 트래픽은 chess·mahjong 말고 전부 0(11-15~21 지표)이라 HANDOFF R7a 후보 8개 + 레지스트리 앞쪽 고전 10개
+  // (보드 checkers·reversi는 chess와 묶음 — mastermind·dots-and-boxes·maze 등은 R7c 첫 순서, DECISIONS R7b).
   b: [
     'chess',
     'mahjong',
