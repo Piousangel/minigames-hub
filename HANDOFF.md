@@ -1,5 +1,10 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 브랜드 최종판 적용 인계 (브랜치 `feat/brand-final`)
+- **한 일**: 오너 승인 최종판(3차 V2 최종판 A '밝게', 금빛 링 엠블럼 + 말랑이)을 파비콘(ico 16 단순판·32·48)·구글 96·애플 180·PWA 192/512 any + maskable 512·헤더·푸터 마크에 적용. 아이콘 라우트는 Satori 대신 `src/brand/*.png` 바이트를 그대로 낸다(`src/app/icons/_logo.tsx` `brandPng`). 헤더·푸터는 `BrandMark`(`/brand/mark-96.webp`, width/height 지정). 재생성 `python3 scripts/brand-icons.py`(원본 `docs/design/brand-3/final/`). 증거 `docs/design/brand-3/applied/`(헤더 390·1440 전후, 탭 16·32 라이트·다크, 마스크 미리보기, header-diff.json — 바뀐 픽셀이 마크 상자 안뿐, report.json).
+- **함정**: ① favicon.ico를 Next가 `sizes="16x16"`(첫 항목)으로 링크 → 레티나 탭은 /icon(96) 축소를 고를 수 있다(그림은 같은 크롭). ② 로컬 `serve`는 확장자 없는 아이콘에 Content-Type을 안 붙인다 — 프로덕션은 `public/_headers`. ③ `GardenLogoMark`는 OG 카드만 쓴다.
+- **⏭ 다음**: OG 공유 카드 리브랜드(`src/lib/og/gardenCard.tsx`의 BrandMark → 새 마크 PNG, Satori는 webp 불가라 png 사본 필요) 후 `GardenLogoMark` 삭제. 이미 설치된 PWA·구글 파비콘은 캐시 갱신까지 옛 아이콘. 오너 결정 후보: 리뷰 6/10 — 헤더 28~36px에서 금빛 링이 1px로 뭉개짐 → 헤더 전용 링 강조 판 여부, manifest theme/background(크림) ↔ 노을 아이콘.
+
 ## ▶ 2026-11-20 16시 사이트(축 B) 인계 — 밖에서 보이는 정원 (브랜치 `shift/16-site-b`)
 - **한 일**: 공유 카드(OG) 홈·113게임 정원화(`src/lib/og/gardenCard.tsx`, 표지 6종은 표지+가운데 띠), openGraph를 직접 주는 쪽에 `ogImage()`(가이드 22편·daily·정책 4쪽 등 og:image 복구), 홈 title 키워드 먼저 + WebSite JSON-LD, 정책 4쪽 description, 파비콘·애플·PWA 아이콘 = 헤더 `GardenLogoMark`, theme-color·manifest `#fff3dc`. 검사: `scripts/check-seo.mjs`(ci.yml·deploy), `scripts/og-compress.mjs`(build에 연결, 400KB 상한). spec `docs/team/specs/2026-11-20-share-preview-garden.md`.
 - **함정**: ① Satori는 webp·woff2·가변 축 불가 → `src/lib/og/assets/`(README에 재생성법). 표지를 새로 달면 `COVER_SLUGS`+사본(테스트가 잡음). ② 페이지 `openGraph`/`twitter` 객체는 layout 것을 통째로 덮는다 — siteName·images·card를 다시 줘야 한다(check-seo가 잡음). ③ `pnpm build`가 이제 og-compress까지 돈다(sharp devDependency). ④ 카톡·Bluesky 이미 올린 링크는 옛 카드 유지.

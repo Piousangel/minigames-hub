@@ -1,0 +1,107 @@
+{
+  "header": [
+    {
+      "path": "/",
+      "w": 28,
+      "src": "/brand/mark-96.webp",
+      "h": 28,
+      "complete": true,
+      "nw": 96
+    },
+    {
+      "path": "/2048",
+      "w": 28,
+      "src": "/brand/mark-96.webp",
+      "h": 28,
+      "complete": true,
+      "nw": 96
+    },
+    {
+      "path": "/snake",
+      "w": 28,
+      "src": "/brand/mark-96.webp",
+      "h": 28,
+      "complete": true,
+      "nw": 96
+    },
+    {
+      "path": "/",
+      "w": 36,
+      "src": "/brand/mark-96.webp",
+      "h": 36,
+      "complete": true,
+      "nw": 96
+    },
+    {
+      "path": "/2048",
+      "w": 36,
+      "src": "/brand/mark-96.webp",
+      "h": 36,
+      "complete": true,
+      "nw": 96
+    },
+    {
+      "path": "/snake",
+      "w": 36,
+      "src": "/brand/mark-96.webp",
+      "h": 36,
+      "complete": true,
+      "nw": 96
+    }
+  ],
+  "manifest": [
+    {
+      "src": "/icons/pwa-192",
+      "purpose": "any",
+      "declared": "192x192",
+      "status": 200,
+      "png": true,
+      "actual": "192x192",
+      "bytes": 24301
+    },
+    {
+      "src": "/icons/pwa-512",
+      "purpose": "any",
+      "declared": "512x512",
+      "status": 200,
+      "png": true,
+      "actual": "512x512",
+      "bytes": 99185
+    },
+    {
+      "src": "/icons/pwa-maskable-512",
+      "purpose": "maskable",
+      "declared": "512x512",
+      "status": 200,
+      "png": true,
+      "actual": "512x512",
+      "bytes": 89283
+    },
+    {
+      "src": "/apple-icon",
+      "purpose": "any",
+      "declared": "180x180",
+      "status": 200,
+      "png": true,
+      "actual": "180x180",
+      "bytes": 21989
+    },
+    {
+      "src": "/favicon.ico",
+      "status": 200,
+      "type": "image/x-icon",
+      "bytes": 8842
+    },
+    {
+      "src": "/icon",
+      "status": 200,
+      "bytes": 14990
+    },
+    {
+      "src": "/brand/mark-96.webp",
+      "status": 200,
+      "type": "image/webp",
+      "bytes": 3822
+    }
+  ]
+}

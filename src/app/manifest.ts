@@ -20,7 +20,8 @@ export default function manifest(): MetadataRoute.Manifest {
       // Android/Chrome 설치 기준: 192·512 PNG 필수. maskable로 적응형 아이콘도 대응.
       { src: '/icons/pwa-192', sizes: '192x192', type: 'image/png', purpose: 'any' },
       { src: '/icons/pwa-512', sizes: '512x512', type: 'image/png', purpose: 'any' },
-      { src: '/icons/pwa-512', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+      // maskable은 엠블럼을 66%로 줄인 별도 판(any 판은 링 지름이 타일의 77%라 안전 영역 80%에 여유가 거의 없다)
+      { src: '/icons/pwa-maskable-512', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
       { src: '/apple-icon', sizes: '180x180', type: 'image/png' },
     ],
   }
