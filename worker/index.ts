@@ -28,7 +28,7 @@ import { isValidGameSlug } from '../src/lib/slug'
 import { RATE_LIMIT_PRUNE_BATCH, rateLimitPruneCutoff, shouldPruneRateLimits } from '../src/lib/rateLimitPrune'
 import { buildPopularSql, createTtlCache, parsePopularRows, type PopularResponse } from '../src/lib/popular'
 import { SUBMIT_MAX_BYTES, dayAcceptable, verifyDay } from '../src/lib/games/slime/verify'
-import { readVisitors, recordVisit, type VisitorsPayload } from '../src/lib/visitors'
+import { isSameSite, readVisitors, recordVisit, type VisitorsPayload } from '../src/lib/visitors'
 
 // 최소 타입(CF 타입 의존 없이) — 번들은 wrangler(esbuild)가 처리.
 interface D1Stmt {
@@ -158,7 +158,10 @@ let visitorsIsolate: { at: number; day: string; body: VisitorsPayload } | null =
 
 async function visitorsResponse(request: Request, env: Env, defer: Defer): Promise<Response> {
   const cache = edgeCache()
-  const key = new Request(new URL('/api/visitors?v=1', request.url).toString(), { method: 'GET' })
+  const now = Date.now()
+  const day = new Date(now).toISOString().slice(0, 10)
+  // 키에 날짜 — 자정 직후 어제 응답이 '오늘'로 나가지 않게
+  const key = new Request(new URL(`/api/visitors?v=1&d=${day}`, request.url).toString(), { method: 'GET' })
   if (cache) {
     try {
       const hit = await cache.match(key)
@@ -172,8 +175,6 @@ async function visitorsResponse(request: Request, env: Env, defer: Defer): Promi
       // 캐시 장애는 무시하고 원본 조회
     }
   }
-  const now = Date.now()
-  const day = new Date(now).toISOString().slice(0, 10)
   let body: VisitorsPayload
   if (visitorsIsolate && visitorsIsolate.day === day && now - visitorsIsolate.at < VISITORS_ISOLATE_MS) {
     body = visitorsIsolate.body
@@ -592,6 +593,7 @@ export default {
           defer(
             recordVisit(env.DB, {
               ip: request.headers.get('CF-Connecting-IP'),
+              sameSite: isSameSite(request.headers, url.host),
               ua: request.headers.get('user-agent'),
               now: Date.now(),
               secret: env.RATE_SALT,

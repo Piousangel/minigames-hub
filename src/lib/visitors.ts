@@ -39,6 +39,9 @@ export function ipBucket(ip: string | null | undefined): string {
   const s = (ip ?? '').trim().toLowerCase()
   if (!s) return ''
   if (!s.includes(':')) return s
+  // IPv4-mapped IPv6(::ffff:1.2.3.4)는 뒤의 IPv4로
+  const mapped = s.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/)
+  if (mapped) return mapped[1]
   // '::' 축약을 펼친 뒤 앞 4블록
   const [head, tail] = s.split('::')
   const h = head ? head.split(':') : []
@@ -82,7 +85,7 @@ export function resetVisitCache(): void {
   saltCache = null
 }
 
-async function daySalt(db: VisitDb, day: string, defer: (p: Promise<unknown>) => void): Promise<string> {
+async function daySalt(db: VisitDb, day: string, defer: (p: Promise<unknown>) => void): Promise<string | null> {
   if (saltCache?.day === day) return saltCache.salt
   const created = await db
     .prepare('INSERT OR IGNORE INTO visit_days (day, visitors, salt) VALUES (?, 0, ?)')
@@ -91,47 +94,72 @@ async function daySalt(db: VisitDb, day: string, defer: (p: Promise<unknown>) =>
   // 오늘 행을 처음 만든 요청이 지난 날 해시를 정리한다(응답 뒤). 실패해도 다음 날 정리가 day < 오늘로 다시 잡는다.
   if ((created.meta?.changes ?? 0) > 0) defer(pruneBefore(db, day))
   const { results } = await db.prepare('SELECT salt FROM visit_days WHERE day = ?').bind(day).all<{ salt: string | null }>()
-  let salt = results[0]?.salt ?? null
-  if (!salt) {
-    // 오늘 행의 솔트가 비어 있으면(수동 수정 등) 새로 채운다 — 이미 센 숫자는 그대로
-    salt = randomSalt()
-    await db.prepare('UPDATE visit_days SET salt = ? WHERE day = ? AND salt IS NULL').bind(salt, day).run()
-    const again = await db.prepare('SELECT salt FROM visit_days WHERE day = ?').bind(day).all<{ salt: string | null }>()
-    salt = again.results[0]?.salt ?? salt
-  }
+  const salt = results[0]?.salt ?? null
+  // 솔트가 NULL = 이미 정리된 지난 날(자정 직후 늦게 도착한 요청). 다시 채우면 같은 IP를 또 세므로 세지 않는다.
+  if (!salt) return null
   saltCache = { day, salt }
   return salt
 }
 
-/** 오늘보다 앞선 날의 해시 행 삭제 + 솔트 NULL(숫자만 보존). */
+/** 오늘보다 앞선 날의 솔트 NULL(먼저 — 이것만 돼도 지난 해시는 되돌릴 수 없다) + 해시 행 삭제(숫자만 보존). 따로 실패한다. */
 export async function pruneBefore(db: VisitDb, day: string): Promise<void> {
+  try {
+    await db.prepare('UPDATE visit_days SET salt = NULL WHERE day < ? AND salt IS NOT NULL').bind(day).run()
+  } catch (e) {
+    console.warn('visit salt prune failed', e)
+  }
   try {
     await db
       .prepare('DELETE FROM visit_seen WHERE rowid IN (SELECT rowid FROM visit_seen WHERE day < ? LIMIT ?)')
       .bind(day, PRUNE_BATCH)
       .run()
-    await db.prepare('UPDATE visit_days SET salt = NULL WHERE day < ? AND salt IS NOT NULL').bind(day).run()
   } catch (e) {
     console.warn('visit prune failed', e)
   }
 }
 
-export type VisitResult = 'counted' | 'seen' | 'bot' | 'no-ip'
+export type VisitResult = 'counted' | 'seen' | 'bot' | 'no-ip' | 'cross-site' | 'stale'
 
 /**
- * 방문 1건 기록. 같은 날·같은 IP 셀은 한 번만 센다(visit_seen PK). 봇 UA·IP 없음은 세지 않는다.
+ * 같은 사이트 페이지가 보낸 요청인가. 브라우저 sendBeacon/fetch는 Sec-Fetch-Site(현대 브라우저) 또는 Origin을 붙인다.
+ * 둘 다 없거나 다른 사이트면 세지 않는다(curl 한 줄로 숫자를 올리는 문턱 — 위조는 가능하지만 기본 거름).
+ */
+export function isSameSite(headers: { get(name: string): string | null }, host: string): boolean {
+  const sfs = headers.get('sec-fetch-site')
+  if (sfs) return sfs === 'same-origin'
+  const origin = headers.get('origin')
+  if (!origin) return false
+  try {
+    return new URL(origin).host === host
+  } catch {
+    return false
+  }
+}
+
+/**
+ * 방문 1건 기록. 같은 날·같은 IP 셀은 한 번만 센다(visit_seen PK). 봇 UA·IP 없음·다른 사이트 요청은 세지 않는다.
  * 증가는 INSERT가 실제로 들어간 경우에만 — 중간 실패는 덜 세는 쪽으로만 틀린다(부풀리지 않는다).
  */
 export async function recordVisit(
   db: VisitDb,
-  opts: { ip: string | null; ua: string | null; now: number; secret?: string; defer?: (p: Promise<unknown>) => void },
+  opts: {
+    ip: string | null
+    ua: string | null
+    now: number
+    secret?: string
+    defer?: (p: Promise<unknown>) => void
+    /** 같은 사이트 요청 여부(isSameSite). 생략하면 검사하지 않는다(단위 테스트용). */
+    sameSite?: boolean
+  },
 ): Promise<VisitResult> {
   if (isBotUA(opts.ua)) return 'bot'
+  if (opts.sameSite === false) return 'cross-site'
   const bucket = ipBucket(opts.ip)
   if (!bucket) return 'no-ip'
   const defer = opts.defer ?? ((p) => void p)
   const day = utcDay(opts.now)
   const salt = await daySalt(db, day, defer)
+  if (!salt) return 'stale'
   const h = await visitorHash(bucket, salt, opts.secret)
   const ins = await db.prepare('INSERT OR IGNORE INTO visit_seen (day, h) VALUES (?, ?)').bind(day, h).run()
   if ((ins.meta?.changes ?? 0) === 0) return 'seen'
@@ -169,9 +197,16 @@ export async function readVisitors(db: VisitDb, now: number): Promise<VisitorsPa
 /** 이 숫자 아래로는 숫자 대신 문장으로(작은 숫자가 어색하지 않게, 거짓 없이). */
 export const SMALL_VISITORS = 10
 
+/** 응답의 day가 지금 UTC 날짜가 아니면(자정 직후 캐시된 어제 응답) 쓰지 않는다. */
+export function todayFromPayload(j: { day?: string; today?: number | null } | null | undefined, now: number): number | null {
+  if (!j || j.day !== utcDay(now) || typeof j.today !== 'number') return null
+  return j.today
+}
+
 /** 홈 한 줄 문구. null이면 줄을 숨긴다. */
 export function visitorsLine(today: number | null | undefined): string | null {
-  if (today == null || !Number.isFinite(today) || today < 0) return null
-  if (today < SMALL_VISITORS) return 'First visitors of the day are here'
+  // 0이면 줄을 비운다(높이는 그대로) — '방문자가 있다'고 말할 수 없다
+  if (today == null || !Number.isFinite(today) || today <= 0) return null
+  if (today < SMALL_VISITORS) return 'A few visitors in the garden today'
   return `Today in the garden: ${today.toLocaleString('en-US')} visitors`
 }

@@ -4,6 +4,8 @@ import { readFileSync } from 'node:fs'
 import {
   ipBucket,
   isBotUA,
+  isSameSite,
+  todayFromPayload,
   prevDay,
   readVisitors,
   recordVisit,
@@ -15,7 +17,7 @@ import {
   type VisitStmt,
 } from './visitors'
 
-// 진짜 SQLite(node:sqlite)에 마이그레이션 파일을 그대로 적용해 D1 대신 쓴다 — INSERT OR IGNORE·PK 의미를 가짜가 아니라 엔진으로 검사.
+// 전제: Node 22.5+의 node:sqlite. 진짜 SQLite(node:sqlite)에 마이그레이션 파일을 그대로 적용해 D1 대신 쓴다 — INSERT OR IGNORE·PK 의미를 가짜가 아니라 엔진으로 검사.
 type Row = Record<string, unknown>
 interface SqliteDb {
   exec(sql: string): void
@@ -89,6 +91,22 @@ describe('recordVisit', () => {
     expect((await readVisitors(db, T0)).today).toBe(0)
   })
 
+  it('다른 사이트 요청(sameSite=false)은 세지 않는다', async () => {
+    expect(await recordVisit(db, { ip: '203.0.113.7', ua: CHROME, now: T0, sameSite: false })).toBe('cross-site')
+    expect((await readVisitors(db, T0)).today).toBe(0)
+  })
+
+  it('자정 정리 뒤 늦게 도착한 지난 날 요청은 다시 세지 않는다(솔트 재생성 없음)', async () => {
+    const d = Date.parse('2026-11-20T23:59:59.900Z')
+    await visit('203.0.113.7', d)
+    const pending: Promise<unknown>[] = []
+    await visit('198.51.100.1', Date.parse('2026-11-21T00:00:00.100Z'), CHROME, (p) => pending.push(p))
+    await Promise.all(pending)
+    resetVisitCache() // 다른 isolate
+    expect(await visit('203.0.113.7', d)).toBe('stale')
+    expect(raw.prepare("SELECT visitors, salt FROM visit_days WHERE day = '2026-11-20'").all()[0]).toEqual({ visitors: 1, salt: null })
+  })
+
   it('IP가 없으면 세지 않는다', async () => {
     expect(await visit(null)).toBe('no-ip')
     expect(await visit('')).toBe('no-ip')
@@ -153,6 +171,21 @@ describe('readVisitors', () => {
 })
 
 describe('helpers', () => {
+  it('isSameSite: Sec-Fetch-Site 우선, 없으면 Origin 호스트, 둘 다 없으면 false', () => {
+    const h = (o: Record<string, string>) => new Headers(o)
+    expect(isSameSite(h({ 'sec-fetch-site': 'same-origin' }), 'quickminigames.site')).toBe(true)
+    expect(isSameSite(h({ 'sec-fetch-site': 'cross-site', origin: 'https://quickminigames.site' }), 'quickminigames.site')).toBe(false)
+    expect(isSameSite(h({ 'sec-fetch-site': 'none' }), 'quickminigames.site')).toBe(false)
+    expect(isSameSite(h({ origin: 'https://quickminigames.site' }), 'quickminigames.site')).toBe(true)
+    expect(isSameSite(h({ origin: 'https://evil.example' }), 'quickminigames.site')).toBe(false)
+    expect(isSameSite(h({}), 'quickminigames.site')).toBe(false)
+  })
+  it('todayFromPayload: 어제 날짜 응답(자정 직후 캐시)은 버린다', () => {
+    expect(todayFromPayload({ day: '2026-11-20', today: 42 }, T0)).toBe(42)
+    expect(todayFromPayload({ day: '2026-11-19', today: 300 }, T0)).toBeNull()
+    expect(todayFromPayload({ day: '2026-11-20', today: null }, T0)).toBeNull()
+    expect(todayFromPayload(null, T0)).toBeNull()
+  })
   it('utcDay·prevDay', () => {
     expect(utcDay(Date.parse('2026-11-20T23:59:59.999Z'))).toBe('2026-11-20')
     expect(prevDay('2026-03-01')).toBe('2026-02-28')
@@ -164,6 +197,7 @@ describe('helpers', () => {
     expect(ipBucket('2001:db8::1')).toBe('2001:db8:0:0::/64')
     expect(ipBucket('::1')).toBe('0:0:0:0::/64')
     expect(ipBucket('')).toBe('')
+    expect(ipBucket('::ffff:203.0.113.7')).toBe('203.0.113.7')
   })
   it('사람 브라우저 UA는 봇이 아니다', () => {
     expect(isBotUA(CHROME)).toBe(false)
@@ -172,8 +206,9 @@ describe('helpers', () => {
   })
   it('visitorsLine: 작은 숫자는 문장, 10 이상은 숫자, null은 숨김', () => {
     expect(visitorsLine(null)).toBeNull()
-    expect(visitorsLine(0)).toBe('First visitors of the day are here')
-    expect(visitorsLine(9)).toBe('First visitors of the day are here')
+    expect(visitorsLine(0)).toBeNull()
+    expect(visitorsLine(1)).toBe('A few visitors in the garden today')
+    expect(visitorsLine(9)).toBe('A few visitors in the garden today')
     expect(visitorsLine(10)).toBe('Today in the garden: 10 visitors')
     expect(visitorsLine(1234)).toBe('Today in the garden: 1,234 visitors')
   })

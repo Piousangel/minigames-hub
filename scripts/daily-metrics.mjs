@@ -91,7 +91,7 @@ for (const [label, q] of QUERIES) {
 try {
   const today = new Date(now).toISOString().slice(0, 10)
   const yday = new Date(now - DAY).toISOString().slice(0, 10)
-  const rows = await d1(`SELECT day, visitors FROM visit_days WHERE day >= '${new Date(now - 7 * DAY).toISOString().slice(0, 10)}' ORDER BY day`)
+  const rows = await d1(`SELECT day, visitors FROM visit_days WHERE day > '${new Date(now - 7 * DAY).toISOString().slice(0, 10)}' ORDER BY day`)
   const v = (d) => rows.find((r) => r.day === d)?.visitors ?? 0
   console.log(`\n방문자(UTC, 사이트 집계): 어제 ${v(yday)} / 오늘 지금까지 ${v(today)} (${new Date(now).toISOString().slice(11, 16)} UTC 기준)`)
   console.log(`방문자 7일: ${rows.map((r) => `${r.day.slice(5)}=${r.visitors}`).join(' · ') || '없음'}`)
