@@ -12,17 +12,18 @@ const esbuild = { jsx: 'automatic' as const }
 //   (로컬 Node 26에서 localStorage.clear가 undefined → 340건 넘게 실패). Node 22(CI)에서는 아무 일도 하지 않는다.
 const testTimeout = 60_000
 const execArgv = ['--no-experimental-webstorage']
-const poolOptions = { forks: { execArgv }, threads: { execArgv } }
 
 export default defineConfig({
   resolve: { alias },
   esbuild,
   test: {
+    // 풀 프로세스 옵션은 루트에서만 정할 수 있다(프로젝트별 poolOptions는 isolate 등만 허용).
+    poolOptions: { forks: { execArgv }, threads: { execArgv } },
     projects: [
       {
         resolve: { alias },
         esbuild,
-        test: { name: 'engine', include: ['src/**/*.test.ts'], environment: 'node', testTimeout, hookTimeout: testTimeout, poolOptions },
+        test: { name: 'engine', include: ['src/**/*.test.ts'], environment: 'node', testTimeout, hookTimeout: testTimeout },
       },
       {
         resolve: { alias },
@@ -34,7 +35,6 @@ export default defineConfig({
           setupFiles: ['./vitest.setup.ts'],
           testTimeout,
           hookTimeout: testTimeout,
-          poolOptions,
         },
       },
     ],
