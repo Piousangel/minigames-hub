@@ -6,7 +6,7 @@
   simple-16.svg/png 16px 손 단순판(링 stroke #e8a048), png는 Chromium 16px 렌더
 축소는 브랜드 3차 보드(prep.py)와 같은 방식(절반씩 BOX → LANCZOS)이라 보드에서 본 픽셀과 같다.
 
-실행: python3 scripts/brand-icons.py   (Pillow 필요)
+실행: python3 scripts/brand-icons.py   (Pillow·numpy 필요)
 """
 import os
 import numpy as np
