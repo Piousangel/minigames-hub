@@ -949,3 +949,156 @@ body:has(main[data-game-page]) [data-site-nav-row] {
 .home-body:has([data-testid='browse-empty']) [data-mascot-group] img {
   visibility: hidden;
 }
+
+/* ───────── 리디자인 v2 R7: 게임 페이지 「정원 틀」 (배치 목록 src/lib/games/gardenRollout.ts, 계획서 D7·D8) ─────────
+   - 스코프 = main[data-world="garden"](GamePageLayout). 전역 --neon-*·html color-scheme은 건드리지 않는다.
+   - 바깥 틀(제목·목표·리액션·다음 게임·하단 섹션) = 크림 종이 + ink 글자. --neon-*은 크림 위에서 읽히는 짙은 꽃색(≥4.8:1).
+   - 게임판 [data-garden-board] = '밤 정원' 남보라(#241c4a~#3a2d58). --neon-*은 밝은 꽃색(≥6.3:1), 글자 크림.
+     게임 컴포넌트 안의 하드코딩 색은 예전 검은 바탕 기준이라 판을 어둡게 두는 것이 대비에 안전하다(D8).
+   - '바깥 전용' 규칙은 :not([data-garden-board] *)로 게임판 안을 뺀다. */
+body:has(main[data-world='garden']) {
+  background: var(--garden-paper);
+}
+body:has(main[data-world='garden']) .synthwave-bg,
+body.scanlines:has(main[data-world='garden'])::after {
+  display: none;
+}
+main[data-world='garden'] {
+  --bg: var(--garden-paper);
+  --bg-2: var(--garden-cream);
+  --surface: var(--garden-cream);
+  --surface-2: var(--garden-cream-2);
+  --fg: var(--garden-ink);
+  --fg-muted: var(--garden-ink-soft);
+  --border: color-mix(in srgb, var(--garden-ink) 22%, transparent);
+  --accent: var(--garden-coral-text);
+  --neon-cyan: #1d6a86;
+  --neon-magenta: #a2386a;
+  --neon-lime: var(--garden-leaf-text);
+  --neon-amber: #875300;
+  --neon-purple: #6a4aa5;
+  --neon-blue: #3a57b0;
+  --neon-red: var(--garden-coral-text);
+  --neon-green: var(--garden-leaf-text);
+  color-scheme: light;
+  color: var(--fg);
+  font-family: var(--font-ui), system-ui, sans-serif;
+}
+main[data-world='garden'] [data-garden-board] {
+  --bg: #241c4a;
+  --bg-2: #2a2150;
+  --surface: #2e2342;
+  --surface-2: #3a2d58;
+  --fg: var(--garden-cream);
+  --fg-muted: #cdbde8;
+  --border: rgba(205, 189, 232, 0.22);
+  --neon-cyan: #8fd3ff;
+  --neon-magenta: #ff9ecb;
+  --neon-lime: #b5e39c;
+  --neon-amber: #ffd966;
+  --neon-purple: var(--garden-lavender);
+  --neon-blue: #a7bdff;
+  --neon-red: #ffa184;
+  --neon-green: #8fd98a;
+  color-scheme: dark;
+  color: var(--fg);
+  /* 게임판 안 글꼴은 예전 그대로(글자 폭이 바뀌어 보드가 넘치지 않게) */
+  font-family: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  position: relative;
+  /* main 좌우 여백(16px)까지 판을 넓혀 게임 폭이 예전과 같다(모든 폭 — 640+에선 판이 아래 섹션보다 16px씩 넓은 '액자'가 된다) */
+  margin-inline: -16px;
+  padding: 16px;
+  background: linear-gradient(180deg, #2e2342, #241c4a);
+}
+@media (min-width: 40rem) {
+  main[data-world='garden'] [data-garden-board] {
+    border-radius: 20px;
+    box-shadow: 0 0 0 3px var(--garden-ink), var(--garden-shadow-island);
+    /* 판 그림자(6px + 윤곽 3px)가 바로 아래 'HOW WAS IT?'(mt-4)에 붙지 않게 */
+    margin-bottom: 20px;
+  }
+}
+
+/* 제목·섹션 머리: Fraunces + ink, 글로우 없음 */
+main[data-world='garden'] .garden-page-title {
+  color: var(--garden-ink);
+  line-height: 1.15;
+}
+main[data-world='garden'] .garden-section-heading {
+  color: var(--garden-ink);
+}
+main[data-world='garden'] .garden-section-rule {
+  background: linear-gradient(to right, color-mix(in srgb, var(--garden-ink) 35%, transparent), transparent);
+}
+
+/* 네온 글로우 제거(스코프 전체 — 게임판 안 포함) */
+main[data-world='garden'] .neon-text,
+main[data-world='garden'] .neon-text-strong,
+main[data-world='garden'] .spotlight-card:hover .card-title {
+  text-shadow: none;
+}
+
+/* 바깥 틀 전용: 픽셀 폰트 → Figtree 굵게, 네온 테두리 → ink 윤곽 + 판 그림자 */
+main[data-world='garden'] .font-pixel:not([data-garden-board] *) {
+  font-family: var(--font-ui), system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  line-height: 1.3;
+}
+main[data-world='garden'] .neon-icon:not([data-garden-board] *) {
+  filter: none;
+}
+main[data-world='garden'] .neon-box:not([data-garden-board] *) {
+  border-color: var(--garden-ink);
+  box-shadow: var(--garden-shadow-seed);
+}
+main[data-world='garden'] .spotlight-card:not([data-garden-board] *) {
+  background: var(--garden-cream);
+  border-width: 2px;
+}
+main[data-world='garden'] .spotlight-card::before {
+  display: none;
+}
+/* 리액션(HOW WAS IT?) */
+main[data-world='garden'] [data-testid='reactions'] button {
+  border-color: var(--garden-ink);
+  background: var(--garden-cream);
+  box-shadow: var(--garden-shadow-button);
+}
+main[data-world='garden'] [data-testid='reactions'] button[aria-pressed='true'] {
+  background: var(--garden-sunflower);
+  box-shadow: none;
+  transform: translateY(3px);
+}
+main[data-world='garden'] [data-testid='reactions'] button span:last-child {
+  color: var(--garden-ink);
+}
+/* 다음 게임 레일·공유 버튼: 크림 판 + ink 윤곽 */
+main[data-world='garden'] [data-testid='next-rail-same'],
+main[data-world='garden'] [data-testid='next-rail-diff'] {
+  border: 2px solid var(--garden-ink);
+  background: var(--garden-cream);
+  box-shadow: var(--garden-shadow-seed);
+}
+main[data-world='garden'] [data-testid^='share-']:is(a, button):not([data-garden-board] *) {
+  border-color: color-mix(in srgb, var(--garden-ink) 45%, transparent);
+  box-shadow: var(--garden-shadow-button);
+}
+main[data-world='garden'] [data-testid='objective'] {
+  border: 2px solid color-mix(in srgb, var(--garden-ink) 30%, transparent);
+  background: var(--garden-cream);
+}
+/* 목표 줄 구분점(text-border)·DailyDock 빈 진행 칸(bg-white/10)은 크림 위에서 사라진다 → 바깥 틀에서 ink 기준으로 */
+main[data-world='garden'] [data-testid='objective'] .text-border {
+  color: var(--garden-ink-soft);
+}
+main[data-world='garden'] .bg-white\/10:not([data-garden-board] *) {
+  background-color: color-mix(in srgb, var(--garden-ink) 20%, transparent);
+}
+/* 관련 게임 카드의 'PLAY ►'(모바일은 늘 보이는 60% 글자) — 크림 위에선 대비 부족이라 정원 틀에선 불투명 */
+@media (max-width: 39.99rem) {
+  main[data-world='garden'] .spotlight-card .font-pixel {
+    opacity: 1;
+  }
+}

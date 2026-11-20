@@ -1,3 +1,5 @@
+import { GARDEN_ORIGINALS } from './gardenRollout'
+
 // 홈페이지 카드 + 게임별 비주얼 아이덴티티(레트로 네온). registry(SEO/게임로직)와 분리.
 // accent는 globals.css의 --neon-* 토큰 키. category는 홈 필터 탭.
 
@@ -194,5 +196,6 @@ export function accentVar(accent: NeonAccent): string {
   return ACCENT_VAR[accent]
 }
 
-/** 같은 세계관('노을 정원')을 공유하는 오리지널 게임: 제목·틀·강조색을 통일한다. */
-export const GARDEN_GAMES: ReadonlySet<string> = new Set(['plop-landing', 'acorn-hop', 'slime-slide'])
+/** 같은 세계관('노을 정원')을 공유하는 오리지널 게임: 제목·틀·강조색을 통일한다.
+ *  정원 틀 배치 적용(R7) 목록은 ./gardenRollout.ts(GARDEN_BATCHES). */
+export const GARDEN_GAMES: ReadonlySet<string> = new Set(GARDEN_ORIGINALS)
