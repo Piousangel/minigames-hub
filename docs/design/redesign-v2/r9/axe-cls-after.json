@@ -1,0 +1,240 @@
+[
+  {
+    "route": "/category/puzzle",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/category/puzzle",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/category/arcade",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/category/arcade",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/category/classic",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/category/classic",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/category/skill",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/category/skill",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/collections",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/collections",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/collection/original-games",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/collection/original-games",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/collection/word-games",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/collection/word-games",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/guides",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/guides",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/guides/sudoku",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/guides/sudoku",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/guides/yahtzee-300000-games-three-strategies",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/guides/yahtzee-300000-games-three-strategies",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/daily",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/daily",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/about",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/about",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/privacy",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/privacy",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/terms",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/terms",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/unblocked",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/unblocked",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/contact",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/contact",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/no-such-page",
+    "width": 390,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  },
+  {
+    "route": "/no-such-page",
+    "width": 1440,
+    "cls": 0,
+    "serious": [],
+    "other": []
+  }
+]

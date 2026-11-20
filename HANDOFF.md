@@ -1,5 +1,15 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 리디자인 v2 R9 게임 밖 허브 페이지 정원 틀 인계 (브랜치 `shift/redesign-r9-pages`)
+
+**한 줄:** 네온으로 남았던 게임 밖 페이지 전부(/category 4·/collections·/collection 13·/guides·글 21·/daily·/about·/privacy·/terms·/unblocked·/contact, 404 스코프)가 /leaderboards 방식 `main[data-world="garden-hub"]`가 됐다. 이제 사이트에서 네온 틀인 사람용 페이지는 0(내부 `/tools/*` 시험판만 예외).
+- **공용 부품**: `src/components/garden-hub/GardenHub.tsx` — `GardenHubPage`(wide/prose)·`GardenHubHead`(빵 부스러기·머리글·H1·소개·그림)·`GardenGameGrid`(SeedCard)·`GardenLinkCard`·`GardenFaq`·`GardenChipNav`·`gardenChip`·`gardenLink`·`gardenPlayButton`·`gardenProse`. 새 허브 페이지는 이걸로만 — `gardenHub.test.ts`가 src/app의 허브 page.tsx 전수를 목록과 대조해 빠지면 실패한다.
+- **검사**: 소스 = `gardenHub.test.ts`(네온 클래스·GameCard·accentVar 0, 패턴 `neonClasses.ts`), 렌더 = `e2e/garden-hub.spec.ts`(라우트 전부 × 390·1440: data-world·네온 0·대비·44px·가로 스크롤·광고 0·마스코트 ≤1 + /daily CLS) — CI 스모크에 들어감. SEO 증명 `node scripts/seo-head-diff.mjs <base-out> <head-out>`(167쪽 title·meta·canonical·JSON-LD), 캡처 `node scripts/hub-capture.mjs --base … --head … --out … --routes …`.
+- **결과**: SEO diff 0(167쪽), 게임 113 + 홈 + 리더보드 × 390·1440 = 230항목 픽셀 diff 0(`r9/diff-outside.json` — overdub·slotter 390은 main↔main 흔들림과 같음, 최종 빌드 재확인 `r9/diff-outside-final.json` 24항목 0), axe serious·moderate 0(전: 야찌 글 표 serious 2, 목록 8쪽 heading-order), /daily CLS 0.029 → 0, 캡처 `docs/design/redesign-v2/r9/<페이지>-<폭>-<before|after>.jpg`(대표 17쪽).
+- **리뷰(7.5/10) 남긴 것**: 390 첫 화면이 긴 소개 글로 차는 페이지(/daily·컬렉션 — 카드가 약 730px부터). 소개 접기는 문구 노출이 바뀌어 오너 확인 뒤. 새 머리글 문구(숫자·'Today’s garden'·'About the garden'·'Site policy'·'Say hello')·칩 줄 제목도 오너 확인 대상.
+- **함정**: ⓪ 단순 SVG 아이콘 원 머리는 쓰지 않는다(오너 '싸 보임' — 리뷰에서 뺌, `HubArt`는 마스코트만 받는다) ① 밤 정원 판처럼 그라데이션 바탕은 `backgroundColor`도 같이 줘야 대비 검사(bgOf)가 맞게 잰다 ② 그림 칸이 있는 머리는 grid — 640+에서 그림이 제목+소개 두 줄을 차지(flex로 두면 136px 그림이 제목 밑에 빈 띠를 만든다) ③ JSX 안 `[&_a]` 같은 본문 일괄 스타일이라 글 페이지 링크에 클래스를 다시 붙이지 말 것 ④ 포트 이번엔 3991 head·3992 base.
+- **⏭ 다음 R8(정리 단계)**: ① 게임 페이지 네온 갈래(`gameWorld` null·GamePageLayout 네온 제목·SectionHeading 네온 색·globals 게임 네온 규칙) 제거 ② `GameCard`·`SpotlightCard`는 이제 `RelatedGames`(게임 페이지 하단)만 쓴다 — R8에서 SeedCard로 바꾸면 GameCard·neon-box 규칙 삭제 가능 ③ 정원 토큰을 :root로 올릴지(전역 `color-scheme: dark`·`themeColor #08080f`도 같이) — 사람용 페이지 전부 정원이라 이제 가능 ④ `/tools/*` 시험판은 내부용이라 그대로.
+
 ## ▶ 2026-11-20 16시 사이트(축 B) 인계 — 밖에서 보이는 정원 (브랜치 `shift/16-site-b`)
 - **한 일**: 공유 카드(OG) 홈·113게임 정원화(`src/lib/og/gardenCard.tsx`, 표지 6종은 표지+가운데 띠), openGraph를 직접 주는 쪽에 `ogImage()`(가이드 22편·daily·정책 4쪽 등 og:image 복구), 홈 title 키워드 먼저 + WebSite JSON-LD, 정책 4쪽 description, 파비콘·애플·PWA 아이콘 = 헤더 `GardenLogoMark`, theme-color·manifest `#fff3dc`. 검사: `scripts/check-seo.mjs`(ci.yml·deploy), `scripts/og-compress.mjs`(build에 연결, 400KB 상한). spec `docs/team/specs/2026-11-20-share-preview-garden.md`.
 - **함정**: ① Satori는 webp·woff2·가변 축 불가 → `src/lib/og/assets/`(README에 재생성법). 표지를 새로 달면 `COVER_SLUGS`+사본(테스트가 잡음). ② 페이지 `openGraph`/`twitter` 객체는 layout 것을 통째로 덮는다 — siteName·images·card를 다시 줘야 한다(check-seo가 잡음). ③ `pnpm build`가 이제 og-compress까지 돈다(sharp devDependency). ④ 카톡·Bluesky 이미 올린 링크는 옛 카드 유지.

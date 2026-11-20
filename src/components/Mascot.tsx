@@ -17,6 +17,11 @@ export const MASCOT_ART = {
   'bomi-countdown': { src: '/art/mascots/bomi-countdown-64.webp', px: 64 },
   'bomi-deliver': { src: '/art/mascots/bomi-deliver-192.webp', px: 192 },
   'mallang-dizzy': { src: '/art/mallang-dizzy.webp', px: 320 },
+  // R9 게임 밖 정원 페이지 머리(카테고리·/daily) — 기존 512px 원본의 192px 사본(새 그림 아님)
+  'mallang-wave': { src: '/art/mascots/mallang-wave-192.webp', px: 192 },
+  'tori-cheer': { src: '/art/mascots/tori-cheer-192.webp', px: 192 },
+  'haessi-cheer': { src: '/art/mascots/haessi-cheer-192.webp', px: 192 },
+  'bomi-cheer': { src: '/art/mascots/bomi-cheer-192.webp', px: 192 },
 } as const
 
 export type MascotArt = keyof typeof MASCOT_ART

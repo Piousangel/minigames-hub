@@ -1,0 +1,146 @@
+[
+  {
+    "slug": "?h=1",
+    "width": 390,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "?h=1",
+    "width": 1440,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "leaderboards",
+    "width": 390,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "leaderboards",
+    "width": 1440,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "2048",
+    "width": 390,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "2048",
+    "width": 1440,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "snake",
+    "width": 390,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "snake",
+    "width": 1440,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "solitaire",
+    "width": 390,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "solitaire",
+    "width": 1440,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "chess",
+    "width": 390,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "chess",
+    "width": 1440,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "plop-landing",
+    "width": 390,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "plop-landing",
+    "width": 1440,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "acorn-hop",
+    "width": 390,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "acorn-hop",
+    "width": 1440,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "slime-slide",
+    "width": 390,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "slime-slide",
+    "width": 1440,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "breakout",
+    "width": 390,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "breakout",
+    "width": 1440,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "minesweeper",
+    "width": 390,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "minesweeper",
+    "width": 1440,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "word-guess",
+    "width": 390,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "word-guess",
+    "width": 1440,
+    "pixels": 0,
+    "noise": 0
+  }
+]
