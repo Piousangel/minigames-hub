@@ -1,5 +1,13 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 리디자인 v2 R7b 정원 틀 배치 b 인계 (브랜치 `shift/redesign-r7b-batch2`)
+
+**한 줄:** 정원 틀 게임이 40개가 됐다(배치 b 20개: chess·mahjong·memory-game·tetris·tic-tac-toe·connect-four·yahtzee·freecell·spider·jigsaw·sliding-puzzle·reaction-time·hangman·simon·whack-a-mole·rock-paper-scissors·lights-out·nonogram·checkers·reversi). 바뀐 코드는 `GARDEN_BATCHES.b` 추가 + 게임 안 대비 결함 3건(색·크기만).
+- **대비 수정**: `GameChess` 좌표 `text-[8px] text-fg-muted/70` → `text-[10px] text-fg`. `GameMahjong` 패 글자 짙은 단계·막힌 패 `opacity 0.85` 제거·萬 `opacity-80` 제거(막힌 패 최저 2.0 → 4.8, 네온·정원 같음. 대가로 자유/막힌 패 밝기 구분 2.2 → 1.74 — 퀄리티팀이 모바일에서 손으로 확인할 것). `GameSliding` 숫자 타일 `from-sky-500` → `from-sky-600`(흰 숫자 2.7 → 4.1). 규칙·점수·레이아웃 변경 0.
+- **검증**: 게이트 `e2e/garden-frame.spec.ts` 42/42, 배치 밖 21곳(R7a 10 + 미적용 11, 캔버스·오리지널 포함) × 390·1440 픽셀 diff 0(`docs/design/redesign-v2/r7b/diff-outside.json`), 전후 캡처 `docs/design/redesign-v2/r7b/<slug>-<390|1440>-<before|after>.jpg`.
+- **함정**: ① 게이트 대비 검사는 **로드 직후 화면만** 본다 — 마지막 수·선택·힌트처럼 진행 중에만 생기는 덮개 위 글자는 손으로 계산해야 한다(체스 좌표는 노랑 30%·하늘 25% 덮개 위까지 계산함) ② e2e '배치 밖 게임' 기준이 이제 **kakuro** — kakuro를 배치에 넣으면 그 테스트의 slug도 배치 밖 게임으로 바꿀 것 ③ 포트 3100·3311·3312는 다른 세션 serve가 잡고 있었다(이번엔 3421 head·3422 base).
+- **⏭ R7c가 알아야 할 것**: ① 트래픽 지표(11-15~21)에서 남은 DOM 후보는 전부 0 → 레지스트리 순으로 다음 20개(mastermind·dots-and-boxes·maze·number-memory·word-search·gem-match·prospector·zero-hour·overload·ricochet·stackpot·overfold·splice·decant·duplex·overdub·pinwheel·cleave·umbra·fuse 순, 이 중 대비 실패는 고치거나 다음으로) ② 남은 비캔버스 DOM 약 59개 + 하드코딩 색 20+ 2개(unblock 20·ticker 25) + 캔버스 10종 → R7c·d·e = DOM, R7f = 캔버스·unblock·ticker ③ 대비 결함이 나면 대개 '흰 글자 on 밝은 Tailwind 500 단계'나 '알파 섞은 muted' — 한 단계 짙게/알파 제거가 가장 작은 수정 ④ /leaderboards 정원 틀·오리지널 3종 정원화는 여전히 R7 배치 밖 별도 PR.
+
 ## ▶ 2026-11-20 08시 홈 히어로 4친구 키아트 인계 (브랜치 `shift/hero-four-friends`)
 
 **한 줄:** 오너 "배경을 바꿔서라도 마스코트 4친구가 다 잘 나왔으면" → 데스크톱 `hub-hero-desktop-4f-d3.webp`(93KB), 모바일 `hub-hero-mobile-4f-a.webp`(896w 54KB 재인코딩 + `-600` 28KB·`-720` 34KB). 넷이 그림 폭 62%라 cover를 버리고 폭별 배치.
@@ -8,6 +16,7 @@
 - **정리**: 옛 키아트 4장(desktop·mobile·600·720) 삭제, 후보 7장(4f-a·b·c·d·d2, mobile-4f-b, 모바일 4f-a 원본 master)은 `docs/design/hero-candidates/`(배포 제외, 장부 out 경로 갱신).
 - **측정**: Lighthouse 모바일 devtools 6회 LCP 중앙값 전 2.9s(2.0~4.5) → 후 2.3s(2.1~2.8), CLS 0. Playwright CLS 6폭 × 첫 방문/완료 ≤0.0011, LCP 요소 = 히어로 img, 가로 스크롤 0. e2e 172/172. 캡처 `docs/design/redesign-v2/hero-4f/`.
 - **함정**: 카드 폭·여백(`--hero-col`·`--hero-pad`)을 바꾸면 키아트 폭이 따라 바뀐다(의도). 그림을 다시 바꾸면 0.6185(넷이 차지하는 폭 비율)·0.069(보미 모자 꼭대기)·섹션 그라데이션 색(그림 왼쪽 열 실측)을 다시 잴 것.
+
 ## ▶ 2026-11-20 08시 리디자인 v2 R7a 정원 틀 배치 a 인계 (브랜치 `shift/redesign-r7a-batch1`)
 
 **한 줄:** 게임 20개 페이지가 「노을 정원」 틀이 됐다 — 바깥(제목 Fraunces·목표·HOW WAS IT?·Play next·공유·하단 섹션)은 크림·ink, 게임은 밤 정원 남보라 판 위(게임 컴포넌트 코드 변경 0). 오리지널 3종·나머지 90개는 픽셀 그대로.

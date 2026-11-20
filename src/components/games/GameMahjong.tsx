@@ -28,7 +28,8 @@ import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
 
 const WIND = ['E', 'S', 'W', 'N']
 const DRAGON = ['中', '發', '白']
-const DRAGON_COLOR = ['#e11d48', '#059669', '#334155']
+// 패 글자색은 막힌 패(#b9bccb, 불투명) 위에서도 4.5:1 이상이 되도록 짙은 단계(R7b 대비 수정 — 예전 2~3:1).
+const DRAGON_COLOR = ['#881337', '#14532d', '#334155']
 
 interface Face {
   main: string
@@ -39,13 +40,13 @@ interface Face {
 function faceOf(tile: Tile): Face {
   switch (tile.kind) {
     case 'dot':
-      return { main: String(tile.value), sub: '●', color: '#0e7490' }
+      return { main: String(tile.value), sub: '●', color: '#164e63' }
     case 'bam':
-      return { main: String(tile.value), sub: '‖', color: '#047857' }
+      return { main: String(tile.value), sub: '‖', color: '#064e3b' }
     case 'char':
-      return { main: String(tile.value), sub: '萬', color: '#b45309' }
+      return { main: String(tile.value), sub: '萬', color: '#7c2d12' }
     case 'wind':
-      return { main: WIND[tile.value] ?? '?', color: '#6d28d9' }
+      return { main: WIND[tile.value] ?? '?', color: '#4c1d95' }
     case 'dragon':
       return { main: DRAGON[tile.value] ?? '?', color: DRAGON_COLOR[tile.value] ?? '#334155' }
     case 'flower':
@@ -106,14 +107,13 @@ function TileFace({
         background: free ? '#f4f5fb' : '#b9bccb',
         borderColor: 'rgba(0,0,0,0.3)',
         color: f.color,
-        opacity: free ? 1 : 0.85,
         boxShadow: ring,
         transform: selected && !reduced ? 'translateY(-2px)' : undefined,
         transition: reduced ? undefined : 'transform .15s ease, box-shadow .15s ease',
       }}
     >
       <span className="text-[0.85rem] sm:text-base">{f.main}</span>
-      {f.sub && <span className="text-[0.6rem] leading-none opacity-80">{f.sub}</span>}
+      {f.sub && <span className="text-[0.6rem] leading-none">{f.sub}</span>}
     </div>
   )
 }

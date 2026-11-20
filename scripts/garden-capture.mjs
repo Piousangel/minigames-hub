@@ -4,7 +4,7 @@
 //   node scripts/garden-capture.mjs capture --base http://localhost:3301 --head http://localhost:3302 \
 //        --out docs/design/redesign-v2/r7a --slugs 2048,snake,...
 //     → <slug>-<폭>-before.jpg / -after.jpg (390·1440, 위에서 게임판 아래 + 360px까지 자른 화면)
-//   node scripts/garden-capture.mjs diff --base ... --head ... --slugs tic-tac-toe,... [--out report.json]
+//   node scripts/garden-capture.mjs diff --base ... --head ... --slugs kakuro,... [--out report.json]
 //     → 배치 밖 게임: 두 빌드의 전체 페이지 픽셀 차이(0이어야 한다). 같은 빌드끼리 한 번 더 찍어 흔들림도 잰다.
 //
 // 공통: 모션 줄이기 + 애니메이션·트랜지션 끔, /api/reactions 흉내(리액션이 보이게), 오늘 날짜 고정 없음

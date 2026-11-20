@@ -197,7 +197,7 @@ test.describe('정원 틀 배치(R7)', () => {
   }
 
   test('배치 밖 게임은 예전 그대로(스코프 없음, 어두운 바탕)', async ({ page }) => {
-    await page.goto('/tic-tac-toe')
+    await page.goto('/kakuro')
     const main = page.locator('main[data-game-page]')
     await expect(main).not.toHaveAttribute('data-world', /.+/)
     await expect(page.locator('[data-garden-board]')).toHaveCount(0)
