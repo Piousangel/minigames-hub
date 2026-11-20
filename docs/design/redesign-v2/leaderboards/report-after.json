@@ -1,6 +1,6 @@
 {
   "390-data": {
-    "cls": 0.0004,
+    "cls": 0,
     "scrollW": 390,
     "emoji": 0,
     "axe": []
@@ -12,7 +12,7 @@
     "axe": []
   },
   "1440-data": {
-    "cls": 0.0001,
+    "cls": 0,
     "scrollW": 1440,
     "emoji": 0,
     "axe": []

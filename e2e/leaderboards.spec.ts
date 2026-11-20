@@ -1,4 +1,7 @@
 import { expect, test, type Page, type Route } from '@playwright/test'
+import { orderBoards } from '../src/lib/leaderboardOrder'
+import { gameMeta } from '../src/lib/games/gameMeta'
+import { LEADERBOARD_GAMES } from '../src/lib/leaderboard'
 
 /**
  * /leaderboards 정원 틀(리디자인 v2, R6 이월 — 머리 보미).
@@ -110,9 +113,12 @@ for (const viewport of [
       await expect(page.locator('main')).not.toContainText('2026-W47')
       await expect(page.locator('main .font-pixel')).toHaveCount(0)
 
-      // 점수 있는 보드 3개 먼저(최신 순 정렬은 orderBoards 그대로), 나머지는 접힌 목록
+      // 점수 있는 보드 3개만 카드로, 순서 = orderBoards(예전 정렬 그대로), 나머지는 접힌 목록
       const cards = page.getByTestId('lb-board')
       await expect(cards).toHaveCount(3)
+      const expected = orderBoards(Object.keys(LEADERBOARD_GAMES), BOARDS, gameMeta).active
+      expect(await cards.evaluateAll((els) => els.map((e) => e.getAttribute('data-slug')))).toEqual(expected)
+      await expect(cards.first().getByRole('heading', { level: 2 })).toBeVisible()
       const snake = page.locator('[data-testid="lb-board"][data-slug="snake"]')
       await expect(snake.locator('svg[data-medal]')).toHaveCount(3)
       await expect(snake.getByRole('img', { name: '1st place' })).toBeVisible()
@@ -154,15 +160,16 @@ for (const viewport of [
       expect(fails).toEqual([])
     })
 
-    test('빈 주: 기록 0 → 주 라벨 아래 안내 + 모든 보드가 빈 카드로 제자리(접힌 목록 없음)', async ({ page }) => {
+    test('빈 주: 기록 0 → 주 라벨 아래 안내 + 카드 없이 펼친 전체 목록(44px 링크)', async ({ page }) => {
       await mockBoards(page, { week: WEEK, boards: {} })
       await page.goto('/leaderboards')
       await expect(page.getByTestId('lb-empty-week')).toBeVisible()
       await expect(page.getByTestId('lb-boards')).toHaveAttribute('aria-busy', 'false')
-      expect(await page.getByTestId('lb-board').count()).toBeGreaterThan(10)
-      await expect(page.getByTestId('lb-board').first()).toContainText('No scores yet — be the first!')
-      await expect(page.getByTestId('lb-empty')).toHaveCount(0)
-      await expect(page.locator('svg[data-medal]').first()).toBeVisible()
+      await expect(page.getByTestId('lb-board')).toHaveCount(0)
+      const list = page.getByTestId('lb-empty')
+      await expect(list).toHaveAttribute('open', '')
+      await expect(list.locator('summary')).toContainText(`All ${Object.keys(LEADERBOARD_GAMES).length} boards are open`)
+      await expect(list.getByRole('link')).toHaveCount(Object.keys(LEADERBOARD_GAMES).length)
       await expect(page.locator('img[data-mascot]')).toHaveCount(1)
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(viewport.width)
       expect((await contrastFailures(page)).fails).toEqual([])
@@ -175,16 +182,41 @@ for (const viewport of [
       await expect(list).toHaveAttribute('aria-busy', 'true')
       const n = await page.getByTestId('lb-board').count()
       expect(n).toBeGreaterThan(10)
-      await expect(page.getByText('Loading scores…').first()).toBeAttached()
+      await expect(page.getByRole('status')).toHaveText('Loading scores…')
       await expect(list).toHaveAttribute('aria-busy', 'false', { timeout: 10_000 })
       await expect(page.getByTestId('lb-board')).toHaveCount(3)
     })
 
     test('API 실패: 정원 안내 카드', async ({ page }) => {
-      await mockBoards(page, { error: 'x' }, { status: 500 })
+      await mockBoards(page, { error: 'x' }, { status: 500, delayMs: 300 })
       await page.goto('/leaderboards')
       await expect(page.getByTestId('lb-unavailable')).toBeVisible()
       await expect(page.getByTestId('lb-unavailable').getByRole('link', { name: 'Browse all games' })).toHaveAttribute('href', '/#all-games')
+    })
+
+    test('CLS: 로딩 → 데이터 / 빈 주 / 실패 모두 ≤ 0.05 (예전 0.53~0.65)', async ({ page }) => {
+      await page.addInitScript(() => {
+        ;(window as unknown as { __cls: number }).__cls = 0
+        new PerformanceObserver((l) => {
+          for (const e of l.getEntries() as unknown as { value: number; hadRecentInput: boolean }[])
+            if (!e.hadRecentInput) (window as unknown as { __cls: number }).__cls += e.value
+        }).observe({ type: 'layout-shift', buffered: true })
+      })
+      const few = { snake: BOARDS.snake }
+      for (const [body, status] of [
+        [{ week: WEEK, boards: BOARDS }, 200],
+        [{ week: WEEK, boards: few }, 200],
+        [{ week: WEEK, boards: {} }, 200],
+        [{ error: 'x' }, 500],
+      ] as const) {
+        await page.unrouteAll()
+        await mockBoards(page, body, { status, delayMs: 400 })
+        await page.goto('/leaderboards')
+        await expect(page.getByTestId('lb-boards').or(page.getByTestId('lb-unavailable')).first()).toBeVisible()
+        await page.waitForTimeout(900)
+        const cls = await page.evaluate(() => (window as unknown as { __cls: number }).__cls)
+        expect(cls, JSON.stringify(body).slice(0, 40)).toBeLessThanOrEqual(0.05)
+      }
     })
   })
 }

@@ -54,58 +54,66 @@ export function LeaderboardsHub() {
 
   if (!available) {
     return (
-      <div
-        data-testid="lb-unavailable"
-        className="mx-auto mt-2 max-w-md rounded-[18px] border-2 border-garden-ink bg-garden-cream px-5 py-6 text-center shadow-[var(--garden-highlight),var(--garden-shadow-seed)]"
-      >
-        <p className="font-display text-[20px] leading-7 font-semibold">The scoreboard is resting</p>
-        <p className="mt-2 text-[15px] leading-6 text-garden-ink-deep">
-          Leaderboards are temporarily unavailable. Play a game and check back soon.
-        </p>
-        <Link
-          href="/#all-games"
-          className={`mt-4 inline-flex h-11 items-center rounded-full border-2 border-garden-ink bg-garden-cream-2 px-4 text-[14px] font-semibold ${ring}`}
+      // 로딩 카드(85장)가 줄어든 뒤에도 아래 설명이 첫 화면으로 끌려오지 않게 같은 최소 높이(CLS)
+      <div className="min-h-[100svh]">
+        <div
+          data-testid="lb-unavailable"
+          className="mx-auto mt-2 max-w-md rounded-[18px] border-2 border-garden-ink bg-garden-cream px-5 py-6 text-center shadow-[var(--garden-highlight),var(--garden-shadow-seed)]"
         >
-          Browse all games
-        </Link>
+          <p className="font-display text-[20px] leading-7 font-semibold">The scoreboard is resting</p>
+          <p className="mt-2 text-[15px] leading-6 text-garden-ink-deep">
+            Leaderboards are temporarily unavailable. Play a game and check back soon.
+          </p>
+          <Link
+            href="/#all-games"
+            className={`mt-4 inline-flex h-11 items-center rounded-full border-2 border-garden-ink bg-garden-cream-2 px-4 text-[14px] font-semibold ${ring}`}
+          >
+            Browse all games
+          </Link>
+        </div>
       </div>
     )
   }
 
-  // 기록이 하나도 없는 주: 모든 보드를 빈 카드로 그대로 둔다(로딩 때와 같은 자리 — 접힌 목록으로 줄이면 아래 글이 화면으로 올라와 CLS)
+  // 기록이 하나도 없는 주: 카드 대신 펼친 목록 하나(85장 빈 카드는 390에서 19,000px). 허브 최소 높이 덕에 줄어도 CLS 없음
   const weekEmpty = boards !== null && active.length === 0
-  const shown = boards === null || weekEmpty ? empty : active
+  const shown = boards === null ? empty : active
+  const isCurrent = label?.startsWith('This week') ?? false
 
   return (
     // 최소 한 화면 높이: 보드가 적은 주에도 데이터가 온 뒤 아래 설명·FAQ가 첫 화면으로 끌려 올라오지 않는다(CLS)
     <div className="min-h-[100svh]">
       {/* 주 라벨 — 데이터가 오기 전에도 같은 높이(56px, 두 줄 고정)를 잡아 둔다(CLS 0) */}
       <p data-testid="lb-week" className="mb-7 flex h-14 flex-col items-center justify-center gap-1 text-center text-[13px] leading-5">
-        {label ? (
-          <>
-            <span className="whitespace-nowrap rounded-full border-2 border-garden-ink bg-garden-cream-2 px-3 leading-6 font-semibold tabular-nums">
-              {label}
-            </span>
-            {weekEmpty ? (
-              <span data-testid="lb-empty-week" className="text-garden-ink-deep">
-                No scores yet — the first score on any board takes #1.
-              </span>
-            ) : (
-              <span className="text-garden-ink-soft">New boards Monday, 00:00 UTC</span>
-            )}
-          </>
+        {label && (
+          <span className="whitespace-nowrap rounded-full border-2 border-garden-ink bg-garden-cream-2 px-3 leading-6 font-semibold tabular-nums">
+            {label}
+          </span>
+        )}
+        {weekEmpty ? (
+          <span data-testid="lb-empty-week" className="text-garden-ink-deep">
+            No scores yet — the first score on any board takes #1.
+          </span>
+        ) : label ? (
+          <span className="text-garden-ink-soft">{isCurrent ? 'New boards Monday, 00:00 UTC' : 'Refreshing for the new week…'}</span>
         ) : null}
       </p>
+      {/* 로딩 알림은 한 곳만(카드마다 두면 85번 읽힌다) */}
+      <p role="status" className="sr-only">
+        {boards === null ? 'Loading scores…' : ''}
+      </p>
       <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3" data-testid="lb-boards" aria-busy={boards === null}>
-        {/* key = 자리 번호: 로딩 카드 → 데이터 카드가 같은 DOM 자리에서 내용만 바뀐다(slug key면 화면 밖 카드가 위로 '이동'해 CLS로 잡힌다) */}
+        {/* li key = 자리 번호(slug key면 화면 밖 카드가 위로 '이동'해 CLS로 잡힌다), 카드 key = slug(다른 게임이 되면 새로 마운트 —
+            링크 포커스·NewBadge 상태가 이전 게임 것으로 남지 않게. 새 노드는 layout shift로 세지 않는다) */}
         {shown.map((slug, i) => (
           <li key={i}>
-            <BoardCard slug={slug} rows={boards === null ? null : (boards[slug] ?? [])} />
+            <BoardCard key={slug} slug={slug} rows={boards === null ? null : (boards[slug] ?? [])} />
           </li>
         ))}
       </ul>
-      {!weekEmpty && boards !== null && empty.length > 0 && (
+      {boards !== null && empty.length > 0 && (
         <details
+          open={weekEmpty || undefined}
           className="group mt-8 rounded-[18px] border-2 border-garden-ink bg-garden-cream shadow-[var(--garden-highlight),var(--garden-shadow-seed)]"
           data-testid="lb-empty"
         >
@@ -115,7 +123,7 @@ export function LeaderboardsHub() {
             <svg aria-hidden="true" viewBox="0 0 12 12" width={12} height={12} className="shrink-0 transition-transform group-open:rotate-90 motion-reduce:transition-none">
               <path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            {empty.length} boards still empty — be the first to claim #1
+            {weekEmpty ? `All ${empty.length} boards are open — be the first to claim #1` : `${empty.length} boards still empty — be the first to claim #1`}
           </summary>
           <ul className="grid grid-cols-1 gap-x-4 gap-y-1 border-t-2 border-dashed border-garden-ink/25 px-3 py-3 sm:grid-cols-2 lg:grid-cols-3">
             {empty.map((slug) => {
@@ -174,7 +182,7 @@ function BoardCard({ slug, rows }: { slug: string; rows: ScoreRow[] | null }) {
           <GameIcon slug={slug} className="h-5 w-5" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="font-display block truncate text-[18px] leading-6 font-semibold tracking-[-0.01em]">{title}</span>
+          <h2 className="font-display truncate text-[18px] leading-6 font-semibold tracking-[-0.01em]">{title}</h2>
           <span className="block text-[12px] leading-4 text-garden-ink-soft">
             {meta.category} · top 3{unit && unit !== 'Score' ? ` · ${unit}` : ''}
           </span>
@@ -191,7 +199,6 @@ function BoardCard({ slug, rows }: { slug: string; rows: ScoreRow[] | null }) {
                 <>
                   <span aria-hidden="true" className="h-7 w-7 shrink-0 rounded-full bg-garden-cream-2" />
                   <span aria-hidden="true" className="h-[22px] flex-1 rounded-full bg-garden-cream-2 bg-clip-content py-[5px]" />
-                  {i === 0 && <span className="sr-only">Loading scores…</span>}
                 </>
               ) : r ? (
                 <>
@@ -201,10 +208,11 @@ function BoardCard({ slug, rows }: { slug: string; rows: ScoreRow[] | null }) {
                 </>
               ) : (
                 <>
-                  <span className="inline-flex shrink-0 opacity-40">
+                  <span aria-hidden="true" className="inline-flex shrink-0 opacity-40">
                     <RankMedal rank={i + 1} />
                   </span>
                   <span className="min-w-0 flex-1 truncate text-[14px] text-garden-ink-soft">
+                    <span className="sr-only">{['1st', '2nd', '3rd'][i]} place: </span>
                     {i === 0 ? 'No scores yet — be the first!' : 'Open spot'}
                   </span>
                 </>

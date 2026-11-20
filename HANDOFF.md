@@ -1,5 +1,13 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 /leaderboards 정원 틀 + 머리 보미 인계 (브랜치 `shift/leaderboards-garden`)
+
+**한 줄:** /leaderboards가 크림 정원 틀이 됐다 — 연감 카드(카테고리 꽃색 4종), 1~3위 벡터 메달(`RankMedal`, 🥇 이모지 폐기), "This week · Nov 16–22"(UTC ISO 주), 머리 보미 deliver 96px. 데이터·API·정렬·점수 형식·제출 로직 변경 0.
+- **코드**: `src/app/leaderboards/page.tsx`(`main[data-world="garden-hub"]` — 게임 페이지 `garden` 토큰 재매핑을 쓰지 않고 크림 클래스로 직접, globals.css는 body paper·신스웨이브/줄무늬 끄기만), `src/components/LeaderboardsHub.tsx`(카드·상태), `src/components/leaderboard/RankMedal.tsx`, `src/lib/leaderboardWeek.ts`(+test), `Mascot` `bomi-deliver`(사본 `public/art/mascots/bomi-deliver-192.webp` 9.2KB, eager), lines.md #41.
+- **상태**: 로딩 = 모든 보드 카드 막대(제목·링크 정적 HTML), 빈 주 = 펼친 전체 목록 + 안내 줄, 실패 = 정원 안내 카드. 허브 최소 높이 100svh.
+- **측정**: CLS 데이터 도착 0.53~0.65 → 0(390·1440, 보드 3·1·0·실패 e2e ≤0.05 고정), axe 위반 0, 이모지 0, 가로 스크롤 0, main 링크·요약 44px+, 자동 대비 실패 0. e2e `e2e/leaderboards.spec.ts`. 캡처 `docs/design/redesign-v2/leaderboards/`.
+- **함정**: ① 정적 serve엔 /api가 없어 이 페이지는 늘 실패 카드 — e2e·캡처는 `/api/leaderboards`를 흉내 낸다(시계 2026-11-20 고정 → W47) ② li key = 자리 번호, 카드 key = slug — 둘 다 slug로 돌리면 화면 밖 카드가 위로 '이동'으로 잡혀 CLS가 돌아온다 ③ 2026-W47은 11-16(월)~22 — "Nov 17–23"은 틀린 예시 ④ 페이지에 광고 자리 없음(D6 400px 해당 없음) — 광고를 넣으면 `data-ad-after`와 mascots식 거리 검사를 같이.
+- **⏭ 다음**: 개념서 '꽃 단상(포디움)' 일러스트(그림 예산), 대비 검사 함수 e2e 공용화(garden-frame.spec과 중복 — R7c가 그 파일을 쓰는 중이라 미룸), 내 줄 하이라이트(이름 저장 키 `lb:name`).
 ## ▶ 2026-11-20 10시 리뉴얼 R1 아케이드 시작 게이트 인계 (브랜치 `renewal/r1-arcade-gate`)
 
 **한 줄:** pong·space-shooter·tetris·flappy가 로드 즉시 시작하지 않고(수정 전 8초 방치: 퐁 0-7 패배·슈터 목숨 3→1), 탭 숨김 시 멈춰 기다리며(자동 재개 없음) Resume 3·2·1(1.2초), P·헤더 ⏸, 퐁 재서브 0.9초.
