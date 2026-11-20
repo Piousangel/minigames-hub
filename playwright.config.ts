@@ -6,7 +6,11 @@ const port = Number(process.env.PW_PORT ?? 3100)
 
 export default defineConfig({
   testDir: 'e2e',
-  use: { baseURL: `http://localhost:${port}` },
+  use: {
+    baseURL: `http://localhost:${port}`,
+    // CI(PR 단계 ci.yml)에서만: 실패한 테스트의 trace·스크린샷을 test-results/에 남겨 아티팩트로 올린다.
+    ...(process.env.CI ? { trace: 'retain-on-failure' as const, screenshot: 'only-on-failure' as const } : {}),
+  },
   webServer: {
     // 정적 export(output: 'export')는 next start로 서빙 불가 → out/ 을 정적 서버로 제공
     command: process.env.PW_SKIP_BUILD ? `npx serve out -l ${port}` : `pnpm build && npx serve out -l ${port}`,

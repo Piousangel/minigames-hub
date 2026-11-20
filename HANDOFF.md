@@ -12,8 +12,8 @@
 ## ▶ 2026-11-20 PR 단계 CI + 만성 실패 테스트 0 인계 (브랜치 `chore/ci-test-debt`)
 
 **한 줄:** PR마다 `.github/workflows/ci.yml`이 typecheck·lint·**전체 vitest**·build·check-routes·e2e 스모크를 돈다. 초록이 머지 조건(SESSION-GUIDE 검증 관문). 만성 실패 27건(전부 부하 타임아웃) → 0.
-- **코드**: `vitest.config.ts` testTimeout·hookTimeout 60초 + 워커 `--no-experimental-webstorage`(Node 25+ 로컬에서 localStorage 깨짐 방지). 테스트 파일 변경 0.
-- **함정**: ① 새 테스트가 60초 가까이 걸리면 구조를 보라(한도를 더 올리지 말 것) ② 로컬 과부하에서 vitest가 `Timeout calling "onTaskUpdate"`로 exit 1을 낼 수 있다 — 테스트는 통과, 부하 낮을 때 다시 ③ e2e 스모크는 `--grep "garden-frame|result-sheet|홈"` — 새 핵심 화면 e2e를 만들면 ci.yml grep에 넣을 것 ④ Vercel 체크(빨강, 요금제 한도)는 무시 — 배포는 Cloudflare.
+- **코드**: `vitest.config.ts` testTimeout·hookTimeout CI 15초·로컬 60초 + 워커 `--no-experimental-webstorage`(Node 25+ 로컬에서 localStorage 깨짐 방지). 테스트 파일 변경 0.
+- **함정**: ① 새 테스트가 CI에서 15초(로컬 60초) 가까이 걸리면 구조를 보라(한도를 더 올리지 말 것) ② 로컬 과부하에서 vitest가 `Timeout calling "onTaskUpdate"`로 exit 1을 낼 수 있다 — 테스트는 통과, 부하 낮을 때 다시 ③ e2e 스모크는 `--grep "garden-frame|result-sheet|홈"` — 새 핵심 화면 e2e를 만들면 ci.yml grep에 넣을 것 ④ Vercel 체크(빨강, 요금제 한도)는 무시 — 배포는 Cloudflare.
 - **⏭ 오너 할 일**: GitHub 브랜치 보호(main)에 필수 체크 `typecheck · lint`·`vitest`·`build · check-routes · e2e smoke` 켜기.
 
 ## ▶ 2026-11-20 /leaderboards 정원 틀 + 머리 보미 인계 (브랜치 `shift/leaderboards-garden`)
