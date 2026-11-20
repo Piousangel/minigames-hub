@@ -418,20 +418,28 @@ export function GameDotsAndBoxes({ storageKey }: { storageKey: string }) {
     >
       <style>{STYLE}</style>
       <div className="anim-board-in relative select-none">
-        {/* Turn indicator */}
+        {/* Turn indicator — 쉬는 쪽: 점은 흐리게(0.4), 글자는 muted 색(글자를 흐리면 2.1:1, R7d 대비 수정) */}
         <div className="mb-2 flex items-center justify-center gap-4 text-sm font-semibold">
           <span
-            className="flex items-center gap-1.5 transition-opacity"
-            style={{ color: YOU_LINE, opacity: yourTurn ? 1 : 0.4 }}
+            className="flex items-center gap-1.5 transition-colors"
+            style={{ color: yourTurn ? YOU_LINE : 'var(--fg-muted)' }}
           >
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: YOU_LINE }} aria-hidden="true" />
+            <span
+              className="h-2.5 w-2.5 rounded-full transition-opacity"
+              style={{ background: YOU_LINE, opacity: yourTurn ? 1 : 0.4 }}
+              aria-hidden="true"
+            />
             You
           </span>
           <span
-            className="flex items-center gap-1.5 transition-opacity"
-            style={{ color: CPU_LINE, opacity: !yourTurn && !over ? 1 : 0.4 }}
+            className="flex items-center gap-1.5 transition-colors"
+            style={{ color: !yourTurn && !over ? CPU_LINE : 'var(--fg-muted)' }}
           >
-            <span className="h-2.5 w-2.5 rounded-full" style={{ background: CPU_LINE }} aria-hidden="true" />
+            <span
+              className="h-2.5 w-2.5 rounded-full transition-opacity"
+              style={{ background: CPU_LINE, opacity: !yourTurn && !over ? 1 : 0.4 }}
+              aria-hidden="true"
+            />
             CPU
           </span>
         </div>

@@ -24,6 +24,7 @@ import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { bandInk } from '@/lib/games/bandInk'
 
 type Mode = 'daily' | 'practice'
 type Difficulty = 'easy' | 'normal' | 'hard'
@@ -107,7 +108,7 @@ function saveAll(storageKey: string, save: TurntileSave): void {
 /** Fixed HSL hue per pattern id so tiles are legible + colorblind-safe (number shown too). */
 function tileColor(face: Face, symbols: number): { bg: string; fg: string } {
   const hue = symbols <= 1 ? 200 : Math.round((face * 360) / symbols)
-  return { bg: `hsl(${hue} 62% 52%)`, fg: `hsl(${hue} 70% 12%)` }
+  return { bg: `hsl(${hue} 62% 52%)`, fg: bandInk(hue, 62, 52, 70) }
 }
 
 interface Badge {
