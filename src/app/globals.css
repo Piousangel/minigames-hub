@@ -661,17 +661,25 @@ body {
    - 섹션을 크롬(헤더) 높이만큼 위로 당겨 하늘이 헤더 뒤까지 이어진다. 헤더 크림 .86이 이 하늘 위에 얹힌다.
      크롬 높이: lg 미만 = 1행 56 + 2행 내비 46(44 + 테두리 2), lg 이상 = 64 (SiteHeader의 고정 높이와 같아야 한다).
    - z 41: body.scanlines::after(z 40) 줄무늬가 하늘·카드에 얹히지 않게. 헤더(z 43)·2행 내비(z 42)보다는 아래.
-   - 하늘 = --garden-sky-sunset. 768 미만은 글 영역에 보이는 윗부분만(1100px로 늘려 깐다), 아래 절반은 키아트
-     바닥의 라벤더 구름색으로 채워 카드 옆이 끊기지 않게 한다. */
+   - 키아트 = 마스코트 4친구판(오너 11-20). 넷이 그림 폭의 62%를 차지하고 왼쪽 38%만 하늘이라, 예전처럼 섹션 전체를
+     cover로 덮으면 글·카드가 캐릭터를 가린다. 그래서 폭마다 배치를 나눈다.
+       768 미만      모바일판(세로)이 글 아래로 이어지고, 위쪽은 페이드 div로 하늘에 녹인다.
+       768~1023      데스크톱판을 글 아래 전체 폭으로(자르지 않음), 위·아래 끝을 마스크로 하늘·라벤더에 녹인다.
+       1024 이상     데스크톱판을 오른쪽에 붙이고, 넷의 왼쪽 끝(그림 폭 38.15%)이 카드 오른쪽 + 24px에 오도록 폭을 계산한다.
+                     왼쪽 36%(작은 섬·구름, 넷 없음 — 18%까지 완전히 지움)·아래 16%는 마스크로, 그 바깥은 그림 색을 실측한 섹션 그라데이션으로 잇는다.
+   - 768 미만 하늘 = --garden-sky-sunset(1100px로 깐다), 아래 절반은 키아트 바닥 라벤더 띠 색으로 채워 카드 옆이 끊기지 않게. */
 .home-hero {
   --chrome-h: 102px;
-  /* 1100px로 깐 노을 하늘이 모바일 키아트 윗단(y≈150)에서 내는 색 — 페이드 div가 이 색에서 투명으로 간다 */
+  /* 1100px로 깐 노을 하늘이 모바일 키아트 윗단(y≈150~190)에서 내는 색 — 페이드 div가 이 색에서 투명으로 간다 */
   --hero-join: #ffa884;
-  --hero-cloud: #a68ccb; /* hub-hero-mobile.webp 바닥 구름색(실측) */
+  --hero-cloud: #a087c1; /* hub-hero-mobile-4f-a.webp 바닥 띠 색(실측, y 85% 아래) */
   position: relative;
   z-index: 41;
   margin-top: calc(-1 * var(--chrome-h));
   overflow: hidden;
+  /* 아래 1024 이상 규칙이 cqw(섹션 폭)로 키아트 폭을 계산한다. layout containment가 같이 걸려 섹션이 fixed 자손의
+     containing block이 된다 — 히어로 안(카드·티켓)에 fixed 툴팁·시트를 넣을 일이 생기면 portal로 뺄 것 */
+  container-type: inline-size;
   background:
     linear-gradient(var(--hero-cloud), var(--hero-cloud)) 0 100% / 100% 50% no-repeat,
     var(--garden-sky-sunset) 0 0 / 100% 1100px no-repeat,
@@ -689,12 +697,12 @@ body {
   z-index: 2;
   padding: calc(var(--chrome-h) + 8px) 16px 0;
 }
-/* 모바일: 키아트가 글 아래로 이어지고, 윗단(하늘)이 글 뒤로 들어간다. 겹침은 아트 폭에 비례(폭 30%) —
-   큰 해바라기 꼭대기가 아트 높이 28%(=폭 37%)라 부제와 닿지 않는다(320에서 고정 148px이면 부제를 덮었다) */
+/* 모바일: 키아트가 글 아래로 이어지고, 윗단(하늘, 그림 높이 위 28%)이 글 뒤로 들어간다. 겹침은 아트 폭에 비례(폭 34%) —
+   보미 모자 꼭대기가 아트 높이 28.8%(=폭 38.5%)라 부제와 폭 4.5%만큼 떨어진다(390에서 약 18px) */
 .home-hero__art {
   position: relative;
   z-index: 1;
-  margin: calc(-0.3 * min(100vw, 640px)) auto 0;
+  margin: calc(-0.34 * min(100vw, 640px)) auto 0;
   max-width: 640px;
 }
 .home-hero__img {
@@ -702,64 +710,62 @@ body {
   width: 100%;
   height: auto;
 }
+/* 글 뒤로 들어간 윗단(폭 34%)을 하늘색으로 덮어 글이 읽히게 하고, 그 아래로 그림의 장밋빛 하늘에 녹인다 */
 .home-hero__fade {
   position: absolute;
   inset: 0 0 auto 0;
-  height: 96px;
-  background: linear-gradient(180deg, var(--hero-join) 0%, color-mix(in srgb, var(--hero-join) 55%, transparent) 45%, transparent 100%);
+  height: calc(0.34 * min(100vw, 640px));
+  background: linear-gradient(180deg, var(--hero-join) 0%, color-mix(in srgb, var(--hero-join) 60%, transparent) 50%, transparent 100%);
   pointer-events: none;
 }
-.home-hero__edge {
-  display: none;
-}
+/* 카드는 그림 바닥 구름(그림 높이 80% 아래, 섬 바위 끝과 구름)에만 얹는다 — 섬과 넷의 발은 가리지 않는다 */
 .home-hero__card {
   position: relative;
   z-index: 3;
-  margin: -148px 16px 0;
+  margin: calc(-0.27 * min(100vw, 640px)) 16px 0;
 }
 @media (min-width: 40rem) {
   .home-hero__card {
     max-width: 480px;
     margin-inline: auto;
   }
+  /* 640~767: 그림이 640 틀 가운데라 좌우 끝을 배경에 녹인다 */
+  .home-hero__img {
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
 }
 
-/* 768 이상: 데스크톱 키아트가 섹션 전체(헤더 뒤 포함)를 덮고, 글·카드는 왼쪽 빈 하늘(키아트 왼쪽 40%) 위 */
+/* 768~1023 세로형(가로:세로 5:4 미만, 예 768×1024): 글 → 데스크톱판(전체 폭, 자르지 않음) → 카드.
+   섹션 그라데이션은 그림 왼쪽 열 색(실측)을 따른다. 가로형(1023×768 등)은 아래 오른쪽 배치를 쓴다 — 쌓으면 카드가 첫 화면 밖 */
 @media (min-width: 48rem) {
   .home-hero {
-    background: var(--garden-sky-sunset);
+    background: linear-gradient(180deg, #fda384 0%, #ffb886 30%, #ffd0b4 46%, #d9b3c6 58%, #a790be 66%, #a790be 100%);
   }
   .home-hero__inner {
-    /* 키아트 바닥의 평평한 라벤더 띠(원본 y 80% 아래)는 R4 티켓 줄 자리 — R3에선 아래를 잘라(object-position top)
-       빈 띠가 160px 남지 않게 한다. 1440에서 약 700px. R4가 티켓 줄을 넣으면 이 높이를 다시 늘린다 */
-    min-height: min(48.6vw, 700px);
     padding: 0 0 48px;
   }
+  .home-hero__copy {
+    width: min(560px, calc(100% - 2 * clamp(24px, 6.67vw, 96px)));
+    margin-left: clamp(24px, 6.67vw, 96px);
+    padding: calc(var(--chrome-h) + 24px) 0 0;
+  }
   .home-hero__art {
-    position: absolute;
-    inset: 0;
-    margin: 0;
+    margin: -4% 0 0;
     max-width: none;
   }
   .home-hero__img {
-    height: 100%;
-    object-fit: cover;
-    object-position: right top;
+    mask-image: linear-gradient(180deg, transparent 0%, #000 10%, #000 86%, transparent 100%);
   }
   .home-hero__fade {
     display: none;
   }
-  .home-hero__copy {
-    width: min(480px, 46%);
-    margin-left: clamp(24px, 6.67vw, 96px);
-    padding: calc(var(--chrome-h) + 24px) 0 0;
-  }
   .home-hero__card {
-    width: min(480px, 46%);
+    width: min(480px, calc(100% - 2 * clamp(24px, 6.67vw, 96px)));
     max-width: none;
-    margin: 28px 0 0 clamp(24px, 6.67vw, 96px);
+    margin: -7% 0 0 clamp(24px, 6.67vw, 96px);
   }
 }
+
 @media (min-width: 64rem) {
   .home-hero {
     --chrome-h: 64px;
@@ -768,24 +774,67 @@ body {
     padding-top: calc(var(--chrome-h) + 40px);
   }
 }
-/* 1440 넘는 화면: 키아트는 1440 틀 안(업스케일 안 함), 틀 좌우 160px을 섹션과 같은 하늘로 녹여 잇는다 */
+/* 1024 이상(+ 768~1023 가로형): 글·카드 왼쪽 열 + 키아트 오른쪽. 그리드 한 열에 겹쳐 놓고 키아트가 1~3행에 걸친다 —
+   3행(1fr)이 키아트 남은 높이를 받아(여러 행에 걸친 항목의 남는 높이는 flex 트랙으로만 간다) 아래 티켓 줄(4행)이
+   카드·키아트 둘 다의 아래에 온다(R5). */
+@media (min-width: 64rem), (min-width: 48rem) and (min-aspect-ratio: 5/4) {
+  .home-hero {
+    /* cqw = 섹션 폭(.home-hero가 컨테이너). 단 섹션 자신의 배경에서 쓰면 컨테이너가 자기를 건너뛰어 svw(스크롤바 포함
+       뷰포트 폭)로 풀린다 — 자리 차지 스크롤바(Windows)면 배경 색 경계만 최대 약 12px 어긋난다(키아트 자리는 정확) */
+    --hero-iw: min(100cqw, 1440px);
+    --hero-pad: clamp(24px, 6.67cqw, 96px);
+    --hero-col: min(480px, 0.46 * var(--hero-iw));
+    /* 넷의 왼쪽 끝 = 그림 폭 38.15%(씨앗 해씨 잎). 그곳이 카드 오른쪽 + 24px이 되는 폭, 원본(1376) 넘게 키우지 않는다 */
+    --hero-art-w: min(1376px, (var(--hero-iw) - var(--hero-pad) - var(--hero-col) - 24px) / 0.6185);
+    --hero-art-h: calc(var(--hero-art-w) * 768 / 1376);
+    /* 보미 모자 꼭대기(그림 높이 12.4% = 폭 6.9%)가 헤더 아래 8px 밑으로 오게, 좁은 폭에서만 내린다 */
+    --hero-art-top: max(0px, var(--chrome-h) + 8px - 0.069 * var(--hero-art-w));
+    background: linear-gradient(
+      180deg,
+      #fda384 0,
+      #ffb886 calc(var(--hero-art-top) + 0.42 * var(--hero-art-h)),
+      #ffd2b6 calc(var(--hero-art-top) + 0.6 * var(--hero-art-h)),
+      #e2b8c6 calc(var(--hero-art-top) + 0.72 * var(--hero-art-h)),
+      #a790be calc(var(--hero-art-top) + 0.8 * var(--hero-art-h)),
+      #a790be 100%
+    );
+  }
+  .home-hero__inner {
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto auto 1fr auto;
+  }
+  .home-hero__copy {
+    grid-area: 1 / 1;
+    width: var(--hero-col);
+    margin-left: var(--hero-pad);
+  }
+  .home-hero__card {
+    grid-area: 2 / 1;
+    width: var(--hero-col);
+    margin: 28px 0 0 var(--hero-pad);
+  }
+  .home-hero__art {
+    grid-area: 1 / 1 / 4 / 2;
+    justify-self: end;
+    align-self: start;
+    width: var(--hero-art-w);
+    margin: var(--hero-art-top) 0 0;
+  }
+  .home-hero__img {
+    mask-image: linear-gradient(90deg, transparent 18%, #000 36%), linear-gradient(180deg, #000 84%, transparent 100%);
+    mask-composite: intersect;
+  }
+}
+/* 1440 넘는 화면: 글·카드는 1440 틀 안, 키아트는 틀 밖 섹션 오른쪽 끝까지 붙인다(오른쪽 이음새 없음). 폭은 같은 식에
+   틀 바깥 여백을 더해 계산하되 원본(1376) 넘게 키우지 않는다 — 1920에서 1376, 넷과 카드 사이가 넓어질 뿐 */
 @media (min-width: 90.0625rem) {
-  .home-hero__edge {
-    display: block;
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 160px;
-    background: var(--garden-sky-sunset);
-    pointer-events: none;
+  .home-hero {
+    --hero-out: calc((100cqw - 1440px) / 2);
+    --hero-art-w: min(1376px, (1440px + var(--hero-out) - var(--hero-pad) - var(--hero-col) - 24px) / 0.6185);
   }
-  .home-hero__edge--l {
-    left: 0;
-    mask-image: linear-gradient(90deg, #000, transparent);
-  }
-  .home-hero__edge--r {
-    right: 0;
-    mask-image: linear-gradient(270deg, #000, transparent);
+  .home-hero__art {
+    margin-right: calc(-1 * var(--hero-out));
   }
 }
 
@@ -871,24 +920,24 @@ body:has(main[data-game-page]) [data-site-nav-row] {
   }
 }
 
-/* R5(R4 이월): 데스크톱 히어로 바닥 라벤더 띠 위 '오늘 호 티켓' 3장. 1280 이상에서만(3×384 + 간격 48 = 1,200px).
-   정적 HTML에 자리가 있고 칸 크기가 고정이라 상태가 바뀌어도 CLS 0. */
+/* R5(R4 이월): 데스크톱 히어로 아래 라벤더 띠 위 '오늘 호 티켓' 3장. 1280 이상에서만(3×384 + 간격 48 = 1,200px).
+   정적 HTML에 자리가 있고 칸 크기가 고정이라 상태가 바뀌어도 CLS 0.
+   4친구 키아트(11-20): 그리드 4행 — 카드 아래 36px과 키아트 바닥 중 더 아래에 온다. 키아트와는 바닥 8%(이미 라벤더로
+   녹는 마스크 구간)만 겹쳐 넷의 발·섬 윗면을 가리지 않는다(키아트 margin-bottom = -(겹침 + 티켓 margin-top)). */
 .home-hero__tickets {
   display: none;
 }
 @media (min-width: 80rem) {
-  .home-hero__inner {
-    /* 키아트(1376×768)를 1440×약 900으로 cover — 바닥 라벤더 띠가 티켓 줄 자리 */
-    min-height: min(62.5vw, 900px);
-  }
-  .home-hero__img {
-    object-position: 70% 100%;
+  .home-hero__art {
+    margin-bottom: calc(-0.08 * var(--hero-art-h) - 36px);
   }
   .home-hero__tickets {
     display: block;
+    grid-area: 4 / 1;
+    justify-self: center;
     position: relative;
     z-index: 3;
-    margin: 36px auto 0;
+    margin-top: 36px;
     width: 1200px;
   }
 }
