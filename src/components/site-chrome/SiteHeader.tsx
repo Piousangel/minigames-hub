@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { siteConfig } from '@/lib/siteConfig'
 import { HEADER_NAV, chromeFocus, type HeaderNavIcon } from './chromeLinks'
-import { GardenLogoMark, IsleIcon, PacketIcon, WellIcon } from './GardenIcons'
+import { BrandMark } from './BrandMark'
+import { IsleIcon, PacketIcon, WellIcon } from './GardenIcons'
 import { HeaderSearchLink } from './HeaderSearchLink'
 import { TodayPill } from './TodayPill'
 
@@ -51,7 +52,7 @@ export function SiteHeader() {
             aria-label={`${siteConfig.name} — home`}
             className={`flex h-11 min-w-0 shrink items-center gap-2 rounded-lg ${chromeFocus}`}
           >
-            <GardenLogoMark className="h-7 w-7 shrink-0 lg:h-9 lg:w-9" />
+            <BrandMark size={36} className="h-7 w-7 shrink-0 lg:h-9 lg:w-9" />
             <span className="font-display truncate text-[16px] leading-none min-[360px]:text-[18px] font-semibold tracking-[-0.01em] text-garden-ink sm:text-[20px] lg:text-[22px]">
               {siteConfig.name}
             </span>

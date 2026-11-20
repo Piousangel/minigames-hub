@@ -299,3 +299,10 @@
 - 결정: ① 홈 title = "Free Online Mini Games — 100+ Games, No Download | Quick MiniGames"(리서치 1은 브랜드 먼저, 리서치 2는 브랜드 검색이 없는 새 사이트는 키워드 먼저 + Google이 브랜드를 가장 자주 떼어 냄 → 키워드 먼저, 게임 페이지 템플릿과 같은 순서). ② WebSite JSON-LD는 홈만, SearchAction 없음(2024-11 폐지). ③ 홈 카드 정사각 크롭 잘림은 받아들인다(키아트 구도, 리뷰 should-fix 거부). ④ 전역 color-scheme dark는 R7f 머지 뒤로.
 - 되돌리기: title 1줄, 카드는 `src/lib/og/gardenCard.tsx`. 고위험 아님(slug·URL·광고·저장 형식 무변경, og:image URL 경로 동일).
 
+
+## 2026-11-20 브랜드 마크 최종 = 3차 V2 최종판 A '밝게' (오너 승인 "그래 가자 최종 판으로")
+- 맥락: 브랜드 3차 보드(로컬 scratchpad brand3/board.html, 저장소 사본 `docs/design/brand-3/`)에서 V2 금빛 링 엠블럼 + 말랑이가 최고안, 링 외곽선 마감 3안(현재·얇게·밝게) 중 디자이너가 '밝게'(링 #ba7b1a → #e8a048, 로컬 보정·생성 0)를 채택.
+- 선택: 사이트 전체 브랜드 마크를 이것으로. 탭 16 = 손 단순판(정면 말랑이, 링 stroke #e8a048), 탭 32·48·구글 96 = 원판 원형 크롭(바깥 투명), iOS 180·PWA 192/512 any = 노을 타일(불투명), PWA maskable = 엠블럼 지름 66%로 줄인 별도 판, 헤더·푸터 = 원형 크롭 96px webp(3.8KB) 한 장. 원본은 `docs/design/brand-3/final/`(무손실), 생성은 `scripts/brand-icons.py`(보드와 같은 축소 방식이라 보드 픽셀과 같다 — 180·512·32 차이 0 확인).
+- URL 유지: /favicon.ico·/icon·/apple-icon·/icons/pwa-192·/icons/pwa-512는 그대로, 새 경로는 /icons/pwa-maskable-512 하나(_headers image/png).
+- 남김: 공유 카드(OG)는 아직 옛 해+섬 마크(`GardenLogoMark`) — OG 리브랜드는 다음 작업(HANDOFF). 디자이너 판정은 여전히 '정돈된 캐주얼', 더 올리려면 원판·배경 방향 결정(오너).
+- 되돌리기: 이 PR revert(아이콘 라우트가 다시 Satori 렌더로).
