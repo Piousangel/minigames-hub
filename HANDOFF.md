@@ -1,5 +1,12 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 13시 신작 꽃담 정원(가칭) G1 + 비공개 터치 프로토 인계 (브랜치 `game/fence-garden-g1-touch-proto`)
+
+**한 줄:** 신작 퍼즐안의 규칙을 '뛰고 담 치기'로 고정했다(0~2칸 뛰고 → 선 칸의 한 변에 울타리 강제, 목표 = 말랑이 영역에 꽃 전부·잡초 0, 별 = 최소 턴). 정적 가두기(v1)는 enclose.horse와 같아 버림. 비공개 프로토 `/tools/fence-proto`(noindex·robots disallow·미연결).
+- **코드**: `src/lib/games/fencegarden/engine.ts`(울타리 id·`regions`·`hitEdge` nearest/strip·`solveHop` BFS·`fenceSetsAtMin`·`planlessBotRate`·`hopStars`·시험 퍼즐 3), `src/components/FenceProto.tsx`(퍼즐 v2 + 탭 정확도 시험 JSON 복사), `scripts/fence-touch-sim.mts`(`node --experimental-strip-types`로 실행 — `.mts`라 tsconfig 밖, 엔진 import는 `.ts` 확장자), e2e `e2e/fence-proto.spec.ts`(CI 스모크 grep `fence-proto` 추가).
+- **함정**: ① 쐐기 정확도는 조준점 의존(0.5칸 = 자유 선 탭과 같음) — 화살표 손잡이(0.85칸)가 실제로 조준을 끄는지는 사람 손 JSON 전까지 미확인 ② `solveHop`은 5턴 이상·홉 1이면 상태 수십만~150만(수 초) — 생성기는 3~4턴 중심, 최소 턴은 퍼즐 데이터에 미리 계산 ③ 시험 퍼즐 2·3은 계획 없는 봇 51%·74%로 얕다(테스트가 기록) — 출시 퍼즐로 쓰지 말 것 ④ 이름은 가칭(상표 검색 전), 'Wall Go·벽바둑·데블스 플랜·enclose/horse/면적' 문구 금지.
+- **⏭ 다음(13시 G2)**: ① 오너·팀 손 탭 JSON → spec 9장 ② 생성기 후보 200개 분포(최소 턴 ≥3·집합 ≤3·봇 <20%), 합격 10% 미만이면 지형(물웅덩이·고정 담) → 그래도 미달이면 퍼즐안 보류·대결형 재검토 ③ G3에서 화살표 손잡이 크게·이모지 → Gemini 에셋.
+
 ## ▶ 2026-11-20 리디자인 v2 R7c 정원 틀 배치 c 인계 (브랜치 `shift/redesign-r7c-batch3`, #207)
 
 **한 줄:** 정원 틀 게임이 60개가 됐다(배치 c 20개: mastermind·maze·number-memory·word-search·gem-match·prospector·zero-hour·overload·ricochet·stackpot·overfold·splice·duplex·overdub·pinwheel·cleave·umbra·fuse·polytap·deepdive). 바뀐 코드는 `GARDEN_BATCHES.c` 추가 + 게임 안 수정 4파일(색·클립만, nonogram은 R7b·sudoku는 R7a 게임 — 판 운 결함).
