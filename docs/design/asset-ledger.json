@@ -341,8 +341,48 @@
       "out": "docs/design/brand-2/nav-sheet2.webp",
       "model": "gemini-3-pro-image",
       "at": "2026-11-20T03:42:51+00:00"
+    },
+    "brand3-v1-app1": {
+      "out": "docs/design/brand-3/v1-app1.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-20T04:07:12+00:00"
+    },
+    "brand3-v1-app2": {
+      "out": "docs/design/brand-3/v1-app2.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-20T04:07:26+00:00"
+    },
+    "brand3-v2-app1": {
+      "out": "docs/design/brand-3/v2-app1.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-20T04:07:39+00:00"
+    },
+    "brand3-v2-app2": {
+      "out": "docs/design/brand-3/v2-app2.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-20T04:07:53+00:00"
+    },
+    "brand3-v3-app1": {
+      "out": "docs/design/brand-3/v3-app1.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-20T04:08:06+00:00"
+    },
+    "brand3-v3-app2": {
+      "out": "docs/design/brand-3/v3-app2.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-20T04:08:20+00:00"
+    },
+    "brand3-v4-app1": {
+      "out": "docs/design/brand-3/v4-app1.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-20T04:08:33+00:00"
+    },
+    "brand3-v4-app2": {
+      "out": "docs/design/brand-3/v4-app2.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-20T04:08:46+00:00"
     }
   },
   "month": "2026-11",
-  "count": 67
+  "count": 75
 }
