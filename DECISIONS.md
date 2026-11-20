@@ -299,6 +299,10 @@
 - 결정: ① 홈 title = "Free Online Mini Games — 100+ Games, No Download | Quick MiniGames"(리서치 1은 브랜드 먼저, 리서치 2는 브랜드 검색이 없는 새 사이트는 키워드 먼저 + Google이 브랜드를 가장 자주 떼어 냄 → 키워드 먼저, 게임 페이지 템플릿과 같은 순서). ② WebSite JSON-LD는 홈만, SearchAction 없음(2024-11 폐지). ③ 홈 카드 정사각 크롭 잘림은 받아들인다(키아트 구도, 리뷰 should-fix 거부). ④ 전역 color-scheme dark는 R7f 머지 뒤로.
 - 되돌리기: title 1줄, 카드는 `src/lib/og/gardenCard.tsx`. 고위험 아님(slug·URL·광고·저장 형식 무변경, og:image URL 경로 동일).
 
+## 2026-11-20 공개 저장소 추적 파일에서 오너 개인 메일 주소 제거 (오너 승인)
+- 맥락: 공개 저장소의 팀 문서(SESSION-GUIDE, HANDOFF)에 오너 개인 메일 주소가 그대로 있었다.
+- 선택: 보고 메일 규칙은 '연결된 Gmail 계정 본인 주소(받는 사람 = 보내는 사람) 외 발송 금지'로 바꾸고, 루틴이 Gmail 커넥터의 최근 보낸 보고 메일 From으로 주소를 확인하게 했다. 기록성 문장은 주소만 지우거나 '오너'로 바꿨다.
+- 한계: 주소는 git 기록(과거 커밋)에는 남는다. 기록 재작성(force push)은 하지 않는다.
 
 ## 2026-11-20 브랜드 마크 최종 = 3차 V2 최종판 A '밝게' (오너 승인 "그래 가자 최종 판으로")
 - 맥락: 브랜드 3차 보드(로컬 scratchpad brand3/board.html, 저장소 사본 `docs/design/brand-3/`)에서 V2 금빛 링 엠블럼 + 말랑이가 최고안, 링 외곽선 마감 3안(현재·얇게·밝게) 중 디자이너가 '밝게'(링 #ba7b1a → #e8a048, 로컬 보정·생성 0)를 채택.
