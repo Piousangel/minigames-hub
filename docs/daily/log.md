@@ -31,3 +31,4 @@
 | 2026-11-20 09시 | 허브 리디자인 v2 R7b 정원 틀 배치 b: 게임 20개(chess·mahjong·tetris·freecell 등)를 크림 바깥 틀 + 밤 정원 게임판으로, 게임 안 대비 결함 3건(체스 좌표·마작 막힌 패 글자·슬라이딩 타일) 색·크기만 수정 | 없음 | 사용자에게 보임(게임 20개 페이지) | 다음: R7c |
 | 2026-11-20 10시 | 리뉴얼 R1 아케이드 시작 게이트: pong·space-shooter·tetris·flappy가 로드 즉시 시작하지 않고(8초 방치 퐁 0-7 패배·슈터 목숨 3→1 해소), 탭 숨김 시 멈춰 기다리며 Resume 1.2초 카운트다운, P·헤더 ⏸, 퐁 재서브 0.9초, 공용 `useGameGate`·`GatePanel` | 없음 | 첫 판 억울한 패배 제거(리뉴얼 축 C 사흘 밀린 배치) |
 | 2026-11-20 10시 | 허브 리디자인 v2 /leaderboards 정원 틀(R6 이월): 연감 카드·벡터 메달(🥇 이모지 폐기)·사람 말 주 표기(This week · Nov 16–22)·머리 보미 deliver, 로딩·빈 주·실패 상태 정원화, 데이터 도착 CLS 0.65 → ~0 | 없음 | 사용자에게 보임(/leaderboards) | 다음: 꽃 단상 일러스트(그림 예산) |
+| 2026-11-20 10시 | 허브 리디자인 v2 R7c 정원 틀 배치 c: 게임 20개(mastermind·maze·gem-match·duplex·polytap 등)를 크림 바깥 틀 + 밤 정원 게임판으로, duplex·polytap 대비·가로 넘침 최소 수정 + 이미 들어간 nonogram·sudoku의 판 운 대비 결함, dots-and-boxes·decant는 R7d로 | 없음 | 사용자에게 보임(게임 20개 페이지) | 다음: R7d |

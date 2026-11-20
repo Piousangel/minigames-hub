@@ -509,7 +509,7 @@ export function GameSudoku({ storageKey }: { storageKey: string }) {
                 disabled={solved}
                 aria-label={`Enter ${d}`}
                 className={`btn-press flex aspect-square items-center justify-center rounded-lg bg-surface text-lg font-bold hover:bg-white/10 disabled:opacity-50 ${
-                  done ? 'text-fg-muted opacity-50' : 'text-fg'
+                  done ? 'text-fg-muted opacity-75' : 'text-fg'
                 }`}
               >
                 {d}

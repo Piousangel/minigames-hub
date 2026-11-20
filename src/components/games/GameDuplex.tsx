@@ -457,6 +457,8 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
       hint={hint}
     >
       <style>{keyframes}</style>
+      {/* 3D 뒤집기 등장(dux-flip)이 원근 때문에 판보다 넓어져 390에서 잠깐 가로 스크롤이 생긴다(R7c 게이트) — 가로만 자른다 */}
+      <div className="w-full overflow-x-clip">
       <div
         key={flipKey}
         className={`anim-board-in relative w-full rounded-xl bg-surface p-2 ${
@@ -618,6 +620,7 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
           </div>
         </GameOverlay>
       </div>
+      </div>
 
       {/* Controls */}
       <div className="mt-3 flex items-center justify-between gap-3">
@@ -679,7 +682,7 @@ export function GameDuplex({ storageKey }: { storageKey: string }) {
                   ? 'border-neon-purple/70 bg-neon-purple/15 text-neon-purple'
                   : unlocked
                     ? 'border-border bg-surface/70 text-fg-muted'
-                    : 'border-border bg-surface/40 text-fg-muted/50'
+                    : 'border-border bg-surface/40 text-fg-muted'
               }`}
               title={unlocked ? p.name : `Clear ${PACKS[i - 1]?.name} to unlock`}
             >
