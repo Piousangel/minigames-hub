@@ -18,7 +18,7 @@
 
 ### Custom deploy hooks
 - Pre-merge: `pnpm test && pnpm typecheck`
-- Deploy trigger: main 머지 시 GitHub Actions(`.github/workflows/deploy.yml`)가 `pnpm run deploy`. 수동 배포도 가능
+- Deploy trigger: main 머지 시 GitHub Actions(`.github/workflows/deploy.yml`)가 `pnpm run deploy`. Claude 세션의 로컬 배포는 `.claude/settings.json` hook이 막는다(오너 터미널은 예외)
 - Health check: 위 curl, 또는 /snake /2048 /typing-test 등 개별 라우트 200 확인
 
 ### 배포 메모

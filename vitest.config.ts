@@ -38,6 +38,8 @@ export default defineConfig({
           hookTimeout: testTimeout,
         },
       },
+      // Claude Code hook 스크립트(.claude/settings.json → scripts/hooks/). 샌드랩과 같은 파일·테스트.
+      { test: { name: 'hooks', include: ['scripts/hooks/**/*.test.mjs'], environment: 'node', testTimeout, hookTimeout: testTimeout } },
     ],
   },
 })

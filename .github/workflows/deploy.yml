@@ -11,6 +11,8 @@ concurrency:
   cancel-in-progress: false
 jobs:
   deploy:
+    # 수동 실행(workflow_dispatch)도 main에서만 — 리뷰 안 된 브랜치가 프로덕션에 가지 않게(저장소 안전 설정 E, 11-20).
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
