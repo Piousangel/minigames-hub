@@ -2,16 +2,32 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { accentVar, DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
+import { DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
 import { LEADERBOARD_GAMES, formatBoardScore, type ScoreRow } from '@/lib/leaderboard'
 import { gamePages } from '@/lib/games/registry'
 import { GameIcon } from '@/components/icons/GameIcon'
+import { NewBadge } from '@/components/NewBadge'
+import { CATEGORY_TINT } from '@/components/home/SeedCard'
+import { RankMedal } from '@/components/leaderboard/RankMedal'
 import { orderBoards } from '@/lib/leaderboardOrder'
-import { isNew } from '@/lib/newGames'
+import { weekLabel } from '@/lib/leaderboardWeek'
 import { sendHit } from '@/lib/hit'
 
 const titleOf = (slug: string) => gamePages.find((g) => g.slug === slug)?.h1 ?? slug
+/** 허브는 게임별 Top 3(`/api/leaderboards`). 카드마다 3칸을 늘 그려 높이가 같다(빈 칸 = Open spot, 로딩 = 막대). */
+const PODIUM = 3
 
+const ring =
+  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-garden-ink focus-visible:ring-offset-2 focus-visible:ring-offset-garden-cream'
+
+/**
+ * /leaderboards 본문(리디자인 v2 — 정원 틀). 데이터·API·정렬·점수 형식은 예전 그대로, 겉모습만 바뀌었다.
+ * - 카드 = '연감 한 쪽': 크림 종이·2px ink 윤곽·판 그림자, 윗단 띠와 아이콘 disc는 카테고리 꽃색 4종(CATEGORY_TINT)만.
+ *   예전 게임별 랜덤 네온 accent·neon-box·픽셀 폰트는 쓰지 않는다.
+ * - 1~3위 = 벡터 메달(RankMedal, 이모지 없음). 점수 tabular-nums.
+ * - 주 표기 = "This week · Nov 16–22"(서버 ISO 주 → UTC 월~일).
+ * - 로딩 중에도 모든 보드 카드를 같은 높이로 그려(제목·링크는 정적 HTML에 남는다) 데이터가 와도 자리가 흔들리지 않는다.
+ */
 export function LeaderboardsHub() {
   const [boards, setBoards] = useState<Record<string, ScoreRow[]> | null>(null)
   const [week, setWeek] = useState('')
@@ -34,99 +50,169 @@ export function LeaderboardsHub() {
   const slugs = Object.keys(LEADERBOARD_GAMES)
   // 최신 게임 순. 점수가 있는 보드가 먼저, 빈 보드는 아래에 접는다(로딩 중엔 전부 빈 것으로 취급해 순서만 유지).
   const { active, empty } = orderBoards(slugs, boards, gameMeta)
-  const now = Date.now()
+  const label = week ? weekLabel(week, new Date()) : null
 
   if (!available) {
     return (
-      <p className="mt-6 text-center text-fg-muted">
-        Leaderboards are temporarily unavailable. Play a game and try again soon.
-      </p>
+      <div
+        data-testid="lb-unavailable"
+        className="mx-auto mt-2 max-w-md rounded-[18px] border-2 border-garden-ink bg-garden-cream px-5 py-6 text-center shadow-[var(--garden-highlight),var(--garden-shadow-seed)]"
+      >
+        <p className="font-display text-[20px] leading-7 font-semibold">The scoreboard is resting</p>
+        <p className="mt-2 text-[15px] leading-6 text-garden-ink-deep">
+          Leaderboards are temporarily unavailable. Play a game and check back soon.
+        </p>
+        <Link
+          href="/#all-games"
+          className={`mt-4 inline-flex h-11 items-center rounded-full border-2 border-garden-ink bg-garden-cream-2 px-4 text-[14px] font-semibold ${ring}`}
+        >
+          Browse all games
+        </Link>
+      </div>
     )
   }
 
+  // 기록이 하나도 없는 주: 모든 보드를 빈 카드로 그대로 둔다(로딩 때와 같은 자리 — 접힌 목록으로 줄이면 아래 글이 화면으로 올라와 CLS)
+  const weekEmpty = boards !== null && active.length === 0
+  const shown = boards === null || weekEmpty ? empty : active
+
   return (
-    <div>
-      {week && (
-        <p className="mb-6 text-center font-pixel text-[10px] tracking-[0.2em] text-fg-muted">
-          WEEK {week}
-        </p>
-      )}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {(boards === null ? empty : active).map((slug) => {
-          const meta = gameMeta[slug] ?? DEFAULT_META
-          const color = accentVar(meta.accent)
-          const rows = boards?.[slug] ?? []
-          return (
-            <div
-              key={slug}
-              style={{ color }}
-              className="neon-box rounded-xl border border-border bg-surface/70 p-4"
-            >
-              <Link
-                href={`/${slug}`}
-                onClick={() => sendHit('leaderboards', 'lb_hub_card_click')}
-                className="mb-3 flex items-center gap-2 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-current"
-              >
-                <span className="neon-icon inline-flex">
-                  <GameIcon slug={slug} className="h-6 w-6" />
-                </span>
-                <span className="neon-text font-bold">{titleOf(slug)}</span>
-                {LEADERBOARD_GAMES[slug]?.label && LEADERBOARD_GAMES[slug].label !== 'Score' && (
-                  <span className="text-[11px] text-fg-muted">· {LEADERBOARD_GAMES[slug].label}</span>
-                )}
-                {isNew(meta.addedDate, now) && (
-                  <span className="rounded-full border border-current px-1.5 py-0.5 text-[9px] font-bold leading-none">NEW</span>
-                )}
-              </Link>
-              <ol className="space-y-1 text-sm text-fg">
-                {boards === null ? (
-                  <li className="text-fg-muted">Loading…</li>
-                ) : rows.length === 0 ? (
-                  <li className="text-fg-muted">No scores yet — be the first!</li>
-                ) : (
-                  rows.map((r, i) => (
-                    <li key={i} className="flex items-center justify-between">
-                      <span className="flex items-center gap-2">
-                        <span className="w-5 text-center text-sm" style={{ color }} role="img" aria-label={`Rank ${i + 1}`}>
-                          {['🥇', '🥈', '🥉'][i] ?? i + 1}
-                        </span>
-                        <span className="truncate text-fg">{r.name}</span>
-                      </span>
-                      <span className="font-bold" style={{ color }}>
-                        {formatBoardScore(slug, r.score)}
-                      </span>
-                    </li>
-                  ))
-                )}
-              </ol>
-            </div>
-          )
-        })}
-      </div>
-      {boards !== null && empty.length > 0 && (
-        <details className="mt-6 rounded-xl border border-border bg-surface/50 p-4" data-testid="lb-empty">
-          <summary className="cursor-pointer text-sm font-semibold text-fg-muted">
+    // 최소 한 화면 높이: 보드가 적은 주에도 데이터가 온 뒤 아래 설명·FAQ가 첫 화면으로 끌려 올라오지 않는다(CLS)
+    <div className="min-h-[100svh]">
+      {/* 주 라벨 — 데이터가 오기 전에도 같은 높이(56px, 두 줄 고정)를 잡아 둔다(CLS 0) */}
+      <p data-testid="lb-week" className="mb-7 flex h-14 flex-col items-center justify-center gap-1 text-center text-[13px] leading-5">
+        {label ? (
+          <>
+            <span className="whitespace-nowrap rounded-full border-2 border-garden-ink bg-garden-cream-2 px-3 leading-6 font-semibold tabular-nums">
+              {label}
+            </span>
+            {weekEmpty ? (
+              <span data-testid="lb-empty-week" className="text-garden-ink-deep">
+                No scores yet — the first score on any board takes #1.
+              </span>
+            ) : (
+              <span className="text-garden-ink-soft">New boards Monday, 00:00 UTC</span>
+            )}
+          </>
+        ) : null}
+      </p>
+      <ul className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3" data-testid="lb-boards" aria-busy={boards === null}>
+        {/* key = 자리 번호: 로딩 카드 → 데이터 카드가 같은 DOM 자리에서 내용만 바뀐다(slug key면 화면 밖 카드가 위로 '이동'해 CLS로 잡힌다) */}
+        {shown.map((slug, i) => (
+          <li key={i}>
+            <BoardCard slug={slug} rows={boards === null ? null : (boards[slug] ?? [])} />
+          </li>
+        ))}
+      </ul>
+      {!weekEmpty && boards !== null && empty.length > 0 && (
+        <details
+          className="group mt-8 rounded-[18px] border-2 border-garden-ink bg-garden-cream shadow-[var(--garden-highlight),var(--garden-shadow-seed)]"
+          data-testid="lb-empty"
+        >
+          <summary
+            className={`flex min-h-12 cursor-pointer list-none items-center [&::-webkit-details-marker]:hidden gap-2 rounded-[16px] px-4 py-2 text-[15px] font-semibold ${ring}`}
+          >
+            <svg aria-hidden="true" viewBox="0 0 12 12" width={12} height={12} className="shrink-0 transition-transform group-open:rotate-90 motion-reduce:transition-none">
+              <path d="M4 2l4 4-4 4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
             {empty.length} boards still empty — be the first to claim #1
           </summary>
-          <ul className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-            {empty.map((slug) => (
-              <li key={slug}>
-                <Link
-                  href={`/${slug}`}
-                  onClick={() => sendHit('leaderboards', 'lb_hub_card_click')}
-                  className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-fg hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  <span className="inline-flex" style={{ color: accentVar((gameMeta[slug] ?? DEFAULT_META).accent) }}>
-                    <GameIcon slug={slug} className="h-5 w-5" />
-                  </span>
-                  <span className="truncate">{titleOf(slug)}</span>
-                  {isNew(gameMeta[slug]?.addedDate, now) && <span className="text-[9px] font-bold text-neon-amber">NEW</span>}
-                </Link>
-              </li>
-            ))}
+          <ul className="grid grid-cols-1 gap-x-4 gap-y-1 border-t-2 border-dashed border-garden-ink/25 px-3 py-3 sm:grid-cols-2 lg:grid-cols-3">
+            {empty.map((slug) => {
+              const tint = CATEGORY_TINT[(gameMeta[slug] ?? DEFAULT_META).category]
+              return (
+                <li key={slug}>
+                  <Link
+                    href={`/${slug}`}
+                    onClick={() => sendHit('leaderboards', 'lb_hub_card_click')}
+                    className={`flex min-h-11 items-center gap-2.5 rounded-xl px-2 py-1 text-[15px] hover:bg-garden-cream-2 ${ring}`}
+                  >
+                    <span
+                      aria-hidden="true"
+                      className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-[1.5px] border-garden-ink"
+                      style={{ background: tint.wash }}
+                    >
+                      <GameIcon slug={slug} className="h-4 w-4" />
+                    </span>
+                    <span className="truncate">{titleOf(slug)}</span>
+                    <NewBadge slug={slug} variant="garden" />
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
         </details>
       )}
     </div>
+  )
+}
+
+/** 게임 하나의 주간 Top 3 카드. rows = null이면 로딩. */
+function BoardCard({ slug, rows }: { slug: string; rows: ScoreRow[] | null }) {
+  const meta = gameMeta[slug] ?? DEFAULT_META
+  const tint = CATEGORY_TINT[meta.category]
+  const unit = LEADERBOARD_GAMES[slug]?.label
+  const title = titleOf(slug)
+  return (
+    <article
+      data-testid="lb-board"
+      data-slug={slug}
+      className="relative h-full overflow-hidden rounded-[18px] border-2 border-garden-ink bg-garden-cream shadow-[var(--garden-highlight),var(--garden-shadow-seed)]"
+    >
+      {/* 윗단 꽃색 띠(카테고리) */}
+      <span aria-hidden="true" className="absolute inset-x-0 top-0 h-2 border-b-[1.5px] border-garden-ink" style={{ background: tint.flower }} />
+      <Link
+        href={`/${slug}`}
+        onClick={() => sendHit('leaderboards', 'lb_hub_card_click')}
+        className={`mx-2 mt-3.5 flex min-h-12 items-center gap-2.5 rounded-xl px-2 py-1 ${ring}`}
+      >
+        <span
+          aria-hidden="true"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-garden-ink"
+          style={{ background: tint.wash }}
+        >
+          <GameIcon slug={slug} className="h-5 w-5" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="font-display block truncate text-[18px] leading-6 font-semibold tracking-[-0.01em]">{title}</span>
+          <span className="block text-[12px] leading-4 text-garden-ink-soft">
+            {meta.category} · top 3{unit && unit !== 'Score' ? ` · ${unit}` : ''}
+          </span>
+        </span>
+        <NewBadge slug={slug} variant="garden" />
+      </Link>
+      <ol className="mx-4 mt-2 mb-3 border-t-2 border-garden-ink/80" aria-label={`${title} top scores this week`}>
+        {Array.from({ length: PODIUM }, (_, i) => {
+          const r = rows?.[i]
+          return (
+            <li key={i} className="flex h-10 items-center gap-2.5 border-b border-dashed border-garden-ink/25 last:border-b-0">
+              {rows === null ? (
+                // 로딩: 같은 높이의 막대(글자 없음)
+                <>
+                  <span aria-hidden="true" className="h-7 w-7 shrink-0 rounded-full bg-garden-cream-2" />
+                  <span aria-hidden="true" className="h-[22px] flex-1 rounded-full bg-garden-cream-2 bg-clip-content py-[5px]" />
+                  {i === 0 && <span className="sr-only">Loading scores…</span>}
+                </>
+              ) : r ? (
+                <>
+                  <RankMedal rank={i + 1} />
+                  <span className="min-w-0 flex-1 truncate text-[15px] font-semibold">{r.name}</span>
+                  <span className="shrink-0 text-[15px] font-bold tabular-nums">{formatBoardScore(slug, r.score)}</span>
+                </>
+              ) : (
+                <>
+                  <span className="inline-flex shrink-0 opacity-40">
+                    <RankMedal rank={i + 1} />
+                  </span>
+                  <span className="min-w-0 flex-1 truncate text-[14px] text-garden-ink-soft">
+                    {i === 0 ? 'No scores yet — be the first!' : 'Open spot'}
+                  </span>
+                </>
+              )}
+            </li>
+          )
+        })}
+      </ol>
+    </article>
   )
 }

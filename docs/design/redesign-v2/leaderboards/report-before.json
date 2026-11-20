@@ -1,0 +1,26 @@
+{
+  "390-data": {
+    "cls": 0.654,
+    "scrollW": 390,
+    "emoji": 9,
+    "axe": []
+  },
+  "390-empty": {
+    "cls": 0.3676,
+    "scrollW": 390,
+    "emoji": 0,
+    "axe": []
+  },
+  "1440-data": {
+    "cls": 0.529,
+    "scrollW": 1440,
+    "emoji": 9,
+    "axe": []
+  },
+  "1440-empty": {
+    "cls": 0.2779,
+    "scrollW": 1440,
+    "emoji": 0,
+    "axe": []
+  }
+}

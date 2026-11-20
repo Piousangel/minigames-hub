@@ -195,3 +195,13 @@
 - **sliding-puzzle도 같은 종류 결함**(흰 숫자 24px 굵게 on sky-500 2.7:1, 예전 네온에서도 같음) → 그라데이션 시작 sky-600(4.1:1). 한 단어 수정이라 미루지 않고 고쳐 넣었다.
 - **선정 순서**: 11-15~21 지표에서 chess(64)·mahjong(14) 말고 남은 DOM 후보는 트래픽 0 → HANDOFF R7a 후보 8개(tetris·yahtzee·freecell·spider·jigsaw·memory-game·tic-tac-toe·connect-four) + 레지스트리 앞쪽 고전(검색 유입 대상) 10개. 레지스트리 순서상 앞인 mastermind·dots-and-boxes·maze·number-memory·word-search는 제외 사유 없이 R7c 첫 순서로 넘겼다(보드 게임 checkers·reversi를 chess와, nonogram을 퍼즐 묶음으로 먼저 넣음). unblock(hex 20)·ticker(25)는 규칙상 계속 뒤.
 - e2e '배치 밖 게임은 예전 그대로' 기준 게임을 tic-tac-toe(배치 b로 들어감) → kakuro로 바꿨다.
+
+## 2026-11-20 /leaderboards 정원 틀 + 머리 보미(R6 이월, 팀)
+- 맥락: 개념서 진단 #6(네온 카드·🥇 이모지·"WEEK 2026-W47" 픽셀 폰트 — '상을 받는 느낌이 없음')과 R6 이월(머리 보미 deliver). 데이터·API·정렬(`orderBoards`)·점수 형식(`formatBoardScore`)·제출 로직은 그대로, 겉모습만.
+- **스코프 `main[data-world="garden-hub"]`**: 게임 페이지용 `garden`(토큰 2층 재매핑)을 쓰지 않고, 크림 paper·ink 클래스로 직접 칠한다. globals.css는 body 바탕 paper + 신스웨이브·줄무늬 끄기만 `garden`과 같은 규칙에 붙였다(게임 페이지 게이트 `garden-frame.spec`이 이 페이지를 세지 않게 값을 달리함).
+- **카드 = '연감 한 쪽'**: 크림·2px ink·판 그림자, 윗단 띠·아이콘 disc = 카테고리 꽃색 4종(`CATEGORY_TINT`, 홈 씨앗 봉투와 같은 표). 게임별 랜덤 네온 accent 폐기. 제목 Fraunces 18, 부제 "Skill · top 3 · 단위". 1~3위 = 벡터 메달 `RankMedal`(리본 + 원판 + 숫자, 이모지 없음), 빈 자리는 흐린 메달 + "Open spot" — 카드는 늘 3칸이라 높이가 같다. 점수 tabular-nums.
+- **주 표기**: 서버 ISO 주 → "This week · Nov 16–22"(UTC 월~일, `src/lib/leaderboardWeek.ts`, 달 이름 고정 표) + "New boards Monday, 00:00 UTC". 지금 주와 다르면 "Week of …". 지시서 예시 "Nov 17–23"은 2026-W47의 요일이 하루 밀린 값이라 실제 계산(16–22)을 따랐다.
+- **머리 보미 deliver 96px**(H1 위, eager — 첫 화면, 사본 `public/art/mascots/bomi-deliver-192.webp` 9.2KB) + 한 줄 "Fresh from the Star Well: this week's brightest stars." — Bomi(lines.md #41 신설, 바이블 '별우물 = 리더보드, 소식은 보미'). 페이지 마스코트 1마리, 광고 자리 없음(개념서 광고 표: 리더보드 상단 광고 없음) → D6 400px은 해당 없음(e2e로 광고·`data-ad-after` 0 고정).
+- **상태**: 로딩 = 모든 보드 카드가 같은 높이 막대로(제목·링크는 정적 HTML — 예전처럼), 빈 주(기록 0) = 모든 보드를 빈 카드 그대로 + 주 라벨 둘째 줄 안내(접힌 목록으로 줄이지 않음), API 실패 = 정원 안내 카드 + All games 44px.
+- **CLS**: 예전 페이지는 데이터가 오면 0.53~0.65(390·1440, 400ms 지연 흉내). ① 리스트 key = 자리 번호(slug key면 화면 밖 카드가 위로 '이동'으로 잡힘) ② 주 라벨 56px 고정 ③ 허브 최소 높이 100svh(보드가 적은 주에도 FAQ가 첫 화면으로 끌려오지 않게) ④ 빈 주에 카드 유지.
+- 버린 안: 개념서의 꽃 단상(포디움) 일러스트(새 그림 필요 — 그림 예산 밖, 다음 후보), 게임별 탭(한 화면에 보드 전부가 지금 허브의 역할), garden 스코프 재사용(게임 페이지 게이트·토큰 재매핑과 섞임).

@@ -956,11 +956,15 @@ body:has(main[data-game-page]) [data-site-nav-row] {
    - 게임판 [data-garden-board] = '밤 정원' 남보라(#241c4a~#3a2d58). --neon-*은 밝은 꽃색(≥6.3:1), 글자 크림.
      게임 컴포넌트 안의 하드코딩 색은 예전 검은 바탕 기준이라 판을 어둡게 두는 것이 대비에 안전하다(D8).
    - '바깥 전용' 규칙은 :not([data-garden-board] *)로 게임판 안을 뺀다. */
-body:has(main[data-world='garden']) {
+body:has(main[data-world='garden']),
+body:has(main[data-world='garden-hub']) {
   background: var(--garden-paper);
 }
+/* garden-hub = 게임 밖 정원 페이지(/leaderboards). 토큰 재매핑 없이 크림 paper·ink 클래스로 직접 칠하고, 크롬 장식만 끈다 */
 body:has(main[data-world='garden']) .synthwave-bg,
-body.scanlines:has(main[data-world='garden'])::after {
+body.scanlines:has(main[data-world='garden'])::after,
+body:has(main[data-world='garden-hub']) .synthwave-bg,
+body.scanlines:has(main[data-world='garden-hub'])::after {
   display: none;
 }
 main[data-world='garden'] {
