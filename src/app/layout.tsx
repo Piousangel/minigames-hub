@@ -18,7 +18,8 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: '#08080f',
+  // 모바일 주소창 색 = 정원 크림 헤더(11-20, 예전 네온 #08080f). iOS 26 Safari는 이 값을 무시하고 배경색을 쓴다(리서치 2)
+  themeColor: '#fff3dc',
   colorScheme: 'dark',
 }
 

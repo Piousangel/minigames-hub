@@ -97,6 +97,8 @@
 
 **로컬 실측**(임시 저장소, `claude -p`): `git -C . reset --hard` → hook이 막고 스테이징 파일 보존. `git push origin main` → hook이 막고, hook을 끈 상태(`disableAllHooks`)에서도 deny 규칙이 막음. `CLAUDE_CODE_REMOTE=true` + 커밋 안 된 파일 → Stop hook이 한 번 막고, 이유를 답한 뒤 종료됨.
 
+**루틴 실측(11-20 16시 사이트 교대, E 남은 일 ① 완료)**: 클라우드 루틴 세션(`CLAUDE_CODE_REMOTE=true`, 저장소 1개, node 22 있음)에서 무해한 시험 명령 `printenv HOOK_PROBE_TOKEN`을 실행 → `PreToolUse:Bash hook error: [guard-bash] 막음: 시크릿 환경 변수 값을 출력하면…` 으로 **막힘**. 즉 루틴은 클론의 `.claude/settings.json` hook을 실제로 실행한다. (deny 규칙만 남는 경우가 아님.) Stop hook 실측은 이 교대 끝에서 커밋 전 종료가 없어 미시험.
+
 **독립 리뷰 2회**(팀 운영 오탐 / 우회 시도) 반영 내용은 DECISIONS 11-20 'E' 항목. 리뷰가 찾은 가장 큰 구멍은 hook 밖에 있었다 — deploy.yml의 수동 실행이 아무 브랜치나 프로덕션에 올릴 수 있었다(`if: github.ref == 'refs/heads/main'`으로 막음).
 
 **넣지 않은 것**: PostToolUse 린트·Stop 테스트·TaskCompleted 테스트(무겁고 PR CI가 함), ask 규칙(루틴은 auto mode라 ask에서 사람 응답을 기다리며 멈춘다), `wrangler rollback` 차단(비상 복구 경로).

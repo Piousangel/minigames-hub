@@ -1,3 +1,4 @@
+import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ProsePage } from '@/components/ProsePage'
@@ -6,7 +7,9 @@ import { siteConfig } from '@/lib/siteConfig'
 export const metadata: Metadata = {
   title: 'Contact',
   alternates: { canonical: '/contact' },
-  openGraph: { url: '/contact' },
+  description: 'Get in touch with the maker of Quick MiniGames — report a bug, suggest a game idea or correct a rule. Email hello@quickminigames.site; replies within a couple of days.',
+  // 페이지 openGraph는 layout 것을 덮는다 → siteName을 다시 준다(og:site_name 누락 방지)
+  openGraph: { url: '/contact', type: 'website', siteName: siteConfig.name, images: ogImage() },
 }
 
 export default function ContactPage() {

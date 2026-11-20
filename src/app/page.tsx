@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { gamePages } from '@/lib/games/registry'
+import { siteConfig } from '@/lib/siteConfig'
 import { DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
 import { shelves } from '@/lib/home/shelves'
 import { POPULAR_CURATED } from '@/lib/home/popularCurated'
@@ -17,9 +18,29 @@ import { HomeAdBand } from '@/components/home/HomeAdBand'
 import { SeedIcon } from '@/components/home/HomeIcons'
 import { TodayVisitors } from '@/components/home/TodayVisitors'
 
+// 홈 검색 제목: 키워드 먼저(브랜드 검색이 아직 없는 새 사이트 — 리서치 2), 브랜드는 끝(잘려도 사이트 이름 줄이 따로 보인다).
+// 예전엔 layout 기본값 = 브랜드만("Quick MiniGames"). 게임 페이지 템플릿("… | Quick MiniGames")과 같은 순서.
+const HOME_TITLE = 'Free Online Mini Games — 100+ Games, No Download | Quick MiniGames'
+
 export const metadata: Metadata = {
+  title: { absolute: HOME_TITLE },
   alternates: { canonical: '/' },
-  openGraph: { url: '/' },
+  // 페이지의 openGraph는 layout 것을 통째로 덮는다 → siteName·type을 여기서 다시 준다(없으면 og:site_name이 빠짐).
+  openGraph: { url: '/', type: 'website', siteName: siteConfig.name, title: `${siteConfig.name} — free online mini games` },
+  // card를 빼면 Next가 summary(작은 정사각)로 떨어진다(리뷰 must-fix) — 다른 쪽과 같이 큰 카드
+  twitter: { card: 'summary_large_image', title: `${siteConfig.name} — free online mini games` },
+}
+
+// Google 사이트 이름(검색 결과 위 이름 줄)용 WebSite 마크업 — 홈에만, 블록 1개. SearchAction(사이트링크 검색창)은
+// 2024-11 폐지라 넣지 않는다. name은 title·og:site_name·헤더 로고와 같은 표기여야 한다(specs/2026-11-20-share-preview-garden.md).
+const websiteJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: siteConfig.name,
+  alternateName: ['QuickMiniGames'],
+  url: `${siteConfig.url}/`,
+  description: siteConfig.description,
+  inLanguage: 'en',
 }
 
 const items: BrowseItem[] = gamePages.map((g) => ({
@@ -48,6 +69,7 @@ export default function Home() {
   const dailyCount = items.filter((it) => it.daily).length
   return (
     <main>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
       {/* ===== HERO — 리디자인 v2 R3 「오늘 호 표지」: 노을 하늘·H1 2단·키아트·오늘 호 카드 ===== */}
       <HomeHero />
 

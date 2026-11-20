@@ -1,3 +1,4 @@
+import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
 import { siteConfig, thinPageRobots } from '@/lib/siteConfig'
 import { LeaderboardsHub } from '@/components/LeaderboardsHub'
@@ -9,7 +10,7 @@ export const metadata: Metadata = {
     'This week’s top scores across all Quick MiniGames games. Beat the leaders and get your name on the board.',
   alternates: { canonical: '/leaderboards' },
   robots: thinPageRobots,
-  openGraph: { url: '/leaderboards' },
+  openGraph: { url: '/leaderboards', type: 'website', siteName: siteConfig.name, images: ogImage() },
 }
 
 const h2 = 'font-display text-[22px] leading-[28px] font-semibold tracking-[-0.015em] text-garden-ink'

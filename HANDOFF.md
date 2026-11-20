@@ -1,5 +1,11 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 16시 사이트(축 B) 인계 — 밖에서 보이는 정원 (브랜치 `shift/16-site-b`)
+- **한 일**: 공유 카드(OG) 홈·113게임 정원화(`src/lib/og/gardenCard.tsx`, 표지 6종은 표지+가운데 띠), openGraph를 직접 주는 쪽에 `ogImage()`(가이드 22편·daily·정책 4쪽 등 og:image 복구), 홈 title 키워드 먼저 + WebSite JSON-LD, 정책 4쪽 description, 파비콘·애플·PWA 아이콘 = 헤더 `GardenLogoMark`, theme-color·manifest `#fff3dc`. 검사: `scripts/check-seo.mjs`(ci.yml·deploy), `scripts/og-compress.mjs`(build에 연결, 400KB 상한). spec `docs/team/specs/2026-11-20-share-preview-garden.md`.
+- **함정**: ① Satori는 webp·woff2·가변 축 불가 → `src/lib/og/assets/`(README에 재생성법). 표지를 새로 달면 `COVER_SLUGS`+사본(테스트가 잡음). ② 페이지 `openGraph`/`twitter` 객체는 layout 것을 통째로 덮는다 — siteName·images·card를 다시 줘야 한다(check-seo가 잡음). ③ `pnpm build`가 이제 og-compress까지 돈다(sharp devDependency). ④ 카톡·Bluesky 이미 올린 링크는 옛 카드 유지.
+- **hook 오탐(미수정, 고위험 파일이라 기록만)**: `stop-unsaved-work`가 루틴 클론의 **낡은 로컬 `main`**(origin/main보다 50 앞·50 뒤 — squash 머지 전 원본 커밋)을 '원격에 없는 커밋 50개'로 세어 턴을 끝낼 때마다 한 번씩 막는다. 클론마다 재현될 것. 제안: `rev-list --branches --not --remotes`에서 `main`·`master`를 빼거나(직접 푸시 금지라 거기 남길 작업이 없다) `--exclude=refs/heads/main`. `scripts/hooks/` 변경이라 PR에 `고위험`·독립 리뷰 2회.
+- **⏭ 다음**: 12-04 `?ref=threads·bluesky` 유입 전후(n<30 보류), 대표 클래식 10개 스크린샷 카드, R7f 머지 뒤 전역 `colorScheme: 'dark'`·`statusBarStyle` 정리. 오너 선택: 카톡 URL 캐시 초기화, Search Console 홈 재색인.
+
 ## ▶ 2026-11-20 리디자인 v2 R7f 정원 틀 마지막 배치 f 인계 (브랜치 `shift/redesign-r7f-batch6`)
 
 **한 줄:** 전 게임 정원 틀 완료 — 정원 틀 110 + 오리지널 방 3 = 113, 미적용 0(`gardenPending(gamePages.map(p => p.slug))` → `[]`, `gardenRollout.test.ts` '전 게임 정원 틀'). 배치 f 12개: ticker·unblock + 캔버스 10종(breakout·pong·bubble-shooter·flappy·space-shooter·tower-stack·flywheel·ripple·latch·backspace). 게임 안 색 수정 0.

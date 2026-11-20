@@ -1,12 +1,12 @@
 import { ImageResponse } from 'next/og'
-import { ACCENT_HEX, OG_BG } from '@/lib/games/accentHex'
 import { DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
 import { gamePages } from '@/lib/games/registry'
 import { siteConfig } from '@/lib/siteConfig'
 import { GameIconSvg } from '@/components/icons/GameIcon'
+import { G, GameCard, OG_SIZE, ogFonts } from '@/lib/og/gardenCard'
 
 export const dynamic = 'force-static'
-export const size = { width: 1200, height: 630 }
+export const size = OG_SIZE
 export const contentType = 'image/png'
 
 // Next가 이 값을 og:image:alt / twitter:image:alt로 내보낸다.
@@ -18,50 +18,17 @@ export function generateStaticParams() {
   return gamePages.map(({ slug }) => ({ slug }))
 }
 
-// 게임별 네온 브랜드 OG 썸네일(공유/검색 미리보기).
+// 게임별 정원 공유 카드(공유·검색 미리보기). 표지 그림이 있는 오리지널은 그림 + 크림 띠, 나머지는
+// 크림 종이 + 카테고리 꽃색 아이콘 칸 + 제목 + 카테고리 마스코트(src/lib/og/gardenCard.tsx).
 export default function OgImage({ params }: { params: { slug: string } }) {
   const page = gamePages.find((g) => g.slug === params.slug)
   const meta = gameMeta[params.slug] ?? DEFAULT_META
-  const accent = ACCENT_HEX[meta.accent]
   const title = page?.h1 ?? siteConfig.name
-
+  // 이모지(meta.icon) 대신 커스텀 SVG — 이모지는 next/og가 빌드 중 CDN에서 받아와, 110개 중
+  // 하나만 타임아웃돼도 빌드 전체가 실패했다(Vercel 빌드 ETIMEDOUT, 2026-10-10).
+  const icon = <GameIconSvg slug={params.slug} size={150} color={G.inkDeep} />
   return new ImageResponse(
-    (
-      <div
-        style={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          backgroundColor: OG_BG,
-          backgroundImage: `radial-gradient(1000px 500px at 50% 0%, ${accent}22, transparent)`,
-          color: '#e9e9f5',
-          border: `10px solid ${accent}`,
-          fontFamily: 'sans-serif',
-        }}
-      >
-        {/* 이모지(meta.icon) 대신 커스텀 SVG — 이모지는 next/og가 빌드 중 CDN에서 받아와, 110개 중
-            하나만 타임아웃돼도 빌드 전체가 실패했다(Vercel 빌드 ETIMEDOUT, 2026-10-10). */}
-        <GameIconSvg slug={params.slug} size={160} color={accent} />
-        <div
-          style={{
-            fontSize: 96,
-            fontWeight: 800,
-            color: accent,
-            marginTop: 24,
-            textAlign: 'center',
-            padding: '0 60px',
-          }}
-        >
-          {title}
-        </div>
-        <div style={{ fontSize: 34, color: '#9494b8', marginTop: 20 }}>
-          {`Play free on ${siteConfig.name} — no download`}
-        </div>
-      </div>
-    ),
-    size,
+    <GameCard slug={params.slug} title={title} category={meta.category} daily={!!meta.daily} icon={icon} />,
+    { ...size, fonts: ogFonts() },
   )
 }

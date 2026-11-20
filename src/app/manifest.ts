@@ -12,8 +12,9 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: '/',
     display: 'standalone',
     orientation: 'any',
-    background_color: '#08080f',
-    theme_color: '#08080f',
+    // 정원 크림(헤더 면) — 설치 앱 스플래시·상단 바가 사이트와 같은 색(11-20, 예전 네온 #08080f)
+    background_color: '#fff3dc',
+    theme_color: '#fff3dc',
     categories: ['games', 'entertainment'],
     icons: [
       // Android/Chrome 설치 기준: 192·512 PNG 필수. maskable로 적응형 아이콘도 대응.

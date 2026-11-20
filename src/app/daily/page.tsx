@@ -1,3 +1,4 @@
+import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { gamePages } from '@/lib/games/registry'
@@ -34,6 +35,7 @@ export const metadata: Metadata = {
     url: '/daily',
     siteName: siteConfig.name,
     type: 'website',
+    images: ogImage(),
   },
   twitter: { card: 'summary_large_image', title: TITLE, description: META_DESC },
 }
