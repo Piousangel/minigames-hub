@@ -186,7 +186,7 @@ export default async function CategoryHub({ params }: { params: Promise<{ slug: 
             <Link
               key={s}
               href={`/category/${s}`}
-              className="rounded-lg border border-border bg-surface px-3 py-1.5 text-fg-muted hover:text-fg"
+              className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-3 py-1.5 text-fg-muted hover:text-fg"
             >
               {h.category} games
             </Link>

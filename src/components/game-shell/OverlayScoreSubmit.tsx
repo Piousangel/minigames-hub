@@ -176,7 +176,7 @@ export function OverlayScoreSubmit({ slug, show, verified, tone = 'neon' }: { sl
             aria-label="Your name for the leaderboard"
             autoComplete="nickname"
             enterKeyHint="send"
-            className={`min-w-0 flex-1 rounded-lg border px-3 py-2 text-sm focus-visible:outline-none ${c.input}`}
+            className={`min-h-11 min-w-0 flex-1 rounded-lg border px-3 py-2 text-[16px] focus-visible:outline-none ${c.input}`}
           />
           <button
             type="submit"

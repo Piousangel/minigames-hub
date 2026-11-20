@@ -916,7 +916,7 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
           </GameOverlay>
         </div>
       </div>
-      {over && daily && !sheetOpen && (
+      {over && daily && (
         <div className="mt-3 flex items-center justify-center gap-2" data-testid="plop-daily-done">
           <button onClick={() => setSheetOpen(true)} className={`${btn} bg-[#fff3dc] px-4 text-[#5b3a1e]`} data-testid="open-result-sheet">
             Today’s result
