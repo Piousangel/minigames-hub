@@ -3,7 +3,7 @@
 // 바꾸는 규칙: 원래 짙은 글자가 4.5:1 이상이면 그대로(밝은 밴드는 픽셀 그대로), 아니면 흰 글자,
 // 그것도 모자라면 더 짙은 글자(L 6%), 마지막은 검정. 흰 글자가 4.5 미만이면 바탕 휘도 > 0.183이라
 // 검정은 늘 4.66 이상 — 어떤 밴드 색이든 4.5를 보장한다(판정은 8비트 반올림 RGB). 밴드 색 자체는 바꾸지 않는다.
-// 쓰는 곳: decant·interlock·turntile·flapjack(R7d). 같은 결함인 loopgrid·carousel은 그 배치(R7e)에서.
+// 쓰는 곳: decant·interlock·turntile·flapjack(R7d), loopgrid·carousel(R7e).
 
 type RGB = [number, number, number]
 
