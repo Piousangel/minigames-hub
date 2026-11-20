@@ -51,7 +51,8 @@ function CardFace({ card, dim }: { card: Card; dim?: boolean }) {
       style={{
         background: dim ? '#c7c9d6' : '#f4f5fb',
         borderColor: 'rgba(0,0,0,0.25)',
-        color: red ? '#d81f3a' : '#1b2130',
+        // 못 내는 카드(dim, 회색 면) 위 빨강은 한 단계 짙게 — #d81f3a는 3.05:1(R7d 대비 수정)
+        color: red ? (dim ? '#a50f2a' : '#d81f3a') : '#1b2130',
         boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.5)',
       }}
     >

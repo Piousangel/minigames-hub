@@ -20,6 +20,7 @@ import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { bandInk } from '@/lib/games/bandInk'
 
 type Mode = 'daily' | 'practice'
 type Difficulty = 'easy' | 'normal' | 'hard'
@@ -104,7 +105,7 @@ function pancakeColor(rank: Pancake, n: number): { bg: string; fg: string } {
   const hue = n <= 1 ? 40 : Math.round(40 + ((rank - 1) * 280) / (n - 1))
   return {
     bg: `hsl(${hue} 68% 54%)`,
-    fg: `hsl(${hue} 72% 12%)`,
+    fg: bandInk(hue, 68, 54, 72),
   }
 }
 

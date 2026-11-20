@@ -87,6 +87,31 @@ export const GARDEN_BATCHES = {
     'polytap',
     'deepdive',
   ],
+  // R7d(11-20): 남은 DOM 게임 레지스트리 순 20개(getContext 0·하드코딩 색 <20, ticker 25·unblock 20은 R7f).
+  // R7c가 미룬 dots-and-boxes(쉬는 쪽 차례 글자 opacity 0.4 → muted 색, 점만 흐림)·decant(밴드 숫자 흰/짙은 글자 선택,
+  // 같은 bandColor의 interlock도)는 색만 바꾸는 수정으로 넣음(DECISIONS R7d).
+  d: [
+    'dots-and-boxes',
+    'decant',
+    'sonar',
+    'handful',
+    'flapjack',
+    'interlock',
+    'quadle',
+    'equate',
+    'reactor',
+    'pyramid',
+    'tripeaks',
+    'golf-solitaire',
+    'dominoes',
+    'yukon-solitaire',
+    'gomoku',
+    'kakuro',
+    'skew',
+    'turntile',
+    'stakehouse',
+    'grasp',
+  ],
 } as const satisfies Record<string, readonly string[]>
 
 export type GardenBatch = keyof typeof GARDEN_BATCHES

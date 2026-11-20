@@ -22,6 +22,7 @@ import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { bandInk } from '@/lib/games/bandInk'
 
 type Mode = 'daily' | 'practice'
 type Difficulty = 'easy' | 'normal' | 'hard'
@@ -110,7 +111,7 @@ function bandColor(rank: Color, k: number): { bg: string; fg: string } {
   const hue = k <= 1 ? 200 : Math.round(((rank - 1) * 300) / (k - 1))
   return {
     bg: `hsl(${hue} 62% 52%)`,
-    fg: `hsl(${hue} 70% 12%)`,
+    fg: bandInk(hue, 62, 52, 70),
   }
 }
 

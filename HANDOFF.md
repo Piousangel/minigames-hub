@@ -1,5 +1,13 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
+## ▶ 2026-11-20 리디자인 v2 R7d 정원 틀 배치 d 인계 (브랜치 `shift/redesign-r7d-batch4`, #216)
+
+**한 줄:** 정원 틀 게임이 80개가 됐다(배치 d 20개: dots-and-boxes·decant·sonar·handful·flapjack·interlock·quadle·equate·reactor·pyramid·tripeaks·golf-solitaire·dominoes·yukon-solitaire·gomoku·kakuro·skew·turntile·stakehouse·grasp). 바뀐 코드는 `GARDEN_BATCHES.d` + 게임 안 색 수정 6파일 + 공용 `src/lib/games/bandInk.ts`(+test) + `scripts/garden-overlay-contrast.mjs`(신설).
+- **수정(색만, 규칙·점수·레이아웃 0)**: `GameDotsAndBoxes` 쉬는 쪽 차례 글자 opacity 0.4 → `var(--fg-muted)`(2.1 → 8.4), 색 점만 0.4. 색 밴드 숫자 `bandInk(hue, sat, light, darkSat)` — 원래 짙은 글자가 4.5 이상이면 그대로, 아니면 흰 → L6% → 검정: `GameDecant`·`GameInterlock`·`GameTurntile`·`GameFlapjack`. `GameTripeaks` 못 내는 카드(회색 면) 빨강만 #a50f2a(3.05 → 4.72).
+- **검증**: 게이트 배치 d 3회 반복 60/60(대비 실패 0·광고 ≥150px·가로 스크롤 0·첫 입력 오류 0), 배치 밖 26곳 × 390·1440 픽셀 diff 0(`docs/design/redesign-v2/r7d/diff-outside.json`), 승패 모달 `node scripts/garden-overlay-contrast.mjs --url <빌드> --slugs dots-and-boxes,tripeaks,golf-solitaire` 최저 7.52:1(`r7d/overlay-contrast.json`), 전후 캡처 `r7d/<slug>-<390|1440>-<before|after>.jpg`. e2e '배치 밖' 기준 slug kakuro → **slosh**.
+- **함정**: ① `bandInk`는 hsl 밴드 전용 — 밴드 색 공식을 바꾸면 `bandInk.test.ts`의 (sat, light, darkSat) 표도 같이 ② 덮개 스크립트의 카드 게임은 카드가 겹쳐 좌표 클릭이 다른 카드에 맞는다 → `el.click()`으로 직접(RECIPES 주석) ③ 게이트·덮개 스크립트 모두 disabled 컨트롤은 건너뛴다 — pyramid 막힌 카드(회색 면 + 빨강 3.05)는 disabled라 예외로 남겨 둠 ④ 포트 3100·3197·3198·3311·3461·3555~3557·3631·3632는 다른 세션(이번엔 3741 head·3742 base).
+- **⏭ R7e가 알아야 할 것**: ① 남은 DOM은 정확히 18개 — offbeat·prismbox·gravwell·loopgrid·bisect·slotter·carousel·gridlock·strata·bankshot·morse-relay·lagline·recoil·hunch·fizzbeat·siteswap·shadowfit·slosh(전부 getContext 0·hex <20). R7e = 이 18개(20 미만이라 한 배치로 끝), R7f = ticker·unblock + 캔버스 10종(breakout·pong·bubble-shooter·flappy·space-shooter·tower-stack·flywheel·ripple·latch·backspace) ② **loopgrid(`hsl(h 62% 52%)`/`70% 12%`)·carousel(`hsl(h 70% 52%)`/`80% 12%`)도 같은 색 밴드 결함** — `bandInk(hue, 62, 52, 70)`·`bandInk(hue, 70, 52, 80)`로 바꾸고 `bandInk.test.ts` 표에 한 줄씩 ③ slosh가 들어가면 e2e '배치 밖 게임' 기준 slug를 캔버스 아닌 남은 게임(ticker·unblock)으로 — R7f 뒤엔 그 테스트 자체를 지우거나 오리지널 검사로 ④ 대표 3게임 덮개는 `garden-overlay-contrast.mjs`의 RECIPES에 그 배치 게임 하나 이상 추가해 돌릴 것 — 지금 레시피는 전부 패배·막힘 쪽이라 **승리 변형(Confetti·초록 제목·호박색 runMilestone)을 띄우는 레시피 하나**를 같이 넣을 것(R7d 리뷰) ⑤ 판 운 결함: 이번엔 3회 반복으로 새 판 운 실패 0 — R7e도 `--repeat-each=3`으로.
+
 ## ▶ 2026-11-20 13시 신작 꽃담 정원(가칭) G1 + 비공개 터치 프로토 인계 (브랜치 `game/fence-garden-g1-touch-proto`)
 
 **한 줄:** 신작 퍼즐안의 규칙을 '뛰고 담 치기'로 고정했다(0~2칸 뛰고 → 선 칸의 한 변에 울타리 강제, 목표 = 말랑이 영역에 꽃 전부·잡초 0, 별 = 최소 턴). 정적 가두기(v1)는 enclose.horse와 같아 버림. 비공개 프로토 `/tools/fence-proto`(noindex·robots disallow·미연결).
