@@ -299,6 +299,11 @@
 - 결정: ① 홈 title = "Free Online Mini Games — 100+ Games, No Download | Quick MiniGames"(리서치 1은 브랜드 먼저, 리서치 2는 브랜드 검색이 없는 새 사이트는 키워드 먼저 + Google이 브랜드를 가장 자주 떼어 냄 → 키워드 먼저, 게임 페이지 템플릿과 같은 순서). ② WebSite JSON-LD는 홈만, SearchAction 없음(2024-11 폐지). ③ 홈 카드 정사각 크롭 잘림은 받아들인다(키아트 구도, 리뷰 should-fix 거부). ④ 전역 color-scheme dark는 R7f 머지 뒤로.
 - 되돌리기: title 1줄, 카드는 `src/lib/og/gardenCard.tsx`. 고위험 아님(slug·URL·광고·저장 형식 무변경, og:image URL 경로 동일).
 
+## 2026-11-20 공개 저장소 추적 파일에서 오너 개인 메일 주소 제거 (오너 승인)
+- 맥락: 공개 저장소의 팀 문서(SESSION-GUIDE, HANDOFF)에 오너 개인 메일 주소가 그대로 있었다.
+- 선택: 보고 메일 규칙은 '연결된 Gmail 계정 본인 주소(받는 사람 = 보내는 사람) 외 발송 금지'로 바꾸고, 루틴이 Gmail 커넥터의 최근 보낸 보고 메일 From으로 주소를 확인하게 했다. 기록성 문장은 주소만 지우거나 '오너'로 바꿨다.
+- 한계: 주소는 git 기록(과거 커밋)에는 남는다. 기록 재작성(force push)은 하지 않는다.
+
 
 ## 2026-11-20 리디자인 v2 R9 게임 밖 허브 페이지 정원 틀 — /leaderboards 방식(garden-hub) + 공용 부품 하나(팀)
 - 맥락: R7f로 게임 113개가 정원이 됐지만 /category·/collection(s)·/guides(·글)·/daily·/about·/privacy·/terms·/unblocked·/contact는 네온 틀(neon-text 제목·GameCard·text-fg-muted·text-accent)이었다. 토큰 전역화와 R8(네온 코드 삭제)의 선행 조건.

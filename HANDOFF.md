@@ -1489,7 +1489,7 @@ Ricochet/Stackpot/Quarry per-game streak은 **사이트 전역 site:streak(Today
 
 ## 1. 프로젝트 목표 & 수익 모델
 
-- 사용자(Pious Angel, yyh7654@gmail.com)의 목표: 광고로 **월 5~10만원(~$35-70)** 벌기.
+- 오너(Pious Angel)의 목표: 광고로 **월 5~10만원(~$35-70)** 벌기.
 - 전략: (a) 게임을 대량 생산해 페이지 수·색인 늘리기, (b) UI/UX를 계속 고도화, (c) 리더보드로 재방문·체류시간↑(경쟁심리), (d) AdSense 광고 게재.
 - **디자인 방향**: RETRO NEON(신스웨이브) 미학. Press Start 2P 픽셀 폰트, 네온 컬러 팔레트, 스캔라인. 이모지 기본값 대신 커스텀 SVG 아이콘 사용.
 - **게임 철학**: 단순 클론이 아니라 **창의적이고 중독성 있는 오리지널 게임**을 멀티 에이전트 심의(Workflow)로 계속 발명. 라운드1~6 진행됨(§7.3).
@@ -1852,7 +1852,7 @@ Overdub / Pinwheel / Cleave 라이브. 게임 **53종**, 리더보드 **31종**.
 
 ## 10. 계정 & 크레덴셜
 
-- **이메일**: yyh7654@gmail.com
+- **이메일**: 오너 개인 Gmail(공개 저장소라 주소는 적지 않는다)
 - **브랜드명**: Quick MiniGames
 - **제작자 핸들**: Pious Angel
 - **도메인**: quickminigames.site (Gabia 구매 → Cloudflare 존)
