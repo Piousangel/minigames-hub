@@ -381,8 +381,18 @@
       "out": "docs/design/brand-3/v4-app2.webp",
       "model": "gemini-3-pro-image",
       "at": "2026-11-20T04:08:46+00:00"
+    },
+    "brand3-v2-mark": {
+      "out": "docs/design/brand-3/v2-mark.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-20T04:15:51+00:00"
+    },
+    "brand3-v1-mark": {
+      "out": "docs/design/brand-3/v1-mark.webp",
+      "model": "gemini-3-pro-image",
+      "at": "2026-11-20T04:16:06+00:00"
     }
   },
   "month": "2026-11",
-  "count": 75
+  "count": 77
 }
