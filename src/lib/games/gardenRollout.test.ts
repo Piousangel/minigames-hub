@@ -25,12 +25,13 @@ describe('정원 틀 배치 목록(R7)', () => {
     expect(gardenBatchOf('chess')).toBe('b')
     expect(gardenBatchOf('mastermind')).toBe('c')
     expect(gardenBatchOf('kakuro')).toBe('d')
+    expect(gardenBatchOf('slosh')).toBe('e')
     const outside = gamePages.find((p) => !GARDEN_FRAMED.has(p.slug) && !(GARDEN_ORIGINALS as readonly string[]).includes(p.slug))!
     expect(gameWorld(outside.slug)).toBeNull()
     expect(gardenBatchOf(outside.slug)).toBeNull()
   })
 
-  it('배치 a~d에는 캔버스로 직접 그리는 게임(getContext)이 없다', () => {
+  it('배치 a~e에는 캔버스로 직접 그리는 게임(getContext)이 없다', () => {
     // GameRenderer의 slug → 컴포넌트 연결 대신, 배치 a 게임 컴포넌트 파일을 이름으로 찾아 본다.
     const file: Record<string, string> = {
       '2048': 'Game2048', '2048-animals': 'Game2048', snake: 'GameSnake', solitaire: 'GameSolitaire',
@@ -54,8 +55,13 @@ describe('정원 틀 배치 목록(R7)', () => {
       reactor: 'GameReactor', pyramid: 'GamePyramid', tripeaks: 'GameTripeaks', 'golf-solitaire': 'GameGolf',
       dominoes: 'GameDominoes', 'yukon-solitaire': 'GameYukon', gomoku: 'GameGomoku', kakuro: 'GameKakuro',
       skew: 'GameSkew', turntile: 'GameTurntile', stakehouse: 'GameStakehouse', grasp: 'GameGrasp',
+      offbeat: 'GameOffbeat', prismbox: 'GamePrismbox', gravwell: 'GameGravwell', loopgrid: 'GameLoopgrid',
+      bisect: 'GameBisect', slotter: 'GameSlotter', carousel: 'GameCarousel', gridlock: 'GameGridlock',
+      strata: 'GameStrata', bankshot: 'GameBankshot', 'morse-relay': 'GameMorseRelay', lagline: 'GameLagline',
+      recoil: 'GameRecoil', hunch: 'GameHunch', fizzbeat: 'GameFizzBeat', siteswap: 'GameSiteswap',
+      shadowfit: 'GameShadowfit', slosh: 'GameSlosh',
     }
-    for (const slug of [...GARDEN_BATCHES.a, ...GARDEN_BATCHES.b, ...GARDEN_BATCHES.c, ...GARDEN_BATCHES.d]) {
+    for (const slug of Object.values(GARDEN_BATCHES).flat()) {
       const src = readFileSync(join(__dirname, '../../components/games', `${file[slug]}.tsx`), 'utf8')
       expect(src.includes('getContext'), slug).toBe(false)
       // 선정 규칙 ②: 하드코딩 색(hex·rgba) 20개 미만(배치 a의 2048·2048-animals는 장부 점검 끝난 예외)

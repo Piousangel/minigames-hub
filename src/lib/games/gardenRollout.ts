@@ -112,6 +112,29 @@ export const GARDEN_BATCHES = {
     'stakehouse',
     'grasp',
   ],
+  // R7e(11-20): 남은 DOM 게임 18개 전부(getContext 0·하드코딩 색 <20 — 20 미만이라 한 배치로 끝, R7d 인계).
+  // loopgrid·carousel은 decant와 같은 색 밴드 숫자 결함이라 bandInk로 색만 고쳐 넣음(DECISIONS R7e).
+  // 남는 것: ticker(색 25)·unblock(색 20) + 캔버스 10종 = R7f.
+  e: [
+    'offbeat',
+    'prismbox',
+    'gravwell',
+    'loopgrid',
+    'bisect',
+    'slotter',
+    'carousel',
+    'gridlock',
+    'strata',
+    'bankshot',
+    'morse-relay',
+    'lagline',
+    'recoil',
+    'hunch',
+    'fizzbeat',
+    'siteswap',
+    'shadowfit',
+    'slosh',
+  ],
 } as const satisfies Record<string, readonly string[]>
 
 export type GardenBatch = keyof typeof GARDEN_BATCHES

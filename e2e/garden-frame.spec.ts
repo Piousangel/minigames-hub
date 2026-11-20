@@ -197,7 +197,7 @@ test.describe('정원 틀 배치(R7)', () => {
   }
 
   test('배치 밖 게임은 예전 그대로(스코프 없음, 어두운 바탕)', async ({ page }) => {
-    await page.goto('/slosh') // 레지스트리 맨 끝 DOM 게임(R7d에서 kakuro가 배치에 들어가 바꿈)
+    await page.goto('/ticker') // 남은 DOM 게임(R7e에서 slosh가 배치에 들어가 바꿈 — R7f 뒤엔 이 테스트를 지우거나 오리지널 검사로)
     const main = page.locator('main[data-game-page]')
     await expect(main).not.toHaveAttribute('data-world', /.+/)
     await expect(page.locator('[data-garden-board]')).toHaveCount(0)

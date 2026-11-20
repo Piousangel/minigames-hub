@@ -21,6 +21,7 @@ import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
 import { recordResult } from '@/lib/gameStats'
 import { GameButton, GameOverlay, GameShell } from '@/components/game-shell'
+import { bandInk } from '@/lib/games/bandInk'
 
 type Mode = 'daily' | 'practice'
 type Difficulty = 'easy' | 'normal' | 'hard'
@@ -106,7 +107,7 @@ function bandColor(color: Color, n: number): { bg: string; fg: string } {
   const hue = n <= 1 ? 200 : Math.round(((color - 1) * 300) / (n - 1))
   return {
     bg: `hsl(${hue} 62% 52%)`,
-    fg: `hsl(${hue} 70% 12%)`,
+    fg: bandInk(hue, 62, 52, 70), // R7e 대비: 빨강·파랑 쪽은 흰 글자, 자홍은 더 짙은 글자(밴드 색 그대로)
   }
 }
 
