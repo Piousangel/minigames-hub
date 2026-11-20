@@ -1,17 +1,12 @@
 # 세션 가이드 (미니게임 허브 팀)
 
-> **최최우선(오너 11-19 밤): 허브 리디자인 v2 「오늘 호 표지」 구현** — 계획서 [docs/plans/2026-11-19-hub-redesign-v2.md](../plans/2026-11-19-hub-redesign-v2.md)를 읽고 **5장 교대 배정**대로 3장 표의 다음 미완료 PR(R1→R7)을 이어서 한다. 1장 확정 결정(D1~D12)은 바꾸지 않는다. 시안 docs/design/redesign-v2/hub-v2.html. 마스코트 4마리(말랑이=Puzzle, 토리=Arcade, 해씨=Classic+오늘의 정원, 보미=Skill+소식). 오너: "기획·계획 꼼꼼하게", "쉬지 말고 계속 발전". 각 PR은 독립 리뷰(작성자≠검토자) 후 머지, 6장 진행표를 같은 PR에서 갱신.
+> **북극성(필독)**: [NORTH-STAR.md](NORTH-STAR.md) — 미션·북극성 지표(주간 재방문 방문자)·하지 않을 것·90일 로드맵·결정 원칙·오너 승인 A~H 배치. 교대 시작에 보고, 끝에 북극성 값 한 줄(ROTA 교대 규칙).
+
+> **진행 중(오너 11-19 밤)**: 리디자인 v2 「오늘 호 표지」 R7c~f(113개 정원 틀) — [계획서](../plans/2026-11-19-hub-redesign-v2.md) 3장 표의 다음 미완료 PR, 5장 교대 배정, 6장 진행표를 같은 PR에서 갱신. 1장 확정 결정(D1~D12)은 바꾸지 않는다. 말랑 v2·신작·오리지널 심화는 [owner-direction-expand](specs/2026-11-19-owner-direction-expand.md)·[depth](specs/2026-11-19-owner-direction-depth.md) 스펙과 NORTH-STAR 4장 순서로.
 
 > **상시 안건(오너 11-19)**: [사이트 전체 UI·UX 고품질·독창성](specs/2026-11-19-uiux-north-star.md) — 모든 교대가 계속 진다. 24시간 교대 체제는 [ROTA.md](ROTA.md).
 
-
-> **최우선(오너 11-19 저녁)**: [docs/team/specs/2026-11-19-owner-direction-expand.md](specs/2026-11-19-owner-direction-expand.md) — 말랑 2~8단계 디벨롭(선 여러 번·물리·가로 풀스크린), 신작 확장(퍼즐·데블스 플랜류·앵그리버드류 마스코트), 기존 게임 심화.
-
-
-> **최우선(오너 11-19)**: [docs/team/specs/2026-11-19-owner-direction-depth.md](specs/2026-11-19-owner-direction-depth.md) — 말랑 미끄럼길 순차 해금 개편(홍보 보류), 신작 「벽바둑」 조사·설계(17:10 이후), 오리지널 3종 심화.
-
-
-루틴은 하루 5번(06·10·13·16·20시 KST) 돈다. 각 세션은 이 문서의 **자기 시간 절**을 따른다. 규칙의 근거는 [OPERATING.md](./OPERATING.md), 설계 관문은 [DESIGN-PROCESS.md](./DESIGN-PROCESS.md), 진행 상태는 [cycle.md](./cycle.md), 리뉴얼 큐는 [renewal-queue.md](./renewal-queue.md).
+루틴은 하루 13교대([ROTA.md](ROTA.md))로 돈다. 06·10·13·16·20시 세션은 이 문서의 **자기 시간 절**을, 나머지 교대는 ROTA 역할을 따른다. 규칙의 근거는 [OPERATING.md](./OPERATING.md), 설계 관문은 [DESIGN-PROCESS.md](./DESIGN-PROCESS.md), 진행 상태는 [cycle.md](./cycle.md), 리뉴얼 큐는 [renewal-queue.md](./renewal-queue.md).
 
 ## 0. 모든 세션 공통
 1. **시작**: `git pull`, `gh pr list`(열린 PR), cycle.md, 오늘 회의록(docs/team/meetings/YYYY-MM-DD.md). **열린 `game/*`·`daily/*`·`renewal/*` PR이 있으면 새로 시작하지 않고 이어받는다.** 같은 파일을 건드리는 열린 PR이 있으면 다른 일을 한다.
@@ -23,6 +18,7 @@
    - 접근 불가 출처(로그인·차단)는 우회하지 말고 '접근 불가'로 적고 다른 출처로 채운다. 숫자·순위는 출처와 날짜를 쓰고 확인 못 한 것은 '추정'.
 3. **출시 = 사용자에게 보이는 것**(OPERATING '일일 출시 원칙'). PR 전 `git status --short`로 의도한 파일만 들어갔는지 본다. 머지 뒤 `gh run list --workflow deploy.yml`로 배포 성공과 라이브 URL을 확인한다.
 4. **검증 관문(모두 통과해야 머지)**: pnpm install --frozen-lockfile · pnpm typecheck · pnpm lint(error 0) · pnpm vitest related --run <바꾼 파일> · pnpm build && node scripts/check-routes.mjs. 게임은 G4(혹평 6.5 이상, 멍청한 사용 시험)도. 실패하면 머지하지 말고 PR에 원인을 적고 열어 둔다. 직접 배포하지 않는다(main 머지 시 Actions가 배포).
+   - **PR CI(`.github/workflows/ci.yml`) 초록이 머지 조건이다** — typecheck·lint·전체 vitest·build·check-routes·e2e 스모크를 PR마다 돈다(11-20 도입, 만성 실패 0 기준선). 빨간 체크를 두고 머지하지 않는다. Vercel 체크는 이 저장소 배포와 무관하다(Cloudflare 전용).
 5. **기록**: cycle.md 갱신, 오늘 회의록 맨 아래 '<시간> 실행' 3줄, docs/daily/log.md 한 줄, 배운 점은 docs/ops/lessons.md. 같은 PR에 넣는다. 커밋은 한국어 conventional + `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`, PR 끝에 `🤖 Generated with [Claude Code](https://claude.com/claude-code)`.
 6. **금지**: main 직접 푸시, force push, 테스트 약화·삭제, 공유 URL·게임 slug 변경, 광고를 게임·캔버스 화면에 넣기, AdSense 재심사 신청, 원작의 이름·캐릭터·아트·레벨을 따라 하기, 시크릿 노출, 메일 답장. 게임을 사이트에서 내리는 것은 오너 확인 후.
 7. 이미지·시안은 [GEMINI.md](./GEMINI.md) 절차, 오디오는 DESIGN-PROCESS 7번(PM·디자이너).
@@ -35,7 +31,7 @@
 
 9. **사용 한도(오너 11-17: 플랜을 올려 충분하다 — 한도를 이유로 일을 줄이지 않는다)**: 서브에이전트·병렬 조사·긴 파일 읽기를 필요한 만큼 쓴다. 다만 세션이 `5-hour limit`로 거절되는 일이 생기면(11-17 16시 세션 사례) 그날 몫을 건너뛰지 말고 **다음 세션이 이어받는다**(상태는 cycle.md).
 
-### 스승님 원칙(11-20) — Lauren Tan·Lydia Hallie, 상세·오너 결정 목록은 [mentor/](mentor/README.md)
+### 스승님 원칙(11-20) — Lauren Tan·Lydia Hallie, 상세·오너 결정 목록은 [mentor/](mentor/README.md) (A~H 11-20 오너 전부 승인 → 배치는 [NORTH-STAR.md](NORTH-STAR.md) 6장)
 - **교정은 검사로, 반복은 승격**: 규칙 문장 전에 "린트·타입·테스트·스크립트·CI로 막을 수 있나"를 묻고, 막을 수 있으면 검사로 낸다(후보: [lydia-hallie.md 6장](mentor/lydia-hallie.md)). 문장만 남기면 `검사 불가 사유:` 한 줄. 같은 지적·교훈이 두 번째면 그 교대에서 검사로 올린다. 같은 확인 스크립트를 두 번 쓰면 `scripts/`로.
 - **오답을 떨어뜨리는 검사 먼저**: PR 본문 첫 줄에 '그럴듯하지만 틀린 결과'(예: 틀은 입혀졌는데 게임이 안 시작됨)를 떨어뜨리는 통과/실패 검사를 적고 그것부터 돌린다. 증거(390·1440 캡처·녹화·수치)를 붙이고, 리뷰어는 diff보다 증거를 먼저 본다.
 - **보고된 버그는 재현 뒤 수정**: 독립 리뷰가 보고한 버그는 다른 에이전트가 재현한 것만 고친다. 재현 스크립트는 게임 피처 맵으로 쌓는다.
@@ -67,8 +63,8 @@
 - **오늘의 출시를 확인**한다(머지·배포 성공·라이브 URL). 없으면 소형 출시 1개를 하고, 못 했으면 이유를 적는다. 열린 PR은 마무리하거나 상태를 cycle.md에 남긴다.
 - **홍보 큐**(OPERATING 5장 규칙: 채널당 하루 1개, 같은 URL 14일 중복 금지, 주 3회 이내 구조 다양화, 광고체 금지): 오늘 출시한 **신작과 리뉴얼한 게임**의 문안을 만든다. 오너가 보류를 걸었으면(cycle.md '홍보') 그 채널은 큐에 넣지 않는다.
 - **팀 간 협업 한 줄**: 샌드랩·더런 팀에 줄 노하우, 받고 싶은 것을 요약 메일에 적는다.
-- **하루 요약 메일 1통**(yyh7654@gmail.com 외 발송 금지, 답장 금지): 오늘 출시(링크), 사이클 상태, 리서치·기획에서 바뀐 것, 내일 할 것, 사람이 결정할 것(날짜 포함).
-  - 첫 줄 바로 아래에 **`방문자(UTC): 어제 N / 오늘 지금까지 N`**(오너 11-20) — `curl -s https://quickminigames.site/api/visitors`의 yesterday·today(최대 1분 캐시). 20시 KST = 11시 UTC라 '오늘'은 UTC 하루의 절반쯤이다.
+- **하루 요약 메일 1통**(yyh7654@gmail.com 외 발송 금지, 답장 금지): 첫 줄 **`북극성: 주간 재방문 방문자 <오늘 값>(지난주 대비 ±N) · 오늘 호 완료 <값> · 신뢰: 되돌림+핫픽스 <n>/<머지 n>`**(측정 전이면 "측정 없음 — <측정 PR 상태>"), 그다음 오늘 출시(링크), 사이클 상태, 리서치·기획에서 바뀐 것, 내일 할 것, 사람이 결정할 것(날짜 포함).
+  - 북극성 줄 바로 아래에 **`방문자(UTC): 어제 N / 오늘 지금까지 N`**(오너 11-20) — `curl -s https://quickminigames.site/api/visitors`의 yesterday·today(최대 약 2분 캐시). 20시 KST = 11시 UTC라 '오늘'은 UTC 하루의 절반쯤이다.
 
 ## 사용자 관점 질문 (필수 — 오너가 시키지 않아도 팀이 스스로 끊임없이 묻는다)
 오너 11-17: "사용자 입장에서 왜, 어떻게 같은 질문을 끊임없이 하라. 이런 건 알려주지 않아도 하는 최고의 팀이다." **오너가 지적하기 전에 팀이 먼저 발견한다**(예: '너무 쉽다'는 오너가 말하기 전에 사람형 봇 시뮬로 팀이 먼저 찾았어야 했다). 기획 라운드마다 아래 질문에 **답을 적고**, 답이 약하면 기획을 고친다.

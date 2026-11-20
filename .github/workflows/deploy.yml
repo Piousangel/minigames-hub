@@ -25,7 +25,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm lint
-      # 전체 vitest는 기존 실패(~34건, 5초 타임아웃 등)가 있어 게이트에서 뺀다 — 루틴이 바꾼 파일 관련 테스트를 머지 전에 돌린다
+      # 전체 vitest(11-20 만성 실패 0). PR 단계 CI(ci.yml)와 겹치지만, 브랜치 보호로 CI가 필수가 되기 전까지 빨간 PR이 머지돼도 여기서 막는 안전망.
+      - run: pnpm test
       # 추가 전용·멱등 D1 마이그레이션(CREATE TABLE IF NOT EXISTS만). 기존 표·행은 건드리지 않는다.
       # 실패해도 배포는 진행한다 — 워커가 slime_daily 없이도 동작(검증된 점수를 scores에 추가하는 폴백),
       # visit_days·visit_seen 없이도 동작(방문자를 세지 않고 홈 줄을 숨김).

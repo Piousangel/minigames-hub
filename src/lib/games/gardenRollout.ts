@@ -61,6 +61,32 @@ export const GARDEN_BATCHES = {
     'checkers',
     'reversi',
   ],
+  // R7c(11-20): 트래픽 0인 남은 DOM 후보를 레지스트리 순으로 20개(R7b가 넘긴 mastermind·maze 먼저).
+  // 전부 getContext 0·하드코딩 색 <20(gem-match 12 — DOM 보석 그리드라 넣음). duplex는 잠긴 팩 글자 대비만 고쳐 넣음.
+  // dots-and-boxes(차례 표시 opacity 0.4)·decant(밴드 숫자 hsl 52%/12%)는 대비 수정이 게임 표현을 바꿔 R7d로 미룸
+  // → 레지스트리 다음 DOM polytap·deepdive로 채움(DECISIONS R7c, 장부).
+  c: [
+    'mastermind',
+    'maze',
+    'number-memory',
+    'word-search',
+    'gem-match',
+    'prospector',
+    'zero-hour',
+    'overload',
+    'ricochet',
+    'stackpot',
+    'overfold',
+    'splice',
+    'duplex',
+    'overdub',
+    'pinwheel',
+    'cleave',
+    'umbra',
+    'fuse',
+    'polytap',
+    'deepdive',
+  ],
 } as const satisfies Record<string, readonly string[]>
 
 export type GardenBatch = keyof typeof GARDEN_BATCHES
