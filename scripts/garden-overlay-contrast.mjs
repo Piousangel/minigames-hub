@@ -5,9 +5,13 @@
 //        [--out docs/design/redesign-v2/r7d/overlay-contrast.json]
 //
 // 게임마다 아래 RECIPES에 '덮개가 뜰 때까지 두는 법'을 적는다(새 배치에서 대표 게임을 바꾸면 여기에 추가).
-// 출력: 덮개 안 보이는 글자 전부의 대비(통과한 것도 기록)와 기준(4.5, 큰 글자 3) 미달 수. 미달이 있으면 exit 1.
+// 출력: 덮개 안 보이는 글자 전부의 대비(통과한 것도 기록)와 기준(4.5, 큰 글자 3) 미달 수. 미달이 있거나 잰 글자가 0개면 exit 1.
+// 한계: 레시피가 띄우는 결과 한 종류만 잰다(지금은 전부 패배·막힘 쪽 — 승리 Confetti·무승부 변형은 안 잼),
+// 배경은 조상만 합성한다(덮개 뒤 형제 카드는 무시 — 패널 bg-bg-2/85라 지금 여유 안에서는 무해).
 import { chromium } from '@playwright/test'
 import { writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
 
 const args = process.argv.slice(2)
 const opt = (name, def) => {
@@ -141,11 +145,13 @@ for (const slug of slugs) {
   await page.locator('[data-garden-board]').waitFor()
   const overlay = await recipe(page)
   if (!(await overlay.isVisible())) {
-    await page.screenshot({ path: `garden-overlay-${slug}-fail.png` })
-    throw new Error(`${slug}: 덮개가 뜨지 않음(덮개 ${await overlay.count()}개, 화면 garden-overlay-${slug}-fail.png)`)
+    const shot = join(tmpdir(), `garden-overlay-${slug}-fail.png`) // 저장소에 섞이지 않게
+    await page.screenshot({ path: shot })
+    throw new Error(`${slug}: 덮개가 뜨지 않음(덮개 ${await overlay.count()}개, 화면 ${shot})`)
   }
   await page.waitForTimeout(500) // 덮개 등장 애니메이션
   const rows = await measure(overlay)
+  if (rows.length === 0) throw new Error(`${slug}: 덮개 안에서 잰 글자가 0개 — 측정이 빈 통과가 되지 않게 실패`)
   const fails = rows.filter((r) => r.ratio < r.need)
   bad += fails.length
   const min = Math.min(...rows.map((r) => r.ratio))

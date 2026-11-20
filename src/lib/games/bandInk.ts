@@ -2,8 +2,8 @@
 // 예전엔 늘 같은 색상의 짙은 글자(L 12%)라 파랑·빨강·자홍 밴드에서 2.4~4.2:1이었다.
 // 바꾸는 규칙: 원래 짙은 글자가 4.5:1 이상이면 그대로(밝은 밴드는 픽셀 그대로), 아니면 흰 글자,
 // 그것도 모자라면 더 짙은 글자(L 6%), 마지막은 검정. 흰 글자가 4.5 미만이면 바탕 휘도 > 0.183이라
-// 검정은 늘 4.66 이상 — 어떤 밴드 색이든 4.5를 보장한다. 밴드 색 자체는 바꾸지 않는다.
-// 쓰는 곳: decant·interlock·turntile·flapjack(R7d). 같은 결함인 loopgrid는 그 배치에서.
+// 검정은 늘 4.66 이상 — 어떤 밴드 색이든 4.5를 보장한다(판정은 8비트 반올림 RGB). 밴드 색 자체는 바꾸지 않는다.
+// 쓰는 곳: decant·interlock·turntile·flapjack(R7d). 같은 결함인 loopgrid·carousel은 그 배치(R7e)에서.
 
 type RGB = [number, number, number]
 
@@ -15,7 +15,8 @@ export function hslToRgb(h: number, s: number, l: number): RGB {
     const k = (n + h / 30) % 12
     return lig - a * Math.max(-1, Math.min(k - 3, 9 - k, 1))
   }
-  return [f(0) * 255, f(8) * 255, f(4) * 255]
+  // 브라우저처럼 8비트로 반올림 — 실수 RGB로 판정하면 4.49대 색상이 '통과'로 잡힌다(R7d 리뷰)
+  return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)]
 }
 
 function luminance([r, g, b]: RGB): number {

@@ -11,6 +11,9 @@ const parse = (css: string, hue: number): [number, number, number] => {
 /** decant: hue = round((rank-1)*300/(k-1)), k = 4..6 / interlock: K = 5, 1..4위 */
 const decantHues = [4, 5, 6].flatMap((k) => Array.from({ length: k }, (_, i) => Math.round((i * 300) / (k - 1))))
 const interlockHues = [0, 1, 2, 3].map((i) => Math.round((i * 300) / 4))
+/** turntile: hue = round(face*360/S), S = 3·4·5 / flapjack: hue = round(40+(rank-1)*280/(n-1)), n = 5·7·9 */
+const turntileHues = [3, 4, 5].flatMap((S) => Array.from({ length: S }, (_, f) => Math.round((f * 360) / S)))
+const flapjackHues = [5, 7, 9].flatMap((n) => Array.from({ length: n }, (_, r) => Math.round(40 + (r * 280) / (n - 1))))
 
 describe('bandInk(R7d 대비)', () => {
   it('hsl 변환이 알려진 값과 같다', () => {
@@ -19,12 +22,14 @@ describe('bandInk(R7d 대비)', () => {
   })
 
   it.each([
-    ['decant', decantHues, 70],
-    ['interlock', interlockHues, 75],
-  ] as const)('%s 밴드 숫자는 모든 실제 색상에서 4.5:1 이상', (_name, hues, darkSat) => {
+    ['decant', decantHues, 62, 52, 70],
+    ['interlock', interlockHues, 62, 52, 75],
+    ['turntile', turntileHues, 62, 52, 70],
+    ['flapjack', flapjackHues, 68, 54, 72],
+  ] as const)('%s 밴드 숫자는 모든 실제 색상에서 4.5:1 이상', (_name, hues, sat, light, darkSat) => {
     for (const h of hues) {
-      const ink = bandInk(h, 62, 52, darkSat)
-      expect(contrastRatio(parse(ink, h), hslToRgb(h, 62, 52)), `hue ${h} ${ink}`).toBeGreaterThanOrEqual(4.5)
+      const ink = bandInk(h, sat, light, darkSat)
+      expect(contrastRatio(parse(ink, h), hslToRgb(h, sat, light)), `hue ${h} ${ink}`).toBeGreaterThanOrEqual(4.5)
     }
   })
 
@@ -32,7 +37,7 @@ describe('bandInk(R7d 대비)', () => {
     ['decant·interlock·turntile', 62, 52, 70],
     ['interlock', 62, 52, 75],
     ['flapjack', 68, 54, 72],
-  ] as const)('%s: 0~360 모든 색상에서 4.5:1 이상', (_name, sat, light, darkSat) => {
+  ] as const)('%s: 0~360 모든 색상에서 4.5:1 이상(8비트 반올림 RGB)', (_name, sat, light, darkSat) => {
     for (let h = 0; h <= 360; h++) {
       const ink = bandInk(h, sat, light, darkSat)
       expect(contrastRatio(parse(ink, h), hslToRgb(h, sat, light)), `hue ${h} ${ink}`).toBeGreaterThanOrEqual(4.5)
