@@ -734,8 +734,8 @@
   {
     "slug": "overdub",
     "width": 390,
-    "pixels": 10302,
-    "noise": 10302
+    "pixels": 0,
+    "noise": 0
   },
   {
     "slug": "overdub",
@@ -1065,7 +1065,7 @@
     "slug": "slotter",
     "width": 1440,
     "pixels": 0,
-    "noise": 0
+    "noise": 1996
   },
   {
     "slug": "snake",

@@ -1,6 +1,6 @@
 # 인계: 라운드18 신규 5종(게임 110종) + 도전 링크 + /guides(공략 15·기사 6) (2026-10-10)
 
-## ▶ 2026-11-20 리디자인 v2 R9 게임 밖 허브 페이지 정원 틀 인계 (브랜치 `shift/redesign-r9-pages`)
+## ▶ 2026-11-20 리디자인 v2 R9 게임 밖 허브 페이지 정원 틀 인계 (브랜치 `shift/redesign-r9-pages`, #225)
 
 **한 줄:** 네온으로 남았던 게임 밖 페이지 전부(/category 4·/collections·/collection 13·/guides·글 21·/daily·/about·/privacy·/terms·/unblocked·/contact, 404 스코프)가 /leaderboards 방식 `main[data-world="garden-hub"]`가 됐다. 이제 사이트에서 네온 틀인 사람용 페이지는 0(내부 `/tools/*` 시험판만 예외).
 - **공용 부품**: `src/components/garden-hub/GardenHub.tsx` — `GardenHubPage`(wide/prose)·`GardenHubHead`(빵 부스러기·머리글·H1·소개·그림)·`GardenGameGrid`(SeedCard)·`GardenLinkCard`·`GardenFaq`·`GardenChipNav`·`gardenChip`·`gardenLink`·`gardenPlayButton`·`gardenProse`. 새 허브 페이지는 이걸로만 — `gardenHub.test.ts`가 src/app의 허브 page.tsx 전수를 목록과 대조해 빠지면 실패한다.
