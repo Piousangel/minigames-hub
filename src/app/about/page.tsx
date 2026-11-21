@@ -2,6 +2,7 @@ import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ProsePage } from '@/components/ProsePage'
+import { HAESSI_SKY } from '@/components/garden-hub/GardenHub'
 import { siteConfig } from '@/lib/siteConfig'
 import { gamePages } from '@/lib/games/registry'
 import { gameMeta } from '@/lib/games/gameMeta'
@@ -22,7 +23,7 @@ const LEADERBOARD_COUNT = Object.keys(LEADERBOARD_GAMES).length
 
 export default function AboutPage() {
   return (
-    <ProsePage title={`About ${siteConfig.name}`}>
+    <ProsePage page="about" kicker="About the garden" title={`About ${siteConfig.name}`} art={{ mascot: 'haessi-guide', wash: HAESSI_SKY }}>
       <p>
         {siteConfig.name} is a collection of {GAME_COUNT} free browser games, designed, coded and
         maintained by one indie developer who goes by <strong>Pious Angel</strong>. There is no studio
@@ -46,7 +47,7 @@ export default function AboutPage() {
       </p>
 
       <h2>What you can do here</h2>
-      <ul className="list-disc space-y-2 pl-5">
+      <ul>
         <li>
           <strong>Play without signing up.</strong> Best scores, streaks, settings and in-progress
           boards are saved in your own browser (localStorage), so they stay on your device.
@@ -54,7 +55,7 @@ export default function AboutPage() {
         <li>
           <strong>Daily puzzles.</strong> {DAILY_COUNT} games have a daily mode where everyone gets
           the same board for the day, with a streak for coming back. They are gathered on the{' '}
-          <Link href="/daily" className="text-accent">daily puzzles page</Link>.
+          <Link href="/daily">daily puzzles page</Link>.
         </li>
         <li>
           <strong>Weekly leaderboards.</strong> {LEADERBOARD_COUNT} games let you submit a score,
@@ -84,8 +85,8 @@ export default function AboutPage() {
         visitor ID generated in your browser — no name, email or account is attached. Leaderboard
         names and comments are public by design, so please do not use your real name in them. The
         site may show ads from Google AdSense, which can use cookies. The full details are in the{' '}
-        <Link href="/privacy" className="text-accent">privacy policy</Link>, and the rules for using
-        the site are in the <Link href="/terms" className="text-accent">terms of use</Link>.
+        <Link href="/privacy">privacy policy</Link>, and the rules for using
+        the site are in the <Link href="/terms">terms of use</Link>.
       </p>
 
       <h2>Get in touch</h2>
@@ -93,7 +94,7 @@ export default function AboutPage() {
         New games are added and existing ones are tuned as players report what is confusing or
         broken. If you have found a bug, have an idea for a game, or spotted a rule that does not
         match how a game plays, I would love to hear about it — the{' '}
-        <Link href="/contact" className="text-accent">contact page</Link> has my email address, and
+        <Link href="/contact">contact page</Link> has my email address, and
         every message is read by me.
       </p>
     </ProsePage>

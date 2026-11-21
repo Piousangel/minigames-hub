@@ -1,10 +1,27 @@
-export function ProsePage({ title, children }: { title: string; children: React.ReactNode }) {
+import type { ReactNode } from 'react'
+import { GardenHubHead, GardenHubPage, GardenProse, type HubArt } from '@/components/garden-hub/GardenHub'
+
+/**
+ * 글 페이지(/about·/privacy·/terms·/contact) — 리디자인 v2 R9 정원 틀. 머리 + 읽기 우선 본문(GardenProse).
+ * 마스코트는 역할이 맞는 곳에만(About = 안내 해씨, Contact = 우체부 보미), 약관 두 쪽은 글만.
+ */
+export function ProsePage({
+  page,
+  title,
+  kicker,
+  art,
+  children,
+}: {
+  page: string
+  title: string
+  kicker?: ReactNode
+  art?: HubArt
+  children: ReactNode
+}) {
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="mb-6 text-3xl font-bold">{title}</h1>
-      <div className="space-y-4 leading-relaxed text-fg-muted [&_h2]:mt-8 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:text-fg">
-        {children}
-      </div>
-    </main>
+    <GardenHubPage page={page} width="prose">
+      <GardenHubHead kicker={kicker} title={title} art={art} />
+      <GardenProse>{children}</GardenProse>
+    </GardenHubPage>
   )
 }

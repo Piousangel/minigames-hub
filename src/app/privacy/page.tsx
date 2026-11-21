@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <ProsePage title="Privacy Policy">
+    <ProsePage page="privacy" kicker="Site policy" title="Privacy Policy">
       <p>Last updated: November 16, 2026</p>
       <p>
         This page describes, in plain language, what {siteConfig.name} stores and sends when you use
@@ -27,7 +27,7 @@ export default function PrivacyPage() {
         sessionStorage for a few per-tab counters). It is not sent to us. Depending on which games you
         play, this includes:
       </p>
-      <ul className="list-disc space-y-2 pl-5">
+      <ul>
         <li>best scores, times and per-game statistics (games played, wins, results);</li>
         <li>daily-puzzle progress and streaks, and which levels or puzzles you have solved;</li>
         <li>saved in-progress boards for games that can be resumed;</li>
@@ -70,10 +70,10 @@ export default function PrivacyPage() {
       </p>
       <p>
         If you want a leaderboard name or comment you posted removed, get in touch through the{' '}
-        <Link href="/contact" className="text-accent">contact page</Link> and say which page and
+        <Link href="/contact">contact page</Link> and say which page and
         what it said. Submitted names, scores or comments may also be removed at our discretion. How
         comments are moderated is described in the{' '}
-        <Link href="/terms" className="text-accent">terms of use</Link>.
+        <Link href="/terms">terms of use</Link>.
       </p>
 
       <h2>Cookies and advertising</h2>
@@ -82,9 +82,9 @@ export default function PrivacyPage() {
         are shown, Google and its partners may use cookies or similar identifiers to serve ads,
         including ads based on your prior visits to this or other websites. You can opt out of
         personalised advertising at{' '}
-        <a href="https://adssettings.google.com" className="text-accent">Google Ads Settings</a>, or
+        <a href="https://adssettings.google.com">Google Ads Settings</a>, or
         learn more about{' '}
-        <a href="https://policies.google.com/technologies/partner-sites" className="text-accent">
+        <a href="https://policies.google.com/technologies/partner-sites">
           how Google uses information from sites that use its services
         </a>
         . Where consent for personalised ads is required, such as in the EU, EEA and UK, it will be
@@ -109,7 +109,7 @@ export default function PrivacyPage() {
       <p>
         This page will be updated when what the site stores changes, and the date above will change
         with it. Questions about this policy? Reach us via the{' '}
-        <Link href="/contact" className="text-accent">contact page</Link>.
+        <Link href="/contact">contact page</Link>.
       </p>
     </ProsePage>
   )

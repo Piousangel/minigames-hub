@@ -130,3 +130,5 @@
 | slime-slide | 소리 토글 38×34(게임 안 버튼, GameShell 음소거와 별개) | Turn sound off |
 | solitaire | 카드 42×58 — 7열이라 폭은 한계, 높이는 충분. 겹친 카드 경계에서 탭 판정이 엇갈리는지 손으로 확인 | Stock·tableau |
 | 판을 지우는 버튼이 있는 게임 전부 | New game·Reset·End round가 확인 없이 판을 지우는지(체크리스트 8번) | 점검 때 |
+
+게임 밖 허브 페이지(R9 정원 틀, 11-20): /category·/collection(s)·/guides·글·/daily·/about·/privacy·/terms·/unblocked·/contact·404 — main 안 누르는 것 44px 미달 0·가로 넘침 0(`e2e/garden-hub.spec.ts` 390, elementFromPoint), 넘긴 항목 없음.

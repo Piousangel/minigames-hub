@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { siteConfig } from '@/lib/siteConfig'
 import { COLLECTIONS } from '@/lib/games/collections'
+import { gardenChip } from '@/components/garden-hub/GardenHub'
 
 /**
  * '정원 안내판'(리디자인 v2 R4) — 예전 홈 Explore 스트립(Daily·Collections·Unblocked·카테고리 4)의 링크를
@@ -35,10 +36,7 @@ export function GardenSignboard() {
       <ul className="mt-3 flex flex-wrap gap-2">
         {signboardLinks().map((l) => (
           <li key={l.href}>
-            <Link
-              href={l.href}
-              className="flex h-11 items-center rounded-full border-2 border-garden-ink bg-garden-cream px-4 text-[14px] font-semibold hover:bg-garden-cream-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-garden-ink focus-visible:ring-offset-2 focus-visible:ring-offset-garden-paper"
-            >
+            <Link href={l.href} className={gardenChip}>
               {l.label}
             </Link>
           </li>

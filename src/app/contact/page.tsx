@@ -2,6 +2,7 @@ import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ProsePage } from '@/components/ProsePage'
+import { CATEGORY_TINT } from '@/components/home/SeedCard'
 import { siteConfig } from '@/lib/siteConfig'
 
 export const metadata: Metadata = {
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <ProsePage title="Contact">
+    <ProsePage page="contact" kicker="Say hello" title="Contact" art={{ mascot: 'bomi-deliver', wash: CATEGORY_TINT.Skill.wash }}>
       <p>
         {siteConfig.name} is made by one person, and I genuinely like hearing from the people who play
         it. Whether you have found a bug, thought of a game you wish existed, spotted a rule that is
@@ -22,12 +23,12 @@ export default function ContactPage() {
       </p>
       <p>
         The best way to reach me is by email at{' '}
-        <a href="mailto:hello@quickminigames.site" className="text-accent">hello@quickminigames.site</a>. I read
+        <a href="mailto:hello@quickminigames.site">hello@quickminigames.site</a>. I read
         everything and reply as soon as I can, usually within a couple of days.
       </p>
 
       <h2>What&apos;s helpful to include</h2>
-      <ul className="list-disc space-y-2 pl-5">
+      <ul>
         <li>
           <strong>Bug reports:</strong> the game you were playing, what you expected to happen, what
           actually happened, and whether you were on a phone, tablet or computer (and which browser).
@@ -45,7 +46,7 @@ export default function ContactPage() {
 
       <p>
         For questions about how your data is handled, see the{' '}
-        <Link href="/privacy" className="text-accent">privacy policy</Link>. There is no contact form
+        <Link href="/privacy">privacy policy</Link>. There is no contact form
         to fill in and no newsletter sign-up — just an inbox that a real person reads.
       </p>
     </ProsePage>

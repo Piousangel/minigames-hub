@@ -1,10 +1,10 @@
 import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
 import { gamePages } from '@/lib/games/registry'
 import { DEFAULT_META, gameMeta, type GameCategory } from '@/lib/games/gameMeta'
-import { GameCard } from '@/components/GameCard'
+import { GardenChipNav, GardenFaq, GardenGameGrid, GardenHubHead, GardenHubPage, HAESSI_SKY, categoryWash } from '@/components/garden-hub/GardenHub'
+import type { MascotArt } from '@/components/Mascot'
 import { siteConfig, thinPageRobots } from '@/lib/siteConfig'
 
 export const dynamicParams = false
@@ -79,6 +79,15 @@ const HUBS: Record<string, Hub> = {
   },
 }
 
+// 선반 주인(D5 마스코트 ↔ 카테고리 1:1): 말랑이 Puzzle · 토리 Arcade · 해씨 Classic · 보미 Skill. 기존 원본의 192px 사본.
+// 토리는 발사기를 겨누지 않는 포즈(world-bible 3-2 '사이트 전면 금지'), 해씨 disc만 하늘색(홈 선반과 같음).
+const HOSTS: Record<GameCategory, { art: MascotArt; wash: string }> = {
+  Puzzle: { art: 'mallang-wave', wash: categoryWash('Puzzle') },
+  Arcade: { art: 'tori-cheer', wash: categoryWash('Arcade') },
+  Classic: { art: 'haessi-guide', wash: HAESSI_SKY },
+  Skill: { art: 'bomi-cheer', wash: categoryWash('Skill') },
+}
+
 export function generateStaticParams() {
   return Object.keys(HUBS).map((slug) => ({ slug }))
 }
@@ -144,56 +153,31 @@ export default async function CategoryHub({ params }: { params: Promise<{ slug: 
     ],
   }
 
+  const host = HOSTS[hub.category]
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6">
+    <GardenHubPage page={`category-${slug}`}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <nav aria-label="Breadcrumb" className="mb-4 text-sm text-fg-muted">
-        <Link href="/" className="hover:text-fg">
-          Home
-        </Link>
-        <span aria-hidden="true"> / </span>
-        <span className="text-fg">{hub.category}</span>
-      </nav>
+      <GardenHubHead
+        crumbs={[{ href: '/', label: 'Home' }, { label: hub.category }]}
+        kicker={`${games.length} games`}
+        title={hub.h1}
+        art={{ mascot: host.art, wash: host.wash }}
+      >
+        <p>{hub.intro}</p>
+      </GardenHubHead>
 
-      <h1 className="neon-text mb-4 text-3xl font-bold text-neon-cyan sm:text-4xl">{hub.h1}</h1>
-      <p className="mb-8 max-w-3xl text-fg-muted">{hub.intro}</p>
+      <GardenGameGrid games={games} label={`${hub.category} games`} />
 
-      <section aria-label={`${hub.category} games`} className="mb-12">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {games.map((g) => (
-            <GameCard key={g.slug} slug={g.slug} title={g.h1} description={g.shortDescription} />
-          ))}
-        </div>
-      </section>
+      <GardenFaq id="hub-faq" items={hub.faq} />
 
-      <section aria-labelledby="hub-faq" className="mb-12 max-w-3xl">
-        <h2 id="hub-faq" className="neon-text mb-4 text-sm font-bold uppercase tracking-[0.15em] text-neon-cyan">
-          FAQ
-        </h2>
-        <div className="space-y-4">
-          {hub.faq.map(({ q, a }) => (
-            <div key={q}>
-              <h3 className="font-semibold">{q}</h3>
-              <p className="text-fg-muted">{a}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <nav aria-label="Other categories" className="flex flex-wrap gap-3 text-sm">
-        {Object.entries(HUBS)
+      <GardenChipNav
+        label="Other categories"
+        title="Other shelves"
+        links={Object.entries(HUBS)
           .filter(([s]) => s !== slug)
-          .map(([s, h]) => (
-            <Link
-              key={s}
-              href={`/category/${s}`}
-              className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-3 py-1.5 text-fg-muted hover:text-fg"
-            >
-              {h.category} games
-            </Link>
-          ))}
-      </nav>
-    </main>
+          .map(([s, h]) => ({ href: `/category/${s}`, label: `${h.category} games` }))}
+      />
+    </GardenHubPage>
   )
 }

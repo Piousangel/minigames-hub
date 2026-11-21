@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <ProsePage title="Terms of Use">
+    <ProsePage page="terms" kicker="Site policy" title="Terms of Use">
       <p>Last updated: November 16, 2026</p>
       <p>
         These terms explain how {siteConfig.name} may be used. By using the site, you agree to them.
@@ -33,7 +33,7 @@ export default function TermsPage() {
         Scores, streaks and other progress are saved only in your own browser. Clearing your browser
         data, switching browsers or devices, or using a private window will lose or hide that progress,
         and it cannot be restored from the site. See the{' '}
-        <Link href="/privacy" className="text-accent">privacy policy</Link> for what is stored.
+        <Link href="/privacy">privacy policy</Link> for what is stored.
       </p>
 
       <h2>Leaderboards, comments and reactions</h2>
@@ -54,7 +54,7 @@ export default function TermsPage() {
         rejected, the same connection can post at most once every 30 seconds, and a hidden form
         field filters out most automated spam. Comments that break the rules above are deleted when
         we find them or when someone reports them. To report a comment, email the address on the{' '}
-        <Link href="/contact" className="text-accent">contact page</Link> with the game page and
+        <Link href="/contact">contact page</Link> with the game page and
         the text of the comment.
       </p>
 
@@ -66,7 +66,7 @@ export default function TermsPage() {
         named with generic or original titles. Where a page mentions another product by name, it is
         only to describe the kind of game, and no affiliation or endorsement is implied. If you
         believe something on the site infringes your rights, please tell us through the{' '}
-        <Link href="/contact" className="text-accent">contact page</Link> and we will review it
+        <Link href="/contact">contact page</Link> and we will review it
         promptly.
       </p>
 
@@ -86,7 +86,7 @@ export default function TermsPage() {
       <p>
         These terms may be updated from time to time; the date above shows the latest version.
         Continued use of the site after a change means you accept the updated terms. Questions can be
-        sent through the <Link href="/contact" className="text-accent">contact page</Link>.
+        sent through the <Link href="/contact">contact page</Link>.
       </p>
     </ProsePage>
   )
