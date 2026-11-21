@@ -142,5 +142,29 @@
     "width": 1440,
     "pixels": 0,
     "noise": 0
+  },
+  {
+    "slug": "sudoku",
+    "width": 390,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "sudoku",
+    "width": 1440,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "tetris",
+    "width": 390,
+    "pixels": 0,
+    "noise": 0
+  },
+  {
+    "slug": "tetris",
+    "width": 1440,
+    "pixels": 0,
+    "noise": 0
   }
 ]
