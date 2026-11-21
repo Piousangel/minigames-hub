@@ -151,4 +151,4 @@
 ## 총평
 **추천안이 오너 불만에 답할 가능성 3/10.** 합격선이 난이도 불변이고, 진주는 기하 계산이 안 맞고, 스프링은 카메라 제약에 막혀 효과가 없고, 변이는 한 판 안에서 안 보인다. 먼저 상수 σ 봇으로 "쉽다"를 측정하고, 램프를 연장하고, 건너뛰기 별표(H)로 첫 "선택"을 만드는 편이 1~2일 사이클에 맞고 답할 확률이 높다.
 
-결과 파일: /private/tmp/claude-501/-Users-hyunseok-Desktop/dece547c-04bc-4cd8-9008-90c593f6b414/scratchpad/review-plop-variety.md
+결과 파일: `<scratchpad>/review-plop-variety.md`

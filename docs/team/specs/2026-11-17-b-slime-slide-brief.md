@@ -425,7 +425,7 @@ v1에서 **반증하려는 가정**: A) 해 하나가 아니라 열려 있어도
 - 선 단순화: RPI 강의 노트, praeclarum gist, wieslawsoltes Spline 문서 [요약]
 - 물리 퍼즐 생성·검증: arXiv 2106.01639(Gamage 외), AIIDE 2023 27501 [요약]
 - 내부: DESIGN-PROCESS.md, SESSION-GUIDE.md, plop-landing-brief.md, REVIEW/G2-SIM.md, plop-variety 7장, ROADMAP.md, GEMINI.md, GamePlopLanding.tsx 789~796행, gameMeta.ts(flow·bankshot·recoil·gravwell·hogline 등록 확인), next-game-candidates 4장 [확인]
-- 프로토타입: `/private/tmp/claude-501/-Users-hyunseok-Desktop/dece547c-04bc-4cd8-9008-90c593f6b414/scratchpad/proto/sim.mjs`, `run.mjs` (저장소 밖, 임시 코드)
+- 프로토타입: `<scratchpad>/proto/sim.mjs`, `run.mjs` (저장소 밖, 임시 코드)
 
 **G1 상태 제안: v2 완료, 독립 리뷰 대기.** 리뷰어는 위 8장 세 약점을 먼저 공격해도 좋다. 통과 조건: G2 합격선(4-10).
 
