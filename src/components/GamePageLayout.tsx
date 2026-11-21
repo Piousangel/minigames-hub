@@ -22,9 +22,12 @@ import { CollectionLinks } from '@/components/CollectionLinks'
 import { RelatedGames } from '@/components/RelatedGames'
 import { articlesForGame, guideForGame } from '@/content'
 
-/** 게임 액센트 네온 컬러의 섹션 헤딩(가독성 위해 픽셀폰트 대신 산세리프).
- *  정원 틀(R7)에서는 네온 대신 Fraunces + ink(글로우·액센트색 없음). */
-function SectionHeading({ children, color, garden }: { children: React.ReactNode; color: string; garden?: boolean }) {
+/** 오리지널 방의 강조색(정원 금빛) — 제목 밖 섹션 머리·페이지 --accent */
+const ROOM_GOLD = '#ffc933'
+
+/** 하단 섹션 헤딩. 정원 틀(R7)은 Fraunces + ink(글로우·액센트색 없음).
+ *  오리지널 방(garden-room)은 예전 화면 그대로 — 정원 금빛 산세리프 + 글로우(R8 뒤 남은 네온, HANDOFF). */
+function SectionHeading({ children, garden }: { children: React.ReactNode; garden: boolean }) {
   if (garden) {
     return (
       <div className="mb-4 flex items-center gap-3">
@@ -37,26 +40,26 @@ function SectionHeading({ children, color, garden }: { children: React.ReactNode
     <div className="mb-4 flex items-center gap-3">
       <h2
         className="neon-text text-sm font-bold uppercase tracking-[0.15em]"
-        style={{ color }}
+        style={{ color: ROOM_GOLD }}
       >
         {children}
       </h2>
       <span
         aria-hidden="true"
         className="h-px flex-1"
-        style={{ background: `linear-gradient(to right, ${color}55, transparent)` }}
+        style={{ background: `linear-gradient(to right, ${ROOM_GOLD}55, transparent)` }}
       />
     </div>
   )
 }
 
 export function GamePageLayout({ page, children }: { page: GamePage; children: React.ReactNode }) {
-  const world = gameWorld(page.slug)
-  // room = 오리지널 3종(자기 방을 그림 — 정원 제목만), framed = R7 정원 틀 배치(크림 바깥 + 밤 정원 게임판)
-  const garden = world === 'room'
-  const framed = world === 'garden'
+  // room = 오리지널 3종(자기 방을 그림 — 정원 제목만), 그 밖 = R7 정원 틀(크림 바깥 + 밤 정원 게임판).
+  // R7f로 전 게임이 둘 중 하나라 예전 네온 화면 갈래는 R8에서 지웠다. 배치에 아직 없는 새 게임도 정원 틀로 그리고,
+  // 배치 목록 누락은 gardenRollout.test.ts('전 게임 정원 틀' — gameWorld null 0)가 잡는다.
+  const garden = gameWorld(page.slug) === 'room'
+  const framed = !garden
   const neon = accentVar((gameMeta[page.slug] ?? DEFAULT_META).accent)
-  const color = garden ? '#ffc933' : neon
   const guide = guideForGame(page.slug)
   const related = articlesForGame(page.slug)
   return (
@@ -64,17 +67,15 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
     // 정원 틀(framed)은 --accent를 CSS 스코프가 정한다(바깥 = coral 글자색, 게임판 = 아래 data-garden-board 인라인).
     <main
       className="mx-auto max-w-3xl px-4 py-6"
-      style={framed ? undefined : { ['--accent' as string]: color }}
-      data-world={garden ? 'garden-room' : framed ? 'garden' : undefined}
+      style={framed ? undefined : { ['--accent' as string]: ROOM_GOLD }}
+      data-world={garden ? 'garden-room' : 'garden'}
       data-game-page
     >
       <RecordPlay slug={page.slug} />
       {framed ? (
         <h1 className="garden-page-title font-display mb-4 text-center text-3xl sm:text-4xl">{page.h1}</h1>
       ) : (
-        <h1 className={garden ? `garden-title ${roundFont.className} mb-4 text-center text-4xl` : 'neon-text mb-4 text-center text-3xl font-bold'} style={garden ? undefined : { color }}>
-          {page.h1}
-        </h1>
+        <h1 className={`garden-title ${roundFont.className} mb-4 text-center text-4xl`}>{page.h1}</h1>
       )}
       {/* 목표 한 줄(above-the-fold) — 낯선 유저가 승리 조건을 즉시 이해 */}
       <ObjectiveBanner slug={page.slug} />
@@ -121,7 +122,7 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
       {GAME_INTROS[page.slug] && (
         <Reveal>
           <section className="mt-12">
-            <SectionHeading color={color} garden={framed}>About {page.h1}</SectionHeading>
+            <SectionHeading garden={framed}>About {page.h1}</SectionHeading>
             <div className="space-y-4 leading-relaxed text-fg-muted">
               {GAME_INTROS[page.slug].split('\n\n').map((para) => (
                 <p key={para.slice(0, 32)}>{para}</p>
@@ -157,7 +158,7 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
 
       <Reveal>
         <section className="mt-12">
-          <SectionHeading color={color} garden={framed}>How to play</SectionHeading>
+          <SectionHeading garden={framed}>How to play</SectionHeading>
           <ul className="list-disc space-y-2 pl-5 text-fg-muted">
             {page.howToPlay.map((line) => <li key={line}>{line}</li>)}
           </ul>
@@ -166,7 +167,7 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
 
       <Reveal>
         <section className="mt-8">
-          <SectionHeading color={color} garden={framed}>Strategy &amp; tips</SectionHeading>
+          <SectionHeading garden={framed}>Strategy &amp; tips</SectionHeading>
           <ul className="list-disc space-y-2 pl-5 text-fg-muted">
             {page.strategy.map((line) => <li key={line}>{line}</li>)}
           </ul>
@@ -175,7 +176,7 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
 
       <Reveal>
         <section className="mt-8">
-          <SectionHeading color={color} garden={framed}>FAQ</SectionHeading>
+          <SectionHeading garden={framed}>FAQ</SectionHeading>
           <div className="space-y-4">
             {page.faq.map(({ q, a }) => (
               <div key={q}>
@@ -196,7 +197,7 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
       {/* 인콘텐츠 광고 자리(승인 전엔 렌더 안 됨) */}
       <AdSlot slot="game-incontent" className="mt-10" />
 
-      <RelatedGames currentSlug={page.slug} />
+      <RelatedGames currentSlug={page.slug} room={garden} />
     </main>
   )
 }

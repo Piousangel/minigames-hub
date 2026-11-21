@@ -1,9 +1,10 @@
 // 허브 리디자인 v2 R7(계획서 3장 R7a~f, D7·D8): 113개 게임을 「노을 정원」 틀로 20개씩 옮기는 배치 목록.
 //
-// - 여기 있는 slug의 게임 페이지는 `main[data-world="garden"]`으로 렌더된다(GamePageLayout).
+// - 오리지널 3종 밖의 게임 페이지는 `main[data-world="garden"]`으로 렌더된다(GamePageLayout — R8에서 네온 갈래 삭제).
 //   그 스코프 안에서만 --neon-*·--fg 등 토큰을 다시 매핑한다(globals.css 'R7 정원 틀'). 전역 토큰은 그대로.
 // - 바깥 틀(제목·목표·리액션·다음 게임·하단 섹션) = 크림·ink, 게임판(`[data-garden-board]`) = 밤 정원 남보라(D8).
-// - **되돌리기 = 배열에서 slug 1줄 삭제.** 배치 순서·선정 이유는 docs/plans/2026-11-19-hub-redesign-v2.md 6장.
+// - 배치 순서·선정 이유는 docs/plans/2026-11-19-hub-redesign-v2.md 6장. R7 동안의 되돌리기(slug 1줄 삭제 → 네온 화면)는
+//   R8(네온 갈래 삭제)로 없어졌다 — 목록은 이제 '전 게임이 정원 틀 대상인지' 장부(gardenPending)와 e2e·캡처 스크립트용.
 // - 선정 규칙(R7a에서 정함): 캔버스로 직접 그리는 게임(getContext)과 하드코딩 색 20개 이상인 게임은 뒤 배치,
 //   그 밖에서 퀄리티 장부 점검 끝난 게임(R7a 때 2048·2048-animals·snake 3개 — 전부 넣음) + 트래픽(docs/daily/metrics) 상위 순.
 //   e2e/garden-frame.spec.ts 대비 검사(게임판 안 포함)에서 실패가 나는 게임은 그 게임의 결함을 고친 뒤 넣는다
@@ -193,7 +194,7 @@ export function gardenPending(allSlugs: readonly string[]): string[] {
  * 게임 페이지의 세계 표시:
  * - 'room'  = 오리지널 3종(자기 방을 그림, 예전과 같은 화면)
  * - 'garden' = 정원 틀 배치 적용
- * - null    = 아직 예전 네온 화면
+ * - null    = 배치 목록에 없음(R8부터 화면은 정원 틀로 그린다 — 목록 누락은 gardenPending 테스트가 잡는다)
  */
 export function gameWorld(slug: string): 'room' | 'garden' | null {
   if ((GARDEN_ORIGINALS as readonly string[]).includes(slug)) return 'room'

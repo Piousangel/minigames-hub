@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import { GARDEN_BATCHES, GARDEN_ORIGINALS } from '../src/lib/games/gardenRollout'
+import { NEON_PATTERN } from '../src/components/garden-hub/neonClasses'
 
 /**
  * 리디자인 v2 R7 「정원 틀」 배치 게이트(계획서 3장 R7a~f).
@@ -17,8 +18,8 @@ const AD_MARGIN_TOP = 40
 type ContrastFail = { text: string; fg: string; bg: string; ratio: number; need: number }
 
 /** 페이지 안에서 실행: main 안 보이는 글자 요소의 대비를 잰다. */
-async function contrastFailures(page: Page): Promise<{ checked: number; skipped: number; fails: ContrastFail[] }> {
-  return page.evaluate(() => {
+async function contrastFailures(page: Page, rootSel = 'main[data-game-page]'): Promise<{ checked: number; skipped: number; fails: ContrastFail[] }> {
+  return page.evaluate((rootSel) => {
     const cv = document.createElement('canvas')
     cv.width = cv.height = 1
     const ctx = cv.getContext('2d', { willReadFrequently: true })!
@@ -77,7 +78,7 @@ async function contrastFailures(page: Page): Promise<{ checked: number; skipped:
       return base.map((b) => layers.reduceRight((acc, l) => over(l, acc), b))
     }
 
-    const main = document.querySelector('main[data-game-page]')!
+    const main = document.querySelector(rootSel)!
     const fails: ContrastFail[] = []
     let checked = 0
     let skipped = 0 // 그림(url) 배경 위 글자 — 판정 불가, 개수를 보고한다
@@ -121,7 +122,7 @@ async function contrastFailures(page: Page): Promise<{ checked: number; skipped:
       }
     }
     return { checked, skipped, fails }
-  })
+  }, rootSel)
 }
 
 /** Reveal(스크롤 등장)까지 다 보이게 끝까지 한 번 내렸다가 올린다. */
@@ -209,6 +210,43 @@ test.describe('정원 틀 배치(R7)', () => {
     await expect(page.locator('main[data-game-page]')).toHaveAttribute('data-world', 'garden')
     expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--neon-cyan').trim())).toBe('#22d3ee')
     expect(await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme)).toBe('dark')
+  })
+
+  // R8: 하단 '관련 게임'은 네온 GameCard 대신 정원 카드 — 오리지널 방(어두운 바탕) 위에서도 같은 크림 카드
+  test('오리지널 3종 하단 관련 게임 = 정원 카드(네온 0·대비·하트 44px·가로 스크롤 0, 390·1440)', async ({ page }) => {
+    const related = 'section[aria-labelledby="related-games"]'
+    for (const slug of GARDEN_ORIGINALS) {
+      for (const width of [390, 1440]) {
+        await page.setViewportSize({ width, height: width === 390 ? 844 : 900 })
+        await page.goto(`/${slug}`)
+        await settle(page)
+        await expect(page.locator(`${related} a[href^="/"]`)).toHaveCount(6)
+        const neon = await page.evaluate(
+          ([sel, src]) => {
+            const re = new RegExp(src, 'g')
+            const hits = new Set<string>()
+            for (const el of document.querySelectorAll(`${sel}, ${sel} *`)) for (const m of (el.getAttribute('class') ?? '').matchAll(re)) hits.add(m[1])
+            return [...hits]
+          },
+          [related, NEON_PATTERN.source] as const,
+        )
+        expect(neon, `${slug} ${width} 관련 게임 네온 클래스`).toEqual([])
+        const { checked, fails } = await contrastFailures(page, related)
+        expect(checked, '검사한 글자 요소 수').toBeGreaterThan(12)
+        expect(fails, `${slug} ${width} 관련 게임 대비 실패`).toEqual([])
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${slug} ${width} 가로 스크롤`).toBe(true)
+        // 즐겨찾기 하트: 보이는 36px + 누르는 영역 44px(hit-44 ::after) — 가운데에서 ±21px 지점이 하트를 맞힌다
+        const heart = page.locator(`${related} button[aria-label^="Add "]`).first()
+        await heart.scrollIntoViewIfNeeded()
+        const hit = await heart.evaluate((btn) => {
+          const r = btn.getBoundingClientRect()
+          const cx = r.left + r.width / 2
+          const cy = r.top + r.height / 2
+          return [[-21, 0], [21, 0], [0, -21], [0, 21]].every(([dx, dy]) => btn.contains(document.elementFromPoint(cx + dx, cy + dy)))
+        })
+        expect(hit, `${slug} ${width} 하트 44px`).toBe(true)
+      }
+    }
   })
 
   test('오리지널 3종은 자기 방(정원 틀 매핑 없음)', async ({ page }) => {

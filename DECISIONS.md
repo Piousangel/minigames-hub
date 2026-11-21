@@ -329,3 +329,14 @@
 - 선택: 헤더·파비콘과 같은 96px 원형 크롭 png 사본(`src/lib/og/assets/brand-mark.png`, brand-icons.py가 생성)을 48px 자리에. OG에서만 진갈색(#5b3a1e) 2.5px 외곽선 원으로 감싼다 — 카드의 타일·알약·띠가 모두 진갈색 외곽선이고, 48px에선 금빛 링이 코랄 노을과 명도가 비슷해 묻혔다(독립 리뷰 6.5/10 지적 반영). 레이아웃·문구·크기·URL 유지, `OG_VERSION`은 g1 그대로(URL 유지 지시 — 올릴지는 오너).
 - 버린 안: 마크를 더 키우기(레이아웃 유지 지시), 원판에 외곽선을 구워 넣기(헤더·파비콘까지 바뀜 — 헤더 전용 링 강조 판은 별도 오너 결정 대기).
 - 되돌리기: #228 revert.
+
+## 2026-11-21 리디자인 v2 R8 옛 네온 코드 정리 — 죽은 갈래만 지우고, 관련 게임 카드는 정원 카드로(팀)
+- 맥락: R7f(게임 113)·R9(허브 페이지 전부)로 사람용 페이지가 전부 정원이 됐다. 남은 네온 코드 중 '아무도 안 쓰는 것'을 지운다. 기준 = 참조 0을 도구로 증명(import 그래프 + 빌드 CSS 선택자의 실제 DOM 일치 + 빌드 HTML), 애매하면 남기고 목록으로.
+- **지운 것**: ① GamePageLayout의 `gameWorld()===null` 네온 갈래(네온 H1·`data-world` 없음) — 오리지널 3종 밖은 전부 정원 틀로 그린다(배치 누락은 `gardenPending` 테스트가 잡는다). ② `GameCard`·`SpotlightCard`(RelatedGames만 쓰던 네온 카드) → RelatedGames 안 정원 카드. ③ globals.css의 스포트라이트 카드 규칙(`.spotlight-card::before`·hover, `.card-icon`·`.card-title`, `.neon-box-hover`, 모션 줄이기 안 같은 항목, 정원 스코프의 `.spotlight-card` 덮어쓰기 4개). ④ `FavoriteHeart`·`NewBadge`의 'neon' 변형 → 'corner'(정원 색 값).
+- **관련 게임 정원 카드 = 정원 틀에서 보이던 모양 그대로**: 크림 면·2px ink·판 그림자, 글자색 = 게임 accent의 '크림 위 짙은 꽃색'(`GARDEN_ACCENT_INK`, globals의 `main[data-world='garden']` `--neon-*` 재매핑과 같은 값 — 테스트가 대조). 토큰(var(--neon-*)) 대신 값을 쓰는 이유: 오리지널 방(garden-room, 전역 네온 토큰)에서도 같은 카드가 되게. 정원 틀 110게임 + 허브 + 홈 픽셀 diff 0.
+  - 오리지널 3종(plop-landing·acorn-hop·slime-slide) 하단만 **의도된 변화**(네온 카드 → 크림 정원 카드, 메인 결정 11-21 '정원 세계 안에 네온 카드가 남는 건 의도와 어긋남'). 전후 `docs/design/redesign-v2/r8/`, e2e `garden-frame.spec` '오리지널 3종 하단 관련 게임'(네온 0·대비·하트 44px·가로 스크롤 0).
+  - 오리지널 방에선 'More games' 머리글·선을 방의 금빛(`--garden-gold`)으로 — 정원 틀의 짙은 청록 #1d6a86은 검은 바탕 위 약 3.2:1로 대비 미달. 섹션은 `relative z-[41]`로 body 줄무늬(scanlines, z 40) 위(헤더·푸터·Plop 판과 같은 이유 — 크림 카드 위 줄무늬가 보였다).
+  - 누름 모션은 홈 씨앗 봉투와 같은 `garden-jelly`(예전 hover 2px 들림·아이콘 회전 대신 1px 들림·3px 눌림) — 멈춘 화면은 같고 CSS가 줄어든다.
+  - 함정: 그라데이션 시작색을 Tailwind 임의값(`from-[#hex]/50`·`from-[color-mix(...)]`)으로 쓰면 빌드가 oklab 값으로 미리 계산해 예전 `color-mix(var(--neon-cyan))`와 채널이 1씩 어긋났다(6~11px diff) → 인라인 `--tw-gradient-from: color-mix(...)`.
+- **남긴 것(쓰는 곳이 있음)**: `gameWorld`의 null(배치 누락 감지용), 오리지널 방의 네온 섹션 머리(금빛 산세리프 + 글로우)·`--accent` 금빛, `.neon-text/-strong/-icon/-box`(게임판 안 GameOverlay·GatePanel·게임 6종과 바깥 위젯 Reactions·Comments·Leaderboard·GameStats·GameSwitcher·ObjectiveBanner가 씀 — 정원 스코프 덮어쓰기로 보임), `.font-pixel`, `.scanlines`·`.synthwave-bg`(홈·오리지널 방·/tools 뒤에서 켜짐), `--neon-*`·`bg-surface`·`text-fg-muted` 토큰(게임 컴포넌트 전반), 정원 스코프 `.neon-box:not(board)`(지금 렌더 일치 0이지만 게임 밖 위젯이 다시 쓰면 필요한 안전 규칙 — 목록에만).
+- 버린 안: 관련 게임을 홈 `SeedCard`로(정원 110쪽 하단 모양이 바뀜 — 픽셀 0 목표와 충돌), 오리지널 방 전용으로 GameCard 유지(정원 세계 안 네온 카드), 토큰 전역화를 같은 PR에서(오리지널 방·/tools·홈 바탕·포털 시트가 전역 토큰에 기대 위험이 커서 HANDOFF 제안으로).
