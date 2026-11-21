@@ -33,6 +33,8 @@ m32, m48 = down(mark, 32), down(mark, 48)
 m48.save(f'{R}/src/app/favicon.ico', format='ICO', sizes=[(16, 16), (32, 32), (48, 48)], append_images=[simple16, m32])
 # 구글 검색 파비콘(96, 투명 바깥)
 down(mark, 96).save(f'{OUT}/icon-96.png', optimize=True)
+# 공유 카드(OG) 브랜드 줄 마크(표시 48px) — Satori는 webp를 못 읽어 같은 그림을 png 사본으로(src/lib/og/assets/README.md)
+down(mark, 96).save(f'{R}/src/lib/og/assets/brand-mark.png', optimize=True)
 # iOS·PWA any: 노을 타일 그대로(불투명)
 for s, name in ((180, 'apple-180'), (192, 'pwa-192'), (512, 'pwa-512')):
     down(tile, s).convert('RGB').save(f'{OUT}/{name}.png', optimize=True)
