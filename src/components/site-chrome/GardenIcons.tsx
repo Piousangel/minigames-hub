@@ -6,32 +6,6 @@ type IconProps = { className?: string }
 
 const svgProps = { 'aria-hidden': true, focusable: false } as const
 
-/**
- * 옛 로고 마크: 해바라기 해 + 떠 있는 섬(시안 #logo). 11-20 브랜드 최종판(`BrandMark`·파비콘·앱 아이콘)으로 바뀐 뒤
- * 공유 카드(`src/lib/og/gardenCard.tsx`)만 쓴다 — OG 리브랜드 때 함께 지운다(HANDOFF). `size`는 Satori용(CSS 클래스를 못 읽음).
- */
-export function GardenLogoMark({ className, size }: IconProps & { size?: number }) {
-  return (
-    <svg viewBox="0 0 32 32" className={className} width={size} height={size} {...svgProps}>
-      <circle cx="22.5" cy="9" r="5.2" fill="#ffd966" stroke="#5b3a1e" strokeWidth="2" />
-      <path
-        d="M4 16.5c0-2.2 5.4-3.8 12-3.8s12 1.6 12 3.8c0 1.2-1.4 2-3.2 2.6L17.6 29c-.8 1.1-2.4 1.1-3.2 0L7.2 19.1C5.4 18.5 4 17.7 4 16.5z"
-        fill="#9aa08f"
-        stroke="#5b3a1e"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M4 16.5c0-2.2 5.4-3.8 12-3.8s12 1.6 12 3.8c0 1.4-2 2.4-4.6 3-.4 1.6-1.8 1.6-2.2 0-1.6.3-3.4.4-5.2.4s-3.4-.1-5-.4c-.4 1.8-2 1.8-2.4 0C5.8 18.9 4 17.9 4 16.5z"
-        fill="#7cc26a"
-        stroke="#5b3a1e"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
 /** Originals: 꽃 한 송이가 핀 섬(시안 #isle). */
 export function IsleIcon({ className }: IconProps) {
   return (

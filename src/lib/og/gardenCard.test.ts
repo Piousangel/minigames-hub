@@ -35,6 +35,17 @@ describe('정원 공유 카드 — 빌드 전용 그림 사본', () => {
   })
 })
 
+describe('정원 공유 카드 — 브랜드 마크', () => {
+  it('브랜드 줄 마크 = 헤더·파비콘 최종판과 같은 96px png(옛 해+섬 SVG 아님)', () => {
+    const mark = readFileSync(asset('brand-mark.png'))
+    expect(mark.subarray(1, 4).toString()).toBe('PNG') // Satori는 webp를 못 읽는다
+    expect(mark.readUInt32BE(16), 'width').toBe(96)
+    expect(mark.readUInt32BE(20), 'height').toBe(96)
+    expect(mark.equals(readFileSync(path.join(process.cwd(), 'src/brand/icon-96.png')))).toBe(true)
+    expect(readFileSync(path.join(process.cwd(), 'src/lib/og/gardenCard.tsx'), 'utf8')).not.toMatch(/GardenLogoMark/)
+  })
+})
+
 describe('제목 크기', () => {
   it('모든 게임 제목이 72px 이상(작은 썸네일에서 읽히는 하한), 짧을수록 크다', () => {
     // 21자 이상 제목이 생기면 62px로 줄어 이 검사에 걸린다 → 카드를 390 썸네일·정사각 크롭으로 다시 보고 기준을 정할 것

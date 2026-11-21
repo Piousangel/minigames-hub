@@ -13,7 +13,6 @@
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import type { GameCategory } from '@/lib/games/gameMeta'
-import { GardenLogoMark } from '@/components/site-chrome/GardenIcons'
 
 export const OG_SIZE = { width: 1200, height: 630 }
 
@@ -78,12 +77,16 @@ export function titleSize(title: string): number {
   return 62 // 21자 이상(지금은 없음): 가운데 630px·두 줄 안에 두려고 한 단계 더 줄인다(리뷰)
 }
 
-/** 브랜드 줄: 헤더와 같은 로고 마크 + 이름. */
+/**
+ * 브랜드 줄: 헤더·파비콘과 같은 마크(11-20 오너 승인 최종판 — 금빛 링 엠블럼 + 말랑이 '밝게') + 이름.
+ * `assets/brand-mark.png` = `src/brand/icon-96.png`와 같은 96px 원형 크롭(표시 48px의 2배, `scripts/brand-icons.py`가 함께 만든다).
+ */
 function BrandMark() {
   const color = G.ink
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-      <GardenLogoMark size={48} />
+      {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+      <img src={assetDataUrl('brand-mark.png')} width={48} height={48} />
       <div style={{ display: 'flex', fontFamily: 'Figtree', fontWeight: 800, fontSize: 32, color }}>Quick MiniGames</div>
     </div>
   )
