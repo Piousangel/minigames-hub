@@ -1,8 +1,7 @@
 import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { gamePages } from '@/lib/games/registry'
-import { GameCard } from '@/components/GameCard'
+import { GardenChipNav, GardenFaq, GardenGameGrid, GardenHubHead, GardenHubPage } from '@/components/garden-hub/GardenHub'
 import { siteConfig, thinPageRobots } from '@/lib/siteConfig'
 
 // "unblocked games" 랜딩 — 브라우저 게임 최대 검색 의도 중 하나(학교/직장 무설치, DOMAIN §1).
@@ -66,59 +65,38 @@ export default function UnblockedPage() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6">
+    <GardenHubPage page="unblocked">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <nav aria-label="Breadcrumb" className="mb-4 text-sm text-fg-muted">
-        <Link href="/" className="hover:text-fg">
-          Home
-        </Link>
-        <span aria-hidden="true"> / </span>
-        <span className="text-fg">Unblocked</span>
-      </nav>
+      <GardenHubHead
+        crumbs={[{ href: '/', label: 'Home' }, { label: 'Unblocked' }]}
+        kicker={`${games.length} favourites`}
+        title={H1}
+      >
+        <p>
+          Free unblocked games that load instantly in your browser — no download, no install, no
+          sign-up. Everything here is just a web page, so there is no app to block: pick a game and it
+          starts right away on a phone, Chromebook, tablet or desktop. From the classics everyone knows —
+          2048, Snake, Falling Blocks, Minesweeper, Solitaire and Chess — to daily puzzles and original neon
+          arcade games, there is always something quick to play. Your best scores and daily streaks
+          save right in your browser, and many games have a weekly leaderboard, so there is a reason to
+          come back. Browse the favourites below, or dig into the full library by category.
+        </p>
+      </GardenHubHead>
 
-      <h1 className="neon-text mb-4 text-3xl font-bold text-neon-lime sm:text-4xl">{H1}</h1>
-      <p className="mb-4 max-w-3xl text-fg-muted">
-        Free unblocked games that load instantly in your browser — no download, no install, no
-        sign-up. Everything here is just a web page, so there is no app to block: pick a game and it
-        starts right away on a phone, Chromebook, tablet or desktop. From the classics everyone knows —
-        2048, Snake, Falling Blocks, Minesweeper, Solitaire and Chess — to daily puzzles and original neon
-        arcade games, there is always something quick to play. Your best scores and daily streaks
-        save right in your browser, and many games have a weekly leaderboard, so there is a reason to
-        come back. Browse the favourites below, or dig into the full library by category.
-      </p>
+      <GardenGameGrid games={games} label="Popular unblocked games" />
 
-      <section aria-label="Popular unblocked games" className="mb-10">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {games.map((g) => (
-            <GameCard key={g.slug} slug={g.slug} title={g.h1} description={g.shortDescription} />
-          ))}
-        </div>
-      </section>
+      <GardenChipNav
+        label="Browse more"
+        title="Browse more"
+        links={[
+          { href: '/daily', label: 'Daily games' },
+          { href: '/collections', label: 'Collections' },
+          ...['puzzle', 'arcade', 'classic', 'skill'].map((c) => ({ href: `/category/${c}`, label: `${c[0].toUpperCase()}${c.slice(1)} games` })),
+        ]}
+      />
 
-      <nav aria-label="Browse more" className="mb-12 flex flex-wrap gap-3 text-sm">
-        <Link href="/daily" className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-3 py-1.5 text-fg-muted hover:text-fg">Daily games</Link>
-        <Link href="/collections" className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-3 py-1.5 text-fg-muted hover:text-fg">Collections</Link>
-        {['puzzle', 'arcade', 'classic', 'skill'].map((c) => (
-          <Link key={c} href={`/category/${c}`} className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-3 py-1.5 capitalize text-fg-muted hover:text-fg">
-            {c} games
-          </Link>
-        ))}
-      </nav>
-
-      <section aria-labelledby="unblocked-faq" className="mb-12 max-w-3xl">
-        <h2 id="unblocked-faq" className="neon-text mb-4 text-sm font-bold uppercase tracking-[0.15em] text-neon-lime">
-          FAQ
-        </h2>
-        <div className="space-y-4">
-          {FAQ.map(({ q, a }) => (
-            <div key={q}>
-              <h3 className="font-semibold">{q}</h3>
-              <p className="text-fg-muted">{a}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-    </main>
+      <GardenFaq id="unblocked-faq" items={FAQ} />
+    </GardenHubPage>
   )
 }

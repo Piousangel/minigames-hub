@@ -1,9 +1,8 @@
 import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { gamePages } from '@/lib/games/registry'
 import { DEFAULT_META, gameMeta } from '@/lib/games/gameMeta'
-import { GameCard } from '@/components/GameCard'
+import { GardenChipNav, GardenFaq, GardenGameGrid, GardenHubHead, GardenHubPage, HAESSI_SKY } from '@/components/garden-hub/GardenHub'
 import { DailyCountdown } from '@/components/DailyCountdown'
 import { siteConfig } from '@/lib/siteConfig'
 
@@ -73,54 +72,29 @@ export default function DailyHub() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6">
+    <GardenHubPage page="daily">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <nav aria-label="Breadcrumb" className="mb-4 text-sm text-fg-muted">
-        <Link href="/" className="hit-44 hover:text-fg">
-          Home
-        </Link>
-        <span aria-hidden="true"> / </span>
-        <span className="text-fg">Daily</span>
-      </nav>
-
-      <h1 className="neon-text mb-4 text-3xl font-bold text-neon-amber sm:text-4xl">{H1}</h1>
-      <p className="mb-4 max-w-3xl text-fg-muted">{INTRO}</p>
+      {/* 오늘의 정원 = 해씨(D5). 카운트다운은 '밤 정원 판'(내일 판이 오기 전 밤) */}
+      <GardenHubHead
+        crumbs={[{ href: '/', label: 'Home' }, { label: 'Daily' }]}
+        kicker={`Today’s garden · ${games.length} daily games`}
+        title={H1}
+        art={{ mascot: 'haessi-cheer', wash: HAESSI_SKY }}
+      >
+        <p>{INTRO}</p>
+      </GardenHubHead>
       <DailyCountdown />
 
-      <section aria-label="Daily games" className="mb-12">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {games.map((g) => (
-            <GameCard key={g.slug} slug={g.slug} title={g.h1} description={g.shortDescription} />
-          ))}
-        </div>
-      </section>
+      <GardenGameGrid games={games} label="Daily games" />
 
-      <section aria-labelledby="daily-faq" className="mb-12 max-w-3xl">
-        <h2 id="daily-faq" className="neon-text mb-4 text-sm font-bold uppercase tracking-[0.15em] text-neon-amber">
-          FAQ
-        </h2>
-        <div className="space-y-4">
-          {FAQ.map(({ q, a }) => (
-            <div key={q}>
-              <h3 className="font-semibold">{q}</h3>
-              <p className="text-fg-muted">{a}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <GardenFaq id="daily-faq" items={FAQ} />
 
-      <nav aria-label="Browse by category" className="flex flex-wrap gap-3 text-sm">
-        {['puzzle', 'arcade', 'classic', 'skill'].map((c) => (
-          <Link
-            key={c}
-            href={`/category/${c}`}
-            className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-3 py-1.5 capitalize text-fg-muted hover:text-fg"
-          >
-            {c} games
-          </Link>
-        ))}
-      </nav>
-    </main>
+      <GardenChipNav
+        label="Browse by category"
+        title="Browse by category"
+        links={['puzzle', 'arcade', 'classic', 'skill'].map((c) => ({ href: `/category/${c}`, label: `${c[0].toUpperCase()}${c.slice(1)} games` }))}
+      />
+    </GardenHubPage>
   )
 }

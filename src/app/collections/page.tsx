@@ -1,8 +1,7 @@
 import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { COLLECTIONS, COLLECTION_SLUGS } from '@/lib/games/collections'
-import { accentVar } from '@/lib/games/gameMeta'
+import { GardenHubHead, GardenHubPage, GardenLinkCard, flowerOf } from '@/components/garden-hub/GardenHub'
 import { siteConfig, thinPageRobots } from '@/lib/siteConfig'
 
 const TITLE = 'Game Collections — Free Browser Games by Theme'
@@ -33,41 +32,38 @@ export default function CollectionsIndex() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6">
+    <GardenHubPage page="collections">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <nav aria-label="Breadcrumb" className="mb-4 text-sm text-fg-muted">
-        <Link href="/" className="hover:text-fg">
-          Home
-        </Link>
-        <span aria-hidden="true"> / </span>
-        <span className="text-fg">Collections</span>
-      </nav>
+      <GardenHubHead
+        crumbs={[{ href: '/', label: 'Home' }, { label: 'Collections' }]}
+        kicker={`${COLLECTION_SLUGS.length} collections`}
+        title="Game Collections"
+      >
+        <p>
+          Hand-picked sets of our free browser games, grouped by what you are in the mood for — games
+          like the daily puzzles you already love, or a whole shelf of word, number, two-player and
+          logic games. Every game is free, loads instantly, and needs no download or account.
+        </p>
+      </GardenHubHead>
 
-      <h1 className="neon-text mb-4 text-3xl font-bold text-neon-cyan sm:text-4xl">Game Collections</h1>
-      <p className="mb-8 max-w-3xl text-fg-muted">
-        Hand-picked sets of our free browser games, grouped by what you are in the mood for — games
-        like the daily puzzles you already love, or a whole shelf of word, number, two-player and
-        logic games. Every game is free, loads instantly, and needs no download or account.
-      </p>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {COLLECTION_SLUGS.map((s) => {
           const c = COLLECTIONS[s]
           return (
-            <Link
-              key={s}
-              href={`/collection/${s}`}
-              className="neon-box neon-box-hover group rounded-xl border border-border bg-surface/80 p-4 transition-colors"
-              style={{ color: accentVar(c.accent) }}
-            >
-              <h2 className="neon-text text-lg font-bold">{c.h1}</h2>
-              <p className="mt-1 text-sm text-fg-muted">{c.metaDescription}</p>
-              <span className="mt-2 inline-block text-xs text-fg-muted">{c.games.length} games →</span>
-            </Link>
+            <li key={s}>
+              <GardenLinkCard
+                href={`/collection/${s}`}
+                title={c.h1}
+                description={c.metaDescription}
+                meta={`${c.games.length} games →`}
+                flower={flowerOf(s)}
+                headingLevel={2}
+              />
+            </li>
           )
         })}
-      </div>
-    </main>
+      </ul>
+    </GardenHubPage>
   )
 }

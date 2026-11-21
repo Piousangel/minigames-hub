@@ -1,11 +1,9 @@
 import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
 import { gamePages } from '@/lib/games/registry'
 import { COLLECTIONS, COLLECTION_SLUGS } from '@/lib/games/collections'
-import { accentVar } from '@/lib/games/gameMeta'
-import { GameCard } from '@/components/GameCard'
+import { GardenChipNav, GardenFaq, GardenGameGrid, GardenHubHead, GardenHubPage } from '@/components/garden-hub/GardenHub'
 import { siteConfig, thinPageRobots } from '@/lib/siteConfig'
 
 export const dynamicParams = false
@@ -46,7 +44,6 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
 
   const bySlug = new Map(gamePages.map((g) => [g.slug, g]))
   const games = c.games.map((s) => bySlug.get(s)).filter((g): g is NonNullable<typeof g> => Boolean(g))
-  const color = accentVar(c.accent)
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -86,63 +83,26 @@ export default async function CollectionPage({ params }: { params: Promise<{ slu
   }
 
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6">
+    <GardenHubPage page={`collection-${slug}`}>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <nav aria-label="Breadcrumb" className="mb-4 text-sm text-fg-muted">
-        <Link href="/" className="hover:text-fg">
-          Home
-        </Link>
-        <span aria-hidden="true"> / </span>
-        <Link href="/collections" className="hover:text-fg">
-          Collections
-        </Link>
-        <span aria-hidden="true"> / </span>
-        <span className="text-fg">{c.h1}</span>
-      </nav>
+      <GardenHubHead
+        crumbs={[{ href: '/', label: 'Home' }, { href: '/collections', label: 'Collections' }, { label: c.h1 }]}
+        kicker={`${games.length} games`}
+        title={c.h1}
+      >
+        <p>{c.intro}</p>
+      </GardenHubHead>
 
-      <h1 className="neon-text mb-4 text-3xl font-bold sm:text-4xl" style={{ color }}>
-        {c.h1}
-      </h1>
-      <p className="mb-8 max-w-3xl text-fg-muted">{c.intro}</p>
+      <GardenGameGrid games={games} label={`${c.h1} games`} />
 
-      <section aria-label={`${c.h1} games`} className="mb-12">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {games.map((g) => (
-            <GameCard key={g.slug} slug={g.slug} title={g.h1} description={g.shortDescription} />
-          ))}
-        </div>
-      </section>
+      <GardenFaq id="collection-faq" items={c.faq} />
 
-      <section aria-labelledby="collection-faq" className="mb-12 max-w-3xl">
-        <h2
-          id="collection-faq"
-          className="neon-text mb-4 text-sm font-bold uppercase tracking-[0.15em]"
-          style={{ color }}
-        >
-          FAQ
-        </h2>
-        <div className="space-y-4">
-          {c.faq.map(({ q, a }) => (
-            <div key={q}>
-              <h3 className="font-semibold">{q}</h3>
-              <p className="text-fg-muted">{a}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <nav aria-label="More collections" className="flex flex-wrap gap-3 text-sm">
-        {COLLECTION_SLUGS.filter((s) => s !== slug).map((s) => (
-          <Link
-            key={s}
-            href={`/collection/${s}`}
-            className="inline-flex min-h-11 items-center rounded-lg border border-border bg-surface px-3 py-1.5 text-fg-muted hover:text-fg"
-          >
-            {COLLECTIONS[s].h1}
-          </Link>
-        ))}
-      </nav>
-    </main>
+      <GardenChipNav
+        label="More collections"
+        title="More collections"
+        links={COLLECTION_SLUGS.filter((s) => s !== slug).map((s) => ({ href: `/collection/${s}`, label: COLLECTIONS[s].h1 }))}
+      />
+    </GardenHubPage>
   )
 }

@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { allContent, contentBySlug, readingMinutes } from '@/content'
 import { ContentBody } from '@/components/ContentBody'
+import { GardenHubHead, GardenHubPage, gardenLink, gardenPlayButton } from '@/components/garden-hub/GardenHub'
 import { gamePages } from '@/lib/games/registry'
 import { siteConfig } from '@/lib/siteConfig'
 
@@ -56,41 +57,32 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   }
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-8">
+    <GardenHubPage page="guide-article" width="prose">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <nav className="mb-4 text-sm text-fg-muted" aria-label="Breadcrumb">
-        <Link href="/guides" className="hover:text-fg">
-          Guides
-        </Link>{' '}
-        / <span>{label}</span>
-      </nav>
-      <h1 className="mb-3 text-3xl font-bold">{entry.title}</h1>
-      <p className="mb-2 text-fg-muted">{entry.description}</p>
-      <p className="mb-6 text-xs text-fg-muted">
-        By {siteConfig.author} · {c.type === 'guide' ? 'Updated' : 'Published'} {date} · {readingMinutes(entry)} min read
-      </p>
-      {games.length > 0 && (
-        <div className="mb-6 flex flex-wrap gap-2">
-          {games.map((g) => (
-            <Link
-              key={g.slug}
-              href={`/${g.slug}`}
-              className="rounded-lg border border-accent/50 bg-accent/10 px-3 py-1.5 text-sm font-semibold text-accent hover:bg-accent/20"
-            >
-              ▶ Play {g.h1}
-            </Link>
-          ))}
-        </div>
-      )}
+      <GardenHubHead crumbs={[{ href: '/guides', label: 'Guides' }, { label }]} title={entry.title}>
+        <p className="text-garden-ink">{entry.description}</p>
+        <p className="text-[13px] leading-5 text-garden-ink-soft sm:text-[14px]">
+          By {siteConfig.author} · {c.type === 'guide' ? 'Updated' : 'Published'} {date} · {readingMinutes(entry)} min read
+        </p>
+        {games.length > 0 && (
+          <div className="flex flex-wrap gap-2 pt-2">
+            {games.map((g) => (
+              <Link key={g.slug} href={`/${g.slug}`} className={gardenPlayButton}>
+                ▶ Play {g.h1}
+              </Link>
+            ))}
+          </div>
+        )}
+      </GardenHubHead>
       <ContentBody sections={entry.sections} tables={entry.tables} />
-      <p className="mt-12 border-t border-border pt-6 text-sm text-fg-muted">
+      <p className="mt-14 border-t-2 border-dashed border-garden-ink/30 pt-6 text-[15px] leading-[24px] text-garden-ink-soft">
         Every number on this page comes from the game&apos;s own code or from simulations run against it. Spotted
         something that doesn&apos;t match how the game plays?{' '}
-        <Link href="/contact" className="text-accent">
+        <Link href="/contact" className={gardenLink}>
           Let me know
         </Link>
         .
       </p>
-    </main>
+    </GardenHubPage>
   )
 }

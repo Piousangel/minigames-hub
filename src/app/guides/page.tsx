@@ -1,6 +1,6 @@
 import { ogImage } from '@/lib/og/ogImage'
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import { GardenHubHead, GardenHubPage, GardenLinkCard, HAESSI_SKY } from '@/components/garden-hub/GardenHub'
 import { ARTICLES, GUIDES, readingMinutes } from '@/content'
 import { siteConfig } from '@/lib/siteConfig'
 
@@ -15,15 +15,20 @@ export const metadata: Metadata = {
   openGraph: { title: TITLE, description: DESCRIPTION, url: '/guides', siteName: siteConfig.name, type: 'website', images: ogImage() },
 }
 
-function Card({ href, title, description, meta }: { href: string; title: string; description: string; meta: string }) {
+const SECTION_FLOWER = {
+  guides: 'var(--garden-clover)',
+  data: 'var(--garden-lavender)',
+  design: 'var(--garden-apricot)',
+} as const
+
+function Shelf({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
-    <li>
-      <Link href={href} className="block rounded-xl border border-border bg-surface/60 p-4 transition-colors hover:border-accent/60">
-        <h3 className="font-semibold text-fg">{title}</h3>
-        <p className="mt-1 text-sm text-fg-muted">{description}</p>
-        <p className="mt-2 text-xs text-fg-muted">{meta}</p>
-      </Link>
-    </li>
+    <section aria-labelledby={id} className="mt-12 first:mt-0">
+      <h2 id={id} className="font-display text-[24px] leading-[30px] font-semibold tracking-[-0.015em] text-garden-ink">
+        {title}
+      </h2>
+      <ul className="mt-4 grid gap-4 sm:grid-cols-2">{children}</ul>
+    </section>
   )
 }
 
@@ -31,47 +36,48 @@ export default function GuidesHub() {
   const design = ARTICLES.filter((a) => a.kind === 'design-notes')
   const data = ARTICLES.filter((a) => a.kind === 'data')
   return (
-    <main className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-3 text-3xl font-bold">{TITLE}</h1>
-      <p className="mb-8 leading-relaxed text-fg-muted">
-        Every game on {siteConfig.name} runs on a rules engine I wrote myself, which means I can read the exact
-        scoring formulas and run thousands of simulated games to see what actually works. These pages are where that
-        goes: strategy guides grounded in the real rules, notes on how the site&apos;s original games were designed and
-        changed, and numbers you won&apos;t find anywhere else.
-      </p>
+    <GardenHubPage page="guides">
+      {/* 안내 = 해씨(D5), 생각하는 포즈(기존 160px 사본) */}
+      <GardenHubHead kicker={`${GUIDES.length + ARTICLES.length} guides and articles`} title={TITLE} art={{ mascot: 'haessi-think', wash: HAESSI_SKY }}>
+        <p>
+          Every game on {siteConfig.name} runs on a rules engine I wrote myself, which means I can read the exact
+          scoring formulas and run thousands of simulated games to see what actually works. These pages are where that
+          goes: strategy guides grounded in the real rules, notes on how the site&apos;s original games were designed and
+          changed, and numbers you won&apos;t find anywhere else.
+        </p>
+      </GardenHubHead>
 
-      {GUIDES.length > 0 && (
-        <section className="mb-10">
-          <h2 className="mb-4 text-xl font-semibold">Strategy guides</h2>
-          <ul className="grid gap-3 sm:grid-cols-2">
+      <div className="max-w-4xl">
+        {GUIDES.length > 0 && (
+          <Shelf id="guides-strategy" title="Strategy guides">
             {GUIDES.map((g) => (
-              <Card key={g.slug} href={`/guides/${g.slug}`} title={g.title} description={g.description} meta={`${readingMinutes(g)} min read`} />
+              <li key={g.slug}>
+                <GardenLinkCard href={`/guides/${g.slug}`} title={g.title} description={g.description} meta={`${readingMinutes(g)} min read`} flower={SECTION_FLOWER.guides} />
+              </li>
             ))}
-          </ul>
-        </section>
-      )}
+          </Shelf>
+        )}
 
-      {data.length > 0 && (
-        <section className="mb-10">
-          <h2 className="mb-4 text-xl font-semibold">Data deep-dives</h2>
-          <ul className="grid gap-3 sm:grid-cols-2">
+        {data.length > 0 && (
+          <Shelf id="guides-data" title="Data deep-dives">
             {data.map((a) => (
-              <Card key={a.slug} href={`/guides/${a.slug}`} title={a.title} description={a.description} meta={`${a.published} · ${readingMinutes(a)} min read`} />
+              <li key={a.slug}>
+                <GardenLinkCard href={`/guides/${a.slug}`} title={a.title} description={a.description} meta={`${a.published} · ${readingMinutes(a)} min read`} flower={SECTION_FLOWER.data} />
+              </li>
             ))}
-          </ul>
-        </section>
-      )}
+          </Shelf>
+        )}
 
-      {design.length > 0 && (
-        <section className="mb-10">
-          <h2 className="mb-4 text-xl font-semibold">Designer&apos;s notes</h2>
-          <ul className="grid gap-3 sm:grid-cols-2">
+        {design.length > 0 && (
+          <Shelf id="guides-design" title={"Designer's notes"}>
             {design.map((a) => (
-              <Card key={a.slug} href={`/guides/${a.slug}`} title={a.title} description={a.description} meta={`${a.published} · ${readingMinutes(a)} min read`} />
+              <li key={a.slug}>
+                <GardenLinkCard href={`/guides/${a.slug}`} title={a.title} description={a.description} meta={`${a.published} · ${readingMinutes(a)} min read`} flower={SECTION_FLOWER.design} />
+              </li>
             ))}
-          </ul>
-        </section>
-      )}
-    </main>
+          </Shelf>
+        )}
+      </div>
+    </GardenHubPage>
   )
 }
