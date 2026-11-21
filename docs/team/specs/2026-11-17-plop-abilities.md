@@ -369,7 +369,7 @@ E2 리홉(Acorn Hop 시각 겹침), E3 브레이크 상시(쉬워짐), E4 급강
 
 ---
 
-문서 경로: /private/tmp/claude-501/-Users-hyunseok-Desktop/dece547c-04bc-4cd8-9008-90c593f6b414/scratchpad/plop-abilities.md
+문서 경로: `<scratchpad>/plop-abilities.md`
 
 ---
 

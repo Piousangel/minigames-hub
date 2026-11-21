@@ -5,7 +5,7 @@ Branch: main
 Repo: Piousangel/minigames-hub
 Status: APPROVED
 Mode: Startup
-Supersedes: hyunseok-main-design-20260810-154432.md
+Supersedes: `<user>-main-design-20260810-154432.md`
 
 ## Problem Statement
 

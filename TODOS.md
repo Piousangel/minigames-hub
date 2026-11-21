@@ -35,7 +35,7 @@ comments와 같은 D1을 쓰기 때문에, 무제한 플드가 D1 일일 쓰기 
 **What:** 2026-08-10에 Approach A(게임별 익명 댓글)를 배포하고, 같은 날
 `/review`(4개 스페셜리스트 + Claude 적대적 리뷰)로 실버그 2건(이름 필드 링크
 우회, 레이트리밋 TOCTOU 경쟁 상태)을 잡아 고쳤다(design doc:
-`~/.gstack/projects/Piousangel-minigames-hub/hyunseok-main-design-20260810-154432.md`).
+`~/.gstack/projects/Piousangel-minigames-hub/<user>-main-design-20260810-154432.md`).
 방어선(허니팟·링크차단·길이제한·원자적 IP 30초 레이트리밋)을 프로덕션에서
 curl로 직접 검증했지만, 실제 트래픽(특히 스캐너·봇)에 노출된 뒤에도 버티는지는
 며칠~1-2주 지켜봐야 안다. `GET /api/comments`(game 파라미터 없이 호출)로 전 게임

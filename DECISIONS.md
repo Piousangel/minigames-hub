@@ -330,6 +330,9 @@
 - 버린 안: 마크를 더 키우기(레이아웃 유지 지시), 원판에 외곽선을 구워 넣기(헤더·파비콘까지 바뀜 — 헤더 전용 링 강조 판은 별도 오너 결정 대기).
 - 되돌리기: #228 revert.
 
+## 2026-11-21 추적 문서에서 맥 사용자명 경로 제거 (오너)
+- 선택: 문서의 `/Users/<사용자>/…`는 `~/…`, scratchpad 경로는 `<scratchpad>/…`, gstack 파일명은 `<user>-…`로 바꿨다. 지난 git 기록에는 그대로 남는다 — force push 금지라 기록은 재작성하지 않는다.
+
 ## 2026-11-21 리디자인 v2 R8 옛 네온 코드 정리 — 죽은 갈래만 지우고, 관련 게임 카드는 정원 카드로(팀)
 - 맥락: R7f(게임 113)·R9(허브 페이지 전부)로 사람용 페이지가 전부 정원이 됐다. 남은 네온 코드 중 '아무도 안 쓰는 것'을 지운다. 기준 = 참조 0을 도구로 증명(import 그래프 + 빌드 CSS 선택자의 실제 DOM 일치 + 빌드 HTML), 애매하면 남기고 목록으로.
 - **지운 것**: ① GamePageLayout의 `gameWorld()===null` 네온 갈래(네온 H1·`data-world` 없음) — 오리지널 3종 밖은 전부 정원 틀로 그린다(배치 누락은 `gardenPending` 테스트가 잡는다). ② `GameCard`·`SpotlightCard`(RelatedGames만 쓰던 네온 카드) → RelatedGames 안 정원 카드. ③ globals.css의 스포트라이트 카드 규칙(`.spotlight-card::before`·hover, `.card-icon`·`.card-title`, `.neon-box-hover`, 모션 줄이기 안 같은 항목, 정원 스코프의 `.spotlight-card` 덮어쓰기 4개). ④ `FavoriteHeart`·`NewBadge`의 'neon' 변형 → 'corner'(정원 색 값).
