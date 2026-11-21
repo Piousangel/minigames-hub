@@ -85,8 +85,11 @@ function BrandMark() {
   const color = G.ink
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-      {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
-      <img src={assetDataUrl('brand-mark.png')} width={48} height={48} />
+      {/* 진갈색 외곽선(카드의 타일·알약·띠와 같은 언어) — 48px에선 금빛 링만으론 코랄 노을에 묻혀 스티커처럼 떠 보였다(리뷰) */}
+      <div style={{ width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 24, border: `2.5px solid ${G.ink}`, backgroundColor: G.ink }}>
+        {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
+        <img src={assetDataUrl('brand-mark.png')} width={43} height={43} />
+      </div>
       <div style={{ display: 'flex', fontFamily: 'Figtree', fontWeight: 800, fontSize: 32, color }}>Quick MiniGames</div>
     </div>
   )
