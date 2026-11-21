@@ -288,7 +288,7 @@
 
 ---
 
-문서 경로: /private/tmp/claude-501/-Users-hyunseok-Desktop/dece547c-04bc-4cd8-9008-90c593f6b414/scratchpad/plop-variety.md
+문서 경로: `<scratchpad>/plop-variety.md`
 
 
 ---

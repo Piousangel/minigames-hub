@@ -132,4 +132,4 @@ GROWTH.md의 "같은 형식을 연속으로 만들지 않는다"는 입력·리�
 
 **4.5/10** — 억울함 완화라는 문제 정의는 좋지만, 제시한 숫자로는 첫 5섬 17%·후반 Perfect 창 18ms·맞바람 도달 불가가 나오고, 핵심 차별점 "반동"이 Acorn Hop 본체와 겹쳐 있어 현 상태로는 G2 시뮬을 통과하지 못한다. 위 1~3번을 먼저 고치면 6.5점 안팎까지 올라간다.
 
-결과 파일: /private/tmp/claude-501/-Users-hyunseok-Desktop/dece547c-04bc-4cd8-9008-90c593f6b414/scratchpad/review-plop-brief.md
+결과 파일: `<scratchpad>/review-plop-brief.md`

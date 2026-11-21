@@ -7,7 +7,7 @@
 
 ## 0. 현재 상태 (사실)
 
-### 미니게임 허브 (/Users/hyunseok/Desktop/minigames-hub)
+### 미니게임 허브 (~/Desktop/minigames-hub)
 - wrangler.jsonc:5-11 — Workers + 정적 에셋(`./out`, binding `ASSETS`). 같은 오리진의 `/api/*`는 `worker/index.ts`가 처리하고 나머지는 `env.ASSETS.fetch`로 넘긴다(worker/index.ts:375).
 - 바인딩 (wrangler.jsonc):
   - D1 `DB` = `minigames-leaderboard` (12-18행)
@@ -25,7 +25,7 @@
 - 리더보드가 붙은 게임은 `LEADERBOARD_GAMES`에 84개 항목이 있다(leaderboard.ts:4~, grep으로 센 값이라 약간의 오차가 있을 수 있음).
 - 결정적 엔진 예: 뿅 착지(`src/lib/games/plop/engine.ts`)는 "시계·Math.random 금지, mulberry32(시드, 섬 번호)"를 명시한다(engine.ts:6). 시간은 호출자가 ms로 넘긴다. 일일 시드는 `dailySeedFor`(74행).
 
-### 샌드랩 (/Users/hyunseok/Desktop/sandlab)
+### 샌드랩 (~/Desktop/sandlab)
 - wrangler.jsonc:5-11 — 허브와 같은 구조(Workers + 정적 에셋 + `/api/*`).
 - 바인딩 (wrangler.jsonc):
   - D1 `DB` = `sandlab-gallery` (12-18행)

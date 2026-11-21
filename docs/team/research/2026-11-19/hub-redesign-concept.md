@@ -6,8 +6,8 @@
 먼저 읽은 것: `docs/team/research/2026-11-19/opinion-designer.md`(노을 정원 초안), `docs/team/specs/2026-11-19-uiux-north-star.md`, `docs/team/ROADMAP.md`, `docs/team/GEMINI.md`, `src/app/page.tsx`, `src/app/layout.tsx`, `src/app/fonts.ts`, `src/app/globals.css` 앞부분, `src/components/GameCard.tsx`, `src/components/icons/GameIcon.tsx`(크기만), `public/art/` 목록(27개).
 
 캡처 위치(이 문서의 근거):
-- 우리 사이트: `/private/tmp/claude-501/-Users-hyunseok-Desktop/dece547c-04bc-4cd8-9008-90c593f6b414/scratchpad/shots/` 아래 `m-*.png`(390x844, hasTouch·isMobile 새 컨텍스트), `d-*.png`(1440x900 새 컨텍스트). 홈·/plop-landing·/acorn-hop·/slime-slide·/leaderboards·404, 홈 스크롤 지점 4곳과 그리드.
-- 레퍼런스: `/private/tmp/claude-501/-Users-hyunseok-Desktop/dece547c-04bc-4cd8-9008-90c593f6b414/scratchpad/shots/ref/` (26개 사이트 1440 캡처, `sm/`은 축소본)
+- 우리 사이트: `<scratchpad>/shots/` 아래 `m-*.png`(390x844, hasTouch·isMobile 새 컨텍스트), `d-*.png`(1440x900 새 컨텍스트). 홈·/plop-landing·/acorn-hop·/slime-slide·/leaderboards·404, 홈 스크롤 지점 4곳과 그리드.
+- 레퍼런스: `<scratchpad>/shots/ref/` (26개 사이트 1440 캡처, `sm/`은 축소본)
 
 한계: 모션은 정지 캡처로만 봤다(프레임 단위 측정 안 함). NYT 허브(/crosswords)는 캡처가 실패했고 Connections 페이지만 확인했다. 폰트 파일 크기와 Rive 런타임 크기는 출처마다 다르다. 실제 패키지로 직접 재야 한다. AdSense 정책은 Google 도움말의 검색 요약으로 확인했다. 출시 전에 원문을 다시 읽어야 한다.
 

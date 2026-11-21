@@ -354,7 +354,7 @@ gstack browse도 아니다(`browse-audit.jsonl`에 7/16·8/4만). **즉 이 사�
 
 **`/office-hours`로 방향 확정 → 설계 문서 APPROVED:**
 `docs/designs/portal-distribution-and-community-launch.md` (사본:
-`~/.gstack/projects/Piousangel-minigames-hub/hyunseok-main-design-20260901-115356.md`).
+`~/.gstack/projects/Piousangel-minigames-hub/<user>-main-design-20260901-115356.md`).
 Approach C(병렬) 선택 — **에이전트는 포털 배급 준비, 사용자는 한국 커뮤니티 배포**,
 미국 unblocked SEO는 Googlebot이 8/27부터 실제 크롤 중이므로 대기 트랙.
 
@@ -954,7 +954,7 @@ curl로 직접 확인.
 순서로 합의.
 
 **설계 문서**(`/office-hours` 산출물, 적대적 리뷰 2라운드 거쳐 9/10 통과):
-`~/.gstack/projects/Piousangel-minigames-hub/hyunseok-main-design-20260810-154432.md`.
+`~/.gstack/projects/Piousangel-minigames-hub/<user>-main-design-20260810-154432.md`.
 리뷰가 실제로 잡은 문제: Approach C에 D1 스키마가 없었음, 리액션 클릭 어뷰징 방지 규칙이
 없었음, 성공 기준(재방문율 비교)에 필요한 vid 귀속 경로가 안 정의됨, 그리고 존재하지
 않는 서버 사이드 IP 레이트리미트를 "기존 패턴 재사용"이라고 잘못 주장한 것(코드 확인
@@ -1024,7 +1024,7 @@ tests**(comments.ts 7건 + Comments.tsx 3건 신규) GREEN / build 성공 / e2e 
 달리 댓글엔 자연 순환(주간 리셋 등)이 없어서 그대로 두면 안 됐음.
 
 설계 문서 addendum:
-`~/.gstack/projects/Piousangel-minigames-hub/hyunseok-main-design-20260810-154432.md`
+`~/.gstack/projects/Piousangel-minigames-hub/<user>-main-design-20260810-154432.md`
 
 **다음 세션 후보:** 실제로 댓글이 달리기 시작하는지 며칠~1-2주 지켜볼 것(현재는 배선만
 확인). 스팸이 뚫리는 패턴이 보이면 방어선 강화(금칙어 목록, Cloudflare Bot Fight Mode
