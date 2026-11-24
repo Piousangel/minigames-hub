@@ -20,3 +20,4 @@
 - 클라우드 세션은 quickminigames.site가 프록시 403 → 같은 커밋 로컬 빌드로 점검. Playwright는 `-c` 임시 설정 + `executablePath:/opt/pw-browsers/chromium`(커밋 금지). `prettier --write` 쓰지 말 것(설정 없음).
 - 새 핵심 화면 e2e는 ci.yml 스모크 `--grep`에 추가. CI에서 15초 가까운 테스트는 한도 대신 구조를 고칠 것. 로컬 과부하 `Timeout calling "onTaskUpdate"`는 재실행.
 - 픽셀 비교는 `node scripts/garden-capture.mjs diff --base <main 빌드> --head <브랜치 빌드>`(시계·랜덤 고정). SEO 비교 `node scripts/seo-head-diff.mjs`.
+- 말랑 새 스테이지는 항상 끝에만 추가(일일 #N = N번째). 체크리스트: gate v4.1 통과 · 물리 9조합 변동 ≤15%p · 힌트 도착 테스트(`scripts/slime-hints.ts` → STAGE_HINTS) · 앞 스테이지보다 쉬워지지 않을 것 · 난이도 경사 한복판에 두지 않기(후보 탐색 `scripts/slime-stage2.ts`).
