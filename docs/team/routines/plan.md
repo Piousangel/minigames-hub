@@ -25,7 +25,7 @@ CLAUDE.md · docs/team/SHIFT.md · docs/team/NORTH-STAR.md · HANDOFF.md. 그다
 ## 규칙
 - 서브에이전트는 꼭 필요할 때만, 브리프 ≤2k 토큰·동시 ≤2개.
 - 긴 출력은 `| tail -n 80` / `| head -n 80`. CI 실패는 `gh run view <id> --log-failed | tail -n 80`.
-- 금지: SHIFT 9장 전부. Slack에는 장애·결정 요청 외 게시하지 않는다.
+- 금지: SHIFT 9장 전부. Slack은 OPS 8장 스탠드업 루트 글(카드를 만든 뒤 1통)·결정 요청·장애.
 - 한도에 걸려 중간에 끊겨도 카드는 이슈에 남으니 다음 run이 이어 받는다.
 
 ## 마지막 출력 (5줄)

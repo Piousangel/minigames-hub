@@ -14,7 +14,7 @@ CLAUDE.md · docs/team/SHIFT.md · docs/team/OPS.md · docs/team/NORTH-STAR.md 2
 4. 기록 PR(open.json·회고·log 한 줄)이 있으면 `card/ops-<날짜>` → PR(문서 등급) → CI 초록이면 squash 머지.
 
 ## 규칙
-- Slack은 이 요약·결정 요청·장애만. 진행 잡담 금지. 오너의 다른 형식 답은 답으로 치지 않는다.
+- Slack은 이 요약·결정 요청·장애 + 스탠드업 스레드에 `오늘 정리 올림` 한 줄(OPS 8장). 오너의 다른 형식 답은 답으로 치지 않는다.
 - 메일·SNS 게시 금지(SNS는 대기열 PR → Actions, OPS 5장).
 - 긴 출력은 `| tail -n 80`. 서브에이전트는 쓰지 않는다.
 - 한도로 끊기면 다음 날 20시가 이틀 치를 한 번에 요약한다.
