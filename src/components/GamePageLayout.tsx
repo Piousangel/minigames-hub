@@ -57,8 +57,8 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
   // room = 오리지널 3종(자기 방을 그림 — 정원 제목만), 그 밖 = R7 정원 틀(크림 바깥 + 밤 정원 게임판).
   // R7f로 전 게임이 둘 중 하나라 예전 네온 화면 갈래는 R8에서 지웠다. 배치에 아직 없는 새 게임도 정원 틀로 그리고,
   // 배치 목록 누락은 gardenRollout.test.ts('전 게임 정원 틀' — gameWorld null 0)가 잡는다.
-  const garden = gameWorld(page.slug) === 'room'
-  const framed = !garden
+  const room = gameWorld(page.slug) === 'room'
+  const framed = !room
   const neon = accentVar((gameMeta[page.slug] ?? DEFAULT_META).accent)
   const guide = guideForGame(page.slug)
   const related = articlesForGame(page.slug)
@@ -68,7 +68,7 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
     <main
       className="mx-auto max-w-3xl px-4 py-6"
       style={framed ? undefined : { ['--accent' as string]: ROOM_GOLD }}
-      data-world={garden ? 'garden-room' : 'garden'}
+      data-world={room ? 'garden-room' : 'garden'}
       data-game-page
     >
       <RecordPlay slug={page.slug} />
@@ -197,7 +197,7 @@ export function GamePageLayout({ page, children }: { page: GamePage; children: R
       {/* 인콘텐츠 광고 자리(승인 전엔 렌더 안 됨) */}
       <AdSlot slot="game-incontent" className="mt-10" />
 
-      <RelatedGames currentSlug={page.slug} room={garden} />
+      <RelatedGames currentSlug={page.slug} room={room} />
     </main>
   )
 }

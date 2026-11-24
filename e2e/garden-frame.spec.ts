@@ -249,6 +249,23 @@ test.describe('정원 틀 배치(R7)', () => {
     }
   })
 
+  // R8: 예전엔 정원 스코프의 `.neon-box` box-shadow 덮어쓰기가 Tailwind focus 링(box-shadow)까지 덮어 키보드 포커스가 안 보였다.
+  // 정원 카드로 바꾸며 링이 보이게 됐다(의도된 변화) — 다시 덮이지 않게 고정한다.
+  test('관련 게임 카드: 키보드 포커스 링이 보인다(정원 틀 2048, 오리지널 plop-landing)', async ({ page }) => {
+    for (const slug of ['2048', 'plop-landing']) {
+      await page.goto(`/${slug}`)
+      const link = page.locator('section[aria-labelledby="related-games"] a[href^="/"]').first()
+      await link.scrollIntoViewIfNeeded()
+      const rest = await link.evaluate((el) => getComputedStyle(el).boxShadow)
+      await page.keyboard.press('Shift') // 키보드 사용 상태로 — 이후 focus()는 :focus-visible
+      await link.focus()
+      expect(await link.evaluate((el) => el.matches(':focus-visible')), `${slug} :focus-visible`).toBe(true)
+      // garden-jelly의 box-shadow 전환(140ms)이 끝난 값 — ring-2 + offset-2 = 4px 확산
+      await expect.poll(() => link.evaluate((el) => getComputedStyle(el).boxShadow), { message: `${slug} 포커스 링` }).toContain('0px 0px 0px 4px')
+      expect(await link.evaluate((el) => getComputedStyle(el).boxShadow)).not.toBe(rest)
+    }
+  })
+
   test('오리지널 3종은 자기 방(정원 틀 매핑 없음)', async ({ page }) => {
     for (const slug of GARDEN_ORIGINALS) {
       await page.goto(`/${slug}`)
