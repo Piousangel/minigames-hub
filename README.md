@@ -3,10 +3,10 @@
 > Free browser mini games, built and run by a team of Claude Code agents working in shifts around the clock.
 
 브라우저에서 바로 하는 무료 미니게임 사이트입니다. 설치·가입 없이 열자마자 한 판.
-**Claude Code를 실무에서 잘 쓰는 법을 익히려고 시작한 사이드 프로젝트**이기도 합니다. 기획·구현·리뷰·QA·홍보 문안은 역할별 AI 에이전트가 2026-11-19부터 하루 13교대로 나눠 맡고, 배포·게시는 머지 뒤 GitHub Actions가 합니다. 사람(오너)은 주로 방향을 잡고 되돌릴 수 없는 결정을 승인합니다.
+**Claude Code를 실무에서 잘 쓰는 법을 익히려고 시작한 사이드 프로젝트**이기도 합니다. 기획·구현·리뷰·QA·홍보 문안은 역할별 AI 에이전트가 하루 계획 → 작업 카드 → 독립 리뷰 구조(운영안 v2, 2026-11-24 — 그전 11-19~23은 13교대)로 나눠 맡고, 배포·게시는 머지 뒤 GitHub Actions가 합니다. 사람(오너)은 주로 방향을 잡고 되돌릴 수 없는 결정을 승인합니다.
 
 - **무엇** — 게임 113종과 매일 같은 판을 푸는 오리지널 데일리 3종
-- **어떻게** — 역할을 나눈 Claude Code 에이전트가 24시간 교대로 리서치→기획→반증→독립 리뷰→출시를 돌리고, 사람은 규칙과 검사를 설계
+- **어떻게** — 계획 루틴이 GitHub 이슈 카드를 만들고, 작업 루틴이 카드 1장 = PR 1개를 내고, 작성과 분리된 리뷰 루틴이 증거부터 보고 머지한다. 사람은 규칙과 검사를 설계
 - **증거** — 아래 [결정적 검사 표](#결정적-검사--규칙-문장보다-검사), [DECISIONS.md](DECISIONS.md), [퀄리티 장부](docs/team/quality/ledger.md). 2026-07-13 시작, 커밋 561개 중 450개에 Claude Code 공동 작성 표기(2026-11-20 기준)
 
 **라이브:** https://quickminigames.site
@@ -39,33 +39,20 @@
 
 커밋 대부분은 Claude Code 세션(정해진 시각에 도는 클라우드 루틴 포함)이 씁니다. 사람이 코드를 쓰기보다 **에이전트가 일하는 규칙과 검사를 설계하는 것**이 이 프로젝트의 실험입니다.
 
-### 교대 구조
+### 교대 구조 (운영안 v2, 2026-11-24)
 
-[ROTA.md](docs/team/ROTA.md) 기준(시각은 KST). 루틴이 시각마다 세션을 열고, 한 세션이 한 교대입니다. 앞 교대의 PR·`HANDOFF.md`를 이어받고 다음 교대가 이어받을 수 있게 남깁니다. 시작할 때 [NORTH-STAR.md](docs/team/NORTH-STAR.md)(90일 미션·지표)를 보고 이번 일이 어느 지표를 움직이는지 적습니다.
+규칙 정본은 [SHIFT.md](docs/team/SHIFT.md)(자매 프로젝트 [Sandlab](https://github.com/Piousangel/sandlab)이 사본을 씁니다), 보고·회고·마케팅은 [OPS.md](docs/team/OPS.md). 이전 13교대 체제의 문서는 [docs/archive/](docs/archive/team-2026-11/)에 있습니다.
 
-하루 13교대 = 개발 4 · QA 1 · 퀄리티 전담 2 · 기획 숙의 1 · 회의 1 · 리뉴얼·신작·사이트 3 · 마무리 1, 그리고 화·금 스토리텔러.
+1. **계획**(하루 1회) — 지표·오너 결정·어제 PR을 보고 GitHub 이슈 카드를 만듭니다. 카드마다 팀 라벨(`team:H0` 재방문·측정, `H1` 기존 게임, `H2` 신규, `H3` 말랑 미끄럼길, `H4` SEO·GEO), 수락 기준, 오답 검사, 위험 등급.
+2. **작업** — `ready` 카드 1장 = PR 1개. 하트비트 코멘트로 끊긴 카드를 다음 run이 이어 받습니다.
+3. **독립 리뷰·머지** — 작성 세션과 다른 세션이 증거 먼저, 위험 비례(문서 1회 · 제품 1회 · 고위험 2회 + 오너 확인)로 리뷰하고 squash 머지 → Actions 배포.
+4. **품질**(03시)·**운영**(20시 Slack 요약, 두 사이트 합본 메일 1통).
 
-<details>
-<summary>시각별 교대표</summary>
-
-| 시각 | 교대 |
-|---|---|
-| 00 | 심야 QA — 라이브 전수 점검(390px 터치 에뮬), 회귀·작은 버그만 |
-| 02 · 08 · 18 · 22 | 개발(야간 A, 아침, 저녁, 야간 B) |
-| 03 · 15 | 게임 퀄리티 전담팀 |
-| 04 | 기획·디자인 숙의 — 코드 없이 리서치→기획→반증→리뷰 문서 |
-| 06 | 회의(데이터 분석·CS·QA·마케터·게임 디자이너·PM·리뷰어 역할) → 반영 → 오너 보고 메일 |
-| 10 · 13 · 16 | 기존 게임 리뉴얼 · 신작 사이클 · 사이트 개발(SEO·첫 화면 등) |
-| 20 | 출시 확인·홍보 큐·하루 요약 |
-| 화·금 05 | 스토리텔러 |
-
-</details>
-
-같은 규칙으로 자매 프로젝트 [Sandlab](https://github.com/Piousangel/sandlab)이 7교대로 돕니다.
+주기는 할당량이 아니라 상한입니다(기존 게임 주 3개, 말랑 주 1~2단계). 품질 미달로 미룬 것도 성과로 셉니다. 교대가 읽는 필독 세트(CLAUDE.md·SHIFT·NORTH-STAR·HANDOFF)는 30KB를 넘으면 CI가 실패합니다.
 
 ### 한 출시가 거치는 절차
 
-[SESSION-GUIDE.md](docs/team/SESSION-GUIDE.md)의 '깊이 규칙':
+[DESIGN-PROCESS.md](docs/team/DESIGN-PROCESS.md)의 '기획 라운드':
 
 1. **리서치 1** — 서로 다른 출처 3종 이상을 서브에이전트가 병렬 조사
 2. **기획 v1** → **리서치 2**(기획의 가정을 *반증*하려는 조사: 실패 사례·불만·경쟁 사이트) → **기획 v2**
@@ -77,9 +64,9 @@
 ### 역할 분리
 
 - **작성자 ≠ 검토자** — 코드 PR은 작성자가 아닌 에이전트의 독립 리뷰를 거친 뒤 squash 머지합니다. 리뷰가 보고한 버그는 다른 에이전트가 재현한 것만 고칩니다.
-- **게임 퀄리티 전담팀** ([QUALITY.md](docs/team/QUALITY.md), 2026-11-19 신설, 11-20 현재 3개 게임 점검) — 신작을 만들지 않고 있는 게임만 깎습니다. 교대마다 3개를 Playwright로 실제 3판 이상 플레이하고 8항목(첫 10초·조작감·손맛·읽기 쉬움·난이도 곡선·다시 하고 싶음·모바일 390·세계관)을 0~3점으로 매겨 [장부](docs/team/quality/ledger.md)에 남깁니다. 플레이 테스터·수정 담당·리뷰어가 서로 다른 에이전트입니다.
+- **게임 퀄리티 전담팀** ([QUALITY.md](docs/team/QUALITY.md), 2026-11-19 신설, 11-20 현재 3개 게임 점검) — 신작을 만들지 않고 있는 게임만 깎습니다. 카드마다 1개를 Playwright로 실제 3판 이상 플레이하고 8항목(첫 10초·조작감·손맛·읽기 쉬움·난이도 곡선·다시 하고 싶음·모바일 390·세계관)을 0~3점으로 매겨 [장부](docs/team/quality/ledger.md)에 남깁니다. 플레이 테스터·수정 담당·리뷰어가 서로 다른 에이전트입니다.
 - **신작 라운드 오케스트레이션** — [.claude/workflows/minigames-round.js](.claude/workflows/minigames-round.js)가 발상 → 3인 심의 → 명세 → 구현 → 마감 QA → 적대적 리뷰 → 수정 → UI/UX 감사를 서로 다른 에이전트에 나눠 돌립니다.
-- **스토리텔러** — 마스코트 4마리의 세계관 단편과 화면용 대사를 [docs/story/](docs/story/README.md)에 씁니다.
+- **스토리** — 마스코트 4마리의 세계관 단편과 화면용 대사를 [docs/story/](docs/story/README.md)에 씁니다(v2에서는 H0·H1 카드로).
 - **결정 기록** — 선택지·버린 안·근거를 [DECISIONS.md](DECISIONS.md)에 남깁니다. 예: 시뮬레이션에서 합격선 두 개가 동시에 만족되지 않는다는 걸 데이터로 확인하고 합격선을 다시 쓴 결정(2026-11-18).
 
 ### 결정적 검사 — 규칙 문장보다 검사
@@ -95,7 +82,7 @@
 | `src/lib/games/slime/golden.test.ts` 등 엔진 테스트 | 결정적 게임 엔진의 결과가 바뀌는 것(골든 값 고정) |
 | `src/lib/games/collections.test.ts` | 컬렉션 멤버가 5개 미만이거나 없는 slug를 가리키는 것, 소개글이 짧거나 컬렉션끼리 중복되는 것 |
 
-어디서 도나: main 머지 시 CI(`deploy.yml`)는 타입체크·린트·라우트 검사를 통과해야 배포합니다. 단위 테스트는 교대가 머지 전에 바꾼 파일 관련분(`pnpm vitest related --run <파일>`)을 돌리고, e2e는 교대가 직접 실행합니다. 전체 Vitest에는 알려진 기존 실패가 있어 CI 관문에서 빠져 있습니다([HANDOFF.md](HANDOFF.md)). 에이전트가 직접 배포하지 않습니다.
+어디서 도나: PR마다 CI(`ci.yml`)가 타입체크·린트·전체 Vitest(만성 실패 0, 2026-11-20)·빌드·라우트·SEO 검사·e2e 스모크를 돌고, 초록이어야 머지합니다. 로컬에서는 `pnpm verify` 하나. `pr-guard.yml`은 고위험 경로에 `high-risk` 라벨을 붙이고 열린 PR끼리 같은 파일을 바꾸면 경고합니다. 에이전트가 직접 배포하지 않습니다(main 머지 시 `deploy.yml`).
 
 ### 참고 강연에서 가져온 원칙 (팀 안에서는 '스승님 원칙')
 
@@ -160,7 +147,7 @@ pnpm build && node scripts/check-routes.mjs
 pnpm run deploy     # next build → scripts/check-routes.mjs → wrangler deploy
 ```
 
-Cloudflare Workers 전용입니다. `run`을 빼면 pnpm 내장 명령과 충돌합니다. 평소에는 main 머지 시 Actions가 배포합니다. 배포 후 `/`와 게임 몇 개(`/snake`, `/2048`)가 200인지 확인하고, 문제가 있으면 `wrangler rollback`.
+Cloudflare Workers 전용입니다. `run`을 빼면 pnpm 내장 명령과 충돌합니다. **배포는 main 머지 시 Actions(`deploy.yml`)가 하고**, 에이전트 세션의 로컬 배포는 `.claude/settings.json` hook이 막습니다(위 명령은 오너 터미널용). 배포 후 `/`와 게임 몇 개(`/snake`, `/2048`)가 200인지 확인하고, 문제가 있으면 `wrangler rollback`.
 
 ## 문서 지도
 
@@ -168,10 +155,10 @@ Cloudflare Workers 전용입니다. `run`을 빼면 pnpm 내장 명령과 충돌
 |---|---|
 | [HANDOFF.md](HANDOFF.md) | 현재 상태, 다음 할 일, 함정 — 교대가 이어받는 곳 |
 | [DECISIONS.md](DECISIONS.md) | 결정 기록(맥락·선택·버린 안·근거) |
-| [docs/team/NORTH-STAR.md](docs/team/NORTH-STAR.md) | 북극성 — 90일 미션·지표·단계. 교대마다 시작할 때 보고, 끝날 때 지표 한 줄을 남김 |
-| [docs/team/ROTA.md](docs/team/ROTA.md) | 24시간 교대표와 교대 규칙 |
-| [docs/team/SESSION-GUIDE.md](docs/team/SESSION-GUIDE.md) | 세션 공통 절차, 깊이 규칙, 참고 강연 원칙, 사용자 관점 질문 |
-| [docs/team/OPERATING.md](docs/team/OPERATING.md) | 팀 운영 규칙(세 축 리듬, 마케터, 첫 화면) |
+| [docs/team/NORTH-STAR.md](docs/team/NORTH-STAR.md) | 북극성 — 90일 미션·지표·단계. 필독 세트, 카드가 움직일 지표를 고르는 기준 |
+| [docs/team/SHIFT.md](docs/team/SHIFT.md) | 교대 규칙 정본 — 카드·교대표·팀 라벨·리뷰·기록·Slack 결정 요청·금지 |
+| [docs/team/OPS.md](docs/team/OPS.md) | 20시 요약·합본 메일·월요일 회고·마케팅 게시 규칙 |
+| [docs/team/routines/](docs/team/routines/README.md) | 루틴 프롬프트 초안(계획·작업·리뷰·품질·운영) |
 | [docs/team/QUALITY.md](docs/team/QUALITY.md) · [quality/ledger.md](docs/team/quality/ledger.md) | 퀄리티 전담팀 기준과 게임별 점수 장부 |
 | [docs/team/DESIGN-PROCESS.md](docs/team/DESIGN-PROCESS.md) · [GEMINI.md](docs/team/GEMINI.md) | 신작 관문(G1~G4), Gemini 시안·혹평 절차 |
 | [docs/team/mentor/](docs/team/mentor/README.md) | 참고 강연 원칙 원문 정리 |
