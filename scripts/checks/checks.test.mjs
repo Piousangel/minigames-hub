@@ -40,13 +40,15 @@ describe('docs-budget: 필독 세트·인계 상한·모델명', () => {
   })
 
   it('샌드랩 인계 경로(.claude/handoff/main.md)를 쓴다', () => {
-    const { 'HANDOFF.md': _h, ...rest } = base
+    const rest = { ...base }
+    delete rest['HANDOFF.md']
     const dir = fakeRepo({ ...rest, '.claude/handoff/main.md': 'y'.repeat(LIMITS.handoffBytes + 5) })
     expect(run(dir).errors.join('\n')).toMatch(/\.claude\/handoff\/main\.md/)
   })
 
   it('필독 파일이 없으면 실패한다', () => {
-    const { 'docs/team/SHIFT.md': _s, ...rest } = base
+    const rest = { ...base }
+    delete rest['docs/team/SHIFT.md']
     expect(run(fakeRepo(rest)).errors.join('\n')).toMatch(/SHIFT\.md이 없다/)
   })
 
