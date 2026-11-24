@@ -15,7 +15,7 @@
 
 ## 검증 (머지 전 하나)
 ```bash
-pnpm verify 2>&1 | tail -n 80   # typecheck · lint · test · build · check-routes · check-seo
+pnpm verify 2>&1 | tail -n 80   # typecheck · lint · test · check:docs · build · check-routes · check-seo
 ```
 - e2e: `pnpm exec playwright test` (CI는 스모크만 돈다). 신규 게임은 e2e 스모크도 추가.
 - vitest 프로젝트: `engine`(node, `src/**/*.test.ts` — 게임 순수 로직, 신규 게임은 항상), `component`(jsdom, `src/**/*.test.tsx` — canvas 밖 상태 로직만), `hooks`·`checks`(scripts). 회귀가 조용히 들어오는 곳(신기록 판정·저장·daily/streak)을 먼저 테스트한다.

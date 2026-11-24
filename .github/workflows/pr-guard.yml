@@ -1,0 +1,49 @@
+# PR 가드(운영안 v2, docs/team/SHIFT.md 4장·5장). 판정 로직은 scripts/checks/pr-guard.mjs(테스트: scripts/checks/checks.test.mjs).
+# - high-risk: 고위험 경로(저장 형식·D1·wrangler·slug/레벨 id·.claude·hooks·deploy.yml)면 `high-risk` 라벨을 붙이고,
+#   `owner-ok` 라벨 또는 승인 리뷰 2개가 없으면 실패한다. 지금은 표시만 — main 필수 체크 지정은 오너 몫.
+# - overlap: 다른 열린 PR과 같은 코드 파일을 바꾸면 경고 코멘트 1개(갱신). 실패시키지 않는다. 문서(*.md·docs/·decisions/)는 제외.
+# GITHUB_TOKEN으로 붙인 라벨은 새 워크플로를 깨우지 않는다(무한 반복 없음). 오너가 owner-ok를 붙이면 labeled로 다시 돈다.
+name: pr-guard
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+  pull_request_review:
+    types: [submitted, dismissed]
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+jobs:
+  high-risk:
+    name: high-risk
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:
+      group: pr-guard-hr-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/checks/pr-guard.mjs high-risk ${{ github.event.pull_request.number }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  overlap:
+    name: overlap
+    if: github.event_name == 'pull_request' && github.event.action != 'labeled' && github.event.action != 'unlabeled'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:
+      group: pr-guard-ov-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/checks/pr-guard.mjs overlap ${{ github.event.pull_request.number }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
