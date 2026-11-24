@@ -24,6 +24,8 @@ const PATH_RULES = [
   [/^wrangler\.(jsonc?|toml)$/, 'wrangler 설정'],
   [/^(db\/|migrations\/)/, 'D1 schema·migrations'],
   [/^schema\.sql$/, 'D1 schema'],
+  [/^scripts\/checks\/pr-guard\.mjs$/, 'PR 가드 판정 로직(머지 관문 자체)'],
+  [/^\.github\/workflows\/pr-guard\.ya?ml$/, 'PR 가드 워크플로(머지 관문 자체)'],
 ]
 
 const TEST_RE = /(\.test\.|\.spec\.|^e2e\/|__tests__\/)/

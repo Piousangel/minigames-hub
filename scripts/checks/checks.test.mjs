@@ -155,6 +155,7 @@ describe('pr-guard: 고위험 분류·관문·겹침', () => {
     expect(classifyHighRisk([{ filename: 'src/lib/spill/levels/w1/index.ts', patch: "@@\n-  { id: '1-3' }," }])).toEqual([
       'src/lib/spill/levels/w1/index.ts — 레벨 id 목록(기존 id 변경·삭제)',
     ])
+    expect(classifyHighRisk([{ filename: 'scripts/checks/pr-guard.mjs' }, { filename: '.github/workflows/pr-guard.yml' }])).toHaveLength(2)
     expect(classifyHighRisk([{ filename: 'docs/x.md', previous_filename: '.claude/team/charter.md' }])[0]).toMatch(/^\.claude\/team\/charter\.md/)
   })
 
