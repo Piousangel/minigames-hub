@@ -155,13 +155,18 @@ describe('pr-guard: 고위험 분류·관문·겹침', () => {
     expect(classifyHighRisk([{ filename: 'src/lib/spill/levels/w1/index.ts', patch: "@@\n-  { id: '1-3' }," }])).toEqual([
       'src/lib/spill/levels/w1/index.ts — 레벨 id 목록(기존 id 변경·삭제)',
     ])
+    expect(classifyHighRisk([{ filename: 'scripts/checks/pr-guard.mjs' }, { filename: '.github/workflows/pr-guard.yml' }])).toHaveLength(2)
     expect(classifyHighRisk([{ filename: 'docs/x.md', previous_filename: '.claude/team/charter.md' }])[0]).toMatch(/^\.claude\/team\/charter\.md/)
   })
 
-  it('관문: high-risk면 owner-ok 또는 리뷰어별 마지막 승인 2개가 있어야 통과', () => {
+  it('관문: high-risk면 owner-ok·team-2review 또는 리뷰어별 마지막 승인 2개가 있어야 통과', () => {
     expect(gateDecision({ labels: [], reviews: [] }).ok).toBe(true)
     expect(gateDecision({ labels: ['high-risk'], reviews: [] }).ok).toBe(false)
     expect(gateDecision({ labels: ['high-risk', 'owner-ok'], reviews: [] }).ok).toBe(true)
+    expect(gateDecision({ labels: ['high-risk', 'team-2review'], reviews: [] }).ok).toBe(true)
+    expect(gateDecision({ labels: ['high-risk', 'team-2review'], reviews: [] }).why).toMatch(/team-2review/)
+    // 라벨 이름이 비슷해도 통과하지 못한다 — 정확히 team-2review만
+    expect(gateDecision({ labels: ['high-risk', 'team-review', '2review'], reviews: [] }).ok).toBe(false)
     const t = (m) => `2026-11-24T0${m}:00:00Z`
     const two = [
       { author: 'a', state: 'APPROVED', submittedAt: t(1) },

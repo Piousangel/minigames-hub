@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // PR 가드(운영안 v2, docs/team/SHIFT.md 4장·5장) — .github/workflows/pr-guard.yml이 부른다.
 //   node scripts/checks/pr-guard.mjs high-risk <PR번호>  → 고위험 경로면 `high-risk` 라벨을 붙이고,
-//        `high-risk`인데 `owner-ok` 라벨도 승인 리뷰 2개도 없으면 exit 1(머지 차단 표시. 필수 체크 지정은 오너 몫)
+//        `high-risk`인데 `owner-ok`·`team-2review` 라벨도 승인 리뷰 2개도 없으면 exit 1(머지 차단 표시. 필수 체크 지정은 오너 몫)
 //   node scripts/checks/pr-guard.mjs overlap <PR번호>    → 다른 열린 PR과 같은 파일을 바꾸면 경고 코멘트(exit 0)
 // 판정 로직은 순수 함수(classifyHighRisk·gateDecision·findOverlaps)로 두고 테스트한다. gh CLI와 GH_TOKEN·GITHUB_REPOSITORY가 필요하다.
 // 같은 파일이 minigames-hub·sandlab 두 저장소에 있다(규칙은 두 저장소의 경로 합집합).
@@ -12,6 +12,8 @@ import { fileURLToPath } from 'node:url'
 
 export const HIGH_RISK_LABEL = 'high-risk'
 export const OWNER_OK_LABEL = 'owner-ok'
+/** 팀 내부 2중 리뷰(D-1124-02): 리뷰 루틴이 서로 다른 리뷰 2회를 PR 코멘트로 남긴 뒤 붙인다. owner-ok와 같은 효력. */
+export const TEAM_2REVIEW_LABEL = 'team-2review'
 export const OVERLAP_MARKER = '<!-- pr-guard:overlap -->'
 
 /** 경로만 보고 고위험인 것. [정규식, 이유] */
@@ -22,6 +24,8 @@ const PATH_RULES = [
   [/^wrangler\.(jsonc?|toml)$/, 'wrangler 설정'],
   [/^(db\/|migrations\/)/, 'D1 schema·migrations'],
   [/^schema\.sql$/, 'D1 schema'],
+  [/^scripts\/checks\/pr-guard\.mjs$/, 'PR 가드 판정 로직(머지 관문 자체)'],
+  [/^\.github\/workflows\/pr-guard\.ya?ml$/, 'PR 가드 워크플로(머지 관문 자체)'],
 ]
 
 const TEST_RE = /(\.test\.|\.spec\.|^e2e\/|__tests__\/)/
@@ -63,6 +67,7 @@ export function gateDecision({ labels, reviews }) {
   const names = new Set(labels)
   if (!names.has(HIGH_RISK_LABEL)) return { ok: true, why: 'high-risk 아님' }
   if (names.has(OWNER_OK_LABEL)) return { ok: true, why: 'owner-ok 라벨' }
+  if (names.has(TEAM_2REVIEW_LABEL)) return { ok: true, why: 'team-2review 라벨(팀 내부 2중 리뷰)' }
   const last = new Map()
   for (const r of [...reviews].sort((a, b) => String(a.submittedAt).localeCompare(String(b.submittedAt)))) {
     if (r.state === 'COMMENTED' || r.state === 'PENDING') continue // 코멘트는 승인 상태를 바꾸지 않는다
@@ -70,7 +75,7 @@ export function gateDecision({ labels, reviews }) {
   }
   const approvals = [...last.values()].filter((s) => s === 'APPROVED').length
   if (approvals >= 2) return { ok: true, why: `승인 리뷰 ${approvals}개` }
-  return { ok: false, why: `high-risk인데 owner-ok 라벨도 승인 리뷰 2개도 없다(승인 ${approvals}개). 독립 리뷰 2회 + 오너 확인 뒤 오너가 owner-ok를 붙인다` }
+  return { ok: false, why: `high-risk인데 owner-ok·team-2review 라벨도 승인 리뷰 2개도 없다(승인 ${approvals}개). 서로 다른 독립 리뷰 2회를 PR 코멘트로 남긴 뒤 리뷰 루틴이 team-2review를 붙인다` }
 }
 
 const DOC_RE = /(\.md$|^docs\/|^decisions\/)/

@@ -25,7 +25,7 @@ assignees: []
 ## 위험 등급
 - [ ] 문서 (가벼운 리뷰 1회)
 - [ ] 제품 (독립 리뷰 1회)
-- [ ] high-risk (리뷰 2회 + 재현 + owner-ok) — 저장 형식·D1·wrangler·slug/레벨 id·.claude·hooks·deploy.yml·공유 URL·광고 위치
+- [ ] high-risk (내부 2중 리뷰 + 재현 + team-2review) — 저장 형식·D1·wrangler·slug/레벨 id·.claude·hooks·deploy.yml·공유 URL·광고 위치
 
 ## 증거 (PR에 붙일 것)
 - [ ] 390·1440 전후 캡처 또는 녹화

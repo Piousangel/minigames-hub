@@ -345,6 +345,14 @@
 - 버린 안: 팀마다 루틴(v1, 비싸고 경합), 주간 한도 80% 감속(실행 불가), 하루 메일 2통.
 - 상세: docs/team/SHIFT.md·OPS.md.
 
+## 2026-11-24 D-1124-02 high-risk 머지를 오너 대신 팀 내부 2중 리뷰로 (오너 결정 23시)
+- 맥락: high-risk PR은 `owner-ok`(오너만) 없이는 머지할 수 없어 오너 응답 대기로 PR이 쌓였다.
+- 오너 원문: "모든 업무는 팀에서 자체적으로 진행한다. 머지도 팀 내부에서 진행한다"
+- 선택: high-risk도 서로 다른 독립 리뷰 2회(① 리뷰 루틴 ② 작성 세션과 다른 `reviewer` 서브에이전트, 관점 다르게)를 각각 `gh pr comment`로 남긴 뒤 리뷰 루틴이 `team-2review` 라벨을 붙이고 squash 머지한다. pr-guard는 `owner-ok` 또는 `team-2review`면 통과(오너가 직접 붙이는 `owner-ok`도 유효). 워크플로 파일은 안 바꾸고 `scripts/checks/pr-guard.mjs`의 라벨 판정만 바꿨다.
+- 안 바뀐 것: 되돌릴 수 없는 운영 행동(운영 D1 쓰기·배포 설정·시크릿·외부 게시·AdSense 재심사·결제)은 머지 위임과 별개로 계속 금지(SHIFT 9장).
+- 버린 안: 승인 리뷰 2개(모든 루틴이 오너와 같은 계정이라 자기 PR 승인 불가), 작성 루틴의 셀프 라벨(독립성 없음).
+- 상세: docs/team/SHIFT.md 4·9장, docs/team/routines/review.md.
+
 ## 2026-11-24 모바일 가로 넘침은 시트가 아니라 넘친 콘텐츠를 고친다 (오너 실기기 제보 11-22)
 - 문제: 뿅 착지 결과 시트를 열면 헤더가 화면 끝까지 안 닿음. 원인은 도토리·뿅 착지 게임 위 한 줄(Score·Best + daily/practice + 소리 + 다시 하기)이 폰 폭에서 넘쳐 모바일 Chromium이 레이아웃 뷰포트를 넓힌 것 — sticky 헤더(원래 폭)와 fixed 시트(넓어진 폭)가 어긋나 보였다.
 - 선택: 그 줄을 `@container` 기준 400px 미만에서 Score·Best 세로 쌓기, 310 미만(320 폰)은 가로+줄바꿈, 줄 `flex-wrap` 안전망. BottomSheet·전역 CSS(`overflow-x: hidden` 등)는 바꾸지 않는다(넘침을 숨기면 다음 넘침도 숨는다).

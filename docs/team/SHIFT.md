@@ -42,8 +42,8 @@
 |---|---|---|
 | 문서 | 가벼운 리뷰 1회 | CI 초록 |
 | 제품 | 독립 리뷰 1회(작성자≠검토자, 증거 먼저, 놓침·부족·과함) | CI 초록 + 지적 반영 |
-| `high-risk` | 독립 리뷰 2회 + 재현 | CI 초록 + `owner-ok` 라벨. 루틴은 high-risk를 머지하지 않고 `owner-ok`도 붙이지 않는다(오너가 붙이거나 직접 머지). 체크는 '승인 리뷰 2개'도 받지만 모든 루틴이 오너와 같은 계정이라 자기 PR 승인은 불가 |
-기록 PR(open.json·log·회고만)은 CI 초록이면 작성 루틴이 머지해도 된다(문서 등급 예외). `high-risk` 경로(`pr-guard` Action이 라벨을 붙인다): 저장 형식(localStorage 키)·D1 schema/migrations·`wrangler.jsonc`·slug/레벨 id 목록·`.claude/`(인계 폴더 제외)·`scripts/hooks/`·`deploy.yml`. 그 밖에 공유 URL·광고 위치·점수 체계도 고위험이다. 애매하면 결정 요청.
+| `high-risk` | 독립 리뷰 2회 + 재현 | CI 초록 + `team-2review` 라벨(오너가 직접 붙이는 `owner-ok`도 유효). 오너 대신 **팀 내부 2중 리뷰**(D-1124-02): ① 리뷰 루틴 본인 ② 리뷰 루틴이 띄운, 작성 세션과 다른 `reviewer` 서브에이전트(관점을 다르게 — 예: 데이터·되돌리기 / 화면·성능). 둘을 각각 `gh pr comment`로 남긴 뒤 **리뷰 루틴이** `team-2review`를 붙이고 squash 머지한다. 작업 루틴은 `team-2review`·`owner-ok`를 붙이지 않고, 리뷰 뒤 새 커밋이 오면 라벨을 떼고 재리뷰한다. 위임되는 것은 PR 머지뿐이다. 단 머지가 곧 운영 반영인 경로(`deploy*.yml`·`wrangler.jsonc`·D1 `db/`·`migrations/`·`schema.sql`)는 위임에서 제외 — `owner-ok`만 머지 조건이다. 같은 계정이라 '승인 리뷰 2개'는 쓰지 못한다 |
+기록 PR(open.json·log·회고만)은 CI 초록이면 작성 루틴이 머지해도 된다(문서 등급 예외). `high-risk` 경로(`pr-guard` Action이 라벨을 붙인다): PR 가드 자체(`scripts/checks/pr-guard.mjs`·`pr-guard.yml`)·저장 형식(localStorage 키)·D1 schema/migrations·`wrangler.jsonc`·slug/레벨 id 목록·`.claude/`(인계 폴더 제외)·`scripts/hooks/`·`deploy.yml`. 그 밖에 공유 URL·광고 위치·점수 체계도 고위험이다. 애매하면 결정 요청.
 - PR 첫 줄 = '그럴듯하지만 틀린 결과'를 떨어뜨리는 통과/실패 검사. 리뷰가 보고한 버그는 재현된 것만 고친다. 교정은 문장보다 검사로(린트·테스트·CI) — 같은 지적 두 번째면 검사로 올린다.
 
 ## 5. 검증·로그
@@ -75,7 +75,7 @@
 - 정본은 `decisions/open.json`(스키마는 `scripts/checks/decisions.mjs`): 요청 시 `open`, 답을 받으면 `answered` + DECISIONS.md 한 항목. 마감까지 답이 없으면 **되돌릴 수 있고 high-risk가 아닌 기본안만** 진행(`defaulted`), 나머지는 `expired`로 두고 다시 묻는다.
 
 ## 9. 금지 (모든 루틴)
-main 직접 푸시·force push·로컬 배포·`--admin` 머지, 테스트 약화·삭제, 시크릿 읽기·노출(시크릿 설정은 오너 터미널), slug·공유 URL·저장 키 변경(고위험 절차 없이), 게임·캔버스 화면 안 광고, AdSense 신청·재심사 버튼, 메일 답장·보고 주소 외 메일, SNS·블로그에 에이전트가 직접 게시(대기열 PR → Actions만, 오너 보류 항목 제외 — OPS.md; Slack은 8장 범위만), 원작 이름·아트·레벨 베끼기, 다른 저장소 코드 복사(같은 오너의 팀끼리도 노하우만 공유), 게임 내리기(오너 확인 후). hook·deny에 막히면 우회하지 말고 메시지의 '대신'을 따른다.
+main 직접 푸시·force push·로컬 배포·`--admin` 머지, 테스트 약화·삭제, 시크릿 읽기·노출(시크릿 설정은 오너 터미널), slug·공유 URL·저장 키 변경(고위험 절차 없이), 게임·캔버스 화면 안 광고, AdSense 신청·재심사 버튼, 메일 답장·보고 주소 외 메일, SNS·블로그에 에이전트가 직접 게시(대기열 PR → Actions만, 오너 보류 항목 제외 — OPS.md; Slack은 8장 범위만), 원작 이름·아트·레벨 베끼기, 다른 저장소 코드 복사(같은 오너의 팀끼리도 노하우만 공유), 게임 내리기(오너 확인 후). 되돌릴 수 없는 운영 행동(운영 D1 쓰기·배포 설정·시크릿·외부 게시·AdSense 재심사·결제)은 머지 위임(4장, D-1124-02)과 별개로 계속 금지. hook·deny에 막히면 우회하지 말고 메시지의 '대신'을 따른다.
 
 ## 10. 사이트 절 — 허브
 - Slack 이름표: `허브 · 운영 리드` / `허브 · H1 기존 게임 디벨롭` / `허브 · H2 신규 게임` / `허브 · H3 말랑 미끄럼길` / `허브 · H4 SEO·GEO` / `허브 · QA-1 품질 리뷰`(H0 이름은 오너 확인 전까지 `운영 리드`로).
