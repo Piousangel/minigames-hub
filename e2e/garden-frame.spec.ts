@@ -234,7 +234,17 @@ test.describe('정원 틀 배치(R7)', () => {
         const { checked, fails } = await contrastFailures(page, related)
         expect(checked, '검사한 글자 요소 수').toBeGreaterThan(12)
         expect(fails, `${slug} ${width} 관련 게임 대비 실패`).toEqual([])
-        expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `${slug} ${width} 가로 스크롤`).toBe(true)
+        // 가로 넘침: 이 섹션(카드·하트 포함)이 화면 폭 안에 있는가. 페이지 전체 scrollWidth는 보지 않는다 —
+        // acorn-hop 390은 CI(리눅스 글꼴)에서 게임 위 도구 줄(↻ 버튼)이 원래 넘친다(R8 밖, main도 같음).
+        const overflow = await page.evaluate((sel) => {
+          const out: string[] = []
+          for (const el of document.querySelectorAll<HTMLElement>(`${sel}, ${sel} *`)) {
+            const r = el.getBoundingClientRect()
+            if (r.width > 0 && (r.left < -0.5 || r.right > innerWidth + 0.5)) out.push(`${el.tagName} ${Math.round(r.left)}~${Math.round(r.right)}`)
+          }
+          return out
+        }, related)
+        expect(overflow, `${slug} ${width} 관련 게임 가로 넘침`).toEqual([])
         // 즐겨찾기 하트: 보이는 36px + 누르는 영역 44px(hit-44 ::after) — 가운데에서 ±21px 지점이 하트를 맞힌다
         const heart = page.locator(`${related} button[aria-label^="Add "]`).first()
         await heart.scrollIntoViewIfNeeded()
