@@ -4,7 +4,7 @@
 
 ## 세션 시작 시 읽을 것 (필독 세트 — CI가 크기를 센다)
 1. 이 파일 2. [docs/team/SHIFT.md](./docs/team/SHIFT.md) — 교대 규칙 정본(카드·리뷰·기록·Slack·금지) 3. [docs/team/NORTH-STAR.md](./docs/team/NORTH-STAR.md) — 방향·지표 4. [HANDOFF.md](./HANDOFF.md) — 현재 상태·다음 할 일(덮어쓰기, ≤10KB).
-보고·회고·마케팅은 [docs/team/OPS.md](./docs/team/OPS.md). 옛 문서(OPERATING·SESSION-GUIDE·ROTA·cycle·direction)는 `docs/archive/`에 보관됐다 — 규칙으로 읽지 않는다.
+보고·회고·마케팅은 [docs/team/OPS.md](./docs/team/OPS.md). 사이드 스튜디오 Slack(공용 채널·고정 이름표·팀 간 부탁·지시의 출처, 오너 11-24)은 SHIFT 8장. 옛 문서(OPERATING·SESSION-GUIDE·ROTA·cycle·direction)는 `docs/archive/`에 보관됐다 — 규칙으로 읽지 않는다.
 
 ## 절대 규칙
 - 배포는 **main 머지 시 GitHub Actions(`deploy.yml`)만**. 세션에서 `pnpm run deploy`·`wrangler deploy`는 `.claude/settings.json` deny·hook이 막는다(오너 터미널만 예외). Vercel 체크는 이 저장소와 무관.
