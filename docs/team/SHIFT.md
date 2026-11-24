@@ -5,10 +5,10 @@
 
 ## 1. 흐름: 계획 → 카드 → 작업 → 독립 리뷰
 1. **계획 루틴**(하루 1회): 지표·`decisions/open.json` 답·어제 PR을 보고 오늘 GitHub 이슈 카드를 만든다(템플릿 `.github/ISSUE_TEMPLATE/card.md`). 카드마다 팀 라벨·수락 기준·오답 검사·위험 등급·`stage:*`. 만들 게 없으면 안 만든다(빈 슬롯 정상).
-2. **작업 루틴**: `ready` 카드 1장만 집는다 — 이미 assign됐거나 `in-progress`면 다른 카드(없으면 종료). assign + `in-progress` → 브랜치 `card/<이슈번호>-<주제>` → PR 1개(`Closes #<번호>`, 첫 줄 오답 검사, 증거) → `review`. 한 run에 못 끝나면 PR 초안 + 이슈 코멘트로 이어 받는다.
-3. **리뷰 루틴**(PR ready 이벤트 + 줍기): 작성 세션과 다른 세션이 증거 먼저 보고 위험 비례로 리뷰(4장) → CI 초록이면 squash 머지 → main 머지 시 Actions가 배포 → 라이브 확인.
+2. **작업 루틴**: `ready` 카드 1장만 집는다(`in-progress`면 건너뜀, 없으면 종료). assign + `in-progress` → 브랜치 `card/<이슈번호>-<주제>` → PR 1개(`Closes #<번호>`, 첫 줄 오답 검사, 증거, PR에 `review` 라벨) → 카드 `review`. 한 run에 못 끝나면 draft PR + `♥ 종료 — 이어받기` 하트비트를 남기고 카드를 `ready`로 되돌린다(assignee·`in-progress` 해제). 결정이 필요하면 카드 `blocked` + `결정 요청: <제목> / 선택지` 코멘트 — 계획·운영 루틴이 모아 open.json에 올린다.
+3. **리뷰 루틴**(PR opened·ready_for_review 이벤트 + 줍기, draft 제외): 작성 세션과 다른 세션이 증거 먼저 보고 위험 비례로 리뷰(4장) → CI 초록이면 squash 머지 → main 머지 시 Actions가 배포 → 라이브 확인.
 4. **품질 루틴**(03시): 그날 머지 diff + 라이브 회귀. **운영 루틴**(20시): [OPS.md](OPS.md).
-- 막히면 `blocked` + 이유 한 줄(오너 결정이 필요하면 5장 결정 요청). 상태 라벨: `ready` → `in-progress` → `review` → (머지로 닫힘) / `blocked`.
+- 카드를 `ready`로 되돌릴 때는 언제나 assignee·`in-progress`·`review`를 함께 뗀다(같은 계정이라 assignee가 잠금이다). 상태 라벨: `ready` → `in-progress` → `review` → (머지로 닫힘) / `blocked`.
 
 ## 2. 교대표 (KST, 루틴 시각은 :07·:37 — 정각 몰림 회피)
 | 시각 | 허브 | 샌드랩 |
@@ -22,7 +22,7 @@
 | 16:07 | | 작업 S2 또는 S1 다듬기(가벼움) |
 | 20:07 / 20:37 | 운영(Slack 요약) | 운영(Slack 요약 + 두 사이트 합본 메일) |
 | 이벤트 | 리뷰·머지 + 21:07 줍기 | 리뷰·머지 + 21:37 줍기 |
-루틴 모델·effort는 루틴 설정에서만 정한다(문서에 모델명을 쓰지 않는다 — CI 검사). 서브에이전트는 `.claude/agents/`(implementer·reviewer·checker), 브리프 ≤2k 토큰·동시 ≤2개. 커밋 공저자 줄은 하네스 attribution 그대로 쓴다.
+루틴 모델·effort는 루틴 설정에서만 정한다(문서에 모델명을 쓰지 않는다 — CI 검사, `.claude/agents/`의 `model:` 필드만 예외). 서브에이전트는 `.claude/agents/`(implementer·reviewer·checker), 브리프 ≤2k 토큰·동시 ≤2개. 커밋 공저자 줄은 하네스 attribution 그대로 쓴다.
 
 ## 3. 팀 라벨과 주기 상한 (할당량이 아니다 — 빈 슬롯 정상, 품질 미달로 미룬 것도 성과)
 | 라벨 | 팀 | 상한 |
@@ -42,14 +42,14 @@
 |---|---|---|
 | 문서 | 가벼운 리뷰 1회 | CI 초록 |
 | 제품 | 독립 리뷰 1회(작성자≠검토자, 증거 먼저, 놓침·부족·과함) | CI 초록 + 지적 반영 |
-| `high-risk` | 독립 리뷰 2회 + 재현 | CI 초록 + `owner-ok` 라벨(오너만 붙인다) 또는 승인 리뷰 2개 |
-`high-risk` 경로(Action이 라벨을 붙인다): 저장 형식(localStorage 키)·D1 schema/migrations·`wrangler.jsonc`·slug/레벨 id 목록·`.claude/`(인계 폴더 제외)·`scripts/hooks/`·`deploy.yml`. 그 밖에 공유 URL·광고 위치·점수 체계도 고위험이다. 애매하면 결정 요청.
+| `high-risk` | 독립 리뷰 2회 + 재현 | CI 초록 + `owner-ok` 라벨. 루틴은 high-risk를 머지하지 않고 `owner-ok`도 붙이지 않는다(오너가 붙이거나 직접 머지). 체크는 '승인 리뷰 2개'도 받지만 모든 루틴이 오너와 같은 계정이라 자기 PR 승인은 불가 |
+기록 PR(open.json·log·회고만)은 CI 초록이면 작성 루틴이 머지해도 된다(문서 등급 예외). `high-risk` 경로(`pr-guard` Action이 라벨을 붙인다): 저장 형식(localStorage 키)·D1 schema/migrations·`wrangler.jsonc`·slug/레벨 id 목록·`.claude/`(인계 폴더 제외)·`scripts/hooks/`·`deploy.yml`. 그 밖에 공유 URL·광고 위치·점수 체계도 고위험이다. 애매하면 결정 요청.
 - PR 첫 줄 = '그럴듯하지만 틀린 결과'를 떨어뜨리는 통과/실패 검사. 리뷰가 보고한 버그는 재현된 것만 고친다. 교정은 문장보다 검사로(린트·테스트·CI) — 같은 지적 두 번째면 검사로 올린다.
 
 ## 5. 검증·로그
 - 머지 전 `pnpm verify` 하나(CLAUDE.md). PR CI 초록이 머지 조건. 직접 배포 금지(hook이 막는다).
 - 긴 출력은 잘라 읽는다: `pnpm verify 2>&1 | tail -n 80`, `gh run view <id> --log-failed | tail -n 80`.
-- 열린 PR 간 같은 파일을 바꾸면 CI가 경고 코멘트를 단다 — 이어받거나 다른 카드를 고른다.
+- 열린 PR 간 같은 **코드** 파일을 바꾸면 CI(`pr-guard`)가 경고 코멘트를 단다 — 이어받거나 다른 카드를 고른다. 기록 파일(인계·DECISIONS·log 등 문서)은 겹침으로 치지 않는다(충돌은 merge 커밋으로 양쪽 보존).
 
 ## 6. 기록은 3곳만
 1. **인계**(현재분 덮어쓰기, ≤10KB): 지금 상태·열린 PR·다음 할 일·현재 유효한 함정. 끝난 일은 지운다(이력은 git·`docs/archive/`).
@@ -58,9 +58,9 @@
 진행 상황은 이슈 카드와 PR이 정본이다. 회의록·cycle·direction 같은 별도 진행 문서는 만들지 않는다. 퀄리티 장부·portfolio 같은 데이터 장부는 카드가 가리킬 때 갱신한다.
 
 ## 7. 하트비트·한도 거절
-- 작업 루틴은 카드 이슈에 하트비트 코멘트를 단다: 시작·단계 전환·종료에 `♥ HH:MM <단계> — 다음: <한 줄>`.
-- `in-progress` 카드의 마지막 하트비트가 3시간 넘게 없으면 다음 작업 루틴이 `ready`로 되돌리고 "하트비트 누락"을 코멘트한다(20시 요약에 집계).
-- 사용 한도로 run이 거절되면(시작 직후 종료) 다음 run이 이어 받는다. 거절 신호(하트비트 누락)가 있으면 24시간 동안 P2·P3 카드를 건너뛴다. 무거운 작업은 5시간 창마다 1개.
+- 작업 루틴은 카드 이슈에 하트비트 코멘트를 단다: 시작·단계 전환에 `♥ HH:MM <단계> — 다음: <한 줄>`, run 끝에 반드시 `♥ HH:MM 종료 — <PR | 이어받기>`.
+- `in-progress`인데 `종료` 하트비트 없이 마지막 하트비트가 3시간 넘은 카드 = **하트비트 누락**(run이 중간에 죽음): 계획·작업 루틴이 `ready`로 되돌리고(assignee 해제) 코멘트한다. 20시 요약에 집계.
+- **한도 거절**은 저장소에서 직접 보이지 않는다: 직전 슬롯 루틴의 흔적(하트비트·PR·코멘트)이 0이면 '거절 추정'. 하트비트 누락이나 거절 추정이 있으면 24시간 동안 P2·P3 카드를 건너뛴다. 무거운 작업은 5시간 창마다 1개.
 
 ## 8. Slack — 사이드 스튜디오(오너 11-24)와 결정 요청
 - 우리는 다섯 팀(몽망·가화·샌드·허브·유튜브)이 모인 '사이드 스튜디오'의 한 팀이다. 채널: 허브 `#minigame-hub` `C0CLG4R8VPG`, 샌드랩 `#sandlab` `C0CLMQE8DNY`, 공용 `#notice` `C0CL2PNR8KH`(오너·총괄 공지)·`#team-requests` `C0CLCS7T45B`(팀 간 부탁)·`#lessons` `C0CLG6DM938`(교훈·공유).
@@ -72,12 +72,13 @@
 - 결정 요청은 하루 두 창에 모아 올린다: 08시 창(계획 루틴이 08시 전에), 20시 창(운영 루틴). 형식:
   `D-MMDD-NN <제목>` / 기본안 <번호> / 마감 <일시> / 되돌릴 수 있나 <예·아니오> / 근거 <1줄> / 선택지 1. … 2. … 3. …(≤3)
 - 오너 답은 이름표 없는 `D-MMDD-NN: <번호>` 형식만 인정한다(게시자와 오너가 같은 계정이라 형식으로 판별). 다른 형식의 답은 질문으로 보고 다시 묻는다.
+- 답 읽기: open.json 각 `open` 항목의 `slackTs`로 **스레드**를 읽어(`slack_read_thread`) 요청 이후 `^D-\d{4}-\d{2}: ?[1-3]$`과 정확히 같은 메시지만 답으로 친다(`parseOwnerReply`).
 - 정본은 `decisions/open.json`(스키마는 `scripts/checks/decisions.mjs`): 요청 시 `open`, 답을 받으면 `answered` + DECISIONS.md 한 항목. 마감까지 답이 없으면 **되돌릴 수 있고 high-risk가 아닌 기본안만** 진행(`defaulted`), 나머지는 `expired`로 두고 다시 묻는다.
 
 ## 9. 금지 (모든 루틴)
-main 직접 푸시·force push·로컬 배포·`--admin` 머지, 테스트 약화·삭제, 시크릿 읽기·노출(시크릿 설정은 오너 터미널), slug·공유 URL·저장 키 변경(고위험 절차 없이), 게임·캔버스 화면 안 광고, AdSense 신청·재심사 버튼, 메일 답장·보고 주소 외 메일, Slack·SNS에 에이전트가 직접 외부 게시(게시는 대기열 PR → Actions만, 오너 보류 항목 제외 — OPS.md), 원작 이름·아트·레벨 베끼기, 게임 내리기(오너 확인 후). hook·deny에 막히면 우회하지 말고 메시지의 '대신'을 따른다.
+main 직접 푸시·force push·로컬 배포·`--admin` 머지, 테스트 약화·삭제, 시크릿 읽기·노출(시크릿 설정은 오너 터미널), slug·공유 URL·저장 키 변경(고위험 절차 없이), 게임·캔버스 화면 안 광고, AdSense 신청·재심사 버튼, 메일 답장·보고 주소 외 메일, SNS·블로그에 에이전트가 직접 게시(대기열 PR → Actions만, 오너 보류 항목 제외 — OPS.md; Slack은 8장 범위만), 원작 이름·아트·레벨 베끼기, 게임 내리기(오너 확인 후). hook·deny에 막히면 우회하지 말고 메시지의 '대신'을 따른다.
 
 ## 10. 사이트 절 — 허브
 - Slack 이름표: `허브 · 운영 리드` / `허브 · H1 기존 게임 디벨롭` / `허브 · H2 신규 게임` / `허브 · H3 말랑 미끄럼길` / `허브 · H4 SEO·GEO` / `허브 · QA-1 품질 리뷰`(H0 이름은 오너 확인 전까지 `운영 리드`로).
-- 인계 `HANDOFF.md`, 검증 `pnpm verify`(typecheck·lint·test·build·check-routes·check-seo), e2e 스모크는 CI.
+- 인계 `HANDOFF.md`, 함정 정본 [PITFALLS.md](PITFALLS.md), 검증 `pnpm verify`(typecheck·lint·test·build·check-routes·check-seo), e2e 스모크는 CI.
 - 오너 보류(NORTH-STAR 3장): 말랑 미끄럼길 홍보, 다국어, 밤 정원·홈 '살아 있는 하늘', Hasbro·Atari 계열 이름 6개 변경.

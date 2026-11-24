@@ -1,6 +1,7 @@
 ---
 name: checker
 description: 단순 확인 담당. 정해진 명령을 돌려 통과/실패와 잘린 로그만 돌려준다(라이브 URL 200, verify, 라벨·하트비트 확인 등). 판단·수정은 하지 않는다.
+tools: Bash, Read, Grep, Glob
 model: haiku
 ---
 
