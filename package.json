@@ -10,7 +10,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "e2e": "playwright test",
-    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build && node scripts/check-routes.mjs && node scripts/check-seo.mjs",
+    "check:docs": "node scripts/checks/docs-budget.mjs && node scripts/checks/decisions.mjs",
+    "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm check:docs && pnpm build && node scripts/check-routes.mjs && node scripts/check-seo.mjs",
     "deploy": "pnpm build && node scripts/check-routes.mjs && node scripts/check-seo.mjs && wrangler deploy"
   },
   "dependencies": {

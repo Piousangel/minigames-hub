@@ -1,5 +1,5 @@
 # PR 단계 CI(오너 11-20 승인 제안 C — docs/team/mentor/lydia-hallie.md 7장).
-# PR마다 typecheck·lint·전체 vitest·build·check-routes·e2e 스모크를 돈다. 초록이 머지 조건이다(SESSION-GUIDE 검증 관문).
+# PR마다 typecheck·lint·check:docs·전체 vitest·build·check-routes·e2e 스모크를 돈다. 초록이 머지 조건이다(docs/team/SHIFT.md 5장).
 # 시크릿은 쓰지 않는다(포크 PR에서도 안전). 배포는 deploy.yml(main push)이 그대로 맡는다.
 # 세 job이 병렬로 돌아 벽시계 시간은 가장 긴 job(build+e2e)에 맞춰진다. 목표 ≤ 15분.
 name: ci
@@ -29,6 +29,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm lint
+      # 필독 세트 ≤30KB·인계 ≤10KB·150줄·지시 문서 모델명 금지·decisions/open.json 스키마(운영안 v2, SHIFT 0장)
+      - run: pnpm check:docs
 
   test:
     name: vitest

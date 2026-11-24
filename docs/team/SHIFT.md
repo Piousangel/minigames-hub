@@ -79,5 +79,5 @@ main 직접 푸시·force push·로컬 배포·`--admin` 머지, 테스트 약�
 
 ## 10. 사이트 절 — 허브
 - Slack 이름표: `허브 · 운영 리드` / `허브 · H1 기존 게임 디벨롭` / `허브 · H2 신규 게임` / `허브 · H3 말랑 미끄럼길` / `허브 · H4 SEO·GEO` / `허브 · QA-1 품질 리뷰`(H0 이름은 오너 확인 전까지 `운영 리드`로).
-- 인계 `HANDOFF.md`, 함정 정본 [PITFALLS.md](PITFALLS.md), 검증 `pnpm verify`(typecheck·lint·test·build·check-routes·check-seo), e2e 스모크는 CI.
+- 인계 `HANDOFF.md`, 함정 정본 [PITFALLS.md](PITFALLS.md), 검증 `pnpm verify`(typecheck·lint·test·check:docs·build·check-routes·check-seo), e2e 스모크는 CI.
 - 오너 보류(NORTH-STAR 3장): 말랑 미끄럼길 홍보, 다국어, 밤 정원·홈 '살아 있는 하늘', Hasbro·Atari 계열 이름 6개 변경.
