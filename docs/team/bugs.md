@@ -32,10 +32,10 @@
 - e2e `홈: Daily 필터`: Slime Slide가 일일 게임인데 기대 목록에 없음 → 추가.
 - 유닛 `GameBeatline.test.tsx` 노트 위치: 데일리 차트가 날짜 시드라 11-19 시드는 카운트인 후 0.6초 안에 노트가 없어 실패(main에서도 실패) → 노트가 뜰 때까지 100ms씩 진행(상한 4초), 위치 검증은 그대로.
 
-### Q6 [하] 도토리 헤더 버튼 줄이 360px에서 23px 넘친다 — 미수정(R5에서 발견, 2026-11-20)
-- 재현: 360×640, `/acorn-hop` → `document.documentElement.scrollWidth` 383. Score·Best pill + daily/practice + 소리 + 다시 하기가 한 줄(`flex items-center gap-1.5`, 줄바꿈 없음)이라 오른쪽 버튼 묶음이 383px까지 나간다. 뿅 착지는 첫 방문에 daily/practice 묶음이 없어 360에서 넘치지 않는다.
-- R5 결과 시트(fixed, 화면 폭 안)와는 무관 — e2e `result-sheet.spec.ts` 360 검사는 시트 폭만 본다.
-- 제안: 360 미만 폭에서 pill 글자 줄이기(`Best` → 아이콘) 또는 헤더 2줄. 게임 화면 레이아웃이라 퀄리티팀(R7 정원 틀 배치 때) 몫.
+### Q6 [중] 도토리·뿅 착지 헤더 버튼 줄이 폰 폭에서 넘친다 — 수정(2026-11-24, fix/mobile-width-sheet)
+- 오너 실기기 제보(11-22): 뿅 착지 결과 시트를 열면 사이트 헤더가 화면 끝까지 안 닿고 짧게 끝남. 문서 폭이 넘치면 모바일 Chromium이 레이아웃 뷰포트를 넓혀 축소 표시 → sticky 헤더(원래 폭)와 fixed 시트(넓어진 폭)가 어긋나 보였다. 뿅 착지도 다시 온 사람(daily/practice 묶음)이면 같은 줄이고, Best 네 자리면 390에서도 401px로 넘쳤다.
+- 수정: 컨테이너 400px 미만에서 Score·Best를 세로로 쌓고 줄은 flex-wrap(최후 안전망). 회귀 검사: e2e `mobile-width.spec.ts`(사이트맵 전 페이지 + 결과 시트 열림, 360·390 isMobile).
+- 재현(수정 전): 360×640, `/acorn-hop` → `document.documentElement.scrollWidth` 383. Score·Best pill + daily/practice + 소리 + 다시 하기가 한 줄(`flex items-center gap-1.5`, 줄바꿈 없음)이라 오른쪽 버튼 묶음이 383px까지 나간다. 뿅 착지는 첫 방문에 daily/practice 묶음이 없어 360에서 넘치지 않는다.
 
 ### 점검 통과(문제 없음)
 - 속도: 로컬 기준 DCL 홈 324ms·게임 30~120ms, rAF 프레임 p50/p95 16.7ms(대기·플레이 중 모두 초당 60 → **rAF 루프 중복 없음**).
