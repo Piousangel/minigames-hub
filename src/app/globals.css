@@ -136,18 +136,6 @@ body {
     0 0 14px color-mix(in srgb, currentColor 35%, transparent),
     inset 0 0 12px color-mix(in srgb, currentColor 12%, transparent);
 }
-.neon-box-hover {
-  transition:
-    box-shadow var(--dur-fast) ease,
-    transform var(--dur-fast) ease;
-}
-.neon-box-hover:hover {
-  box-shadow:
-    0 0 0 1px currentColor,
-    0 0 22px color-mix(in srgb, currentColor 55%, transparent),
-    inset 0 0 16px color-mix(in srgb, currentColor 18%, transparent);
-  transform: translateY(-2px);
-}
 
 /* 아케이드 스캔라인 오버레이(정적, 매우 은은하게 — 가독성 방해 금지) */
 .scanlines::after {
@@ -459,46 +447,6 @@ body {
   will-change: opacity, transform;
 }
 
-/* 2 — Spotlight card: pointer-following radial glow in the card's neon accent.
-   Sits above the card surface but below its content (content is z-[1]). */
-.spotlight-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  border-radius: inherit;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--dur-med) var(--ease-out);
-  background: radial-gradient(
-    circle 150px at var(--mx, 50%) var(--my, 50%),
-    color-mix(in srgb, currentColor 20%, transparent),
-    transparent 60%
-  );
-}
-@media (hover: hover) and (pointer: fine) {
-  .spotlight-card:hover::before {
-    opacity: 1;
-  }
-}
-
-/* 3 — Card micro-interaction: icon pop/rotate + title glow bloom on hover. */
-.card-icon {
-  transition: transform var(--dur-med) var(--ease-pop);
-}
-.spotlight-card:hover .card-icon {
-  transform: scale(1.12) rotate(-5deg);
-}
-.card-title {
-  transition: text-shadow var(--dur-med) var(--ease-out);
-}
-.spotlight-card:hover .card-title {
-  text-shadow:
-    0 0 5px currentColor,
-    0 0 14px color-mix(in srgb, currentColor 70%, transparent),
-    0 0 26px color-mix(in srgb, currentColor 45%, transparent);
-}
-
 /* 5 — Synthwave background: drifting aurora + scrolling perspective grid.
    Fixed, pointer-events:none, behind all content (z-index:-1), low intensity. */
 .synthwave-bg {
@@ -573,15 +521,9 @@ body {
   .anim-snake-gulp,
   .anim-snake-blink,
   .anim-char-ok,
-  .btn-press,
-  .neon-box-hover,
-  .card-icon,
-  .card-title {
+  .btn-press {
     animation: none !important;
     transition: none !important;
-  }
-  .neon-box-hover:hover {
-    transform: none;
   }
   /* Keep the win overlay blur (a static state, not motion) */
   .anim-backdrop-in {
@@ -594,12 +536,6 @@ body {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
-  }
-  .spotlight-card:hover .card-icon {
-    transform: none;
-  }
-  .spotlight-card::before {
-    display: none;
   }
   .synthwave-bg::before,
   .synthwave-bg::after {
@@ -1099,8 +1035,7 @@ main[data-world='garden'] .garden-section-rule {
 
 /* 네온 글로우 제거(스코프 전체 — 게임판 안 포함) */
 main[data-world='garden'] .neon-text,
-main[data-world='garden'] .neon-text-strong,
-main[data-world='garden'] .spotlight-card:hover .card-title {
+main[data-world='garden'] .neon-text-strong {
   text-shadow: none;
 }
 
@@ -1118,13 +1053,6 @@ main[data-world='garden'] .neon-icon:not([data-garden-board] *) {
 main[data-world='garden'] .neon-box:not([data-garden-board] *) {
   border-color: var(--garden-ink);
   box-shadow: var(--garden-shadow-seed);
-}
-main[data-world='garden'] .spotlight-card:not([data-garden-board] *) {
-  background: var(--garden-cream);
-  border-width: 2px;
-}
-main[data-world='garden'] .spotlight-card::before {
-  display: none;
 }
 /* 리액션(HOW WAS IT?) */
 main[data-world='garden'] [data-testid='reactions'] button {
@@ -1161,10 +1089,4 @@ main[data-world='garden'] [data-testid='objective'] .text-border {
 }
 main[data-world='garden'] .bg-white\/10:not([data-garden-board] *) {
   background-color: color-mix(in srgb, var(--garden-ink) 20%, transparent);
-}
-/* 관련 게임 카드의 'PLAY ►'(모바일은 늘 보이는 60% 글자) — 크림 위에선 대비 부족이라 정원 틀에선 불투명 */
-@media (max-width: 39.99rem) {
-  main[data-world='garden'] .spotlight-card .font-pixel {
-    opacity: 1;
-  }
 }
