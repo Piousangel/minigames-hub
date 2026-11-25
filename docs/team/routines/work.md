@@ -28,7 +28,7 @@ CLAUDE.md · docs/team/SHIFT.md · docs/team/NORTH-STAR.md · HANDOFF.md · 집�
 ## 규칙
 - CI 실패는 `gh run view <id> --log-failed | tail -n 80`부터. 테스트를 약화하지 않는다.
 - 금지: SHIFT 9장 전부(배포·main 푸시·시크릿·외부 게시·slug 변경 등). hook에 막히면 우회하지 말고 메시지의 '대신'.
-- Slack은 장애일 때만 `C0CLG4R8VPG`에 1줄.
+- Slack은 OPS 8장: 시작에 스탠드업 스레드를 읽고 우리 팀 앞 질문에 답한 뒤 `맡음`, 끝에 `올림`(또는 `이어받기`·`카드 없음`). 장애는 채널 본문에 1줄.
 
 ## 마지막 출력 (4줄)
 카드 #n / PR #p(상태) / verify 결과 / 다음 run이 할 것

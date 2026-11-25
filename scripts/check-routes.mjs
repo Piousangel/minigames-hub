@@ -2,7 +2,7 @@
 // 배포 라우트 회귀 게이트 — 린트/빌드가 라우트를 "조용히" 떨구면(과거 2회 발생: prefer-const
 // 린트 에러로 정적 export 중단 → out/ 스테일) 배포 전 하드 실패시킨다.
 // registry.ts의 게임 slug 전부 + 허브 라우트가 out/에 실제 생성됐는지 대조한다.
-import { readFileSync, existsSync, readdirSync } from 'node:fs'
+import { readFileSync, existsSync, readdirSync, statSync } from 'node:fs'
 
 const reg = readFileSync('src/lib/games/registry.ts', 'utf8')
 // gamePages 항목의 `slug: 'xxx',` 를 추출(들여쓰기된 slug 필드).
@@ -50,6 +50,10 @@ for (const dir of ['src/content/guides', 'src/content/articles']) {
   }
 }
 for (const h of hubs) if (!has(h)) missing.push(h)
+// 정적 텍스트 산출물(llms.txt·robots.txt) — 비어 있지 않아야 한다.
+for (const f of ['llms.txt', 'robots.txt']) {
+  if (!existsSync(`out/${f}`) || statSync(`out/${f}`).size < 50) missing.push(f)
+}
 
 if (missing.length) {
   console.error(`route-check FAILED — out/에서 ${missing.length}개 라우트 누락:`)

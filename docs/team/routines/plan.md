@@ -14,7 +14,7 @@ CLAUDE.md · docs/team/SHIFT.md · docs/team/NORTH-STAR.md · HANDOFF.md. 그다
 2. 하트비트 점검: `in-progress`인데 `종료` 하트비트 없이 마지막 `♥`가 3시간 넘은 카드 → `gh issue edit <n> --remove-assignee @me --remove-label in-progress --add-label ready` + "하트비트 누락" 코멘트. `blocked` 카드의 `결정 요청:` 코멘트는 open.json `open`으로 옮긴다. 직전 슬롯 루틴 흔적이 0이면 '거절 추정'.
 3. #team-requests의 우리 팀 앞 열린 부탁은 카드로(스레드에 `맡음`, 돈·계정·비밀·배포·삭제가 걸리면 결정 요청).
 4. 카드 만들기(`.github/ISSUE_TEMPLATE/card.md` 형식, `gh issue create --label ready,team:Hx,stage:...`):
-   - 우선순위 계단 P0 운영·품질·리뷰 > P1 H0·H1 > P2 H3·H4 > P3 H2. 어제 하트비트 누락·한도 거절이 있었으면 P2·P3는 오늘 만들지 않는다.
+   - 우선순위 계단 P0 운영·품질·리뷰 > P1 H2·H1·H0 > P2 H3·H4(SHIFT 3장). 신규 게임은 단계 카드(기획·디자인 → 개발 → 리뷰·다듬기)를 앞 단계 머지 뒤 하나씩 만들고, H0 측정은 가벼우면 이 run에서 직접 처리한다(D-1125-03). 화면·콘텐츠 카드(특히 H2 기획 단계)는 카드 템플릿의 '검색·AI 노출' 절을 채운다(D-1125-04). 월요일엔 H4 카드로 다른 팀 카드의 타깃 질의 검토를 넣는다. 어제 하트비트 누락·한도 거절이 있었으면 P2·P3는 오늘 만들지 않는다.
    - 주기 상한(SHIFT 3장)을 넘기지 않는다. 할 만한 게 없으면 만들지 않는다(빈 슬롯 정상).
    - 카드마다 수락 기준·오답 검사·위험 등급·증거·범위 밖. 한 카드 = PR 1개 크기(M 이하).
    - 같은 코드 파일을 바꾸는 열린 PR이 있으면(인계·log·DECISIONS는 제외) 그 카드는 만들지 않거나 '이어받기' 카드로.
@@ -25,7 +25,7 @@ CLAUDE.md · docs/team/SHIFT.md · docs/team/NORTH-STAR.md · HANDOFF.md. 그다
 ## 규칙
 - 서브에이전트는 꼭 필요할 때만, 브리프 ≤2k 토큰·동시 ≤2개.
 - 긴 출력은 `| tail -n 80` / `| head -n 80`. CI 실패는 `gh run view <id> --log-failed | tail -n 80`.
-- 금지: SHIFT 9장 전부. Slack에는 장애·결정 요청 외 게시하지 않는다.
+- 금지: SHIFT 9장 전부. Slack은 OPS 8장 스탠드업 루트 글(카드를 만든 뒤 1통)·결정 요청·장애.
 - 한도에 걸려 중간에 끊겨도 카드는 이슈에 남으니 다음 run이 이어 받는다.
 
 ## 마지막 출력 (5줄)

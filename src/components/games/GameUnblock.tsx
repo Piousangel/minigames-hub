@@ -403,7 +403,8 @@ export function GameUnblock({ storageKey }: { storageKey: string }) {
         value={idx}
         onChange={(e) => openLevel(Number(e.target.value))}
         data-testid="level-select"
-        className="rounded-lg border border-border bg-surface/80 px-2.5 py-1.5 text-sm font-semibold text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        // 가장 긴 레벨 이름만큼 넓어지면 폰(360, 리눅스 글꼴)에서 헤더 줄이 화면을 넘는다 → 폭 상한(긴 이름은 잘려 보이고, 펼친 목록에선 전부 보인다)
+        className="max-w-40 rounded-lg border border-border bg-surface/80 px-2.5 py-1.5 text-sm font-semibold text-fg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
         {LEVELS.map((lv, i) => (
           <option key={lv.id} value={i}>

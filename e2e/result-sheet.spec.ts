@@ -156,7 +156,7 @@ test.describe('360×640', () => {
     expect(m.top).toBeGreaterThanOrEqual(0)
     expect(m.bottom).toBeLessThanOrEqual(640 + 1)
     expect(m.sw).toBeLessThanOrEqual(m.cw)
-    // 시트 자체가 화면 폭 안(문서 폭은 보지 않는다: 도토리 헤더 버튼 줄이 360에서 23px 넘치는 건 main에서도 그렇다 — docs/team/bugs.md Q6)
+    // 시트 자체가 화면 폭 안(문서 폭·헤더 폭은 mobile-width.spec이 본다 — docs/team/bugs.md Q6)
     expect(m.left).toBeGreaterThanOrEqual(0)
     expect(m.right).toBeLessThanOrEqual(360)
     // 맨 아래(카운트다운)까지 시트 안 스크롤로 닿는다

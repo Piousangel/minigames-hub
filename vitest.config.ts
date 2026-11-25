@@ -40,6 +40,8 @@ export default defineConfig({
       },
       // Claude Code hook 스크립트(.claude/settings.json → scripts/hooks/). 샌드랩과 같은 파일·테스트.
       { test: { name: 'hooks', include: ['scripts/hooks/**/*.test.mjs'], environment: 'node', testTimeout, hookTimeout: testTimeout } },
+      // 운영안 v2 결정적 검사(필독 세트 크기·모델명·decisions/open.json·PR 가드 판정). docs/team/SHIFT.md.
+      { test: { name: 'checks', include: ['scripts/checks/**/*.test.mjs'], environment: 'node', testTimeout, hookTimeout: testTimeout } },
     ],
   },
 })

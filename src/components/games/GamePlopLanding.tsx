@@ -785,15 +785,17 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
 
   const st = stRef.current!
   const playing = ui.phase === 'charging' || ui.phase === 'flying'
-  const pill = 'whitespace-nowrap rounded-full border-[3px] border-[#5b3a1e] bg-[#fff3dc] px-2.5 py-0.5 text-xs font-bold text-[#5b3a1e] shadow-[0_2px_0_#3a2410]'
+  const pill = 'whitespace-nowrap rounded-full border-[3px] border-[#5b3a1e] bg-[#fff3dc] px-2.5 py-0.5 text-center @max-[400px]:px-2 @max-[400px]:py-0 @max-[400px]:leading-4 text-xs font-bold text-[#5b3a1e] shadow-[0_2px_0_#3a2410]'
   const btn = 'btn-press flex h-11 min-w-11 items-center justify-center rounded-full border-[3px] border-[#5b3a1e] px-2 text-sm font-bold shadow-[0_3px_0_#3a2410] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ffc933]'
   const combo = 1 + 0.25 * Math.max(0, ui.streak - 1)
   const tint = tintOf(st.seed)
 
   return (
-    <div className={`${roundFont.className} mx-auto w-full max-w-100 select-none`}>
-      <div className="mb-2 flex items-center justify-between gap-2" onMouseDown={preventPointerFocus} onClick={blurAfterPointerClick}>
-        <div className={`flex items-center gap-1.5 transition-opacity duration-300 ${playing ? 'opacity-25' : ''}`}>
+    <div className={`${roundFont.className} @container mx-auto w-full max-w-100 select-none`}>
+      {/* 컨테이너가 400px 미만(폰)이면 Score·Best를 세로로 쌓고 버튼 묶음 여백을 줄여(리눅스 글꼴 360에서도 여유 ≥12px), 310 미만(320 폰 — 컨테이너 288)은 어차피 줄이 바뀌니 알약을 다시 가로로 둔다(두 줄 높이 최소).
+          이 줄이 넘치면 문서 폭이 뷰포트를 넘어 모바일이 축소 표시 → 헤더와 결과 시트 폭이 어긋나 보인다(11-22 오너 제보, e2e mobile-width). */}
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2" onMouseDown={preventPointerFocus} onClick={blurAfterPointerClick}>
+        <div className={`flex items-center gap-1.5 transition-opacity duration-300 @max-[400px]:flex-col @max-[400px]:items-stretch @max-[400px]:gap-px @max-[310px]:flex-row @max-[310px]:gap-1.5 ${playing ? 'opacity-25' : ''}`}>
           <span className={pill}>
             Score <b data-testid="score">{ui.score}</b>
           </span>
@@ -801,7 +803,7 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
             Best <b data-testid="best">{best}</b>
           </span>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="ml-auto flex shrink-0 items-center gap-1.5 @max-[400px]:gap-1">
           {firstDone && (
             <div className={`flex overflow-hidden rounded-full border-[3px] border-[#5b3a1e] shadow-[0_3px_0_#3a2410] transition-opacity duration-300 ${playing ? 'opacity-25' : ''}`}>
               {(['daily', 'practice'] as Mode[]).map((x) => (
@@ -812,7 +814,7 @@ export function GamePlopLanding({ storageKey }: { storageKey: string }) {
                     deal(x)
                   }}
                   aria-pressed={mode === x}
-                  className={`h-11 px-3 text-xs font-bold capitalize ${mode === x ? 'bg-[#ffc933] text-[#5b3a1e]' : 'bg-[#fff3dc] text-[#8a6a44]'}`}
+                  className={`h-11 px-3 text-xs font-bold capitalize @max-[400px]:px-2 ${mode === x ? 'bg-[#ffc933] text-[#5b3a1e]' : 'bg-[#fff3dc] text-[#8a6a44]'}`}
                 >
                   {x}
                 </button>

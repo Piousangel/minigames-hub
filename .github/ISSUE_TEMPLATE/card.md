@@ -22,10 +22,17 @@ assignees: []
 ## 오답 검사 (그럴듯하지만 틀린 결과를 떨어뜨리는 검사 — PR 첫 줄에 그대로)
 - 
 
+## 검색·AI 노출 (화면·콘텐츠 카드만 — 새 게임·레벨·글은 필수, D-1125-04)
+- 타깃 질의 1~3개(사람이 검색창·AI에 칠 문장):
+- 그 질의에 바로 답하는 첫 문단 한 문장:
+- 우리만 줄 수 있는 수치·사실 1개:
+- JSON-LD 타입 · OG 이미지 · sitemap·`llms.txt` 포함(CI가 확인):
+- 기대 지표와 확인 날짜(머지 +14일, 주간 SEO 표):
+
 ## 위험 등급
 - [ ] 문서 (가벼운 리뷰 1회)
 - [ ] 제품 (독립 리뷰 1회)
-- [ ] high-risk (리뷰 2회 + 재현 + owner-ok) — 저장 형식·D1·wrangler·slug/레벨 id·.claude·hooks·deploy.yml·공유 URL·광고 위치
+- [ ] high-risk (내부 2중 리뷰 + 재현 + team-2review) — 저장 형식·D1·wrangler·slug/레벨 id·.claude·hooks·deploy.yml·공유 URL·광고 위치
 
 ## 증거 (PR에 붙일 것)
 - [ ] 390·1440 전후 캡처 또는 녹화
