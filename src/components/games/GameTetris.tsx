@@ -344,7 +344,7 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
       </div>
 
       {/* 모바일 터치 컨트롤 */}
-      <div className="mx-auto mt-3 grid max-w-72 grid-cols-3 gap-2">
+      <div className="mx-auto mt-3 grid max-w-sm grid-cols-6 gap-2">
         <TouchButton phase={gate.phase} label="◀" aria="Move left" onPress={doMoveLeft} repeat />
         <TouchButton phase={gate.phase} label="⟳" aria="Rotate" onPress={doRotate} />
         <TouchButton phase={gate.phase} label="▶" aria="Move right" onPress={doMoveRight} repeat />
