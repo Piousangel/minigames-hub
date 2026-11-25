@@ -16,7 +16,7 @@ CLAUDE.md · docs/team/SHIFT.md(4장 위험 비례 리뷰) · 대상 PR과 연�
 5. 리뷰 코멘트(`gh pr comment`): 놓침 / 부족 / 과함 + 판정 `머지 가능` | `고친 뒤 머지` | `막음`.
 6. `머지 가능` + CI 초록 + 겹침 경고 없음 → `gh pr merge <p> --squash --delete-branch`(관리자 우회 금지). 카드는 `Closes`로 닫힌다.
 7. 머지 뒤: `gh run list --workflow deploy.yml --limit 1` 성공 확인 → 라이브 URL 200(프록시 403이면 그렇게 적는다).
-8. `고친 뒤 머지`: 지적을 카드 코멘트로 → `gh issue edit <n> --remove-assignee @me --remove-label review --add-label ready`, PR은 `gh pr ready <p> --undo`(draft로, 다음 작업 루틴이 이어받음).
+8. `고친 뒤 머지`인데 지적이 작으면(main 충돌, 오타·문구, 사실 1~3곳, 테스트·검사 몇 줄) **이 루틴이 그 브랜치에서 직접 고치고** CI 초록이면 같은 run에서 머지한다(코멘트에 고친 것 나열, high-risk는 고친 뒤 ② 리뷰 다시). 지적이 클 때만 아래로 — 지적을 카드 코멘트로 → `gh issue edit <n> --remove-assignee @me --remove-label review --add-label ready`, PR은 `gh pr ready <p> --undo`(draft로, 다음 작업 루틴이 이어받음).
 
 ## 규칙
 - 리뷰가 보고한 버그는 재현된 것만 고치라고 한다. 미재현은 '미재현'.
