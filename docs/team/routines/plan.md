@@ -12,7 +12,7 @@ CLAUDE.md · docs/team/SHIFT.md · docs/team/NORTH-STAR.md · HANDOFF.md. 그다
 - 오너 새 글 확인: 직전 슬롯 이후 이름표 없는 오너 글(팀 채널 1곳+#notice)이 있으면 그 스레드에 팀당 1회 `확인 — 시각` 한 줄(같은 팀이 이미 달았으면 생략, 없으면 쓰지 않는다. OPS 7장).
 ## 할 일
 1. 결정 반영: `open` 항목의 `slackTs`로 스레드를 읽어(SHIFT 8장) 형식에 맞는 답은 open.json `answered` + DECISIONS.md 한 항목. 마감 지난 것은 SHIFT 8장(되돌릴 수 있고 high-risk 아니면 기본안 `defaulted`, 아니면 `expired`).
-2. 하트비트 점검: `in-progress`인데 `종료` 하트비트 없이 마지막 `♥`가 3시간 넘은 카드 → `gh issue edit <n> --remove-assignee @me --remove-label in-progress --add-label ready` + "하트비트 누락" 코멘트. `blocked` 카드의 `결정 요청:` 코멘트는 open.json `open`으로 옮긴다. 직전 슬롯 루틴 흔적이 0이면 '거절 추정'.
+2. 하트비트 점검: `in-progress`인데 `종료` 하트비트 없이 마지막 `♥`가 3시간 넘은 카드 → `gh issue edit <n> --remove-assignee @me --remove-label in-progress --add-label ready` + "하트비트 누락" 코멘트. `blocked` 카드의 `결정 요청:` 코멘트는 open.json `open`으로 옮긴다. 직전 슬롯 루틴 흔적이 0이면 '거절 추정' — 단, 그 요일에 예정된 슬롯만 센다(허브 품질 월·수·금, 샌드랩 품질 화·목·토 — SHIFT 2장 교대표). 스레드의 '카드 없음' 한 줄도 흔적이다. 거절 추정이어도 신규 제작(H2·S1, P1)의 다음 단계 카드는 만든다.
 3. #team-requests의 우리 팀 앞 열린 부탁은 카드로(스레드에 `맡음`, 돈·계정·비밀·배포·삭제가 걸리면 결정 요청).
 4. 카드 만들기(`.github/ISSUE_TEMPLATE/card.md` 형식, `gh issue create --label ready,team:Hx,stage:...`):
    - 우선순위 계단 P0 운영·품질·리뷰 > P1 H2·H1·H0 > P2 H3·H4(SHIFT 3장). 신규 게임은 단계 카드(기획·디자인 → 개발 → 리뷰·다듬기)를 앞 단계 머지 뒤 하나씩 만들고, H0 측정은 가벼우면 이 run에서 직접 처리한다(D-1125-03). 화면·콘텐츠 카드(특히 H2 기획 단계)는 카드 템플릿의 '검색·AI 노출' 절을 채운다(D-1125-04). 월요일엔 H4 카드로 다른 팀 카드의 타깃 질의 검토를 넣는다. 어제 하트비트 누락·한도 거절이 있었으면 P2·P3는 오늘 만들지 않는다.
