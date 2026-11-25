@@ -82,10 +82,10 @@ jobs:
         run: pnpm exec playwright install --with-deps chromium
       - if: steps.pw-cache.outputs.cache-hit == 'true'
         run: pnpm exec playwright install-deps chromium
-      # PR 스모크: 정원 틀(R7)·게임 밖 정원 페이지(R9 garden-hub)·결과 시트(R5)·홈(smoke·mascots 제목에 '홈')·꽃담 터치 시험판(fence-proto). 새 핵심 화면 e2e는 파일·grep에 추가할 것. 전체 e2e(smoke.spec 게임별 158건 등)는 기존대로 루틴·로컬에서 돈다.
+      # PR 스모크: 정원 틀(R7)·게임 밖 정원 페이지(R9 garden-hub)·결과 시트(R5)·홈(smoke·mascots 제목에 '홈')·꽃담 터치 시험판(fence-proto)·모바일 가로 넘침(mobile-width, 사이트맵 전 페이지 360·390). 새 핵심 화면 e2e는 파일·grep에 추가할 것. 전체 e2e(smoke.spec 게임별 158건 등)는 기존대로 루틴·로컬에서 돈다.
       # PW_SKIP_BUILD: 위에서 만든 out/을 그대로 서빙(두 번 빌드하지 않음).
       - name: e2e smoke
-        run: pnpm exec playwright test e2e/garden-frame.spec.ts e2e/result-sheet.spec.ts e2e/smoke.spec.ts e2e/mascots.spec.ts e2e/fence-proto.spec.ts e2e/garden-hub.spec.ts --grep "garden-frame|garden-hub|result-sheet|홈|fence-proto" --reporter=line
+        run: pnpm exec playwright test e2e/garden-frame.spec.ts e2e/result-sheet.spec.ts e2e/smoke.spec.ts e2e/mascots.spec.ts e2e/fence-proto.spec.ts e2e/garden-hub.spec.ts e2e/mobile-width.spec.ts --grep "garden-frame|garden-hub|result-sheet|홈|fence-proto|가로 넘침" --reporter=line
         env:
           CI: '1'
           PW_SKIP_BUILD: '1'
