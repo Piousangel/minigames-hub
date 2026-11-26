@@ -112,3 +112,50 @@ export function summarize(rows: GateInput[]): Summary {
   const ratio = rows.length ? passed / rows.length : 0
   return { total: rows.length, passed, ratio, verdict: ratio >= GATE.passRatio ? 'G3' : 'below', minHist, setsHist, botHist }
 }
+
+// ---------------------------------------------------------------------------
+// G3-1(#264): 합격 판에서 12판 세트 고르기 — 판 내용이 아니라 생성기 시드만 저장한다.
+// ---------------------------------------------------------------------------
+
+/** 한 판의 측정값. planless = G2 잡초 우선 봇, random = 무작위 봇, greedy = 한 수 앞 봇(bots.ts). 모두 1,000회·봇 시드 7. */
+export type SetRow = { seed: number; min: number; sets: number; planless: number; random: number; greedy: number }
+
+export const SET_SIZE = 12
+
+/** 쉬움 → 어려움: 최소 턴 오름차순, 같은 턴이면 한 수 앞 봇 성공률 내림차순, 그다음 집합 수 내림차순, 시드. */
+export function difficultyOrder(a: SetRow, b: SetRow): number {
+  return a.min - b.min || b.greedy - a.greedy || b.sets - a.sets || a.seed - b.seed
+}
+
+/** 선정 세트(시드 목록, 쉬움 → 어려움). scripts/fence-g3-bots.mts 출력과 같아야 한다 — 테스트가 지킨다. */
+export const FENCE_SET_SEEDS: number[] = [141, 88, 55, 66, 122, 145, 152, 91, 164, 155, 52, 144]
+
+/** 한 수 앞 봇이 이만큼 이상 풀면 '계획 없이도 풀린다' → 아하가 없어 세트에서 뺀다. */
+export const MAX_GREEDY = 0.25
+
+/**
+ * 세트 고르기: ① 한 수 앞 봇 < MAX_GREEDY만 ② 최소 턴 단계(3·4…)마다 SET_SIZE를 고르게 나눠(앞 단계가 나머지를 받음)
+ * ③ 단계 안에서는 difficultyOrder로 줄 세운 뒤 양 끝을 포함해 같은 간격으로 뽑는다(쉬운 판·가장 어려운 판이 둘 다 들어가게).
+ * 단계 판이 모자라면 남는 몫은 뒤 단계가 받는다(몫을 남은 자리 ÷ 남은 단계로 매번 다시 잼). 결과는 difficultyOrder 순.
+ */
+export function pickSet(rows: SetRow[]): SetRow[] {
+  const ok = rows.filter((r) => r.greedy < MAX_GREEDY).sort(difficultyOrder)
+  const tiers = [...new Set(ok.map((r) => r.min))].sort((a, b) => a - b)
+  const out: SetRow[] = []
+  tiers.forEach((min, t) => {
+    const tier = ok.filter((r) => r.min === min)
+    const left = SET_SIZE - out.length
+    const share = Math.ceil(left / (tiers.length - t))
+    const k = Math.min(tier.length, share)
+    if (k === 1) out.push(tier[0])
+    else for (let i = 0; i < k; i++) out.push(tier[Math.round((i * (tier.length - 1)) / (k - 1))])
+  })
+  return out.sort(difficultyOrder)
+}
+
+/** 순서 검사: 앞 판보다 최소 턴이 2 이상 줄어드는 자리('i→i+1', 1부터). 이유 없이 있으면 실패(카드 오답 검사). */
+export function orderIssues(set: Pick<SetRow, 'min'>[]): string[] {
+  const out: string[] = []
+  for (let i = 1; i < set.length; i++) if (set[i - 1].min - set[i].min >= 2) out.push(`${i}→${i + 1}`)
+  return out
+}
