@@ -144,6 +144,19 @@ export function SlimeProto({ text: tx = KO, slug = 'slime-proto', fixedStage, at
       /* 저장소를 못 써도 소리는 켜진 채로 */
     }
   }, [SLUG])
+  // Q1(#237): 폰 첫 진입에서 꽃(도착점, 보드 높이의 504/560)이 화면 아래로 잘리면 최소한만 스크롤해 꽃 하단을 뷰포트 안으로 올린다(1회). 보드 top을 실측하므로 innerHeight-250 같은 가정에 기대지 않는다
+  const fitDone = useRef(false)
+  useEffect(() => {
+    if (fitDone.current) return
+    const c = canvas.current
+    if (!c) return
+    fitDone.current = true
+    requestAnimationFrame(() => {
+      const r = c.getBoundingClientRect()
+      const over = r.top + (r.height * 504) / 560 + 12 - window.innerHeight
+      if (over > 0) window.scrollBy({ top: Math.min(over, Math.max(0, r.top - 8)) })
+    })
+  }, [w])
   useEffect(() => {
     const el = wrap.current
     if (!el) return

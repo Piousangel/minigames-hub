@@ -45,3 +45,4 @@
 | 2026-11-24 | [운영] 운영안 v2 기반 문서: SHIFT·OPS 신설(교대 규칙·보고 정본), CLAUDE.md 절대 규칙·`pnpm verify` 하나, HANDOFF 현재분 7KB(전문은 docs/archive), 옛 OPERATING·SESSION-GUIDE·ROTA·cycle·direction 보관, 카드 템플릿·decisions/open.json·루틴 초안·.claude/agents | 팀 문서(사용자 화면 변화 없음) | verify·필독 세트 바이트 표·독립 리뷰 2회 | 북극성 측정 없음 |
 | 2026-11-25 11:07 | [H1] tetris 첫 퀄리티 점검 — 폰 조작 버튼(▼·⤓)이 390×844 첫 화면 밖 → 한 줄 6열로. 장부 16→18 | /tetris 390 | e2e `tetris-controls`(수정 전 실패 확인)·verify·전후 캡처 | 측정 없음 |
 | 2026-11-25 13시 | [H4] #238 SEO·GEO 감사 보고 + `/llms.txt`(sitemap과 같은 소스) + robots AI 봇 11그룹(차단 경로 반복) + check-routes에 out/llms.txt·robots.txt 확인 | /llms.txt·/robots.txt(사용자 화면 변화 없음) | verify·vitest 3종(robots·llms 빠짐 검사) | 북극성 측정 없음 |
+| 2026-11-26 13시 | [H3] #237(일부) 말랑 Q1 — 폰 첫 진입에서 꽃(도착점)이 화면 아래로 잘리면 보드 top 실측으로 최소만 스크롤(1회). 1~5단계 점검 보고·소리 토글은 남음 | /slime-slide 390×664 | e2e 2건(664 수정 전 실패 745>664 확인, 844 통과)·verify | 측정 없음 |
