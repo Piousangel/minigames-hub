@@ -16,7 +16,6 @@ import {
   mulberry32,
   reachable,
   regions,
-  solveHop,
   type EdgeId,
   type HopMove,
   type HopState,
@@ -280,7 +279,8 @@ function HopPuzzleView() {
   const p = HOP_PROTO_PUZZLES[pi]
   const n = p.n
   // 시험 퍼즐 3개는 5×5·최소 3턴이라 수십 ms. 생성기 퍼즐은 최소 턴을 데이터로 미리 계산해 싣는다(G2).
-  const best = useMemo(() => solveHop(p).min, [p])
+  // 최소 턴은 퍼즐 데이터에 미리 계산돼 있다(렌더 중 동기 솔버 제거, G2). 테스트가 solveHop과 같음을 고정.
+  const best = p.min ?? null
   const [hist, setHist] = useState<HopState[]>(() => [initialState(p)])
   /** 뛴 칸(울타리를 놓기 전). null이면 뛸 칸을 고르는 단계. */
   const [pending, setPending] = useState<number | null>(null)

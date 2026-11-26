@@ -46,3 +46,4 @@
 | 2026-11-25 11:07 | [H1] tetris 첫 퀄리티 점검 — 폰 조작 버튼(▼·⤓)이 390×844 첫 화면 밖 → 한 줄 6열로. 장부 16→18 | /tetris 390 | e2e `tetris-controls`(수정 전 실패 확인)·verify·전후 캡처 | 측정 없음 |
 | 2026-11-25 13시 | [H4] #238 SEO·GEO 감사 보고 + `/llms.txt`(sitemap과 같은 소스) + robots AI 봇 11그룹(차단 경로 반복) + check-routes에 out/llms.txt·robots.txt 확인 | /llms.txt·/robots.txt(사용자 화면 변화 없음) | verify·vitest 3종(robots·llms 빠짐 검사) | 북극성 측정 없음 |
 | 2026-11-26 11:07 | [H1] #253 tetris 두 번째 점검 — 헤더 한 줄(Score)·Best·Lines·Level 판 옆 고정 칸, 결과 시트가 판 위쪽 40%를 비움, 조작 버튼 5칸 같은 폭(320 51px·360×740 첫 화면 안). 장부 18→20 | /tetris 320·360·390·1440 | e2e `tetris-controls` 7건(수정 전 6건 실패 확인)·verify·전후 캡처 | 측정 없음 |
+| 2026-11-26 17:07 | [H2] #255 꽃담 정원 G2 — 결정적 생성기·채점(`generator.ts`) + 200개 분포 스크립트, 합격 29/200=14.5%(기준 10%) → G3 제안. 프로토 렌더 중 동기 솔버 제거(최소 턴 데이터화) | 없음(비공개 `/tools/fence-proto`, 화면 변화 없음) | engine 테스트 8건(모듈 없음 실패 확인 후)·verify | 측정 없음 |

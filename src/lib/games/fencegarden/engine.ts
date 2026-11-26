@@ -273,6 +273,8 @@ export type HopPuzzle = {
   fixed: EdgeId[]
   /** 턴 한도. */
   turns: number
+  /** 최소 턴(솔버로 미리 계산해 싣는다 — 렌더 중 동기 솔버 금지, #215 리뷰·G2). */
+  min?: number
 }
 
 export type HopState = { pos: Cell; fences: ReadonlySet<EdgeId> }
@@ -425,11 +427,12 @@ export const HOP_PROTO_PUZZLES: HopPuzzle[] = [
     weeds: [4, 14, 24],
     fixed: [vEdge(5, 0, 2), vEdge(5, 1, 2), vEdge(5, 3, 2), vEdge(5, 4, 2)],
     turns: 3,
+    min: 1,
   },
   // 2) 오른쪽 위 모서리 잡초 — 두 변을 막아야 하는데 가운데에서 출발해 뛰는 거리가 모자란다.
-  { id: 'p2-corner', n: 5, start: 12, flowers: [0, 20, 24], weeds: [4], fixed: [], turns: 5 },
+  { id: 'p2-corner', n: 5, start: 12, flowers: [0, 20, 24], weeds: [4], fixed: [], turns: 5, min: 3 },
   // 3) 위 테두리 가운데 잡초 — 세 변. 바로 위 변부터 막으면 돌아가는 길이 길어진다(순서가 답).
-  { id: 'p3-order', n: 5, start: 7, flowers: [0, 4, 20, 24], weeds: [2], fixed: [], turns: 5 },
+  { id: 'p3-order', n: 5, start: 7, flowers: [0, 4, 20, 24], weeds: [2], fixed: [], turns: 5, min: 3 },
 ]
 
 /** 별: 최소 턴 ★3, 최소+1 ★2, 그 밖(한도 안) ★1. */
