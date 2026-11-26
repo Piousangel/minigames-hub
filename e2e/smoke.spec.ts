@@ -1199,3 +1199,18 @@ for (const [slug, board] of [
     await expect(page.getByTestId('gate-paused')).toHaveCount(0)
   })
 }
+
+// H3 #237 Q1: 폰 첫 진입에서 꽃(도착점)이 뷰포트 밖이면 어디로 그리는지 모른다(오너 11-22). 꽃 하단 = 보드 높이의 504/560.
+for (const vp of [{ width: 390, height: 664 }, { width: 390, height: 844 }]) {
+  test(`Slime Slide: 첫 진입 ${vp.width}×${vp.height}에서 꽃(도착점)이 뷰포트 안`, async ({ page }) => {
+    await page.setViewportSize(vp)
+    await page.goto('/slime-slide')
+    const canvas = page.getByTestId('slime-canvas')
+    await expect(canvas).toBeVisible()
+    await page.waitForTimeout(600)
+    const box = await canvas.boundingBox() // 뷰포트 기준
+    expect(box).not.toBeNull()
+    const flowerBottom = box!.y + (box!.height * 504) / 560
+    expect(flowerBottom).toBeLessThanOrEqual(vp.height)
+  })
+}
