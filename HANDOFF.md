@@ -25,7 +25,7 @@
 5. [H1] #253 다음: 2048-animals(18) 점검 → R1 `useGameGate` 재사용 P1 나머지(beatline·offbeat·gridlock·zero-hour·whack-a-mole·morse-relay) → 축 C R2(solitaire 계열 점수·표시 정직화). 장부 'UX 친화성' 표(chess 토글 28px·beatline 탭·unblock select 14px·slime 소리 토글·solitaire).
 6. [H1] 오너 결정 대기(장부): memory-game 판 크기·시간 모드, snake 속도 곡선, minesweeper 첫 클릭 3×3 빈 터 보장. 뿅 착지 v1.1 요소 다양화(`specs/2026-11-17-plop-variety.md`, 독립 리뷰 후 수정본) 오너 확인 대기.
 6-1. [H0] 리더보드 S0~S3(`specs/2026-11-18-leaderboard-direction.md`, `specs/2026-11-19-leaderboard-s2.md`): S0 남은 것(이름 링크·욕설 필터, 게임별 점수 상한, SCORE_SCALE chess/go), S2c 착수 전 독립 리뷰 + 보드 노출 측정.
-7. [H2] 꽃담 정원(가칭) G2: 사람 손 탭 JSON → 생성기 200개 분포(최소 턴 ≥3·집합 ≤3·봇 <20%), 미달이면 지형 추가 → 그래도 미달이면 보류. B 관문 전 비공개.
+7. [H2] 꽃담 정원(가칭) G2 PR(#255 카드, 리뷰 대기): 생성기 200개 합격 14.5%(기준 10%) → G3 제안 — 합격 29판 사람 풀이로 12판 고르기·한 수 앞 봇·시안 혹평 채점(spec 11장). B 관문 전 비공개.
 8. [H4] (#249 머지) 후속: `siteDescription` 손 분기 데이터화, title 65자 초과 26쪽·description 길이 88쪽 문구 카드, CWV·JSON-LD 샘플 5쪽 라이브 측정, AI 노출 기준선 측정. 대표 클래식 10개 스크린샷 카드, 트래픽 상위 20게임 공략, 마케팅 큐(말랑 제외).
 9. 성능: registry 전문 청크(모든 페이지 77.5KB gzip) → 클라이언트 경량 인덱스 분리.
 10. 토큰 전역화(R8 제안, 순서 고정): (a) garden-room·/tools에 현재 토큰 스코프 고정 → (b) 홈 `<main>` data-world 표시 → (c) `:root` 승격 + `color-scheme` light(statusBarStyle·manifest는 OG 담당과) → (d) 위젯 정원 덮어쓰기를 소스로 옮기고 스코프 규칙 삭제. 단계마다 게임 113·허브·홈 × 390·1440 픽셀 diff. 남은 네온 목록·위험 6개는 archive 핸드오프 R8 블록. e2e 대비 검사 함수 공용화.
