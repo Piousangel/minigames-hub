@@ -245,8 +245,10 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
   const hint = 'Arrow keys move/rotate, Down soft-drops, Space hard-drops, P pauses. Use the buttons on mobile.'
   const pauseBtn = <PauseButton phase={gate.phase} show={!over} onPause={() => gate.pause('manual')} />
 
-  const stats = [
-    { label: 'Score', value: state?.score ?? 0, testId: 'score', float: true },
+  // 헤더에는 Score만(compactHeader 한 줄·고정 높이). Best·Lines·Level은 판 옆 고정 폭 칸으로 — 4칸이 헤더에 있으면
+  // 좁은 폰에서 헤더가 2~4줄로 접혀 조작 버튼이 첫 화면 밖으로 밀리고, 자릿수가 늘 때마다 판이 내려갔다(#253).
+  const stats = [{ label: 'Score', value: state?.score ?? 0, testId: 'score', float: true }]
+  const sideStats = [
     { label: 'Best', value: best },
     { label: 'Lines', value: state?.lines ?? 0 },
     { label: 'Level', value: level },
@@ -261,6 +263,7 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
         muted={muted}
         onToggleMute={toggleMuted}
         hint={hint}
+        compactHeader
       >
         <div className="mx-auto aspect-[1/2] max-w-56 rounded-xl bg-surface" data-testid="tetris-loading" />
       </GameShell>
@@ -272,12 +275,21 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
   const preview = previewCells(state.next)
 
   return (
-    <GameShell stats={stats} headerActions={pauseBtn} onNewGame={restart} muted={muted} onToggleMute={toggleMuted} hint={hint}>
+    <GameShell
+      stats={stats}
+      headerActions={pauseBtn}
+      onNewGame={restart}
+      muted={muted}
+      onToggleMute={toggleMuted}
+      hint={hint}
+      compactHeader
+    >
       <div className="flex items-start justify-center gap-3">
         {/* 보드 */}
         <div
           className="anim-board-in relative rounded-xl bg-surface p-2"
-          style={{ width: 'min(60vw, 260px)' }}
+          // 키 작은 폰(360×740)에서 조작 버튼까지 첫 화면에 들게 높이로도 줄인다(판 높이 ≈ 폭×2). 180px 아래로는 줄이지 않는다.
+          style={{ width: 'min(60vw, 260px, max(180px, calc(50svh - 166px)))' }}
           data-testid="tetris-board"
         >
           <div
@@ -312,23 +324,30 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
               hint="Tap Play or press any arrow key. ← → move, ↑ rotates, Space drops."
             />
           )}
-          <GameOverlay
-            show={state.over}
-            variant={newBest ? 'win' : 'lose'}
-            title={newBest ? 'New best!' : 'Game over'}
-            testId="game-over"
-          >
-            <p className="text-fg-muted">
-              Score: {state.score} · Best: {best}
-            </p>
-            <GameButton onClick={restart} className="px-4 py-2">
-              Play again
-            </GameButton>
-          </GameOverlay>
+          {/* 결과 시트 자리: 판 위쪽 40%는 비워 마지막으로 꼭대기까지 쌓인 모습이 보이게 한다(#253).
+              시트가 자리보다 크면 GameOverlay가 자리 최소 높이를 늘려 아래(조작 버튼 쪽)로 뻗는다. */}
+          {state.over && (
+            <div className="absolute inset-x-0 bottom-0 top-[40%]" data-testid="tetris-result-seat">
+              <GameOverlay
+                show={state.over}
+                variant={newBest ? 'win' : 'lose'}
+                title={newBest ? 'New best!' : 'Game over'}
+                testId="game-over"
+                compact
+              >
+                <p className="text-fg-muted">
+                  Score: {state.score} · Best: {best}
+                </p>
+                <GameButton onClick={restart} className="px-4 py-2">
+                  Play again
+                </GameButton>
+              </GameOverlay>
+            </div>
+          )}
         </div>
 
-        {/* 사이드바: 다음 조각 미리보기 */}
-        <div className="flex flex-col gap-2">
+        {/* 사이드바: 다음 조각 미리보기 + Best·Lines·Level(고정 폭·tabular-nums — 자릿수가 늘어도 판이 움직이지 않는다) */}
+        <div className="flex w-20 shrink-0 flex-col gap-2">
           <div className="rounded-lg bg-surface p-2">
             <p className="mb-1 text-center text-xs text-fg-muted">Next</p>
             <div className="grid grid-cols-4 gap-px" style={{ width: 64 }} data-testid="tetris-next">
@@ -340,16 +359,24 @@ export function GameTetris({ storageKey }: { storageKey: string }) {
               ))}
             </div>
           </div>
+          {sideStats.map((s) => (
+            <div key={s.label} className="rounded-lg bg-surface px-2 py-1.5 text-center">
+              <p className="text-xs text-fg-muted">{s.label}</p>
+              <p className="font-bold tabular-nums text-accent" data-tetris-stat={s.label.toLowerCase()}>
+                {s.value}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* 모바일 터치 컨트롤 */}
-      <div className="mx-auto mt-3 grid max-w-sm grid-cols-6 gap-2">
+      {/* 모바일 터치 컨트롤 — 5칸 같은 폭(320 폭에서도 칸마다 44px 이상) */}
+      <div className="mx-auto mt-3 grid max-w-sm grid-cols-5 gap-2">
         <TouchButton phase={gate.phase} label="◀" aria="Move left" onPress={doMoveLeft} repeat />
         <TouchButton phase={gate.phase} label="⟳" aria="Rotate" onPress={doRotate} />
         <TouchButton phase={gate.phase} label="▶" aria="Move right" onPress={doMoveRight} repeat />
         <TouchButton phase={gate.phase} label="▼" aria="Soft drop" onPress={doSoftDrop} repeat />
-        <TouchButton phase={gate.phase} label="⤓" aria="Hard drop" onPress={doHardDrop} className="col-span-2" />
+        <TouchButton phase={gate.phase} label="⤓" aria="Hard drop" onPress={doHardDrop} />
       </div>
     </GameShell>
   )
