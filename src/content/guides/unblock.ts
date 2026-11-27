@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: 'unblock',
   title: 'Unblock Guide: Par, Opening Moves and the Shape of All 27 Levels',
+  seoTitle: 'Unblock Guide: Par, Openings and All 27 Levels',
   description:
     'I mapped every reachable position in all 27 Unblock levels. See how many opening moves keep par, where levels hide traps, and how to hit par.',
   updated: '2026-10-09',

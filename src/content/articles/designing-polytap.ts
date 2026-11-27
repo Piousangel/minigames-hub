@@ -3,6 +3,7 @@ import type { Article } from '../types'
 export const article: Article = {
   slug: 'designing-polytap',
   title: 'Designing Polytap: a rhythm game where precision is not the point',
+  seoTitle: 'Designing Polytap: rhythm without precision',
   description:
     'Why Polytap keeps a fixed, generous timing window, makes three-against-four its whole identity, and why I stopped letting players die in the warm-up.',
   published: '2026-10-09',

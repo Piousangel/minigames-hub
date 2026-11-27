@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: '2048',
   title: '2048 Strategy Tested: Corner Rules vs Lookahead Over 8,200 Games',
+  seoTitle: '2048 Strategy Tested: Corner vs Lookahead',
   description:
     'I ran 8,200 simulated games of this site’s 2048 to test corner and snake strategies. Rules of thumb never reached 2048; one step of lookahead did in 76% of games.',
   updated: '2026-10-09',

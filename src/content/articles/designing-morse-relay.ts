@@ -3,6 +3,7 @@ import type { Article } from '../types'
 export const article: Article = {
   slug: 'designing-morse-relay',
   title: 'Designing Morse Relay: a telegraph key that learns your hand',
+  seoTitle: 'Designing Morse Relay: a key that learns you',
   description:
     'How Morse Relay turns real Morse keying into a survival game: self-calibrating timing, a tolerance that tightens each level, and unranked challenge runs.',
   published: '2026-10-09',

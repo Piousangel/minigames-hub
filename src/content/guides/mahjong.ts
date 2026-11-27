@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: 'mahjong',
   title: 'Mahjong Solitaire: Why Solvable Deals Still Get Stuck',
+  seoTitle: 'Mahjong Solitaire: Why Solvable Deals Get Stuck',
   description:
     'I played 500 deals of this site’s Mahjong Solitaire with different habits. What the layout, scoring, Hint and Shuffle really do, and the habits that clear boards.',
   updated: '2026-10-09',

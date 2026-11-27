@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: 'tetris',
   title: 'Falling Blocks Strategy Guide: The 7-Bag, the Speed Curve and Why Quads Pay 7.5x',
+  seoTitle: 'Falling Blocks Strategy: 7-Bag, Speed and Quads',
   description:
     'How this Falling Blocks game really works: a strict 7-bag randomizer, I-piece droughts capped at 12, gravity that bottoms out at level 13, and the exact score table.',
   updated: '2026-10-09',

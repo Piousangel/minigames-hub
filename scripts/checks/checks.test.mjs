@@ -191,3 +191,12 @@ describe('pr-guard: 고위험 분류·관문·겹침', () => {
     expect(overlapComment([])).toContain('✓')
   })
 })
+
+describe('check-seo title 길이 경고 (#265)', () => {
+  it('66자 title은 경고 1건, 65자·짧은 title은 0건', async () => {
+    const { titleLengthWarnings } = await import('./seo-title.mjs')
+    const t66 = 'x'.repeat(66)
+    expect(titleLengthWarnings([['/a.html', t66]])).toHaveLength(1)
+    expect(titleLengthWarnings([['/a.html', 'x'.repeat(65)], ['/b.html', 'short']])).toHaveLength(0)
+  })
+})

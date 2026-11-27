@@ -3,6 +3,7 @@ import type { Article } from '../types'
 export const article: Article = {
   slug: 'word-guess-best-opening-words',
   title: 'The Best Opening Word for My Word Guess Game, Tested Against Every Answer',
+  seoTitle: 'Best Opening Word for Word Guess, Tested',
   description:
     'I scored all 1,605 accepted guesses against all 615 Word Guess answers, then played full games. IRATE wins round one; SLATE wins the game.',
   published: '2026-10-09',

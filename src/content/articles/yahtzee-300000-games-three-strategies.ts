@@ -3,6 +3,7 @@ import type { Article } from '../types'
 export const article: Article = {
   slug: 'yahtzee-300000-games-three-strategies',
   title: 'I Played 300,000 Games of Yacht Dice With Three Bots. Here Is What Actually Scores.',
+  seoTitle: '300,000 Yacht Dice Games: What Actually Scores',
   description:
     'Three Yacht Dice bots, 100,000 games each, run on my own dice engine: rerolling is worth ~48 points, chasing straights ~58 more. Full numbers inside.',
   published: '2026-10-09',
