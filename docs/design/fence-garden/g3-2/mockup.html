@@ -1,0 +1,157 @@
+<!doctype html>
+<!-- 꽃담 정원 G3-2 시안(#273). 코드 렌더 시안 — 판 배치는 엔진 generateHop(141)·HOP_PROTO_PUZZLES[0]에서 옮김.
+     렌더: Playwright로 mockup.html?s=a|b|c 를 852×920 · deviceScaleFactor 2 · JPEG 82 전체 캡처 → g3-2-{a,b,c}.jpg -->
+<html lang="en"><head><meta charset="utf-8"><title>Fence Garden G3-2 mockup</title>
+<style>
+:root{--paper:#fffaf0;--cream:#fff3dc;--cream2:#fbeccc;--shade:#f3d9aa;--ink:#5b3a1e;--inks:#7a5636;--inkd:#3a2410;--sun:#ffc933;--coral:#e8643f;--coralt:#b3431f;--leaf:#7cc26a;--leafd:#4f8a3c;--leaft:#2f6b4f;--danger:#ff5a4a;--sky:#bfe6ff}
+*{box-sizing:border-box}body{margin:0;font-family:"Nunito","Trebuchet MS",system-ui,sans-serif;color:var(--ink);background:#e9dcc4}
+.row{display:flex;gap:24px;padding:24px;align-items:flex-start}
+.phone{width:390px;height:844px;position:relative;overflow:hidden;border-radius:28px;outline:2px solid #0002}
+.cap{font:700 15px/1.3 system-ui;color:#3a2410;margin:0 0 8px 4px;width:390px}
+.toneA{background:linear-gradient(180deg,#ff9d7a 0,#ffc6a0 120px,var(--paper) 260px)}
+.toneB{background:linear-gradient(180deg,#8fd3ff 0,#e9f8ff 220px)}
+.top{display:flex;align-items:center;justify-content:space-between;padding:18px 16px 6px}
+.title{font-weight:900;font-size:22px;letter-spacing:.2px}
+.title small{display:block;font-weight:700;font-size:12px;color:var(--inks)}
+.pill{background:var(--cream);border:2px solid var(--ink);border-radius:999px;padding:6px 12px;font-weight:800;font-size:14px;box-shadow:0 3px 0 var(--inkd)}
+.turns{display:flex;gap:6px;align-items:center;padding:6px 16px 10px}
+.seed{width:22px;height:22px;border-radius:50%;border:2px solid var(--ink);background:var(--cream)}
+.seed.on{background:var(--leaf)}.seed.over{background:var(--shade);border-style:dashed}
+.turns span{font-weight:800;font-size:14px;margin-left:6px}
+.board{margin:0 15px;width:360px;height:360px;border-radius:18px;border:3px solid var(--ink);box-shadow:0 6px 0 var(--inkd);background:var(--cream);position:relative}
+.toneB .board{background:#3f8f3a;border-color:#2b4a22;box-shadow:0 6px 0 #1d3317}
+.step{display:flex;gap:8px;justify-content:center;padding:16px 16px 0}
+.chip{display:flex;align-items:center;gap:6px;border-radius:999px;padding:6px 12px;font-weight:800;font-size:14px;border:2px solid var(--ink);background:var(--cream)}
+.chip.now{background:var(--sun);box-shadow:0 3px 0 var(--inkd)}
+.chip i{font-style:normal;width:20px;height:20px;border-radius:50%;background:var(--cream);border:2px solid var(--ink);display:grid;place-items:center;font-size:11px}
+.bar{position:absolute;left:0;right:0;bottom:0;display:flex;gap:10px;padding:14px 16px 26px;justify-content:center}
+.btn{min-width:110px;height:48px;border-radius:14px;border:2.5px solid var(--ink);background:var(--cream);font-weight:900;font-size:16px;color:var(--ink);box-shadow:0 3px 0 var(--inkd);display:flex;align-items:center;justify-content:center;gap:6px}
+.btn.main{background:var(--sun);min-width:160px}
+.hint{margin:14px 16px 0;padding:10px 12px;border-radius:14px;background:var(--cream);border:2px dashed var(--inks);font-weight:700;font-size:14px;line-height:1.35}
+.dim{position:absolute;inset:0;background:#3a241066}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:var(--cream);border-top:3px solid var(--ink);border-radius:24px 24px 0 0;padding:18px 16px 28px;box-shadow:0 -2px 0 #5b3a1e33}
+.sheet h2{margin:0;font-size:24px;font-weight:900}
+.big{font-size:44px;font-weight:900;color:var(--coral);line-height:1}
+.panels{display:flex;gap:8px;margin:12px 0}
+.panel{flex:1;background:var(--paper);border:2px solid var(--ink);border-radius:14px;padding:6px 4px 8px;text-align:center;font-weight:800;font-size:13px}
+.panel .n{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--sun);border:2px solid var(--ink);font-size:11px;margin-right:2px}
+.share{font:700 14px/1.45 ui-monospace,Menlo,monospace;background:var(--paper);border:2px solid var(--ink);border-radius:12px;padding:10px 12px;white-space:pre}
+.tag{position:absolute;font:800 12px system-ui;background:var(--danger);color:#fff;border:2px solid var(--ink);border-radius:999px;padding:1px 7px}
+</style></head><body>
+<script>
+// ---- 판 데이터(엔진에서 옮김, 좌표는 edgeSegment: x=열, y=행) ----
+const N=5, C=68, PAD=10
+const SEED141={start:6,flowers:[20],weeds:[14,16],fixed:[[2,1,3,1],[0,2,1,2],[2,4,3,4],[3,2,3,3]]}
+const P1={start:12,flowers:[0,10,20],weeds:[4,14,24],fixed:[[3,0,3,1],[3,1,3,2],[3,3,3,4],[3,4,3,5]],gap:[3,2,3,3]}
+const ART='../../../../public/art/'
+const cx=c=>PAD+(c%N)*C+C/2, cy=c=>PAD+Math.floor(c/N)*C+C/2
+function leaf(x,y,a,s=1){return `<ellipse cx="${x}" cy="${y}" rx="${6*s}" ry="${3.4*s}" transform="rotate(${a} ${x} ${y})" fill="#7cc26a" stroke="#4f8a3c" stroke-width="1.6"/>`}
+function fence([x1,y1,x2,y2],kind,tone){
+  const X1=PAD+x1*C,Y1=PAD+y1*C,X2=PAD+x2*C,Y2=PAD+y2*C,h=y1===y2
+  if(tone==='B'){ // 흰 말뚝 울타리
+    let s=`<line x1="${X1}" y1="${Y1}" x2="${X2}" y2="${Y2}" stroke="${kind==='fixed'?'#8c8c80':'#fff'}" stroke-width="8" stroke-linecap="round"/>`
+    for(let t=0.15;t<1;t+=0.23){const x=X1+(X2-X1)*t,y=Y1+(Y2-Y1)*t;s+=`<rect x="${x-4}" y="${y-9}" width="8" height="18" rx="2" fill="${kind==='fixed'?'#b5b3a5':'#fff'}" stroke="#2b4a22" stroke-width="1.5"/>`}
+    return s}
+  if(kind==='fixed'){ // 오래된 돌담: 회색 돌 3개
+    let s=''
+    for(let i=0;i<3;i++){const t=(i+.5)/3,x=X1+(X2-X1)*t,y=Y1+(Y2-Y1)*t,w=h?21:13,hh=h?13:21,j=(i%2?1:-1)*1.5;s+=`<path d="M${x-w/2+3} ${y-hh/2+j} Q${x} ${y-hh/2-3+j} ${x+w/2-2} ${y-hh/2+1} Q${x+w/2+2} ${y} ${x+w/2-2} ${y+hh/2-1} Q${x} ${y+hh/2+3} ${x-w/2+2} ${y+hh/2} Q${x-w/2-2} ${y} ${x-w/2+3} ${y-hh/2+j}Z" fill="${i%2?'#d8cfb6':'#c9c2ad'}" stroke="#5b3a1e" stroke-width="2"/><path d="M${x-w/2+3} ${y-hh/2+2} q${w/4} -4 ${w/2} -1" stroke="#7cc26a" stroke-width="3" fill="none" stroke-linecap="round"/>`}
+    return s}
+  const col=kind==='preview'?'#ffc933':'#b07a45'
+  let s=`<line x1="${X1}" y1="${Y1}" x2="${X2}" y2="${Y2}" stroke="#5b3a1e" stroke-width="${kind==='preview'?13:11}" stroke-linecap="round"/>
+  <line x1="${X1}" y1="${Y1}" x2="${X2}" y2="${Y2}" stroke="${col}" stroke-width="${kind==='preview'?8:6.5}" stroke-linecap="round"/>`
+  for(const [X,Y] of [[X1,Y1],[X2,Y2]]) s+=`<circle cx="${X}" cy="${Y}" r="6" fill="${col}" stroke="#5b3a1e" stroke-width="2"/>`
+  if(kind!=='preview'){ // 담장 덩굴: 잎 4장 + 작은 분홍 꽃 1
+    for(let i=0;i<4;i++){const t=.2+i*.2,x=X1+(X2-X1)*t,y=Y1+(Y2-Y1)*t,a=(h?(i%2?30:-30):(i%2?60:120)),o=(i%2?1:-1)*5;s+=leaf(h?x:x+o,h?y+o:y,a)}
+    const x=(X1+X2)/2,y=(Y1+Y2)/2;s+=`<circle cx="${x}" cy="${y}" r="4.2" fill="#ff9d7a" stroke="#5b3a1e" stroke-width="1.5"/><circle cx="${x}" cy="${y}" r="1.5" fill="#ffc933"/>`}
+  return s}
+function cells(tone,opts={}){
+  let s=''
+  for(let c=0;c<N*N;c++){const x=PAD+(c%N)*C,y=PAD+Math.floor(c/N)*C,alt=((c%N)+Math.floor(c/N))%2
+    let fill=tone==='B'?(alt?'#5fbf4a':'#56b041'):(alt?'#f2e3bf':'#f8ecce')
+    if(opts.mine&&opts.mine.includes(c)) fill=tone==='B'?'#7fd36a':'#e3f1c6'
+    if(opts.bad&&opts.bad.includes(c)) fill='#ffd6cc'
+    s+=`<rect x="${x+1}" y="${y+1}" width="${C-2}" height="${C-2}" rx="9" fill="${fill}"/>`
+    if(tone!=='B'&&!opts.plain){const k=(c*7)%5 // 잔디 한 줌(위치 흔들기) + 종이 얼룩
+      s+=`<path d="M${x+12+k*3} ${y+C-12} q-2 -7 -5 -9 M${x+13+k*3} ${y+C-12} q1 -8 0 -11 M${x+14+k*3} ${y+C-12} q3 -6 6 -8" stroke="#9cc27e" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="${x+C-16-k*2}" cy="${y+16+k}" r="1.6" fill="#e2cf9f"/><circle cx="${x+C-24}" cy="${y+22+k*2}" r="1.1" fill="#e2cf9f"/>`}}
+  if(opts.reach) for(const c of opts.reach) s+=`<circle cx="${cx(c)}" cy="${cy(c)}" r="26" fill="#bfe6ff" stroke="#3d8fc4" stroke-width="2.5" stroke-dasharray="5 4"/>`
+  return s}
+function sprites(b,pos,face='wave'){
+  let s=''
+  for(const f of b.flowers) s+= f===pos // 말랑이가 꽃 칸에 서면 꽃을 칸 모서리 배지로 남긴다(가림 방지)
+    ? `<circle cx="${cx(f)+20}" cy="${cy(f)-20}" r="14" fill="#fff3dc" stroke="#5b3a1e" stroke-width="2"/><image href="${ART}plop-flower.webp" x="${cx(f)+8}" y="${cy(f)-33}" width="24" height="26"/>`
+    : `<image href="${ART}plop-flower.webp" x="${cx(f)-24}" y="${cy(f)-26}" width="48" height="52"/>`
+  for(const w of b.weeds) s+=`<image href="${ART}bramble.webp" x="${cx(w)-26}" y="${cy(w)-26}" width="52" height="52"/>`
+  s+=`<ellipse cx="${cx(pos)}" cy="${cy(pos)+25}" rx="20" ry="5" fill="#3a241033"/><image href="${ART}mallang-${face}.webp" x="${cx(pos)-27}" y="${cy(pos)-30}" width="54" height="58"/>`
+  // 꽃 배지는 말랑이 위에 다시 그린다
+  for(const f of b.flowers) if(f===pos) s+=`<circle cx="${cx(f)+20}" cy="${cy(f)-20}" r="14" fill="#fff3dc" stroke="#5b3a1e" stroke-width="2"/><image href="${ART}plop-flower.webp" x="${cx(f)+8}" y="${cy(f)-33}" width="24" height="26"/>`
+  return s}
+function bubble(x,y,text,w=150){return `<g><rect x="${x-w/2}" y="${y-17}" width="${w}" height="30" rx="15" fill="#3a2410" opacity=".88"/><text x="${x}" y="${y+3}" text-anchor="middle" font-family="system-ui" font-weight="800" font-size="14" fill="#fff3dc">${text}</text></g>`}
+function setStrip(done){let s='<div style="display:flex;align-items:center;gap:5px;justify-content:center;margin-top:14px;font-weight:800;font-size:13px;color:var(--inks)">';for(let i=0;i<12;i++)s+=`<span style="width:${i===done?16:11}px;height:${i===done?16:11}px;border-radius:50%;border:2px solid var(--ink);background:${i<done?'var(--leaf)':i===done?'var(--sun)':'var(--cream)'}"></span>`;return s+`<span style="margin-left:6px">Garden ${done+1} of 12</span></div>`}
+function arrows(pos,pick){ // 0.85칸 바깥 손잡이
+  const d=[[0,-1,'up'],[1,0,'right'],[0,1,'down'],[-1,0,'left']];let s=''
+  for(const [dx,dy,k] of d){const x=cx(pos)+dx*C*.85,y=cy(pos)+dy*C*.85,on=k===pick
+    if(x<PAD||x>PAD+N*C||y<PAD||y>PAD+N*C) continue
+    const r=Math.atan2(dy,dx)*180/Math.PI
+    s+=`<g transform="translate(${x} ${y}) rotate(${r})" opacity="${on?1:.72}"><circle r="15" fill="${on?'#ffc933':'#fff3dc'}" stroke="#5b3a1e" stroke-width="2.5"/><path d="M-5 -6 L6 0 L-5 6 Z" fill="#5b3a1e"/></g>`}
+  return s}
+function svg(inner){return `<svg width="360" height="360" viewBox="-3 -3 366 366" style="position:absolute;left:-3px;top:-3px">${inner}</svg>`}
+function topBar(tone,sub,undo=true){return `<div class="top"><div class="title">Fence Garden #1<small>${sub}</small></div><div style="display:flex;gap:8px">${undo?'<div class="pill">↶ Undo</div>':''}<div class="pill">?</div></div></div>`}
+// 턴 점: 쓴 턴은 채움(최소 안 = 잎색, 최소를 넘긴 턴 = 살구색), 남은 턴은 빈 점(최소 밖은 점선)
+function turns(used,target=3,limit=5,label){let s='<div class="turns">';for(let i=0;i<limit;i++)s+=`<div class="seed ${i<used?'on':''} ${i>=target?'over':''}" style="${i<used&&i>=target?'background:#ffb27a;border-style:solid':''}"></div>`;return s+`<span>${label??`Turn ${used+1} · fewest ${target}`}</span></div>`}
+
+// ---- 화면들 ----
+const S={}
+const placed1=[[1,2,1,3]] // 1턴: 10번 칸 오른쪽 덩굴(솔버 1수)
+S.playA=()=>`<div class="phone toneA">${topBar('A','Hop, then fence beside you')}${turns(1)}
+ <div class="board">${svg(cells('A',{reach:[]})+SEED141.fixed.map(f=>fence(f,'fixed','A')).join('')+placed1.map(f=>fence(f,'placed','A')).join('')+fence([1,3,1,4],'preview','A')+sprites(SEED141,15)+arrows(15,'right')+bubble(PAD+3.1*C,PAD+4.55*C,'Let go to build'))}</div>
+ <div class="step"><div class="chip"><i>1</i>Hop ✓</div><div class="chip now"><i>2</i>Drag to a side</div></div>
+ <div class="hint">Your fences block your own path too. Burrs must end up <b>outside</b> the flowers' garden.</div>
+ <div style="display:flex;gap:10px;justify-content:center;margin-top:16px"><div class="btn">↺ Restart</div></div>${setStrip(0)}</div>`
+S.playB=()=>`<div class="phone toneB">${topBar('B','Hop, then fence beside you')}${turns(1)}
+ <div class="board">${svg(cells('B',{plain:true})+SEED141.fixed.map(f=>fence(f,'fixed','B')).join('')+placed1.map(f=>fence(f,'placed','B')).join('')+`<line x1="${PAD+C}" y1="${PAD+3*C}" x2="${PAD+C}" y2="${PAD+4*C}" stroke="#ffc933" stroke-width="10" stroke-linecap="round"/>`+sprites(SEED141,15)+arrows(15,'right'))}</div>
+ <div class="step"><div class="chip"><i>1</i>Hop ✓</div><div class="chip now"><i>2</i>Drag to a side</div></div>
+ <div class="hint">Your fences block your own path too. Burrs must end up outside the flowers' garden.</div>
+ <div style="display:flex;gap:10px;justify-content:center;margin-top:16px"><div class="btn">↺ Restart</div></div>${setStrip(0)}</div>`
+// 그림 시범 v2: 퍼즐1(빈 칸 하나 메우기)을 큰 판 1장으로 — 빈 변 맥박 점선 + 손가락 고스트, 문장 한 줄
+S.tutorial=()=>{const g=P1.gap,X=PAD+g[0]*C,Y1=PAD+g[1]*C,Y2=PAD+g[3]*C
+ const inner=cells('A',{mine:[0,1,2,5,6,7,10,11,12,15,16,17,20,21,22]})+P1.fixed.map(f=>fence(f,'fixed','A')).join('')+
+  `<line x1="${X}" y1="${Y1-6}" x2="${X}" y2="${Y2+6}" stroke="#ffc933" stroke-width="16" stroke-linecap="round" opacity=".45"/><line x1="${X}" y1="${Y1}" x2="${X}" y2="${Y2}" stroke="#5b3a1e" stroke-width="5" stroke-dasharray="8 7" stroke-linecap="round"/>`+
+  sprites(P1,12)+arrows(12,'right')+
+  `<path d="M${cx(12)+60} ${cy(12)+96} q-4 -40 -1 -72" stroke="#5b3a1e" stroke-width="3.5" fill="none" stroke-dasharray="5 5" stroke-linecap="round"/><circle cx="${cx(12)+60}" cy="${cy(12)+100}" r="18" fill="#ffffffaa" stroke="#5b3a1e" stroke-width="2.5"/>`
+ return `<div class="phone toneA">${topBar('A','Demo garden',false)}
+ <div style="display:flex;gap:8px;justify-content:center;padding:4px 16px 10px"><div class="chip"><i>1</i>Hop</div><div class="chip now"><i>2</i>Fence</div><div class="chip"><i>3</i>Flowers in</div></div>
+ <div class="board">${svg(inner)}</div>
+ <div style="text-align:center;font-weight:900;font-size:20px;margin:18px 16px 4px">Close the gap → flowers in, burrs out.</div>
+ <div style="display:flex;gap:10px;margin:14px 16px 0"><div class="btn" style="flex:1">Skip</div><div class="btn main" style="flex:2">Try it (1 turn)</div></div>
+ <div style="text-align:center;font-weight:700;font-size:13px;color:var(--inks);margin-top:12px">Shown once · ? brings it back</div></div>`}
+// 위 변 쐐기 해소: 말랑이 1행(6번 칸) — 판 아래 어디서 눌러도 '위로 끌기'로 위 변
+S.wedge=()=>`<div class="phone toneA">${topBar('A','Hop, then fence beside you')}${turns(0)}
+ <div class="board">${svg(cells('A')+SEED141.fixed.map(f=>fence(f,'fixed','A')).join('')+fence([1,1,2,1],'preview','A')+sprites(SEED141,6)+arrows(6,'up')+bubble(PAD+3.7*C,PAD+0.5*C,'Let go to build',140)+
+   `<circle cx="${PAD+3.4*C}" cy="${PAD+4.3*C}" r="20" fill="#ffffff88" stroke="#5b3a1e" stroke-width="2.5"/><path d="M${PAD+3.4*C} ${PAD+4.3*C-24} V${PAD+3.1*C}" stroke="#5b3a1e" stroke-width="4" stroke-dasharray="6 5" stroke-linecap="round"/><path d="M${PAD+3.4*C-9} ${PAD+3.1*C+8} L${PAD+3.4*C} ${PAD+3.1*C-4} L${PAD+3.4*C+9} ${PAD+3.1*C+8}" fill="none" stroke="#5b3a1e" stroke-width="4" stroke-linecap="round"/>`)}</div>
+ <div class="step"><div class="chip"><i>1</i>Hop ✓</div><div class="chip now"><i>2</i>Drag up ↑ = top side</div></div>
+ <div class="hint">Press <b>anywhere</b> and drag toward a side. Mallang near the top? Drag up from where your thumb is.</div>
+ <div style="display:flex;gap:10px;justify-content:center;margin-top:16px"><div class="btn">↺ Restart</div></div>${setStrip(0)}</div>`
+// 실패 v2: 엔진으로 합법 확인한 5수 뒤 턴을 다 씀. 숫자 = '목표까지 더 필요한 울타리'(말랑이 영역 기준 최소 절단, 뛰기 제약 무시) = 1
+const failPlaced=[[1,3,2,3],[1,3,1,4],[1,4,2,4],[3,4,3,5],[1,4,1,5]]
+const cut=[[0,4,1,4]]
+S.fail=()=>`<div class="phone toneA">${topBar('A','Out of turns')}${turns(5,3,5,'5 / 5 turns used')}
+ <div class="board">${svg(cells('A',{bad:[14,16]})+SEED141.fixed.map(f=>fence(f,'fixed','A')).join('')+failPlaced.map(f=>fence(f,'placed','A')).join('')+
+   cut.map(([x1,y1,x2,y2])=>`<line x1="${PAD+x1*C}" y1="${PAD+y1*C}" x2="${PAD+x2*C}" y2="${PAD+y2*C}" stroke="#ff5a4a" stroke-width="6" stroke-dasharray="8 6" stroke-linecap="round"/>`).join('')+sprites(SEED141,20,'sad')+
+   bubble(PAD+0.9*C,PAD+2.62*C,'1 more fence ↓',120))}</div>
+ <div class="sheet" style="padding-top:14px"><h2>One fence short</h2>
+  <div style="font-weight:700;font-size:15px;margin:6px 0 4px">The red dash would have closed it. Both burrs still reach Mallang.</div>
+  <div style="font-weight:700;font-size:14px;color:var(--inks);margin-bottom:12px">Fewest for this garden: 3 turns. Fence the flower <b>in</b> — walling each burr costs more.</div>
+  <div style="display:flex;gap:10px"><div class="btn" style="flex:1">↶ Undo 1</div><div class="btn main" style="flex:2">Try again</div></div></div></div>`
+// 결과 시트: 우리 형식 '꽃담 #N 3턴' — ★·%·메달 없음
+const win=[[1,2,1,3],[1,3,1,4],[1,4,1,5]]
+S.result=()=>`<div class="phone toneA">${topBar('A','Solved',false)}${turns(3,3,5,'3 turns')}
+ <div class="board">${svg(cells('A',{mine:[10,15,20]})+SEED141.fixed.map(f=>fence(f,'fixed','A')).join('')+win.map(f=>fence(f,'placed','A')).join('')+sprites(SEED141,20,'wave'))}</div>
+ <div class="sheet"><div style="display:flex;align-items:flex-end;justify-content:space-between"><div><h2>Garden #1 fenced</h2><div style="font-weight:700;font-size:14px;color:var(--leaft)">Same as the fewest possible</div></div><div class="big">3<span style="font-size:18px;color:var(--ink)"> turns</span></div></div>
+  <div class="share" style="margin:12px 0">Fence Garden #1 — 3 turns 🌸
+🪵🪵🪵 (fewest: 3)</div>
+  <div style="display:flex;gap:10px"><div class="btn" style="flex:1">Share</div><div class="btn main" style="flex:2">Next garden · #2</div></div>
+  <div style="text-align:center;font-weight:700;font-size:13px;color:var(--inks);margin-top:10px">Today's garden in the Daily issue · new one tomorrow</div></div></div>`
+const SETS={a:[['시안 A — 종이 정원(선택)','playA'],['시안 B — 잔디 판(버림)','playB']],b:[['첫 화면 — 그림 시범(퍼즐 1)','tutorial'],['위 변 해소 — 끄는 방향','wedge']],c:[['실패 — 남은 잡초까지 열린 변','fail'],['결과 시트 — 우리 형식','result']]}
+const q=new URLSearchParams(location.search).get('s')||'a'
+document.body.innerHTML=`<div class="row">${SETS[q].map(([cap,k])=>`<div><p class="cap">${cap}</p>${S[k]()}</div>`).join('')}</div>`
+</script></body></html>
