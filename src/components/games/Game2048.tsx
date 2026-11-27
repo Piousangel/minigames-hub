@@ -384,11 +384,10 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
         if (newEngine.score > bestRef.current) newBestRef.current = true
 
         if (plan.merges.length) {
-          if (theme.names) {
-            // 이번 판 첫 만남 / 평생 첫 만남(기존 bestTile 기록을 읽기만 — 저장은 위 이펙트 그대로)
-            const meet = friendMeet(maxTileOf(s.board), Math.max(...plan.merges.map((m) => m.newValue)), bestTileRef.current)
-            if (meet) setFriend({ ...meet, seq: ++friendSeqRef.current })
-          }
+          // 이번 판 첫 만남 / 평생 첫 만남(기존 bestTile 기록을 읽기만 — 저장은 위 이펙트 그대로).
+          // 연출 렌더는 names 테마에서만(아래 FriendBanner 조건) — 원조 2048은 상태만 잠깐 바뀌고 화면 변화 0.
+          const meet = friendMeet(maxTileOf(s.board), Math.max(...plan.merges.map((m) => m.newValue)), bestTileRef.current)
+          if (meet) setFriend({ ...meet, seq: ++friendSeqRef.current })
           play('merge')
           if (!mutedRef.current) vibrateMerge(Math.max(...plan.merges.map((m) => m.newValue)))
         }
@@ -439,7 +438,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
       slideTimerRef.current = window.setTimeout(settle, SLIDE_MS)
       return true
     },
-    [commitState, commitTiles, nextId, play, reducedRef, storageKey, theme.names],
+    [commitState, commitTiles, nextId, play, reducedRef, storageKey],
   )
 
   const doMove = useCallback(
