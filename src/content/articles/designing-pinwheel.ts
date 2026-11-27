@@ -3,6 +3,7 @@ import type { Article } from '../types'
 export const article: Article = {
   slug: 'designing-pinwheel',
   title: 'Designing Pinwheel: a puzzle with no individual moves',
+  seoTitle: 'Designing Pinwheel: a puzzle with no moves',
   description:
     'Pinwheel spins the whole board around a pin you choose. How I generate solvable boards backwards, why par is a proof, and the mouse bug unit tests missed.',
   published: '2026-10-09',

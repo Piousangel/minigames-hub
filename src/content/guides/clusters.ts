@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: 'clusters',
   title: 'Clusters Guide: How the Daily Board Is Built, and How to Spend Your Four Lives',
+  seoTitle: 'Clusters Guide: The Daily Board and Your Lives',
   description:
     'Inside Clusters: one group per colour tier on every board, a fixed 44-group bank, a UTC daily seed, and what "one away" and Shuffle really tell you.',
   updated: '2026-10-09',

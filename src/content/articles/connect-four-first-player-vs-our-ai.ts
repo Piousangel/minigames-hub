@@ -3,6 +3,7 @@ import type { Article } from '../types'
 export const article: Article = {
   slug: 'connect-four-first-player-vs-our-ai',
   title: 'Does Going First Win at Connect Four? 114,000 Bot Games Against My AI',
+  seoTitle: 'Connect Four: Does Going First Win? 114K Games',
   description:
     'I pitted four bots against my Connect Four AI. Random play never won in 2,000 games; one safety rule raised it to 13.9%. And the AI does better going second.',
   published: '2026-10-09',

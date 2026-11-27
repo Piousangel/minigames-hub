@@ -2354,7 +2354,7 @@ export const gamePages: GamePage[] = [
   {
     slug: 'yahtzee',
     game: 'yahtzee',
-    title: 'Play Yacht Dice Online — Free 5-Dice Scorecard Game, No App or Sign-Up',
+    title: 'Play Yacht Dice Online — Free 5-Dice Game, No Sign-Up',
     h1: 'Yacht Dice',
     metaDescription:
       'Play Yacht Dice free online — roll five dice, hold the ones you want and fill all 13 scoring boxes for the highest total. Live score previews, upper bonus, five-of-a-kind bonus. No download, no sign-up.',
@@ -2382,7 +2382,7 @@ export const gamePages: GamePage[] = [
   {
     slug: 'mancala',
     game: 'mancala',
-    title: 'Play Mancala Online — Free Kalah Board Game vs Computer or 2 Player',
+    title: 'Play Mancala Online — Free Kalah Board Game vs Computer',
     h1: 'Mancala',
     metaDescription:
       'Play Mancala (Kalah) free online — sow the stones around the board, land in your store to go again, and capture to build the biggest pile. Versus the computer at three levels or two players. No download, no sign-up.',
@@ -3228,7 +3228,7 @@ export const gamePages: GamePage[] = [
   {
     slug: 'slime-slide',
     game: 'slime-slide',
-    title: 'Play Slime Slide Online — Draw One Line, Slide the Jelly to the Flower',
+    title: 'Play Slime Slide Online — Draw One Line to the Flower',
     h1: 'Slime Slide',
     metaDescription:
       'Play Slime Slide free online: draw a single line and Mallang the jelly slides along it, collecting stars and avoiding poison flowers on the way to the golden flower. A new daily stage every day.',

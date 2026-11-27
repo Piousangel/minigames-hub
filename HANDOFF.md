@@ -15,7 +15,7 @@
 ## 오늘 카드 (11-27 금 계획 루틴)
 - #263 [H1] 2048 Animals 리마스터 — PR 올림(장부 18→20), 15:07 리뷰 대기.
 - #264 [H2] 꽃담 G3-1: 한 수 앞 봇·무작위 봇 옵션 + 12판 고르기(stage:prepro, 비공개) — 07:07/17:07.
-- #265 [H4] title 65자 초과 26쪽 정리 + check-seo 경고 — 13:07.
+- #265 [H4] title 65자 초과 26쪽 정리 + check-seo 경고 — PR 올림(리뷰 대기).
 - 이어서 ready: #236 [H0] 주간 재방문 측정(**기한 오늘 11-27**) · #248 · #250 · #237 [H3](draft #260).
 - 하트비트 누락·거절 추정·열린 결정 없음.
 
@@ -28,7 +28,7 @@
 6. [H1] 오너 결정 대기(장부): memory-game 판 크기·시간 모드, snake 속도 곡선, minesweeper 첫 클릭 3×3 빈 터 보장. 뿅 착지 v1.1 요소 다양화(`specs/2026-11-17-plop-variety.md`, 독립 리뷰 후 수정본) 오너 확인 대기.
 6-1. [H0] 리더보드 S0~S3(`specs/2026-11-18-leaderboard-direction.md`, `specs/2026-11-19-leaderboard-s2.md`): S0 남은 것(이름 링크·욕설 필터, 게임별 점수 상한, SCORE_SCALE chess/go), S2c 착수 전 독립 리뷰 + 보드 노출 측정.
 7. [H2] 꽃담: G3-1 PR(#264, 봇 두 종·12판 시드 세트, spec 12장) 리뷰 대기 → 머지 뒤 G3-2 시안 혹평 채점 카드. B 관문 전 비공개.
-8. [H4] (#249 머지) 후속: `siteDescription` 손 분기 데이터화, title 65자 초과 26쪽·description 길이 88쪽 문구 카드, CWV·JSON-LD 샘플 5쪽 라이브 측정, AI 노출 기준선 측정. 대표 클래식 10개 스크린샷 카드, 트래픽 상위 20게임 공략, 마케팅 큐(말랑 제외).
+8. [H4] (#249 머지) 후속: `siteDescription` 손 분기 데이터화, description 길이 88쪽 문구 카드(title 26쪽은 #265 PR), CWV·JSON-LD 샘플 5쪽 라이브 측정, AI 노출 기준선 측정. 대표 클래식 10개 스크린샷 카드, 트래픽 상위 20게임 공략, 마케팅 큐(말랑 제외).
 9. 성능: registry 전문 청크(모든 페이지 77.5KB gzip) → 클라이언트 경량 인덱스 분리.
 10. 토큰 전역화(R8 제안, 순서 고정): (a) garden-room·/tools에 현재 토큰 스코프 고정 → (b) 홈 `<main>` data-world 표시 → (c) `:root` 승격 + `color-scheme` light(statusBarStyle·manifest는 OG 담당과) → (d) 위젯 정원 덮어쓰기를 소스로 옮기고 스코프 규칙 삭제. 단계마다 게임 113·허브·홈 × 390·1440 픽셀 diff. 남은 네온 목록·위험 6개는 archive 핸드오프 R8 블록. e2e 대비 검사 함수 공용화.
 11. QA: iOS Safari 실기기 시트 끌기·키보드, `/acorn-hop` 로드 중 CLS 0.05+(share-buttons·next-rail·daily-dock).

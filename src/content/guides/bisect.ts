@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: 'bisect',
   title: 'Bisect Strategy: Why the Best Tap Comes About 0.9 Seconds After the Start Flash',
+  seoTitle: 'Bisect Strategy: When to Tap After the Flash',
   description:
     'Bisect never shows you the end flash in time to use it. Here is the exact interval range, the grading windows, and the tap delay that survives longest.',
   updated: '2026-10-09',

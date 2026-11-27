@@ -19,6 +19,8 @@ export interface ContentTable {
 export interface GameGuide {
   slug: string
   title: string
+  /** 검색 결과용 짧은 제목(≤47자 — ' — Quick MiniGames' 접미사 포함 65자). h1·OG는 title 그대로. */
+  seoTitle?: string
   description: string
   updated: string
   sections: ContentSection[]
@@ -28,6 +30,7 @@ export interface GameGuide {
 export interface Article {
   slug: string
   title: string
+  seoTitle?: string
   description: string
   published: string
   kind: 'design-notes' | 'data'

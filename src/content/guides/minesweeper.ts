@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: 'minesweeper',
   title: 'Minesweeper Strategy: Where to Click First and How Often You Must Guess',
+  seoTitle: 'Minesweeper Strategy: First Click and Guessing',
   description:
     'I played 15,000 boards of this site’s 9x9 Minesweeper with a logic solver. Where your first click should go, how often a guess is forced, and how to guess well.',
   updated: '2026-10-09',
