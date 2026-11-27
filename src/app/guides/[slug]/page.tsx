@@ -18,9 +18,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params
   const c = contentBySlug(slug)
   if (!c) return {}
-  const { title, description } = c.entry
+  const { title, description, seoTitle } = c.entry
   return {
-    title: { absolute: `${title} — ${siteConfig.name}` },
+    title: { absolute: `${seoTitle ?? title} — ${siteConfig.name}` },
     description,
     alternates: { canonical: `/guides/${slug}` },
     // 공략·기사는 다루는 게임의 카드(공략 = 그 게임, 기사 = 첫 관련 게임), 없으면 홈 카드

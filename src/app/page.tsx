@@ -20,7 +20,7 @@ import { TodayVisitors } from '@/components/home/TodayVisitors'
 
 // 홈 검색 제목: 키워드 먼저(브랜드 검색이 아직 없는 새 사이트 — 리서치 2), 브랜드는 끝(잘려도 사이트 이름 줄이 따로 보인다).
 // 예전엔 layout 기본값 = 브랜드만("Quick MiniGames"). 게임 페이지 템플릿("… | Quick MiniGames")과 같은 순서.
-const HOME_TITLE = 'Free Online Mini Games — 100+ Games, No Download | Quick MiniGames'
+const HOME_TITLE = 'Free Online Mini Games: 100+ Games, No Download | Quick MiniGames'
 
 export const metadata: Metadata = {
   title: { absolute: HOME_TITLE },

@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: 'quarry',
   title: 'Quarry Strategy: Tracking the Quarry Instead of Chasing It',
+  seoTitle: "Quarry Strategy: Track It, Don't Chase It",
   description:
     'How Quarry really works: the exact flee rule, par and star maths, and an exhaustive analysis showing every start cell can be caught in four probes or fewer.',
   updated: '2026-10-09',

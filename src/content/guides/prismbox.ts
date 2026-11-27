@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: 'prismbox',
   title: 'Prismbox Deduction Guide: Reading Bends, Clearing Lanes and Beating Par by Ten',
+  seoTitle: 'Prismbox Guide: Read Bends and Beat Par',
   description:
     'How Prismbox beams really move, why one bend pins an atom exactly, and why a careful deducer needs about 6 shots on the daily board against a par of 16.',
   updated: '2026-10-09',

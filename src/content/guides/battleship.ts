@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: 'battleship',
   title: 'Battleship Strategy: Where to Hide Your Fleet and How the Hard CPU Hunts',
+  seoTitle: 'Battleship Strategy: Hide Your Fleet vs the CPU',
   description:
     'I ran this site’s real Battleship engine thousands of times. How many shots each CPU level needs, which placements slow Hard down, and a hunt routine that matches it.',
   updated: '2026-11-13',

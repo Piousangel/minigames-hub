@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: 'flow',
   title: 'Flow Level Guide: What the 26 Boards Actually Ask of You',
+  seoTitle: 'Flow Level Guide: What the 26 Boards Ask',
   description:
     'A data-backed tour of all 26 Flow levels: solution counts, which boards are hardest, how pipe cutting works, and techniques for full-coverage solves.',
   updated: '2026-10-09',

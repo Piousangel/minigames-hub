@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: 'reactor',
   title: 'Reactor Guide: The Buy Order That Reaches Your First Reboot Twice as Fast',
+  seoTitle: 'Reactor Guide: The Fastest Buy Order to Reboot',
   description:
     "Reactor's real costs, rates and reboot math, plus simulated runs: buying by payback hit the 1M Reboot unlock in 40 minutes; cheapest-first took 82.",
   updated: '2026-10-09',

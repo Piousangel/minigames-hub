@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: 'beatline',
   title: 'Beatline Timing Guide: Windows, Multipliers and the Cost of a Miss',
+  seoTitle: 'Beatline Timing Guide: Windows and Multipliers',
   description:
     'Beatline’s exact timing windows, combo maths and stage data, plus 5,000 simulated runs showing how much timing precision it takes to clear all five stages.',
   updated: '2026-10-09',

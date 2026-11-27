@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: 'morse-relay',
   title: 'Morse Relay Timing Guide: Units, Tolerances and the First-Press Window',
+  seoTitle: 'Morse Relay Timing Guide: Units and Tolerances',
   description:
     'How Morse Relay reads your timing: calibration, dot/dash and gap thresholds, tolerance per level, the combo multiplier, and what simulated keyers show.',
   updated: '2026-10-09',

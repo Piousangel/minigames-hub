@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: 'overfold',
   title: 'Overfold Strategy: Clearing Is Easy, Scoring Is the Puzzle',
+  seoTitle: 'Overfold Strategy: Scoring Is the Puzzle',
   description:
     'An exhaustive search of 5,000 Overfold boards shows jams clear pips too, par is never the minimum, and the real skill is combo seals inside par.',
   updated: '2026-10-09',

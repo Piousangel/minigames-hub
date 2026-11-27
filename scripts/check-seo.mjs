@@ -6,6 +6,7 @@
 // 수정 전 main(63fa1be) 빌드에 돌리면 36건 실패했다(가이드 22편 og:image 없음, 홈 브랜드만 title 등).
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs'
 import path from 'node:path'
+import { titleLengthWarnings } from './checks/seo-title.mjs'
 
 const OUT = 'out'
 const BRAND = 'Quick MiniGames'
@@ -31,6 +32,7 @@ if (!existsSync(OUT)) {
 const errors = []
 const titles = new Map()
 const descs = new Map()
+const titleList = []
 let indexable = 0
 
 for (const file of htmlFiles(OUT)) {
@@ -48,6 +50,7 @@ for (const file of htmlFiles(OUT)) {
   else if (title.trim() === BRAND) err('title이 브랜드명뿐')
   else titles.set(title, [...(titles.get(title) ?? []), rel])
 
+  if (title) titleList.push([rel, title])
   const desc = decode(html.match(/<meta name="description" content="([^"]*)"/)?.[1] ?? '')
   if (!desc) err('description 없음')
   else descs.set(desc, [...(descs.get(desc) ?? []), rel])
@@ -92,8 +95,11 @@ for (const [d, pages] of descs) if (pages.length > 1) errors.push(`description �
 
 if (indexable < 100) errors.push(`색인 대상 HTML ${indexable}개뿐(빌드 확인)`)
 
+const warnings = titleLengthWarnings(titleList)
+for (const w of warnings) console.warn(`check-seo 경고: ${w}`)
+
 if (errors.length) {
   console.error(`check-seo FAILED (${errors.length}):\n` + errors.join('\n'))
   process.exit(1)
 }
-console.log(`check-seo OK — 색인 대상 ${indexable}쪽`)
+console.log(`check-seo OK — 색인 대상 ${indexable}쪽` + (warnings.length ? ` (title 길이 경고 ${warnings.length})` : ''))

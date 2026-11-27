@@ -3,6 +3,7 @@ import type { GameGuide } from '../types'
 export const guide: GameGuide = {
   slug: 'sudoku',
   title: 'Sudoku Guide: How These Puzzles Are Made and Which Techniques Each Level Needs',
+  seoTitle: 'Sudoku Guide: How Puzzles Are Made, Techniques',
   description:
     'How this site’s Sudoku generator sets difficulty, plus a 6,000-puzzle study of which solving techniques Easy, Medium and Hard actually require.',
   updated: '2026-10-09',
