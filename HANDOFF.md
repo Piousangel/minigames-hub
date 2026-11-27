@@ -13,7 +13,7 @@
 - #260 draft(#237 말랑 Q1 꽃 스크롤) — 토 13:07 H3가 이어받음. #44 `feat/toss-recoil` 오래됨·미접촉(닫을지 오너).
 
 ## 오늘 카드 (11-27 금 계획 루틴)
-- #263 [H1] 2048 Animals 리마스터(새 친구 연출·평생 도감) — 11:07, 오늘 출시.
+- #263 [H1] 2048 Animals 리마스터 — PR 올림(장부 18→20), 15:07 리뷰 대기.
 - #264 [H2] 꽃담 G3-1: 한 수 앞 봇·무작위 봇 옵션 + 12판 고르기(stage:prepro, 비공개) — 07:07/17:07.
 - #265 [H4] title 65자 초과 26쪽 정리 + check-seo 경고 — 13:07.
 - 이어서 ready: #236 [H0] 주간 재방문 측정(**기한 오늘 11-27**) · #248 · #250 · #237 [H3](draft #260).
@@ -24,7 +24,7 @@
 2. [H0] 말랑 서버 제출 라이브 확인: deploy 로그 'D1 additive migrations' 성공 여부, AE `sl_submit_verified` 1건, Workers CPU p99(11-19 22시 인계, `shift/22-replay-verify`).
 3. [H0] 실험 판정 기록: E1(11-24)·E2(11-25), 12-04 `?ref=threads·bluesky` 유입 전후(n<30 보류).
 4. [H3] 말랑: bugs.md Q1[중] 꽃(도착점)이 폰 첫 화면 밖 — 디자인 결정(보드 top 실측 / 게임 페이지 2행 내비 / scrollIntoView) → PR-6 다중 선 UI(`/tools/slime-proto`) → PR-7 빌더·validator·2선 솔버·CB-3~5. 풀 교체 CUTOVER(c-meadow → c-meadow-2)는 리드 결정. `slimeSubmitBody`를 `lines`로(4~8단계 전).
-5. [H1] #263(2048-animals) 다음: 테트리스 390 결과 시트가 판보다 넓어 Best·Lines 칸 일부를 덮음(QA-1 11-26) → R1 `useGameGate` 재사용 P1 나머지(beatline·offbeat·gridlock·zero-hour·whack-a-mole·morse-relay) → 축 C R2(solitaire 계열 점수·표시 정직화). 장부 'UX 친화성' 표(chess 토글 28px·beatline 탭·unblock select 14px·slime 소리 토글·solitaire).
+5. [H1] #263 다음: 테트리스 390 결과 시트가 판보다 넓어 Best·Lines 칸 일부를 덮음(QA-1 11-26) → R1 `useGameGate` 재사용 P1 나머지(beatline·offbeat·gridlock·zero-hour·whack-a-mole·morse-relay) → 축 C R2(solitaire 계열 점수·표시 정직화). 장부 'UX 친화성' 표(chess 토글 28px·beatline 탭·unblock select 14px·slime 소리 토글·solitaire).
 6. [H1] 오너 결정 대기(장부): memory-game 판 크기·시간 모드, snake 속도 곡선, minesweeper 첫 클릭 3×3 빈 터 보장. 뿅 착지 v1.1 요소 다양화(`specs/2026-11-17-plop-variety.md`, 독립 리뷰 후 수정본) 오너 확인 대기.
 6-1. [H0] 리더보드 S0~S3(`specs/2026-11-18-leaderboard-direction.md`, `specs/2026-11-19-leaderboard-s2.md`): S0 남은 것(이름 링크·욕설 필터, 게임별 점수 상한, SCORE_SCALE chess/go), S2c 착수 전 독립 리뷰 + 보드 노출 측정.
 7. [H2] 꽃담: G3-1 PR(#264, 봇 두 종·12판 시드 세트, spec 12장) 리뷰 대기 → 머지 뒤 G3-2 시안 혹평 채점 카드. B 관문 전 비공개.

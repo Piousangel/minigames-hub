@@ -276,3 +276,100 @@ describe('Game2048 animals evolution ladder and result', () => {
     expect(Object.keys(localStorage).filter((k) => k.startsWith('bestTile:'))).toEqual([])
   })
 })
+
+// ── #263 animals 리마스터: 새 친구 등장 연출 · 평생 도감 (새 저장 키 0) ──
+const FRIEND_128: Board = [
+  [64, 64, 0, 0],
+  [0, 0, 0, 0],
+  [64, 0, 0, 0],
+  [64, 0, 0, 0],
+]
+// ArrowLeft 한 번: 32+32 → 64(이번 판 첫 64). 아래 칸은 더 합쳐질 게 없다.
+const FRIEND_64: Board = [
+  [32, 32, 0, 0],
+  [2, 0, 0, 0],
+  [0, 0, 0, 0],
+  [0, 0, 0, 0],
+]
+
+describe('Game2048 animals new-friend banner and lifetime collection', () => {
+  beforeEach(() => {
+    localStorage.clear()
+    vi.stubGlobal('ResizeObserver', NoopResizeObserver)
+  })
+  afterEach(() => {
+    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
+    opening.board = null
+  })
+
+  it('(a) lifetime best 64 → making 128 says "New friend!" once; making 128 again shows nothing', async () => {
+    localStorage.setItem('bestTile:2048-animals', '64')
+    opening.board = FRIEND_128
+    render(<Game2048 theme={animals} storageKey="best:2048-animals" />)
+    await screen.findByTestId('board')
+    fireEvent.keyDown(window, { key: 'ArrowLeft' }) // row 0: 64+64 → 128
+    const banner = await screen.findByTestId('friend-banner')
+    expect(banner).toHaveTextContent('New friend!')
+    expect(banner).toHaveTextContent('Wolf')
+    expect(banner).toHaveAttribute('data-kind', 'lifetime')
+    // 연출은 0.8초 안에 스스로 사라진다
+    await waitFor(() => expect(screen.queryByTestId('friend-banner')).toBeNull(), { timeout: 1500 })
+    fireEvent.keyDown(window, { key: 'ArrowUp' }) // column 0: 64+64 → a second 128 this game
+    await waitFor(() => expect(screen.getByTestId('score')).toHaveTextContent('256'))
+    await new Promise((r) => setTimeout(r, 200))
+    expect(screen.queryByTestId('friend-banner')).toBeNull()
+  })
+
+  it('(b) 32 → 64 when 64 was already met in a past game: this-game banner only, no "New friend!"', async () => {
+    localStorage.setItem('bestTile:2048-animals', '64')
+    opening.board = FRIEND_64
+    render(<Game2048 theme={animals} storageKey="best:2048-animals" />)
+    await screen.findByTestId('board')
+    fireEvent.keyDown(window, { key: 'ArrowLeft' })
+    const banner = await screen.findByTestId('friend-banner')
+    expect(banner).toHaveAttribute('data-kind', 'round')
+    expect(banner).toHaveTextContent('Dog')
+    expect(banner).not.toHaveTextContent('New friend!')
+    // 배너는 입력을 막지 않는다
+    expect(banner.className).toContain('pointer-events-none')
+  })
+
+  it('lifetime collection shows met animals and silhouettes "?" for the rest', async () => {
+    localStorage.setItem('bestTile:2048-animals', '64')
+    opening.board = FRIEND_128
+    render(<Game2048 theme={animals} storageKey="best:2048-animals" />)
+    const col = await screen.findByTestId('friend-collection')
+    await waitFor(() => expect(col).toHaveAttribute('data-met', '6'))
+    const cells = Array.from(col.querySelectorAll('[data-friend]'))
+    expect(cells).toHaveLength(11)
+    expect(cells.map((c) => c.getAttribute('data-met'))).toEqual([...Array(6).fill('yes'), ...Array(5).fill('no')])
+    expect(cells[5]).toHaveTextContent('Dog')
+    expect(cells[6]).toHaveTextContent('?')
+    expect(cells[6]).not.toHaveTextContent('Wolf')
+    // 이번 판에서 128을 만들면 도감도 바로 7칸
+    fireEvent.keyDown(window, { key: 'ArrowLeft' })
+    await waitFor(() => expect(col).toHaveAttribute('data-met', '7'))
+    expect(cells[6]).toHaveTextContent('Wolf')
+  })
+
+  it('writes no new storage keys (only the existing best:, bestTile:, stats:, vid)', async () => {
+    const setItem = vi.spyOn(Storage.prototype, 'setItem')
+    localStorage.setItem('bestTile:2048-animals', '64')
+    opening.board = LAST_MOVE_512
+    await playLastMoveAs(animals, 'best:2048-animals')
+    await waitFor(() => expect(localStorage.getItem('bestTile:2048-animals')).toBe('512'))
+    const keys = new Set(setItem.mock.calls.map(([k]) => k))
+    expect([...keys].sort()).toEqual(['best:2048-animals', 'bestTile:2048-animals', 'stats:2048-animals', 'vid'])
+  })
+
+  it('(c) classic 2048 renders no banner and no collection', async () => {
+    opening.board = FRIEND_128
+    render(<Game2048 theme={classic} storageKey="best:2048" />)
+    await screen.findByTestId('board')
+    fireEvent.keyDown(window, { key: 'ArrowLeft' })
+    await waitFor(() => expect(screen.getByTestId('score')).toHaveTextContent('128'))
+    expect(screen.queryByTestId('friend-banner')).toBeNull()
+    expect(screen.queryByTestId('friend-collection')).toBeNull()
+  })
+})
