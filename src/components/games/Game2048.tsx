@@ -4,6 +4,7 @@ import { PlayZone, inPlayZone } from '@/components/game-shell/PlayZone'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { applyMove, move, newGame, type Direction, type GameState } from '@/lib/games/g2048/engine'
 import type { Theme2048 } from '@/lib/games/g2048/themes'
+import { LADDER, collectionOf, friendMeet, type FriendMeet } from '@/lib/games/g2048/friends'
 import { isTypingTarget } from '@/lib/isTypingTarget'
 import { useGameSound } from '@/lib/sound/useGameSound'
 import { useReducedMotion } from '@/lib/useReducedMotion'
@@ -63,8 +64,8 @@ function faceAnimClass(animKey: string): string {
   return ''
 }
 
-// 진화 사다리(theme.ladder): 타일 단계 11칸. 이번 판 최고 타일까지 '도달', 바로 다음 한 칸 '다음'.
-const LADDER = [2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048]
+// 진화 사다리(theme.ladder): 타일 단계 11칸(LADDER, friends.ts). 이번 판 최고 타일까지 '도달', 바로 다음 한 칸 '다음'.
+const FRIEND_MS = 800 // 새 친구 등장 연출 길이 — 입력은 막지 않는다
 
 function maxTileOf(board: number[][]): number {
   let m = 0
@@ -120,6 +121,87 @@ function EvolutionLadder({ theme, max }: { theme: Theme2048; max: number }) {
   )
 }
 
+/** 새 친구 등장 연출(#263): 판 위에 잠깐 뜨는 이름표. pointer-events-none — 스와이프·키 입력을 막지 않는다. */
+function FriendBanner({ theme, meet, reduced }: { theme: Theme2048; meet: FriendMeet; reduced: boolean }) {
+  const { emoji, name } = stepOf(theme, meet.value)
+  const lifetime = meet.kind === 'lifetime'
+  return (
+    <div
+      data-testid="friend-banner"
+      data-kind={meet.kind}
+      role="status"
+      className="pointer-events-none absolute inset-x-0 top-[14%] z-10 flex justify-center px-3"
+    >
+      <div
+        className={`flex items-center gap-2.5 rounded-2xl border-[3px] border-garden-ink px-4 py-2 shadow-garden-island ${
+          lifetime ? 'bg-garden-sunflower' : 'bg-[#fff8ea]'
+        } ${reduced ? '' : 'anim-friend'}`}
+      >
+        <span aria-hidden="true" className="text-[40px] leading-none drop-shadow-[0_1px_1px_rgba(58,36,16,0.45)]">
+          {emoji}
+        </span>
+        <span className="flex flex-col items-start leading-tight">
+          <span className="font-ui text-[11px] font-extrabold uppercase tracking-wider text-[#8f2d26]">
+            {lifetime ? 'New friend!' : 'Hi again'}
+          </span>
+          <span className="font-display text-xl font-bold text-garden-ink">{name}</span>
+        </span>
+      </div>
+    </div>
+  )
+}
+
+/** 평생 도감(#263): 기존 `bestTile:<slug>` 기록 + 이번 판 최고까지. 만난 동물은 그림·이름, 못 만난 동물은 실루엣·'?'. */
+function FriendCollection({ theme, lifetimeBest, before }: { theme: Theme2048; lifetimeBest: number; before: number }) {
+  const items = collectionOf(lifetimeBest)
+  const met = items.filter((x) => x.met).length
+  return (
+    <section
+      data-testid="friend-collection"
+      data-met={met}
+      aria-label={`Animal collection: ${met} of ${items.length} met`}
+      className="mt-3 w-full rounded-xl border-2 border-garden-ink/30 bg-garden-cream-2 px-2.5 pb-2 pt-1.5"
+    >
+      <div className="mb-1 flex items-baseline justify-between font-ui text-xs font-bold text-garden-ink">
+        <span>Animal collection</span>
+        <span className="tabular-nums text-garden-ink-soft">
+          {met} / {items.length} met
+        </span>
+      </div>
+      <ul className="grid grid-cols-6 gap-1">
+        {items.map(({ value, met: isMet }) => {
+          const { emoji, name } = stepOf(theme, value)
+          const fresh = isMet && value > before
+          return (
+            <li
+              key={value}
+              data-friend={value}
+              data-met={isMet ? 'yes' : 'no'}
+              className={`flex min-w-0 flex-col items-center rounded-md py-0.5 ${
+                fresh ? 'bg-[#ffe8bd] shadow-[0_0_0_2px_var(--garden-sunflower)]' : ''
+              }`}
+            >
+              <span
+                aria-hidden="true"
+                className={`text-[20px] leading-6 ${isMet ? '' : 'opacity-25 brightness-0'}`}
+              >
+                {emoji}
+              </span>
+              <span
+                className={`w-full truncate text-center font-ui text-[10px] font-bold leading-3 ${
+                  isMet ? 'text-garden-ink' : 'text-garden-ink-soft'
+                }`}
+              >
+                {isMet ? name : '?'}
+              </span>
+            </li>
+          )
+        })}
+      </ul>
+    </section>
+  )
+}
+
 function fontSize(label: string): string {
   if (label.length <= 2) return 'text-[1.625rem]'
   if (label.length === 3) return 'text-[1.375rem]'
@@ -141,9 +223,11 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
   const tileKey = theme.names ? `bestTile:${storageKey.replace(/^best:/, '')}` : null
   const bestTileRef = useRef(0)
   const [bestTileBefore, setBestTileBefore] = useState(0) // 이 판 시작 시점의 역대 최고 — 'New animal!' 판정
+  const [friend, setFriend] = useState<(FriendMeet & { seq: number }) | null>(null) // 새 친구 등장 연출(names 테마만)
+  const friendSeqRef = useRef(0)
 
   const { play, muted, toggleMuted } = useGameSound()
-  const { reducedRef } = useReducedMotion()
+  const { reduced, reducedRef } = useReducedMotion()
 
   const touchStart = useRef<{ x: number; y: number } | null>(null)
   const boardInnerRef = useRef<HTMLDivElement | null>(null)
@@ -197,6 +281,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
     newBestRef.current = false
     setNewBest(false)
     recordedRef.current = false
+    setFriend(null)
     setBestTileBefore(bestTileRef.current)
     const s = newGame(Math.random)
     commitState(s)
@@ -248,6 +333,13 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
     }
   }, [state, tileKey])
 
+  // 등장 연출은 FRIEND_MS 뒤 스스로 사라진다(새 친구가 이어 오면 seq가 바뀌어 타이머가 다시 시작).
+  useEffect(() => {
+    if (!friend) return
+    const t = window.setTimeout(() => setFriend(null), FRIEND_MS)
+    return () => window.clearTimeout(t)
+  }, [friend])
+
   // Measure the tile layer so tiles can be positioned with px transforms.
   useLayoutEffect(() => {
     const el = boardInnerRef.current
@@ -292,6 +384,10 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
         if (newEngine.score > bestRef.current) newBestRef.current = true
 
         if (plan.merges.length) {
+          // 이번 판 첫 만남 / 평생 첫 만남(기존 bestTile 기록을 읽기만 — 저장은 위 이펙트 그대로).
+          // 연출 렌더는 names 테마에서만(아래 FriendBanner 조건) — 원조 2048은 상태만 잠깐 바뀌고 화면 변화 0.
+          const meet = friendMeet(maxTileOf(s.board), Math.max(...plan.merges.map((m) => m.newValue)), bestTileRef.current)
+          if (meet) setFriend({ ...meet, seq: ++friendSeqRef.current })
           play('merge')
           if (!mutedRef.current) vibrateMerge(Math.max(...plan.merges.map((m) => m.newValue)))
         }
@@ -417,6 +513,7 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
         <div className="aspect-square w-full rounded-xl border-[3px] border-garden-ink bg-garden-cream-2 p-2 shadow-garden-island" data-testid="board-loading" />
         {/* 사다리 자리를 미리 잡아 로드 뒤 아래 내용이 밀리지 않게(CLS) */}
         {theme.ladder && theme.names && <EvolutionLadder theme={theme} max={0} />}
+        {theme.ladder && theme.names && <FriendCollection theme={theme} lifetimeBest={0} before={0} />}
         <p className="mt-3 text-center text-sm text-fg-muted">{hint}</p>
       </div>
     )
@@ -529,6 +626,8 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
           })}
         </div>
 
+        {friend && theme.names && <FriendBanner key={friend.seq} theme={theme} meet={friend} reduced={reduced} />}
+
         <GameOverlay
           show={state.over}
           variant={newBest ? 'win' : 'lose'}
@@ -567,6 +666,9 @@ export function Game2048({ theme, storageKey }: { theme: Theme2048; storageKey: 
         </GameOverlay>
       </div>
       {theme.ladder && theme.names && <EvolutionLadder theme={theme} max={maxTile} />}
+      {theme.ladder && theme.names && (
+        <FriendCollection theme={theme} lifetimeBest={Math.max(bestTileBefore, maxTile)} before={bestTileBefore} />
+      )}
     </GameShell>
   )
 }

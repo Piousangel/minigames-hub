@@ -200,6 +200,32 @@ body {
   animation: juice-pop var(--dur-med) var(--ease-pop);
 }
 
+/* 2048 Animals new friend (#263): pops in, holds, fades up — 0.8s, never blocks input */
+@keyframes juice-friend {
+  0% {
+    transform: scale(0.6);
+    opacity: 0;
+  }
+  18% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1);
+  }
+  78% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+.anim-friend {
+  animation: juice-friend 800ms var(--ease-pop) both;
+}
+
 /* Score float: +N drifts up and fades */
 @keyframes juice-float {
   0% {
@@ -510,6 +536,7 @@ body {
   .tile-slide,
   .anim-spawn,
   .anim-pop,
+  .anim-friend,
   .anim-float,
   .anim-pulse,
   .anim-overlay-in,
